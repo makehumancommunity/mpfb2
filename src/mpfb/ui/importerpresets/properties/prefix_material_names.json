@@ -1,0 +1,7 @@
+{
+    "type": "boolean",
+    "name": "prefix_material_names",
+    "description": "Use the character name as a prefix to the name of all materials that are created during the import process",
+    "label": "Prefix material names",
+    "default": true
+}

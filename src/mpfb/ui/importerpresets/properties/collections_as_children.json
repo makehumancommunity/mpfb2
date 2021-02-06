@@ -1,0 +1,7 @@
+{
+    "type": "boolean",
+    "name": "collections_as_children",
+    "description": "Create new collections as sub-collections of the currently active collection.",
+    "label": "Collections as children",
+    "default": false
+}

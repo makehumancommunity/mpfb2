@@ -1,0 +1,12 @@
+{
+    "type": "enum",
+    "name": "skin_material_type",
+    "description": "Most imported objects will get a plain material with a combination of diffuse and normal maps. For skin you can opt to use an enhanced material which will add support for pores, color correction and so forth",
+    "label": "Skin material type",
+    "default": "ENHANCED",
+    "items": [
+    	["ENHANCED", "Enhanced", "Add a more elaborate skin with support for pores and color correction", 1],
+    	["SSS", "Enhanced with SSS", "Add the elaborate skin, and also add support for sub surface scattering", 2],
+    	["PLAIN", "Plain", "Do not create an elaborate skin. Instead use the default material approach", 3]
+    ]
+}

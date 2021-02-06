@@ -1,0 +1,8 @@
+{
+    "type": "float",
+    "name": "scale_factor",
+    "description": "With what scale was the object imported/created",
+    "label": "Scale factor",
+    "default": 1.0,
+    "aliases": ["MhScaleFactor"]
+}

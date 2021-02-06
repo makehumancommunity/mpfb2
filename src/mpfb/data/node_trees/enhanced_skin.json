@@ -1,0 +1,568 @@
+{
+    "groups": {
+        "$group_name": {
+            "groups": {},
+            "inputs": {
+                "colorMixIn": {
+		          "type": "NodeSocketColor",
+		          "value": [1.0, 0.2, 0.2, 1.0]
+		        },
+		        "colorMixInStrength": {
+		          "type": "NodeSocketFloat",
+		          "value": 0.05
+		        },
+		        "Roughness": {
+		          "type": "NodeSocketFloat",
+		          "value": "$Roughness"
+		        },
+		        "Brightness": {
+		          "type": "NodeSocketFloat",
+		          "value": 0.0
+		        },
+		        "Contrast": {
+		          "type": "NodeSocketFloat",
+		          "value": 0.0
+		        },
+		        "Clearcoat": {
+		          "type": "NodeSocketFloat",
+		          "value": 0.1
+		        },
+		        "Clearcoat Roughness": {
+		          "type": "NodeSocketFloat",
+		          "value": 0.3
+		        },
+		        "Pore scale": {
+		          "type": "NodeSocketFloat",
+		          "value": 2500.0
+		        },
+		        "Pore detail": {
+		          "type": "NodeSocketFloat",
+		          "value": 2.0
+		        },
+		        "Pore distortion": {
+		          "type": "NodeSocketFloat",
+		          "value": 1.0
+		        },
+		        "Pore strength": {
+		          "type": "NodeSocketFloat",
+		          "value": 0.2
+		        },
+		        "SSS Color": {
+		          "type": "NodeSocketColor",
+		          "create": "$has_sss",
+		          "value": [1.0, 0.4, 0.4, 1.0]
+		        },
+		        "SSS strength": {
+		          "type": "NodeSocketFloat",
+		          "create": "$has_sss",
+		          "value": 0.2
+		        },
+		        "SSS radius scale": {
+		          "type": "NodeSocketFloat",
+		          "create": "$has_sss",
+		          "value": 0.1
+		        },
+		        "SSS radius R": {
+		          "type": "NodeSocketFloat",
+		          "create": "$has_sss",
+		          "value": 1.0
+		        },
+		        "SSS radius G": {
+		          "type": "NodeSocketFloat",
+		          "create": "$has_sss",
+		          "value": 0.2
+		        },
+		        "SSS radius B": {
+		          "type": "NodeSocketFloat",
+		          "create": "$has_sss",
+		          "value": 0.1
+		        }
+            },
+            "outputs": {
+                "shaderOutput": "NodeSocketShader"
+            },
+            "links": [
+                {
+                    "from_node": "Principled BSDF",
+                    "from_socket": "BSDF",
+                    "to_node": "Group Output",
+                    "to_socket": "shaderOutput"
+                },
+                {
+                    "from_node": "DiffuseTexture",
+                    "from_socket": "Color",
+                    "to_node": "Mix",
+                    "to_socket": "Color1"
+                },
+                {
+                    "from_node": "Group Input",
+                    "from_socket": "colorMixIn",
+                    "to_node": "Mix",
+                    "to_socket": "Color2"
+                },
+                {
+                    "from_node": "Group Input",
+                    "from_socket": "colorMixInStrength",
+                    "to_node": "Mix",
+                    "to_socket": "Fac"
+                },
+                {
+                    "from_node": "Mix",
+                    "from_socket": "Color",
+                    "to_node": "Bright/Contrast",
+                    "to_socket": "Color"
+                },
+                {
+                    "from_node": "Bright/Contrast",
+                    "from_socket": "Color",
+                    "to_node": "Principled BSDF",
+                    "to_socket": "Base Color"
+                },
+                {
+                    "from_node": "Group Input",
+                    "from_socket": "Brightness",
+                    "to_node": "Bright/Contrast",
+                    "to_socket": "Bright"
+                },
+                {
+                    "from_node": "Group Input",
+                    "from_socket": "Contrast",
+                    "to_node": "Bright/Contrast",
+                    "to_socket": "Contrast"
+                },
+                {
+                    "from_node": "Group Input",
+                    "from_socket": "Roughness",
+                    "to_node": "Principled BSDF",
+                    "to_socket": "Roughness"
+                },
+                {
+                    "from_node": "Group Input",
+                    "from_socket": "Clearcoat Roughness",
+                    "to_node": "Principled BSDF",
+                    "to_socket": "Clearcoat Roughness"
+                },
+                {
+                    "from_node": "Group Input",
+                    "from_socket": "Clearcoat",
+                    "to_node": "Principled BSDF",
+                    "to_socket": "Clearcoat"
+                },
+                {
+                    "from_node": "DiffuseTexture",
+                    "from_socket": "Alpha",
+                    "to_node": "Principled BSDF",
+                    "to_socket": "Alpha"
+                },
+                {
+                    "from_node": "NormalmapTexture",
+                    "from_socket": "Color",
+                    "to_node": "Normal Map",
+                    "to_socket": "Color"
+                },
+                {
+                    "from_node": "Normal Map",
+                    "from_socket": "Normal",
+                    "to_node": "Bump",
+                    "to_socket": "Normal"
+                },
+                {
+                    "from_node": "Noise Texture",
+                    "from_socket": "Fac",
+                    "to_node": "ColorRamp",
+                    "to_socket": "Fac"
+                },
+                {
+                    "from_node": "ColorRamp",
+                    "from_socket": "Color",
+                    "to_node": "Bump",
+                    "to_socket": "Height"
+                },
+                {
+                    "from_node": "Bump",
+                    "from_socket": "Normal",
+                    "to_node": "Principled BSDF",
+                    "to_socket": "Normal"
+                },
+                {
+                    "from_node": "Texture Coordinate",
+                    "from_socket": "UV",
+                    "to_node": "Noise Texture",
+                    "to_socket": "Vector"
+                },
+                {
+                    "from_node": "Group Input",
+                    "from_socket": "Pore scale",
+                    "to_node": "Noise Texture",
+                    "to_socket": "Scale"
+                },
+                {
+                    "from_node": "Group Input",
+                    "from_socket": "Pore detail",
+                    "to_node": "Noise Texture",
+                    "to_socket": "Detail"
+                },
+                {
+                    "from_node": "Group Input",
+                    "from_socket": "Pore distortion",
+                    "to_node": "Noise Texture",
+                    "to_socket": "Distortion"
+                },
+                {
+                    "from_node": "Group Input",
+                    "from_socket": "Pore strength",
+                    "to_node": "Bump",
+                    "to_socket": "Strength"
+                },
+                {
+                    "from_node": "Texture Coordinate",
+                    "from_socket": "UV",
+                    "to_node": "DiffuseTexture",
+                    "to_socket": "Vector"
+                },
+                {
+                    "from_node": "Texture Coordinate",
+                    "from_socket": "UV",
+                    "to_node": "NormalmapTexture",
+                    "to_socket": "Vector"
+                },
+                {
+                    "from_node": "Group Input",
+                    "from_socket": "SSS radius R",
+                    "to_node": "SSSRadiusRed",
+                    "to_socket": 0
+                },
+                {
+                    "from_node": "Group Input",
+                    "from_socket": "SSS radius scale",
+                    "to_node": "SSSRadiusRed",
+                    "to_socket": 1
+                },
+                {
+                    "from_node": "Group Input",
+                    "from_socket": "SSS radius G",
+                    "to_node": "SSSRadiusGreen",
+                    "to_socket": 0
+                },
+                {
+                    "from_node": "Group Input",
+                    "from_socket": "SSS radius scale",
+                    "to_node": "SSSRadiusGreen",
+                    "to_socket": 1
+                },
+                {
+                    "from_node": "Group Input",
+                    "from_socket": "SSS radius B",
+                    "to_node": "SSSRadiusBlue",
+                    "to_socket": 0
+                },
+                {
+                    "from_node": "Group Input",
+                    "from_socket": "SSS radius scale",
+                    "to_node": "SSSRadiusBlue",
+                    "to_socket": 1
+                },
+                {
+                    "from_node": "SSSRadiusRed",
+                    "from_socket": "Value",
+                    "to_node": "Combine RGB",
+                    "to_socket": "R"
+                },
+                {
+                    "from_node": "SSSRadiusGreen",
+                    "from_socket": "Value",
+                    "to_node": "Combine RGB",
+                    "to_socket": "G"
+                },
+                {
+                    "from_node": "SSSRadiusBlue",
+                    "from_socket": "Value",
+                    "to_node": "Combine RGB",
+                    "to_socket": "B"
+                },
+                {
+                    "from_node": "Combine RGB",
+                    "from_socket": "Image",
+                    "to_node": "Principled BSDF",
+                    "to_socket": "Subsurface Radius"
+                },
+                {
+                    "from_node": "Texture Coordinate",
+                    "from_socket": "UV",
+                    "to_node": "SssTexture",
+                    "to_socket": "Vector"
+                },
+                {
+                    "from_node": "SssTexture",
+                    "from_socket": "Color",
+                    "to_node": "SSSStrength",
+                    "to_socket": 0
+                },
+                {
+                    "from_node": "Group Input",
+                    "from_socket": "SSS strength",
+                    "to_node": "SSSStrength",
+                    "to_socket": 1
+                },
+                {
+                    "from_node": "SSSStrength",
+                    "from_socket": "Value",
+                    "to_node": "Principled BSDF",
+                    "to_socket": "Subsurface"
+                },
+                {
+                    "from_node": "Group Input",
+                    "from_socket": "SSS Color",
+                    "to_node": "Principled BSDF",
+                    "to_socket": "Subsurface Color"
+                }
+            ],
+            "nodes": {
+                "Bright/Contrast": {
+                    "create": true,
+                    "label": "Brightness and Contrast (brightContrast)",
+                    "location": [
+                        -105.55585479736328,
+                        425.19677734375
+                    ],
+                    "name": "Bright/Contrast",
+                    "type": "ShaderNodeBrightContrast",
+                    "values": {}
+                },
+                "Bump": {
+                    "create": true,
+                    "label": "noise bump (noiseBump)",
+                    "location": [
+                        -200.0,
+                        -500.0
+                    ],
+                    "name": "Bump",
+                    "type": "ShaderNodeBump",
+                    "values": {}
+                },
+                "ColorRamp": {
+                    "create": true,
+                    "label": "ramp (colorramp)",
+                    "location": [
+                        -551.3333129882812,
+                        -574.3849487304688
+                    ],
+                    "name": "ColorRamp",
+                    "type": "ShaderNodeValToRGB",
+                    "stops": [0.2, 0.5],
+                    "values": {}
+                },
+                "Combine RGB": {
+                    "create": "$has_sss",
+                    "label": "SSS Vector (sssvector)",
+                    "location": [
+                        -153.55624389648438,
+                        -175.0984344482422
+                    ],
+                    "name": "Combine RGB",
+                    "type": "ShaderNodeCombineRGB",
+                    "values": {}
+                },
+                "Group Input": {
+                    "create": true,
+                    "label": "Skin input (skinGroupInputs)",
+                    "location": [
+                        -1466.8162841796875,
+                        -65.8077392578125
+                    ],
+                    "name": "Group Input",
+                    "type": "NodeGroupInput",
+                    "values": {},
+                    "input_sockets": {
+                    	
+                    }
+                },
+                "Group Output": {
+                    "create": true,
+                    "label": "Skin output (skinGroupOutputs)",
+                    "location": [
+                        600.0,
+                        100.0
+                    ],
+                    "name": "Group Output",
+                    "type": "NodeGroupOutput",
+                    "values": {}
+                },
+                "DiffuseTexture": {
+                    "colorspace": "sRGB",
+                    "create": "$has_diffusetexture",
+                    "filename": "$diffusetexture_filename",
+                    "label": "diffuseTexture (diffuseTexture)",
+                    "location": [
+                        -605.555908203125,
+                        625.19677734375
+                    ],
+                    "name": "DiffuseTexture",
+                    "type": "ShaderNodeTexImage",
+                    "values": {}
+                },
+                "NormalmapTexture": {
+                    "colorspace": "Non-Color",
+                    "create": "$has_normalmap",
+                    "filename": "$normalmap_filename",
+                    "label": "normal map texture (normalMapTexture)",
+                    "location": [
+                        -941.5553588867188,
+                        -812.7491455078125
+                    ],
+                    "name": "NormalMapTexture",
+                    "type": "ShaderNodeTexImage",
+                    "values": {}
+                },
+                "SssTexture": {
+                    "colorspace": "sRGB",
+                    "create": "$has_sss",
+                    "filename": "$ssstexture_filename",
+                    "label": "sssTexture (ssstex)",
+                    "location": [
+                        -600.0,
+                        900.0
+                    ],
+                    "name": "SssTexture",
+                    "type": "ShaderNodeTexImage",
+                    "values": {}
+                },
+                "SSSRadiusRed": {
+                    "create": "$has_sss",
+                    "label": "SSS Radius Red (sssr)",
+                    "location": [
+                        -453.5561828613281,
+                        4.901566982269287
+                    ],
+                    "name": "SSSRadiusRed",
+                    "type": "ShaderNodeMath",
+                    "operation": "MULTIPLY",
+                    "values": {}
+                },
+                "SSSRadiusGreen": {
+                    "create": "$has_sss",
+                    "label": "SSS Radius Green (sssg)",
+                    "location": [
+                        -453.5561828613281,
+                        -155.0984344482422
+                    ],
+                    "name": "SSSRadiusGreen",
+                    "type": "ShaderNodeMath",
+                    "operation": "MULTIPLY",
+                    "values": {}
+                },
+                "SSSRadiusBlue": {
+                    "create": "$has_sss",
+                    "label": "SSS Radius Blue (sssb)",
+                    "location": [
+                        -453.5561828613281,
+                        -315.09844970703125
+                    ],
+                    "name": "SSSRadiusBlue",
+                    "type": "ShaderNodeMath",
+                    "operation": "MULTIPLY",
+                    "values": {}
+                },
+                "SSSStrength": {
+                    "create": "$has_sss",
+                    "label": "SSS Strength (sssstrength)",
+                    "location": [
+                        -117.79019927978516,
+                        716.2598266601562
+                    ],
+                    "name": "SSSStrength",
+                    "type": "ShaderNodeMath",
+                    "operation": "MULTIPLY",
+                    "values": {}
+                },
+                "Mix": {
+                    "create": true,
+                    "label": "Color mix (colorMix)",
+                    "location": [
+                        -305.55584716796875,
+                        525.19677734375
+                    ],
+                    "name": "Mix",
+                    "type": "ShaderNodeMixRGB",
+                    "values": {}
+                },
+                "Noise Texture": {
+                    "create": true,
+                    "label": "noise (noise)",
+                    "location": [
+                        -851.3333129882812,
+                        -574.3849487304688
+                    ],
+                    "name": "Noise Texture",
+                    "type": "ShaderNodeTexNoise",
+                    "values": {}
+                },
+                "Normal Map": {
+                    "create": true,
+                    "label": "normal map (bumpOrNormal)",
+                    "location": [
+                        -496.888916015625,
+                        -842.3125
+                    ],
+                    "name": "Normal Map",
+                    "type": "ShaderNodeNormalMap",
+                    "values": {}
+                },
+                "Principled BSDF": {
+                    "create": true,
+                    "label": "Principled (principled)",
+                    "location": [
+                        228.993408203125,
+                        469.4421081542969
+                    ],
+                    "name": "Principled BSDF",
+                    "type": "ShaderNodeBsdfPrincipled",
+                    "values": {}
+                },
+                "Texture Coordinate": {
+                    "create": true,
+                    "label": "Texture coords (texco)",
+                    "location": [
+                        -1465.999755859375,
+                        217.53382873535156
+                    ],
+                    "name": "Texture Coordinate",
+                    "type": "ShaderNodeTexCoord",
+                    "values": {}
+                }
+            }
+        }
+    },
+    "links": [
+        {
+            "from_node": "Group",
+            "from_socket": "shaderOutput",
+            "to_node": "Material Output",
+            "to_socket": "Surface"
+        }
+    ],
+    "nodes": {
+        "Group": {
+            "create": true,
+            "label": "$group_name",
+            "location": [
+                0.0,
+                100.0
+            ],
+            "name": "$group_name",            
+            "type": "ShaderNodeGroup",
+            "values": {}
+        },
+        "Material Output": {
+            "create": true,
+            "label": "Material output (output)",
+            "location": [
+                350.0,
+                100.0
+            ],
+            "name": "Material Output",
+            "type": "ShaderNodeOutputMaterial",
+            "values": {}
+        }
+    }
+}

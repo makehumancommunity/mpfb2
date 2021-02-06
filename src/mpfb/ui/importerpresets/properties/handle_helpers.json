@@ -1,0 +1,12 @@
+{
+    "type": "enum",
+    "name": "handle_helpers",
+    "description": "The base mesh contains extra geometry which is usually hidden. This is needed when creating clothes, but will seldomly be useful otherwise. Should it be kept, hidden or deleted?",
+    "label": "How to handle helpers",
+    "default": "MASK",
+    "items": [
+    	["MASK", "Mask", "Mask helper geometry", 1],
+		["NOTHING", "Don't modify", "Leave helper geometry as is", 2],
+		["DELETE", "Delete", "Delete helper geometry", 3]
+    ]
+}

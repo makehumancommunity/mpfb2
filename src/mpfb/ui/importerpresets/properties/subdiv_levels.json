@@ -1,0 +1,7 @@
+{
+    "type": "int",
+    "name": "subdiv_levels",
+    "description": "Number of subdivisions to use when creating a subdivision surface modifier",
+    "label": "Subdiv levels",
+    "default": 1
+}

@@ -1,0 +1,307 @@
+{
+    "groups": {},
+    "links": [
+        {
+            "from_node": "Principled BSDF",
+            "from_socket": "BSDF",
+            "to_node": "Material Output",
+            "to_socket": "Surface"
+        },
+        {
+            "from_node": "diffuseTexture",
+            "from_socket": "Color",
+            "to_node": "diffuseIntensity",
+            "to_socket": "Color2"
+        },
+        {
+            "from_node": "diffuseIntensity",
+            "from_socket": "Color",
+            "to_node": "Principled BSDF",
+            "to_socket": "Base Color"
+        },
+        {
+            "from_node": "diffuseTexture",
+            "from_socket": "Alpha",
+            "to_node": "Principled BSDF",
+            "to_socket": "Alpha"
+        },
+        {
+            "from_node": "transmissionmapTexture",
+            "from_socket": "Color",
+            "to_node": "Principled BSDF",
+            "to_socket": "Transmission"
+        },
+        {
+            "from_node": "metallicmapTexture",
+            "from_socket": "Color",
+            "to_node": "Principled BSDF",
+            "to_socket": "Metallic"
+        },
+        {
+            "from_node": "roughnessmapTexture",
+            "from_socket": "Color",
+            "to_node": "Principled BSDF",
+            "to_socket": "Roughness"
+        },
+        {
+            "from_node": "displacementmap",
+            "from_socket": "Displacement",
+            "to_node": "Material Output",
+            "to_socket": "Displacement"
+        },
+        {
+            "from_node": "displacementmapTexture",
+            "from_socket": "Color",
+            "to_node": "displacementmap",
+            "to_socket": "Height"
+        },
+        {
+            "from_node": "bumpmap",
+            "from_socket": "Normal",
+            "to_node": "Principled BSDF",
+            "to_socket": "Normal"
+        },
+        {
+            "from_node": "bumpmapTexture",
+            "from_socket": "Color",
+            "to_node": "bumpmap",
+            "to_socket": "Height"
+        },
+        {
+            "from_node": "normalmap",
+            "from_socket": "Normal",
+            "to_node": "bumpmap",
+            "to_socket": "Normal"
+        },
+        {
+            "from_node": "normalmapTexture",
+            "from_socket": "Color",
+            "to_node": "normalmap",
+            "to_socket": "Color"
+        }
+    ],
+    "nodes": {
+        "Material Output": {
+            "create": true,
+            "label": "",
+            "location": [
+                480.97882080078125,
+                288.9161682128906
+            ],
+            "name": "Material Output",
+            "type": "ShaderNodeOutputMaterial",
+            "values": {}
+        },
+        "Principled BSDF": {
+            "create": true,
+            "label": "",
+            "location": [
+                -72.48697662353516,
+                601.7297973632812
+            ],
+            "name": "Principled BSDF",
+            "type": "ShaderNodeBsdfPrincipled",
+            "values": {
+                "Alpha": 1.0,
+                "Anisotropic": 0.0,
+                "Anisotropic Rotation": 0.0,
+                "Base Color": [
+                    0.5,
+                    0.5,
+                    0.5,
+                    1.0
+                ],
+                "Clearcoat": 0.0,
+                "Clearcoat Roughness": 0.029999999329447746,
+                "Emission": [
+                    0.0,
+                    0.0,
+                    0.0,
+                    1.0
+                ],
+                "IOR": 1.4500000476837158,
+                "Metallic": 0.0,
+                "Roughness": 0.699999988079071,
+                "Sheen": 0.0,
+                "Sheen Tint": 0.5,
+                "Specular": 0.5,
+                "Specular Tint": 0.0,
+                "Subsurface": 0.0,
+                "Subsurface Color": [
+                    0.800000011920929,
+                    0.800000011920929,
+                    0.800000011920929,
+                    1.0
+                ],
+                "Transmission": 0.0,
+                "Transmission Roughness": 0.0
+            }
+        },
+        "bumpmap": {
+            "create": true,
+            "label": "Bumpmap",
+            "location": [
+                -385.4263610839844,
+                -47.781314849853516
+            ],
+            "name": "bumpmap",
+            "type": "ShaderNodeBump",
+            "values": {
+                "Distance": 1.0,
+                "Height": 1.0,
+                "Height_dx": 1.0,
+                "Height_dy": 1.0,
+                "Strength": 1.0
+            }
+        },
+        "bumpmapTexture": {
+            "create": "$has_bumpmap",
+            "label": "Bumpmap Texture",
+            "location": [
+                -900.0,
+                -170.6919708251953
+            ],
+            "name": "bumpmapTexture",
+            "colorspace": "Non-Color",
+            "type": "ShaderNodeTexImage",
+            "filename": "$bumpmap_filename",
+            "values": {}
+        },
+        "diffuseIntensity": {
+            "create": "$has_diffusetexture",
+            "label": "diffuse intensity",
+            "location": [
+                -399.44610595703125,
+                712.8138427734375
+            ],
+            "name": "diffuseIntensity",
+            "type": "ShaderNodeMixRGB",
+            "values": {
+                "Color1": [
+                    0.5,
+                    0.5,
+                    0.5,
+                    1.0
+                ],
+                "Color2": [
+                    0.5,
+                    0.5,
+                    0.5,
+                    1.0
+                ],
+                "Fac": 1.0
+            }
+        },
+        "diffuseTexture": {
+            "create": "$has_diffusetexture",
+            "label": "Diffuse Texture",
+            "location": [
+                -900.0,
+                733.5057983398438
+            ],
+            "name": "diffuseTexture",
+            "type": "ShaderNodeTexImage",
+            "filename": "$diffusetexture_filename",
+            "values": {}
+        },
+        "displacementmap": {
+            "create": "$has_displacementmap",
+            "label": "Displacementmap",
+            "location": [
+                -36.93474578857422,
+                -197.28775024414062
+            ],
+            "name": "displacementmap",
+            "type": "ShaderNodeDisplacement",            
+            "values": {
+                "Height": 0.0,
+                "Midlevel": 0.5,
+                "Scale": 1.0
+            }
+        },
+        "displacementmapTexture": {
+            "create": "$has_displacementmap",
+            "label": "Displacementmap Texture",
+            "location": [
+                -900.0,
+                -611.57763671875
+            ],
+            "name": "displacementmapTexture",
+            "colorspace": "Non-Color",
+            "type": "ShaderNodeTexImage",
+            "filename": "$displacementmap_filename",
+            "values": {}
+        },
+        "metallicmapTexture": {
+            "create": "$has_metallicmap",
+            "label": "Metallicmap Texture",
+            "location": [
+                -900.0,
+                506.6513366699219
+            ],
+            "name": "metallicmapTexture",
+            "colorspace": "Non-Color",
+            "type": "ShaderNodeTexImage",
+            "filename": "$metallicmap_filename",
+            "values": {}
+        },
+        "normalmap": {
+            "create": true,
+            "label": "Normalmap",
+            "location": [
+                -600.0,
+                -315.5165710449219
+            ],
+            "name": "normalmap",            
+            "type": "ShaderNodeNormalMap",
+            "values": {
+                "Color": [
+                    0.5,
+                    0.5,
+                    1.0,
+                    1.0
+                ],
+                "Strength": 1.0
+            }
+        },
+        "normalmapTexture": {
+            "create": "$has_normalmap",
+            "label": "Normalmap Texture",
+            "location": [
+                -900.0,
+                -393.34869384765625
+            ],
+            "name": "normalmapTexture",
+            "colorspace": "Non-Color",
+            "type": "ShaderNodeTexImage",
+            "filename": "$normalmap_filename",
+            "values": {}
+        },
+        "roughnessmapTexture": {
+            "create": "$has_roughnessmap",
+            "label": "Roughnessmap Texture",
+            "location": [
+                -900.0,
+                281.7806091308594
+            ],
+            "name": "roughnessmapTexture",
+            "colorspace": "Non-Color",
+            "type": "ShaderNodeTexImage",
+            "filename": "$roughnessmap_filename",
+            "values": {}
+        },
+        "transmissionmapTexture": {
+            "create": "$has_transmissionmap",
+            "label": "Transmissionmap Texture",
+            "location": [
+                -900.0,
+                53.44550704956055
+            ],
+            "name": "transmissionmapTexture",
+            "colorspace": "Non-Color",
+            "type": "ShaderNodeTexImage",
+            "filename": "$transmissionmap_filename",
+            "values": {}
+        }
+    }
+}

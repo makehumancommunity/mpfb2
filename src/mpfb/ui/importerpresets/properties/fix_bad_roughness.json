@@ -1,0 +1,7 @@
+{
+    "type": "boolean",
+    "name": "fix_bad_roughness",
+    "description": "Some old MakeHuman assets had a roughness setting which was inverted or malformed. If using this setting, the material would become excessively glossy. You can attempt to fix this, but it might erronously \"fix\" a material which had a similar value intentionally set",
+    "label": "Fix bad roughness",
+    "default": false
+}

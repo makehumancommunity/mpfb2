@@ -1,0 +1,8 @@
+{
+    "type": "string",
+    "name": "object_type",
+    "description": "what kind of MPFB/MH object this is",
+    "label": "Object type",
+    "default": "",
+    "aliases": ["MhObjectType"]
+}

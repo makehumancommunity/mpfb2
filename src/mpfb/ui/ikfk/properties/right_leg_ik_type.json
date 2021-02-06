@@ -1,0 +1,11 @@
+{
+    "type": "enum",
+    "name": "right_leg_ik_type",
+    "description": "Which IK setup should we apply to the right leg?",
+    "label": "IK Type",
+    "default": "LOWERUPPER",
+    "items": [
+    	["LOWERUPPER", "Lower + upper", "Two IK targets, one for the lower leg and one for the upper leg. Do not add IK to the hip", 1],
+    	["LOWERUPPERHIP", "Lower + upper + hip", "Three IK targets, one for the lower leg, one for the upper leg and one for the hip", 2]   	    	
+    ]
+}

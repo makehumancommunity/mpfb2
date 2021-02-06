@@ -1,0 +1,7 @@
+{
+    "type": "boolean",
+    "name": "rig_as_parent",
+    "description": "If importing a rig, use it as parent for the other imported components. You will want this, otherwise posing will not work",
+    "label": "Use rig as parent",
+    "default": true
+}

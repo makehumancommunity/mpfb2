@@ -1,0 +1,7 @@
+{
+    "type": "boolean",
+    "name": "add_subdiv_modifier",
+    "description": "Add a subdivision surface modifier to all object created during the import process",
+    "label": "Add subdiv modifier",
+    "default": true
+}

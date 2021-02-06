@@ -1,0 +1,7 @@
+{
+    "type": "boolean",
+    "name": "prefix_object_names",
+    "description": "Use the character name as a prefix to the name of all objects that are created during the import process",
+    "label": "Prefix object names",
+    "default": true
+}

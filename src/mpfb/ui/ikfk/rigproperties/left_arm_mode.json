@@ -1,0 +1,7 @@
+{
+    "type": "string",
+    "name": "left_arm_mode",
+    "description": "In what mode (FK/IK) the left arm is",
+    "label": "Left arm mode",
+    "default": ""    
+}

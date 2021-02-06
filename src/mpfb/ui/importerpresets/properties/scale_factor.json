@@ -1,0 +1,12 @@
+{
+    "type": "enum",
+    "name": "scale_factor",
+    "description": "The overall scale of the human, calculated as what equals one blender unit.",
+    "label": "Scale factor",
+    "default": "METER",
+    "items": [
+    	["METER", "Meter", "1 BU = 1 Meter", 1],
+    	["DECIMETER", "Decimeter", "1 BU = 1 Decimeter", 2],
+    	["CENTIMETER", "Centimeter", "1 BU = 1 Centimeter", 3]
+    ]
+}

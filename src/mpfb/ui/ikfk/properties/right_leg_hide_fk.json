@@ -1,0 +1,7 @@
+{
+    "type": "boolean",
+    "name": "right_leg_hide_fk",
+    "description": "When switching to IK mode, hide the FK bones controlled by the IK chain",
+    "label": "Hide FK bones",
+    "default": true
+}

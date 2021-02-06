@@ -1,0 +1,7 @@
+{
+    "type": "boolean",
+    "name": "import_body_parts",
+    "description": "Import body parts, such as eyes, teeth, hair and so on",
+    "label": "Import body parts",
+    "default": true
+}

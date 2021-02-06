@@ -1,0 +1,128 @@
+{
+    "body": {
+        "Brightness": 0.0,
+        "Clearcoat": 0.10000000149011612,
+        "Clearcoat Roughness": 0.30000001192092896,
+        "Contrast": 0.0,
+        "Pore detail": 2.0,
+        "Pore distortion": 1.0,
+        "Pore scale": 2500.0,
+        "Pore strength": 0.20000000298023224,
+        "Roughness": 0.44999998807907104,
+        "colorMixIn": [
+            1.0,
+            0.20000000298023224,
+            0.20000000298023224,
+            1.0
+        ],
+        "colorMixInStrength": 0.05000000074505806
+    },
+    "ears": {
+        "Brightness": 0.0,
+        "Clearcoat": 0.10000000149011612,
+        "Clearcoat Roughness": 0.30000001192092896,
+        "Contrast": 0.0,
+        "Pore detail": 2.0,
+        "Pore distortion": 1.0,
+        "Pore scale": 2500.0,
+        "Pore strength": 0.20000000298023224,
+        "Roughness": 0.44999998807907104,
+        "colorMixIn": [
+            1.0,
+            0.20000000298023224,
+            0.20000000298023224,
+            1.0
+        ],
+        "colorMixInStrength": 0.05000000074505806
+    },
+    "fingernails": {
+        "Brightness": 0.0,
+        "Clearcoat": 0.10000000149011612,
+        "Clearcoat Roughness": 0.30000001192092896,
+        "Contrast": 0.0,
+        "Pore detail": 2.0,
+        "Pore distortion": 1.0,
+        "Pore scale": 2500.0,
+        "Pore strength": 0.0,
+        "Roughness": 0.25,
+        "colorMixIn": [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+        ],
+        "colorMixInStrength": 0.15000000596046448
+    },
+    "genitals": {
+        "Brightness": 0.0,
+        "Clearcoat": 0.10000000149011612,
+        "Clearcoat Roughness": 0.30000001192092896,
+        "Contrast": 0.0,
+        "Pore detail": 2.0,
+        "Pore distortion": 1.0,
+        "Pore scale": 2500.0,
+        "Pore strength": 0.20000000298023224,
+        "Roughness": 0.44999998807907104,
+        "colorMixIn": [
+            1.0,
+            0.20000000298023224,
+            0.20000000298023224,
+            1.0
+        ],
+        "colorMixInStrength": 0.05000000074505806
+    },
+    "lips": {
+        "Brightness": 0.0,
+        "Clearcoat": 0.10000000149011612,
+        "Clearcoat Roughness": 0.30000001192092896,
+        "Contrast": 0.0,
+        "Pore detail": 2.0,
+        "Pore distortion": 1.0,
+        "Pore scale": 1000.0,
+        "Pore strength": 0.15000000596046448,
+        "Roughness": 0.3499999940395355,
+        "colorMixIn": [
+            1.0,
+            0.20000000298023224,
+            0.20000000298023224,
+            1.0
+        ],
+        "colorMixInStrength": 0.05000000074505806
+    },
+    "nipple": {
+        "Brightness": 0.0,
+        "Clearcoat": 0.10000000149011612,
+        "Clearcoat Roughness": 0.30000001192092896,
+        "Contrast": 0.0,
+        "Pore detail": 2.0,
+        "Pore distortion": 1.0,
+        "Pore scale": 1000.0,
+        "Pore strength": 0.20000000298023224,
+        "Roughness": 0.44999998807907104,
+        "colorMixIn": [
+            1.0,
+            0.20000000298023224,
+            0.20000000298023224,
+            1.0
+        ],
+        "colorMixInStrength": 0.05000000074505806
+    },
+    "toenails": {
+        "Brightness": 0.0,
+        "Clearcoat": 0.10000000149011612,
+        "Clearcoat Roughness": 0.30000001192092896,
+        "Contrast": 0.0,
+        "Pore detail": 2.0,
+        "Pore distortion": 1.0,
+        "Pore scale": 2500.0,
+        "Pore strength": 0.0,
+        "Roughness": 0.25,
+        "colorMixIn": [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+        ],
+        "colorMixInStrength": 0.15000000596046448
+    }
+}

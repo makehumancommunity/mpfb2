@@ -1,0 +1,7 @@
+{
+    "type": "boolean",
+    "name": "import_clothes",
+    "description": "Import the selected clothed (if any)",
+    "label": "Import clothes",
+    "default": true
+}

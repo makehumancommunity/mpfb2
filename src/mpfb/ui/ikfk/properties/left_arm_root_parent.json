@@ -1,0 +1,7 @@
+{
+    "type": "boolean",
+    "name": "left_arm_root_parent",
+    "description": "Use the root bone as parent for the IK bones",
+    "label": "Root bone is parent",
+    "default": false
+}

@@ -1,0 +1,7 @@
+{
+    "type": "boolean",
+    "name": "import_body_proxy",
+    "description": "Import the body proxy (if any) when importing from MakeHuman",
+    "label": "Import body proxy",
+    "default": true
+}

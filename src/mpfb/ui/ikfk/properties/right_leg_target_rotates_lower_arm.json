@@ -1,0 +1,7 @@
+{
+    "type": "boolean",
+    "name": "right_leg_target_rotates_lower_leg",
+    "description": "When rotating the IK target bone, then also partially rotate the lower leg (around its Y axis)",
+    "label": "Target rotates lower leg",
+    "default": true
+}

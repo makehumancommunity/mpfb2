@@ -1,0 +1,7 @@
+{
+    "type": "boolean",
+    "name": "detailed_helpers",
+    "description": "If keeping the helper geometry, assign detailed helper groups to it. This will create, for example, a skirt group, a hair group and so on. This is required for many MakeClothes operations",
+    "label": "Detailed helper vertex groups",
+    "default": true
+}

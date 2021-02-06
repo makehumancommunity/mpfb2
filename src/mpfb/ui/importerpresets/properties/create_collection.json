@@ -1,0 +1,7 @@
+{
+    "type": "boolean",
+    "name": "create_collection",
+    "description": "Place the imported in a new collection with the name of the character",
+    "label": "Create collection",
+    "default": true
+}

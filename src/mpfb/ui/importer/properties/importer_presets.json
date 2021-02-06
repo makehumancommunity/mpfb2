@@ -1,0 +1,7 @@
+{
+    "type": "string",
+    "name": "importer_presets",
+    "description": "name of the presets to use when importing, or \"from ui\" if you want to use the settings from the preset boxes",
+    "label": "Importer presets",
+    "default": ""
+}

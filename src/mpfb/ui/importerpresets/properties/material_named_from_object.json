@@ -1,0 +1,7 @@
+{
+    "type": "boolean",
+    "name": "material_named_from_object",
+    "description": "Give the created materials names from the object it is placed on. For example name a material for the long01 hair mesh \"long01\"",
+    "label": "Name material from object",
+    "default": true
+}

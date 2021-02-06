@@ -1,0 +1,7 @@
+{
+    "type": "boolean",
+    "name": "import_body",
+    "description": "Import the body (base mesh) when importing from MakeHuman. If you intend to use a body proxy, you can consider unchecking this",
+    "label": "Import body",
+    "default": true
+}

@@ -1,0 +1,7 @@
+{
+    "type": "string",
+    "name": "name",
+    "description": "name of the preset to save",
+    "label": "Preset name",
+    "default": ""
+}
