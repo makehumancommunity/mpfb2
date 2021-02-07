@@ -6,6 +6,8 @@ from mpfb.services.locationservice import LocationService
 from mpfb.services.socketservice import SocketService
 from mpfb.services.objectservice import ObjectService
 from mpfb.services.materialservice import MaterialService
+from mpfb.services.nodeservice import NodeService
+from mpfb.services.uiservice import UiService
 from mpfb.ui.importer.importerpanel import IMPORTER_PROPERTIES
 from mpfb.ui.importerpresets.importerpresetspanel import IMPORTER_PRESETS_PROPERTIES
 from mpfb import CLASSMANAGER
@@ -13,7 +15,7 @@ from mpfb.entities.socketobject.socketbodyobject import SocketBodyObject
 from mpfb.entities.socketobject.socketproxyobject import SocketProxyObject
 from mpfb.entities.material.makeskinmaterial import MakeSkinMaterial
 from mpfb.entities.material.enhancedskinmaterial import EnhancedSkinMaterial
-import bpy
+import bpy, os, json
 
 _LOG = LogService.get_logger("importer.operators.importhuman")
 
@@ -35,6 +37,8 @@ class MPFB_OT_ImportHumanOperator(bpy.types.Operator):
             _LOG.debug("Using overrides from", json_with_overrides)
 
         settings = IMPORTER_PRESETS_PROPERTIES.as_dict(entity_reference=context, json_with_overrides=json_with_overrides)
+
+        settings["settings_for_import"] = IMPORTER_PROPERTIES.get_value("settings_for_import", entity_reference=context, default_value="default")
 
         _LOG.dump("Settings to use", settings)
 
@@ -206,9 +210,7 @@ class MPFB_OT_ImportHumanOperator(bpy.types.Operator):
 
     def _assign_material_instance(self, importer, blender_object, material, group_name):
         _LOG.enter()
-        _LOG.debug("blender_object", blender_object)
-        _LOG.debug("material", material)
-        _LOG.debug("group_name", group_name)
+        _LOG.debug("blender_object, material, group_name", (blender_object, material, group_name))
 
         if not ObjectService.has_vertex_group(blender_object, group_name):
             return
@@ -218,7 +220,7 @@ class MPFB_OT_ImportHumanOperator(bpy.types.Operator):
 
         blender_object.data.materials.append(material)
         slot_number = blender_object.material_slots.find(material.name)
-        _LOG.debug("slot_number", slot_number)
+        _LOG.dump("slot_number", slot_number)
 
         bpy.context.object.active_material_index = slot_number
 
@@ -279,6 +281,78 @@ class MPFB_OT_ImportHumanOperator(bpy.types.Operator):
             if bodyproxy and ObjectService.has_vertex_group(bodyproxy, group_name):
                 self._assign_material_instance(importer, bodyproxy, material_instance, group_name)
 
+    def _adjust_enhanced_material_settings(self, importer):
+        _LOG.enter()
+        blender = importer["blender_entities"]
+        ui = importer["settings_from_ui"]
+        derived = importer["derived_settings"]
+
+        if ui["skin_material_type"] == "PLAIN":
+            _LOG.debug("Skipping enhanced material adjustment since material type is PLAIN")
+            return
+        matset = ui["settings_for_import"]
+        if not matset or matset == "RAW":
+            _LOG.debug("Skipping enhanced material adjustment since they're not requested")
+            return
+
+        best_body_object = None
+
+        if "basemesh" in blender:
+            best_body_object = blender["basemesh"]
+        else:
+            if derived["has_body_proxy"] and "bodyproxy" in blender:
+                best_body_object = blender["bodyproxy"]
+
+        if not best_body_object:
+            _LOG.debug("Skipping enhanced material adjustment since there is no body")
+            return
+
+        if not MaterialService.has_materials(best_body_object):
+            _LOG.debug("Skipping enhanced material adjustment since the body does not have any material")
+            return
+
+        _LOG.debug("Chosen material settings", matset)
+        if matset == "CHARACTER":
+            available_from_list = UiService.get_importer_enhanced_settings_panel_list()
+            target = str(derived["name"]).lower()
+            for setting in available_from_list:
+                match = str(setting[0]).lower()
+                _LOG.debug("Comparison", (target, match))
+                if match == target:
+                    matset = setting[1]
+            if matset == "CHARACTER":
+                matset = "default"
+        _LOG.debug("Calculated material settings", matset)
+
+        file_name = LocationService.get_user_config("enhanced_settings." + matset + ".json")
+
+        if not os.path.exists(file_name):
+            _LOG.error("Settings did not exist despite being in list:", file_name)
+            return
+
+        settings = dict()
+        _LOG.debug("Will attempt to load", file_name)
+        with open(file_name, "r") as json_file:
+            settings = json.load(json_file)
+
+        _LOG.dump("Material settings to apply", settings)
+
+        for slot in best_body_object.material_slots:
+            material = slot.material
+            group_node = NodeService.find_first_node_by_type_name(material.node_tree, "ShaderNodeGroup")
+            if group_node:
+                values = NodeService.get_socket_default_values(group_node)
+                if "colorMixIn" in values:
+                    # This seems to be an enhanced skin material
+                    name = material.name
+                    if "." in name:
+                        (prefix, name) = name.split(".", 2)
+                    if "." in name:
+                        (name, number) = name.split(".", 2)
+                    _LOG.debug("final name", name)
+                    if name in settings:
+                        _LOG.debug("will try to apply settings", settings[name])
+                        NodeService.set_socket_default_values(group_node, settings[name])
 
     def execute(self, context):
         _LOG.enter()
@@ -311,6 +385,7 @@ class MPFB_OT_ImportHumanOperator(bpy.types.Operator):
             importer["blender_entities"]["parent"].location[2] = abs(importer["derived_settings"]["lowest_point"])
 
         self._create_material_instances(importer)
+        self._adjust_enhanced_material_settings(importer)
 
         _LOG.time("Entire process took:")
         self.report({'INFO'}, "Mesh imported")

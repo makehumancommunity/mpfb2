@@ -97,6 +97,22 @@ class _UiService():
     def get_enhanced_settings_panel_list(self):
         return self.get_value("enhanced_settings_panel_list")
 
+    def rebuild_importer_enhanced_settings_panel_list(self):
+        _LOG.enter()
+        _LOG.info("Rebuilding the list of available enhanced material settings (for importer panel)")
+        presets = [
+            ("CHARACTER", "Match character name", "If available, use material settings with the same name as the imported character. Otherwise fall back to default settings.", 0),
+            ("default", "Default", "the default presets. This will make fingernails smoother than the skin.", 1),
+            ("RAW", "Do not modify", "use the settings currently set in the UI. This will for example leave skin pores on fingernails.", 2),
+
+        ]
+        current_id = 3
+        self._add_settings_to_list(presets, current_id)
+        self.set_value("importer_enhanced_settings_panel_list", presets)
+
+    def get_importer_enhanced_settings_panel_list(self):
+        return self.get_value("importer_enhanced_settings_panel_list")
+
 
 UiService = _UiService()
 UiService.rebuild_importer_presets_panel_list()
