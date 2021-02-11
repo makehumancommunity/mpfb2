@@ -18,10 +18,10 @@ class MPFB_OT_OverwriteImporterPresetsOperator(bpy.types.Operator):
 
     def execute(self, context):
         _LOG.enter()
-        name = IMPORTER_PRESETS_PROPERTIES.get_value("available_presets", context=context)
+        name = IMPORTER_PRESETS_PROPERTIES.get_value("available_presets", entity_reference=context.scene)
         file_name = LocationService.get_user_config("importer_presets." + name + ".json")
         excludes = ["available_presets", "name"]
-        IMPORTER_PRESETS_PROPERTIES.serialize_to_json(file_name, context=context, exclude_keys=excludes)
+        IMPORTER_PRESETS_PROPERTIES.serialize_to_json(file_name, entity_reference=context.scene, exclude_keys=excludes)
         self.report({'INFO'}, "Presets were written to " + file_name)
         return {'FINISHED'}
 

@@ -18,9 +18,9 @@ class MPFB_OT_LoadImporterPresetsOperator(bpy.types.Operator):
 
     def execute(self, context):
         _LOG.enter()
-        name = IMPORTER_PRESETS_PROPERTIES.get_value("available_presets", context=context)
+        name = IMPORTER_PRESETS_PROPERTIES.get_value("available_presets", entity_reference=context.scene)
         file_name = LocationService.get_user_config("importer_presets." + name + ".json")
-        IMPORTER_PRESETS_PROPERTIES.deserialize_from_json(file_name, context=context)
+        IMPORTER_PRESETS_PROPERTIES.deserialize_from_json(file_name, entity_reference=context.scene)
         self.report({'INFO'}, "Presets were loaded from " + file_name)
         return {'FINISHED'}
 

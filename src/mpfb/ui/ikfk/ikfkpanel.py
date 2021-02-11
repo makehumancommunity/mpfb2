@@ -84,11 +84,22 @@ class MPFB_PT_Ik_Fk_Panel(bpy.types.Panel):
         SETUP_IK_PROPERTIES.draw_properties(scene, box, props)
         box.operator("mpfb.right_leg_ik")
 
-    def _left_fingers_ik(self, scene, layout):
-        pass
+    def _fingers_ik(self, scene, layout):
+        box = self._create_box(layout, "Fingers", "MODIFIER")
+        props = [
+            "finger_ik_type",
+            "finger_hide_fk"
+            ]
+        SETUP_IK_PROPERTIES.draw_properties(scene, box, props)
+        box.operator("mpfb.finger_ik")
 
-    def _right_fingers_ik(self, scene, layout):
-        pass
+    def _fingers_fk(self, scene, layout):
+        box = self._create_box(layout, "Fingers", "MODIFIER")
+        props = [
+            "finger_preserve_ik"
+            ]
+        #SETUP_IK_PROPERTIES.draw_properties(scene, box, props)
+        box.operator("mpfb.finger_fk")
 
     def _left_arm_fk(self, scene, layout):
         box = self._create_box(layout, "Left arm", "MODIFIER")
@@ -121,12 +132,6 @@ class MPFB_PT_Ik_Fk_Panel(bpy.types.Panel):
             ]
         #SETUP_IK_PROPERTIES.draw_properties(scene, box, props)
         box.operator("mpfb.right_leg_fk")
-
-    def _left_fingers_fk(self, scene, layout):
-        pass
-
-    def _right_fingers_fk(self, scene, layout):
-        pass
 
     def draw(self, context):
         _LOG.enter()
@@ -161,5 +166,11 @@ class MPFB_PT_Ik_Fk_Panel(bpy.types.Panel):
             self._left_leg_ik(scene, layout)
         else:
             self._left_leg_fk(scene, layout)
+
+        mode = IkFkProperties.get_value("finger_mode", entity_reference=obj)
+        if not mode:
+            self._fingers_ik(scene, layout)
+        else:
+            self._fingers_fk(scene, layout)
 
 CLASSMANAGER.add_class(MPFB_PT_Ik_Fk_Panel)

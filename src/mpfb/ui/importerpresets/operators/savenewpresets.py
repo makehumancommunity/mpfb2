@@ -19,7 +19,7 @@ class MPFB_OT_SaveNewImporterPresetsOperator(bpy.types.Operator):
 
     def execute(self, context):
         _LOG.enter()
-        name = IMPORTER_PRESETS_PROPERTIES.get_value("name", context=context)
+        name = IMPORTER_PRESETS_PROPERTIES.get_value("name", entity_reference=context.scene)
         if not name is None:
             name = str(name).strip()
         if name == "" or name is None:
@@ -36,7 +36,7 @@ class MPFB_OT_SaveNewImporterPresetsOperator(bpy.types.Operator):
             return {'FINISHED'}
 
         excludes = ["available_presets", "name"]
-        IMPORTER_PRESETS_PROPERTIES.serialize_to_json(file_name, context=context, exclude_keys=excludes)
+        IMPORTER_PRESETS_PROPERTIES.serialize_to_json(file_name, entity_reference=context.scene, exclude_keys=excludes)
 
         UiService.rebuild_importer_presets_panel_list()
         UiService.rebuild_importer_panel_list()

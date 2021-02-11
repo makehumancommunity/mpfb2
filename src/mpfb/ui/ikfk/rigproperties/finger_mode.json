@@ -1,0 +1,7 @@
+{
+    "type": "string",
+    "name": "finger_mode",
+    "description": "In what mode (FK/IK) the fingers are",
+    "label": "Finger mode",
+    "default": ""    
+}

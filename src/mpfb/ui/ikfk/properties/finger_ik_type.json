@@ -1,0 +1,13 @@
+{
+    "type": "enum",
+    "name": "finger_ik_type",
+    "description": "Which IK setup should we apply to the fingers?",
+    "label": "IK Type",
+    "default": "GRIP",
+    "items": [
+    	["FK", "No IK", "Do not apply IK to fingers", 0],
+    	["POINT", "Point", "One IK target per finger, working like a point target", 1],
+    	["GRIP", "Grip", "One IK helper per IK finger, which bends then finger when rotated", 2],
+    	["MASTER", "Master grip", "One combined helper to bend all fingers at the same time", 3]    	
+    ]
+}
