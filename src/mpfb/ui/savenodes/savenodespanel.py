@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-from mpfb import CLASSMANAGER
+from mpfb._classmanager import ClassManager
 from mpfb.services.logservice import LogService
 from mpfb.services.uiservice import UiService
 import bpy
@@ -20,4 +20,4 @@ class MPFB_PT_Save_Nodes_Panel(bpy.types.Panel):
         scn = context.scene
         layout.operator("mpfb.save_nodes")
 
-CLASSMANAGER.add_class(MPFB_PT_Save_Nodes_Panel)
+ClassManager.add_class(MPFB_PT_Save_Nodes_Panel)

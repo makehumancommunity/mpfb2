@@ -8,7 +8,7 @@ from mpfb.services.objectservice import ObjectService
 from mpfb.services.nodeservice import NodeService
 from mpfb.services.materialservice import MaterialService
 from mpfb.ui.enhancedsettings.enhancedsettingspanel import ENHANCED_SETTINGS_PROPERTIES
-from mpfb import CLASSMANAGER
+from mpfb._classmanager import ClassManager
 import bpy, os, json
 
 from ._savematerial import _save_material
@@ -46,4 +46,4 @@ class MPFB_OT_OverwriteEnhancedSettingsOperator(bpy.types.Operator):
         _LOG.enter()
         return not context.object is None
 
-CLASSMANAGER.add_class(MPFB_OT_OverwriteEnhancedSettingsOperator)
+ClassManager.add_class(MPFB_OT_OverwriteEnhancedSettingsOperator)

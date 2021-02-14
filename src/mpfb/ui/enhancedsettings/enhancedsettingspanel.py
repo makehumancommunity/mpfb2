@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import os, bpy, shutil
-from mpfb import CLASSMANAGER
+from mpfb._classmanager import ClassManager
 from mpfb.services.logservice import LogService
 from mpfb.services.locationservice import LocationService
 from mpfb.services.sceneconfigset import SceneConfigSet
@@ -75,4 +75,4 @@ class MPFB_PT_Enhanced_Settings_Panel(bpy.types.Panel):
         self._load_save_box(scene, self._create_box(layout, "Load/save presets", "MODIFIER"))
 
 
-CLASSMANAGER.add_class(MPFB_PT_Enhanced_Settings_Panel)
+ClassManager.add_class(MPFB_PT_Enhanced_Settings_Panel)

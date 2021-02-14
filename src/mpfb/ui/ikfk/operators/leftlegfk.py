@@ -4,7 +4,7 @@
 from mpfb.services.logservice import LogService
 from mpfb.entities.legik.legik import LegIk
 from mpfb.ui.ikfk import IkFkProperties
-from mpfb import CLASSMANAGER
+from mpfb._classmanager import ClassManager
 import bpy
 
 _LOG = LogService.get_logger("setupikoperators.leftlegfk")
@@ -40,4 +40,4 @@ class MPFB_OT_LeftLegFkOperator(bpy.types.Operator):
             return True # Undefined or space means FK
         return False
 
-CLASSMANAGER.add_class(MPFB_OT_LeftLegFkOperator)
+ClassManager.add_class(MPFB_OT_LeftLegFkOperator)

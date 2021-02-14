@@ -4,7 +4,7 @@
 from mpfb.services.logservice import LogService
 from mpfb.services.materialservice import MaterialService
 from mpfb.services.nodeservice import NodeService
-from mpfb import CLASSMANAGER
+from mpfb._classmanager import ClassManager
 import bpy, json
 from bpy.types import StringProperty
 from bpy_extras.io_utils import ExportHelper
@@ -51,4 +51,4 @@ class MPFB_OT_Save_Nodes_Operator(bpy.types.Operator, ExportHelper):
             self.report({'INFO'}, "JSON file written to " + absolute_file_path)
         return {'FINISHED'}
 
-CLASSMANAGER.add_class(MPFB_OT_Save_Nodes_Operator)
+ClassManager.add_class(MPFB_OT_Save_Nodes_Operator)

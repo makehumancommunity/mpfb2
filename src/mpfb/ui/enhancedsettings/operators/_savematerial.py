@@ -5,7 +5,7 @@ from mpfb.services.objectservice import ObjectService
 from mpfb.services.nodeservice import NodeService
 from mpfb.services.materialservice import MaterialService
 from mpfb.ui.enhancedsettings.enhancedsettingspanel import ENHANCED_SETTINGS_PROPERTIES
-from mpfb import CLASSMANAGER
+#from mpfb import CLASSMANAGER
 import bpy, os, json
 
 _LOG = LogService.get_logger("enhancedsettings._save_material")
