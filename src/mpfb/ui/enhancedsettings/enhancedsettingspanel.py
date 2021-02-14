@@ -1,5 +1,3 @@
-#!/usr/bin/python
-# -*- coding: utf-8 -*-
 
 import os, bpy, shutil
 from mpfb._classmanager import ClassManager

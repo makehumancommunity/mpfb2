@@ -1,5 +1,3 @@
-#!/usr/bin/python
-# -*- coding: utf-8 -*-
 
 from mpfb._classmanager import ClassManager
 from mpfb.services.logservice import LogService

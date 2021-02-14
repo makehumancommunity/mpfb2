@@ -1,7 +1,3 @@
-#!/usr/bin/python
-# -*- coding: utf-8 -*-
-
-
 """This is the MakeHuman Plugin For Blender (MPFB). For more information, see
 the README.md file in the zip."""
 

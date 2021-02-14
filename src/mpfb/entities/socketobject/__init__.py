@@ -1,5 +1,3 @@
-#!/usr/bin/python
-# -*- coding: utf-8 -*-
 
 """This module contains helpers for staging the import from makehuman."""
 

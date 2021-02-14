@@ -1,5 +1,3 @@
-#!/usr/bin/python
-# -*- coding: utf-8 -*-
 
 from mpfb.services.logservice import LogService
 from mpfb.services.uiservice import UiService
