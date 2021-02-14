@@ -6,18 +6,17 @@ from bpy.utils import register_class, unregister_class
 from mpfb.services import LogService
 LOG = LogService.get_logger("mpfb.classmanager")
 
+
 class ClassManager:
 
     """This class keeps track of blender classes and ensures that they
     get properly registered and unregistered"""
 
-    __initialized = False # ensure ClassManager is only registered once
-    __stack = None # use a class attribute as classes stack
+    __stack = None  # use a class attribute as classes stack
 
     def __init__(self):
-        if not type(self).__initialized:
+        if type(self).__stack is None:  # Ensure ClassManager is only registered once
             LOG.debug("initializing classmanager")
-            type(self).__initialized = True
             type(self).__stack = []
         else:
             raise RuntimeError("ClassManager must be a singleton")
@@ -58,4 +57,3 @@ class ClassManager:
             for uregClass in cls.__stack:
                 LOG.debug("Unregistering class", str(uregClass))
                 unregister_class(uregClass)
-
