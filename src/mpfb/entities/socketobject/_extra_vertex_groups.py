@@ -1,5 +1,3 @@
-#!/usr/bin/python
-# -*- coding: utf-8 -*-
 
 groups_which_should_not_get_specific_material = ["nippleTip", "scalp"]
 

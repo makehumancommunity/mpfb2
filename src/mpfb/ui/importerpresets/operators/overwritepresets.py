@@ -1,10 +1,8 @@
-#!/usr/bin/python
-# -*- coding: utf-8 -*-
 
 from mpfb.services.logservice import LogService
 from mpfb.services.locationservice import LocationService
 from mpfb.ui.importerpresets.importerpresetspanel import IMPORTER_PRESETS_PROPERTIES
-from mpfb import CLASSMANAGER
+from mpfb._classmanager import ClassManager
 import bpy
 
 _LOG = LogService.get_logger("importeroperators.overwritepresets")
@@ -26,4 +24,4 @@ class MPFB_OT_OverwriteImporterPresetsOperator(bpy.types.Operator):
         return {'FINISHED'}
 
 
-CLASSMANAGER.add_class(MPFB_OT_OverwriteImporterPresetsOperator)
+ClassManager.add_class(MPFB_OT_OverwriteImporterPresetsOperator)

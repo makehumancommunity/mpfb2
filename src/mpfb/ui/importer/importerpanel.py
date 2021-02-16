@@ -1,8 +1,6 @@
-#!/usr/bin/python
-# -*- coding: utf-8 -*-
 
 import os, bpy
-from mpfb import CLASSMANAGER
+from mpfb._classmanager import ClassManager
 from mpfb.services.logservice import LogService
 from mpfb.services.sceneconfigset import SceneConfigSet
 from mpfb.services.uiservice import UiService
@@ -71,4 +69,4 @@ class MPFB_PT_Importer_Panel(bpy.types.Panel):
         layout.operator('mpfb.importer_import_body')
 
 
-CLASSMANAGER.add_class(MPFB_PT_Importer_Panel)
+ClassManager.add_class(MPFB_PT_Importer_Panel)

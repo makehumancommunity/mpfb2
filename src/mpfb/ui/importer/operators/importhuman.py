@@ -1,5 +1,3 @@
-#!/usr/bin/python
-# -*- coding: utf-8 -*-
 
 from mpfb.services.logservice import LogService
 from mpfb.services.locationservice import LocationService
@@ -10,7 +8,7 @@ from mpfb.services.nodeservice import NodeService
 from mpfb.services.uiservice import UiService
 from mpfb.ui.importer.importerpanel import IMPORTER_PROPERTIES
 from mpfb.ui.importerpresets.importerpresetspanel import IMPORTER_PRESETS_PROPERTIES
-from mpfb import CLASSMANAGER
+from mpfb._classmanager import ClassManager
 from mpfb.entities.socketobject.socketbodyobject import SocketBodyObject
 from mpfb.entities.socketobject.socketproxyobject import SocketProxyObject
 from mpfb.entities.material.makeskinmaterial import MakeSkinMaterial
@@ -393,4 +391,4 @@ class MPFB_OT_ImportHumanOperator(bpy.types.Operator):
         return {'FINISHED'}
 
 
-CLASSMANAGER.add_class(MPFB_OT_ImportHumanOperator)
+ClassManager.add_class(MPFB_OT_ImportHumanOperator)

@@ -1,7 +1,3 @@
-#!/usr/bin/python
-# -*- coding: utf-8 -*-
-
-
 """This is the MakeHuman Plugin For Blender (MPFB). For more information, see
 the README.md file in the zip."""
 
@@ -17,7 +13,6 @@ bl_info = { # pylint: disable=C0103
 
 # These are constants that can be imported from submodules
 VERSION = bl_info["version"]
-CLASSMANAGER = None
 
 # Don't import this log object. Instead, get a local logger via LogService
 _LOG = None
@@ -34,11 +29,12 @@ _LOG = None
 # importing here is to just make sure everything is up and running
 # pylint: disable=W0611
 
+from ._classmanager import ClassManager
+
 def register():
     """At this point blender is ready enough for it to make sense to
     start initializing python singletons"""
 
-    global CLASSMANAGER # pylint: disable=W0603
     global _LOG # pylint: disable=W0603
 
     from mpfb.services.logservice import LogService
@@ -47,13 +43,12 @@ def register():
     _LOG.reset_timer()
     _LOG.debug("We're in register() and about to start registering classes.")
 
-    from ._classmanager import ClassManager
-    CLASSMANAGER = ClassManager()
-
     # ClassManager is a singleton to which all modules can add their
     # Blender classes, preferably when the module is imported the first
     # time. Thus we'll import all packages which can theoretically
     # contain blender classes.
+
+    classmanager = ClassManager()
 
     _LOG.debug("About to import mpfb.services")
     import mpfb.services.locationservice
@@ -69,7 +64,7 @@ def register():
     # class manager singleton.
 
     _LOG.debug("About to request class registration")
-    CLASSMANAGER.register_classes()
+    ClassManager.register_classes()
 
     _LOG.debug("About to check if MakeHuman is online")
 
@@ -102,10 +97,9 @@ def unregister():
     """Deconstruct all loaded blenderish classes"""
 
     global _LOG # pylint: disable=W0603
-    global CLASSMANAGER # pylint: disable=W0603
 
     _LOG.debug("About to unregister classes")
-    CLASSMANAGER.unregister_classes()
+    ClassManager.unregister_classes()
 
 
-__all__ = ["VERSION", "CLASSMANAGER"]
+__all__ = ["VERSION"]

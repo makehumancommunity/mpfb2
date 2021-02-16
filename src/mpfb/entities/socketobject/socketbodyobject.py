@@ -1,5 +1,3 @@
-#!/usr/bin/python
-# -*- coding: utf-8 -*-
 
 """This module only contains the SocketProxyObject. See the class docstring
 for more info."""

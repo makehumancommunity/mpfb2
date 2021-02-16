@@ -1,5 +1,3 @@
-#!/usr/bin/python
-# -*- coding: utf-8 -*-
 
 from mpfb.services.logservice import LogService
 from mpfb.services.locationservice import LocationService
@@ -7,7 +5,7 @@ from mpfb.services.objectservice import ObjectService
 from mpfb.services.nodeservice import NodeService
 from mpfb.services.materialservice import MaterialService
 from mpfb.ui.enhancedsettings.enhancedsettingspanel import ENHANCED_SETTINGS_PROPERTIES
-from mpfb import CLASSMANAGER
+from mpfb._classmanager import ClassManager
 import bpy, os, json
 
 _LOG = LogService.get_logger("enhancedsettings.applysettings")
@@ -88,4 +86,4 @@ class MPFB_OT_ApplyEnhancedSettingsOperator(bpy.types.Operator):
             return False
         return True
 
-CLASSMANAGER.add_class(MPFB_OT_ApplyEnhancedSettingsOperator)
+ClassManager.add_class(MPFB_OT_ApplyEnhancedSettingsOperator)

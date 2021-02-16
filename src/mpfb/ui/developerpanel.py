@@ -1,7 +1,5 @@
-#!/usr/bin/python
-# -*- coding: utf-8 -*-
 
-from mpfb import CLASSMANAGER
+from mpfb._classmanager import ClassManager
 from mpfb.services.logservice import LogService
 from mpfb.services.uiservice import UiService
 import bpy
@@ -19,4 +17,4 @@ class MPFB_PT_Developer_Panel(bpy.types.Panel):
         layout = self.layout
         scn = context.scene
 
-CLASSMANAGER.add_class(MPFB_PT_Developer_Panel)
+ClassManager.add_class(MPFB_PT_Developer_Panel)

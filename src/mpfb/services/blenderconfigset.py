@@ -1,5 +1,3 @@
-#!/usr/bin/python
-# -*- coding: utf-8 -*-
 
 import bpy, os, json
 from fnmatch import fnmatch

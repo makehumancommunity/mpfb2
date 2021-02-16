@@ -1,5 +1,3 @@
-#!/usr/bin/python
-# -*- coding: utf-8 -*-
 
 import re, os
 from .mhmatkeys import MHMAT_KEY_GROUPS, MHMAT_NAME_TO_KEY

@@ -1,5 +1,3 @@
-#!/usr/bin/python
-# -*- coding: utf-8 -*-
 
 """This module contains entities used in various places of the plugin."""
 

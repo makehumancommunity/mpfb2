@@ -1,8 +1,6 @@
-#!/usr/bin/python
-# -*- coding: utf-8 -*-
 
 import os, bpy
-from mpfb import CLASSMANAGER
+from mpfb._classmanager import ClassManager
 from mpfb.services.logservice import LogService
 from mpfb.services.sceneconfigset import SceneConfigSet
 from mpfb.services.uiservice import UiService
@@ -173,4 +171,4 @@ class MPFB_PT_Ik_Fk_Panel(bpy.types.Panel):
         else:
             self._fingers_fk(scene, layout)
 
-CLASSMANAGER.add_class(MPFB_PT_Ik_Fk_Panel)
+ClassManager.add_class(MPFB_PT_Ik_Fk_Panel)

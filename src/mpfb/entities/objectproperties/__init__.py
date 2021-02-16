@@ -1,5 +1,3 @@
-#!/usr/bin/python
-# -*- coding: utf-8 -*-
 
 """This module sets up and provide global custom properties for blender objects,
 for example of what type a certain object is. See JSON data under "generalproperties"

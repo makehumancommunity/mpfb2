@@ -1,5 +1,3 @@
-#!/usr/bin/python
-# -*- coding: utf-8 -*-
 
 from mpfb.services import LogService as _LogService
 from mpfb.services.blenderconfigset import BlenderConfigSet

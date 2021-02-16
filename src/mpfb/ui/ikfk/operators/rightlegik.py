@@ -1,10 +1,8 @@
-#!/usr/bin/python
-# -*- coding: utf-8 -*-
 
 from mpfb.services.logservice import LogService
 from mpfb.entities.legik.legik import LegIk
 from mpfb.ui.ikfk import IkFkProperties
-from mpfb import CLASSMANAGER
+from mpfb._classmanager import ClassManager
 import bpy
 
 _LOG = LogService.get_logger("setupikoperators.rightlegik")
@@ -39,4 +37,4 @@ class MPFB_OT_RightLegIkOperator(bpy.types.Operator):
             return True # Undefined or space means FK
         return False
 
-CLASSMANAGER.add_class(MPFB_OT_RightLegIkOperator)
+ClassManager.add_class(MPFB_OT_RightLegIkOperator)

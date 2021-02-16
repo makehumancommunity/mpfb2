@@ -1,11 +1,9 @@
-#!/usr/bin/python
-# -*- coding: utf-8 -*-
 
 from mpfb.services.logservice import LogService
 from mpfb.services.uiservice import UiService
 from mpfb.services.locationservice import LocationService
 from mpfb.ui.importerpresets.importerpresetspanel import IMPORTER_PRESETS_PROPERTIES
-from mpfb import CLASSMANAGER
+from mpfb._classmanager import ClassManager
 import bpy, os
 
 _LOG = LogService.get_logger("importeroperators.savenewpresets")
@@ -44,4 +42,4 @@ class MPFB_OT_SaveNewImporterPresetsOperator(bpy.types.Operator):
         return {'FINISHED'}
 
 
-CLASSMANAGER.add_class(MPFB_OT_SaveNewImporterPresetsOperator)
+ClassManager.add_class(MPFB_OT_SaveNewImporterPresetsOperator)
