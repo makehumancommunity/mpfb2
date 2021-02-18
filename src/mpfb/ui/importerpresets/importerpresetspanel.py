@@ -110,7 +110,7 @@ class MPFB_PT_Importer_Presets_Panel(bpy.types.Panel):
         if not os.path.exists(default_json):
             _LOG.warn("The default importer presets do not exist. Will create these.")
             excludes = ["available_presets", "name"]
-            IMPORTER_PRESETS_PROPERTIES.serialize_to_json(default_json, context=context, exclude_keys=excludes)
+            IMPORTER_PRESETS_PROPERTIES.serialize_to_json(default_json, entity_reference=context, exclude_keys=excludes)
         else:
             _LOG.trace("Default presets exist")
 

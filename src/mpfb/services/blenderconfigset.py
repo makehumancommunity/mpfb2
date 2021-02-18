@@ -112,7 +112,7 @@ class BlenderConfigSet(ConfigurationSet):
         _LOG.enter()
         if not self.has_key(name):
             return False
-        value = self.get_value(name, context=context)
+        value = self.get_value(name, entity_reference=context)
         return not value is None
 
     def _create_property_by_type(self, proptype, name, description, default, items=None, items_callback=None):
