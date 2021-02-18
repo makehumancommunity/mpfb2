@@ -108,11 +108,11 @@ class BlenderConfigSet(ConfigurationSet):
         _LOG.enter()
         return name in self._properties_by_full_name or name in self._properties_by_short_name
 
-    def has_key_with_value(self, name, context=None):
+    def has_key_with_value(self, name, entity_reference=None):
         _LOG.enter()
         if not self.has_key(name):
             return False
-        value = self.get_value(name, entity_reference=context)
+        value = self.get_value(name, entity_reference=entity_reference)
         return not value is None
 
     def _create_property_by_type(self, proptype, name, description, default, items=None, items_callback=None):
