@@ -60,7 +60,7 @@ class DefaultFingerIk(FingerIk):
 
     def _sided_rotation_limits(self, finger_number, armature_object):
         bpy.ops.object.mode_set(mode='POSE', toggle=False)
-        for segment_number in [1,2,3]:
+        for segment_number in [1, 2, 3]:
             limits = {}
             if finger_number == 1:
                 if segment_number == 1:
@@ -80,7 +80,7 @@ class DefaultFingerIk(FingerIk):
 
     def _sided_rotation_locks(self, finger_number, armature_object):
         bpy.ops.object.mode_set(mode='POSE', toggle=False)
-        for segment_number in [1,2,3]:
+        for segment_number in [1, 2, 3]:
             locks = {}
             if finger_number == 1:
                 if segment_number == 1:
@@ -106,7 +106,7 @@ class DefaultFingerIk(FingerIk):
 
     def get_reverse_list_of_bones_in_finger(self, finger_number):
         bone_list = []
-        for segment_number in [3,2,1]:
+        for segment_number in [3, 2, 1]:
             bone_list.append(self._sided("finger" + str(finger_number) + "-" + str(segment_number)))
         return bone_list
 
@@ -118,9 +118,6 @@ class DefaultFingerIk(FingerIk):
 
     def get_immediate_parent_name_of_finger(self, finger_number):
         return self._sided(_FINGER_PARENT[finger_number])
-
-    def get_hand_name(self):
-        return self._sided("wrist")
 
     def get_finger_segment_count(self, finger_number):
         return 3
