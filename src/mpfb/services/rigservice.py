@@ -57,6 +57,30 @@ class RigService:
         return bone.constraints.new(constraint_name)
 
     @staticmethod
+    def add_copy_rotation_constraint_to_pose_bone(bone_to_restrain_name, bone_to_copy_from_name, armature_object, copy_x=True, copy_y=True, copy_z=True):
+        constraint = RigService.add_bone_constraint_to_pose_bone(bone_to_restrain_name, armature_object, 'COPY_ROTATION')
+
+        base = 'Copy '
+        if copy_x:
+            base = base + 'X'
+        if copy_y:
+            base = base + 'Y'
+        if copy_z:
+            base = base + 'Z'
+
+        constraint.name = base + ' rotation'
+        constraint.target = armature_object
+        constraint.subtarget = bone_to_copy_from_name
+        constraint.target_space = 'LOCAL'
+        constraint.owner_space = 'LOCAL'
+        constraint.influence = 1.0
+        constraint.use_x = copy_x
+        constraint.use_y = copy_y
+        constraint.use_z = copy_z
+
+        return constraint
+
+    @staticmethod
     def add_rotation_constraint_to_pose_bone(bone_name, armature_object, limit_x=False, limit_y=False, limit_z=False):
         constraint = RigService.add_bone_constraint_to_pose_bone(bone_name, armature_object, 'LIMIT_ROTATION')
         constraint.use_transform_limit = True
@@ -206,18 +230,25 @@ class RigService:
         children = ObjectService.get_list_of_children(armature_object)
         has_circle = False
         has_sphere = False
+        has_arrow = False
         prefix = armature_object.name + "."
         for child in children:
             if "bone_shape_sphere" in child.name:
                 has_sphere = True
             if "bone_shape_circle" in child.name:
                 has_circle = True
+            if "bone_shape_arrow" in child.name:
+                has_arrow = True
         if not has_circle:
             empty = ObjectService.create_empty(prefix + ".bone_shape_circle", type="CIRCLE", parent=armature_object)
             empty.hide_render = True
             empty.hide_viewport = True
         if not has_sphere:
             empty = ObjectService.create_empty(prefix + ".bone_shape_sphere", type="SPHERE", parent=armature_object)
+            empty.hide_render = True
+            empty.hide_viewport = True
+        if not has_arrow:
+            empty = ObjectService.create_empty(prefix + ".bone_shape_arrow", type="SINGLE_ARROW", parent=armature_object)
             empty.hide_render = True
             empty.hide_viewport = True
 
@@ -229,6 +260,8 @@ class RigService:
         expected_name = "bone_shape_sphere"
         if type == "CIRCLE":
              expected_name = "bone_shape_circle"
+        if type == "SINGLE_ARROW":
+             expected_name = "bone_shape_arrow"
         shape_object = None
         for child in children:
             if expected_name in child.name:
