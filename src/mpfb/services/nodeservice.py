@@ -86,13 +86,16 @@ class NodeService:
         return link_info
 
     @staticmethod
-    def get_node_tree_as_dict(node_tree, recurse_groups=True):
+    def get_node_tree_as_dict(node_tree, recurse_groups=True, group_dict=None):
         _LOG.enter()
         _LOG.dump("node_tree", node_tree)
 
         for_output = dict()
         if recurse_groups:
-            for_output["groups"] = dict()
+            if group_dict:
+                for_output["groups"] = dict()
+            else:
+                for_output["groups"] = dict()
         for_output["nodes"] = dict()
         for_output["links"] = []
 
@@ -103,13 +106,15 @@ class NodeService:
             name = node_info["name"]
             for_output["nodes"][name] = node_info
             if isinstance(node, ShaderNodeGroup) and recurse_groups:
-                for_output["groups"][name] = NodeService.get_node_tree_as_dict(node.node_tree)
-                for_output["groups"][name]["inputs"] = {}
-                for_output["groups"][name]["outputs"] = {}
+                group_name = node.node_tree.name
+                for_output["nodes"][name]["group_name"] = group_name
+                for_output["groups"][group_name] = NodeService.get_node_tree_as_dict(node.node_tree, recurse_groups=True, group_dict=for_output["groups"])
+                for_output["groups"][group_name]["inputs"] = {}
+                for_output["groups"][group_name]["outputs"] = {}
                 for input_socket in node.node_tree.inputs:
-                    for_output["groups"][name]["inputs"][input_socket.name] = input_socket.type
+                    for_output["groups"][group_name]["inputs"][input_socket.name] = input_socket.type
                 for output_socket in node.node_tree.outputs:
-                    for_output["groups"][name]["outputs"][output_socket.name] = output_socket.type
+                    for_output["groups"][group_name]["outputs"][output_socket.name] = output_socket.type
 
         links = node_tree.links
 
