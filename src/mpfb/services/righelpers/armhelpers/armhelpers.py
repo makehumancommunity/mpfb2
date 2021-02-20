@@ -77,7 +77,7 @@ class ArmHelpers():
         if rigtype == "Default":
             from mpfb.services.righelpers.armhelpers.defaultarmhelpers import DefaultArmHelpers  # pylint: disable=C0415
             return DefaultArmHelpers(which_arm, settings)
-        return ArmIk(which_arm, settings)
+        return ArmHelpers(which_arm, settings)
 
     def _create_hand_ik_bone(self, armature_object):
         _LOG.enter()
