@@ -1,7 +1,0 @@
-{
-    "type": "boolean",
-    "name": "left_arm_target_rotates_hand",
-    "description": "When rotating the IK target bone, then also rotate the hand",
-    "label": "Target rotates hand",
-    "default": true
-}

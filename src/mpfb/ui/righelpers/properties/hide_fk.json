@@ -1,0 +1,7 @@
+{
+    "type": "boolean",
+    "name": "hide_fk",
+    "description": "When adding helpers, hide the bones that are controlled by the helper",
+    "label": "Hide controlled bones",
+    "default": true
+}

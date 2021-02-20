@@ -8,7 +8,7 @@ from mpfb.ui.importer import *
 from mpfb.ui.importerpresets import *
 
 # Rigging
-from mpfb.ui.ikfk import *
+from mpfb.ui.righelpers import *
 
 # Materials
 from mpfb.ui.enhancedsettings import *
@@ -28,6 +28,6 @@ __all__ = [
     "MPFB_PT_Targets_Panel",
     "MPFB_PT_Clothes_Panel",
     "MPFB_PT_Save_Nodes_Panel",
-    "MPFB_PT_Ik_Fk_Panel",
+    "MPFB_PT_RigHelpersPanel",
     "MPFB_PT_Enhanced_Settings_Panel"
     ]

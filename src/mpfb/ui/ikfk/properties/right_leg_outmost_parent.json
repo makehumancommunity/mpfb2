@@ -1,7 +1,0 @@
-{
-    "type": "boolean",
-    "name": "right_leg_outmost_parent",
-    "description": "If several IK bones are added, use the bone at the end of the chain as parent for the other bones (this overrides root as parent for these bones)",
-    "label": "Outmost bone is parent",
-    "default": false
-}

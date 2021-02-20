@@ -1,0 +1,12 @@
+{
+    "type": "enum",
+    "name": "leg_helpers_type",
+    "description": "Which helper setup should we apply to the legs?",
+    "label": "Helper type",
+    "default": "LOWERUPPER",
+    "items": [
+    	["NONE", "None", "Do not add helpers for the legs", 0],
+    	["LOWERUPPER", "Lower + upper", "Two IK targets, one for the lower leg and one for the upper leg. Do not add IK to the hip", 1],
+    	["LOWERUPPERHIP", "Lower + upper + hip", "Three IK targets, one for the lower leg, one for the upper leg and one for the hip", 2]   	    	
+    ]
+}

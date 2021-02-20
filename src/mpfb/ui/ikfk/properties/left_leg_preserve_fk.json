@@ -1,7 +1,0 @@
-{
-    "type": "boolean",
-    "name": "left_leg_preserve_fk",
-    "description": "Try to preserve as much of the current FK pose as possible when adding the IK functionality. If unchecked, the bones will be set to rest pose before adding IK.",
-    "label": "Preserve FK pose",
-    "default": true
-}

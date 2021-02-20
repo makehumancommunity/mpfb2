@@ -1,0 +1,7 @@
+{
+    "type": "boolean",
+    "name": "preserve_fk",
+    "description": "Try to preserve as much of the current pose as possible when adding helpers. If unchecked, the bones will be set to rest pose before helpers are added.",
+    "label": "Preserve pose",
+    "default": true
+}

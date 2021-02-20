@@ -1,0 +1,7 @@
+{
+    "type": "string",
+    "name": "leg_mode",
+    "description": "In what mode (FK/IK) are the legs",
+    "label": "Leg mode",
+    "default": ""    
+}

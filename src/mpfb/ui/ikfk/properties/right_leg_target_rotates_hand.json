@@ -1,7 +1,0 @@
-{
-    "type": "boolean",
-    "name": "right_leg_target_rotates_foot",
-    "description": "When rotating the IK target bone, then also rotate the foot",
-    "label": "Target rotates foot",
-    "default": true
-}
