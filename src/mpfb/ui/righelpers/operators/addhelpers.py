@@ -33,6 +33,12 @@ class MPFB_OT_AddHelpersOperator(bpy.types.Operator):
             helpers.apply_ik(armature_object)
         RigHelpersProperties.set_value("finger_mode", settings["finger_helpers_type"], entity_reference=armature_object)
 
+    def _eye_helpers(self, armature_object, settings):
+        from mpfb.services.righelpers.eyehelpers.eyehelpers import EyeHelpers
+        helpers = EyeHelpers.get_instance(settings)
+        helpers.apply_ik(armature_object)
+        RigHelpersProperties.set_value("eye_mode", "IK", entity_reference=armature_object)
+
     def execute(self, context):
         _LOG.enter()
         armature_object = context.object
@@ -58,6 +64,12 @@ class MPFB_OT_AddHelpersOperator(bpy.types.Operator):
         else:
             _LOG.debug("Not adding finger helpers")
 
+        if "eye_ik" in settings and settings["eye_ik"]:
+            _LOG.debug("Adding eye ik")
+            self._eye_helpers(armature_object, settings)
+        else:
+            _LOG.debug("Not adding eye ik")
+        
         self.report({'INFO'}, "Helpers were added")
         return {'FINISHED'}
 

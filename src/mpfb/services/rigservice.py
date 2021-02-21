@@ -294,7 +294,7 @@ class RigService:
             empty.hide_viewport = True
 
     @staticmethod
-    def display_pose_bone_as_empty(armature_object, bone_name, type="SPHERE"):
+    def display_pose_bone_as_empty(armature_object, bone_name, type="SPHERE", scale=1.0):
         bone = RigService.find_pose_bone_by_name(bone_name, armature_object)
         RigService.ensure_armature_has_bone_shape_objects_as_children(armature_object)
         children = ObjectService.get_list_of_children(armature_object)
@@ -309,5 +309,6 @@ class RigService:
                 shape_object = child
         if shape_object:
             bone.custom_shape = shape_object
+            bone.custom_shape_scale = scale
         else:
             _LOG.warn("Was not able to find empty child")

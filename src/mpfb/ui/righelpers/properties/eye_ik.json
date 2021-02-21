@@ -1,0 +1,7 @@
+{
+    "type": "boolean",
+    "name": "eye_ik",
+    "description": "Add an eye IK helper target",
+    "label": "Eye IK",
+    "default": true
+}

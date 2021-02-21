@@ -52,6 +52,13 @@ class MPFB_PT_RigHelpersPanel(bpy.types.Panel):
             ]
         SETUP_HELPERS_PROPERTIES.draw_properties(scene, box, props)
 
+    def _eye_helpers(self, scene, layout):
+        box = self._create_box(layout, "Eye helpers", "BONE_DATA")
+        props = [
+            "eye_ik"
+            ]
+        SETUP_HELPERS_PROPERTIES.draw_properties(scene, box, props)
+
     def _apply_helpers(self, scene, layout):
         box = self._create_box(layout, "Apply", "ARMATURE_DATA")
         props = [
@@ -79,13 +86,15 @@ class MPFB_PT_RigHelpersPanel(bpy.types.Panel):
         finger_mode = RigHelpersProperties.get_value("finger_mode", entity_reference=armature_object)
         leg_mode = RigHelpersProperties.get_value("leg_mode", entity_reference=armature_object)
         arm_mode = RigHelpersProperties.get_value("arm_mode", entity_reference=armature_object)
+        eye_mode = RigHelpersProperties.get_value("eye_mode", entity_reference=armature_object)
 
-        if finger_mode or leg_mode or arm_mode:
+        if finger_mode or leg_mode or arm_mode or eye_mode:
             self._remove_helpers(scene, layout)
         else:
             self._arm_helpers(scene, layout)
             self._leg_helpers(scene, layout)
             self._finger_helpers(scene, layout)
+            self._eye_helpers(scene, layout)
             self._apply_helpers(scene, layout)
 
 

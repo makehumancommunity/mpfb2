@@ -33,6 +33,13 @@ class MPFB_OT_RemoveHelpersOperator(bpy.types.Operator):
             helpers.remove_ik(armature_object)
         RigHelpersProperties.set_value("finger_mode", "", entity_reference=armature_object)
 
+    def _eye_helpers(self, armature_object, settings):
+        from mpfb.services.righelpers.eyehelpers.eyehelpers import EyeHelpers
+        helpers = EyeHelpers.get_instance(settings)
+        helpers.remove_ik(armature_object)
+        RigHelpersProperties.set_value("eye_mode", "", entity_reference=armature_object)
+        
+
     def execute(self, context):
         _LOG.enter()
         armature_object = context.object
@@ -43,6 +50,7 @@ class MPFB_OT_RemoveHelpersOperator(bpy.types.Operator):
         finger_mode = RigHelpersProperties.get_value("finger_mode", entity_reference=armature_object)
         leg_mode = RigHelpersProperties.get_value("leg_mode", entity_reference=armature_object)
         arm_mode = RigHelpersProperties.get_value("arm_mode", entity_reference=armature_object)
+        eye_mode = RigHelpersProperties.get_value("eye_mode", entity_reference=armature_object)
 
         if finger_mode:
             self._finger_helpers(armature_object, settings)
@@ -53,6 +61,10 @@ class MPFB_OT_RemoveHelpersOperator(bpy.types.Operator):
         if arm_mode:
             self._arm_helpers(armature_object, settings)
 
+        if eye_mode:
+            self._eye_helpers(armature_object, settings)
+
+        
         self.report({'INFO'}, "Helpers were removed")
         return {'FINISHED'}
 
@@ -67,7 +79,8 @@ class MPFB_OT_RemoveHelpersOperator(bpy.types.Operator):
         finger_mode = RigHelpersProperties.get_value("finger_mode", entity_reference=armature_object)
         leg_mode = RigHelpersProperties.get_value("leg_mode", entity_reference=armature_object)
         arm_mode = RigHelpersProperties.get_value("arm_mode", entity_reference=armature_object)
+        eye_mode = RigHelpersProperties.get_value("eye_mode", entity_reference=armature_object)
 
-        return finger_mode or leg_mode or arm_mode
+        return finger_mode or leg_mode or arm_mode or eye_mode
 
 ClassManager.add_class(MPFB_OT_RemoveHelpersOperator)
