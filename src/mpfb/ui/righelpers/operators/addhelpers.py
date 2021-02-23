@@ -69,7 +69,7 @@ class MPFB_OT_AddHelpersOperator(bpy.types.Operator):
             self._eye_helpers(armature_object, settings)
         else:
             _LOG.debug("Not adding eye ik")
-        
+
         self.report({'INFO'}, "Helpers were added")
         return {'FINISHED'}
 

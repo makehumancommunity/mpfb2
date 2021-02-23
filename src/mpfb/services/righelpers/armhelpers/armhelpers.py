@@ -23,23 +23,21 @@ class ArmHelpers():
         self._bone_info = RigService.get_bone_orientation_info_as_dict(armature_object)
         if self.settings["arm_helpers_type"] == "LOWERUPPER":
             self._apply_lower_upper(armature_object)
+            self._set_parent(armature_object, has_elbow_ik=True, has_shoulder_ik=False)
 
         if self.settings["arm_helpers_type"] == "LOWERUPPERSHOULDER":
             self._apply_lower_upper_shoulder(armature_object)
-
-        if self.settings["arm_helpers_type"] == "ARMWITHPOLE":
-            self._apply_arm_with_pole(armature_object)
-
-        if self.settings["arm_helpers_type"] == "ARMANDSHOULERWITHPOLE":
-            self._remove_arm_and_shoulder_with_pole(armature_object)
+            self._set_parent(armature_object, has_elbow_ik=True, has_shoulder_ik=True)
 
         if self.settings["arm_helpers_type"] == "ARMCHAIN":
             self._apply_arm_chain(armature_object)
+            self._set_parent(armature_object, has_elbow_ik=False, has_shoulder_ik=False)
 
         if self.settings["arm_helpers_type"] == "SHOULDERCHAIN":
             self._apply_shoulder_chain(armature_object)
+            self._set_parent(armature_object, has_elbow_ik=False, has_shoulder_ik=False)
 
-        bpy.ops.object.mode_set(mode='POSE', toggle=False)
+        bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
 
     def remove_ik(self, armature_object):
         _LOG.enter()
@@ -48,28 +46,39 @@ class ArmHelpers():
 
         _LOG.debug("mode is", mode)
 
-        if mode == "LOWERUPPER":
-            _LOG.debug("pos 1")
-            self._remove_lower_upper(armature_object)
-            _LOG.debug("pos 2")
+        include_shoulder = False
 
         if mode == "LOWERUPPERSHOULDER":
-            self._remove_lower_upper_shoulder(armature_object)
-
-        #if mode == "ARMWITHPOLE":
-        #    self._remove_arm_with_pole(armature_object)
-
-        #if mode == "ARMANDSHOULERWITHPOLE":
-        #    self._remove_arm_and_shoulder_with_pole(armature_object)
-
-        if mode == "ARMCHAIN":
-            self._remove_arm_chain(armature_object)
+            include_shoulder = True
 
         if mode == "SHOULDERCHAIN":
-            self._remove_shoulder_chain(armature_object)
+            include_shoulder = True
 
-        _LOG.debug("Done")
         bpy.ops.object.mode_set(mode='POSE', toggle=False)
+        bones_to_clear = self.get_reverse_list_of_bones_in_arm(True, True, True, include_shoulder)
+        
+        for bone_name in bones_to_clear:
+            _LOG.debug("Will attempt to clear constraints from", bone_name)
+            RigService.remove_all_constraints_from_pose_bone(bone_name, armature_object)
+            
+        self._show_bones(armature_object, bones_to_clear)
+        
+        bpy.ops.object.mode_set(mode='EDIT', toggle=False)
+            
+        ik_bones = [
+            self.which_arm + "_hand_ik",
+            self.which_arm + "_elbow_ik",
+            self.which_arm + "_shoulder_ik"
+            ]        
+
+        for bone_name in ik_bones:        
+            bone = RigService.find_edit_bone_by_name(bone_name, armature_object)
+            if bone:
+                armature_object.data.edit_bones.remove(bone)
+                
+        bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
+        
+        _LOG.debug("Done")
 
     @staticmethod
     def get_instance(which_arm, settings, rigtype="Default"):
@@ -78,6 +87,59 @@ class ArmHelpers():
             from mpfb.services.righelpers.armhelpers.defaultarmhelpers import DefaultArmHelpers  # pylint: disable=C0415
             return DefaultArmHelpers(which_arm, settings)
         return ArmHelpers(which_arm, settings)
+
+    def _set_parent(self, armature_object, has_elbow_ik=False, has_shoulder_ik=False):
+
+        bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
+        bpy.ops.object.mode_set(mode='EDIT', toggle=False)
+
+        if not "arm_parenting_strategy" in self.settings:
+            return
+
+        strategy = self.settings["arm_parenting_strategy"]
+
+        if not strategy or strategy == "NONE":
+            return
+
+        hand_ik = RigService.find_edit_bone_by_name(self.which_arm + "_hand_ik", armature_object)
+        elbow_ik = None
+        shoulder_ik = None
+
+        if has_elbow_ik:
+            elbow_ik = RigService.find_edit_bone_by_name(self.which_arm + "_elbow_ik", armature_object)
+
+        if has_shoulder_ik:
+            shoulder_ik = RigService.find_edit_bone_by_name(self.which_arm + "_shoulder_ik", armature_object)
+
+        if strategy == "ROOT":
+            root_bone = RigService.find_edit_bone_by_name(self.get_root(), armature_object)
+            hand_ik.parent = root_bone
+            if elbow_ik:
+                elbow_ik.parent = root_bone
+            if shoulder_ik:
+                shoulder_ik.parent = root_bone
+
+        if strategy == "SPINE":
+            spine_bone = RigService.find_edit_bone_by_name(self.get_shoulders_immediate_parent(), armature_object)
+            hand_ik.parent = spine_bone
+            if elbow_ik:
+                elbow_ik.parent = spine_bone
+            if shoulder_ik:
+                shoulder_ik.parent = spine_bone
+
+        if strategy == "OUTER":
+            if elbow_ik:
+                elbow_ik.parent = hand_ik
+                if shoulder_ik:
+                    shoulder_ik.parent = elbow_ik
+
+        if strategy == "INNER":
+            if elbow_ik:
+                hand_ik.parent = elbow_ik
+                if shoulder_ik:
+                    elbow_ik.parent = shoulder_ik
+
+        bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
 
     def _create_hand_ik_bone(self, armature_object):
         _LOG.enter()
@@ -191,32 +253,6 @@ class ArmHelpers():
         self.add_shoulder_rotation_constraints(armature_object)
         RigService.add_ik_constraint_to_pose_bone(shoulder_name, armature_object, shoulder_bone, chain_length)
 
-    def _clear_lower_arm_ik_target(self, armature_object, pole_target=None):
-        _LOG.enter()
-        bpy.ops.object.mode_set(mode='POSE', toggle=False)
-        bones_to_clear = self.get_reverse_list_of_bones_in_arm(True, True, False, False)
-        for bone_name in bones_to_clear:
-            _LOG.debug("Will attempt to clear constraints from", bone_name)
-            RigService.remove_all_constraints_from_pose_bone(bone_name, armature_object)
-        bpy.ops.object.mode_set(mode='EDIT', toggle=False)
-        bone_name = self.which_arm + "_hand_ik"
-        bone = RigService.find_edit_bone_by_name(bone_name, armature_object)
-        armature_object.data.edit_bones.remove(bone)
-        bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
-
-    def _clear_upper_arm_ik_target(self, armature_object):
-        _LOG.enter()
-        bpy.ops.object.mode_set(mode='POSE', toggle=False)
-        bones_to_clear = self.get_reverse_list_of_bones_in_arm(False, False, True, False)
-        for bone_name in bones_to_clear:
-            _LOG.debug("Will attempt to clear constraints from", bone_name)
-            RigService.remove_all_constraints_from_pose_bone(bone_name, armature_object)
-        bpy.ops.object.mode_set(mode='EDIT', toggle=False)
-        bone_name = self.which_arm + "_elbow_ik"
-        bone = RigService.find_edit_bone_by_name(bone_name, armature_object)
-        armature_object.data.edit_bones.remove(bone)
-        bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
-
     def _hide_bones(self, armature_object, bone_list):
         _LOG.enter()
         bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
@@ -255,12 +291,6 @@ class ArmHelpers():
             bones_to_hide = self.get_reverse_list_of_bones_in_arm(True, True, True, True)
             self._hide_bones(armature_object, bones_to_hide)
 
-    def _apply_arm_with_pole(self, armature_object):
-        pass
-
-    def _apply_arm_and_shoulder_with_pole(self, armature_object):
-        pass
-
     def _apply_arm_chain(self, armature_object):
         _LOG.enter()
         self._create_hand_ik_bone(armature_object)
@@ -285,30 +315,6 @@ class ArmHelpers():
             bone = RigService.find_pose_bone_by_name(bone_name, armature_object)
             # TODO: figure out how to set local rotation based on what the IK resulting rotation was
 
-    def _remove_lower_upper(self, armature_object):
-        _LOG.enter()
-        bpy.ops.object.mode_set(mode='POSE', toggle=False)
-        bones_to_show = self.get_reverse_list_of_bones_in_arm(True, True, True, False)
-        self._show_bones(armature_object, bones_to_show)
-        self._clear_upper_arm_ik_target(armature_object)
-        self._clear_lower_arm_ik_target(armature_object)
-        # self._reset_bones(bones_to_show, armature_object)
-
-    def _remove_lower_upper_shoulder(self, armature_object):
-        pass
-
-    def _remove_arm_with_pole(self, armature_object):
-        pass
-
-    def _remove_arm_and_shoulder_with_pole(self, armature_object):
-        pass
-
-    def _remove_arm_chain(self, armature_object):
-        pass
-
-    def _remove_shoulder_chain(self, armature_object):
-        pass
-
     def get_lower_arm_name(self):
         raise NotImplementedError("the get_lower_arm_name() method must be overriden by the rig class")
 
@@ -329,6 +335,12 @@ class ArmHelpers():
 
     def get_shoulder_count(self):
         raise NotImplementedError("the get_lower_arm_count() method must be overriden by the rig class")
+
+    def get_shoulders_immediate_parent(self):
+        raise NotImplementedError("the get_shoulders_immediate_parent() method must be overriden by the rig class")
+
+    def get_root(self):
+        raise NotImplementedError("the get_root() method must be overriden by the rig class")
 
     def add_lower_arm_rotation_constraints(self, armature_object):
         raise NotImplementedError("the add_lower_arm_rotation_constraints() method must be overriden by the rig class")

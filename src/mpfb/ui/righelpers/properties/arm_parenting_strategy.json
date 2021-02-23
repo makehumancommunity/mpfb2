@@ -3,7 +3,7 @@
     "name": "arm_parenting_strategy",
     "description": "Which strategy should be used for setting parents of helpers?",
     "label": "Parenting strategy",
-    "default": "NONE",
+    "default": "SPINE",
     "items": [
     	["NONE", "None", "Do not set parent", 0],
     	["ROOT", "Root bone", "Root bone is parent of all helpers", 1],

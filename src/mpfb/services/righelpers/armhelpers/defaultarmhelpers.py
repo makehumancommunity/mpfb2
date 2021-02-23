@@ -68,6 +68,12 @@ class DefaultArmHelpers(ArmHelpers):
     def get_hand_name(self):
         return self._sided("wrist")
 
+    def get_shoulders_immediate_parent(self):
+        return "spine01"
+
+    def get_root(self):
+        return "root"
+
     def get_lower_arm_count(self):
         return 2
 
