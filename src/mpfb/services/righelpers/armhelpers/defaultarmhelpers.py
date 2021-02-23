@@ -1,3 +1,4 @@
+"""This module contains the default rig's implementation of the arm helpers class"""
 
 import bpy
 
@@ -47,7 +48,12 @@ _ROTATION_LOCKS = {
 
 class DefaultArmHelpers(ArmHelpers):
 
+    """The rig specific implementation of arm helpers matching the Default and Default-no-toes rigs."""
+
     def __init__(self, which_arm, settings):
+        """Get a new instance of the class. You should not call this directly. Instead, use the get_instance()
+        method in the abstract base class."""
+
         _LOG.debug("Constructing DefaultArmHelpers object")
         ArmHelpers.__init__(self, which_arm, settings)
 
