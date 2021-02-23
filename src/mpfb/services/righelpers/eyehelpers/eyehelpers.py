@@ -1,3 +1,4 @@
+"""This module provides functionality for adding helpers to eyes."""
 
 import bpy
 
@@ -10,7 +11,15 @@ from mpfb.ui.righelpers import RigHelpersProperties
 
 class EyeHelpers():
 
+    """This is the abstract rig type independent base class for working with
+    helpers for eyes. You will want to call the static get_instance()
+    method to get a concrete implementation for the specific rig you are
+    working with."""
+
     def __init__(self, settings):
+        """Get a new instance of EyeHelpers. You should not call this directly.
+        Use get_instance() instead."""
+
         _LOG.debug("Constructing EyeHelpers object")
         self.settings = settings
         self._bone_info = dict()
@@ -18,6 +27,9 @@ class EyeHelpers():
         _LOG.dump("settings", self.settings)
 
     def apply_ik(self, armature_object):
+        """Add rig helpers for eyes based on the settings that were provided
+        when constructing the class."""
+
         _LOG.enter()
         self._bone_info = RigService.get_bone_orientation_info_as_dict(armature_object)
 
@@ -27,6 +39,10 @@ class EyeHelpers():
         bpy.ops.object.mode_set(mode='POSE', toggle=False)
 
     def remove_ik(self, armature_object):
+        """Remove rig helpers for eyes based on the settings that were provided
+        when constructing the class, and information about the current status of the
+        armature object."""
+
         _LOG.enter()
 
         bpy.ops.object.mode_set(mode='POSE', toggle=False)
@@ -46,6 +62,8 @@ class EyeHelpers():
 
     @staticmethod
     def get_instance(settings, rigtype="Default"):
+        """Get an implementation instance matching the rig type."""
+
         _LOG.enter()
         if rigtype == "Default":
             from mpfb.services.righelpers.eyehelpers.defaulteyehelpers import DefaultEyeHelpers  # pylint: disable=C0415
@@ -103,17 +121,22 @@ class EyeHelpers():
         RigService.add_ik_constraint_to_pose_bone(self.get_eye_name(False), armature_object, left, chain_length=1)
 
     def get_head_name(self):
+        """Abstract method for getting the name of the head bone, must be overriden by rig specific implementation classes."""
         raise NotImplementedError("the get_head_name() method must be overriden by the rig class")
 
     def get_eye_name(self, right_side=True):
+        """Abstract method for getting the name of the eye bone, must be overriden by rig specific implementation classes."""
         raise NotImplementedError("the get_eye_name() method must be overriden by the rig class")
 
     def get_eye_lower_lid_name(self, right_side=True):
+        """Abstract method for getting the name of the lower eyelid bone, must be overriden by rig specific implementation classes."""
         raise NotImplementedError("the get_eye_lower_lid_name() method must be overriden by the rig class")
 
     def get_eye_upper_lid_name(self, right_side=True):
+        """Abstract method for getting the name of the upper eyelid bone, must be overriden by rig specific implementation classes."""
         raise NotImplementedError("the get_eye_upper_lid_name() method must be overriden by the rig class")
 
     def add_eye_rotation_constraints(self, armature_object):
+        """Abstract method for setting constraints of the eye bone, must be overriden by rig specific implementation classes."""
         raise NotImplementedError("the add_eye_rotation_constraints() method must be overriden by the rig class")
 

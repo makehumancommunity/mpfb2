@@ -1,3 +1,4 @@
+"""This module contains the default rig's implementation of the eye helpers class"""
 
 import bpy
 
@@ -46,7 +47,12 @@ _ROTATION_LOCKS = {
 
 class DefaultEyeHelpers(EyeHelpers):
 
+    """The rig specific implementation of eye helpers matching the Default and Default-no-toes rigs."""
+
     def __init__(self, settings):
+        """Get a new instance of the class. You should not call this directly. Instead, use the get_instance()
+        method in the abstract base class."""
+
         _LOG.debug("Constructing DefaultEyeHelpers object")
         EyeHelpers.__init__(self, settings)
 
@@ -56,38 +62,25 @@ class DefaultEyeHelpers(EyeHelpers):
     def get_eye_name(self, right_side=True):
         if right_side:
             return "eye.R"
-        else:
-            return "eye.L"
+        return "eye.L"
 
     def get_eye_lower_lid_name(self, right_side=True):
         if right_side:
             return "orbicularis04.R"
-        else:
-            return "orbicularis04.L"
+        return "orbicularis04.L"
 
     def get_eye_upper_lid_name(self, right_side=True):
         if right_side:
             return "orbicularis03.R"
-        else:
-            return "orbicularis03.L"
+        return "orbicularis03.L"
 
     def add_eye_rotation_constraints(self, armature_object):
         pass
 
     def _sided_rotation_limit(self, unsided_name, armature_object):
-        bpy.ops.object.mode_set(mode='POSE', toggle=False)
-        if unsided_name in _ROTATION_LIMITS:
-            for axis_name in _ROTATION_LIMITS[unsided_name].keys():
-                name = self._sided(unsided_name)
-                limits = _ROTATION_LIMITS[unsided_name][axis_name]
-                RigService.set_ik_rotation_limits(name, armature_object, axis=axis_name, min_angle=limits[0], max_angle=limits[1])
+        # TODO: consider whether rotation limits are even relevant
+        pass
 
     def _sided_rotation_lock(self, unsided_name, armature_object):
-        bpy.ops.object.mode_set(mode='POSE', toggle=False)
-        if unsided_name in _ROTATION_LOCKS:
-            locks = _ROTATION_LOCKS[unsided_name]
-            x = "X" in locks and _ROTATION_LOCKS[unsided_name]["X"]
-            y = "Y" in locks and _ROTATION_LOCKS[unsided_name]["Y"]
-            z = "Z" in locks and _ROTATION_LOCKS[unsided_name]["Z"]
-            name = self._sided(unsided_name)
-            RigService.add_ik_rotation_lock_to_pose_bone(name, armature_object, lock_x=x, lock_y=y, lock_z=z)
+        # TODO: consider whether rotation locks are even relevant
+        pass
