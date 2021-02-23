@@ -1,6 +1,6 @@
 """This module hierarchy provides utility classes for adding and
-removing helper bones (for example IK targets, grip rotation handles etc)
-to the arms/hands section of a makehuman rig."""
+removing helper bones (for example IK targets) to the arms/hands
+section of a makehuman rig."""
 
 from mpfb.services.logservice import LogService
 

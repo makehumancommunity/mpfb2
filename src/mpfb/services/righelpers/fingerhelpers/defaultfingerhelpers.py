@@ -1,3 +1,4 @@
+"""This module contains the default rig's implementation of the finger helpers class"""
 
 import bpy
 
@@ -49,7 +50,12 @@ _FINGER_PARENT = {
 
 class DefaultFingerHelpers(FingerHelpers):
 
+    """The rig specific implementation of finger helpers matching the Default and Default-no-toes rigs."""
+
     def __init__(self, which_hand, settings):
+        """Get a new instance of the class. You should not call this directly. Instead, use the get_instance()
+        method in the abstract base class."""
+
         _LOG.debug("Constructing DefaultFingerHelpers object")
         FingerHelpers.__init__(self, which_hand, settings)
 

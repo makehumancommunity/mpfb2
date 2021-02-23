@@ -1,3 +1,5 @@
+"""This module provides functionality for adding helpers to fingers."""
+
 import bpy
 
 from mpfb.services.logservice import LogService
@@ -8,7 +10,15 @@ from mpfb.ui.righelpers import RigHelpersProperties
 
 class FingerHelpers():
 
+    """This is the abstract rig type independent base class for working with
+    helpers for fingers. You will want to call the static get_instance()
+    method to get a concrete implementation for the specific rig you are
+    working with."""
+
     def __init__(self, which_hand, settings):
+        """Get a new instance of FingerHelpers. You should not call this directly.
+        Use get_instance() instead."""
+
         _LOG.debug("Constructing FingerHelpers object")
         self.which_hand = which_hand
         self.settings = settings
@@ -20,6 +30,9 @@ class FingerHelpers():
     # ---- METHODS FOR APPLYING AND CREATING
 
     def apply_ik(self, armature_object):
+        """Add rig helpers for fingers based on the settings that were provided
+        when constructing the class."""
+
         _LOG.enter()
         self._bone_info = RigService.get_bone_orientation_info_as_dict(armature_object)
 
@@ -252,6 +265,10 @@ class FingerHelpers():
     # ---- METHODS FOR REMOVING AND RESETTING
 
     def remove_ik(self, armature_object):
+        """Remove rig helpers for fingers based on the settings that were provided
+        when constructing the class, and information about the current status of the
+        armature object."""
+
         _LOG.enter()
         self._bone_info = RigService.get_bone_orientation_info_as_dict(armature_object)
         mode = str(RigHelpersProperties.get_value("finger_mode", entity_reference=armature_object)).strip()
@@ -324,12 +341,6 @@ class FingerHelpers():
             bones_to_show = self.get_reverse_list_of_bones_in_finger(finger_number)
             self._show_bones(armature_object, bones_to_show)
 
-    def _reset_bones(self, bone_names, armature_object):
-        _LOG.debug("preserve ik", self.settings["preserve_ik"])
-        for bone_name in bone_names:
-            bone = RigService.find_pose_bone_by_name(bone_name, armature_object)
-            # TODO: figure out how to set local rotation based on what the IK resulting rotation was
-
 
 
     # ---- BONE NAMES
@@ -368,6 +379,8 @@ class FingerHelpers():
 
     @staticmethod
     def get_instance(which_hand, settings, rigtype="Default"):
+        """Get an implementation instance matching the rig type."""
+
         _LOG.enter()
         if rigtype == "Default":
             from mpfb.services.righelpers.fingerhelpers.defaultfingerhelpers import DefaultFingerHelpers  # pylint: disable=C0415
@@ -379,19 +392,25 @@ class FingerHelpers():
     # ---- ABSTRACT METHODS INSTANCED PER RIG TYPE
 
     def get_first_segment_name_of_finger(self, finger_number):
+        """Abstract method for getting the name of the innermost bone in a finger, must be overriden by rig specific implementation classes."""
         raise NotImplementedError("get_first_segment_name_of_finger")
 
     def get_last_segment_name_of_finger(self, finger_number):
+        """Abstract method for getting the name of the finger tip bone, must be overriden by rig specific implementation classes."""
         raise NotImplementedError("get_last_segment_name_of_finger")
 
     def get_immediate_parent_name_of_finger(self, finger_number):
+        """Abstract method for getting the name of the immediate parent of a finger, must be overriden by rig specific implementation classes."""
         raise NotImplementedError("the get_immediate_parent_name_of_finger() method must be overriden by the rig class")
 
     def get_finger_segment_count(self, finger_number):
+        """Abstract method for getting the number of bones in a finger, must be overriden by rig specific implementation classes."""
         raise NotImplementedError("the get_finger_count() method must be overriden by the rig class")
 
     def add_finger_rotation_constraints(self, finger_number, armature_object):
+        """Abstract method for setting constraints for a finger, must be overriden by rig specific implementation classes."""
         raise NotImplementedError("the add_finger_rotation_constraints() method must be overriden by the rig class")
 
     def get_reverse_list_of_bones_in_finger(self, finger_number):
+        """Abstract method for getting a list of bones from a finger starting from the tip, must be overriden by rig specific implementation classes."""
         raise NotImplementedError("the get_reverse_list_of_bones_in_finger() method must be overriden by the rig class")
