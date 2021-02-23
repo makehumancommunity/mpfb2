@@ -76,6 +76,9 @@ class DefaultLegHelpers(LegHelpers):
     def get_hip_count(self):
         return 1
 
+    def get_root(self):
+        return "root"
+
     def _sided_rotation_limit(self, unsided_name, armature_object):
         bpy.ops.object.mode_set(mode='POSE', toggle=False)
         if unsided_name in _ROTATION_LIMITS:

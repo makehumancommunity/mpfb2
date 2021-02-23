@@ -23,9 +23,11 @@ class LegHelpers():
 
         if self.settings["leg_helpers_type"] == "LOWERUPPER":
             self._apply_lower_upper(armature_object)
+            self._set_parent(armature_object, True, False)
 
         if self.settings["leg_helpers_type"] == "LOWERUPPERHIP":
             self._apply_lower_upper_hip(armature_object)
+            self._set_parent(armature_object, True, True)
 
         bpy.ops.object.mode_set(mode='POSE', toggle=False)
 
@@ -52,6 +54,51 @@ class LegHelpers():
             from mpfb.services.righelpers.leghelpers.defaultleghelpers import DefaultLegHelpers  # pylint: disable=C0415
             return DefaultLegHelpers(which_leg, settings)
         return LegHelpers(which_leg, settings)
+
+    def _set_parent(self, armature_object, has_knee_ik=False, has_hip_ik=False):
+
+        bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
+        bpy.ops.object.mode_set(mode='EDIT', toggle=False)
+
+        if not "leg_parenting_strategy" in self.settings:
+            return
+
+        strategy = self.settings["leg_parenting_strategy"]
+
+        if not strategy or strategy == "NONE":
+            return
+
+        foot_ik = RigService.find_edit_bone_by_name(self.which_leg + "_foot_ik", armature_object)
+        knee_ik = None
+        hip_ik = None
+
+        if has_knee_ik:
+            knee_ik = RigService.find_edit_bone_by_name(self.which_leg + "_knee_ik", armature_object)
+
+        if has_hip_ik:
+            hip_ik = RigService.find_edit_bone_by_name(self.which_leg + "_hip_ik", armature_object)
+
+        if strategy == "ROOT":
+            root_bone = RigService.find_edit_bone_by_name(self.get_root(), armature_object)
+            foot_ik.parent = root_bone
+            if knee_ik:
+                knee_ik.parent = root_bone
+            if hip_ik:
+                hip_ik.parent = root_bone
+
+        if strategy == "OUTER":
+            if knee_ik:
+                knee_ik.parent = foot_ik
+                if hip_ik:
+                    hip_ik.parent = knee_ik
+
+        if strategy == "INNER":
+            if knee_ik:
+                foot_ik.parent = knee_ik
+                if hip_ik:
+                    knee_ik.parent = hip_ik
+
+        bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
 
     def _create_foot_ik_bone(self, armature_object):
         _LOG.enter()
@@ -285,6 +332,9 @@ class LegHelpers():
 
     def get_foot_name(self):
         raise NotImplementedError("the get_foot_name() method must be overriden by the rig class")
+
+    def get_root(self):
+        raise NotImplementedError("the get_root() method must be overriden by the rig class")
 
     def get_lower_leg_count(self):
         raise NotImplementedError("the get_lower_leg_count() method must be overriden by the rig class")
