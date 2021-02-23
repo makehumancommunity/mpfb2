@@ -38,7 +38,7 @@ class MPFB_OT_RemoveHelpersOperator(bpy.types.Operator):
         helpers = EyeHelpers.get_instance(settings)
         helpers.remove_ik(armature_object)
         RigHelpersProperties.set_value("eye_mode", "", entity_reference=armature_object)
-        
+
 
     def execute(self, context):
         _LOG.enter()
@@ -64,7 +64,7 @@ class MPFB_OT_RemoveHelpersOperator(bpy.types.Operator):
         if eye_mode:
             self._eye_helpers(armature_object, settings)
 
-        
+
         self.report({'INFO'}, "Helpers were removed")
         return {'FINISHED'}
 

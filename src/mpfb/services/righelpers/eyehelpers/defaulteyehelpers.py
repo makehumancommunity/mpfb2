@@ -73,7 +73,7 @@ class DefaultEyeHelpers(EyeHelpers):
 
     def add_eye_rotation_constraints(self, armature_object):
         pass
-    
+
     def _sided_rotation_limit(self, unsided_name, armature_object):
         bpy.ops.object.mode_set(mode='POSE', toggle=False)
         if unsided_name in _ROTATION_LIMITS:

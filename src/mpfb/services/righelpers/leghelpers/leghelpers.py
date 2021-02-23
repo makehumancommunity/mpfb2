@@ -1,4 +1,3 @@
-
 import bpy
 
 from mpfb.services.logservice import LogService

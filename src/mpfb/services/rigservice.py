@@ -6,7 +6,6 @@ from .objectservice import ObjectService
 from bpy.types import PoseBone
 
 _LOG = LogService.get_logger("services.rigservice")
-_LOG.set_level(LogService.DUMP)
 
 _RADIAN = 0.0174532925
 
@@ -145,7 +144,7 @@ class RigService:
             binfo = dict()
             binfo["head"] = bone.head.copy()
             binfo["tail"] = bone.tail.copy()
-            binfo["matrix"] = bone.matrix.copy()            
+            binfo["matrix"] = bone.matrix.copy()
             pose_bones[bone.bone.name] = binfo
 
         bpy.ops.object.mode_set(mode='EDIT', toggle=False)
@@ -178,23 +177,23 @@ class RigService:
         _LOG.debug("matrix to apply", matrix)
         bone = RigService.find_pose_bone_by_name(bone_name, armature_object)
         bone.matrix = matrix.copy()
-        
+
         children = bone_children[bone_name]
         for child_name in children:
             RigService._recurse_set_orientation(armature_object, new_bone_orientation, bone_children, child_name)
-                    
+
     @staticmethod
     def set_bone_orientation_from_info_in_dict(armature_object, new_bone_orientation):
         bpy.ops.object.mode_set(mode='POSE', toggle=False)
         current_bone_orientation = RigService.get_bone_orientation_info_as_dict(armature_object)
-        
+
         bone_children = dict()
         root_bones = []
-        
+
         for bone_name in current_bone_orientation["edit_bones"].keys():
             _LOG.debug("Analyzing parent/child for bone", bone_name)
             if not bone_name in bone_children:
-                bone_children[bone_name] = []            
+                bone_children[bone_name] = []
             bone_info = current_bone_orientation["edit_bones"][bone_name]
             if "parent" in bone_info and bone_info["parent"]:
                 # Bone has a parent, so add it to parent's list of children
@@ -204,14 +203,14 @@ class RigService:
                 bone_children[parent_name].append(bone_name)
             else:
                 # Bone does not have a parent. Assume it is a root.
-                root_bones.append(bone_name)                
-        
+                root_bones.append(bone_name)
+
         _LOG.dump("bone_children", bone_children.keys())
         _LOG.dump("root_bones", root_bones)
-        
+
         for bone_name in root_bones:
             RigService._recurse_set_orientation(armature_object, new_bone_orientation, bone_children, bone_name)
-        
+
 
     @staticmethod
     def _add_bone(armature, bone_info, parent_bone=None, scale=0.1):

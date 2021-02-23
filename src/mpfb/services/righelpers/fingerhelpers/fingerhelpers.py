@@ -6,8 +6,6 @@ _LOG = LogService.get_logger("fingerhelpers.fingerhelpers")
 from mpfb.services.rigservice import RigService
 from mpfb.ui.righelpers import RigHelpersProperties
 
-_LOG.set_level(LogService.DUMP)
-
 class FingerHelpers():
 
     def __init__(self, which_hand, settings):
