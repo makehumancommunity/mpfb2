@@ -33,19 +33,37 @@ class LegHelpers():
 
     def remove_ik(self, armature_object):
         _LOG.enter()
-        self._bone_info = RigService.get_bone_orientation_info_as_dict(armature_object)
         mode = str(RigHelpersProperties.get_value("leg_mode", entity_reference=armature_object)).strip()
 
         _LOG.debug("mode is", mode)
 
-        if mode == "LOWERUPPER":
-            self._remove_lower_upper(armature_object)
+        include_hip = mode == "LOWERUPPERHIP"
 
-        if mode == "LOWERUPPERHIP":
-            self._remove_lower_upper_hip(armature_object)
+        bpy.ops.object.mode_set(mode='POSE', toggle=False)
+        bones_to_clear = self.get_reverse_list_of_bones_in_leg(True, True, True, include_hip)
+
+        for bone_name in bones_to_clear:
+            _LOG.debug("Will attempt to clear constraints from", bone_name)
+            RigService.remove_all_constraints_from_pose_bone(bone_name, armature_object)
+
+        self._show_bones(armature_object, bones_to_clear)
+
+        bpy.ops.object.mode_set(mode='EDIT', toggle=False)
+
+        ik_bones = [
+            self.which_leg + "_foot_ik",
+            self.which_leg + "_knee_ik",
+            self.which_leg + "_hip_ik"
+            ]
+
+        for bone_name in ik_bones:
+            bone = RigService.find_edit_bone_by_name(bone_name, armature_object)
+            if bone:
+                armature_object.data.edit_bones.remove(bone)
+
+        bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
 
         _LOG.debug("Done")
-        bpy.ops.object.mode_set(mode='POSE', toggle=False)
 
     @staticmethod
     def get_instance(which_leg, settings, rigtype="Default"):
@@ -213,32 +231,6 @@ class LegHelpers():
         self.add_hip_rotation_constraints(armature_object)
         RigService.add_ik_constraint_to_pose_bone(hip_name, armature_object, hip_bone, chain_length)
 
-    def _clear_lower_leg_ik_target(self, armature_object, pole_target=None):
-        _LOG.enter()
-        bpy.ops.object.mode_set(mode='POSE', toggle=False)
-        bones_to_clear = self.get_reverse_list_of_bones_in_leg(True, True, False, False)
-        for bone_name in bones_to_clear:
-            _LOG.debug("Will attempt to clear constraints from", bone_name)
-            RigService.remove_all_constraints_from_pose_bone(bone_name, armature_object)
-        bpy.ops.object.mode_set(mode='EDIT', toggle=False)
-        bone_name = self.which_leg + "_foot_ik"
-        bone = RigService.find_edit_bone_by_name(bone_name, armature_object)
-        armature_object.data.edit_bones.remove(bone)
-        bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
-
-    def _clear_upper_leg_ik_target(self, armature_object):
-        _LOG.enter()
-        bpy.ops.object.mode_set(mode='POSE', toggle=False)
-        bones_to_clear = self.get_reverse_list_of_bones_in_leg(False, False, True, False)
-        for bone_name in bones_to_clear:
-            _LOG.debug("Will attempt to clear constraints from", bone_name)
-            RigService.remove_all_constraints_from_pose_bone(bone_name, armature_object)
-        bpy.ops.object.mode_set(mode='EDIT', toggle=False)
-        bone_name = self.which_leg + "_knee_ik"
-        bone = RigService.find_edit_bone_by_name(bone_name, armature_object)
-        armature_object.data.edit_bones.remove(bone)
-        bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
-
     def _hide_bones(self, armature_object, bone_list):
         _LOG.enter()
         bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
@@ -296,30 +288,6 @@ class LegHelpers():
         for bone_name in bone_names:
             bone = RigService.find_pose_bone_by_name(bone_name, armature_object)
             # TODO: figure out how to set local rotation based on what the IK resulting rotation was
-
-    def _remove_lower_upper(self, armature_object):
-        _LOG.enter()
-        bpy.ops.object.mode_set(mode='POSE', toggle=False)
-        bones_to_show = self.get_reverse_list_of_bones_in_leg(True, True, True, False)
-        self._show_bones(armature_object, bones_to_show)
-        self._clear_upper_leg_ik_target(armature_object)
-        self._clear_lower_leg_ik_target(armature_object)
-        # self._reset_bones(bones_to_show, armature_object)
-
-    def _remove_lower_upper_hip(self, armature_object):
-        pass
-
-    def _remove_leg_with_pole(self, armature_object):
-        pass
-
-    def _remove_leg_and_hip_with_pole(self, armature_object):
-        pass
-
-    def _remove_leg_chain(self, armature_object):
-        pass
-
-    def _remove_hip_chain(self, armature_object):
-        pass
 
     def get_lower_leg_name(self):
         raise NotImplementedError("the get_lower_leg_name() method must be overriden by the rig class")
