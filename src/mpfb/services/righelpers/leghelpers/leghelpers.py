@@ -1,3 +1,5 @@
+"""This module provides functionality for adding helpers to hip/legs/feet."""
+
 import bpy
 
 from mpfb.services.logservice import LogService
@@ -9,7 +11,15 @@ from mpfb.ui.righelpers import RigHelpersProperties
 
 class LegHelpers():
 
+    """This is the abstract rig type independent base class for working with
+    helpers for hips, legs and feet. You will want to call the static get_instance()
+    method to get a concrete implementation for the specific rig you are
+    working with."""
+
     def __init__(self, which_leg, settings):
+        """Get a new instance of LegHelpers. You should not call this directly.
+        Use get_instance() instead."""
+
         _LOG.debug("Constructing LegHelpers object")
         self.which_leg = which_leg
         self.settings = settings
@@ -18,6 +28,9 @@ class LegHelpers():
         _LOG.dump("settings", self.settings)
 
     def apply_ik(self, armature_object):
+        """Add rig helpers for hip, legs and feet based on the settings that were provided
+        when constructing the class."""
+
         _LOG.enter()
         self._bone_info = RigService.get_bone_orientation_info_as_dict(armature_object)
 
@@ -32,6 +45,10 @@ class LegHelpers():
         bpy.ops.object.mode_set(mode='POSE', toggle=False)
 
     def remove_ik(self, armature_object):
+        """Remove rig helpers for hips, legs and feet based on the settings that were provided
+        when constructing the class, and information about the current status of the
+        armature object."""
+
         _LOG.enter()
         mode = str(RigHelpersProperties.get_value("leg_mode", entity_reference=armature_object)).strip()
 
@@ -67,6 +84,8 @@ class LegHelpers():
 
     @staticmethod
     def get_instance(which_leg, settings, rigtype="Default"):
+        """Get an implementation instance matching the rig type."""
+
         _LOG.enter()
         if rigtype == "Default":
             from mpfb.services.righelpers.leghelpers.defaultleghelpers import DefaultLegHelpers  # pylint: disable=C0415
@@ -168,13 +187,6 @@ class LegHelpers():
         bone.tail = bone.tail + length / 5
         bone.head = bone.head + length
 
-        # TODO: Setup parenting
-
-        #if self.settings["leg_outmost_parent"]:
-        #    lower_leg_name = self.get_lower_leg_name()
-        #    lower_leg_bone = RigService.find_edit_bone_by_name(lower_leg_name, armature_object)
-        #    bone.parent = lower_leg_bone
-
         bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
         bpy.ops.object.mode_set(mode='POSE', toggle=False)
         RigService.display_pose_bone_as_empty(armature_object, self.which_leg + "_knee_ik", type="SPHERE")
@@ -193,18 +205,11 @@ class LegHelpers():
         bone.tail = bone.tail + length / 2
         bone.head = bone.head + length
 
-        # TODO: setup parenting
-
-        #if self.settings["leg_outmost_parent"]:
-        #    lower_leg_name = self.get_lower_leg_name()
-        #    lower_leg_bone = RigService.find_edit_bone_by_name(lower_leg_name, armature_object)
-        #    bone.parent = lower_leg_bone
-
         bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
         bpy.ops.object.mode_set(mode='POSE', toggle=False)
         RigService.display_pose_bone_as_empty(armature_object, self.which_leg + "_hip_ik", type="SPHERE")
 
-    def _set_lower_leg_ik_target(self, armature_object, chain_length, pole_target=None):
+    def _set_lower_leg_ik_target(self, armature_object, chain_length):
         _LOG.enter()
         bpy.ops.object.mode_set(mode='POSE', toggle=False)
         lower_leg_name = self.get_lower_leg_name()
@@ -271,56 +276,51 @@ class LegHelpers():
             bones_to_hide = self.get_reverse_list_of_bones_in_leg(True, True, True, True)
             self._hide_bones(armature_object, bones_to_hide)
 
-    def _apply_leg_with_pole(self, armature_object):
-        pass
-
-    def _apply_leg_and_hip_with_pole(self, armature_object):
-        pass
-
-    def _apply_leg_chain(self, armature_object):
-        pass
-
-    def _apply_hip_chain(self, armature_object):
-        pass
-
-    def _reset_bones(self, bone_names, armature_object):
-        _LOG.debug("preserve ik", self.settings["leg_preserve_ik"])
-        for bone_name in bone_names:
-            bone = RigService.find_pose_bone_by_name(bone_name, armature_object)
-            # TODO: figure out how to set local rotation based on what the IK resulting rotation was
-
     def get_lower_leg_name(self):
+        """Abstract method for getting the name of the last bone in the lower leg, must be overriden by rig specific implementation classes."""
         raise NotImplementedError("the get_lower_leg_name() method must be overriden by the rig class")
 
     def get_upper_leg_name(self):
+        """Abstract method for getting the name of the last bone in the upper leg, must be overriden by rig specific implementation classes."""
         raise NotImplementedError("the get_upper_leg_name() method must be overriden by the rig class")
 
     def get_hip_name(self):
+        """Abstract method for getting the name of the last bone in the hip, must be overriden by rig specific implementation classes."""
         raise NotImplementedError("the get_hip_name() method must be overriden by the rig class")
 
     def get_foot_name(self):
+        """Abstract method for getting the name of the foot bone, must be overriden by rig specific implementation classes."""
         raise NotImplementedError("the get_foot_name() method must be overriden by the rig class")
 
     def get_root(self):
+        """Abstract method for getting the name of the root bone, must be overriden by rig specific implementation classes."""
         raise NotImplementedError("the get_root() method must be overriden by the rig class")
 
     def get_lower_leg_count(self):
+        """Abstract method for getting the number of bones in the lower leg, must be overriden by rig specific implementation classes."""
         raise NotImplementedError("the get_lower_leg_count() method must be overriden by the rig class")
 
     def get_upper_leg_count(self):
+        """Abstract method for getting the number of bones in the upper leg, must be overriden by rig specific implementation classes."""
         raise NotImplementedError("the get_upper_leg_count() method must be overriden by the rig class")
 
     def get_hip_count(self):
+        """Abstract method for getting the number of bones in the hip, must be overriden by rig specific implementation classes."""
         raise NotImplementedError("the get_lower_leg_count() method must be overriden by the rig class")
 
     def add_lower_leg_rotation_constraints(self, armature_object):
+        """Abstract method for setting constraints for the lower leg, must be overriden by rig specific implementation classes."""
         raise NotImplementedError("the add_lower_leg_rotation_constraints() method must be overriden by the rig class")
 
     def add_upper_leg_rotation_constraints(self, armature_object):
+        """Abstract method for setting constraints for the upper leg, must be overriden by rig specific implementation classes."""
         raise NotImplementedError("the add_upper_leg_rotation_constraints() method must be overriden by the rig class")
 
     def add_hip_rotation_constraints(self, armature_object):
+        """Abstract method for setting constraints for the hip, must be overriden by rig specific implementation classes."""
         raise NotImplementedError("the add_hip_rotation_constraints() method must be overriden by the rig class")
 
     def get_reverse_list_of_bones_in_leg(self, include_foot=True, include_lower_leg=True, include_upper_leg=True, include_hip=True):
+        """Abstract method for getting the bone names in the leg startin with the foot and working inwards,
+        must be overriden by rig specific implementation classes"""
         raise NotImplementedError("the get_reverse_list_of_bones_in_leg() method must be overriden by the rig class")
