@@ -535,21 +535,22 @@
     },
     "links": [
         {
-            "from_node": "Group",
+            "from_node": "$group_name",
             "from_socket": "shaderOutput",
             "to_node": "Material Output",
             "to_socket": "Surface"
         }
     ],
     "nodes": {
-        "Group": {
+        "$group_name": {
             "create": true,
             "label": "$group_name",
             "location": [
                 0.0,
                 100.0
             ],
-            "name": "$group_name",            
+            "name": "$group_name",
+            "group_name": "$group_name",
             "type": "ShaderNodeGroup",
             "values": {}
         },

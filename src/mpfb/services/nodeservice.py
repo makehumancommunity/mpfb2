@@ -2,12 +2,13 @@
 import bpy
 import bpy.types
 from bpy.types import ShaderNodeBsdfPrincipled, ShaderNodeTexImage, ShaderNodeBump, ShaderNodeNormalMap, ShaderNodeDisplacement, ShaderNodeMixRGB, ShaderNodeValue, ShaderNodeAttribute, NodeSocketColor, NodeSocketFloat,\
-    NodeSocketFloatFactor, ShaderNodeGroup
+    NodeSocketFloatFactor, ShaderNodeGroup, NodeGroupInput, NodeGroupOutput
 import os
 
 from mpfb.services.logservice import LogService
 
 _LOG = LogService.get_logger("services.nodeservice")
+#_LOG.set_level(LogService.DUMP)
 
 class NodeService:
 
@@ -86,21 +87,31 @@ class NodeService:
         return link_info
 
     @staticmethod
-    def get_node_tree_as_dict(node_tree, recurse_groups=True, group_dict=None):
+    def get_node_tree_as_dict(node_tree, recurse_groups=True, group_dict=None, recursion_level=0):
         _LOG.enter()
         _LOG.dump("node_tree", node_tree)
 
-        for_output = dict()
-        if recurse_groups:
-            if group_dict:
-                for_output["groups"] = dict()
-            else:
-                for_output["groups"] = dict()
+        for_output = dict()        
         for_output["nodes"] = dict()
         for_output["links"] = []
+        
+        if recursion_level == 0:
+            for_output["groups"] = dict()
+        
+        if group_dict is None:
+            _LOG.debug("Group dict was not provided, at recursion level", recursion_level)            
+            group_dict = for_output["groups"] 
+        else:
+            _LOG.debug("Provided group dict", group_dict.keys())
 
         nodes = node_tree.nodes
 
+        if "groups" in for_output and recursion_level > 0:
+            raise AttributeError('Found groups in deeper recursion level ' + str(recursion_level))
+        
+        if group_dict is None:
+            raise AttributeError('group_dict is None')
+        
         for node in nodes:
             node_info = NodeService.get_node_info(node)
             name = node_info["name"]
@@ -108,13 +119,17 @@ class NodeService:
             if isinstance(node, ShaderNodeGroup) and recurse_groups:
                 group_name = node.node_tree.name
                 for_output["nodes"][name]["group_name"] = group_name
-                for_output["groups"][group_name] = NodeService.get_node_tree_as_dict(node.node_tree, recurse_groups=True, group_dict=for_output["groups"])
-                for_output["groups"][group_name]["inputs"] = {}
-                for_output["groups"][group_name]["outputs"] = {}
+                if not group_name in group_dict:
+                    if not recurse_groups:
+                        group_dict[group_name] = dict()
+                    else:                                                
+                        group_dict[group_name] = NodeService.get_node_tree_as_dict(node.node_tree, recurse_groups=True, group_dict=group_dict, recursion_level=recursion_level+1)
+                group_dict[group_name]["inputs"] = {}
+                group_dict[group_name]["outputs"] = {}
                 for input_socket in node.node_tree.inputs:
-                    for_output["groups"][group_name]["inputs"][input_socket.name] = input_socket.type
+                    group_dict[group_name]["inputs"][input_socket.name] = input_socket.type
                 for output_socket in node.node_tree.outputs:
-                    for_output["groups"][group_name]["outputs"][output_socket.name] = output_socket.type
+                    group_dict[group_name]["outputs"][output_socket.name] = output_socket.type
 
         links = node_tree.links
 
@@ -157,10 +172,24 @@ class NodeService:
 
     @staticmethod
     def update_node_with_settings_from_dict(node, node_info):
+        
+        if node_info["type"] == "ShaderNodeGroup":            
+            if "group_name" in node_info:
+                group_name = node_info["group_name"]
+            else:
+                group_name = node_info["name"]
+            if not group_name in bpy.data.node_groups:
+                _LOG.error("Tried to assign a node tree which did not exist", node_info)
+                raise ValueError("Tried to assign a node tree which did not exist")
+            node.node_tree = bpy.data.node_groups.get(group_name)             
+                
         if "location" in node_info:
             node.location = node_info["location"]
         for value in node_info["values"]:
-            node.inputs[value].default_value = node_info["values"][value]
+            if not value in node.inputs:
+                _LOG.error("Found an input name which didn't exist as socket:", value)
+            else:
+                node.inputs[value].default_value = node_info["values"][value]
 
         if node_info["type"] == "ShaderNodeTexImage":
             NodeService.update_tex_image_with_settings_from_dict(node, node_info)
@@ -186,44 +215,99 @@ class NodeService:
             node.label = node_info["label"]
 
     @staticmethod
-    def apply_node_tree_from_dict(target_node_tree, dict_with_node_tree):
-        NodeService.clear_node_tree(target_node_tree)
-        node_by_name = dict()
+    def _ensure_group_interfaces_exist(dict_with_node_tree, force_wipe_group_node_trees=False):
+        _LOG.enter()
+        if not "groups" in dict_with_node_tree or not dict_with_node_tree["groups"]:
+            _LOG.warn("The node tree dict did not have a group definition hierarchy")
+            return
+         
+        groups = dict_with_node_tree["groups"]
+        for group_name in groups.keys():
+            group = groups[group_name]
+            _LOG.debug("Starting to analyze group", group_name)
+            if group_name in bpy.data.node_groups:
+                node_tree = bpy.data.node_groups.get(group_name)
+                if force_wipe_group_node_trees:
+                    _LOG.warn("Wiping node tree", group_name)
+                    NodeService.clear_node_tree(node_tree)                    
+            else:
+                node_tree = bpy.data.node_groups.new(group_name, type="ShaderNodeTree")
+            
+            input_node = None
+            output_node = None
+            
+            for node in node_tree.nodes:
+                if isinstance(node, NodeGroupInput):
+                    input_node = node
+                if isinstance(node, NodeGroupOutput):
+                    output_node = node
+                    
+            if input_node is None:
+                input_node = node_tree.nodes.new("NodeGroupInput")
+                input_node.name = "Group Input"                
 
+            if output_node is None:
+                output_node = node_tree.nodes.new("NodeGroupOutput")
+                output_node.name = "Group Output"
+                
+            if "inputs" in group:
+                for input_name in group["inputs"].keys():
+                    if not input_name in node_tree.inputs:                        
+                        input_def = group["inputs"][input_name]
+                        _LOG.debug("Missing input socket:", input_def)
+                        create = True
+                        if "create" in input_def:
+                            create = input_def["create"]
+                        if create:
+                            input_socket = node_tree.inputs.new(input_def["type"], input_name)
+                            input_socket.default_value = input_def["value"]
+                    else:
+                        _LOG.debug("Input socket already existed:", input_name)
+    
+            if "outputs" in group:
+                for output_name in group["outputs"].keys():
+                    if not output_name in node_tree.outputs:
+                        _LOG.debug("Missing output socket:", output_name)
+                        node_tree.outputs.new(name=output_name, type=group["outputs"][output_name])
+                    else:
+                        _LOG.debug("Output socket already existed:", output_name)
+                        
+    @staticmethod
+    def apply_node_tree_from_dict(target_node_tree, dict_with_node_tree, wipe_node_tree=False):
+        _LOG.enter()
+                
+        if wipe_node_tree:
+            NodeService.clear_node_tree(target_node_tree)
+            
+        NodeService._ensure_group_interfaces_exist(dict_with_node_tree)
+        
+        node_by_name = dict()
+        
+        if "groups" in dict_with_node_tree:
+            groups = dict_with_node_tree["groups"]                        
+            for group_name in groups.keys():
+                group = groups[group_name]                
+                if group_name in bpy.data.node_groups:
+                    node_tree = bpy.data.node_groups.get(group_name)                                        
+                    NodeService.apply_node_tree_from_dict(node_tree, group)
+                else:
+                    raise ValueError('Found a group name that did not exist as a node tree. It should have been created ten lines above.')
+                                        
         for node_name in dict_with_node_tree["nodes"]:
             node_info = dict_with_node_tree["nodes"][node_name]
             if "create" not in node_info or node_info["create"]:
-                if node_info["type"] == "ShaderNodeGroup":
-                    group_name = node_info["name"]
-                    if "group_name" in node_info:
-                        group_name = node_info["group_name"]
-                    new_node_tree = NodeService.get_or_create_node_group(group_name)
-                    new_node = target_node_tree.nodes.new(node_info["type"])
-                    NodeService.update_node_with_settings_from_dict(new_node, node_info)
-                    new_node.node_tree = new_node_tree
-                    groups = dict_with_node_tree["groups"]
-                    if group_name in groups:
-                        group_info = groups[group_name]
-                        NodeService.apply_node_tree_from_dict(new_node_tree, group_info)
-                        for input_socket in new_node.inputs:
-                            input_socket.default_value = group_info["inputs"][input_socket.name]["value"]
+                
+                if node_info["type"] in ["NodeGroupInput", "NodeGroupOutput"]:
+                    _LOG.debug("Found, as expeced, a", node_info["type"])
+                    node_by_name[node_name] = target_node_tree.nodes.get(node_name)
+                    if node_by_name[node_name] is None:
+                        _LOG.error("Broken group I/O:", node_info)
+                        raise ValueError('Could not find referenced group I/O')
+                    else:
+                        NodeService.update_node_with_settings_from_dict(node_by_name[node_name], node_info)
                 else:
-                    new_node = NodeService.create_node_from_dict(target_node_tree, node_info)
-                node_by_name[node_name] = new_node
-
-        if "inputs" in dict_with_node_tree:
-            for input_name in dict_with_node_tree["inputs"].keys():
-                input_def = dict_with_node_tree["inputs"][input_name]
-                create = True
-                if "create" in input_def:
-                    create = input_def["create"]
-                if create:
-                    input_socket = target_node_tree.inputs.new(input_def["type"], input_name)
-                    input_socket.default_value = input_def["value"]
-
-        if "outputs" in dict_with_node_tree:
-            for output in dict_with_node_tree["outputs"].keys():
-                target_node_tree.outputs.new(name=output, type=dict_with_node_tree["outputs"][output])
+                    new_node = NodeService.create_node_from_dict(target_node_tree, node_info)                                                            
+                    node_by_name[node_name] = new_node
 
         links = target_node_tree.links
 
@@ -231,6 +315,10 @@ class NodeService:
             if link["from_node"] in node_by_name and link["to_node"] in node_by_name:
                 from_node = node_by_name[link["from_node"]]
                 to_node = node_by_name[link["to_node"]]
+                if from_node is None:
+                    _LOG.error("Broken link, from_node is None", link)
+                if to_node is None:
+                    _LOG.error("Broken link, to_node is None", link)
                 if link["from_socket"] in from_node.outputs and (isinstance(link["to_socket"], int) or link["to_socket"] in to_node.inputs):
                     from_socket = from_node.outputs[link["from_socket"]]
                     to_socket = to_node.inputs[link["to_socket"]]

@@ -90,4 +90,4 @@ class EnhancedSkinMaterial(MhMaterial):
         node_tree_dict = json.loads(template_data)
         _LOG.dump("node_tree_dict", node_tree_dict)
 
-        NodeService.apply_node_tree_from_dict(blender_material.node_tree, node_tree_dict)
+        NodeService.apply_node_tree_from_dict(blender_material.node_tree, node_tree_dict, True)

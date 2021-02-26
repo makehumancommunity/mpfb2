@@ -17,5 +17,6 @@ class MPFB_PT_Save_Nodes_Panel(bpy.types.Panel):
         layout = self.layout
         scn = context.scene
         layout.operator("mpfb.save_nodes")
+        layout.operator("mpfb.load_nodes")
 
 ClassManager.add_class(MPFB_PT_Save_Nodes_Panel)
