@@ -1,0 +1,5060 @@
+{
+    "groups": {
+        "CenterCoordinates": {
+            "inputs": {},
+            "links": [
+                {
+                    "from_node": "Combine XYZ.001",
+                    "from_socket": "Vector",
+                    "to_node": "Group Output",
+                    "to_socket": "Coord1"
+                },
+                {
+                    "from_node": "Combine XYZ",
+                    "from_socket": "Vector",
+                    "to_node": "Group Output",
+                    "to_socket": "Coord2"
+                },
+                {
+                    "from_node": "EyeballSize",
+                    "from_socket": "Value",
+                    "to_node": "Group Output",
+                    "to_socket": "MaxSize"
+                }
+            ],
+            "nodes": {
+                "Combine XYZ": {
+                    "create": true,
+                    "label": "",
+                    "location": [
+                        -172.4897918701172,
+                        51.8037109375
+                    ],
+                    "name": "Combine XYZ",
+                    "type": "ShaderNodeCombineXYZ",
+                    "values": {
+                        "X": 0.29499998688697815,
+                        "Y": 0.30000001192092896,
+                        "Z": 0.0
+                    }
+                },
+                "Combine XYZ.001": {
+                    "create": true,
+                    "label": "",
+                    "location": [
+                        -173.7616424560547,
+                        221.6659698486328
+                    ],
+                    "name": "Combine XYZ.001",
+                    "type": "ShaderNodeCombineXYZ",
+                    "values": {
+                        "X": 0.7049999833106995,
+                        "Y": 0.699999988079071,
+                        "Z": 0.0
+                    }
+                },
+                "EyeballSize": {
+                    "create": true,
+                    "label": "EyeballSize",
+                    "location": [
+                        -173.13735961914062,
+                        -96.3564453125
+                    ],
+                    "name": "EyeballSize",
+                    "type": "ShaderNodeValue",
+                    "value": 0.2849999964237213,
+                    "values": {}
+                },
+                "Group Input": {
+                    "create": true,
+                    "label": "",
+                    "location": [
+                        -373.7616271972656,
+                        136.73483276367188
+                    ],
+                    "name": "Group Input",
+                    "type": "NodeGroupInput",
+                    "values": {}
+                },
+                "Group Output": {
+                    "create": true,
+                    "label": "",
+                    "location": [
+                        17.510215759277344,
+                        136.73483276367188
+                    ],
+                    "name": "Group Output",
+                    "type": "NodeGroupOutput",
+                    "values": {
+                        "MaxSize": 0.5
+                    }
+                }
+            },
+            "outputs": {
+                "Coord1": "NodeSocketVector",
+                "Coord2": "NodeSocketVector",
+                "MaxSize": "NodeSocketFloat"
+            }
+        },
+        "DistanceFromCenter": {
+            "inputs": {},
+            "links": [
+                {
+                    "from_node": "Texture Coordinate",
+                    "from_socket": "UV",
+                    "to_node": "DistanceFromPupilCenter2",
+                    "to_socket": 1
+                },
+                {
+                    "from_node": "Texture Coordinate",
+                    "from_socket": "UV",
+                    "to_node": "DistanceFromPupilCenter1",
+                    "to_socket": 1
+                },
+                {
+                    "from_node": "DistanceFromPupilCenter2",
+                    "from_socket": "Value",
+                    "to_node": "Math.001",
+                    "to_socket": 0
+                },
+                {
+                    "from_node": "CenterCoordinates",
+                    "from_socket": "Coord1",
+                    "to_node": "DistanceFromPupilCenter2",
+                    "to_socket": 0
+                },
+                {
+                    "from_node": "CenterCoordinates",
+                    "from_socket": "Coord2",
+                    "to_node": "DistanceFromPupilCenter1",
+                    "to_socket": 0
+                },
+                {
+                    "from_node": "CenterCoordinates",
+                    "from_socket": "MaxSize",
+                    "to_node": "Math.001",
+                    "to_socket": 1
+                },
+                {
+                    "from_node": "Math.001",
+                    "from_socket": "Value",
+                    "to_node": "Math",
+                    "to_socket": 0
+                },
+                {
+                    "from_node": "DistanceFromPupilCenter2",
+                    "from_socket": "Value",
+                    "to_node": "Math",
+                    "to_socket": 1
+                },
+                {
+                    "from_node": "DistanceFromPupilCenter1",
+                    "from_socket": "Value",
+                    "to_node": "Math.003",
+                    "to_socket": 0
+                },
+                {
+                    "from_node": "CenterCoordinates",
+                    "from_socket": "MaxSize",
+                    "to_node": "Math.003",
+                    "to_socket": 1
+                },
+                {
+                    "from_node": "DistanceFromPupilCenter1",
+                    "from_socket": "Value",
+                    "to_node": "Math.004",
+                    "to_socket": 1
+                },
+                {
+                    "from_node": "Math.003",
+                    "from_socket": "Value",
+                    "to_node": "Math.004",
+                    "to_socket": 0
+                },
+                {
+                    "from_node": "Math",
+                    "from_socket": "Value",
+                    "to_node": "Math.002",
+                    "to_socket": 0
+                },
+                {
+                    "from_node": "Math.004",
+                    "from_socket": "Value",
+                    "to_node": "Math.002",
+                    "to_socket": 1
+                },
+                {
+                    "from_node": "Math.002",
+                    "from_socket": "Value",
+                    "to_node": "Math.005",
+                    "to_socket": 0
+                },
+                {
+                    "from_node": "CenterCoordinates",
+                    "from_socket": "MaxSize",
+                    "to_node": "Math.005",
+                    "to_socket": 1
+                },
+                {
+                    "from_node": "Math.005",
+                    "from_socket": "Value",
+                    "to_node": "Group Output",
+                    "to_socket": "NormalizedDistance"
+                },
+                {
+                    "from_node": "Math.002",
+                    "from_socket": "Value",
+                    "to_node": "Group Output",
+                    "to_socket": "ClampedAbsoluteDistance"
+                },
+                {
+                    "from_node": "CenterCoordinates",
+                    "from_socket": "MaxSize",
+                    "to_node": "Group Output",
+                    "to_socket": "MaxSize"
+                },
+                {
+                    "from_node": "Math.001",
+                    "from_socket": "Value",
+                    "to_node": "Math.006",
+                    "to_socket": 0
+                },
+                {
+                    "from_node": "Math.003",
+                    "from_socket": "Value",
+                    "to_node": "Math.006",
+                    "to_socket": 1
+                },
+                {
+                    "from_node": "Math.006",
+                    "from_socket": "Value",
+                    "to_node": "Group Output",
+                    "to_socket": "IsInRange"
+                },
+                {
+                    "from_node": "CenterCoordinates",
+                    "from_socket": "Coord1",
+                    "to_node": "Group",
+                    "to_socket": "Vector"
+                },
+                {
+                    "from_node": "CenterCoordinates",
+                    "from_socket": "Coord2",
+                    "to_node": "Group.001",
+                    "to_socket": "Vector"
+                },
+                {
+                    "from_node": "Group",
+                    "from_socket": "IsClose",
+                    "to_node": "Combine XYZ",
+                    "to_socket": "X"
+                },
+                {
+                    "from_node": "Group",
+                    "from_socket": "IsClose",
+                    "to_node": "Combine XYZ",
+                    "to_socket": "Y"
+                },
+                {
+                    "from_node": "Group",
+                    "from_socket": "IsClose",
+                    "to_node": "Combine XYZ",
+                    "to_socket": "Z"
+                },
+                {
+                    "from_node": "Combine XYZ",
+                    "from_socket": "Vector",
+                    "to_node": "Vector Math.002",
+                    "to_socket": 1
+                },
+                {
+                    "from_node": "Group",
+                    "from_socket": "Vector",
+                    "to_node": "Vector Math.002",
+                    "to_socket": 0
+                },
+                {
+                    "from_node": "Group.001",
+                    "from_socket": "IsClose",
+                    "to_node": "Combine XYZ.001",
+                    "to_socket": "X"
+                },
+                {
+                    "from_node": "Group.001",
+                    "from_socket": "IsClose",
+                    "to_node": "Combine XYZ.001",
+                    "to_socket": "Y"
+                },
+                {
+                    "from_node": "Group.001",
+                    "from_socket": "IsClose",
+                    "to_node": "Combine XYZ.001",
+                    "to_socket": "Z"
+                },
+                {
+                    "from_node": "Group.001",
+                    "from_socket": "Vector",
+                    "to_node": "Vector Math.003",
+                    "to_socket": 0
+                },
+                {
+                    "from_node": "Combine XYZ.001",
+                    "from_socket": "Vector",
+                    "to_node": "Vector Math.003",
+                    "to_socket": 1
+                },
+                {
+                    "from_node": "Vector Math.002",
+                    "from_socket": "Vector",
+                    "to_node": "Vector Math.004",
+                    "to_socket": 0
+                },
+                {
+                    "from_node": "Vector Math.003",
+                    "from_socket": "Vector",
+                    "to_node": "Vector Math.004",
+                    "to_socket": 1
+                },
+                {
+                    "from_node": "Vector Math.004",
+                    "from_socket": "Vector",
+                    "to_node": "Group Output",
+                    "to_socket": "Vector"
+                }
+            ],
+            "nodes": {
+                "CenterCoordinates": {
+                    "create": true,
+                    "group_name": "CenterCoordinates",
+                    "label": "CenterCoordinates",
+                    "location": [
+                        -680.1795043945312,
+                        144.80101013183594
+                    ],
+                    "name": "CenterCoordinates",
+                    "type": "ShaderNodeGroup",
+                    "values": {}
+                },
+                "Combine XYZ": {
+                    "create": true,
+                    "label": "",
+                    "location": [
+                        32.36021041870117,
+                        796.8982543945312
+                    ],
+                    "name": "Combine XYZ",
+                    "type": "ShaderNodeCombineXYZ",
+                    "values": {
+                        "X": 0.0,
+                        "Y": 0.0,
+                        "Z": 0.0
+                    }
+                },
+                "Combine XYZ.001": {
+                    "create": true,
+                    "label": "",
+                    "location": [
+                        39.55674362182617,
+                        647.1795043945312
+                    ],
+                    "name": "Combine XYZ.001",
+                    "type": "ShaderNodeCombineXYZ",
+                    "values": {
+                        "X": 0.0,
+                        "Y": 0.0,
+                        "Z": 0.0
+                    }
+                },
+                "DistanceFromPupilCenter1": {
+                    "create": true,
+                    "label": "DistanceFromPupilCenter1",
+                    "location": [
+                        -385.0487060546875,
+                        -220.06661987304688
+                    ],
+                    "name": "DistanceFromPupilCenter1",
+                    "operation": "DISTANCE",
+                    "type": "ShaderNodeVectorMath",
+                    "values": {
+                        "Scale": 1.0
+                    }
+                },
+                "DistanceFromPupilCenter2": {
+                    "create": true,
+                    "label": "DistanceFromPupilCenter2",
+                    "location": [
+                        -393.02252197265625,
+                        240.67849731445312
+                    ],
+                    "name": "DistanceFromPupilCenter2",
+                    "operation": "DISTANCE",
+                    "type": "ShaderNodeVectorMath",
+                    "values": {
+                        "Scale": 1.0
+                    }
+                },
+                "Group": {
+                    "create": true,
+                    "group_name": "RadiatingFromCoord",
+                    "label": "",
+                    "location": [
+                        -194.98292541503906,
+                        821.0433959960938
+                    ],
+                    "name": "Group",
+                    "type": "ShaderNodeGroup",
+                    "values": {}
+                },
+                "Group Input": {
+                    "create": true,
+                    "label": "",
+                    "location": [
+                        -893.7454833984375,
+                        119.85630798339844
+                    ],
+                    "name": "Group Input",
+                    "type": "NodeGroupInput",
+                    "values": {}
+                },
+                "Group Output": {
+                    "create": true,
+                    "label": "",
+                    "location": [
+                        834.978759765625,
+                        345.8739929199219
+                    ],
+                    "name": "Group Output",
+                    "type": "NodeGroupOutput",
+                    "values": {
+                        "ClampedAbsoluteDistance": 0.0,
+                        "IsInRange": 0.0,
+                        "MaxSize": 0.5,
+                        "NormalizedDistance": 0.0
+                    }
+                },
+                "Group.001": {
+                    "create": true,
+                    "group_name": "RadiatingFromCoord",
+                    "label": "",
+                    "location": [
+                        -199.30084228515625,
+                        667.0067749023438
+                    ],
+                    "name": "Group.001",
+                    "type": "ShaderNodeGroup",
+                    "values": {}
+                },
+                "Math": {
+                    "create": true,
+                    "label": "",
+                    "location": [
+                        35.74721908569336,
+                        347.70330810546875
+                    ],
+                    "name": "Math",
+                    "operation": "MULTIPLY",
+                    "type": "ShaderNodeMath",
+                    "use_clamp": false,
+                    "values": {
+                        "Value": 0.0
+                    }
+                },
+                "Math.001": {
+                    "create": true,
+                    "label": "",
+                    "location": [
+                        -170.19033813476562,
+                        459.779296875
+                    ],
+                    "name": "Math.001",
+                    "operation": "LESS_THAN",
+                    "type": "ShaderNodeMath",
+                    "use_clamp": false,
+                    "values": {
+                        "Value": 0.0
+                    }
+                },
+                "Math.002": {
+                    "create": true,
+                    "label": "",
+                    "location": [
+                        276.6057434082031,
+                        272.4674987792969
+                    ],
+                    "name": "Math.002",
+                    "operation": "ADD",
+                    "type": "ShaderNodeMath",
+                    "use_clamp": false,
+                    "values": {
+                        "Value": 0.0
+                    }
+                },
+                "Math.003": {
+                    "create": true,
+                    "label": "",
+                    "location": [
+                        -198.14523315429688,
+                        -58.2660026550293
+                    ],
+                    "name": "Math.003",
+                    "operation": "LESS_THAN",
+                    "type": "ShaderNodeMath",
+                    "use_clamp": false,
+                    "values": {
+                        "Value": 0.0
+                    }
+                },
+                "Math.004": {
+                    "create": true,
+                    "label": "",
+                    "location": [
+                        1.1364405155181885,
+                        -130.38990783691406
+                    ],
+                    "name": "Math.004",
+                    "operation": "MULTIPLY",
+                    "type": "ShaderNodeMath",
+                    "use_clamp": false,
+                    "values": {
+                        "Value": 0.0
+                    }
+                },
+                "Math.005": {
+                    "create": true,
+                    "label": "",
+                    "location": [
+                        472.76885986328125,
+                        79.34664916992188
+                    ],
+                    "name": "Math.005",
+                    "operation": "DIVIDE",
+                    "type": "ShaderNodeMath",
+                    "use_clamp": false,
+                    "values": {
+                        "Value": 0.0
+                    }
+                },
+                "Math.006": {
+                    "create": true,
+                    "label": "",
+                    "location": [
+                        428.7904968261719,
+                        -187.16696166992188
+                    ],
+                    "name": "Math.006",
+                    "operation": "ADD",
+                    "type": "ShaderNodeMath",
+                    "use_clamp": false,
+                    "values": {
+                        "Value": 0.0
+                    }
+                },
+                "Texture Coordinate": {
+                    "create": true,
+                    "label": "",
+                    "location": [
+                        -693.7455444335938,
+                        -26.823259353637695
+                    ],
+                    "name": "Texture Coordinate",
+                    "type": "ShaderNodeTexCoord",
+                    "values": {}
+                },
+                "Vector Math.002": {
+                    "create": true,
+                    "label": "",
+                    "location": [
+                        258.8404846191406,
+                        971.3955078125
+                    ],
+                    "name": "Vector Math.002",
+                    "operation": "MULTIPLY",
+                    "type": "ShaderNodeVectorMath",
+                    "values": {
+                        "Scale": 1.0
+                    }
+                },
+                "Vector Math.003": {
+                    "create": true,
+                    "label": "",
+                    "location": [
+                        287.6266174316406,
+                        746.8174438476562
+                    ],
+                    "name": "Vector Math.003",
+                    "operation": "MULTIPLY",
+                    "type": "ShaderNodeVectorMath",
+                    "values": {
+                        "Scale": 1.0
+                    }
+                },
+                "Vector Math.004": {
+                    "create": true,
+                    "label": "",
+                    "location": [
+                        513.6011962890625,
+                        909.2015380859375
+                    ],
+                    "name": "Vector Math.004",
+                    "operation": "ADD",
+                    "type": "ShaderNodeVectorMath",
+                    "values": {
+                        "Scale": 1.0
+                    }
+                }
+            },
+            "outputs": {
+                "ClampedAbsoluteDistance": "NodeSocketFloat",
+                "IsInRange": "NodeSocketFloat",
+                "MaxSize": "NodeSocketFloat",
+                "NormalizedDistance": "NodeSocketFloat",
+                "Vector": "NodeSocketVector"
+            }
+        },
+        "EnhancedEye": {
+            "inputs": {
+                "Clearcoat": {
+                    "type": "NodeSocketFloat",
+                    "value": 0.4000000059604645
+                },
+                "Clearcoat Roughness": {
+                    "type": "NodeSocketFloat",
+                    "value": 0.0
+                },
+                "EyeWhiteColor": {
+                    "type": "NodeSocketColor",
+                    "value": [
+                        1.0,
+                        1.0,
+                        1.0,
+                        1.0
+                    ]
+                },
+                "InnerLayerRoughness": {
+                    "type": "NodeSocketFloat",
+                    "value": 0.05000000074505806
+                },
+                "IrisBumpStrength": {
+                    "type": "NodeSocketFloat",
+                    "value": 0.30000001192092896
+                },
+                "IrisClockwiseMult": {
+                    "type": "NodeSocketFloat",
+                    "value": 3.5
+                },
+                "IrisFeatureScale": {
+                    "type": "NodeSocketFloat",
+                    "value": 16.899999618530273
+                },
+                "IrisMajorColor": {
+                    "type": "NodeSocketColor",
+                    "value": [
+                        0.18447503447532654,
+                        0.48514994978904724,
+                        0.913098931312561,
+                        1.0
+                    ]
+                },
+                "IrisMinorColor": {
+                    "type": "NodeSocketColor",
+                    "value": [
+                        0.1144353598356247,
+                        0.15896086394786835,
+                        0.4072403311729431,
+                        1.0
+                    ]
+                },
+                "IrisRadialMult": {
+                    "type": "NodeSocketFloat",
+                    "value": 0.30000001192092896
+                },
+                "IrisSection1End": {
+                    "type": "NodeSocketFloat",
+                    "value": 0.10000000149011612
+                },
+                "IrisSection2End": {
+                    "type": "NodeSocketFloat",
+                    "value": 0.800000011920929
+                },
+                "IrisSection3End": {
+                    "type": "NodeSocketFloat",
+                    "value": 0.8500000238418579
+                },
+                "IrisSection4Color": {
+                    "type": "NodeSocketColor",
+                    "value": [
+                        0.056128498166799545,
+                        0.05612850934267044,
+                        0.11697070300579071,
+                        1.0
+                    ]
+                },
+                "IrisToEyeWhiteRelation": {
+                    "type": "NodeSocketFloat",
+                    "value": 0.38999998569488525
+                },
+                "OuterLayerAlpha": {
+                    "type": "NodeSocketFloat",
+                    "value": 1.0
+                },
+                "OuterLayerColor": {
+                    "type": "NodeSocketColor",
+                    "value": [
+                        1.0,
+                        1.0,
+                        1.0,
+                        1.0
+                    ]
+                },
+                "OuterLayerIOR": {
+                    "type": "NodeSocketFloat",
+                    "value": 1.3300000429153442
+                },
+                "OuterLayerRoughness": {
+                    "type": "NodeSocketFloat",
+                    "value": 0.0
+                },
+                "OuterLayerTransmission": {
+                    "type": "NodeSocketFloat",
+                    "value": 1.0
+                },
+                "PupilColor": {
+                    "type": "NodeSocketColor",
+                    "value": [
+                        0.0,
+                        0.0,
+                        0.0,
+                        1.0
+                    ]
+                },
+                "PupilSize": {
+                    "type": "NodeSocketFloat",
+                    "value": 0.30000001192092896
+                }
+            },
+            "links": [
+                {
+                    "from_node": "Group Input",
+                    "from_socket": "OuterLayerIOR",
+                    "to_node": "Principled BSDF",
+                    "to_socket": "IOR"
+                },
+                {
+                    "from_node": "Group Input",
+                    "from_socket": "OuterLayerAlpha",
+                    "to_node": "Principled BSDF",
+                    "to_socket": "Alpha"
+                },
+                {
+                    "from_node": "EyeCoordinateInfo",
+                    "from_socket": "IsInRange",
+                    "to_node": "TransmissionMix",
+                    "to_socket": "Fac"
+                },
+                {
+                    "from_node": "TransmissionMix",
+                    "from_socket": "Color",
+                    "to_node": "TransmissionValue",
+                    "to_socket": "Color"
+                },
+                {
+                    "from_node": "TransmissionValue",
+                    "from_socket": "Val",
+                    "to_node": "Principled BSDF",
+                    "to_socket": "Transmission"
+                },
+                {
+                    "from_node": "RoughnessMix",
+                    "from_socket": "Color",
+                    "to_node": "RoughnessValue",
+                    "to_socket": "Color"
+                },
+                {
+                    "from_node": "EyeCoordinateInfo",
+                    "from_socket": "IsInRange",
+                    "to_node": "RoughnessMix",
+                    "to_socket": "Fac"
+                },
+                {
+                    "from_node": "EyeCoordinateInfo",
+                    "from_socket": "IsInRange",
+                    "to_node": "InnerOuterLayerColorSwitch",
+                    "to_socket": "Value"
+                },
+                {
+                    "from_node": "EyeCoordinateInfo",
+                    "from_socket": "NormalizedDistance",
+                    "to_node": "IrisEyeWhiteColorSwitch",
+                    "to_socket": "Value"
+                },
+                {
+                    "from_node": "IrisEyeWhiteColorSwitch",
+                    "from_socket": "Color",
+                    "to_node": "InnerOuterLayerColorSwitch",
+                    "to_socket": "Color2"
+                },
+                {
+                    "from_node": "EyeCoordinateInfo",
+                    "from_socket": "Vector",
+                    "to_node": "IrisMain",
+                    "to_socket": "Vector"
+                },
+                {
+                    "from_node": "EyeCoordinateInfo",
+                    "from_socket": "PositionWithinIris",
+                    "to_node": "IrisMain",
+                    "to_socket": "Value"
+                },
+                {
+                    "from_node": "Group Input",
+                    "from_socket": "IrisToEyeWhiteRelation",
+                    "to_node": "EyeCoordinateInfo",
+                    "to_socket": "IrisTotalSize"
+                },
+                {
+                    "from_node": "Group Input",
+                    "from_socket": "PupilSize",
+                    "to_node": "IrisMain",
+                    "to_socket": "PupilSize"
+                },
+                {
+                    "from_node": "Group Input",
+                    "from_socket": "IrisSection1End",
+                    "to_node": "IrisMain",
+                    "to_socket": "InnermostRingSize"
+                },
+                {
+                    "from_node": "Group Input",
+                    "from_socket": "IrisSection2End",
+                    "to_node": "IrisMain",
+                    "to_socket": "MidRingSize"
+                },
+                {
+                    "from_node": "Group Input",
+                    "from_socket": "IrisSection3End",
+                    "to_node": "IrisMain",
+                    "to_socket": "IrisBorderStart"
+                },
+                {
+                    "from_node": "Group Input",
+                    "from_socket": "InnerLayerRoughness",
+                    "to_node": "MakePupilNonReflective",
+                    "to_socket": "Color1"
+                },
+                {
+                    "from_node": "Group Input",
+                    "from_socket": "OuterLayerRoughness",
+                    "to_node": "RoughnessMix",
+                    "to_socket": "Color1"
+                },
+                {
+                    "from_node": "Group Input",
+                    "from_socket": "PupilColor",
+                    "to_node": "IrisMain",
+                    "to_socket": "PupilColor"
+                },
+                {
+                    "from_node": "Group Input",
+                    "from_socket": "IrisMajorColor",
+                    "to_node": "IrisMain",
+                    "to_socket": "IrisMajorColor"
+                },
+                {
+                    "from_node": "Group Input",
+                    "from_socket": "IrisMinorColor",
+                    "to_node": "IrisMain",
+                    "to_socket": "IrisMinorColor"
+                },
+                {
+                    "from_node": "Group Input",
+                    "from_socket": "IrisFeatureScale",
+                    "to_node": "IrisMain",
+                    "to_socket": "FeatureScale"
+                },
+                {
+                    "from_node": "Group Input",
+                    "from_socket": "IrisClockwiseMult",
+                    "to_node": "IrisMain",
+                    "to_socket": "ClockwiseMultiplicator"
+                },
+                {
+                    "from_node": "Group Input",
+                    "from_socket": "IrisRadialMult",
+                    "to_node": "IrisMain",
+                    "to_socket": "RadialMultiplicator"
+                },
+                {
+                    "from_node": "Group Input",
+                    "from_socket": "IrisToEyeWhiteRelation",
+                    "to_node": "IrisEyeWhiteColorSwitch",
+                    "to_socket": "Stop1Position"
+                },
+                {
+                    "from_node": "Group Input",
+                    "from_socket": "OuterLayerColor",
+                    "to_node": "InnerOuterLayerColorSwitch",
+                    "to_socket": "Color1"
+                },
+                {
+                    "from_node": "Group Input",
+                    "from_socket": "OuterLayerTransmission",
+                    "to_node": "TransmissionMix",
+                    "to_socket": "Color1"
+                },
+                {
+                    "from_node": "Principled BSDF",
+                    "from_socket": "BSDF",
+                    "to_node": "Group Output",
+                    "to_socket": "BSDF"
+                },
+                {
+                    "from_node": "PupilIrisColorSwitch",
+                    "from_socket": "Color",
+                    "to_node": "IrisEyeWhiteColorSwitch",
+                    "to_socket": "Color1"
+                },
+                {
+                    "from_node": "Group Input",
+                    "from_socket": "PupilColor",
+                    "to_node": "PupilIrisColorSwitch",
+                    "to_socket": "Color1"
+                },
+                {
+                    "from_node": "IrisMain",
+                    "from_socket": "Color",
+                    "to_node": "PupilIrisColorSwitch",
+                    "to_socket": "Color2"
+                },
+                {
+                    "from_node": "EyeCoordinateInfo",
+                    "from_socket": "PositionWithinIris",
+                    "to_node": "PupilIrisColorSwitch",
+                    "to_socket": "Value"
+                },
+                {
+                    "from_node": "Group Input",
+                    "from_socket": "PupilSize",
+                    "to_node": "PupilIrisColorSwitch",
+                    "to_socket": "Stop1Position"
+                },
+                {
+                    "from_node": "Group Input",
+                    "from_socket": "EyeWhiteColor",
+                    "to_node": "IrisMain",
+                    "to_socket": "EyeWhiteColor"
+                },
+                {
+                    "from_node": "Group Input",
+                    "from_socket": "IrisSection4Color",
+                    "to_node": "IrisMain",
+                    "to_socket": "BorderColor"
+                },
+                {
+                    "from_node": "Group Input",
+                    "from_socket": "PupilColor",
+                    "to_node": "PupilHeight",
+                    "to_socket": "Color"
+                },
+                {
+                    "from_node": "Group Input",
+                    "from_socket": "EyeWhiteColor",
+                    "to_node": "EyewhiteHeight",
+                    "to_socket": "Color"
+                },
+                {
+                    "from_node": "IrisMain",
+                    "from_socket": "BumpColor",
+                    "to_node": "IrisHeight",
+                    "to_socket": "Color"
+                },
+                {
+                    "from_node": "Group Input",
+                    "from_socket": "OuterLayerColor",
+                    "to_node": "OuterLayerHeight",
+                    "to_socket": "Color"
+                },
+                {
+                    "from_node": "EyeCoordinateInfo",
+                    "from_socket": "IsInRange",
+                    "to_node": "BumpmapMix",
+                    "to_socket": "Fac"
+                },
+                {
+                    "from_node": "MainBumpmapSwitch",
+                    "from_socket": "Color",
+                    "to_node": "BumpmapMix",
+                    "to_socket": "Color2"
+                },
+                {
+                    "from_node": "Group Input",
+                    "from_socket": "PupilSize",
+                    "to_node": "MainBumpmapSwitch",
+                    "to_socket": "Section1End"
+                },
+                {
+                    "from_node": "EyeCoordinateInfo",
+                    "from_socket": "PositionWithinIris",
+                    "to_node": "MainBumpmapSwitch",
+                    "to_socket": "Value"
+                },
+                {
+                    "from_node": "PupilHeight",
+                    "from_socket": "Val",
+                    "to_node": "MainBumpmapSwitch",
+                    "to_socket": "Section1Color"
+                },
+                {
+                    "from_node": "IrisHeight",
+                    "from_socket": "Val",
+                    "to_node": "MainBumpmapSwitch",
+                    "to_socket": "Section2Color"
+                },
+                {
+                    "from_node": "EyewhiteHeight",
+                    "from_socket": "Val",
+                    "to_node": "MainBumpmapSwitch",
+                    "to_socket": "Section3Color"
+                },
+                {
+                    "from_node": "OuterLayerHeight",
+                    "from_socket": "Val",
+                    "to_node": "BumpmapMix",
+                    "to_socket": "Color1"
+                },
+                {
+                    "from_node": "BumpmapMix",
+                    "from_socket": "Color",
+                    "to_node": "RGB to BW",
+                    "to_socket": "Color"
+                },
+                {
+                    "from_node": "RGB to BW",
+                    "from_socket": "Val",
+                    "to_node": "Bump",
+                    "to_socket": "Height"
+                },
+                {
+                    "from_node": "Bump",
+                    "from_socket": "Normal",
+                    "to_node": "Principled BSDF",
+                    "to_socket": "Normal"
+                },
+                {
+                    "from_node": "Group Input",
+                    "from_socket": "IrisBumpStrength",
+                    "to_node": "Bump",
+                    "to_socket": "Strength"
+                },
+                {
+                    "from_node": "Group Input",
+                    "from_socket": "EyeWhiteColor",
+                    "to_node": "IrisEyeWhiteColorSwitch",
+                    "to_socket": "Color2"
+                },
+                {
+                    "from_node": "MakePupilNonReflective",
+                    "from_socket": "Color",
+                    "to_node": "RoughnessMix",
+                    "to_socket": "Color2"
+                },
+                {
+                    "from_node": "EyeCoordinateInfo",
+                    "from_socket": "PositionWithinIris",
+                    "to_node": "Math",
+                    "to_socket": 0
+                },
+                {
+                    "from_node": "Math",
+                    "from_socket": "Value",
+                    "to_node": "MakePupilNonReflective",
+                    "to_socket": "Fac"
+                },
+                {
+                    "from_node": "RoughnessValue",
+                    "from_socket": "Val",
+                    "to_node": "Principled BSDF",
+                    "to_socket": "Roughness"
+                },
+                {
+                    "from_node": "InnerOuterLayerColorSwitch",
+                    "from_socket": "Color",
+                    "to_node": "Principled BSDF",
+                    "to_socket": "Base Color"
+                },
+                {
+                    "from_node": "Group Input",
+                    "from_socket": "PupilSize",
+                    "to_node": "Math",
+                    "to_socket": 1
+                },
+                {
+                    "from_node": "Group Input",
+                    "from_socket": "Clearcoat",
+                    "to_node": "Principled BSDF",
+                    "to_socket": "Clearcoat"
+                },
+                {
+                    "from_node": "Group Input",
+                    "from_socket": "Clearcoat Roughness",
+                    "to_node": "Principled BSDF",
+                    "to_socket": "Clearcoat Roughness"
+                }
+            ],
+            "nodes": {
+                "Bump": {
+                    "create": true,
+                    "label": "",
+                    "location": [
+                        94.1466064453125,
+                        -791.1005859375
+                    ],
+                    "name": "Bump",
+                    "type": "ShaderNodeBump",
+                    "values": {
+                        "Distance": 1.0,
+                        "Height": 1.0,
+                        "Height_dx": 1.0,
+                        "Height_dy": 1.0,
+                        "Strength": 0.5
+                    }
+                },
+                "BumpmapMix": {
+                    "create": true,
+                    "label": "BumpmapMix",
+                    "location": [
+                        -320.3454895019531,
+                        -980.7688598632812
+                    ],
+                    "name": "BumpmapMix",
+                    "type": "ShaderNodeMixRGB",
+                    "values": {
+                        "Color1": [
+                            0.5,
+                            0.5,
+                            0.5,
+                            1.0
+                        ],
+                        "Color2": [
+                            0.5,
+                            0.5,
+                            0.5,
+                            1.0
+                        ],
+                        "Fac": 0.5
+                    }
+                },
+                "EyeCoordinateInfo": {
+                    "create": true,
+                    "group_name": "EyeCoordinateInfo",
+                    "label": "EyeCoordinateInfo",
+                    "location": [
+                        -1061.7412109375,
+                        386.6156921386719
+                    ],
+                    "name": "EyeCoordinateInfo",
+                    "type": "ShaderNodeGroup",
+                    "values": {
+                        "IrisTotalSize": 0.5
+                    }
+                },
+                "EyewhiteHeight": {
+                    "create": true,
+                    "label": "EyewhiteHeight",
+                    "location": [
+                        -887.7616577148438,
+                        -966.2442016601562
+                    ],
+                    "name": "EyewhiteHeight",
+                    "type": "ShaderNodeRGBToBW",
+                    "values": {
+                        "Color": [
+                            0.5,
+                            0.5,
+                            0.5,
+                            1.0
+                        ]
+                    }
+                },
+                "Group Input": {
+                    "create": true,
+                    "label": "",
+                    "location": [
+                        -1366.7664794921875,
+                        -46.97562026977539
+                    ],
+                    "name": "Group Input",
+                    "type": "NodeGroupInput",
+                    "values": {}
+                },
+                "Group Output": {
+                    "create": true,
+                    "label": "",
+                    "location": [
+                        1045.159423828125,
+                        -0.0
+                    ],
+                    "name": "Group Output",
+                    "type": "NodeGroupOutput",
+                    "values": {}
+                },
+                "InnerOuterLayerColorSwitch": {
+                    "create": true,
+                    "group_name": "TwoSectionSwitch",
+                    "label": "InnerOuterLayerColorSwitch",
+                    "location": [
+                        173.85516357421875,
+                        123.85724639892578
+                    ],
+                    "name": "InnerOuterLayerColorSwitch",
+                    "type": "ShaderNodeGroup",
+                    "values": {
+                        "Color1": [
+                            1.0,
+                            1.0,
+                            1.0,
+                            1.0
+                        ],
+                        "Color2": [
+                            0.5,
+                            0.5,
+                            0.5,
+                            1.0
+                        ],
+                        "Stop1Position": 0.5,
+                        "Value": 0.5
+                    }
+                },
+                "IrisEyeWhiteColorSwitch": {
+                    "create": true,
+                    "group_name": "TwoSectionSwitch",
+                    "label": "IrisEyeWhiteColorSwitch",
+                    "location": [
+                        -56.58167266845703,
+                        300.05230712890625
+                    ],
+                    "name": "IrisEyeWhiteColorSwitch",
+                    "type": "ShaderNodeGroup",
+                    "values": {
+                        "Color1": [
+                            0.0,
+                            0.0,
+                            0.0,
+                            1.0
+                        ],
+                        "Color2": [
+                            0.5,
+                            0.5,
+                            0.5,
+                            1.0
+                        ],
+                        "Stop1Position": 0.5,
+                        "Value": 0.5
+                    }
+                },
+                "IrisHeight": {
+                    "create": true,
+                    "label": "IrisHeight",
+                    "location": [
+                        -888.7295532226562,
+                        -870.247314453125
+                    ],
+                    "name": "IrisHeight",
+                    "type": "ShaderNodeRGBToBW",
+                    "values": {
+                        "Color": [
+                            0.5,
+                            0.5,
+                            0.5,
+                            1.0
+                        ]
+                    }
+                },
+                "IrisMain": {
+                    "create": true,
+                    "group_name": "IrisMain",
+                    "label": "IrisMain",
+                    "location": [
+                        -672.6128540039062,
+                        437.8119201660156
+                    ],
+                    "name": "IrisMain",
+                    "type": "ShaderNodeGroup",
+                    "values": {
+                        "BorderColor": [
+                            0.0,
+                            0.0,
+                            0.0,
+                            1.0
+                        ],
+                        "ClockwiseMultiplicator": 4.0,
+                        "EyeWhiteColor": [
+                            0.0,
+                            0.0,
+                            0.0,
+                            1.0
+                        ],
+                        "FeatureScale": 15.0,
+                        "InnermostRingSize": 0.5,
+                        "IrisBorderStart": 0.5,
+                        "IrisMajorColor": [
+                            0.0,
+                            0.49999991059303284,
+                            0.0101469736546278,
+                            1.0
+                        ],
+                        "IrisMinorColor": [
+                            0.49999991059303284,
+                            0.0,
+                            0.0504365898668766,
+                            1.0
+                        ],
+                        "MidRingSize": 0.5,
+                        "PupilColor": [
+                            0.0,
+                            0.49999991059303284,
+                            0.0012120342580601573,
+                            1.0
+                        ],
+                        "PupilSize": 0.5,
+                        "RadialMultiplicator": 2.0,
+                        "Value": 0.5
+                    }
+                },
+                "MainBumpmapSwitch": {
+                    "create": true,
+                    "group_name": "ThreeSectionSwitch",
+                    "label": "MainBumpmapSwitch",
+                    "location": [
+                        -584.7500610351562,
+                        -842.099609375
+                    ],
+                    "name": "MainBumpmapSwitch",
+                    "type": "ShaderNodeGroup",
+                    "values": {
+                        "Section1Color": [
+                            0.49999991059303284,
+                            0.4648233652114868,
+                            0.0,
+                            1.0
+                        ],
+                        "Section1End": 0.5,
+                        "Section2Color": [
+                            0.0023723121266812086,
+                            0.0,
+                            0.49999991059303284,
+                            1.0
+                        ],
+                        "Section2End": 0.9990000128746033,
+                        "Section3Color": [
+                            0.49999991059303284,
+                            0.0,
+                            0.01095584686845541,
+                            1.0
+                        ],
+                        "Value": 0.5
+                    }
+                },
+                "MakePupilNonReflective": {
+                    "create": true,
+                    "label": "MakePupilNonReflective",
+                    "location": [
+                        -296.9161682128906,
+                        -155.50888061523438
+                    ],
+                    "name": "MakePupilNonReflective",
+                    "type": "ShaderNodeMixRGB",
+                    "values": {
+                        "Color1": [
+                            0.5,
+                            0.5,
+                            0.5,
+                            1.0
+                        ],
+                        "Color2": [
+                            1.0,
+                            1.0,
+                            1.0,
+                            1.0
+                        ],
+                        "Fac": 0.5
+                    }
+                },
+                "Math": {
+                    "create": true,
+                    "label": "",
+                    "location": [
+                        -604.4295654296875,
+                        -126.55714416503906
+                    ],
+                    "name": "Math",
+                    "operation": "LESS_THAN",
+                    "type": "ShaderNodeMath",
+                    "use_clamp": false,
+                    "values": {
+                        "Value": 0.0
+                    }
+                },
+                "OuterLayerHeight": {
+                    "create": true,
+                    "label": "OuterLayerHeight",
+                    "location": [
+                        -889.0731811523438,
+                        -1059.275634765625
+                    ],
+                    "name": "OuterLayerHeight",
+                    "type": "ShaderNodeRGBToBW",
+                    "values": {
+                        "Color": [
+                            0.5,
+                            0.5,
+                            0.5,
+                            1.0
+                        ]
+                    }
+                },
+                "Principled BSDF": {
+                    "create": true,
+                    "label": "",
+                    "location": [
+                        526.73193359375,
+                        18.392822265625
+                    ],
+                    "name": "Principled BSDF",
+                    "type": "ShaderNodeBsdfPrincipled",
+                    "values": {
+                        "Alpha": 1.0,
+                        "Anisotropic": 0.0,
+                        "Anisotropic Rotation": 0.0,
+                        "Base Color": [
+                            0.800000011920929,
+                            0.800000011920929,
+                            0.800000011920929,
+                            1.0
+                        ],
+                        "Clearcoat": 0.0,
+                        "Clearcoat Roughness": 0.029999999329447746,
+                        "Emission": [
+                            0.0,
+                            0.0,
+                            0.0,
+                            1.0
+                        ],
+                        "IOR": 1.4500000476837158,
+                        "Metallic": 0.0,
+                        "Roughness": 0.5,
+                        "Sheen": 0.0,
+                        "Sheen Tint": 0.5,
+                        "Specular": 0.5,
+                        "Specular Tint": 0.0,
+                        "Subsurface": 0.0,
+                        "Subsurface Color": [
+                            0.800000011920929,
+                            0.800000011920929,
+                            0.800000011920929,
+                            1.0
+                        ],
+                        "Transmission": 0.0,
+                        "Transmission Roughness": 0.0
+                    }
+                },
+                "PupilHeight": {
+                    "create": true,
+                    "label": "PupilHeight",
+                    "location": [
+                        -886.7075805664062,
+                        -779.6630249023438
+                    ],
+                    "name": "PupilHeight",
+                    "type": "ShaderNodeRGBToBW",
+                    "values": {
+                        "Color": [
+                            0.5,
+                            0.5,
+                            0.5,
+                            1.0
+                        ]
+                    }
+                },
+                "PupilIrisColorSwitch": {
+                    "create": true,
+                    "group_name": "TwoSectionSwitch",
+                    "label": "PupilIrisColorSwitch",
+                    "location": [
+                        -327.9064636230469,
+                        380.296875
+                    ],
+                    "name": "PupilIrisColorSwitch",
+                    "type": "ShaderNodeGroup",
+                    "values": {
+                        "Color1": [
+                            0.5,
+                            0.5,
+                            0.5,
+                            1.0
+                        ],
+                        "Color2": [
+                            0.5,
+                            0.5,
+                            0.5,
+                            1.0
+                        ],
+                        "Stop1Position": 0.30000001192092896,
+                        "Value": 0.5
+                    }
+                },
+                "RGB to BW": {
+                    "create": true,
+                    "label": "",
+                    "location": [
+                        -134.16049194335938,
+                        -982.9805297851562
+                    ],
+                    "name": "RGB to BW",
+                    "type": "ShaderNodeRGBToBW",
+                    "values": {
+                        "Color": [
+                            0.5,
+                            0.5,
+                            0.5,
+                            1.0
+                        ]
+                    }
+                },
+                "RoughnessMix": {
+                    "create": true,
+                    "label": "RoughnessMix",
+                    "location": [
+                        45.0549430847168,
+                        -166.93846130371094
+                    ],
+                    "name": "RoughnessMix",
+                    "type": "ShaderNodeMixRGB",
+                    "values": {
+                        "Color1": [
+                            0.5,
+                            0.5,
+                            0.5,
+                            1.0
+                        ],
+                        "Color2": [
+                            0.5,
+                            0.5,
+                            0.5,
+                            1.0
+                        ],
+                        "Fac": 0.5
+                    }
+                },
+                "RoughnessValue": {
+                    "create": true,
+                    "label": "RoughnessValue",
+                    "location": [
+                        242.0759735107422,
+                        -205.7417755126953
+                    ],
+                    "name": "RoughnessValue",
+                    "type": "ShaderNodeRGBToBW",
+                    "values": {
+                        "Color": [
+                            0.5,
+                            0.5,
+                            0.5,
+                            1.0
+                        ]
+                    }
+                },
+                "TransmissionMix": {
+                    "create": true,
+                    "label": "TransmissionMix",
+                    "location": [
+                        -204.510986328125,
+                        -470.74859619140625
+                    ],
+                    "name": "TransmissionMix",
+                    "type": "ShaderNodeMixRGB",
+                    "values": {
+                        "Color1": [
+                            1.0,
+                            1.0,
+                            1.0,
+                            1.0
+                        ],
+                        "Color2": [
+                            0.0,
+                            0.0,
+                            0.0,
+                            1.0
+                        ],
+                        "Fac": 0.5
+                    }
+                },
+                "TransmissionValue": {
+                    "create": true,
+                    "label": "TransmissionValue",
+                    "location": [
+                        -2.86594820022583,
+                        -506.5221252441406
+                    ],
+                    "name": "TransmissionValue",
+                    "type": "ShaderNodeRGBToBW",
+                    "values": {
+                        "Color": [
+                            0.5,
+                            0.5,
+                            0.5,
+                            1.0
+                        ]
+                    }
+                }
+            },
+            "outputs": {
+                "BSDF": "NodeSocketShader"
+            }
+        },
+        "EyeCoordinateInfo": {
+            "inputs": {
+                "IrisTotalSize": {
+                    "type": "NodeSocketFloat",
+                    "value": 0.5
+                }
+            },
+            "links": [
+                {
+                    "from_node": "DistanceFromCenter",
+                    "from_socket": "IsInRange",
+                    "to_node": "Group Output",
+                    "to_socket": "IsInRange"
+                },
+                {
+                    "from_node": "Group Input",
+                    "from_socket": "IrisTotalSize",
+                    "to_node": "PositionWithinIris",
+                    "to_socket": 1
+                },
+                {
+                    "from_node": "DistanceFromCenter",
+                    "from_socket": "NormalizedDistance",
+                    "to_node": "Group Output",
+                    "to_socket": "NormalizedDistance"
+                },
+                {
+                    "from_node": "PositionWithinIris",
+                    "from_socket": "Value",
+                    "to_node": "Group Output",
+                    "to_socket": "PositionWithinIris"
+                },
+                {
+                    "from_node": "DistanceFromCenter",
+                    "from_socket": "Vector",
+                    "to_node": "Group Output",
+                    "to_socket": "Vector"
+                },
+                {
+                    "from_node": "DistanceFromCenter",
+                    "from_socket": "NormalizedDistance",
+                    "to_node": "PositionWithinIris",
+                    "to_socket": 0
+                }
+            ],
+            "nodes": {
+                "DistanceFromCenter": {
+                    "create": true,
+                    "group_name": "DistanceFromCenter",
+                    "label": "DistanceFromCenter",
+                    "location": [
+                        -132.06179809570312,
+                        -86.97406768798828
+                    ],
+                    "name": "DistanceFromCenter",
+                    "type": "ShaderNodeGroup",
+                    "values": {}
+                },
+                "Group Input": {
+                    "create": true,
+                    "label": "",
+                    "location": [
+                        -294.7820739746094,
+                        157.1398468017578
+                    ],
+                    "name": "Group Input",
+                    "type": "NodeGroupInput",
+                    "values": {}
+                },
+                "Group Output": {
+                    "create": true,
+                    "label": "",
+                    "location": [
+                        367.3300476074219,
+                        -54.59943389892578
+                    ],
+                    "name": "Group Output",
+                    "type": "NodeGroupOutput",
+                    "values": {
+                        "IsInRange": 0.0,
+                        "NormalizedDistance": 0.0,
+                        "PositionWithinIris": 0.0
+                    }
+                },
+                "PositionWithinIris": {
+                    "create": true,
+                    "label": "PositionWithinIris",
+                    "location": [
+                        69.48507690429688,
+                        104.28609466552734
+                    ],
+                    "name": "PositionWithinIris",
+                    "operation": "DIVIDE",
+                    "type": "ShaderNodeMath",
+                    "use_clamp": true,
+                    "values": {
+                        "Value": 0.0
+                    }
+                }
+            },
+            "outputs": {
+                "IsInRange": "NodeSocketFloat",
+                "NormalizedDistance": "NodeSocketFloat",
+                "PositionWithinIris": "NodeSocketFloat",
+                "Vector": "NodeSocketVector"
+            }
+        },
+        "FourSectionSwitch": {
+            "inputs": {
+                "Section1Color": {
+                    "type": "NodeSocketColor",
+                    "value": [
+                        0.5,
+                        0.5,
+                        0.5,
+                        1.0
+                    ]
+                },
+                "Section1End": {
+                    "type": "NodeSocketFloat",
+                    "value": 0.5
+                },
+                "Section2Color": {
+                    "type": "NodeSocketColor",
+                    "value": [
+                        0.5,
+                        0.5,
+                        0.5,
+                        1.0
+                    ]
+                },
+                "Section2End": {
+                    "type": "NodeSocketFloat",
+                    "value": 0.5
+                },
+                "Section3Color": {
+                    "type": "NodeSocketColor",
+                    "value": [
+                        0.5,
+                        0.5,
+                        0.5,
+                        1.0
+                    ]
+                },
+                "Section3End": {
+                    "type": "NodeSocketFloat",
+                    "value": 0.5
+                },
+                "Section4Color": {
+                    "type": "NodeSocketColor",
+                    "value": [
+                        0.5,
+                        0.5,
+                        0.5,
+                        1.0
+                    ]
+                },
+                "Value": {
+                    "type": "NodeSocketFloat",
+                    "value": 0.5
+                }
+            },
+            "links": [
+                {
+                    "from_node": "Mix",
+                    "from_socket": "Color",
+                    "to_node": "Group Output",
+                    "to_socket": "Color"
+                },
+                {
+                    "from_node": "Section2Start",
+                    "from_socket": "Value",
+                    "to_node": "IsSection2",
+                    "to_socket": 0
+                },
+                {
+                    "from_node": "Section2End",
+                    "from_socket": "Value",
+                    "to_node": "IsSection2",
+                    "to_socket": 1
+                },
+                {
+                    "from_node": "Section3Start",
+                    "from_socket": "Value",
+                    "to_node": "IsSection3",
+                    "to_socket": 0
+                },
+                {
+                    "from_node": "Section3End",
+                    "from_socket": "Value",
+                    "to_node": "IsSection3",
+                    "to_socket": 1
+                },
+                {
+                    "from_node": "IsSection1",
+                    "from_socket": "Value",
+                    "to_node": "IsSection1Or2",
+                    "to_socket": 0
+                },
+                {
+                    "from_node": "IsSection2",
+                    "from_socket": "Value",
+                    "to_node": "IsSection1Or2",
+                    "to_socket": 1
+                },
+                {
+                    "from_node": "IsSection3",
+                    "from_socket": "Value",
+                    "to_node": "IsSection3Or4",
+                    "to_socket": 0
+                },
+                {
+                    "from_node": "IsSection4",
+                    "from_socket": "Value",
+                    "to_node": "IsSection3Or4",
+                    "to_socket": 1
+                },
+                {
+                    "from_node": "IsSection2",
+                    "from_socket": "Value",
+                    "to_node": "Section1And2",
+                    "to_socket": "Fac"
+                },
+                {
+                    "from_node": "IsSection4",
+                    "from_socket": "Value",
+                    "to_node": "Section3And4",
+                    "to_socket": "Fac"
+                },
+                {
+                    "from_node": "IsSection3Or4",
+                    "from_socket": "Value",
+                    "to_node": "Mix",
+                    "to_socket": "Fac"
+                },
+                {
+                    "from_node": "Section1And2",
+                    "from_socket": "Color",
+                    "to_node": "Mix",
+                    "to_socket": "Color1"
+                },
+                {
+                    "from_node": "Section3And4",
+                    "from_socket": "Color",
+                    "to_node": "Mix",
+                    "to_socket": "Color2"
+                },
+                {
+                    "from_node": "Group Input",
+                    "from_socket": "Value",
+                    "to_node": "Section2Start",
+                    "to_socket": 0
+                },
+                {
+                    "from_node": "Group Input",
+                    "from_socket": "Value",
+                    "to_node": "Section2End",
+                    "to_socket": 0
+                },
+                {
+                    "from_node": "Group Input",
+                    "from_socket": "Value",
+                    "to_node": "Section3End",
+                    "to_socket": 0
+                },
+                {
+                    "from_node": "Group Input",
+                    "from_socket": "Value",
+                    "to_node": "IsSection1",
+                    "to_socket": 0
+                },
+                {
+                    "from_node": "Group Input",
+                    "from_socket": "Value",
+                    "to_node": "IsSection4",
+                    "to_socket": 0
+                },
+                {
+                    "from_node": "Group Input",
+                    "from_socket": "Section1End",
+                    "to_node": "Section2Start",
+                    "to_socket": 1
+                },
+                {
+                    "from_node": "Group Input",
+                    "from_socket": "Section1End",
+                    "to_node": "IsSection1",
+                    "to_socket": 1
+                },
+                {
+                    "from_node": "Group Input",
+                    "from_socket": "Section2End",
+                    "to_node": "Section2End",
+                    "to_socket": 1
+                },
+                {
+                    "from_node": "Group Input",
+                    "from_socket": "Value",
+                    "to_node": "Section3Start",
+                    "to_socket": 0
+                },
+                {
+                    "from_node": "Group Input",
+                    "from_socket": "Section2End",
+                    "to_node": "Section3Start",
+                    "to_socket": 1
+                },
+                {
+                    "from_node": "Group Input",
+                    "from_socket": "Section3End",
+                    "to_node": "Section3End",
+                    "to_socket": 1
+                },
+                {
+                    "from_node": "Group Input",
+                    "from_socket": "Section1Color",
+                    "to_node": "Section1And2",
+                    "to_socket": "Color1"
+                },
+                {
+                    "from_node": "Group Input",
+                    "from_socket": "Section2Color",
+                    "to_node": "Section1And2",
+                    "to_socket": "Color2"
+                },
+                {
+                    "from_node": "Group Input",
+                    "from_socket": "Section3Color",
+                    "to_node": "Section3And4",
+                    "to_socket": "Color1"
+                },
+                {
+                    "from_node": "Group Input",
+                    "from_socket": "Section4Color",
+                    "to_node": "Section3And4",
+                    "to_socket": "Color2"
+                },
+                {
+                    "from_node": "Group Input",
+                    "from_socket": "Section3End",
+                    "to_node": "IsSection4",
+                    "to_socket": 1
+                }
+            ],
+            "nodes": {
+                "Group Input": {
+                    "create": true,
+                    "label": "",
+                    "location": [
+                        -670.0958862304688,
+                        33.108970642089844
+                    ],
+                    "name": "Group Input",
+                    "type": "NodeGroupInput",
+                    "values": {}
+                },
+                "Group Output": {
+                    "create": true,
+                    "label": "",
+                    "location": [
+                        503.2204284667969,
+                        -0.0
+                    ],
+                    "name": "Group Output",
+                    "type": "NodeGroupOutput",
+                    "values": {
+                        "Color": [
+                            0.0,
+                            0.0,
+                            0.0,
+                            0.0
+                        ]
+                    }
+                },
+                "IsSection1": {
+                    "create": true,
+                    "label": "IsSection1",
+                    "location": [
+                        -102.61824035644531,
+                        309.4472961425781
+                    ],
+                    "name": "IsSection1",
+                    "operation": "LESS_THAN",
+                    "type": "ShaderNodeMath",
+                    "use_clamp": false,
+                    "values": {
+                        "Value": 0.0
+                    }
+                },
+                "IsSection1Or2": {
+                    "create": true,
+                    "label": "IsSection1Or2",
+                    "location": [
+                        97.07139587402344,
+                        228.36402893066406
+                    ],
+                    "name": "IsSection1Or2",
+                    "operation": "ADD",
+                    "type": "ShaderNodeMath",
+                    "use_clamp": false,
+                    "values": {
+                        "Value": 0.0
+                    }
+                },
+                "IsSection2": {
+                    "create": true,
+                    "label": "IsSection2",
+                    "location": [
+                        -104.70133209228516,
+                        132.48297119140625
+                    ],
+                    "name": "IsSection2",
+                    "operation": "MULTIPLY",
+                    "type": "ShaderNodeMath",
+                    "use_clamp": false,
+                    "values": {
+                        "Value": 0.0
+                    }
+                },
+                "IsSection3": {
+                    "create": true,
+                    "label": "IsSection3",
+                    "location": [
+                        -104.70133209228516,
+                        -153.9815673828125
+                    ],
+                    "name": "IsSection3",
+                    "operation": "MULTIPLY",
+                    "type": "ShaderNodeMath",
+                    "use_clamp": false,
+                    "values": {
+                        "Value": 0.0
+                    }
+                },
+                "IsSection3Or4": {
+                    "create": true,
+                    "label": "IsSection3Or4",
+                    "location": [
+                        92.29425048828125,
+                        -238.19601440429688
+                    ],
+                    "name": "IsSection3Or4",
+                    "operation": "ADD",
+                    "type": "ShaderNodeMath",
+                    "use_clamp": false,
+                    "values": {
+                        "Value": 0.0
+                    }
+                },
+                "IsSection4": {
+                    "create": true,
+                    "label": "IsSection4",
+                    "location": [
+                        -101.17902374267578,
+                        -390.1596374511719
+                    ],
+                    "name": "IsSection4",
+                    "operation": "GREATER_THAN",
+                    "type": "ShaderNodeMath",
+                    "use_clamp": false,
+                    "values": {
+                        "Value": 0.0
+                    }
+                },
+                "Mix": {
+                    "create": true,
+                    "label": "",
+                    "location": [
+                        313.2204284667969,
+                        -26.517425537109375
+                    ],
+                    "name": "Mix",
+                    "type": "ShaderNodeMixRGB",
+                    "values": {
+                        "Color1": [
+                            0.5,
+                            0.5,
+                            0.5,
+                            1.0
+                        ],
+                        "Color2": [
+                            0.5,
+                            0.5,
+                            0.5,
+                            1.0
+                        ],
+                        "Fac": 0.5
+                    }
+                },
+                "Section1And2": {
+                    "create": true,
+                    "label": "Section1And2",
+                    "location": [
+                        96.12687683105469,
+                        417.67193603515625
+                    ],
+                    "name": "Section1And2",
+                    "type": "ShaderNodeMixRGB",
+                    "values": {
+                        "Color1": [
+                            0.5,
+                            0.5,
+                            0.5,
+                            1.0
+                        ],
+                        "Color2": [
+                            0.5,
+                            0.5,
+                            0.5,
+                            1.0
+                        ],
+                        "Fac": 0.5
+                    }
+                },
+                "Section2End": {
+                    "create": true,
+                    "label": "Section2End",
+                    "location": [
+                        -310.34197998046875,
+                        75.46721649169922
+                    ],
+                    "name": "Section2End",
+                    "operation": "LESS_THAN",
+                    "type": "ShaderNodeMath",
+                    "use_clamp": false,
+                    "values": {
+                        "Value": 0.0
+                    }
+                },
+                "Section2Start": {
+                    "create": true,
+                    "label": "Section2Start",
+                    "location": [
+                        -307.46356201171875,
+                        243.89105224609375
+                    ],
+                    "name": "Section2Start",
+                    "operation": "GREATER_THAN",
+                    "type": "ShaderNodeMath",
+                    "use_clamp": false,
+                    "values": {
+                        "Value": 0.0
+                    }
+                },
+                "Section3And4": {
+                    "create": true,
+                    "label": "Section3And4",
+                    "location": [
+                        94.85069274902344,
+                        -417.67193603515625
+                    ],
+                    "name": "Section3And4",
+                    "type": "ShaderNodeMixRGB",
+                    "values": {
+                        "Color1": [
+                            0.5,
+                            0.5,
+                            0.5,
+                            1.0
+                        ],
+                        "Color2": [
+                            0.5,
+                            0.5,
+                            0.5,
+                            1.0
+                        ],
+                        "Fac": 0.5
+                    }
+                },
+                "Section3End": {
+                    "create": true,
+                    "label": "Section3End",
+                    "location": [
+                        -311.7812194824219,
+                        -262.82012939453125
+                    ],
+                    "name": "Section3End",
+                    "operation": "LESS_THAN",
+                    "type": "ShaderNodeMath",
+                    "use_clamp": false,
+                    "values": {
+                        "Value": 0.0
+                    }
+                },
+                "Section3Start": {
+                    "create": true,
+                    "label": "Section3Start",
+                    "location": [
+                        -313.2204284667969,
+                        -92.95672607421875
+                    ],
+                    "name": "Section3Start",
+                    "operation": "GREATER_THAN",
+                    "type": "ShaderNodeMath",
+                    "use_clamp": false,
+                    "values": {
+                        "Value": 0.0
+                    }
+                }
+            },
+            "outputs": {
+                "Color": "NodeSocketColor"
+            }
+        },
+        "IrisBorder": {
+            "inputs": {
+                "BorderColor": {
+                    "type": "NodeSocketColor",
+                    "value": [
+                        0.0,
+                        0.0,
+                        0.0,
+                        1.0
+                    ]
+                },
+                "BorderStartWithinIris": {
+                    "type": "NodeSocketFloat",
+                    "value": 0.8999999761581421
+                },
+                "MaxColor": {
+                    "type": "NodeSocketColor",
+                    "value": [
+                        0.9814547300338745,
+                        0.9631117582321167,
+                        1.0,
+                        1.0
+                    ]
+                },
+                "MinColor": {
+                    "type": "NodeSocketColor",
+                    "value": [
+                        0.0,
+                        0.0,
+                        0.0,
+                        1.0
+                    ]
+                },
+                "Value": {
+                    "type": "NodeSocketFloat",
+                    "value": 0.5
+                }
+            },
+            "links": [
+                {
+                    "from_node": "Group Input",
+                    "from_socket": "Value",
+                    "to_node": "NormalizedRangeForIrisBorder",
+                    "to_socket": "Value"
+                },
+                {
+                    "from_node": "Group Input",
+                    "from_socket": "MaxColor",
+                    "to_node": "IrisBorderRamp",
+                    "to_socket": "MaxColor"
+                },
+                {
+                    "from_node": "Group Input",
+                    "from_socket": "MinColor",
+                    "to_node": "IrisBorderRamp",
+                    "to_socket": "MinColor"
+                },
+                {
+                    "from_node": "Group Input",
+                    "from_socket": "BorderStartWithinIris",
+                    "to_node": "NormalizedRangeForIrisBorder",
+                    "to_socket": "RangeMin"
+                },
+                {
+                    "from_node": "IrisBorderRamp",
+                    "from_socket": "Color",
+                    "to_node": "Group Output",
+                    "to_socket": "Color"
+                },
+                {
+                    "from_node": "NormalizedRangeForIrisBorder",
+                    "from_socket": "Value",
+                    "to_node": "IrisBorderRamp",
+                    "to_socket": "Value"
+                },
+                {
+                    "from_node": "Group Input",
+                    "from_socket": "BorderColor",
+                    "to_node": "IrisBorderRamp",
+                    "to_socket": "Stop1Color"
+                },
+                {
+                    "from_node": "Group Input",
+                    "from_socket": "BorderColor",
+                    "to_node": "IrisBorderRamp",
+                    "to_socket": "Stop2Color"
+                }
+            ],
+            "nodes": {
+                "Group Input": {
+                    "create": true,
+                    "label": "",
+                    "location": [
+                        -428.3401184082031,
+                        -199.75486755371094
+                    ],
+                    "name": "Group Input",
+                    "type": "NodeGroupInput",
+                    "values": {}
+                },
+                "Group Output": {
+                    "create": true,
+                    "label": "",
+                    "location": [
+                        331.41949462890625,
+                        -88.96892547607422
+                    ],
+                    "name": "Group Output",
+                    "type": "NodeGroupOutput",
+                    "values": {
+                        "Color": [
+                            0.0,
+                            0.0,
+                            0.0,
+                            0.0
+                        ]
+                    }
+                },
+                "IrisBorderRamp": {
+                    "create": true,
+                    "group_name": "ThreeSectionRamp",
+                    "label": "IrisBorderRamp",
+                    "location": [
+                        28.62639808654785,
+                        -46.581546783447266
+                    ],
+                    "name": "IrisBorderRamp",
+                    "type": "ShaderNodeGroup",
+                    "values": {
+                        "MaxColor": [
+                            0.0,
+                            0.0,
+                            0.0,
+                            1.0
+                        ],
+                        "MinColor": [
+                            0.0,
+                            0.0,
+                            0.0,
+                            1.0
+                        ],
+                        "Stop1Color": [
+                            0.0,
+                            0.0,
+                            0.0,
+                            1.0
+                        ],
+                        "Stop1Position": 0.33000001311302185,
+                        "Stop2Color": [
+                            0.0,
+                            0.0,
+                            0.0,
+                            1.0
+                        ],
+                        "Stop2Position": 0.6600000262260437,
+                        "Value": 0.5
+                    }
+                },
+                "NormalizedRangeForIrisBorder": {
+                    "create": true,
+                    "group_name": "NormalizeForRange",
+                    "label": "NormalizedRangeForIrisBorder",
+                    "location": [
+                        -151.11749267578125,
+                        -49.300540924072266
+                    ],
+                    "name": "NormalizedRangeForIrisBorder",
+                    "type": "ShaderNodeGroup",
+                    "values": {
+                        "RangeMax": 1.0,
+                        "RangeMin": 0.8999999761581421,
+                        "Value": 0.5
+                    }
+                }
+            },
+            "outputs": {
+                "Color": "NodeSocketColor"
+            }
+        },
+        "IrisInnermostRing": {
+            "inputs": {
+                "InnermostRingSize": {
+                    "type": "NodeSocketFloat",
+                    "value": 0.5
+                },
+                "IrisMinorColor": {
+                    "type": "NodeSocketColor",
+                    "value": [
+                        0.0011119148693978786,
+                        0.0,
+                        0.49999991059303284,
+                        1.0
+                    ]
+                },
+                "PupilColor": {
+                    "type": "NodeSocketColor",
+                    "value": [
+                        0.0,
+                        0.49999991059303284,
+                        0.0012120342580601573,
+                        1.0
+                    ]
+                },
+                "Value": {
+                    "type": "NodeSocketFloat",
+                    "value": 0.5
+                }
+            },
+            "links": [
+                {
+                    "from_node": "Group Input",
+                    "from_socket": "PupilColor",
+                    "to_node": "PupilToInnerRingMix",
+                    "to_socket": "Color1"
+                },
+                {
+                    "from_node": "Group Input",
+                    "from_socket": "IrisMinorColor",
+                    "to_node": "PupilToInnerRingMix",
+                    "to_socket": "Color2"
+                },
+                {
+                    "from_node": "PupilToInnerRingMix",
+                    "from_socket": "Color",
+                    "to_node": "Group Output",
+                    "to_socket": "Color"
+                },
+                {
+                    "from_node": "NormalizedRangeForInnermostRing",
+                    "from_socket": "Value",
+                    "to_node": "PupilToInnerRingMix",
+                    "to_socket": "Fac"
+                },
+                {
+                    "from_node": "Group Input",
+                    "from_socket": "Value",
+                    "to_node": "NormalizedRangeForInnermostRing",
+                    "to_socket": "Value"
+                },
+                {
+                    "from_node": "Group Input",
+                    "from_socket": "InnermostRingSize",
+                    "to_node": "NormalizedRangeForInnermostRing",
+                    "to_socket": "RangeMax"
+                }
+            ],
+            "nodes": {
+                "Group Input": {
+                    "create": true,
+                    "label": "",
+                    "location": [
+                        -495.224853515625,
+                        -65.2556381225586
+                    ],
+                    "name": "Group Input",
+                    "type": "NodeGroupInput",
+                    "values": {}
+                },
+                "Group Output": {
+                    "create": true,
+                    "label": "",
+                    "location": [
+                        300.1500244140625,
+                        -0.0
+                    ],
+                    "name": "Group Output",
+                    "type": "NodeGroupOutput",
+                    "values": {
+                        "Color": [
+                            0.0,
+                            0.0,
+                            0.0,
+                            0.0
+                        ]
+                    }
+                },
+                "NormalizedRangeForInnermostRing": {
+                    "create": true,
+                    "group_name": "NormalizeForRange",
+                    "label": "NormalizedRangeForInnermostRing",
+                    "location": [
+                        -120.80217742919922,
+                        -137.89910888671875
+                    ],
+                    "name": "NormalizedRangeForInnermostRing",
+                    "type": "ShaderNodeGroup",
+                    "values": {
+                        "RangeMax": 0.05000000819563866,
+                        "RangeMin": 0.0,
+                        "Value": 0.10000002384185791
+                    }
+                },
+                "PupilToInnerRingMix": {
+                    "create": true,
+                    "label": "PupilToInnerRingMix",
+                    "location": [
+                        110.15003967285156,
+                        60.65521240234375
+                    ],
+                    "name": "PupilToInnerRingMix",
+                    "type": "ShaderNodeMixRGB",
+                    "values": {
+                        "Color1": [
+                            0.0,
+                            0.49999991059303284,
+                            0.0012120342580601573,
+                            1.0
+                        ],
+                        "Color2": [
+                            0.0011119148693978786,
+                            0.0,
+                            0.49999991059303284,
+                            1.0
+                        ],
+                        "Fac": 0.0
+                    }
+                }
+            },
+            "outputs": {
+                "Color": "NodeSocketColor"
+            }
+        },
+        "IrisMain": {
+            "inputs": {
+                "BorderColor": {
+                    "type": "NodeSocketColor",
+                    "value": [
+                        0.0,
+                        0.0,
+                        0.0,
+                        1.0
+                    ]
+                },
+                "ClockwiseMultiplicator": {
+                    "type": "NodeSocketFloat",
+                    "value": 4.0
+                },
+                "EyeWhiteColor": {
+                    "type": "NodeSocketColor",
+                    "value": [
+                        0.0,
+                        0.0,
+                        0.0,
+                        1.0
+                    ]
+                },
+                "FeatureScale": {
+                    "type": "NodeSocketFloat",
+                    "value": 15.0
+                },
+                "InnermostRingSize": {
+                    "type": "NodeSocketFloat",
+                    "value": 0.5
+                },
+                "IrisBorderStart": {
+                    "type": "NodeSocketFloat",
+                    "value": 0.5
+                },
+                "IrisMajorColor": {
+                    "type": "NodeSocketColor",
+                    "value": [
+                        0.0,
+                        0.49999991059303284,
+                        0.0101469736546278,
+                        1.0
+                    ]
+                },
+                "IrisMinorColor": {
+                    "type": "NodeSocketColor",
+                    "value": [
+                        0.49999991059303284,
+                        0.0,
+                        0.0504365898668766,
+                        1.0
+                    ]
+                },
+                "MidRingSize": {
+                    "type": "NodeSocketFloat",
+                    "value": 0.5
+                },
+                "PupilColor": {
+                    "type": "NodeSocketColor",
+                    "value": [
+                        0.0,
+                        0.49999991059303284,
+                        0.0012120342580601573,
+                        1.0
+                    ]
+                },
+                "PupilSize": {
+                    "type": "NodeSocketFloat",
+                    "value": 0.5
+                },
+                "RadialMultiplicator": {
+                    "type": "NodeSocketFloat",
+                    "value": 2.0
+                },
+                "Value": {
+                    "type": "NodeSocketFloat",
+                    "value": 0.5
+                },
+                "Vector": {
+                    "type": "NodeSocketVector"
+                }
+            },
+            "links": [
+                {
+                    "from_node": "Group Input",
+                    "from_socket": "PupilColor",
+                    "to_node": "IrisInnermostRing",
+                    "to_socket": "PupilColor"
+                },
+                {
+                    "from_node": "Group Input",
+                    "from_socket": "Value",
+                    "to_node": "IrisNormalizedRange",
+                    "to_socket": "Value"
+                },
+                {
+                    "from_node": "Group Input",
+                    "from_socket": "PupilSize",
+                    "to_node": "IrisNormalizedRange",
+                    "to_socket": "RangeMin"
+                },
+                {
+                    "from_node": "Group Input",
+                    "from_socket": "Vector",
+                    "to_node": "Vector Math",
+                    "to_socket": 0
+                },
+                {
+                    "from_node": "Vector Math",
+                    "from_socket": "Vector",
+                    "to_node": "Voronoi Texture",
+                    "to_socket": "Vector"
+                },
+                {
+                    "from_node": "Voronoi Texture",
+                    "from_socket": "Distance",
+                    "to_node": "Math.003",
+                    "to_socket": 0
+                },
+                {
+                    "from_node": "Combine XYZ",
+                    "from_socket": "Vector",
+                    "to_node": "Vector Math",
+                    "to_socket": 1
+                },
+                {
+                    "from_node": "Group Input",
+                    "from_socket": "ClockwiseMultiplicator",
+                    "to_node": "Combine XYZ",
+                    "to_socket": "Y"
+                },
+                {
+                    "from_node": "Group Input",
+                    "from_socket": "FeatureScale",
+                    "to_node": "Voronoi Texture",
+                    "to_socket": "Scale"
+                },
+                {
+                    "from_node": "Group Input",
+                    "from_socket": "InnermostRingSize",
+                    "to_node": "IrisInnermostRing",
+                    "to_socket": "InnermostRingSize"
+                },
+                {
+                    "from_node": "IrisNormalizedRange",
+                    "from_socket": "Value",
+                    "to_node": "IrisBorder",
+                    "to_socket": "Value"
+                },
+                {
+                    "from_node": "IrisInnermostRing",
+                    "from_socket": "Color",
+                    "to_node": "IrisSectionsColorSwitch",
+                    "to_socket": "Section1Color"
+                },
+                {
+                    "from_node": "IrisBorder",
+                    "from_socket": "Color",
+                    "to_node": "IrisSectionsColorSwitch",
+                    "to_socket": "Section4Color"
+                },
+                {
+                    "from_node": "Group Input",
+                    "from_socket": "InnermostRingSize",
+                    "to_node": "IrisSectionsColorSwitch",
+                    "to_socket": "Section1End"
+                },
+                {
+                    "from_node": "IrisNormalizedRange",
+                    "from_socket": "Value",
+                    "to_node": "IrisSectionsColorSwitch",
+                    "to_socket": "Value"
+                },
+                {
+                    "from_node": "Group Input",
+                    "from_socket": "MidRingSize",
+                    "to_node": "IrisSectionsColorSwitch",
+                    "to_socket": "Section2End"
+                },
+                {
+                    "from_node": "Group Input",
+                    "from_socket": "IrisBorderStart",
+                    "to_node": "IrisSectionsColorSwitch",
+                    "to_socket": "Section3End"
+                },
+                {
+                    "from_node": "Group Input",
+                    "from_socket": "EyeWhiteColor",
+                    "to_node": "IrisBorder",
+                    "to_socket": "MaxColor"
+                },
+                {
+                    "from_node": "Group Input",
+                    "from_socket": "BorderColor",
+                    "to_node": "IrisBorder",
+                    "to_socket": "BorderColor"
+                },
+                {
+                    "from_node": "Group Input",
+                    "from_socket": "IrisBorderStart",
+                    "to_node": "IrisBorder",
+                    "to_socket": "BorderStartWithinIris"
+                },
+                {
+                    "from_node": "Group Input",
+                    "from_socket": "RadialMultiplicator",
+                    "to_node": "Math.002",
+                    "to_socket": 1
+                },
+                {
+                    "from_node": "Group Input",
+                    "from_socket": "Value",
+                    "to_node": "IrisSection2Range",
+                    "to_socket": "Value"
+                },
+                {
+                    "from_node": "Group Input",
+                    "from_socket": "InnermostRingSize",
+                    "to_node": "IrisSection2Range",
+                    "to_socket": "RangeMin"
+                },
+                {
+                    "from_node": "Group Input",
+                    "from_socket": "MidRingSize",
+                    "to_node": "IrisSection2Range",
+                    "to_socket": "RangeMax"
+                },
+                {
+                    "from_node": "IrisSection2Range",
+                    "from_socket": "Value",
+                    "to_node": "Math.002",
+                    "to_socket": 0
+                },
+                {
+                    "from_node": "Math.002",
+                    "from_socket": "Value",
+                    "to_node": "Math.003",
+                    "to_socket": 1
+                },
+                {
+                    "from_node": "Group Input",
+                    "from_socket": "IrisMinorColor",
+                    "to_node": "IrisBorder",
+                    "to_socket": "MinColor"
+                },
+                {
+                    "from_node": "Group Input",
+                    "from_socket": "IrisMinorColor",
+                    "to_node": "IrisSectionsColorSwitch",
+                    "to_socket": "Section3Color"
+                },
+                {
+                    "from_node": "IrisNormalizedRange",
+                    "from_socket": "Value",
+                    "to_node": "IrisSectionsBumpSwitch",
+                    "to_socket": "Value"
+                },
+                {
+                    "from_node": "Group Input",
+                    "from_socket": "InnermostRingSize",
+                    "to_node": "IrisSectionsBumpSwitch",
+                    "to_socket": "Section1End"
+                },
+                {
+                    "from_node": "Group Input",
+                    "from_socket": "MidRingSize",
+                    "to_node": "IrisSectionsBumpSwitch",
+                    "to_socket": "Section2End"
+                },
+                {
+                    "from_node": "Group Input",
+                    "from_socket": "MidRingSize",
+                    "to_node": "IrisSectionsBumpSwitch",
+                    "to_socket": "Section3End"
+                },
+                {
+                    "from_node": "IrisBorder",
+                    "from_socket": "Color",
+                    "to_node": "RGB to BW",
+                    "to_socket": "Color"
+                },
+                {
+                    "from_node": "RGB to BW",
+                    "from_socket": "Val",
+                    "to_node": "IrisSectionsBumpSwitch",
+                    "to_socket": "Section4Color"
+                },
+                {
+                    "from_node": "IrisInnermostRing",
+                    "from_socket": "Color",
+                    "to_node": "RGB to BW.002",
+                    "to_socket": "Color"
+                },
+                {
+                    "from_node": "Group Input",
+                    "from_socket": "IrisMinorColor",
+                    "to_node": "RGB to BW.003",
+                    "to_socket": "Color"
+                },
+                {
+                    "from_node": "RGB to BW.003",
+                    "from_socket": "Val",
+                    "to_node": "IrisSectionsBumpSwitch",
+                    "to_socket": "Section3Color"
+                },
+                {
+                    "from_node": "IrisNormalizedRange",
+                    "from_socket": "Value",
+                    "to_node": "IrisInnermostRing",
+                    "to_socket": "Value"
+                },
+                {
+                    "from_node": "RGB to BW.002",
+                    "from_socket": "Val",
+                    "to_node": "IrisSectionsBumpSwitch",
+                    "to_socket": "Section1Color"
+                },
+                {
+                    "from_node": "Math.003",
+                    "from_socket": "Value",
+                    "to_node": "IrisSection2ColorRamp",
+                    "to_socket": "Value"
+                },
+                {
+                    "from_node": "Group Input",
+                    "from_socket": "IrisMinorColor",
+                    "to_node": "IrisSection2ColorRamp",
+                    "to_socket": "MinColor"
+                },
+                {
+                    "from_node": "Group Input",
+                    "from_socket": "IrisMinorColor",
+                    "to_node": "IrisSection2ColorRamp",
+                    "to_socket": "Stop1Color"
+                },
+                {
+                    "from_node": "Group Input",
+                    "from_socket": "IrisMajorColor",
+                    "to_node": "IrisSection2ColorRamp",
+                    "to_socket": "Stop2Color"
+                },
+                {
+                    "from_node": "Group Input",
+                    "from_socket": "IrisMajorColor",
+                    "to_node": "IrisSection2ColorRamp",
+                    "to_socket": "MaxColor"
+                },
+                {
+                    "from_node": "IrisSection2ColorRamp",
+                    "from_socket": "Color",
+                    "to_node": "IrisSectionsColorSwitch",
+                    "to_socket": "Section2Color"
+                },
+                {
+                    "from_node": "Math.003",
+                    "from_socket": "Value",
+                    "to_node": "IrisSection2BumpRamp",
+                    "to_socket": "Value"
+                },
+                {
+                    "from_node": "Group Input",
+                    "from_socket": "IrisMinorColor",
+                    "to_node": "RGB to BW.004",
+                    "to_socket": "Color"
+                },
+                {
+                    "from_node": "RGB to BW.004",
+                    "from_socket": "Val",
+                    "to_node": "IrisSection2BumpRamp",
+                    "to_socket": "MinColor"
+                },
+                {
+                    "from_node": "RGB to BW.004",
+                    "from_socket": "Val",
+                    "to_node": "IrisSection2BumpRamp",
+                    "to_socket": "Stop1Color"
+                },
+                {
+                    "from_node": "Group Input",
+                    "from_socket": "IrisMajorColor",
+                    "to_node": "RGB to BW.005",
+                    "to_socket": "Color"
+                },
+                {
+                    "from_node": "RGB to BW.005",
+                    "from_socket": "Val",
+                    "to_node": "IrisSection2BumpRamp",
+                    "to_socket": "Stop2Color"
+                },
+                {
+                    "from_node": "RGB to BW.005",
+                    "from_socket": "Val",
+                    "to_node": "IrisSection2BumpRamp",
+                    "to_socket": "MaxColor"
+                },
+                {
+                    "from_node": "IrisSection2BumpRamp",
+                    "from_socket": "Color",
+                    "to_node": "IrisSectionsBumpSwitch",
+                    "to_socket": "Section2Color"
+                },
+                {
+                    "from_node": "IrisSectionsColorSwitch",
+                    "from_socket": "Color",
+                    "to_node": "Group Output",
+                    "to_socket": "Color"
+                },
+                {
+                    "from_node": "Group Input",
+                    "from_socket": "IrisMinorColor",
+                    "to_node": "IrisInnermostRing",
+                    "to_socket": "IrisMinorColor"
+                },
+                {
+                    "from_node": "IrisSectionsBumpSwitch",
+                    "from_socket": "Color",
+                    "to_node": "Group Output",
+                    "to_socket": "BumpColor"
+                }
+            ],
+            "nodes": {
+                "Combine XYZ": {
+                    "create": true,
+                    "label": "",
+                    "location": [
+                        -1096.1307373046875,
+                        -674.9618530273438
+                    ],
+                    "name": "Combine XYZ",
+                    "type": "ShaderNodeCombineXYZ",
+                    "values": {
+                        "X": 1.0,
+                        "Y": 4.0,
+                        "Z": 1.0
+                    }
+                },
+                "Group Input": {
+                    "create": true,
+                    "label": "",
+                    "location": [
+                        -1275.2552490234375,
+                        -49.3744010925293
+                    ],
+                    "name": "Group Input",
+                    "type": "NodeGroupInput",
+                    "values": {}
+                },
+                "Group Output": {
+                    "create": true,
+                    "label": "",
+                    "location": [
+                        738.5155029296875,
+                        -115.58999633789062
+                    ],
+                    "name": "Group Output",
+                    "type": "NodeGroupOutput",
+                    "values": {
+                        "BumpColor": [
+                            0.0,
+                            0.0,
+                            0.0,
+                            0.0
+                        ],
+                        "Color": [
+                            0.0,
+                            0.0,
+                            0.0,
+                            0.0
+                        ]
+                    }
+                },
+                "IrisBorder": {
+                    "create": true,
+                    "group_name": "IrisBorder",
+                    "label": "IrisBorder",
+                    "location": [
+                        -279.2027893066406,
+                        11.170034408569336
+                    ],
+                    "name": "IrisBorder",
+                    "type": "ShaderNodeGroup",
+                    "values": {
+                        "BorderColor": [
+                            0.0,
+                            0.0,
+                            0.0,
+                            1.0
+                        ],
+                        "BorderStartWithinIris": 0.8999999761581421,
+                        "MaxColor": [
+                            0.9814547300338745,
+                            0.9631117582321167,
+                            1.0,
+                            1.0
+                        ],
+                        "MinColor": [
+                            0.0,
+                            0.0,
+                            0.0,
+                            1.0
+                        ],
+                        "Value": 0.5
+                    }
+                },
+                "IrisInnermostRing": {
+                    "create": true,
+                    "group_name": "IrisInnermostRing",
+                    "label": "IrisInnermostRing",
+                    "location": [
+                        15.12381649017334,
+                        357.3822937011719
+                    ],
+                    "name": "IrisInnermostRing",
+                    "type": "ShaderNodeGroup",
+                    "values": {
+                        "InnermostRingSize": 0.5,
+                        "IrisMinorColor": [
+                            0.0011119148693978786,
+                            0.0,
+                            0.49999991059303284,
+                            1.0
+                        ],
+                        "PupilColor": [
+                            0.0,
+                            0.49999991059303284,
+                            0.0012120342580601573,
+                            1.0
+                        ],
+                        "Value": 0.5
+                    }
+                },
+                "IrisNormalizedRange": {
+                    "create": true,
+                    "group_name": "NormalizeForRange",
+                    "label": "IrisNormalizedRange",
+                    "location": [
+                        -1082.66064453125,
+                        171.4931640625
+                    ],
+                    "name": "IrisNormalizedRange",
+                    "type": "ShaderNodeGroup",
+                    "values": {
+                        "RangeMax": 1.0,
+                        "RangeMin": 0.5,
+                        "Value": 0.5
+                    }
+                },
+                "IrisSection2BumpRamp": {
+                    "create": true,
+                    "group_name": "ThreeSectionRamp",
+                    "label": "IrisSection2BumpRamp",
+                    "location": [
+                        36.29240417480469,
+                        -583.90478515625
+                    ],
+                    "name": "IrisSection2BumpRamp",
+                    "type": "ShaderNodeGroup",
+                    "values": {
+                        "MaxColor": [
+                            1.0,
+                            1.0,
+                            1.0,
+                            1.0
+                        ],
+                        "MinColor": [
+                            0.0,
+                            0.0,
+                            0.0,
+                            1.0
+                        ],
+                        "Stop1Color": [
+                            0.0,
+                            0.0,
+                            0.0,
+                            1.0
+                        ],
+                        "Stop1Position": 0.20000000298023224,
+                        "Stop2Color": [
+                            1.0,
+                            1.0,
+                            1.0,
+                            1.0
+                        ],
+                        "Stop2Position": 0.8999999761581421,
+                        "Value": 0.5
+                    }
+                },
+                "IrisSection2ColorRamp": {
+                    "create": true,
+                    "group_name": "ThreeSectionRamp",
+                    "label": "IrisSection2ColorRamp",
+                    "location": [
+                        -70.86770629882812,
+                        -210.8895721435547
+                    ],
+                    "name": "IrisSection2ColorRamp",
+                    "type": "ShaderNodeGroup",
+                    "values": {
+                        "MaxColor": [
+                            1.0,
+                            1.0,
+                            1.0,
+                            1.0
+                        ],
+                        "MinColor": [
+                            0.0,
+                            0.0,
+                            0.0,
+                            1.0
+                        ],
+                        "Stop1Color": [
+                            0.0,
+                            0.0,
+                            0.0,
+                            1.0
+                        ],
+                        "Stop1Position": 0.550000011920929,
+                        "Stop2Color": [
+                            1.0,
+                            1.0,
+                            1.0,
+                            1.0
+                        ],
+                        "Stop2Position": 0.6499999761581421,
+                        "Value": 0.5
+                    }
+                },
+                "IrisSection2Range": {
+                    "create": true,
+                    "group_name": "NormalizeForRange",
+                    "label": "IrisSection2Range",
+                    "location": [
+                        -870.6192016601562,
+                        -251.4620361328125
+                    ],
+                    "name": "IrisSection2Range",
+                    "type": "ShaderNodeGroup",
+                    "values": {
+                        "RangeMax": 0.5,
+                        "RangeMin": 0.5,
+                        "Value": 0.5
+                    }
+                },
+                "IrisSectionsBumpSwitch": {
+                    "create": true,
+                    "group_name": "FourSectionSwitch",
+                    "label": "IrisSectionsBumpSwitch",
+                    "location": [
+                        434.4183349609375,
+                        -153.57635498046875
+                    ],
+                    "name": "IrisSectionsBumpSwitch",
+                    "type": "ShaderNodeGroup",
+                    "values": {
+                        "Section1Color": [
+                            0.5,
+                            0.5,
+                            0.5,
+                            1.0
+                        ],
+                        "Section1End": 0.5,
+                        "Section2Color": [
+                            0.5,
+                            0.5,
+                            0.5,
+                            1.0
+                        ],
+                        "Section2End": 0.5,
+                        "Section3Color": [
+                            0.5,
+                            0.5,
+                            0.5,
+                            1.0
+                        ],
+                        "Section3End": 0.5,
+                        "Section4Color": [
+                            0.5,
+                            0.5,
+                            0.5,
+                            1.0
+                        ],
+                        "Value": 0.5
+                    }
+                },
+                "IrisSectionsColorSwitch": {
+                    "create": true,
+                    "group_name": "FourSectionSwitch",
+                    "label": "IrisSectionsColorSwitch",
+                    "location": [
+                        365.948486328125,
+                        223.89273071289062
+                    ],
+                    "name": "IrisSectionsColorSwitch",
+                    "type": "ShaderNodeGroup",
+                    "values": {
+                        "Section1Color": [
+                            0.5,
+                            0.5,
+                            0.5,
+                            1.0
+                        ],
+                        "Section1End": 0.5,
+                        "Section2Color": [
+                            0.5,
+                            0.5,
+                            0.5,
+                            1.0
+                        ],
+                        "Section2End": 0.5,
+                        "Section3Color": [
+                            0.5,
+                            0.5,
+                            0.5,
+                            1.0
+                        ],
+                        "Section3End": 0.5,
+                        "Section4Color": [
+                            0.5,
+                            0.5,
+                            0.5,
+                            1.0
+                        ],
+                        "Value": 0.5
+                    }
+                },
+                "Math.002": {
+                    "create": true,
+                    "label": "",
+                    "location": [
+                        -594.6399536132812,
+                        -384.5401611328125
+                    ],
+                    "name": "Math.002",
+                    "operation": "ADD",
+                    "type": "ShaderNodeMath",
+                    "use_clamp": false,
+                    "values": {
+                        "Value": 0.0
+                    }
+                },
+                "Math.003": {
+                    "create": true,
+                    "label": "",
+                    "location": [
+                        -260.71917724609375,
+                        -425.8001403808594
+                    ],
+                    "name": "Math.003",
+                    "operation": "MULTIPLY",
+                    "type": "ShaderNodeMath",
+                    "use_clamp": true,
+                    "values": {
+                        "Value": 0.0
+                    }
+                },
+                "RGB to BW": {
+                    "create": true,
+                    "label": "",
+                    "location": [
+                        84.47129821777344,
+                        -57.402366638183594
+                    ],
+                    "name": "RGB to BW",
+                    "type": "ShaderNodeRGBToBW",
+                    "values": {
+                        "Color": [
+                            0.5,
+                            0.5,
+                            0.5,
+                            1.0
+                        ]
+                    }
+                },
+                "RGB to BW.002": {
+                    "create": true,
+                    "label": "",
+                    "location": [
+                        236.11019897460938,
+                        382.7768859863281
+                    ],
+                    "name": "RGB to BW.002",
+                    "type": "ShaderNodeRGBToBW",
+                    "values": {
+                        "Color": [
+                            0.5,
+                            0.5,
+                            0.5,
+                            1.0
+                        ]
+                    }
+                },
+                "RGB to BW.003": {
+                    "create": true,
+                    "label": "",
+                    "location": [
+                        173.6576385498047,
+                        -167.8201904296875
+                    ],
+                    "name": "RGB to BW.003",
+                    "type": "ShaderNodeRGBToBW",
+                    "values": {
+                        "Color": [
+                            0.5,
+                            0.5,
+                            0.5,
+                            1.0
+                        ]
+                    }
+                },
+                "RGB to BW.004": {
+                    "create": true,
+                    "label": "",
+                    "location": [
+                        -212.61732482910156,
+                        -694.99365234375
+                    ],
+                    "name": "RGB to BW.004",
+                    "type": "ShaderNodeRGBToBW",
+                    "values": {
+                        "Color": [
+                            0.5,
+                            0.5,
+                            0.5,
+                            1.0
+                        ]
+                    }
+                },
+                "RGB to BW.005": {
+                    "create": true,
+                    "label": "",
+                    "location": [
+                        -206.73370361328125,
+                        -791.8749389648438
+                    ],
+                    "name": "RGB to BW.005",
+                    "type": "ShaderNodeRGBToBW",
+                    "values": {
+                        "Color": [
+                            0.5,
+                            0.5,
+                            0.5,
+                            1.0
+                        ]
+                    }
+                },
+                "Vector Math": {
+                    "create": true,
+                    "label": "",
+                    "location": [
+                        -835.1920776367188,
+                        -685.6375122070312
+                    ],
+                    "name": "Vector Math",
+                    "operation": "MULTIPLY",
+                    "type": "ShaderNodeVectorMath",
+                    "values": {
+                        "Scale": 1.0
+                    }
+                },
+                "Voronoi Texture": {
+                    "create": true,
+                    "label": "",
+                    "location": [
+                        -455.6558532714844,
+                        -569.7102661132812
+                    ],
+                    "name": "Voronoi Texture",
+                    "type": "ShaderNodeTexVoronoi",
+                    "values": {
+                        "Exponent": 0.5,
+                        "Randomness": 1.0,
+                        "Scale": 15.0,
+                        "Smoothness": 1.0,
+                        "W": 0.0
+                    }
+                }
+            },
+            "outputs": {
+                "BumpColor": "NodeSocketColor",
+                "Color": "NodeSocketColor"
+            }
+        },
+        "NormalizeForRange": {
+            "inputs": {
+                "RangeMax": {
+                    "type": "NodeSocketFloat",
+                    "value": 0.05000000819563866
+                },
+                "RangeMin": {
+                    "type": "NodeSocketFloat",
+                    "value": 0.0
+                },
+                "Value": {
+                    "type": "NodeSocketFloat",
+                    "value": 0.10000002384185791
+                }
+            },
+            "links": [
+                {
+                    "from_node": "Math.002",
+                    "from_socket": "Value",
+                    "to_node": "Group Output",
+                    "to_socket": "Value"
+                },
+                {
+                    "from_node": "Math",
+                    "from_socket": "Value",
+                    "to_node": "Math.002",
+                    "to_socket": 0
+                },
+                {
+                    "from_node": "Math.001",
+                    "from_socket": "Value",
+                    "to_node": "Math.002",
+                    "to_socket": 1
+                },
+                {
+                    "from_node": "Group Input",
+                    "from_socket": "Value",
+                    "to_node": "Math",
+                    "to_socket": 0
+                },
+                {
+                    "from_node": "Group Input",
+                    "from_socket": "RangeMin",
+                    "to_node": "Math",
+                    "to_socket": 1
+                },
+                {
+                    "from_node": "Group Input",
+                    "from_socket": "RangeMax",
+                    "to_node": "Math.001",
+                    "to_socket": 0
+                },
+                {
+                    "from_node": "Group Input",
+                    "from_socket": "RangeMin",
+                    "to_node": "Math.001",
+                    "to_socket": 1
+                }
+            ],
+            "nodes": {
+                "Group Input": {
+                    "create": true,
+                    "label": "",
+                    "location": [
+                        -408.9764099121094,
+                        -24.47184944152832
+                    ],
+                    "name": "Group Input",
+                    "type": "NodeGroupInput",
+                    "values": {}
+                },
+                "Group Output": {
+                    "create": true,
+                    "label": "",
+                    "location": [
+                        293.9130554199219,
+                        -0.0
+                    ],
+                    "name": "Group Output",
+                    "type": "NodeGroupOutput",
+                    "values": {
+                        "Value": 0.0
+                    }
+                },
+                "Math": {
+                    "create": true,
+                    "label": "",
+                    "location": [
+                        -99.97168731689453,
+                        83.8240966796875
+                    ],
+                    "name": "Math",
+                    "operation": "SUBTRACT",
+                    "type": "ShaderNodeMath",
+                    "use_clamp": true,
+                    "values": {
+                        "Value": 0.0
+                    }
+                },
+                "Math.001": {
+                    "create": true,
+                    "label": "",
+                    "location": [
+                        -103.91304779052734,
+                        -83.82410430908203
+                    ],
+                    "name": "Math.001",
+                    "operation": "SUBTRACT",
+                    "type": "ShaderNodeMath",
+                    "use_clamp": true,
+                    "values": {
+                        "Value": 0.0
+                    }
+                },
+                "Math.002": {
+                    "create": true,
+                    "label": "",
+                    "location": [
+                        103.91304779052734,
+                        32.450599670410156
+                    ],
+                    "name": "Math.002",
+                    "operation": "DIVIDE",
+                    "type": "ShaderNodeMath",
+                    "use_clamp": true,
+                    "values": {
+                        "Value": 0.0
+                    }
+                }
+            },
+            "outputs": {
+                "Value": "NodeSocketFloat"
+            }
+        },
+        "RadiatingFromCoord": {
+            "inputs": {
+                "Vector": {
+                    "type": "NodeSocketVector"
+                }
+            },
+            "links": [
+                {
+                    "from_node": "Math",
+                    "from_socket": "Value",
+                    "to_node": "Math.001",
+                    "to_socket": 0
+                },
+                {
+                    "from_node": "Math.001",
+                    "from_socket": "Value",
+                    "to_node": "Combine XYZ.002",
+                    "to_socket": "X"
+                },
+                {
+                    "from_node": "Separate XYZ",
+                    "from_socket": "Y",
+                    "to_node": "Combine XYZ.002",
+                    "to_socket": "Y"
+                },
+                {
+                    "from_node": "Separate XYZ",
+                    "from_socket": "Z",
+                    "to_node": "Combine XYZ.002",
+                    "to_socket": "Z"
+                },
+                {
+                    "from_node": "Math.002",
+                    "from_socket": "Value",
+                    "to_node": "Math",
+                    "to_socket": 0
+                },
+                {
+                    "from_node": "Math.003",
+                    "from_socket": "Value",
+                    "to_node": "Math",
+                    "to_socket": 1
+                },
+                {
+                    "from_node": "Separate XYZ",
+                    "from_socket": "X",
+                    "to_node": "Math.002",
+                    "to_socket": 1
+                },
+                {
+                    "from_node": "Separate XYZ",
+                    "from_socket": "Y",
+                    "to_node": "Math.003",
+                    "to_socket": 1
+                },
+                {
+                    "from_node": "Separate XYZ.001",
+                    "from_socket": "X",
+                    "to_node": "Math.002",
+                    "to_socket": 0
+                },
+                {
+                    "from_node": "Separate XYZ.001",
+                    "from_socket": "Y",
+                    "to_node": "Math.003",
+                    "to_socket": 0
+                },
+                {
+                    "from_node": "Group Input",
+                    "from_socket": "Vector",
+                    "to_node": "Separate XYZ.001",
+                    "to_socket": "Vector"
+                },
+                {
+                    "from_node": "Combine XYZ.002",
+                    "from_socket": "Vector",
+                    "to_node": "Group Output",
+                    "to_socket": "Vector"
+                },
+                {
+                    "from_node": "Group Input",
+                    "from_socket": "Vector",
+                    "to_node": "Vector Math",
+                    "to_socket": 0
+                },
+                {
+                    "from_node": "Texture Coordinate",
+                    "from_socket": "UV",
+                    "to_node": "Separate XYZ",
+                    "to_socket": "Vector"
+                },
+                {
+                    "from_node": "Texture Coordinate",
+                    "from_socket": "UV",
+                    "to_node": "Vector Math",
+                    "to_socket": 1
+                },
+                {
+                    "from_node": "Vector Math",
+                    "from_socket": "Value",
+                    "to_node": "Math.004",
+                    "to_socket": 0
+                },
+                {
+                    "from_node": "Math.004",
+                    "from_socket": "Value",
+                    "to_node": "Group Output",
+                    "to_socket": "IsClose"
+                }
+            ],
+            "nodes": {
+                "Combine XYZ.002": {
+                    "create": true,
+                    "label": "",
+                    "location": [
+                        601.1405029296875,
+                        -10.767085075378418
+                    ],
+                    "name": "Combine XYZ.002",
+                    "type": "ShaderNodeCombineXYZ",
+                    "values": {
+                        "X": 0.0,
+                        "Y": 0.0,
+                        "Z": 0.0
+                    }
+                },
+                "Group Input": {
+                    "create": true,
+                    "label": "",
+                    "location": [
+                        -739.9075317382812,
+                        199.75535583496094
+                    ],
+                    "name": "Group Input",
+                    "type": "NodeGroupInput",
+                    "values": {}
+                },
+                "Group Output": {
+                    "create": true,
+                    "label": "",
+                    "location": [
+                        794.4846801757812,
+                        -123.84829711914062
+                    ],
+                    "name": "Group Output",
+                    "type": "NodeGroupOutput",
+                    "values": {
+                        "IsClose": 0.0
+                    }
+                },
+                "Math": {
+                    "create": true,
+                    "label": "",
+                    "location": [
+                        155.33804321289062,
+                        293.3812561035156
+                    ],
+                    "name": "Math",
+                    "operation": "DIVIDE",
+                    "type": "ShaderNodeMath",
+                    "use_clamp": false,
+                    "values": {
+                        "Value": 0.0
+                    }
+                },
+                "Math.001": {
+                    "create": true,
+                    "label": "",
+                    "location": [
+                        393.5089416503906,
+                        147.8840789794922
+                    ],
+                    "name": "Math.001",
+                    "operation": "ARCTANGENT",
+                    "type": "ShaderNodeMath",
+                    "use_clamp": false,
+                    "values": {
+                        "Value": 0.0
+                    }
+                },
+                "Math.002": {
+                    "create": true,
+                    "label": "",
+                    "location": [
+                        -81.15735626220703,
+                        394.85150146484375
+                    ],
+                    "name": "Math.002",
+                    "operation": "SUBTRACT",
+                    "type": "ShaderNodeMath",
+                    "use_clamp": false,
+                    "values": {
+                        "Value": 0.0
+                    }
+                },
+                "Math.003": {
+                    "create": true,
+                    "label": "",
+                    "location": [
+                        -79.82624053955078,
+                        225.72605895996094
+                    ],
+                    "name": "Math.003",
+                    "operation": "SUBTRACT",
+                    "type": "ShaderNodeMath",
+                    "use_clamp": false,
+                    "values": {
+                        "Value": 0.0
+                    }
+                },
+                "Math.004": {
+                    "create": true,
+                    "label": "",
+                    "location": [
+                        -120.16828918457031,
+                        -80.56504821777344
+                    ],
+                    "name": "Math.004",
+                    "operation": "LESS_THAN",
+                    "type": "ShaderNodeMath",
+                    "use_clamp": false,
+                    "values": {
+                        "Value": 0.0
+                    }
+                },
+                "Separate XYZ": {
+                    "create": true,
+                    "label": "",
+                    "location": [
+                        -369.4503479003906,
+                        229.3698272705078
+                    ],
+                    "name": "Separate XYZ",
+                    "type": "ShaderNodeSeparateXYZ",
+                    "values": {}
+                },
+                "Separate XYZ.001": {
+                    "create": true,
+                    "label": "",
+                    "location": [
+                        -424.75433349609375,
+                        469.09100341796875
+                    ],
+                    "name": "Separate XYZ.001",
+                    "type": "ShaderNodeSeparateXYZ",
+                    "values": {}
+                },
+                "Texture Coordinate": {
+                    "create": true,
+                    "label": "",
+                    "location": [
+                        -760.8785400390625,
+                        -64.25350952148438
+                    ],
+                    "name": "Texture Coordinate",
+                    "type": "ShaderNodeTexCoord",
+                    "values": {}
+                },
+                "Vector Math": {
+                    "create": true,
+                    "label": "",
+                    "location": [
+                        -381.6292419433594,
+                        -128.513671875
+                    ],
+                    "name": "Vector Math",
+                    "operation": "DISTANCE",
+                    "type": "ShaderNodeVectorMath",
+                    "values": {
+                        "Scale": 1.0
+                    }
+                }
+            },
+            "outputs": {
+                "IsClose": "NodeSocketFloat",
+                "Vector": "NodeSocketVector"
+            }
+        },
+        "RangedRampSection": {
+            "inputs": {
+                "Color1": {
+                    "type": "NodeSocketColor",
+                    "value": [
+                        0.0,
+                        0.0,
+                        0.0,
+                        1.0
+                    ]
+                },
+                "Color2": {
+                    "type": "NodeSocketColor",
+                    "value": [
+                        1.0,
+                        1.0,
+                        1.0,
+                        1.0
+                    ]
+                },
+                "MaxValue": {
+                    "type": "NodeSocketFloat",
+                    "value": 1.0
+                },
+                "MinValue": {
+                    "type": "NodeSocketFloat",
+                    "value": 0.5
+                },
+                "Value": {
+                    "type": "NodeSocketFloat",
+                    "value": 0.5
+                }
+            },
+            "links": [
+                {
+                    "from_node": "Mix",
+                    "from_socket": "Color",
+                    "to_node": "Group Output",
+                    "to_socket": "Color"
+                },
+                {
+                    "from_node": "Group Input",
+                    "from_socket": "Color1",
+                    "to_node": "Mix",
+                    "to_socket": "Color1"
+                },
+                {
+                    "from_node": "Group Input",
+                    "from_socket": "Color2",
+                    "to_node": "Mix",
+                    "to_socket": "Color2"
+                },
+                {
+                    "from_node": "Math.004",
+                    "from_socket": "Value",
+                    "to_node": "Group Output",
+                    "to_socket": "InRange"
+                },
+                {
+                    "from_node": "AfterRangeStart",
+                    "from_socket": "Value",
+                    "to_node": "Math.004",
+                    "to_socket": 0
+                },
+                {
+                    "from_node": "BeforeRangeEnd",
+                    "from_socket": "Value",
+                    "to_node": "Math.004",
+                    "to_socket": 1
+                },
+                {
+                    "from_node": "ValueFromRangeStart",
+                    "from_socket": "Value",
+                    "to_node": "NormalizeValueInRange",
+                    "to_socket": 0
+                },
+                {
+                    "from_node": "NormalizeValueInRange",
+                    "from_socket": "Value",
+                    "to_node": "Mix",
+                    "to_socket": "Fac"
+                },
+                {
+                    "from_node": "CalculateRangeSize",
+                    "from_socket": "Value",
+                    "to_node": "NormalizeValueInRange",
+                    "to_socket": 1
+                },
+                {
+                    "from_node": "Group Input",
+                    "from_socket": "MaxValue",
+                    "to_node": "CalculateRangeSize",
+                    "to_socket": 0
+                },
+                {
+                    "from_node": "Group Input",
+                    "from_socket": "MinValue",
+                    "to_node": "CalculateRangeSize",
+                    "to_socket": 1
+                },
+                {
+                    "from_node": "Group Input",
+                    "from_socket": "Value",
+                    "to_node": "ValueFromRangeStart",
+                    "to_socket": 0
+                },
+                {
+                    "from_node": "Group Input",
+                    "from_socket": "MinValue",
+                    "to_node": "ValueFromRangeStart",
+                    "to_socket": 1
+                },
+                {
+                    "from_node": "Group Input",
+                    "from_socket": "MinValue",
+                    "to_node": "AfterRangeStart",
+                    "to_socket": 1
+                },
+                {
+                    "from_node": "Group Input",
+                    "from_socket": "Value",
+                    "to_node": "AfterRangeStart",
+                    "to_socket": 0
+                },
+                {
+                    "from_node": "Group Input",
+                    "from_socket": "MaxValue",
+                    "to_node": "BeforeRangeEnd",
+                    "to_socket": 1
+                },
+                {
+                    "from_node": "Group Input",
+                    "from_socket": "Value",
+                    "to_node": "BeforeRangeEnd",
+                    "to_socket": 0
+                }
+            ],
+            "nodes": {
+                "AfterRangeStart": {
+                    "create": true,
+                    "label": "AfterRangeStart",
+                    "location": [
+                        -388.14752197265625,
+                        11.870819091796875
+                    ],
+                    "name": "AfterRangeStart",
+                    "operation": "GREATER_THAN",
+                    "type": "ShaderNodeMath",
+                    "use_clamp": false,
+                    "values": {
+                        "Value": 0.0
+                    }
+                },
+                "BeforeRangeEnd": {
+                    "create": true,
+                    "label": "BeforeRangeEnd",
+                    "location": [
+                        -383.8043212890625,
+                        -259.42132568359375
+                    ],
+                    "name": "BeforeRangeEnd",
+                    "operation": "LESS_THAN",
+                    "type": "ShaderNodeMath",
+                    "use_clamp": false,
+                    "values": {
+                        "Value": 0.0
+                    }
+                },
+                "CalculateRangeSize": {
+                    "create": true,
+                    "label": "CalculateRangeSize",
+                    "location": [
+                        -373.85760498046875,
+                        259.42132568359375
+                    ],
+                    "name": "CalculateRangeSize",
+                    "operation": "SUBTRACT",
+                    "type": "ShaderNodeMath",
+                    "use_clamp": false,
+                    "values": {
+                        "Value": 0.0
+                    }
+                },
+                "Group Input": {
+                    "create": true,
+                    "label": "",
+                    "location": [
+                        -762.2935791015625,
+                        21.592803955078125
+                    ],
+                    "name": "Group Input",
+                    "type": "NodeGroupInput",
+                    "values": {}
+                },
+                "Group Output": {
+                    "create": true,
+                    "label": "",
+                    "location": [
+                        578.1475219726562,
+                        -0.0
+                    ],
+                    "name": "Group Output",
+                    "type": "NodeGroupOutput",
+                    "values": {
+                        "Color": [
+                            0.0,
+                            0.0,
+                            0.0,
+                            0.0
+                        ],
+                        "InRange": 0.0
+                    }
+                },
+                "Math.004": {
+                    "create": true,
+                    "label": "",
+                    "location": [
+                        39.79119873046875,
+                        -91.37966918945312
+                    ],
+                    "name": "Math.004",
+                    "operation": "MULTIPLY",
+                    "type": "ShaderNodeMath",
+                    "use_clamp": true,
+                    "values": {
+                        "Value": 0.0
+                    }
+                },
+                "Mix": {
+                    "create": true,
+                    "label": "",
+                    "location": [
+                        388.14752197265625,
+                        79.45172119140625
+                    ],
+                    "name": "Mix",
+                    "type": "ShaderNodeMixRGB",
+                    "values": {
+                        "Color1": [
+                            0.0,
+                            0.0,
+                            0.0,
+                            1.0
+                        ],
+                        "Color2": [
+                            1.0,
+                            1.0,
+                            1.0,
+                            1.0
+                        ],
+                        "Fac": 0.5
+                    }
+                },
+                "NormalizeValueInRange": {
+                    "create": true,
+                    "label": "NormalizeValueInRange",
+                    "location": [
+                        45.49940490722656,
+                        138.48419189453125
+                    ],
+                    "name": "NormalizeValueInRange",
+                    "operation": "DIVIDE",
+                    "type": "ShaderNodeMath",
+                    "use_clamp": true,
+                    "values": {
+                        "Value": 0.0
+                    }
+                },
+                "ValueFromRangeStart": {
+                    "create": true,
+                    "label": "ValueFromRangeStart",
+                    "location": [
+                        -158.66912841796875,
+                        365.520263671875
+                    ],
+                    "name": "ValueFromRangeStart",
+                    "operation": "SUBTRACT",
+                    "type": "ShaderNodeMath",
+                    "use_clamp": true,
+                    "values": {
+                        "Value": 0.0
+                    }
+                }
+            },
+            "outputs": {
+                "Color": "NodeSocketColor",
+                "InRange": "NodeSocketFloat"
+            }
+        },
+        "ThreeSectionRamp": {
+            "inputs": {
+                "MaxColor": {
+                    "type": "NodeSocketColor",
+                    "value": [
+                        1.0,
+                        1.0,
+                        1.0,
+                        1.0
+                    ]
+                },
+                "MinColor": {
+                    "type": "NodeSocketColor",
+                    "value": [
+                        0.0,
+                        0.0,
+                        0.0,
+                        1.0
+                    ]
+                },
+                "Stop1Color": {
+                    "type": "NodeSocketColor",
+                    "value": [
+                        0.0,
+                        0.0,
+                        0.0,
+                        1.0
+                    ]
+                },
+                "Stop1Position": {
+                    "type": "NodeSocketFloat",
+                    "value": 0.550000011920929
+                },
+                "Stop2Color": {
+                    "type": "NodeSocketColor",
+                    "value": [
+                        1.0,
+                        1.0,
+                        1.0,
+                        1.0
+                    ]
+                },
+                "Stop2Position": {
+                    "type": "NodeSocketFloat",
+                    "value": 0.6499999761581421
+                },
+                "Value": {
+                    "type": "NodeSocketFloat",
+                    "value": 0.5
+                }
+            },
+            "links": [
+                {
+                    "from_node": "Mix.002",
+                    "from_socket": "Color",
+                    "to_node": "Group Output",
+                    "to_socket": "Color"
+                },
+                {
+                    "from_node": "RangedRampSection.001",
+                    "from_socket": "InRange",
+                    "to_node": "Math",
+                    "to_socket": 0
+                },
+                {
+                    "from_node": "RangedRampSection",
+                    "from_socket": "Color",
+                    "to_node": "Mix",
+                    "to_socket": "Color1"
+                },
+                {
+                    "from_node": "RangedRampSection.001",
+                    "from_socket": "Color",
+                    "to_node": "Mix",
+                    "to_socket": "Color2"
+                },
+                {
+                    "from_node": "RangedRampSection.001",
+                    "from_socket": "InRange",
+                    "to_node": "Mix",
+                    "to_socket": "Fac"
+                },
+                {
+                    "from_node": "RangedRampSection.002",
+                    "from_socket": "InRange",
+                    "to_node": "Mix.001",
+                    "to_socket": "Fac"
+                },
+                {
+                    "from_node": "RangedRampSection.002",
+                    "from_socket": "Color",
+                    "to_node": "Mix.001",
+                    "to_socket": "Color2"
+                },
+                {
+                    "from_node": "RangedRampSection.001",
+                    "from_socket": "Color",
+                    "to_node": "Mix.001",
+                    "to_socket": "Color1"
+                },
+                {
+                    "from_node": "RangedRampSection.002",
+                    "from_socket": "InRange",
+                    "to_node": "Math",
+                    "to_socket": 1
+                },
+                {
+                    "from_node": "Math",
+                    "from_socket": "Value",
+                    "to_node": "Mix.002",
+                    "to_socket": "Fac"
+                },
+                {
+                    "from_node": "Mix",
+                    "from_socket": "Color",
+                    "to_node": "Mix.002",
+                    "to_socket": "Color1"
+                },
+                {
+                    "from_node": "Mix.001",
+                    "from_socket": "Color",
+                    "to_node": "Mix.002",
+                    "to_socket": "Color2"
+                },
+                {
+                    "from_node": "Group Input",
+                    "from_socket": "Value",
+                    "to_node": "RangedRampSection",
+                    "to_socket": "Value"
+                },
+                {
+                    "from_node": "Group Input",
+                    "from_socket": "Value",
+                    "to_node": "RangedRampSection.001",
+                    "to_socket": "Value"
+                },
+                {
+                    "from_node": "Group Input",
+                    "from_socket": "Value",
+                    "to_node": "RangedRampSection.002",
+                    "to_socket": "Value"
+                },
+                {
+                    "from_node": "Group Input",
+                    "from_socket": "Stop1Position",
+                    "to_node": "RangedRampSection",
+                    "to_socket": "MaxValue"
+                },
+                {
+                    "from_node": "Group Input",
+                    "from_socket": "Stop1Position",
+                    "to_node": "RangedRampSection.001",
+                    "to_socket": "MinValue"
+                },
+                {
+                    "from_node": "Group Input",
+                    "from_socket": "Stop2Position",
+                    "to_node": "RangedRampSection.001",
+                    "to_socket": "MaxValue"
+                },
+                {
+                    "from_node": "Group Input",
+                    "from_socket": "Stop2Position",
+                    "to_node": "RangedRampSection.002",
+                    "to_socket": "MinValue"
+                },
+                {
+                    "from_node": "Group Input",
+                    "from_socket": "MinColor",
+                    "to_node": "RangedRampSection",
+                    "to_socket": "Color1"
+                },
+                {
+                    "from_node": "Group Input",
+                    "from_socket": "Stop1Color",
+                    "to_node": "RangedRampSection",
+                    "to_socket": "Color2"
+                },
+                {
+                    "from_node": "Group Input",
+                    "from_socket": "Stop1Color",
+                    "to_node": "RangedRampSection.001",
+                    "to_socket": "Color1"
+                },
+                {
+                    "from_node": "Group Input",
+                    "from_socket": "Stop2Color",
+                    "to_node": "RangedRampSection.001",
+                    "to_socket": "Color2"
+                },
+                {
+                    "from_node": "Group Input",
+                    "from_socket": "MaxColor",
+                    "to_node": "RangedRampSection.002",
+                    "to_socket": "Color2"
+                },
+                {
+                    "from_node": "Group Input",
+                    "from_socket": "Stop2Color",
+                    "to_node": "RangedRampSection.002",
+                    "to_socket": "Color1"
+                }
+            ],
+            "nodes": {
+                "Group Input": {
+                    "create": true,
+                    "label": "",
+                    "location": [
+                        -613.6243896484375,
+                        24.471845626831055
+                    ],
+                    "name": "Group Input",
+                    "type": "NodeGroupInput",
+                    "values": {}
+                },
+                "Group Output": {
+                    "create": true,
+                    "label": "",
+                    "location": [
+                        533.1024169921875,
+                        86.37122344970703
+                    ],
+                    "name": "Group Output",
+                    "type": "NodeGroupOutput",
+                    "values": {
+                        "Color": [
+                            0.0,
+                            0.0,
+                            0.0,
+                            0.0
+                        ]
+                    }
+                },
+                "Math": {
+                    "create": true,
+                    "label": "",
+                    "location": [
+                        -5.537200927734375,
+                        18.643508911132812
+                    ],
+                    "name": "Math",
+                    "operation": "ADD",
+                    "type": "ShaderNodeMath",
+                    "use_clamp": false,
+                    "values": {
+                        "Value": 0.0
+                    }
+                },
+                "Mix": {
+                    "create": true,
+                    "label": "",
+                    "location": [
+                        1.6812744140625,
+                        278.913330078125
+                    ],
+                    "name": "Mix",
+                    "type": "ShaderNodeMixRGB",
+                    "values": {
+                        "Color1": [
+                            0.5,
+                            0.5,
+                            0.5,
+                            1.0
+                        ],
+                        "Color2": [
+                            0.5,
+                            0.5,
+                            0.5,
+                            1.0
+                        ],
+                        "Fac": 0.5
+                    }
+                },
+                "Mix.001": {
+                    "create": true,
+                    "label": "",
+                    "location": [
+                        -1.197174072265625,
+                        -226.35836791992188
+                    ],
+                    "name": "Mix.001",
+                    "type": "ShaderNodeMixRGB",
+                    "values": {
+                        "Color1": [
+                            0.5,
+                            0.5,
+                            0.5,
+                            1.0
+                        ],
+                        "Color2": [
+                            0.5,
+                            0.5,
+                            0.5,
+                            1.0
+                        ],
+                        "Fac": 0.5
+                    }
+                },
+                "Mix.002": {
+                    "create": true,
+                    "label": "",
+                    "location": [
+                        249.55282592773438,
+                        76.0881118774414
+                    ],
+                    "name": "Mix.002",
+                    "type": "ShaderNodeMixRGB",
+                    "values": {
+                        "Color1": [
+                            0.5,
+                            0.5,
+                            0.5,
+                            1.0
+                        ],
+                        "Color2": [
+                            0.5,
+                            0.5,
+                            0.5,
+                            1.0
+                        ],
+                        "Fac": 0.5
+                    }
+                },
+                "RangedRampSection": {
+                    "create": true,
+                    "group_name": "RangedRampSection",
+                    "label": "RangedRampSection",
+                    "location": [
+                        -248.11358642578125,
+                        336.1280517578125
+                    ],
+                    "name": "RangedRampSection",
+                    "type": "ShaderNodeGroup",
+                    "values": {
+                        "Color1": [
+                            0.0,
+                            0.0,
+                            0.0,
+                            1.0
+                        ],
+                        "Color2": [
+                            1.0,
+                            1.0,
+                            1.0,
+                            1.0
+                        ],
+                        "MaxValue": 0.5,
+                        "MinValue": 0.0,
+                        "Value": 0.5
+                    }
+                },
+                "RangedRampSection.001": {
+                    "create": true,
+                    "group_name": "RangedRampSection",
+                    "label": "RangedRampSection",
+                    "location": [
+                        -242.356689453125,
+                        15.114990234375
+                    ],
+                    "name": "RangedRampSection.001",
+                    "type": "ShaderNodeGroup",
+                    "values": {
+                        "Color1": [
+                            0.0,
+                            0.0,
+                            0.0,
+                            1.0
+                        ],
+                        "Color2": [
+                            1.0,
+                            1.0,
+                            1.0,
+                            1.0
+                        ],
+                        "MaxValue": 1.0,
+                        "MinValue": 0.5,
+                        "Value": 0.5
+                    }
+                },
+                "RangedRampSection.002": {
+                    "create": true,
+                    "group_name": "RangedRampSection",
+                    "label": "RangedRampSection",
+                    "location": [
+                        -249.55279541015625,
+                        -336.1280212402344
+                    ],
+                    "name": "RangedRampSection.002",
+                    "type": "ShaderNodeGroup",
+                    "values": {
+                        "Color1": [
+                            0.0,
+                            0.0,
+                            0.0,
+                            1.0
+                        ],
+                        "Color2": [
+                            1.0,
+                            1.0,
+                            1.0,
+                            1.0
+                        ],
+                        "MaxValue": 1.0,
+                        "MinValue": 0.5,
+                        "Value": 0.5
+                    }
+                }
+            },
+            "outputs": {
+                "Color": "NodeSocketColor"
+            }
+        },
+        "ThreeSectionSwitch": {
+            "inputs": {
+                "Section1Color": {
+                    "type": "NodeSocketColor",
+                    "value": [
+                        0.49999991059303284,
+                        0.4648233652114868,
+                        0.0,
+                        1.0
+                    ]
+                },
+                "Section1End": {
+                    "type": "NodeSocketFloat",
+                    "value": 0.5
+                },
+                "Section2Color": {
+                    "type": "NodeSocketColor",
+                    "value": [
+                        0.0023723121266812086,
+                        0.0,
+                        0.49999991059303284,
+                        1.0
+                    ]
+                },
+                "Section2End": {
+                    "type": "NodeSocketFloat",
+                    "value": 0.9990000128746033
+                },
+                "Section3Color": {
+                    "type": "NodeSocketColor",
+                    "value": [
+                        0.49999991059303284,
+                        0.0,
+                        0.01095584686845541,
+                        1.0
+                    ]
+                },
+                "Value": {
+                    "type": "NodeSocketFloat",
+                    "value": 0.5
+                }
+            },
+            "links": [
+                {
+                    "from_node": "Math",
+                    "from_socket": "Value",
+                    "to_node": "Mix",
+                    "to_socket": "Fac"
+                },
+                {
+                    "from_node": "Math.001",
+                    "from_socket": "Value",
+                    "to_node": "Mix.001",
+                    "to_socket": "Fac"
+                },
+                {
+                    "from_node": "Math.002",
+                    "from_socket": "Value",
+                    "to_node": "Mix.002",
+                    "to_socket": "Fac"
+                },
+                {
+                    "from_node": "Group Input",
+                    "from_socket": "Value",
+                    "to_node": "Math.001",
+                    "to_socket": 0
+                },
+                {
+                    "from_node": "Group Input",
+                    "from_socket": "Value",
+                    "to_node": "Math",
+                    "to_socket": 0
+                },
+                {
+                    "from_node": "Group Input",
+                    "from_socket": "Section1End",
+                    "to_node": "Math.001",
+                    "to_socket": 1
+                },
+                {
+                    "from_node": "Group Input",
+                    "from_socket": "Section2End",
+                    "to_node": "Math",
+                    "to_socket": 1
+                },
+                {
+                    "from_node": "Group Input",
+                    "from_socket": "Section2Color",
+                    "to_node": "Mix.001",
+                    "to_socket": "Color1"
+                },
+                {
+                    "from_node": "Group Input",
+                    "from_socket": "Value",
+                    "to_node": "Math.002",
+                    "to_socket": 0
+                },
+                {
+                    "from_node": "Group Input",
+                    "from_socket": "Section2End",
+                    "to_node": "Math.002",
+                    "to_socket": 1
+                },
+                {
+                    "from_node": "Group Input",
+                    "from_socket": "Section2Color",
+                    "to_node": "Mix",
+                    "to_socket": "Color1"
+                },
+                {
+                    "from_node": "Group Input",
+                    "from_socket": "Section3Color",
+                    "to_node": "Mix",
+                    "to_socket": "Color2"
+                },
+                {
+                    "from_node": "Mix.001",
+                    "from_socket": "Color",
+                    "to_node": "Mix.002",
+                    "to_socket": "Color1"
+                },
+                {
+                    "from_node": "Mix",
+                    "from_socket": "Color",
+                    "to_node": "Mix.002",
+                    "to_socket": "Color2"
+                },
+                {
+                    "from_node": "Group Input",
+                    "from_socket": "Section1Color",
+                    "to_node": "Mix.001",
+                    "to_socket": "Color2"
+                },
+                {
+                    "from_node": "Mix.002",
+                    "from_socket": "Color",
+                    "to_node": "Group Output",
+                    "to_socket": "Color"
+                }
+            ],
+            "nodes": {
+                "Group Input": {
+                    "create": true,
+                    "label": "",
+                    "location": [
+                        -813.3365478515625,
+                        -272.06939697265625
+                    ],
+                    "name": "Group Input",
+                    "type": "NodeGroupInput",
+                    "values": {}
+                },
+                "Group Output": {
+                    "create": true,
+                    "label": "",
+                    "location": [
+                        555.7899780273438,
+                        -34.54850387573242
+                    ],
+                    "name": "Group Output",
+                    "type": "NodeGroupOutput",
+                    "values": {
+                        "Color": [
+                            0.0,
+                            0.0,
+                            0.0,
+                            0.0
+                        ]
+                    }
+                },
+                "Math": {
+                    "create": true,
+                    "label": "",
+                    "location": [
+                        -245.37059020996094,
+                        12.564635276794434
+                    ],
+                    "name": "Math",
+                    "operation": "GREATER_THAN",
+                    "type": "ShaderNodeMath",
+                    "use_clamp": false,
+                    "values": {
+                        "Value": 0.0
+                    }
+                },
+                "Math.001": {
+                    "create": true,
+                    "label": "",
+                    "location": [
+                        -249.21282958984375,
+                        204.79867553710938
+                    ],
+                    "name": "Math.001",
+                    "operation": "LESS_THAN",
+                    "type": "ShaderNodeMath",
+                    "use_clamp": false,
+                    "values": {
+                        "Value": 0.0
+                    }
+                },
+                "Math.002": {
+                    "create": true,
+                    "label": "",
+                    "location": [
+                        -42.50623321533203,
+                        -0.9625635147094727
+                    ],
+                    "name": "Math.002",
+                    "operation": "GREATER_THAN",
+                    "type": "ShaderNodeMath",
+                    "use_clamp": false,
+                    "values": {
+                        "Value": 0.0
+                    }
+                },
+                "Mix": {
+                    "create": true,
+                    "label": "",
+                    "location": [
+                        -37.812171936035156,
+                        -192.17813110351562
+                    ],
+                    "name": "Mix",
+                    "type": "ShaderNodeMixRGB",
+                    "values": {
+                        "Color1": [
+                            0.5,
+                            0.5,
+                            0.5,
+                            1.0
+                        ],
+                        "Color2": [
+                            0.5,
+                            0.5,
+                            0.5,
+                            1.0
+                        ],
+                        "Fac": 0.5
+                    }
+                },
+                "Mix.001": {
+                    "create": true,
+                    "label": "",
+                    "location": [
+                        -36.947547912597656,
+                        209.45236206054688
+                    ],
+                    "name": "Mix.001",
+                    "type": "ShaderNodeMixRGB",
+                    "values": {
+                        "Color1": [
+                            0.5,
+                            0.5,
+                            0.5,
+                            1.0
+                        ],
+                        "Color2": [
+                            0.5,
+                            0.5,
+                            0.5,
+                            1.0
+                        ],
+                        "Fac": 0.5
+                    }
+                },
+                "Mix.002": {
+                    "create": true,
+                    "label": "",
+                    "location": [
+                        218.9890899658203,
+                        77.85420989990234
+                    ],
+                    "name": "Mix.002",
+                    "type": "ShaderNodeMixRGB",
+                    "values": {
+                        "Color1": [
+                            0.5,
+                            0.5,
+                            0.5,
+                            1.0
+                        ],
+                        "Color2": [
+                            0.5,
+                            0.5,
+                            0.5,
+                            1.0
+                        ],
+                        "Fac": 0.5
+                    }
+                }
+            },
+            "outputs": {
+                "Color": "NodeSocketColor"
+            }
+        },
+        "TwoSectionSwitch": {
+            "inputs": {
+                "Color1": {
+                    "type": "NodeSocketColor",
+                    "value": [
+                        0.0,
+                        0.0,
+                        0.0,
+                        1.0
+                    ]
+                },
+                "Color2": {
+                    "type": "NodeSocketColor",
+                    "value": [
+                        0.5,
+                        0.5,
+                        0.5,
+                        1.0
+                    ]
+                },
+                "Stop1Position": {
+                    "type": "NodeSocketFloat",
+                    "value": 0.5
+                },
+                "Value": {
+                    "type": "NodeSocketFloat",
+                    "value": 0.5
+                }
+            },
+            "links": [
+                {
+                    "from_node": "Group Input",
+                    "from_socket": "Stop1Position",
+                    "to_node": "Math",
+                    "to_socket": 1
+                },
+                {
+                    "from_node": "Group Input",
+                    "from_socket": "Value",
+                    "to_node": "Math",
+                    "to_socket": 0
+                },
+                {
+                    "from_node": "Group Input",
+                    "from_socket": "Color1",
+                    "to_node": "Mix",
+                    "to_socket": "Color1"
+                },
+                {
+                    "from_node": "Group Input",
+                    "from_socket": "Color2",
+                    "to_node": "Mix",
+                    "to_socket": "Color2"
+                },
+                {
+                    "from_node": "Mix",
+                    "from_socket": "Color",
+                    "to_node": "Group Output",
+                    "to_socket": "Color"
+                },
+                {
+                    "from_node": "Math",
+                    "from_socket": "Value",
+                    "to_node": "Mix",
+                    "to_socket": "Fac"
+                }
+            ],
+            "nodes": {
+                "Group Input": {
+                    "create": true,
+                    "label": "",
+                    "location": [
+                        -489.43914794921875,
+                        -179.94003295898438
+                    ],
+                    "name": "Group Input",
+                    "type": "NodeGroupInput",
+                    "values": {}
+                },
+                "Group Output": {
+                    "create": true,
+                    "label": "",
+                    "location": [
+                        216.0610809326172,
+                        -48.94369125366211
+                    ],
+                    "name": "Group Output",
+                    "type": "NodeGroupOutput",
+                    "values": {
+                        "Color": [
+                            0.0,
+                            0.0,
+                            0.0,
+                            0.0
+                        ]
+                    }
+                },
+                "Math": {
+                    "create": true,
+                    "label": "",
+                    "location": [
+                        -167.10507202148438,
+                        -52.3770637512207
+                    ],
+                    "name": "Math",
+                    "operation": "GREATER_THAN",
+                    "type": "ShaderNodeMath",
+                    "use_clamp": false,
+                    "values": {
+                        "Value": 0.0
+                    }
+                },
+                "Mix": {
+                    "create": true,
+                    "label": "",
+                    "location": [
+                        26.061094284057617,
+                        -45.510311126708984
+                    ],
+                    "name": "Mix",
+                    "type": "ShaderNodeMixRGB",
+                    "values": {
+                        "Color1": [
+                            0.5,
+                            0.5,
+                            0.5,
+                            1.0
+                        ],
+                        "Color2": [
+                            0.5,
+                            0.5,
+                            0.5,
+                            1.0
+                        ],
+                        "Fac": 0.5
+                    }
+                }
+            },
+            "outputs": {
+                "Color": "NodeSocketColor"
+            }
+        }
+    },
+    "links": [
+        {
+            "from_node": "EnhancedEye",
+            "from_socket": "BSDF",
+            "to_node": "Material Output",
+            "to_socket": "Surface"
+        }
+    ],
+    "nodes": {
+        "EnhancedEye": {
+            "create": true,
+            "group_name": "EnhancedEye",
+            "label": "EnhancedEye",
+            "location": [
+                -116.7796630859375,
+                53.571170806884766
+            ],
+            "name": "EnhancedEye",
+            "type": "ShaderNodeGroup",
+            "values": {
+                "Clearcoat": 0.4000000059604645,
+                "Clearcoat Roughness": 0.0,
+                "EyeWhiteColor": [
+                    1.0,
+                    1.0,
+                    1.0,
+                    1.0
+                ],
+                "InnerLayerRoughness": 0.05000000074505806,
+                "IrisBumpStrength": 0.30000001192092896,
+                "IrisClockwiseMult": 3.5,
+                "IrisFeatureScale": 16.899999618530273,
+                "IrisMajorColor": [
+                    0.18447503447532654,
+                    0.48514994978904724,
+                    0.913098931312561,
+                    1.0
+                ],
+                "IrisMinorColor": [
+                    0.1144353598356247,
+                    0.15896086394786835,
+                    0.4072403311729431,
+                    1.0
+                ],
+                "IrisRadialMult": 0.30000001192092896,
+                "IrisSection1End": 0.10000000149011612,
+                "IrisSection2End": 0.800000011920929,
+                "IrisSection3End": 0.8500000238418579,
+                "IrisSection4Color": [
+                    0.056128498166799545,
+                    0.05612850934267044,
+                    0.11697070300579071,
+                    1.0
+                ],
+                "IrisToEyeWhiteRelation": 0.38999998569488525,
+                "OuterLayerAlpha": 1.0,
+                "OuterLayerColor": [
+                    1.0,
+                    1.0,
+                    1.0,
+                    1.0
+                ],
+                "OuterLayerIOR": 1.3300000429153442,
+                "OuterLayerRoughness": 0.0,
+                "OuterLayerTransmission": 1.0,
+                "PupilColor": [
+                    0.0,
+                    0.0,
+                    0.0,
+                    1.0
+                ],
+                "PupilSize": 0.30000001192092896
+            }
+        },
+        "Material Output": {
+            "create": true,
+            "label": "",
+            "location": [
+                192.66830444335938,
+                76.68523406982422
+            ],
+            "name": "Material Output",
+            "type": "ShaderNodeOutputMaterial",
+            "values": {}
+        }
+    }
+}
