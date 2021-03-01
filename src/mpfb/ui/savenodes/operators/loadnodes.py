@@ -8,7 +8,7 @@ from bpy.types import StringProperty
 from bpy_extras.io_utils import ImportHelper
 
 _LOG = LogService.get_logger("loadnodes.operators.loadnodes")
-_LOG.set_level(LogService.DUMP)
+
 
 class MPFB_OT_Load_Nodes_Operator(bpy.types.Operator, ImportHelper):
     """Load node tree from json"""
@@ -37,23 +37,24 @@ class MPFB_OT_Load_Nodes_Operator(bpy.types.Operator, ImportHelper):
         _LOG.debug("absolute_file_path", absolute_file_path)
 
         as_dict = dict()
-        
-        with open(absolute_file_path, "r") as json_file:            
+
+        with open(absolute_file_path, "r") as json_file:
             json_data = json_file.read()
-            
+
             import time
             ts = int(time.time())
-            
+
             json_data = str(json_data).replace("$group_name", "node_group." + str(ts))
-            
+
             as_dict = json.loads(json_data)
             self.report({'INFO'}, "JSON data read")
-            
+
         _LOG.dump("loaded json data", as_dict)
-        
+
         material = MaterialService.create_empty_material("nodes_material", blender_object)
-        NodeService.apply_node_tree_from_dict(material.node_tree, as_dict)
-        
+        NodeService.apply_node_tree_from_dict(material.node_tree, as_dict, True)
+
         return {'FINISHED'}
+
 
 ClassManager.add_class(MPFB_OT_Load_Nodes_Operator)
