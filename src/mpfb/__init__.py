@@ -38,7 +38,7 @@ def register():
     global _LOG # pylint: disable=W0603
 
     from mpfb.services.logservice import LogService
-    LogService.set_default_log_level(LogService.DEBUG)
+    LogService.set_default_log_level(LogService.INFO)
     _LOG = LogService.get_logger("mpfb.init")
     _LOG.reset_timer()
     _LOG.debug("We're in register() and about to start registering classes.")
