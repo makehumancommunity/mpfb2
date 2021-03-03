@@ -96,6 +96,7 @@ class MPFB_PT_Importer_Presets_Panel(bpy.types.Panel):
             "prefix_material_names",
             "material_creation_policy",
             "material_instances",
+            "procedural_eyes",
             "fix_bad_roughness"
             ]
         IMPORTER_PRESETS_PROPERTIES.draw_properties(scene, layout, props)

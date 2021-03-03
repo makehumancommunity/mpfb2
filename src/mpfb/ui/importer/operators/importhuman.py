@@ -105,6 +105,8 @@ class MPFB_OT_ImportHumanOperator(bpy.types.Operator):
                 derived["has_body_proxy"] = import_this_proxy
             if basic_proxy_type == "Bodypart":
                 import_this_proxy = ui["import_body_parts"]
+                if proxy_info["type"] == "Eyes":
+                    basic_proxy_type = "Eyes"
 
             proxy_info["import_this_proxy"] = import_this_proxy
             proxy_info["basic_proxy_type"] = basic_proxy_type
@@ -139,9 +141,11 @@ class MPFB_OT_ImportHumanOperator(bpy.types.Operator):
             else:
                 mh_material = EnhancedSkinMaterial(ui)
 
-        if basic_type in ["Bodypart", "Clothes"]:
-            mh_material = MakeSkinMaterial()
-
+        if basic_type in ["Bodypart", "Eyes", "Clothes"]:
+            if "Eye" in basic_type and ui["procedural_eyes"]:
+                mh_material = "procedural_eyes"
+            else:
+                mh_material = MakeSkinMaterial()
 
         if mh_material:
             blender_material = MaterialService.create_empty_material(material_name, blender_object)
@@ -152,13 +156,22 @@ class MPFB_OT_ImportHumanOperator(bpy.types.Operator):
             if basic_type == "Basemesh":
                 mh_material.populate_from_body_material_socket_call()
             else:
-                mh_material.populate_from_proxy_material_socket_call(proxy_info["uuid"])
+                if mh_material != "procedural_eyes":
+                    mh_material.populate_from_proxy_material_socket_call(proxy_info["uuid"])
 
             if isinstance(mh_material, EnhancedSkinMaterial):
                 name = derived["prefix"] + derived["name"]
                 mh_material.apply_node_tree(blender_material, group_name=material_name)
             else:
-                mh_material.apply_node_tree(blender_material)
+                if mh_material != "procedural_eyes":
+                    mh_material.apply_node_tree(blender_material)
+                else:
+                    tree_dir = LocationService.get_mpfb_data("node_trees")
+                    json_file_name = os.path.join(tree_dir, "procedural_eyes.json")
+                    with open(json_file_name, "r") as json_file:
+                        node_tree_dict = json.load(json_file)
+                    _LOG.dump("procedural_eyes", node_tree_dict)
+                    NodeService.apply_node_tree_from_dict(blender_material.node_tree, node_tree_dict, True)
 
             diffuse_colors = MaterialService.get_diffuse_colors()
             if basic_type in diffuse_colors:
