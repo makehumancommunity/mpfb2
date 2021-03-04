@@ -1,5 +1,5 @@
 
-import os, json
+import os, json, re
 from pathlib import Path
 from .mhmaterial import MhMaterial
 from mpfb.services.logservice import LogService
@@ -84,8 +84,13 @@ class EnhancedSkinMaterial(MhMaterial):
         json_file = os.path.join(tree_dir, "enhanced_skin.json")
 
         template_data = Path(json_file).read_text()
+        _LOG.dump("template data before replace", template_data)
+
         for key in template_values:
-            template_data = template_data.replace("\"$" + key + "\"", template_values[key])
+            value = re.sub(r'\\+', '/', template_values[key])
+            template_data = template_data.replace("\"$" + key + "\"", value)
+
+        _LOG.dump("template data after replace", template_data)
 
         node_tree_dict = json.loads(template_data)
         _LOG.dump("node_tree_dict", node_tree_dict)
