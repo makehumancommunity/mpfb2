@@ -1,0 +1,54 @@
+{
+    "Clearcoat": 0.4000000059604645,
+    "Clearcoat Roughness": 0.0,
+    "EyeWhiteColor": [
+        1.0,
+        1.0,
+        1.0,
+        1.0
+    ],
+    "InnerLayerRoughness": 0.05000000074505806,
+    "IrisBumpStrength": 0.30000001192092896,
+    "IrisClockwiseMult": 3.5,
+    "IrisFeatureScale": 16.899999618530273,
+    "IrisMajorColor": [
+        0.18447503447532654,
+        0.48514994978904724,
+        0.913098931312561,
+        1.0
+    ],
+    "IrisMinorColor": [
+        0.1144353598356247,
+        0.15896086394786835,
+        0.4072403311729431,
+        1.0
+    ],
+    "IrisRadialMult": 0.30000001192092896,
+    "IrisSection1End": 0.10000000149011612,
+    "IrisSection2End": 0.800000011920929,
+    "IrisSection3End": 0.8500000238418579,
+    "IrisSection4Color": [
+        0.056128498166799545,
+        0.05612850934267044,
+        0.11697070300579071,
+        1.0
+    ],
+    "IrisToEyeWhiteRelation": 0.38999998569488525,
+    "OuterLayerAlpha": 1.0,
+    "OuterLayerColor": [
+        1.0,
+        1.0,
+        1.0,
+        1.0
+    ],
+    "OuterLayerIOR": 1.3300000429153442,
+    "OuterLayerRoughness": 0.0,
+    "OuterLayerTransmission": 1.0,
+    "PupilColor": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+    ],
+    "PupilSize": 0.30000001192092896
+}

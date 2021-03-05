@@ -12,6 +12,7 @@ from mpfb.ui.righelpers import *
 
 # Materials
 from mpfb.ui.enhancedsettings import *
+from mpfb.ui.eyesettings import *
 
 # Old
 from .clothespanel import MPFB_PT_Clothes_Panel
@@ -29,5 +30,6 @@ __all__ = [
     "MPFB_PT_Clothes_Panel",
     "MPFB_PT_Save_Nodes_Panel",
     "MPFB_PT_RigHelpersPanel",
-    "MPFB_PT_Enhanced_Settings_Panel"
+    "MPFB_PT_Enhanced_Settings_Panel",
+    "MPFB_PT_Eye_Settings_Panel"
     ]

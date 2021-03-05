@@ -17,6 +17,7 @@ import bpy, os, json
 
 _LOG = LogService.get_logger("importer.operators.importhuman")
 
+
 class MPFB_OT_ImportHumanOperator(bpy.types.Operator):
     """Import human from MakeHuman"""
     bl_idname = "mpfb.importer_import_body"
@@ -36,7 +37,8 @@ class MPFB_OT_ImportHumanOperator(bpy.types.Operator):
 
         settings = IMPORTER_PRESETS_PROPERTIES.as_dict(entity_reference=context, json_with_overrides=json_with_overrides)
 
-        settings["settings_for_import"] = IMPORTER_PROPERTIES.get_value("settings_for_import", entity_reference=context, default_value="default")
+        settings["skin_settings_for_import"] = IMPORTER_PROPERTIES.get_value("skin_settings_for_import", entity_reference=context, default_value="default")
+        settings["eye_settings_for_import"] = IMPORTER_PROPERTIES.get_value("eye_settings_for_import", entity_reference=context, default_value="default")
 
         _LOG.dump("Settings to use", settings)
 
@@ -189,6 +191,8 @@ class MPFB_OT_ImportHumanOperator(bpy.types.Operator):
         temp["proxies"] = dict()
 
         if proxy_info["import_this_proxy"]:
+            _LOG.debug("Importing proxy with type:", proxy_info["type"])
+            _LOG.dump("proxy_info:", proxy_info)
             uuid = proxy_info["uuid"]
             proxy = SocketProxyObject(proxy_info, ui, derived["import_weights"])
             temp["proxies"][uuid] = proxy
@@ -199,6 +203,8 @@ class MPFB_OT_ImportHumanOperator(bpy.types.Operator):
             blender["proxies"][uuid] = proxy.as_blender_mesh_object(blender["parent"], derived["prefix"])
             if "Proxy" in proxy_info["type"]:
                 blender["bodyproxy"] = blender["proxies"][uuid]
+            if "Eyes" in proxy_info["type"]:
+                blender["eyes"] = blender["proxies"][uuid]
 
             self._assign_material(importer, blender["proxies"][uuid], proxy_info)
 
@@ -292,7 +298,7 @@ class MPFB_OT_ImportHumanOperator(bpy.types.Operator):
             if bodyproxy and ObjectService.has_vertex_group(bodyproxy, group_name):
                 self._assign_material_instance(importer, bodyproxy, material_instance, group_name)
 
-    def _adjust_enhanced_material_settings(self, importer):
+    def _adjust_skin_material_settings(self, importer):
         _LOG.enter()
         blender = importer["blender_entities"]
         ui = importer["settings_from_ui"]
@@ -301,7 +307,7 @@ class MPFB_OT_ImportHumanOperator(bpy.types.Operator):
         if ui["skin_material_type"] == "PLAIN":
             _LOG.debug("Skipping enhanced material adjustment since material type is PLAIN")
             return
-        matset = ui["settings_for_import"]
+        matset = ui["skin_settings_for_import"]
         if not matset or matset == "RAW":
             _LOG.debug("Skipping enhanced material adjustment since they're not requested")
             return
@@ -365,6 +371,69 @@ class MPFB_OT_ImportHumanOperator(bpy.types.Operator):
                         _LOG.debug("will try to apply settings", settings[name])
                         NodeService.set_socket_default_values(group_node, settings[name])
 
+    def _adjust_eye_material_settings(self, importer):
+        _LOG.enter()
+        blender = importer["blender_entities"]
+        ui = importer["settings_from_ui"]
+        derived = importer["derived_settings"]
+
+        if not ui["procedural_eyes"]:
+            _LOG.info("Skipping eye material adjustment since not using procedural eyes")
+            return
+        matset = ui["eye_settings_for_import"]
+        if not matset:
+            _LOG.info("Skipping eye material adjustment since they're not requested")
+            return
+
+        eye_object = None
+        if "eyes" in blender:
+            eye_object = blender["eyes"]
+
+        if not eye_object:
+            _LOG.info("Skipping eye material adjustment since there were no eyes")
+            return
+
+        if not MaterialService.has_materials(eye_object):
+            _LOG.info("Skipping eye material adjustment since the eyes do not have any material")
+            return
+
+        _LOG.debug("Chosen material settings", matset)
+        if matset == "CHARACTER":
+            available_from_list = UiService.get_importer_eye_settings_panel_list()
+            target = str(derived["name"]).lower()
+            for setting in available_from_list:
+                match = str(setting[0]).lower()
+                _LOG.debug("Comparison", (target, match))
+                if match == target:
+                    matset = setting[1]
+            if matset == "CHARACTER":
+                matset = "default"
+        _LOG.debug("Calculated material settings", matset)
+
+        file_name = LocationService.get_user_config("eye_settings." + matset + ".json")
+
+        if not os.path.exists(file_name):
+            _LOG.error("Settings did not exist despite being in list:", file_name)
+            return
+
+        settings = dict()
+        _LOG.debug("Will attempt to load", file_name)
+        with open(file_name, "r") as json_file:
+            settings = json.load(json_file)
+
+        slot = eye_object.material_slots[0]
+
+        material = slot.material
+        group_node = NodeService.find_first_node_by_type_name(material.node_tree, "ShaderNodeGroup")
+        if group_node:
+            values = NodeService.get_socket_default_values(group_node)
+            _LOG.dump("Current socket values", values)
+            if "IrisMajorColor" in values:
+                _LOG.debug("will try to apply settings", settings)
+                NodeService.set_socket_default_values(group_node, settings)
+            else:
+                _LOG.info("Skipping eye material adjustment since material does not seem to be procedural")
+
     def execute(self, context):
         _LOG.enter()
         _LOG.reset_timer()
@@ -396,7 +465,8 @@ class MPFB_OT_ImportHumanOperator(bpy.types.Operator):
             importer["blender_entities"]["parent"].location[2] = abs(importer["derived_settings"]["lowest_point"])
 
         self._create_material_instances(importer)
-        self._adjust_enhanced_material_settings(importer)
+        self._adjust_skin_material_settings(importer)
+        self._adjust_eye_material_settings(importer)
 
         _LOG.time("Entire process took:")
         self.report({'INFO'}, "Mesh imported")
