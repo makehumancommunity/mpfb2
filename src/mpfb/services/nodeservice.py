@@ -449,7 +449,7 @@ class NodeService:
                     _LOG.warn("Broken link", link)
                     # raise ValueError('Broken link: socket on one side did not exist')
             else:
-                _LOG.warn("At least on side of the link did not exist: " + link["from_node"] + " -> " + link["to_node"])
+                _LOG.debug("At least one side of the link did not exist: " + link["from_node"] + " -> " + link["to_node"])
 
     @staticmethod
     def get_or_create_node_group(group_name):
