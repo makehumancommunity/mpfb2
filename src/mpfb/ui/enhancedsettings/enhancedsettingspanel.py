@@ -31,7 +31,7 @@ _SETTINGS_LIST_PROP = {
 ENHANCED_SETTINGS_PROPERTIES.add_property(_SETTINGS_LIST_PROP, _populate_settings)
 
 class MPFB_PT_Enhanced_Settings_Panel(bpy.types.Panel):
-    bl_label = "Enhanced material settings"
+    bl_label = "Skin material settings"
     bl_space_type = "VIEW_3D"
     bl_region_type = "UI"
     bl_category = UiService.get_value("MATERIALSCATEGORY")
