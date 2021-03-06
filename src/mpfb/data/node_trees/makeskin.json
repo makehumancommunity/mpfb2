@@ -138,7 +138,7 @@
             }
         },
         "bumpmap": {
-            "create": true,
+            "create": "$bump_or_normal",
             "label": "Bumpmap",
             "location": [
                 -385.4263610839844,
@@ -246,7 +246,7 @@
             "values": {}
         },
         "normalmap": {
-            "create": true,
+            "create": "$has_normalmap",
             "label": "Normalmap",
             "location": [
                 -600.0,
