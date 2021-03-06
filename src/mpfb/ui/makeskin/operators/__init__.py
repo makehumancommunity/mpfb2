@@ -1,5 +1,4 @@
-#!/usr/bin/python
-# -*- coding: utf-8 -*-
+"""Operators for MakeSkin."""
 
 from mpfb.services import LogService as _LogService
 _LOG = _LogService.get_logger("makeskin.operators")

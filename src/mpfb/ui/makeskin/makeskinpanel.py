@@ -1,5 +1,4 @@
-#!/usr/bin/python
-# -*- coding: utf-8 -*-
+"""File containing main UI for makeskin"""
 
 import os, bpy
 from mpfb import ClassManager
@@ -16,6 +15,8 @@ _LOG = LogService.get_logger("makeskin.makeskinpanel")
 _LOG.set_level(LogService.DEBUG)
 
 class MPFB_PT_MakeSkin_Panel(bpy.types.Panel):
+    """MakeSkin main panel."""
+
     bl_label = "MakeSkin"
     bl_space_type = "VIEW_3D"
     bl_region_type = "UI"
@@ -43,11 +44,11 @@ class MPFB_PT_MakeSkin_Panel(bpy.types.Panel):
         MAKESKIN_PROPERTIES.draw_properties(scene, box, props)
         box.operator('mpfb.create_makeskin_material')
 
-    def _import_material(self, scene, layout):
+    def _import_material(self, layout):
         box = self._create_box(layout, "Import", "MATERIAL_DATA")
         box.operator('mpfb.import_makeskin_material')
 
-    def _save_material(self, scene, layout, object):
+    def _save_material(self, blender_object, layout):
         box = self._create_box(layout, "Write material", "MATERIAL_DATA")
         props = [
             "name",
@@ -70,7 +71,7 @@ class MPFB_PT_MakeSkin_Panel(bpy.types.Panel):
             "use_litsphere",
             "litsphere"
             ]
-        MakeSkinObjectProperties.draw_properties(object, box, props)
+        MakeSkinObjectProperties.draw_properties(blender_object, box, props)
         box.operator('mpfb.write_makeskin_material')
 
     def draw(self, context):
@@ -78,14 +79,14 @@ class MPFB_PT_MakeSkin_Panel(bpy.types.Panel):
         layout = self.layout
         scene = context.scene
 
-        object = context.active_object
-        if object is None:
+        blender_object = context.active_object
+        if blender_object is None:
             return
 
-        if object.type == "MESH":
+        if blender_object.type == "MESH":
             self._create_material(scene, layout)
-            self._import_material(scene, layout)
-            self._save_material(scene, layout, object)
+            self._import_material(layout)
+            self._save_material(blender_object, layout)
 
 
 ClassManager.add_class(MPFB_PT_MakeSkin_Panel)
