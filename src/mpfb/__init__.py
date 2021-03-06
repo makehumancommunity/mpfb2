@@ -4,7 +4,7 @@ the README.md file in the zip."""
 bl_info = { # pylint: disable=C0103
     "name": "mpfb",
     "author": "Joel Palmius",
-    "version": (2, 0, 0),
+    "version": (1, 9, 9),
     "blender": (2, 90, 0),
     "location": "View3D > Properties > MH",
     "description": "MakeHuman Plugin For Blender",
