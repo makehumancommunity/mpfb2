@@ -1,4 +1,3 @@
-
 import os, bpy
 
 from .logservice import LogService
@@ -9,6 +8,12 @@ class MaterialService():
 
     def __init__(self):
         raise RuntimeError("You should not instance MaterialService. Use its static methods instead.")
+
+    @staticmethod
+    def delete_all_materials(blender_object):
+        for x in blender_object.material_slots:
+            blender_object.active_material_index = 0
+            bpy.ops.object.material_slot_remove({'object': blender_object})
 
     @staticmethod
     def has_materials(blender_object):
