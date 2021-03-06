@@ -1,0 +1,7 @@
+{
+    "type": "boolean",
+    "name": "create_metallicmap",
+    "description": "Create a placeholder for a metallic map",
+    "label": "Metallic map",
+    "default": false
+}

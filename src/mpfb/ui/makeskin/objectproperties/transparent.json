@@ -1,0 +1,7 @@
+{
+    "type": "boolean",
+    "name": "transparent",
+    "description": "Use transparent, when you expect that your object will be in front of another transparent object. Using the alpha-channel, MakeHuman is internally only able to render one transparent layer. Use this and switch backface culling off, when you create transparent hair.",
+    "label": "Transparent",
+    "default": false
+}

@@ -1,0 +1,13 @@
+{
+    "type": "enum",
+    "name": "textures",
+    "description": "How do we handle texture file names and paths? Unless you know what you are doing, you will want to use normalize. This will copy all images to an appropriate location with an appropriate filename, valid for uploading to the asset repository.",
+    "label": "Textures",
+    "default": "NORMALIZE",
+    "items": [
+		["NORMALIZE", "Normalize", "Copy to a name based on MHMAT filename", 1],
+		["COPY", "Copy", "Copy without rename", 2],
+		["LINK", "Link", "Link to original location, with absolute pathname", 3]
+    ]
+}
+

@@ -1,0 +1,7 @@
+{
+    "type": "boolean",
+    "name": "backface_culling",
+    "description": "If the back side of faces with the material should be invisible. This has no effect in exports, but may be important in MH.",
+    "label": "Backface culling",
+    "default": true
+}

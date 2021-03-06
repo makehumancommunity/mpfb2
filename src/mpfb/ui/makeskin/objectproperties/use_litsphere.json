@@ -1,0 +1,7 @@
+{
+    "type": "boolean",
+    "name": "use_litsphere",
+    "description": "Use the litsphere shader when rendering material in MakeHuman. This does not have any effect on materials outside MakeHuman",
+    "label": "Use litsphere",
+    "default": true
+}

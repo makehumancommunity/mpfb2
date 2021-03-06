@@ -1,0 +1,7 @@
+{
+    "type": "boolean",
+    "name": "create_displacementmap",
+    "description": "Create a placeholder for a displacement map",
+    "label": "Displacement map",
+    "default": false
+}

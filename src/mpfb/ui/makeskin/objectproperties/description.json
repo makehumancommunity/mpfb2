@@ -1,0 +1,7 @@
+{
+    "type": "string",
+    "name": "description",
+    "description": "A description of the material. It will have little practical effect apart from being written to the mhmat file.",
+    "label": "Description",
+    "default": ""
+}

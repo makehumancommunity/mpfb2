@@ -1,0 +1,7 @@
+{
+    "type": "boolean",
+    "name": "sss_enable",
+    "description": "If the material is to be rendered with sub surface scattering. This is not implemented in MH, but might have an effect on exports.",
+    "label": "Subsurface scattering",
+    "default": false
+}

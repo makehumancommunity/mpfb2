@@ -1,0 +1,7 @@
+{
+    "type": "boolean",
+    "name": "create_node_visualization",
+    "description": "Creates special nodes to visualize MakeHuman properties",
+    "label": "Node visualization",
+    "default": false
+}

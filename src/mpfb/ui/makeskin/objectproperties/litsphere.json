@@ -1,0 +1,23 @@
+{
+    "type": "enum",
+    "name": "litsphere",
+    "description": "A litsphere texture is used for emulate lighting and reflections inside MakeHuman. It thus has no effect outside MakeHuman. For any clothing (not just leather), you will want to use the \"leather\" litsphere.",
+    "label": "Litsphere",
+    "default": "lit_leather",
+    "items": [
+		["lit_leather", "leather", "Leather litsphere. This is appropriate for all clothes, not only leather.", 1],
+		["lit_standard_skin", "standard skin", "Standard skin litsphere. This is appropriate for all skins.", 2],
+		["lit_african", "african skin", "African skin litsphere", 3],
+		["lit_asian", "asian skin", "Asian skin litsphere", 4],
+		["lit_caucasian", "caucasian skin", "Caucasian skin litsphere", 5],
+		["lit_toon01", "toon", "Toon skin litsphere", 6],
+		["skinmat_eye", "eye", "Eye litsphere", 7],
+		["lit_hair", "hair", "The standard hair litsphere without effects", 8],
+		["lit_matte", "matte", "A litsphere to create a mat finish e.g. for a suit", 9],
+		["lit_refl_sharp", "sharp reflection", "A litsphere designed to simulate reflection on dark leather (shoes)", 10],
+		["lit_refl_sharp_aniso", "sharp anisotropic reflection", "A anisotropic litsphere with a mat finish", 11],
+		["lit_refl_sharp_aniso_hard", "dark hair anisotropic reflection", "A sharp anisotropic litsphere, typically used for dark hair", 12],
+		["lit_refl_sharp_aniso_hard_blonde", "blonde anisotropic reflection", "A sharp anisotropic litsphere, typically used for blonde hair", 13]
+    ]
+}
+

@@ -1,0 +1,7 @@
+{
+    "type": "boolean",
+    "name": "create_bumpmap",
+    "description": "Create a placeholder for a bump map",
+    "label": "Bump map",
+    "default": false
+}
