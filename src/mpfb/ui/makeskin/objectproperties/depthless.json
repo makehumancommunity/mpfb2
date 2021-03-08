@@ -3,5 +3,6 @@
     "name": "depthless",
     "description": "If the material is to be rendered as having no depth. It is unlikely you want this.",
     "label": "Depthless",
-    "default": false
+    "default": false,
+    "aliases": ["MhMsDepthless"]
 }

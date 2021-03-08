@@ -3,5 +3,6 @@
     "name": "receive_shadows",
     "description": "CIf the material receives shadows. This has no effect in exports.",
     "label": "Receive shadows",
-    "default": true
+    "default": true,
+    "aliases": ["receiveShadows", "MhMsReceiveShadows"]
 }

@@ -168,7 +168,7 @@
             "values": {}
         },
         "diffuseIntensity": {
-            "create": "$has_diffusetexture",
+            "create": "$has_diffuse",
             "label": "diffuse intensity",
             "location": [
                 -399.44610595703125,
@@ -193,7 +193,7 @@
             }
         },
         "diffuseTexture": {
-            "create": "$has_diffusetexture",
+            "create": "$has_diffuse",
             "label": "Diffuse Texture",
             "location": [
                 -900.0,
@@ -201,7 +201,7 @@
             ],
             "name": "diffuseTexture",
             "type": "ShaderNodeTexImage",
-            "filename": "$diffusetexture_filename",
+            "filename": "$diffuse_filename",
             "values": {}
         },
         "displacementmap": {

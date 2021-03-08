@@ -3,5 +3,6 @@
     "name": "cast_shadows",
     "description": "If the material casts shadows. This has no effect in exports.",
     "label": "Cast shadows",
-    "default": true
+    "default": true,
+    "aliases": [ "castShadows", "MhMsCastShadows" ]
 }

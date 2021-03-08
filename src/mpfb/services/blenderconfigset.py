@@ -60,6 +60,10 @@ class BlenderConfigSet(ConfigurationSet):
         if name in self._properties_by_full_name:
             prop = self._properties_by_full_name[name]
         if prop is None:
+            if name in self._alias_to_prop:
+                real_name = self._alias_to_prop[name]
+                prop = self._properties_by_full_name[real_name]
+        if prop is None:
             _LOG.warn("Tried to read value from non-existing key", name)
             return default_value
         full_name = prop["full_name"]
@@ -106,7 +110,7 @@ class BlenderConfigSet(ConfigurationSet):
 
     def has_key(self, name):
         _LOG.enter()
-        return name in self._properties_by_full_name or name in self._properties_by_short_name
+        return name in self._properties_by_full_name or name in self._properties_by_short_name or name in self._alias_to_prop
 
     def has_key_with_value(self, name, entity_reference=None):
         _LOG.enter()

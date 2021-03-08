@@ -3,5 +3,6 @@
     "name": "shadeless",
     "description": "If the material is shadeless. It is unlikely you want this.",
     "label": "Shadeless",
-    "default": false
+    "default": false,
+    "aliases": ["MhMsShadeless"]
 }

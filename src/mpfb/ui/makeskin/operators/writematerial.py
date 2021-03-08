@@ -9,6 +9,7 @@ from mpfb import ClassManager
 from mpfb.entities.material.makeskinmaterial import MakeSkinMaterial
 
 _LOG = LogService.get_logger("makeskin.writematerial")
+_LOG.set_level(LogService.DUMP)
 
 class MPFB_OT_WriteMaterialOperator(bpy.types.Operator, ExportHelper):
     """Write material to MHMAT file"""
@@ -24,51 +25,50 @@ class MPFB_OT_WriteMaterialOperator(bpy.types.Operator, ExportHelper):
     @classmethod
     def poll(cls, context):
         if context.active_object is not None:
-            if not hasattr(context.active_object, "MhObjectType"):
-                return False
-            return True
+            return MaterialService.has_materials(context.active_object)
         return False
 
     def invoke(self, context, event):
-        if not self.filepath:
-            blend_filepath = context.active_object.MhMsName
-            # just in case ... ;)
-            if not blend_filepath:
-                blend_filepath = "untitled"
-            self.filepath = blend_filepath + self.filename_ext
+        # TODO: support blender materials
+        #=======================================================================
+        # if not self.filepath:
+        #     blend_filepath = context.active_object.MhMsName
+        #     # just in case ... ;)
+        #     if not blend_filepath:
+        #         blend_filepath = "untitled"
+        #     self.filepath = blend_filepath + self.filename_ext
+        #=======================================================================
 
         context.window_manager.fileselect_add(self)
         return {'RUNNING_MODAL'}
 
     def execute(self, context):
 
-        obj = context.active_object
+        blender_object = context.active_object
 
-#===============================================================================
-#         fnAbsolute = bpy.path.abspath(self.filepath)
-#
-#         if not hasMaterial(obj):
-#             self.report({'ERROR'}, "Object does not have a material")
-#             return {'FINISHED'}
-#
-#         mhmat = MHMat(obj)
-#
-#         checkImg = mhmat.checkAllTexturesAreSaved()
-#         if checkImg:
-#             self.report({'ERROR'}, checkImg)
-#             return {'FINISHED'}
-#
-#         errtext = mhmat.writeMHmat(obj, fnAbsolute)
-#         if errtext:
-#             self.report({'ERROR'}, errtext)
-#         else:
-#             self.report({'INFO'}, "A material file was written")
-#
-#         # debug
-#         print(mhmat)
-#===============================================================================
+        file_name = bpy.path.abspath(self.filepath)
 
+        if not MaterialService.has_materials(blender_object):
+            self.report({'ERROR'}, "Object does not have a material")
+            return {'FINISHED'}
 
+        material = MakeSkinMaterial()
+        material.populate_from_object(blender_object)
+
+        mhmat_string = material.as_mhmat()
+        _LOG.dump("material", mhmat_string)
+
+        image_file_error = material.check_that_all_textures_are_saved(blender_object)
+        if not image_file_error is None:
+            self.report({'ERROR'}, image_file_error)
+            return {'FINISHED'}
+
+        # TODO: copy normalized images
+
+        with open(file_name, "w") as mhmat:
+            mhmat.write(mhmat_string)
+
+        self.report({'INFO'}, "The MHMAT file was written as " + file_name)
         return {'FINISHED'}
 
 ClassManager.add_class(MPFB_OT_WriteMaterialOperator)

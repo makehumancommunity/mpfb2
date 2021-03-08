@@ -18,6 +18,7 @@
 		["lit_refl_sharp_aniso", "sharp anisotropic reflection", "A anisotropic litsphere with a mat finish", 11],
 		["lit_refl_sharp_aniso_hard", "dark hair anisotropic reflection", "A sharp anisotropic litsphere, typically used for dark hair", 12],
 		["lit_refl_sharp_aniso_hard_blonde", "blonde anisotropic reflection", "A sharp anisotropic litsphere, typically used for blonde hair", 13]
-    ]
+    ],
+    "aliases": ["MhMsLitsphere", "litsphereTexture"]
 }
 

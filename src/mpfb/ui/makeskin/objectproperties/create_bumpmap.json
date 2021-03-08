@@ -1,7 +1,0 @@
-{
-    "type": "boolean",
-    "name": "create_diffuse",
-    "description": "Create a placeholder for a diffuse texture",
-    "label": "Diffuse texture",
-    "default": false
-}

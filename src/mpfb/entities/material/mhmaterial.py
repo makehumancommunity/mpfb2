@@ -102,13 +102,13 @@ class MhMaterial:
             mat = mat + "\n// " + key_group + "\n\n"
             for key_name_lower in MHMAT_NAME_TO_KEY.keys():
                 key_obj = MHMAT_NAME_TO_KEY[key_name_lower]
-                key_name = key_obj.keyName
-                if key_obj.keyGroup == key_group and not self._settings[key_name] is None:
+                key_name = key_obj.key_name
+                if key_obj.key_group == key_group and key_name in self._settings and not self._settings[key_name] is None:
                     if key_name == "tag":
                         for elem in self._settings["tag"].split(","):
                             mat = mat + "tag " + elem.strip() + "\n"
                     else:
-                        mat = mat + key_name + " " + key_obj.asString(self._settings[key_name]) + "\n"
+                        mat = mat + key_name + " " + key_obj.as_string(self._settings[key_name]) + "\n"
 
         mat = mat + "\n"
         mat = mat + "// Shader properties (only affects how things look in MakeHuman)\n\n"
@@ -123,7 +123,7 @@ class MhMaterial:
         mat = mat + "// The following settings would also have been valid, but do currently not have a value\n//\n"
         for key_name in MHMAT_NAME_TO_KEY.keys():
             key_obj = MHMAT_NAME_TO_KEY[key_name]
-            key = key_obj.keyName
+            key = key_obj.key_name
             if key not in self._settings or self._settings[key] is None:
                 mat = mat + "// " + key + "\n"
 
