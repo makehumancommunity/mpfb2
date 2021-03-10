@@ -10,3 +10,8 @@ New users will want to start with reading the following:
 - [Installing MPFB](general/install.md): Instructions on how to install the MakeHuman Plugin for Blender.
 - [Importing](import/importing.md): Instructions on how to import models from MakeHuman.
 
+## Tools for creating MakeHuman assets
+
+The following is functionality for creating MakeHuman assets, such as textures or clothes:
+
+- [MakeSkin](makeskin/makeskin.md): A tool for creating MakeHuman texture files (MHMAT) for both clothes and the body.

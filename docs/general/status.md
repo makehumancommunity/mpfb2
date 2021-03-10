@@ -45,3 +45,4 @@ but which has not been started yet.
 
 - Merge/port MakeTarget 2 into the codebase
 - Merge/port MakeClothes 2 into the codebase
+- Rigify support
