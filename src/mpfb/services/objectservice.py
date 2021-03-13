@@ -1,13 +1,11 @@
-
 import bpy
-from mathutils import Matrix, Vector
 from mpfb.services.logservice import LogService
 from mpfb.entities.objectproperties import GeneralObjectProperties
 
 _LOG = LogService.get_logger("services.objectservice")
+_LOG.set_level(LogService.DUMP)
 
 # create object
-# link object
 # activate object
 # select object
 # deselect object

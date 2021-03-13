@@ -1,0 +1,8 @@
+{
+    "type": "string",
+    "name": "name",
+    "description": "name will be used as a default for primary target and file name",
+    "label": "Target name",
+    "default": "primary_target",
+    "aliases": ["MhPrimaryTargetName"]
+}
