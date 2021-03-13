@@ -37,12 +37,12 @@ The following are features in development, but which remain to be finished
 - There is no way to save/load presets for rig helpers
 - Preserving FK pose when adding helper bones is occasionally glitchy
 - Preserving IK/helper pose when switching back to FK is not implemented at all
+- Rig helpers only implemented for "Default" and "Default no toes" rigs
 
 ## Not started
 
 The following are large areas of development which are intended to be finished before a stable release of MPFB2,
 but which has not been started yet.
 
-- Merge/port MakeTarget 2 into the codebase
 - Merge/port MakeClothes 2 into the codebase
 - Rigify support
