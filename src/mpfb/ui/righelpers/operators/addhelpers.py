@@ -1,5 +1,5 @@
 from mpfb.services.logservice import LogService
-#from mpfb.entities.fingerik.fingerik import FingerIk
+from mpfb.services.rigservice import RigService
 from mpfb.ui.righelpers import RigHelpersProperties
 from mpfb._classmanager import ClassManager
 import bpy
@@ -42,6 +42,14 @@ class MPFB_OT_AddHelpersOperator(bpy.types.Operator):
     def execute(self, context):
         _LOG.enter()
         armature_object = context.object
+
+        bpy.ops.object.mode_set(mode='EDIT', toggle=False)
+        levator = RigService.find_edit_bone_by_name("levator03.L", armature_object)
+        bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
+
+        if not levator:
+            self.report({'ERROR'}, "Only the \"Default\" and \"Default no toes\" skeletons are supported so far")
+            return {'FINISHED'}
 
         from mpfb.ui.righelpers.righelperspanel import SETUP_HELPERS_PROPERTIES # pylint: disable=C0415
         settings = SETUP_HELPERS_PROPERTIES.as_dict(entity_reference=context.scene)
