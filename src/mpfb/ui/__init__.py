@@ -9,6 +9,7 @@ from mpfb.ui.importerpresets import *
 
 # Rigging
 from mpfb.ui.righelpers import *
+from mpfb.ui.rigify import *
 
 # Materials
 from mpfb.ui.enhancedsettings import *

@@ -83,6 +83,10 @@ class ObjectService:
         return ObjectService.object_is(blender_object, "Basemesh")
 
     @staticmethod
+    def object_is_skeleton(blender_object):
+        return ObjectService.object_is(blender_object, "Skeleton")
+
+    @staticmethod
     def object_is_body_proxy(blender_object):
         return ObjectService.object_is(blender_object, "Proxymesh")
 
