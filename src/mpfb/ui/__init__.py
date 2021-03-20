@@ -8,8 +8,8 @@ from mpfb.ui.importer import *
 from mpfb.ui.importerpresets import *
 
 # Rigging
-from mpfb.ui.righelpers import *
 from mpfb.ui.rigify import *
+from mpfb.ui.righelpers import *
 
 # Materials
 from mpfb.ui.enhancedsettings import *
