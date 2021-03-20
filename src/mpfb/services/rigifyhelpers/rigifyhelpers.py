@@ -1,4 +1,7 @@
-"""This module provides functionality for converting a rig to rigify."""
+"""This module provides functionality for converting a rig to rigify.
+
+The code is based on an approach suggested by Andrea Rossato in https://www.youtube.com/watch?v=zmsuLD7hAUA
+"""
 
 import bpy
 
