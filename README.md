@@ -1,7 +1,8 @@
 # Makehuman Plugin For Blender (MPFB)
 
 This is what is intended to become version 2 of MPFB. MPFB2 is a complete rewrite of MPFB1 with an entirely
-different code structure, which is why it is in a separate git repository.
+different code structure, which is why it is in a separate git repository. For a list of new features,
+see [the change log](docs/general/changes.md).
 
 While most basic functionality (for example the importer) is implemented and working, it is still a work in
 progress. For more information see the [current status](docs/general/status.md) page.
