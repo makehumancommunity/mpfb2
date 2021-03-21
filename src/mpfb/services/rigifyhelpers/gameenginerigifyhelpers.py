@@ -21,7 +21,7 @@ class GameEngineRigifyHelpers(RigifyHelpers):
         _LOG.enter()
         bones = ["pelvis"]
         for i in range(3):
-            bones.append("spine_0" + str(i))
+            bones.append("spine_0" + str(i+1))
         return bones
 
     def get_list_of_arm_bones(self, left_side=True):
@@ -72,6 +72,6 @@ class GameEngineRigifyHelpers(RigifyHelpers):
             side = "_r"
         finger_name = finger_names[finger_number]
         bones = []
-        for i in [1, 2, 3]:
-            bones.append(finger_name + "_0" + str(i) + side)
+        for i in range(3):
+            bones.append(finger_name + "_0" + str(i+1) + side)
         return bones
