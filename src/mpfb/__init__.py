@@ -48,7 +48,8 @@ def register():
     # time. Thus we'll import all packages which can theoretically
     # contain blender classes.
 
-    classmanager = ClassManager()
+    if not ClassManager.isinitialized():
+        classmanager = ClassManager()
 
     _LOG.debug("About to import mpfb.services")
     import mpfb.services.locationservice

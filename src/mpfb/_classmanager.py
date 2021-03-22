@@ -13,16 +13,22 @@ class ClassManager:
     get properly registered and unregistered"""
 
     __stack = None  # use a class attribute as classes stack
+    __isinitialized = False
 
     def __init__(self):
-        if type(self).__stack is None:  # Ensure ClassManager is only registered once
+        if not type(self).__isinitialized:  # Ensure ClassManager is only registered once
             LOG.debug("initializing classmanager")
             type(self).__stack = []
+            type(self).__isinitialized = True
         else:
             raise RuntimeError("ClassManager must be a singleton")
 
     def getClassStack(self):
         return type(self).__stack
+
+    @classmethod
+    def isinitialized(self):
+        return self.__isinitialized
 
     @classmethod
     def add_class(cls, appendClass):
