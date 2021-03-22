@@ -38,7 +38,8 @@ The following are features in development, but which remain to be finished
 - Preserving FK pose when adding helper bones is occasionally glitchy
 - Preserving IK/helper pose when switching back to FK is not implemented at all
 - Rig helpers only implemented for "Default" and "Default no toes" rigs
-- No colors / bone layer separation for rigify bones
+- Rigify: No colors / bone layer separation for rigify bones
+- Rigify: Ways to control the process (for example checkboxes for deciding if the meta rig should be kept, or if the final generate rig step should be done) 
 
 ## Not started
 
