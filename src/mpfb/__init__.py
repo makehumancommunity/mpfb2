@@ -6,6 +6,7 @@ bl_info = { # pylint: disable=C0103
     "author": "Joel Palmius",
     "version": (1, 9, 9),
     "blender": (2, 90, 0),
+    "warning": "Plugin is in Alpha stage",
     "location": "View3D > Properties > MH",
     "description": "MakeHuman Plugin For Blender",
     "wiki_url": "https://github.com/makehumancommunity/makehuman-plugin-for-blender",
