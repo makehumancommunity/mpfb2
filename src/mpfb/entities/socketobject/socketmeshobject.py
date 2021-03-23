@@ -69,6 +69,11 @@ class SocketMeshObject:
         _LOG.enter()
         return self._object_info["name"]
 
+    def get_filename(self):
+        """Convenience call from getting filename from object_info"""
+        _LOG.enter()
+        return  self._object_info["filename"]
+
     def convert_to_shaped_numpy_array(self, shape_key, type_code_key, data_from_socket, rescale=None):
         """Convenience method for converting any byte array to a numpy array with the proper shape.
         shape_key and type_code_key are which keys in the object info that contains the information

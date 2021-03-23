@@ -363,9 +363,9 @@ class MPFB_OT_ImportHumanOperator(bpy.types.Operator):
                     # This seems to be an enhanced skin material
                     name = material.name
                     if "." in name:
-                        (prefix, name) = name.split(".", 2)
+                        (prefix, name) = name.split(".", 1)
                     if "." in name:
-                        (name, number) = name.split(".", 2)
+                        (name, number) = name.split(".", 1)
                     _LOG.debug("final name", name)
                     if name in settings:
                         _LOG.debug("will try to apply settings", settings[name])

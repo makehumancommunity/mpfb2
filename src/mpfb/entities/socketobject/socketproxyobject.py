@@ -88,12 +88,10 @@ class SocketProxyObject(SocketMeshObject):
         """Use all the collected numpy data and transform to construct a blender mesh object"""
         _LOG.enter()
 
-        name = None
-        if "name" in self._object_info:
-            name = self._object_info["name"]
+        name = self._object_info.get("name", '')
 
         if name_prefix:
-            name = name_prefix + "." + name
+            name = name_prefix.split(".")[0] + "." + name  # check if prefix has a trailing dot
 
         obj = ObjectService.create_blender_object_with_mesh(name)
 

@@ -188,9 +188,7 @@ class SocketBodyObject(SocketMeshObject):
         import_rig = self._importer_presets["import_rig"]
         import_body = self._importer_presets["import_body"]
 
-        name = "Human"
-        if "name" in self._object_info:
-            name = self._object_info["name"]
+        name = self._object_info.get("name", "Human")
 
         obj = None
         parent = None
