@@ -3,7 +3,6 @@ from mpfb.services.logservice import LogService
 from mpfb.entities.objectproperties import GeneralObjectProperties
 
 _LOG = LogService.get_logger("services.objectservice")
-_LOG.set_level(LogService.DUMP)
 
 # create object
 # activate object

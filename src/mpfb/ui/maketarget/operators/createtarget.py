@@ -8,7 +8,6 @@ from mpfb.ui.maketarget import MakeTargetObjectProperties
 from mpfb import ClassManager
 
 _LOG = LogService.get_logger("maketarget.createtarget")
-_LOG.set_level(LogService.DEBUG)
 
 class MPFB_OT_CreateTargetOperator(bpy.types.Operator):
     """Create primary target"""

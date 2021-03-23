@@ -8,7 +8,6 @@ import bpy
 from mpfb.services.logservice import LogService
 from mpfb.services.objectservice import ObjectService
 _LOG = LogService.get_logger("rigifyhelpers.rigifyhelpers")
-_LOG.set_level(LogService.DUMP)
 
 from mpfb.services.rigservice import RigService
 

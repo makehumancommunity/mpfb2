@@ -12,7 +12,6 @@ MAKESKIN_PROPERTIES_DIR = os.path.join(_LOC, "properties")
 MAKESKIN_PROPERTIES = SceneConfigSet.from_definitions_in_json_directory(MAKESKIN_PROPERTIES_DIR, prefix="MS_")
 
 _LOG = LogService.get_logger("makeskin.makeskinpanel")
-_LOG.set_level(LogService.DEBUG)
 
 class MPFB_PT_MakeSkin_Panel(bpy.types.Panel):
     """MakeSkin main panel."""

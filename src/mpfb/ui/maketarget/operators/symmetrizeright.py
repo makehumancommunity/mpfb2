@@ -7,7 +7,6 @@ from mpfb.services.targetservice import TargetService
 from mpfb import ClassManager
 
 _LOG = LogService.get_logger("maketarget.symmetrizeright")
-_LOG.set_level(LogService.DEBUG)
 
 class MPFB_OT_SymmetrizeRightOperator(bpy.types.Operator):
     """Symmetrize by taking the left side of the model and copy it mirrored to the right side"""

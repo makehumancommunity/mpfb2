@@ -309,7 +309,7 @@ class NodeService:
     def _ensure_group_interfaces_exist(dict_with_node_tree, force_wipe_group_node_trees=False):
         _LOG.enter()
         if not "groups" in dict_with_node_tree or not dict_with_node_tree["groups"]:
-            _LOG.warn("The node tree dict did not have a group definition hierarchy")
+            _LOG.debug("The node tree dict did not have a group definition hierarchy")
             return
 
         groups = dict_with_node_tree["groups"]

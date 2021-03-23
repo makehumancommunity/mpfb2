@@ -9,7 +9,6 @@ from mpfb.services.nodeservice import NodeService
 from mpfb.services.materialservice import MaterialService
 
 _LOG = LogService.get_logger("material.makeskinmaterial")
-_LOG.set_level(LogService.DUMP)
 
 _TEXTURE_NAMES = ["bumpmap", "diffuse", "displacementmap", "metallicmap", "normalmap", "roughnessmap", "transmissionmap"]
 

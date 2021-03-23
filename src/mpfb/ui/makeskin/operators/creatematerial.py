@@ -7,7 +7,6 @@ from mpfb.entities.material.makeskinmaterial import MakeSkinMaterial
 from mpfb import ClassManager
 
 _LOG = LogService.get_logger("makeskin.creatematerial")
-_LOG.set_level(LogService.DEBUG)
 
 class MPFB_OT_CreateMaterialOperator(bpy.types.Operator):
     """Create template material"""

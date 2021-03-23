@@ -9,7 +9,6 @@ from mpfb.entities.objectproperties import GeneralObjectProperties
 from mpfb.ui.maketarget import MakeTargetObjectProperties
 
 _LOG = LogService.get_logger("maketarget.maketargetpanel")
-_LOG.set_level(LogService.DEBUG)
 
 class MPFB_PT_MakeTarget_Panel(bpy.types.Panel):
     """MakeTarget main panel."""

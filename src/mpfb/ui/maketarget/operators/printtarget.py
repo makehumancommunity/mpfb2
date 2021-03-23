@@ -7,7 +7,6 @@ from mpfb.services.targetservice import TargetService
 from mpfb import ClassManager
 
 _LOG = LogService.get_logger("maketarget.printtarget")
-_LOG.set_level(LogService.DUMP)
 
 class MPFB_OT_PrintTargetOperator(bpy.types.Operator):
     """Dump target data to console"""

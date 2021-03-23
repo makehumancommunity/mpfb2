@@ -9,7 +9,6 @@ from mpfb import ClassManager
 from mpfb.entities.material.makeskinmaterial import MakeSkinMaterial
 
 _LOG = LogService.get_logger("makeskin.writematerial")
-_LOG.set_level(LogService.DUMP)
 
 class MPFB_OT_WriteMaterialOperator(bpy.types.Operator, ExportHelper):
     """Write material to MHMAT file"""

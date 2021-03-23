@@ -7,7 +7,6 @@ from mpfb.services.locationservice import LocationService
 from mpfb.entities.objectproperties import GeneralObjectProperties
 
 _LOG = LogService.get_logger("services.targetservice")
-_LOG.set_level(LogService.DUMP)
 
 _HEADER = """# This is a target file for MakeHuman
 #
