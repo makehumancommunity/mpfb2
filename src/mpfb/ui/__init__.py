@@ -25,6 +25,7 @@ from mpfb.ui.maketarget import *
 #from .targetspanel import MPFB_PT_Targets_Panel
 
 # Developer
+from mpfb.ui.loglevels import *
 from mpfb.ui.savenodes import *
 
 __all__ = [
@@ -38,5 +39,6 @@ __all__ = [
     "MPFB_PT_Enhanced_Settings_Panel",
     "MPFB_PT_Eye_Settings_Panel",
     "MPFB_PT_MakeSkin_Panel",
-    "MPFB_PT_MakeTarget_Panel"
+    "MPFB_PT_MakeTarget_Panel",
+    "MPFB_PT_Log_Levels_Panel"
     ]
