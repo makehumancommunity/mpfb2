@@ -9,14 +9,18 @@ _BPYHOME = bpy.utils.resource_path('USER') # pylint: disable=E1111
 _MPFBHOME = os.path.join(_BPYHOME, "mpfb")
 _LOGDIR = os.path.abspath(os.path.join(_MPFBHOME, "logs"))
 _COMBINED = os.path.join(_LOGDIR, "combined.txt")
-_CONFIG = os.path.join(_BPYHOME, "mpfb", "config", "log_levels.json")
+_CONFIG_DIR = os.path.join(_BPYHOME, "mpfb", "config")
+_CONFIG = os.path.join(_CONFIG_DIR, "log_levels.json")
 
 print("\nInitializing MPFB log service. Logs can be found in " + str(_LOGDIR) + "\n")
 
 if not os.path.exists(_LOGDIR):
     os.makedirs(_LOGDIR, exist_ok=True)
 
-_JUSTIFICATION = 35
+if not os.path.exists(_CONFIG_DIR):
+    os.makedirs(_CONFIG_DIR, exist_ok=True)
+
+_JUSTIFICATION = 40
 _START = int(time.time() * 1000.0)
 
 
