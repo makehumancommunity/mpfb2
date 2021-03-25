@@ -38,6 +38,7 @@ class MPFB_PT_Importer_Presets_Panel(bpy.types.Panel):
     bl_space_type = "VIEW_3D"
     bl_region_type = "UI"
     bl_category = UiService.get_value("IMPORTERCATEGORY")
+    bl_options = {'DEFAULT_CLOSED'}
 
     def _create_box(self, layout, box_text, box_icon=None):
         _LOG.enter()

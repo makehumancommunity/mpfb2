@@ -17,6 +17,7 @@ class MPFB_PT_MakeTarget_Panel(bpy.types.Panel):
     bl_space_type = "VIEW_3D"
     bl_region_type = "UI"
     bl_category = UiService.get_value("TARGETSCATEGORY")
+    bl_options = {'DEFAULT_CLOSED'}
 
     def _create_box(self, layout, box_text, box_icon=None):
         _LOG.enter()

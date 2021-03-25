@@ -1,5 +1,5 @@
 
-import os
+import os, bpy
 from fnmatch import fnmatch
 from .logservice import LogService
 from .locationservice import LocationService
@@ -14,14 +14,40 @@ class _UiService():
         _LOG.debug("Constructing ui service")
         self._state = dict()
         self.set_value("PROPERTYPREFIX", "MPFB_")
-        ui_prefix = "MPFB v%d.%d " % (VERSION[0], VERSION[1])
+        ui_prefix = "MPFB v%d.%d" % (VERSION[0], VERSION[1])
+
+        multi = self.get_preference("multi_panel")
+        _LOG.debug("multi_panel", multi)
+
         self.set_value("UIPREFIX", ui_prefix)
-        self.set_value("IMPORTERCATEGORY", ui_prefix + " Import")
-        self.set_value("CLOTHESCATEGORY", ui_prefix + " Clothes")
-        self.set_value("TARGETSCATEGORY", ui_prefix + " Targets")
-        self.set_value("MATERIALSCATEGORY", ui_prefix + " Materials")
-        self.set_value("RIGCATEGORY", ui_prefix + " Rig & Pose")
-        self.set_value("DEVELOPERCATEGORY", ui_prefix + " Developer")
+
+        if multi:
+            self.set_value("IMPORTERCATEGORY", ui_prefix + " Import")
+            self.set_value("CLOTHESCATEGORY", ui_prefix + " Clothes")
+            self.set_value("TARGETSCATEGORY", ui_prefix + " Targets")
+            self.set_value("MATERIALSCATEGORY", ui_prefix + " Materials")
+            self.set_value("RIGCATEGORY", ui_prefix + " Rig & Pose")
+            self.set_value("DEVELOPERCATEGORY", ui_prefix + " Developer")
+        else:
+            for category in ["IMPORTERCATEGORY", "CLOTHESCATEGORY", "TARGETSCATEGORY", "MATERIALSCATEGORY", "RIGCATEGORY", "DEVELOPERCATEGORY"]:
+                self.set_value(category, ui_prefix)
+
+    def get_preference(self, name):
+        _LOG.enter()
+        if "mpfb" in bpy.context.preferences.addons:
+            mpfb = bpy.context.preferences.addons['mpfb']
+            if hasattr(mpfb, "preferences"):
+                prefs = mpfb.preferences
+                if hasattr(prefs, name):
+                    value = prefs[name]
+                    _LOG.debug("Found addon preference", (name, value))
+                    return value
+                _LOG.error("There were addon preferences, but key did not exist:", name)
+                return None
+            _LOG.crash("The 'mpfb' addon does not have any preferences")
+            raise ValueError("Preferences have not been initialized properly")
+        _LOG.crash("The 'mpfb' addon does not exist!?")
+        raise ValueError("I don't seem to exist")
 
     def get_value(self, name):
         _LOG.enter()
@@ -150,6 +176,6 @@ class _UiService():
         return self.get_value("importer_eye_settings_panel_list")
 
 
-UiService = _UiService()
+UiService = _UiService() # pylint: disable=C0103
 UiService.rebuild_importer_presets_panel_list()
 UiService.rebuild_importer_panel_list()

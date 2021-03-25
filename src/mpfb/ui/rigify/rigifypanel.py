@@ -10,6 +10,7 @@ class MPFB_PT_Rigify_Panel(bpy.types.Panel):
     bl_space_type = "VIEW_3D"
     bl_region_type = "UI"
     bl_category = UiService.get_value("RIGCATEGORY")
+    bl_options = {'DEFAULT_CLOSED'}
 
     def draw(self, context):
         _LOG.enter()

@@ -31,10 +31,15 @@ _LOG = None
 # pylint: disable=W0611
 
 from ._classmanager import ClassManager
+from bpy.utils import register_class
 
 def register():
     """At this point blender is ready enough for it to make sense to
     start initializing python singletons"""
+
+    # Preferences will be needed before starting the rest of the addon
+    from ._preferences import MpfbPreferences
+    register_class(MpfbPreferences)
 
     global _LOG # pylint: disable=W0603
 
@@ -49,7 +54,7 @@ def register():
     # contain blender classes.
 
     if not ClassManager.isinitialized():
-        classmanager = ClassManager()
+        classmanager = ClassManager() # pylint: disable=W0612
 
     _LOG.debug("About to import mpfb.services")
     import mpfb.services.locationservice

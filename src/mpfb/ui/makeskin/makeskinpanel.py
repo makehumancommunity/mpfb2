@@ -20,6 +20,7 @@ class MPFB_PT_MakeSkin_Panel(bpy.types.Panel):
     bl_space_type = "VIEW_3D"
     bl_region_type = "UI"
     bl_category = UiService.get_value("MATERIALSCATEGORY")
+    bl_options = {'DEFAULT_CLOSED'}
 
     def _create_box(self, layout, box_text, box_icon=None):
         _LOG.enter()
