@@ -25,6 +25,8 @@ The following are features in development, but which remain to be finished
 
 - The documentation is incomplete
 - Large parts of the code lack code comments
+- Preferences: It should be possible to configure host/port for the socket calls
+- Preferences: It should be possible to configure where MPFB user files should be stored
 
 **MakeSkin:**
 
