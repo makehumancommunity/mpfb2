@@ -1,5 +1,6 @@
-import bpy
+import bpy, os
 from mpfb.services.logservice import LogService
+from mpfb.services.locationservice import LocationService
 from mpfb.entities.objectproperties import GeneralObjectProperties
 
 _LOG = LogService.get_logger("services.objectservice")
@@ -117,3 +118,20 @@ class ObjectService:
                 return objects_child
 
         return None
+
+    @staticmethod
+    def load_wavefront_file(filepath, context=None):
+        if context is None:
+            context = bpy.context
+        if filepath is None:
+            raise ValueError('Cannot load None filepath')
+        if not os.path.exists(filepath):
+            raise IOError('File does not exist: ' + filepath)
+        bpy.ops.import_scene.obj(filepath=filepath, use_groups_as_vgroups=True)
+        return context.active_object
+
+    @staticmethod
+    def load_base_mesh(context=None):
+        objsdir = LocationService.get_mpfb_data("3dobjs")
+        filepath = os.path.join(objsdir, "base.obj")
+        return ObjectService.load_wavefront_file(filepath, context)

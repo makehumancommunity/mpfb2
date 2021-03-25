@@ -1,0 +1,7 @@
+{
+    "type": "boolean",
+    "name": "extra_vertex_groups",
+    "description": "Normaly the base mesh will only have one vertex group for the entire body. You can opt for creating more detailed vertex groups, such as lips, fingernails and so on. This is required for detailed materials.",
+    "label": "Extra vertex groups",
+    "default": true
+}

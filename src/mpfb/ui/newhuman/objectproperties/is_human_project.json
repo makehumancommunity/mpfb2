@@ -1,0 +1,7 @@
+{
+    "type": "boolean",
+    "name": "is_human_project",
+    "description": "whether this is the base for a project rather than an import",
+    "label": "Is human project",
+    "default": false
+}

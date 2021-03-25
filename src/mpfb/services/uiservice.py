@@ -22,6 +22,7 @@ class _UiService():
         self.set_value("UIPREFIX", ui_prefix)
 
         if multi:
+            self.set_value("MODELCATEGORY", ui_prefix + " Model")
             self.set_value("IMPORTERCATEGORY", ui_prefix + " Import")
             self.set_value("CLOTHESCATEGORY", ui_prefix + " Clothes")
             self.set_value("TARGETSCATEGORY", ui_prefix + " Targets")
@@ -29,7 +30,7 @@ class _UiService():
             self.set_value("RIGCATEGORY", ui_prefix + " Rig & Pose")
             self.set_value("DEVELOPERCATEGORY", ui_prefix + " Developer")
         else:
-            for category in ["IMPORTERCATEGORY", "CLOTHESCATEGORY", "TARGETSCATEGORY", "MATERIALSCATEGORY", "RIGCATEGORY", "DEVELOPERCATEGORY"]:
+            for category in ["MODELCATEGORY", "IMPORTERCATEGORY", "CLOTHESCATEGORY", "TARGETSCATEGORY", "MATERIALSCATEGORY", "RIGCATEGORY", "DEVELOPERCATEGORY"]:
                 self.set_value(category, ui_prefix)
 
     def get_preference(self, name):

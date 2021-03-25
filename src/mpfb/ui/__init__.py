@@ -3,6 +3,9 @@ from mpfb.services.logservice import LogService
 _LOG = LogService.get_logger("ui.init")
 _LOG.trace("initializing ui module")
 
+# Model
+from mpfb.ui.newhuman import *
+
 # Imports
 from mpfb.ui.importer import *
 from mpfb.ui.importerpresets import *
