@@ -38,7 +38,7 @@ class _UiService():
             mpfb = bpy.context.preferences.addons['mpfb']
             if hasattr(mpfb, "preferences"):
                 prefs = mpfb.preferences
-                if hasattr(prefs, name):
+                if hasattr(prefs, name) and name in prefs:
                     value = prefs[name]
                     _LOG.debug("Found addon preference", (name, value))
                     return value
