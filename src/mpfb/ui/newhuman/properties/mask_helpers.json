@@ -1,0 +1,7 @@
+{
+    "type": "boolean",
+    "name": "mask_helpers",
+    "description": "Create a MASK modifier so that helper vertex groups are hidden",
+    "label": "Mask helpers",
+    "default": true
+}

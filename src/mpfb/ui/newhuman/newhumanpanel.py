@@ -28,9 +28,13 @@ class MPFB_PT_NewHuman_Panel(bpy.types.Panel):
         return box
 
     def _new_human(self, scene, layout):
-        box = self._create_box(layout, "Create empty human", "TOOL_SETTINGS")
-        NEW_HUMAN_PROPERTIES.draw_properties(scene, box, ["scale_factor"])
-        box.operator('mpfb.create_human')
+        NEW_HUMAN_PROPERTIES.draw_properties(scene, layout, [
+            "scale_factor",
+            "detailed_helpers",
+            "extra_vertex_groups",
+            "mask_helpers"
+            ])
+        layout.operator('mpfb.create_human')
 
     def draw(self, context):
         _LOG.enter()

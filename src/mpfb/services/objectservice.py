@@ -1,19 +1,13 @@
-import bpy, os
+import bpy, os, json
 from mpfb.services.logservice import LogService
 from mpfb.services.locationservice import LocationService
 from mpfb.entities.objectproperties import GeneralObjectProperties
+from mpfb.entities.socketobject import BASEMESH_EXTRA_GROUPS
 
 _LOG = LogService.get_logger("services.objectservice")
 
-# create object
-# activate object
-# select object
-# deselect object
-# deselect all objects
-# find object by name
-
-# add mask modifier
-# add subdivision modifier
+_BASEMESH_VERTEX_GROUPS_UNEXPANDED = None
+_BASEMESH_VERTEX_GROUPS_EXPANDED = None
 
 class ObjectService:
 
@@ -128,10 +122,52 @@ class ObjectService:
         if not os.path.exists(filepath):
             raise IOError('File does not exist: ' + filepath)
         bpy.ops.import_scene.obj(filepath=filepath, use_groups_as_vgroups=True)
-        return context.active_object
+        loaded_object = bpy.context.selected_objects[0] # pylint: disable=E1136
+        return loaded_object
 
     @staticmethod
-    def load_base_mesh(context=None):
+    def load_base_mesh(context=None, scale_factor=1.0, load_vertex_groups=True, exclude_vertex_groups=None):
         objsdir = LocationService.get_mpfb_data("3dobjs")
         filepath = os.path.join(objsdir, "base.obj")
-        return ObjectService.load_wavefront_file(filepath, context)
+        basemesh = ObjectService.load_wavefront_file(filepath, context)
+        basemesh.name = "Human"
+        bpy.ops.object.shade_smooth()
+        bpy.ops.transform.resize(value=(scale_factor, scale_factor, scale_factor))
+        GeneralObjectProperties.set_value("object_type", "Basemesh", entity_reference=basemesh)
+        GeneralObjectProperties.set_value("scale_factor", scale_factor, entity_reference=basemesh)
+        if load_vertex_groups:
+            groups = ObjectService.get_base_mesh_vertex_group_definition()
+            ObjectService.assign_vertex_groups(basemesh, groups, exclude_vertex_groups)
+        return basemesh
+
+    @staticmethod
+    def assign_vertex_groups(blender_object, vertex_group_definition, exclude_groups=None):
+        if exclude_groups is None:
+            exclude_groups = []
+        for group_name in vertex_group_definition.keys():
+            if group_name not in exclude_groups:
+                vertex_group = blender_object.vertex_groups.new(name=group_name)
+                vertex_group.add(vertex_group_definition[group_name], 1.0, 'ADD')
+
+    @staticmethod
+    def get_base_mesh_vertex_group_definition():
+        global _BASEMESH_VERTEX_GROUPS_EXPANDED # pylint: disable=W0603
+        global _BASEMESH_VERTEX_GROUPS_UNEXPANDED # pylint: disable=W0603
+        if _BASEMESH_VERTEX_GROUPS_EXPANDED is None:
+            meta_data_dir = LocationService.get_mpfb_data("mesh_metadata")
+            definition_file = os.path.join(meta_data_dir, "basemesh_vertex_groups.json")
+            with open(definition_file, "r") as json_file:
+                _BASEMESH_VERTEX_GROUPS_UNEXPANDED = json.load(json_file)
+            _BASEMESH_VERTEX_GROUPS_EXPANDED = dict()
+            for group in _BASEMESH_VERTEX_GROUPS_UNEXPANDED.keys():
+                group_name = str(group)
+                _BASEMESH_VERTEX_GROUPS_EXPANDED[group_name] = []
+                for start_stop in _BASEMESH_VERTEX_GROUPS_UNEXPANDED[group]:
+                    _BASEMESH_VERTEX_GROUPS_EXPANDED[group_name].extend(range(start_stop[0], start_stop[1]))
+            _BASEMESH_VERTEX_GROUPS_EXPANDED.update(BASEMESH_EXTRA_GROUPS)
+        # Return a copy so it doesn't get accidentally modified
+        return dict(_BASEMESH_VERTEX_GROUPS_EXPANDED)
+
+
+
+
