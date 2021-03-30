@@ -1,8 +1,7 @@
-
 """This module only contains the SocketProxyObject. See the class docstring
 for more info."""
 
-import numpy
+import numpy, bpy
 from mpfb.services.logservice import LogService
 from mpfb.services.socketservice import SocketService
 from mpfb.services.objectservice import ObjectService
@@ -134,6 +133,8 @@ class SocketProxyObject(SocketMeshObject):
             if parent.type == "ARMATURE":
                 modifier = obj.modifiers.new("Armature", 'ARMATURE')
                 modifier.object = parent
+                while obj.modifiers.find(modifier.name) != 0:
+                    bpy.ops.object.modifier_move_up({'object': obj}, modifier=modifier.name)
 
         if "Delete" in self._vertex_groups_by_name and self._vertex_groups_by_name["Delete"].size > 0:
             mask = obj.modifiers.new("Hide delete group", 'MASK')
