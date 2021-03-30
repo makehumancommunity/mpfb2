@@ -119,7 +119,7 @@ class BlenderConfigSet(ConfigurationSet):
         value = self.get_value(name, entity_reference=entity_reference)
         return not value is None
 
-    def _create_property_by_type(self, proptype, name, description, default, items=None, items_callback=None):
+    def _create_property_by_type(self, proptype, name, description, default, items=None, items_callback=None, min=None, max=None):
         entity_property = None
         if proptype == "boolean":
             entity_property = BoolProperty(name=name, description=description, default=default) # pylint: disable=E1111
@@ -128,7 +128,10 @@ class BlenderConfigSet(ConfigurationSet):
         if proptype == "int":
             entity_property = IntProperty(name=name, description=description, default=default) # pylint: disable=E1111
         if proptype == "float":
-            entity_property = FloatProperty(name=name, description=description, default=default) # pylint: disable=E1111
+            if min is None:
+                entity_property = FloatProperty(name=name, description=description, default=default) # pylint: disable=E1111
+            else:
+                entity_property = FloatProperty(name=name, description=description, default=default, min=min, max=max) # pylint: disable=E1111
         if proptype == "enum":
             enumitems = []
             if items:
@@ -157,10 +160,17 @@ class BlenderConfigSet(ConfigurationSet):
             for alias in prop["aliases"]:
                 self._alias_to_prop[alias] = copied_property["full_name"]
 
+        min = None
+        max = None
+        if "min" in copied_property:
+            min = copied_property["min"]
+        if "max" in copied_property:
+            max = copied_property["max"]
+
         items = None
         if "items" in copied_property:
             items = copied_property["items"]
-        entity_property = self._create_property_by_type(copied_property["type"], copied_property["full_name"], copied_property["description"], copied_property["default"], items, items_callback)
+        entity_property = self._create_property_by_type(copied_property["type"], copied_property["full_name"], copied_property["description"], copied_property["default"], items, items_callback, min=min, max=max)
 
         _LOG.dump("Adding entity property:", (str(copied_property["full_name"]), entity_property))
 
