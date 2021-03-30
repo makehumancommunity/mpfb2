@@ -112,6 +112,12 @@ class EyeHelpers():
         RigService.display_pose_bone_as_empty(armature_object, "right_eye_ik", "CIRCLE", scale=0.5)
         RigService.display_pose_bone_as_empty(armature_object, "eye_ik", "CIRCLE", scale=1.4)
 
+        for side in ["left", "right"]:
+            pose_bone = RigService.find_pose_bone_by_name(side + "_eye_ik", armature_object)
+            for i in range(3):
+                pose_bone.lock_rotation[i] = True
+                pose_bone.lock_scale[i] = True
+
 
     def _apply_ik_constraint(self, armature_object):
         _LOG.enter()
