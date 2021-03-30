@@ -121,7 +121,11 @@ class ObjectService:
             raise ValueError('Cannot load None filepath')
         if not os.path.exists(filepath):
             raise IOError('File does not exist: ' + filepath)
-        bpy.ops.import_scene.obj(filepath=filepath, use_groups_as_vgroups=True)
+        bpy.ops.import_scene.obj(filepath=filepath, use_split_objects=False, use_split_groups=False)
+
+        # import_scene rotated object 90 degrees
+        bpy.ops.object.transform_apply(location=False, rotation=True, scale=False)
+
         loaded_object = bpy.context.selected_objects[0] # pylint: disable=E1136
         return loaded_object
 
@@ -133,6 +137,7 @@ class ObjectService:
         basemesh.name = "Human"
         bpy.ops.object.shade_smooth()
         bpy.ops.transform.resize(value=(scale_factor, scale_factor, scale_factor))
+        bpy.ops.object.transform_apply(scale=True)
         GeneralObjectProperties.set_value("object_type", "Basemesh", entity_reference=basemesh)
         GeneralObjectProperties.set_value("scale_factor", scale_factor, entity_reference=basemesh)
         if load_vertex_groups:
