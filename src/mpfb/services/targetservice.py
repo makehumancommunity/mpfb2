@@ -173,6 +173,8 @@ class TargetService:
             for i in [0, 1, 2]:
                 target.data[index].co[i] = target_co[i]
 
+        return target
+
     @staticmethod
     def _load_mirror_table():
         global _MIRROR_LEFT
