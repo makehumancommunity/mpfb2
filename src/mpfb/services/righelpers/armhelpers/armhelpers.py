@@ -192,6 +192,10 @@ class ArmHelpers():
                     constraint.use_z = False
                     constraint.influence = 0.4 / len(lower_arm_segments)
 
+        pose_bone = RigService.find_pose_bone_by_name(self.which_arm + "_hand_ik", armature_object)
+        for i in range(3):
+            pose_bone.lock_scale[i] = True
+
     def _create_elbow_ik_bone(self, armature_object):
         _LOG.enter()
         bpy.ops.object.mode_set(mode='EDIT', toggle=False)
@@ -210,6 +214,10 @@ class ArmHelpers():
 
         RigService.display_pose_bone_as_empty(armature_object, self.which_arm + "_elbow_ik", type="SPHERE")
 
+        pose_bone = RigService.find_pose_bone_by_name(self.which_arm + "_elbow_ik", armature_object)
+        for i in range(3):
+            pose_bone.lock_scale[i] = True
+
     def _create_shoulder_ik_bone(self, armature_object):
         _LOG.enter()
         bpy.ops.object.mode_set(mode='EDIT', toggle=False)
@@ -227,6 +235,10 @@ class ArmHelpers():
         bpy.ops.object.mode_set(mode='POSE', toggle=False)
 
         RigService.display_pose_bone_as_empty(armature_object, self.which_arm + "_shoulder_ik", type="SPHERE")
+
+        pose_bone = RigService.find_pose_bone_by_name(self.which_arm + "_shoulder_ik", armature_object)
+        for i in range(3):
+            pose_bone.lock_scale[i] = True
 
 
     def _set_lower_arm_ik_target(self, armature_object, chain_length):
