@@ -24,6 +24,8 @@ class RigifyHelpers():
         _LOG.debug("Constructing RigifyHelpers object")
         self.settings = settings
         _LOG.dump("settings", self.settings)
+        self.produce = "produce" in settings and settings["produce"]
+        self.keep_meta = "keep_meta" in settings and settings["keep_meta"]
 
     @staticmethod
     def get_instance(settings, rigtype="Default"):
@@ -45,16 +47,18 @@ class RigifyHelpers():
 
         bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
 
-        bpy.ops.pose.rigify_generate()
+        if self.produce:
+            bpy.ops.pose.rigify_generate()
 
-        rigify_object = bpy.context.active_object
-        rigify_object.show_in_front = True
+            rigify_object = bpy.context.active_object
+            rigify_object.show_in_front = True
 
-        child_meshes = ObjectService.get_list_of_children(armature_object)
-        for child_mesh in child_meshes:
-            self._adjust_mesh_for_rigify(child_mesh, rigify_object)
+            child_meshes = ObjectService.get_list_of_children(armature_object)
+            for child_mesh in child_meshes:
+                self._adjust_mesh_for_rigify(child_mesh, rigify_object)
 
-        bpy.data.objects.remove(armature_object, do_unlink=True)
+            if not self.keep_meta:
+                bpy.data.objects.remove(armature_object, do_unlink=True)
 
     def _adjust_mesh_for_rigify(self, child_mesh, rigify_object):
         all_relevant_bones = []

@@ -35,9 +35,10 @@ class MPFB_OT_Convert_To_Rigify_Operator(bpy.types.Operator):
 
         bpy.ops.object.transform_apply(location=True, scale=False, rotation=False)
 
-        settings = dict()
-        helpers = RigifyHelpers.get_instance(settings)
+        from mpfb.ui.rigify.rigifypanel import RIGIFY_PROPERTIES
+        settings = RIGIFY_PROPERTIES.as_dict(entity_reference=context.scene)
 
+        helpers = RigifyHelpers.get_instance(settings)
         helpers.convert_to_rigify(blender_object)
 
         self.report({'INFO'}, "Converted to rigify")
