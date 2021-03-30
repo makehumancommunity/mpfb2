@@ -1,0 +1,11 @@
+{
+    "type": "enum",
+    "name": "phenotype_breastfirmness",
+    "description": "Firmness of breasts",
+    "label": "Breast firmness",
+    "default": "maxfirmness",
+    "items": [    
+    	["minfirmness", "Less firm", "Less firm", 1],    	
+    	["maxfirmness", "More firm", "More firm", 2]    	
+    ]
+}

@@ -1,0 +1,13 @@
+{
+    "type": "enum",
+    "name": "phenotype_race",
+    "description": "Race of created human",
+    "label": "Race",
+    "default": "universal",
+    "items": [
+    	["universal", "Universal", "Universal", 1],
+    	["african", "African", "African", 2],
+    	["asian", "Asian", "Asian", 3],
+    	["caucasian", "Caucasian", "Caucasian", 4]    	    	
+    ]
+}

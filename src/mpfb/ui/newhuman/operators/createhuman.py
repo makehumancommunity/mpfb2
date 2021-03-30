@@ -1,9 +1,10 @@
 """Operator for creating a new human object."""
 
-import bpy
+import bpy, os, gzip
 from mpfb.services.logservice import LogService
 from mpfb.services.objectservice import ObjectService
-#from mpfb.ui.maketarget import MakeHumanObjectProperties
+from mpfb.services.locationservice import LocationService
+from mpfb.services.targetservice import TargetService
 from mpfb import ClassManager
 from mpfb.entities.socketobject import BASEMESH_EXTRA_GROUPS
 
@@ -59,8 +60,84 @@ class MPFB_OT_CreateHumanOperator(bpy.types.Operator):
 
         NewHumanObjectProperties.set_value("is_human_project", True, entity_reference=basemesh)
 
-        self.report({'INFO'}, "Human created")
+        add_phenotype = NEW_HUMAN_PROPERTIES.get_value("add_phenotype", entity_reference=context.scene)
+        if add_phenotype:
+            age = NEW_HUMAN_PROPERTIES.get_value("phenotype_age", entity_reference=context.scene)
+            gender = NEW_HUMAN_PROPERTIES.get_value("phenotype_gender", entity_reference=context.scene)
+            muscle = NEW_HUMAN_PROPERTIES.get_value("phenotype_muscle", entity_reference=context.scene)
+            weight = NEW_HUMAN_PROPERTIES.get_value("phenotype_weight", entity_reference=context.scene)
+            height = NEW_HUMAN_PROPERTIES.get_value("phenotype_height", entity_reference=context.scene)
+            race = NEW_HUMAN_PROPERTIES.get_value("phenotype_race", entity_reference=context.scene)
+            influence = NEW_HUMAN_PROPERTIES.get_value("phenotype_influence", entity_reference=context.scene)
+            breast_firmness = NEW_HUMAN_PROPERTIES.get_value("phenotype_breastfirmness", entity_reference=context.scene)
+            breast_size = NEW_HUMAN_PROPERTIES.get_value("phenotype_breastsize", entity_reference=context.scene)
+            breast_influence = NEW_HUMAN_PROPERTIES.get_value("breast_influence", entity_reference=context.scene)
+            add_breast = NEW_HUMAN_PROPERTIES.get_value("add_breast", entity_reference=context.scene)
+
+            targets = LocationService.get_mpfb_data("targets")
+            macrodetails = os.path.join(targets, "macrodetails")
+            breast = os.path.join(targets, "breast")
+            heightdir = os.path.join(macrodetails, "height")
+
+            targets_to_load = []
+
+            # Something is very strange with the breast target. If it is added last it gets totally
+            # corrupt. But if it is added first, everything works as expected.
+            if add_breast:
+                breast_target = os.path.join(breast, "female-" + age + "-" + muscle + "-" + weight + "-" + breast_size + "-" + breast_firmness + ".target.gz")
+                targets_to_load.append([breast_target, breast_influence])
+
+            phenotype = os.path.join(macrodetails, "universal-" + gender + "-" + age + "-" + muscle + "-" + weight + ".target.gz")
+            _LOG.debug("Selected universal phenotype", phenotype)
+            targets_to_load.append([phenotype, influence])
+
+            if race == "universal":
+                races = ["african", "caucasian", "asian"]
+                race_weight = 0.33
+            else:
+                races = [race]
+                race_weight = 1.0
+
+            for subrace in races:
+                race_target = os.path.join(macrodetails, subrace + "-" + gender + "-" + age + ".target.gz")
+                targets_to_load.append([race_target, race_weight])
+
+            height_weight = influence
+            if height == "average":
+                height_weight = 0.0
+                height = "maxheight"
+
+            height_target = os.path.join(heightdir, gender + "-" + age + "-" + muscle + "-" + weight + "-" + height + ".target.gz")
+            targets_to_load.append([height_target, height_weight])
+
+            _LOG.dump("Targets to load", targets_to_load)
+
+            for target in targets_to_load:
+                file_name = target[0]
+                weight = target[1]
+                name = os.path.basename(file_name).replace(".target.gz", "")
+
+                _LOG.debug("File name", file_name)
+
+                target_string = None
+                if not os.path.exists(file_name):
+                    raise IOError(file_name + " does not exist")
+                target_string = None
+                with gzip.open(file_name, "rb") as gzip_file:
+                    raw_data = gzip_file.read()
+                    target_string = raw_data.decode('utf-8')
+                    if not target_string is None:
+                        shape_key = TargetService.target_string_to_shape_key(target_string, name, basemesh)
+                        shape_key.value = weight
+                    else:
+                        raise ValueError("Target string is None")
+
+            self.report({'INFO'}, "Human created. You can adjust target weights amongst the new object's shape keys.")
+        else:
+            self.report({'INFO'}, "Human created.")
+
         return {'FINISHED'}
 
 
 ClassManager.add_class(MPFB_OT_CreateHumanOperator)
+

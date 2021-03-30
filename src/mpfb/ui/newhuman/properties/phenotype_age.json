@@ -1,0 +1,13 @@
+{
+    "type": "enum",
+    "name": "phenotype_age",
+    "description": "Age of created human",
+    "label": "Age",
+    "default": "young",
+    "items": [
+    	["old", "Old", "Old", 1],
+    	["young", "Young", "Young", 2],
+    	["child", "Child", "Child", 3],
+    	["baby", "Baby", "Baby", 4]
+    ]
+}

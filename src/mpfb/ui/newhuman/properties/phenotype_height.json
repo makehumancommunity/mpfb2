@@ -1,0 +1,12 @@
+{
+    "type": "enum",
+    "name": "phenotype_height",
+    "description": "Height of created human",
+    "label": "Height",
+    "default": "average",
+    "items": [
+    	["minheight", "Short", "Short", 1],
+    	["average", "Average", "Average", 2],
+    	["maxheight", "Tall", "Tall", 3]    	
+    ]
+}

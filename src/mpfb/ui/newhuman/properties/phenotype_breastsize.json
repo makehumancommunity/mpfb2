@@ -1,0 +1,11 @@
+{
+    "type": "enum",
+    "name": "phenotype_breastsize",
+    "description": "Size of breasts",
+    "label": "Breast size",
+    "default": "maxcup",
+    "items": [    	
+    	["mincup", "Smaller", "Smaller", 1],    	
+    	["maxcup", "Larger", "Larger", 2]    	
+    ]
+}

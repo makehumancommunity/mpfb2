@@ -21,27 +21,52 @@ class MPFB_PT_NewHuman_Panel(bpy.types.Panel):
     bl_category = UiService.get_value("MODELCATEGORY")
     #bl_options = {'DEFAULT_CLOSED'}
 
-    def _create_box(self, layout, box_text, box_icon=None):
+    def _create_box(self, layout, box_text):
         _LOG.enter()
         box = layout.box()
-        box.label(text=box_text, icon=box_icon)
+        box.label(text=box_text)
         return box
 
-    def _new_human(self, scene, layout):
-        NEW_HUMAN_PROPERTIES.draw_properties(scene, layout, [
+    def _create(self, scene, layout):
+        box = self._create_box(layout, "Create")
+        NEW_HUMAN_PROPERTIES.draw_properties(scene, box, [
             "scale_factor",
             "detailed_helpers",
             "extra_vertex_groups",
             "mask_helpers"
             ])
-        layout.operator('mpfb.create_human')
+        box.operator('mpfb.create_human')
+
+    def _phenotype(self, scene, layout):
+        box = self._create_box(layout, "Phenotype")
+        NEW_HUMAN_PROPERTIES.draw_properties(scene, box, [
+            "phenotype_gender",
+            "phenotype_age",
+            "phenotype_muscle",
+            "phenotype_weight",
+            "phenotype_height",
+            "phenotype_race",
+            "add_phenotype",
+            "phenotype_influence"
+            ])
+
+    def _breast(self, scene, layout):
+        box = self._create_box(layout, "Breast")
+        NEW_HUMAN_PROPERTIES.draw_properties(scene, box, [
+            "phenotype_breastsize",
+            "phenotype_breastfirmness",
+            "add_breast",
+            "breast_influence"
+            ])
 
     def draw(self, context):
         _LOG.enter()
         layout = self.layout
         scene = context.scene
 
-        self._new_human(scene, layout)
+        self._phenotype(scene, layout)
+        self._breast(scene, layout)
+        self._create(scene, layout)
 
 
 ClassManager.add_class(MPFB_PT_NewHuman_Panel)

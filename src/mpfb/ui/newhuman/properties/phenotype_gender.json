@@ -1,0 +1,11 @@
+{
+    "type": "enum",
+    "name": "phenotype_gender",
+    "description": "Gender of created human",
+    "label": "Gender",
+    "default": "male",
+    "items": [    	
+    	["male", "Male", "Male", 1],
+    	["female", "Female", "Female", 2]    	
+    ]
+}

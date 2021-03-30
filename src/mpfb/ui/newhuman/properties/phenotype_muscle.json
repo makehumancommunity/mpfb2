@@ -1,0 +1,12 @@
+{
+    "type": "enum",
+    "name": "phenotype_muscle",
+    "description": "Muscularity of created human",
+    "label": "Muscle",
+    "default": "averagemuscle",
+    "items": [
+    	["minmuscle", "Minimum", "Minimum", 1],
+    	["averagemuscle", "Average", "Average", 2],
+    	["maxmuscle", "Maximum", "Maximum", 3]    	
+    ]
+}
