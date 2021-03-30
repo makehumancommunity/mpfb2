@@ -174,6 +174,9 @@ class LegHelpers():
                     constraint.use_z = False
                     constraint.influence = 0.4 / len(lower_leg_segments)
 
+        for i in range(3):
+            pose_bone.lock_scale[i] = True
+
     def _create_knee_ik_bone(self, armature_object):
         _LOG.enter()
         bpy.ops.object.mode_set(mode='EDIT', toggle=False)
@@ -190,6 +193,10 @@ class LegHelpers():
         bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
         bpy.ops.object.mode_set(mode='POSE', toggle=False)
         RigService.display_pose_bone_as_empty(armature_object, self.which_leg + "_knee_ik", type="SPHERE")
+
+        pose_bone = RigService.find_pose_bone_by_name(self.which_leg + "_knee_ik", armature_object)
+        for i in range(3):
+            pose_bone.lock_scale[i] = True
 
 
     def _create_hip_ik_bone(self, armature_object):
@@ -208,6 +215,11 @@ class LegHelpers():
         bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
         bpy.ops.object.mode_set(mode='POSE', toggle=False)
         RigService.display_pose_bone_as_empty(armature_object, self.which_leg + "_hip_ik", type="SPHERE")
+
+        pose_bone = RigService.find_pose_bone_by_name(self.which_leg + "_hip_ik", armature_object)
+        for i in range(3):
+            pose_bone.lock_scale[i] = True
+
 
     def _set_lower_leg_ik_target(self, armature_object, chain_length):
         _LOG.enter()
