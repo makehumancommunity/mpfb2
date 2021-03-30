@@ -214,6 +214,10 @@ class FingerHelpers():
         scales = [0.1, 0.15, 0.1, 0.1, 0.2]
         pose_bone.custom_shape_scale = scales[finger_number-1]
 
+        for i in range(3):
+            pose_bone.lock_location[i] = True
+            pose_bone.lock_scale[i] = True
+
     def _create_master_grip_bone(self, armature_object):
         _LOG.enter()
 
@@ -261,6 +265,11 @@ class FingerHelpers():
 
         RigService.display_pose_bone_as_empty(armature_object, bone_name, 'CIRCLE')
         pose_bone.custom_shape_scale = 0.6
+
+        for i in range(3):
+            pose_bone.lock_location[i] = True
+            pose_bone.lock_scale[i] = True
+
 
     # ---- METHODS FOR REMOVING AND RESETTING
 
