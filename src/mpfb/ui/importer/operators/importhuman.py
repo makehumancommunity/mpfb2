@@ -433,6 +433,8 @@ class MPFB_OT_ImportHumanOperator(bpy.types.Operator):
                 NodeService.set_socket_default_values(group_node, settings)
             else:
                 _LOG.info("Skipping eye material adjustment since material does not seem to be procedural")
+            material.blend_method = "BLEND"
+            material.show_transparent_back = True
 
     def execute(self, context):
         _LOG.enter()
