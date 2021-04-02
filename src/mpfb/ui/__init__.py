@@ -19,6 +19,9 @@ from mpfb.ui.enhancedsettings import *
 from mpfb.ui.eyesettings import *
 from mpfb.ui.makeskin import *
 
+# Clothes
+from mpfb.ui.loadclothes import *
+
 # Targets
 from mpfb.ui.maketarget import *
 
@@ -43,5 +46,6 @@ __all__ = [
     "MPFB_PT_Eye_Settings_Panel",
     "MPFB_PT_MakeSkin_Panel",
     "MPFB_PT_MakeTarget_Panel",
+    "MPFB_PT_Load_Clothes_Panel",
     "MPFB_PT_Log_Levels_Panel"
     ]

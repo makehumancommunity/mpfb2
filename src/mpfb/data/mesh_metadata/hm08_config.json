@@ -1,0 +1,171 @@
+{
+	"description": "MakeHuman HM08 basemesh",
+	"dimensions": {
+		"Body": {
+			"xmin": 13868,
+			"xmax": 14308,
+			"ymin": 10854,
+			"ymax": 10981,
+			"zmin": 881,
+			"zmax": 13137
+		},
+		"Head": {
+			"xmin": 5399,
+			"xmax": 11998,
+			"ymin": 962,
+			"ymax": 5320,
+			"zmin": 791,
+			"zmax": 881
+		},
+		"Teeth": {
+			"xmin": 15077,
+			"xmax": 15111,
+			"ymin": 15061,
+			"ymax": 15068,
+			"zmin": 14993,
+			"zmax": 15061
+		},
+		"Torso": {
+			"xmin": 3924,
+			"xmax": 10589,
+			"ymin": 1892,
+			"ymax": 3946,
+			"zmin": 1524,
+			"zmax": 4370
+		},
+		"Arm": {
+			"xmin": 8300,
+			"xmax": 10210,
+			"ymin": 10076,
+			"ymax": 10543,
+			"zmin": 10064,
+			"zmax": 10069
+		},
+		"Hand": {
+			"xmin": 8938,
+			"xmax": 10548,
+			"ymin": 9864,
+			"ymax": 10267,
+			"zmin": 9881,
+			"zmax": 10318
+		},
+		"Leg": {
+			"xmin": 11133,
+			"xmax": 11141,
+			"ymin": 11130,
+			"ymax": 11135,
+			"zmin": 11025,
+			"zmax": 11460
+		},
+		"Foot": {
+			"xmin": 12839,
+			"xmax": 12860,
+			"ymin": 11609,
+			"ymax": 12442,
+			"zmin": 12828,
+			"zmax": 12888
+		},
+		"Eye": {
+			"xmin": 14618,
+			"xmax": 14645,
+			"ymin": 14650,
+			"ymax": 14658,
+			"zmin": 14636,
+			"zmax": 14663
+		},
+		"Genital": {
+			"xmin": 6335,
+			"xmax": 12932,
+			"ymin": 4347,
+			"ymax": 4376,
+			"zmin": 4335,
+			"zmax": 6431
+		}
+	},
+	"select_groups": {
+		"BODY": [
+			"body"
+		],
+		"SKIRT": [
+			"helper-skirt"
+		],
+		"TIGHTS": [
+			"helper-tights"
+		],
+		"EYES": [
+			"helper-l-eye",
+			"helper-r-eye"
+		],
+		"HAIR": [
+			"helper-hair"
+		],
+		"EYELASHES": [
+			"helper-l-eyelashes",
+			"helper-r-eyelashes"
+		],
+		"TEETH": [
+			"helper-upper-teeth",
+			"helper-lower-teeth"
+		],
+		"TONGUE": [
+			"helper-tongue"
+		],
+		"GENITALS": [
+			"helper-genital"
+		],
+		"HELPERS": [
+			"HelperGeometry"
+		]
+	},
+	"groups_by_range": {
+		"body": [
+			0,
+			13379
+		],
+		"helper-skirt": [
+			18002,
+			18721
+		],
+		"helper-tights": [
+			15328,
+			18001
+		],
+		"helper-l-eye": [
+			14598,
+			14669
+		],
+		"helper-r-eye": [
+			14670,
+			14741
+		],
+		"helper-hair": [
+			18722,
+			19149
+		],
+		"helper-l-eyelashes": [
+			14742,
+			14866
+		],
+		"helper-r-eyelashes": [
+			14867,
+			14991
+		],
+		"helper-upper-teeth": [
+			15060,
+			15127
+		],
+		"helper-lower-teeth": [
+			14992,
+			15059
+		],
+		"helper-tongue": [
+			13380,
+			13605
+		],
+		"helper-genital": [
+			15128,
+			15327
+		]
+	}
+}
+
