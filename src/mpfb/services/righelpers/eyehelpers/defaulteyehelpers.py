@@ -59,6 +59,9 @@ class DefaultEyeHelpers(EyeHelpers):
     def get_head_name(self):
         return "head"
 
+    def get_root_name(self):
+        return "root"
+
     def get_eye_name(self, right_side=True):
         if right_side:
             return "eye.R"

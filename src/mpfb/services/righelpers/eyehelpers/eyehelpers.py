@@ -101,8 +101,11 @@ class EyeHelpers():
         left_eye_bone.parent = bone
         right_eye_bone.parent = bone
 
-        head_bone = RigService.find_edit_bone_by_name(self.get_head_name(), armature_object)
-        bone.parent = head_bone
+        if self.settings["eye_parenting_strategy"] == "HEAD":
+            bone.parent = RigService.find_edit_bone_by_name(self.get_head_name(), armature_object)
+
+        if self.settings["eye_parenting_strategy"] == "ROOT":
+            bone.parent = RigService.find_edit_bone_by_name(self.get_root_name(), armature_object)
 
         # Needed to save bone
         bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
@@ -129,6 +132,10 @@ class EyeHelpers():
     def get_head_name(self):
         """Abstract method for getting the name of the head bone, must be overriden by rig specific implementation classes."""
         raise NotImplementedError("the get_head_name() method must be overriden by the rig class")
+
+    def get_root_name(self):
+        """Abstract method for getting the name of the root bone, must be overriden by rig specific implementation classes."""
+        raise NotImplementedError("the get_root_name() method must be overriden by the rig class")
 
     def get_eye_name(self, right_side=True):
         """Abstract method for getting the name of the eye bone, must be overriden by rig specific implementation classes."""

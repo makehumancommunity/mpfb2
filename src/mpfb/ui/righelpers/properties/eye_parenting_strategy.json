@@ -1,0 +1,12 @@
+{
+    "type": "enum",
+    "name": "eye_parenting_strategy",
+    "description": "Which strategy should be used for setting parents of the central eye bone?",
+    "label": "Parenting strategy",
+    "default": "HEAD",
+    "items": [
+    	["NONE", "None", "Do not set parent", 0],
+    	["ROOT", "Root bone", "Root bone is parent of central eye bone", 1],    	
+    	["HEAD", "Head bone", "Head bone is parent of central eye bone", 2]
+    ]
+}

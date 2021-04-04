@@ -56,7 +56,8 @@ class MPFB_PT_RigHelpersPanel(bpy.types.Panel):
     def _eye_helpers(self, scene, layout):
         box = self._create_box(layout, "Eye helpers", "BONE_DATA")
         props = [
-            "eye_ik"
+            "eye_ik",
+            "eye_parenting_strategy"
             ]
         SETUP_HELPERS_PROPERTIES.draw_properties(scene, box, props)
 
