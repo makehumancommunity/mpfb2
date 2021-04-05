@@ -1,0 +1,13 @@
+{
+    "type": "enum",
+    "name": "license",
+    "description": "Set an output license for the material. This will have no practical effect apart from being included in the written MHCLO file.",
+    "label": "License",
+    "default": "CC0",
+    "items": [
+		["CC0", "CC0", "Creative Commons Zero", 1],
+		["CC-BY", "CC-BY", "Creative Commons Attribution", 2],
+		["AGPL", "AGPL", "Affero Gnu Public License (don't use unless absolutely necessary)", 3]
+    ],
+    "aliases": ["MhMcMatLicense"]
+}

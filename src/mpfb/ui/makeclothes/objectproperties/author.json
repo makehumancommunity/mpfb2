@@ -1,0 +1,8 @@
+{
+    "type": "string",
+    "name": "author",
+    "description": "The author of these clothes. This will have little practical effect apart from being written to the mhmat file.",
+    "label": "Author",
+    "default": "",
+    "aliases": ["MhMcAuthor"]
+}

@@ -21,6 +21,7 @@ from mpfb.ui.makeskin import *
 
 # Clothes
 from mpfb.ui.loadclothes import *
+from mpfb.ui.makeclothes import *
 
 # Targets
 from mpfb.ui.maketarget import *
@@ -47,5 +48,6 @@ __all__ = [
     "MPFB_PT_MakeSkin_Panel",
     "MPFB_PT_MakeTarget_Panel",
     "MPFB_PT_Load_Clothes_Panel",
+    "MPFB_PT_MakeClothes_Panel",
     "MPFB_PT_Log_Levels_Panel"
     ]

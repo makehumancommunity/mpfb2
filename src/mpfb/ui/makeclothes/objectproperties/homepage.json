@@ -1,0 +1,8 @@
+{
+    "type": "string",
+    "name": "homepage",
+    "description": "The home page of these clothes, if any. This will have little practical effect apart from being written to the mhclo file.",
+    "label": "Homepage",
+    "default": "",
+    "aliases": ["MhMcHomepage"]
+}
