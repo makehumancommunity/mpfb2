@@ -5,7 +5,6 @@ from mpfb.services.logservice import LogService
 from mpfb.services.locationservice import LocationService
 
 _LOG = LogService.get_logger("entities.mhclo")
-_LOG.set_level(LogService.DUMP)
 
 _CONFIG_FILE = None
 
@@ -19,6 +18,7 @@ class Mhclo:
         self.license = "CC0"
         self.name = "imported_cloth"
         self.description = "no description"
+        self.material = None
         self.tags = ""
         self.zdepth = 50
         self.first = 0
@@ -27,7 +27,7 @@ class Mhclo:
         self.delete = False
         self.delete_group = "Delete"
 
-    def update(self, human):
+    def update(self, human, replace_delete_group=False):
 
         if human is None:
             raise ValueError('Cannot refit to None human')
@@ -78,17 +78,13 @@ class Mhclo:
                 s["weights"][2] * human_vertices[n3].co + \
                 Vector(offset)
 
+        if replace_delete_group and self.delete and self.delete_group and self.delete_group in human.vertex_groups:
+            vg = human.vertex_groups.get(self.delete_group)
+            human.vertex_groups.remove(vg)
+
         # if delete_verts is existing, create a group on the body
         #
         if self.delete:
-            ogroups = human.vertex_groups
-
-            # delete old group if already there
-            #
-            if self.delete_group in ogroups:
-                vg = ogroups.get(self.delete_group)
-                ogroups.remove(vg)
-            #
             # now for security reasons do a local copy of delete_verts
             # with vertex number lower than the maxnumber of the human
             #
@@ -96,10 +92,11 @@ class Mhclo:
             for n in  self.delverts:
                 if n < human_vertices_count:
                     dellist.append(n)
-            #
-            # and create new one
-            #
-            vgrp = ogroups.new(name=self.delete_group)
+
+            if self.delete_group not in human.vertex_groups:
+                vgrp = human.vertex_groups.new(name=self.delete_group)
+            else:
+                vgrp = human.vertex_groups.get(self.delete_group)
             vgrp.add(dellist, 1, 'ADD')
 
         if human.parent:
@@ -132,8 +129,6 @@ class Mhclo:
         vn = 0
         status = ""
 
-        mhmat = None
-
         for line in fp:
             words= line.split()
             _LOG.debug("Line", words)
@@ -161,7 +156,7 @@ class Mhclo:
                 continue
 
             if words[0] == "material":
-                mhmat = os.path.join(folder, words[1])
+                self.material = os.path.join(folder, words[1])
 
             # read vertices lines
             #
@@ -260,6 +255,7 @@ class Mhclo:
             #===================================================================
         else:
             raise IOError("Failed to load clothes mesh")
+        return obj
 
     def _get_config_file(self):
         global _CONFIG_FILE

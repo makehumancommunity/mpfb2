@@ -8,10 +8,9 @@ import bpy, os
 
 _LOG = LogService.get_logger("ui.loadclothespanel")
 
-#_LOC = os.path.dirname(__file__)
-#LOG_LEVELS_PROPERTIES_DIR = os.path.join(_LOC, "properties")
-#LOG_LEVELS_PROPERTIES = SceneConfigSet.from_definitions_in_json_directory(LOG_LEVELS_PROPERTIES_DIR, prefix="LL_")
-#LOG_LEVELS_PROPERTIES.add_property(_LEVELS_LIST_PROP, _populate_list)
+_LOC = os.path.dirname(__file__)
+LOAD_CLOTHES_PROPERTIES_DIR = os.path.join(_LOC, "properties")
+LOAD_CLOTHES_PROPERTIES = SceneConfigSet.from_definitions_in_json_directory(LOAD_CLOTHES_PROPERTIES_DIR, prefix="LC_")
 
 class MPFB_PT_Load_Clothes_Panel(bpy.types.Panel):
     """UI for loading clothes."""
@@ -25,7 +24,15 @@ class MPFB_PT_Load_Clothes_Panel(bpy.types.Panel):
         _LOG.enter()
         layout = self.layout
         scene = context.scene
-        #LOG_LEVELS_PROPERTIES.draw_properties(scene, layout, ["available_loggers", "chosen_level"])
+        LOAD_CLOTHES_PROPERTIES.draw_properties(scene, layout, [
+            "object_type",
+            "material_type",
+            "fit_to_body",
+            "delete_group",
+            "set_up_rigging",
+            "interpolate_weights",
+            "makeclothes_metadata"
+            ])
         layout.operator("mpfb.load_clothes")
 
 ClassManager.add_class(MPFB_PT_Load_Clothes_Panel)
