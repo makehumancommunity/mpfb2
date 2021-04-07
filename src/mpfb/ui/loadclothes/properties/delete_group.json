@@ -1,0 +1,7 @@
+{
+    "type": "boolean",
+    "name": "delete_group",
+    "description": "Create a delete group on the base mesh (if it doesn't exist already) and add the clothes' delete verts to it",
+    "label": "Set up delete group",
+    "default": true
+}

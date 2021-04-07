@@ -1,0 +1,16 @@
+{
+    "type": "enum",
+    "name": "object_type",
+    "description": "What sub type of MHCLO mesh should we configure the loaded mesh as?",
+    "label": "Sub type",
+    "default": "Clothes",
+    "items": [
+    	["Clothes", "Clothes", "Object is clothes", 0],
+		["Proxymeshes", "Proxy mesh", "Object is a proxy mesh", 1],
+		["Eyes", "Eyes", "Object is eyes", 2],
+		["Eyebrows", "Eyebrows", "Object is eyebrows", 3],
+		["Eyelashes", "Eyelashes", "Object is eyelashes", 4],
+		["Teeth", "Teeth", "Object is teeth", 5],
+		["Tongue", "Tongue", "Object is tongue", 6]
+    ]
+}

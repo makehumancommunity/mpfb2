@@ -1,0 +1,7 @@
+{
+    "type": "boolean",
+    "name": "interpolate_weights",
+    "description": "Try to interpolate the weight painting of the human to create a weight painting for the imported clothes",
+    "label": "Interpolate weights",
+    "default": true
+}
