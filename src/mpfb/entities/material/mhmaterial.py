@@ -27,13 +27,12 @@ class MhMaterial:
 
             if key_lower in MHMAT_NAME_TO_KEY:
                 key_obj = MHMAT_NAME_TO_KEY[key_lower]
-                key_correct_case = key_obj.keyName
+                key_correct_case = key_obj.key_name
                 if key != key_correct_case:
                     _LOG.debug("Autofixing case: " + key + " -> " + key_correct_case)
                     key = key_correct_case
                 if isinstance(key_obj, MhMatFileKey):
-                    location = None # TODO: This will crash, we need a proper location here
-                    (used_key, value) = key_obj.parseFile(line, location)
+                    (used_key, value) = key_obj.parse_file(line, self.location)
                 else:
                     (used_key, value) = key_obj.parse(line)
                 _LOG.debug("actual key from key object", used_key)
@@ -67,6 +66,7 @@ class MhMaterial:
 
         full_path = os.path.abspath(file_name)
         file_location = os.path.dirname(full_path)
+        self.location = file_location
 
         with open(full_path, 'r') as f:
             line = f.readline()
