@@ -60,13 +60,13 @@ class MPFB_PT_MakeClothes_Panel(bpy.types.Panel):
 
         blender_object = context.active_object
 
-        self._setup_clothes(scene, layout)
+        #self._setup_clothes(scene, layout)
 
         if blender_object is None:
             return
 
-        if blender_object.type == "MESH":
-            self._write_clothes(blender_object, scene, layout)
+        #if blender_object.type == "MESH":
+        #    self._write_clothes(blender_object, scene, layout)
 
 
 ClassManager.add_class(MPFB_PT_MakeClothes_Panel)
