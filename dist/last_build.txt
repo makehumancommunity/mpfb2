@@ -1,8 +1,0 @@
-Build date:
-Tue Mar 30 07:55:57 CEST 2021
-
-Commit hash:
-1c341c2bb4bd28e049bb752c08c52d68b01916e0
-
-MD5 Sum:
-5186ad4967e3bb8acaf95d78a3077657  mpfb2.zip
