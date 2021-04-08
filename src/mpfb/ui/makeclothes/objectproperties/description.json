@@ -4,5 +4,5 @@
     "description": "A description of these clothes. It will have little practical effect apart from being written to the mhclo file.",
     "label": "Description",
     "default": "",
-    "aliases": ["MhMcDescription"]
+    "aliases": ["MhClothesDesc"]
 }

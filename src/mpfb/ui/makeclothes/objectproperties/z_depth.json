@@ -1,0 +1,8 @@
+{
+    "type": "int",
+    "name": "z_depth",
+    "description": "The order value of the clothes, for if several pieces of clothes are on top of each other.",
+    "label": "Z Depth",
+    "default": 50,
+    "aliases": ["MhZDepth"]
+}

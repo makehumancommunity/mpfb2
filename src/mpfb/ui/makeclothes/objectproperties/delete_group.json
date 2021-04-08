@@ -1,0 +1,8 @@
+{
+    "type": "string",
+    "name": "delete_group",
+    "description": "The name of the delete group",
+    "label": "Delete group",
+    "default": "Delete",
+    "aliases": ["MhDeleteGroup"]
+}

@@ -4,5 +4,5 @@
     "description": "A category these clothes fit into, for example \"dress\" or \"female\". This will influence sorting and filtering in MH.",
     "label": "Tag",
     "default": "",
-    "aliases": ["MhMcTag"]
+    "aliases": ["MhClothesTags"]
 }
