@@ -29,6 +29,7 @@ class MPFB_PT_Load_Clothes_Panel(bpy.types.Panel):
             "material_type",
             "fit_to_body",
             "delete_group",
+            "specific_delete_group",
             "set_up_rigging",
             "interpolate_weights",
             "makeclothes_metadata"

@@ -1,3 +1,5 @@
+"""This module provides and information holder for MHCLO files."""
+
 import bpy, os, sys, json
 from mathutils import Vector
 from mpfb.services.objectservice import ObjectService
@@ -9,7 +11,10 @@ _LOG = LogService.get_logger("entities.mhclo")
 _CONFIG_FILE = None
 
 class Mhclo:
+    """A representation of the values of a MHCLO file."""
+
     def __init__(self):
+        """Create an empty MHCLO object with default values."""
         self.obj_file = None
         self.x_scale = None
         self.y_scale = None
@@ -27,86 +32,9 @@ class Mhclo:
         self.delete = False
         self.delete_group = "Delete"
 
-    def update(self, human, replace_delete_group=False):
-
-        if human is None:
-            raise ValueError('Cannot refit to None human')
-
-        if not ObjectService.object_is_basemesh(human):
-            raise ValueError('The provided object is not a basemesh')
-
-        KEY_NAME = "temporary_fitting_key"
-        human.shape_key_add(name=KEY_NAME, from_mix=True)
-        shape_key = human.data.shape_keys.key_blocks[KEY_NAME]
-
-        human_vertices = shape_key.data
-        human_vertices_count = len(human_vertices)        # number of base vertices
-
-        # test if we inside mesh, if not, leave
-        #
-        if self.x_scale[0] >= human_vertices_count or self.x_scale[1] > human_vertices_count \
-            or self.y_scale[0] >= human_vertices_count or self.y_scale[1] >= human_vertices_count \
-            or self.z_scale[0] >= human_vertices_count or self.z_scale[1] >= human_vertices_count:
-            _LOG.warn("Giving up refitting, not inside")
-            return
-
-        # get sizes
-        #
-        x_size = abs(human_vertices[self.x_scale[0]].co[0] - human_vertices[self.x_scale[1]].co[0]) / self.x_scale[2]
-        y_size = abs(human_vertices[self.y_scale[0]].co[2] - human_vertices[self.y_scale[1]].co[2]) / self.y_scale[2]
-        z_size = abs(human_vertices[self.z_scale[0]].co[1] - human_vertices[self.z_scale[1]].co[1]) / self.z_scale[2]
-
-        clothes_vertices = self.clothes.data.vertices
-
-        _LOG.debug("About to try to match vertices: ", len(clothes_vertices))
-
-        _LOG.dump("Verts", self.verts)
-
-        for n in range(len(clothes_vertices)):
-            s = self.verts[n]
-            (n1, n2, n3) = s["verts"]
-
-            # test if we inside mesh, if not, no chance
-            #
-            if n1 >= human_vertices_count or n2 > human_vertices_count or n3 >= human_vertices_count:
-                continue
-
-            offset = [s["offsets"][0]*x_size, s["offsets"][1]*z_size, s["offsets"][2]*y_size]
-            clothes_vertices[n].co = \
-                s["weights"][0] * human_vertices[n1].co + \
-                s["weights"][1] * human_vertices[n2].co + \
-                s["weights"][2] * human_vertices[n3].co + \
-                Vector(offset)
-
-        if replace_delete_group and self.delete and self.delete_group and self.delete_group in human.vertex_groups:
-            vg = human.vertex_groups.get(self.delete_group)
-            human.vertex_groups.remove(vg)
-
-        # if delete_verts is existing, create a group on the body
-        #
-        if self.delete:
-            # now for security reasons do a local copy of delete_verts
-            # with vertex number lower than the maxnumber of the human
-            #
-            dellist = []
-            for n in  self.delverts:
-                if n < human_vertices_count:
-                    dellist.append(n)
-
-            if self.delete_group not in human.vertex_groups:
-                vgrp = human.vertex_groups.new(name=self.delete_group)
-            else:
-                vgrp = human.vertex_groups.get(self.delete_group)
-            vgrp.add(dellist, 1, 'ADD')
-
-        if human.parent:
-            self.clothes.location = human.parent.location
-        else:
-            self.clothes.location = human.location
-        human.shape_key_remove(shape_key)
-
-
     def load(self, mhclo_filename):
+        """Populate settings from contents of a MHCLO file. This will not automatically load the
+        mesh or the materials."""
 
         if not mhclo_filename:
             raise ValueError('Cannot load empty file name')
@@ -241,18 +169,6 @@ class Mhclo:
         _LOG.debug("Loaded object:", obj)
         if obj is not None:
             self.clothes = obj
-            #===================================================================
-            # context.active_object.MhObjectType = "Clothes"
-            # context.active_object.MhClothesName = self.name
-            # context.active_object.MhClothesTags = self.tags
-            # context.active_object.MhClothesDesc = self.description
-            # context.active_object.MhZDepth = self.zdepth
-            # context.scene.MhClothesAuthor = self.author
-            # context.scene.MhClothesLicense = self.license
-            # if self.delete is True:
-            #     self.delete_group = "Delete_" + self.name
-            #     context.active_object.MhDeleteGroup = self.delete_group
-            #===================================================================
         else:
             raise IOError("Failed to load clothes mesh")
         return obj
@@ -276,5 +192,6 @@ class Mhclo:
             #
             if dims['xmin'] == self.x_scale[0] and dims['xmax'] == self.x_scale[1]:
                 pass
+                # TODO: Need to update with new names for makeclothes properties
                 #context.active_object.MhOffsetScale = bodypart
         return
