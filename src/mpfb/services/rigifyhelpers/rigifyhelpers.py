@@ -47,6 +47,8 @@ class RigifyHelpers():
 
         bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
 
+        armature_object.data.rigify_rig_basename = armature_object.name + ".rigify"
+
         if self.produce:
             bpy.ops.pose.rigify_generate()
 
