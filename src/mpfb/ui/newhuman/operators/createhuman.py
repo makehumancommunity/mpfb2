@@ -80,12 +80,6 @@ class MPFB_OT_CreateHumanOperator(bpy.types.Operator):
 
             targets_to_load = []
 
-            # Something is very strange with the breast target. If it is added last it gets totally
-            # corrupt. But if it is added first, everything works as expected.
-            if add_breast:
-                breast_target = os.path.join(breast, "female-" + age + "-" + muscle + "-" + weight + "-" + breast_size + "-" + breast_firmness + ".target.gz")
-                targets_to_load.append([breast_target, breast_influence])
-
             phenotype = os.path.join(macrodetails, "universal-" + gender + "-" + age + "-" + muscle + "-" + weight + ".target.gz")
             _LOG.debug("Selected universal phenotype", phenotype)
             targets_to_load.append([phenotype, influence])
@@ -109,9 +103,14 @@ class MPFB_OT_CreateHumanOperator(bpy.types.Operator):
             height_target = os.path.join(heightdir, gender + "-" + age + "-" + muscle + "-" + weight + "-" + height + ".target.gz")
             targets_to_load.append([height_target, height_weight])
 
+            if add_breast:
+                breast_target = os.path.join(breast, "female-" + age + "-" + muscle + "-" + weight + "-" + breast_size + "-" + breast_firmness + ".target.gz")
+                targets_to_load.append([breast_target, breast_influence])
+
             _LOG.dump("Targets to load", targets_to_load)
 
             for target in targets_to_load:
+
                 file_name = target[0]
                 weight = target[1]
                 name = os.path.basename(file_name).replace(".target.gz", "")

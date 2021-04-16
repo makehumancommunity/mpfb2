@@ -26,14 +26,14 @@ class TargetService:
         raise RuntimeError("You should not instance TargetService. Use its static methods instead.")
 
     @staticmethod
-    def create_shape_key(blender_object, shape_key_name, also_create_basis=True):
+    def create_shape_key(blender_object, shape_key_name, also_create_basis=True, create_from_mix=False):
         _LOG.enter()
 
         if also_create_basis:
             if not blender_object.data.shape_keys or not "Basis" in blender_object.data.shape_keys.key_blocks:
                 blender_object.shape_key_add(name="Basis", from_mix=False)
 
-        shape_key = blender_object.shape_key_add(name=shape_key_name, from_mix=True)
+        shape_key = blender_object.shape_key_add(name=shape_key_name, from_mix=create_from_mix)
         shape_key.value = 1.0
 
         _LOG.debug("shape key", shape_key)
