@@ -5,6 +5,7 @@ _LOG.trace("initializing ui module")
 
 # Model
 from mpfb.ui.newhuman import *
+from mpfb.ui.model import *
 
 # Imports
 from mpfb.ui.importer import *
