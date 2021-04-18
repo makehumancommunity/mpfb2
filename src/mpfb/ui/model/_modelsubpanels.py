@@ -63,8 +63,8 @@ class _Abstract_Model_Panel(bpy.types.Panel):
 
     def _target_filename_to_label(self, target):
         label = str(target).replace(".target.gz", "")
-        label = label.replace("-decr", " increase")
-        label = label.replace("-incr", " decrease")
+        label = label.replace("-decr", " decrease")
+        label = label.replace("-incr", " increase")
         label = label.replace("-down", " down")
         label = label.replace("-up", " up")
         label = label.replace("-in", " in")
