@@ -9,7 +9,6 @@ from mpfb.services.targetservice import TargetService
 from mpfb import ClassManager
 
 _LOG = LogService.get_logger("model.addtarget")
-_LOG.set_level(LogService.DUMP)
 
 class MPFB_OT_AddTargetOperator(bpy.types.Operator):
     """Add this target as a new shape key"""
@@ -18,9 +17,9 @@ class MPFB_OT_AddTargetOperator(bpy.types.Operator):
     bl_label = "Add target"
     bl_options = {'REGISTER', 'UNDO'}
 
-    target_file = StringProperty(name='target_file', default='-')
-    target_name = StringProperty(name='target_name', default='-')
-    target_dir = StringProperty(name='target_dir', default='-')
+    target_file: StringProperty(name='target_file', default='-')
+    target_name: StringProperty(name='target_name', default='-')
+    target_dir: StringProperty(name='target_dir', default='-')
 
     @classmethod
     def poll(self, context):

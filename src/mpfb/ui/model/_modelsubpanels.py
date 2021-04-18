@@ -10,7 +10,6 @@ from mpfb.services.uiservice import UiService
 from mpfb.services.sceneconfigset import SceneConfigSet
 
 _LOG = LogService.get_logger("model.modelsubpanel")
-_LOG.set_level(LogService.DEBUG)
 
 _TARGETS_DIR = LocationService.get_mpfb_data("targets")
 _TARGETS_CATEGORIES = []

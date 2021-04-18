@@ -13,7 +13,6 @@ from mpfb.entities.material.makeskinmaterial import MakeSkinMaterial
 from mpfb import ClassManager
 
 _LOG = LogService.get_logger("loadclothes.loadclothes")
-_LOG.set_level(LogService.DUMP)
 
 class MPFB_OT_Load_Clothes_Operator(bpy.types.Operator, ImportHelper):
     """Load clothes from MHCLO file."""
