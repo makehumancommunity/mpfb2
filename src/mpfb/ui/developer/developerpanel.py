@@ -1,4 +1,4 @@
-"""This file contains the log levels panel."""
+"""This file contains the developer panel."""
 
 from mpfb._classmanager import ClassManager
 from mpfb.services.logservice import LogService
@@ -6,7 +6,7 @@ from mpfb.services.uiservice import UiService
 from mpfb.services.sceneconfigset import SceneConfigSet
 import bpy, os
 
-_LOG = LogService.get_logger("ui.loglevelspanel")
+_LOG = LogService.get_logger("ui.developerpanel")
 
 _NEED_RELOAD = True
 _CACHED_LEVELS_LIST = []
@@ -36,25 +36,42 @@ _LEVELS_LIST_PROP = {
 
 _LOC = os.path.dirname(__file__)
 LOG_LEVELS_PROPERTIES_DIR = os.path.join(_LOC, "properties")
-LOG_LEVELS_PROPERTIES = SceneConfigSet.from_definitions_in_json_directory(LOG_LEVELS_PROPERTIES_DIR, prefix="LL_")
+LOG_LEVELS_PROPERTIES = SceneConfigSet.from_definitions_in_json_directory(LOG_LEVELS_PROPERTIES_DIR, prefix="DEV_")
 LOG_LEVELS_PROPERTIES.add_property(_LEVELS_LIST_PROP, _populate_list)
 
-class MPFB_PT_Log_Levels_Panel(bpy.types.Panel):
-    """The main UI for controlling log levels."""
-    bl_label = "Log levels"
+class MPFB_PT_Developer_Panel(bpy.types.Panel):
+    """UI for various developer functions."""
+    bl_label = "Developer"
     bl_space_type = "VIEW_3D"
     bl_region_type = "UI"
     bl_category = UiService.get_value("DEVELOPERCATEGORY")
     bl_options = {'DEFAULT_CLOSED'}
 
+    def _create_box(self, layout, box_text):
+        _LOG.enter()
+        box = layout.box()
+        box.label(text=box_text)
+        return box
+    
+    def _log_levels(self, scene, layout):
+        box = self._create_box(layout, "Log levels")
+        box.operator("mpfb.list_log_levels")
+        box.operator("mpfb.reset_log_levels")
+        LOG_LEVELS_PROPERTIES.draw_properties(scene, box, ["available_loggers", "chosen_level"])
+        box.operator("mpfb.set_log_level")
+        
+    def _nodes(self, layout):
+        box = self._create_box(layout, "Load/save nodes")
+        box.operator("mpfb.save_nodes")
+        box.operator("mpfb.load_nodes")
+        
     def draw(self, context):
         _LOG.enter()
         layout = self.layout
         scene = context.scene
-        layout.operator("mpfb.list_log_levels")
-        layout.operator("mpfb.reset_log_levels")
-        LOG_LEVELS_PROPERTIES.draw_properties(scene, layout, ["available_loggers", "chosen_level"])
-        layout.operator("mpfb.set_log_level")
+        self._log_levels(scene, layout)
+        self._nodes(layout)
+        
 
-ClassManager.add_class(MPFB_PT_Log_Levels_Panel)
+ClassManager.add_class(MPFB_PT_Developer_Panel)
 

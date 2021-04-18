@@ -1,10 +1,10 @@
-"""This module contains functionality for controlling log levels."""
+"""This module contains functionality for various developer stuff."""
 
 from mpfb.services import LogService as _LogService
-_LOG = _LogService.get_logger("loglevels.init")
-_LOG.trace("initializing log levels module")
+_LOG = _LogService.get_logger("developer.init")
+_LOG.trace("initializing developer module")
 
-from .loglevelspanel import MPFB_PT_Log_Levels_Panel
+from .developerpanel import MPFB_PT_Developer_Panel
 from .operators import *
 
 __all__ = [

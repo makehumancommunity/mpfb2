@@ -33,8 +33,7 @@ from mpfb.ui.maketarget import *
 #from .targetspanel import MPFB_PT_Targets_Panel
 
 # Developer
-from mpfb.ui.loglevels import *
-from mpfb.ui.savenodes import *
+from mpfb.ui.developer import *
 
 __all__ = [
     "MPFB_PT_Importer_Panel",
@@ -50,5 +49,5 @@ __all__ = [
     "MPFB_PT_MakeTarget_Panel",
     "MPFB_PT_Load_Clothes_Panel",
     "MPFB_PT_MakeClothes_Panel",
-    "MPFB_PT_Log_Levels_Panel"
+    "MPFB_PT_Devloper_Panel"
     ]
