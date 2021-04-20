@@ -52,26 +52,32 @@ class MPFB_PT_Developer_Panel(bpy.types.Panel):
         box = layout.box()
         box.label(text=box_text)
         return box
-    
+
     def _log_levels(self, scene, layout):
         box = self._create_box(layout, "Log levels")
         box.operator("mpfb.list_log_levels")
         box.operator("mpfb.reset_log_levels")
         LOG_LEVELS_PROPERTIES.draw_properties(scene, box, ["available_loggers", "chosen_level"])
         box.operator("mpfb.set_log_level")
-        
+
     def _nodes(self, layout):
         box = self._create_box(layout, "Load/save nodes")
         box.operator("mpfb.save_nodes")
         box.operator("mpfb.load_nodes")
-        
+
+    def _rig(self, layout):
+        box = self._create_box(layout, "Load/Save rig")
+        box.operator("mpfb.load_rig")
+        box.operator("mpfb.save_rig")
+
     def draw(self, context):
         _LOG.enter()
         layout = self.layout
         scene = context.scene
         self._log_levels(scene, layout)
         self._nodes(layout)
-        
+        self._rig(layout)
+
 
 ClassManager.add_class(MPFB_PT_Developer_Panel)
 

@@ -17,7 +17,7 @@ class MPFB_OT_Set_Log_Level_Operator(bpy.types.Operator):
         _LOG.enter()
 
         scene = context.scene
-        from mpfb.ui.loglevels.loglevelspanel import LOG_LEVELS_PROPERTIES # pylint: disable=C0415
+        from mpfb.ui.developer.developerpanel import LOG_LEVELS_PROPERTIES # pylint: disable=C0415
 
         logger_name = LOG_LEVELS_PROPERTIES.get_value("available_loggers", entity_reference=scene)
         level_string = LOG_LEVELS_PROPERTIES.get_value("chosen_level", entity_reference=scene)
