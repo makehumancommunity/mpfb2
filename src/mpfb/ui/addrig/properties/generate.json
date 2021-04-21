@@ -1,0 +1,7 @@
+{
+    "type": "boolean",
+    "name": "generate",
+    "description": "Also generate the final rig. If not checked, the meta-rig will be used as rig.",
+    "label": "Generate",
+    "default": true
+}

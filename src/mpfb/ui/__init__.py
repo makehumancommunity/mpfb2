@@ -6,6 +6,7 @@ _LOG.trace("initializing ui module")
 # Model
 from mpfb.ui.newhuman import *
 from mpfb.ui.model import *
+from mpfb.ui.addrig import *
 
 # Imports
 from mpfb.ui.importer import *
@@ -36,6 +37,7 @@ from mpfb.ui.maketarget import *
 from mpfb.ui.developer import *
 
 __all__ = [
+    "MPFB_PT_Add_Rig_Panel",
     "MPFB_PT_Importer_Panel",
     "MPFB_PT_Importer_Presets_Panel",
     #"MPFB_PT_Materials_Panel",
