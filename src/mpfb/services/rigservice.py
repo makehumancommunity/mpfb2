@@ -241,7 +241,7 @@ class RigService:
                 bone.roll = bone_info["roll"]
 
         for child in bone_info["children"]:
-            RigService._add_bone(armature, child, bone)
+            RigService._add_bone(armature, child, bone, scale=scale)
 
     @staticmethod
     def create_rig_from_skeleton_info(name, data, parent=None, scale=0.1):
@@ -258,7 +258,7 @@ class RigService:
         bpy.ops.object.mode_set(mode='EDIT', toggle=False)
 
         for bone_info in data["bones"]:
-            RigService._add_bone(armature, bone_info)
+            RigService._add_bone(armature, bone_info, scale=scale)
 
         bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
 
@@ -311,3 +311,46 @@ class RigService:
             bone.custom_shape_scale = scale
         else:
             _LOG.warn("Was not able to find empty child")
+
+    @staticmethod
+    def get_weights(armature_object, basemesh):
+        """Create a MHW-compatible weights dict"""
+
+        # Eventhough it is unlikely we'll use these keys in MPFB, we'll assign them so that the dict
+        # is compatible with the MHW format
+
+        weights = {
+            "copyright": "(c) the guy who clicked the save weights button",
+            "description": "Weights for a rig",
+            "license": "CC0",
+            "name": "MakeHuman weights",
+            "version": 110
+        }
+
+        weights["weights"] = dict()
+
+        vertex_group_index_to_name = dict()
+
+        for vertex_group in basemesh.vertex_groups:
+            index = int(vertex_group.index)
+            name = str(vertex_group.name)
+            vertex_group_index_to_name[index] = name
+
+        _LOG.dump("vertex_group_index_to_name", vertex_group_index_to_name)
+
+        for bone in armature_object.data.bones:
+            weights["weights"][str(bone.name)] = []
+
+        _LOG.dump("Weights before vertices", weights)
+
+        for vertex in basemesh.data.vertices:
+            for group in vertex.groups:
+                group_index = int(group.group)
+                weight = group.weight
+                if group_index in vertex_group_index_to_name:
+                    name = vertex_group_index_to_name[group_index]
+                    if name in weights["weights"]:
+                        weights["weights"][name].append([vertex.index, weight])
+
+        return weights
+
