@@ -8,7 +8,6 @@ from bpy.types import StringProperty
 from bpy_extras.io_utils import ExportHelper
 
 _LOG = LogService.get_logger("developer.operators.saverig")
-_LOG.set_level(LogService.DUMP)
 
 class MPFB_OT_Save_Rig_Operator(bpy.types.Operator, ExportHelper):
     """Save rig definition as json"""

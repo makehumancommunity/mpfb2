@@ -8,7 +8,6 @@ from bpy.types import StringProperty
 from bpy_extras.io_utils import ImportHelper
 
 _LOG = LogService.get_logger("developer.operators.loadrig")
-_LOG.set_level(LogService.DUMP)
 
 class MPFB_OT_Load_Rig_Operator(bpy.types.Operator, ImportHelper):
     """Load rig from definition in json"""
