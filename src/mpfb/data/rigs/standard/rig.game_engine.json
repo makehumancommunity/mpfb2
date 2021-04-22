@@ -1,0 +1,1439 @@
+{
+    "Root": {
+        "head": {
+            "default_position": [
+                0.0,
+                0.026746699586510658,
+                -0.8183050155639648
+            ],
+            "strategy": "MEAN",
+            "vertex_indices": [
+                19151,
+                19156
+            ]
+        },
+        "inherit_scale": "FULL",
+        "parent": "",
+        "rigify": {},
+        "roll": -1.5707963705062866,
+        "tail": {
+            "default_position": [
+                0.0,
+                -0.026746699586510658,
+                -0.8183050155639648
+            ],
+            "strategy": "MEAN",
+            "vertex_indices": [
+                15445,
+                16752
+            ]
+        },
+        "use_connect": false,
+        "use_inherit_rotation": true,
+        "use_local_location": true
+    },
+    "ball_l": {
+        "head": {
+            "cube_name": "joint-l-foot-1",
+            "default_position": [
+                0.1860474944114685,
+                -0.13947829604148865,
+                -0.8087896108627319
+            ],
+            "strategy": "CUBE"
+        },
+        "inherit_scale": "FULL",
+        "parent": "foot_l",
+        "rigify": {},
+        "roll": -1.8022286891937256,
+        "tail": {
+            "cube_name": "joint-l-toe-2-4",
+            "default_position": [
+                0.1816767007112503,
+                -0.2054504156112671,
+                -0.8057195544242859
+            ],
+            "strategy": "CUBE"
+        },
+        "use_connect": false,
+        "use_inherit_rotation": true,
+        "use_local_location": true
+    },
+    "ball_r": {
+        "head": {
+            "cube_name": "joint-r-foot-1",
+            "default_position": [
+                -0.1860474944114685,
+                -0.13947829604148865,
+                -0.8087896108627319
+            ],
+            "strategy": "CUBE"
+        },
+        "inherit_scale": "FULL",
+        "parent": "foot_r",
+        "rigify": {},
+        "roll": 1.8022286891937256,
+        "tail": {
+            "cube_name": "joint-r-toe-2-4",
+            "default_position": [
+                -0.1816767007112503,
+                -0.2054504156112671,
+                -0.8057195544242859
+            ],
+            "strategy": "CUBE"
+        },
+        "use_connect": false,
+        "use_inherit_rotation": true,
+        "use_local_location": true
+    },
+    "calf_l": {
+        "head": {
+            "cube_name": "joint-l-knee",
+            "default_position": [
+                0.1424836963415146,
+                -0.037379201501607895,
+                -0.34305959939956665
+            ],
+            "strategy": "CUBE"
+        },
+        "inherit_scale": "FULL",
+        "parent": "thigh_l",
+        "rigify": {},
+        "roll": -0.09209170937538147,
+        "tail": {
+            "cube_name": "joint-l-ankle",
+            "default_position": [
+                0.18058235943317413,
+                -0.022679807618260384,
+                -0.7486121654510498
+            ],
+            "strategy": "CUBE"
+        },
+        "use_connect": false,
+        "use_inherit_rotation": true,
+        "use_local_location": true
+    },
+    "calf_r": {
+        "head": {
+            "cube_name": "joint-r-knee",
+            "default_position": [
+                -0.1424836963415146,
+                -0.037379201501607895,
+                -0.34305959939956665
+            ],
+            "strategy": "CUBE"
+        },
+        "inherit_scale": "FULL",
+        "parent": "thigh_r",
+        "rigify": {},
+        "roll": 0.09209170937538147,
+        "tail": {
+            "cube_name": "joint-r-ankle",
+            "default_position": [
+                -0.18058235943317413,
+                -0.022679807618260384,
+                -0.7486121654510498
+            ],
+            "strategy": "CUBE"
+        },
+        "use_connect": false,
+        "use_inherit_rotation": true,
+        "use_local_location": true
+    },
+    "clavicle_l": {
+        "head": {
+            "cube_name": "joint-l-clavicle",
+            "default_position": [
+                0.02273619920015335,
+                -0.021620800718665123,
+                0.5248016715049744
+            ],
+            "strategy": "CUBE"
+        },
+        "inherit_scale": "FULL",
+        "parent": "spine_03",
+        "rigify": {},
+        "roll": 1.6565302610397339,
+        "tail": {
+            "cube_name": "joint-l-shoulder",
+            "default_position": [
+                0.17003968358039856,
+                -0.019311191514134407,
+                0.5021340847015381
+            ],
+            "strategy": "CUBE"
+        },
+        "use_connect": false,
+        "use_inherit_rotation": true,
+        "use_local_location": true
+    },
+    "clavicle_r": {
+        "head": {
+            "cube_name": "joint-r-clavicle",
+            "default_position": [
+                -0.02273619920015335,
+                -0.021620800718665123,
+                0.5248016715049744
+            ],
+            "strategy": "CUBE"
+        },
+        "inherit_scale": "FULL",
+        "parent": "spine_03",
+        "rigify": {},
+        "roll": -1.6565302610397339,
+        "tail": {
+            "cube_name": "joint-r-shoulder",
+            "default_position": [
+                -0.17003968358039856,
+                -0.019311191514134407,
+                0.5021340847015381
+            ],
+            "strategy": "CUBE"
+        },
+        "use_connect": false,
+        "use_inherit_rotation": true,
+        "use_local_location": true
+    },
+    "foot_l": {
+        "head": {
+            "cube_name": "joint-l-ankle",
+            "default_position": [
+                0.18058249354362488,
+                -0.02267960086464882,
+                -0.7486119866371155
+            ],
+            "strategy": "CUBE"
+        },
+        "inherit_scale": "FULL",
+        "parent": "calf_l",
+        "rigify": {},
+        "roll": -0.08713865280151367,
+        "tail": {
+            "cube_name": "joint-l-foot-1",
+            "default_position": [
+                0.1860475093126297,
+                -0.13947831094264984,
+                -0.8087895512580872
+            ],
+            "strategy": "CUBE"
+        },
+        "use_connect": false,
+        "use_inherit_rotation": true,
+        "use_local_location": true
+    },
+    "foot_r": {
+        "head": {
+            "cube_name": "joint-r-ankle",
+            "default_position": [
+                -0.18058249354362488,
+                -0.02267960086464882,
+                -0.7486119866371155
+            ],
+            "strategy": "CUBE"
+        },
+        "inherit_scale": "FULL",
+        "parent": "calf_r",
+        "rigify": {},
+        "roll": 0.08713865280151367,
+        "tail": {
+            "cube_name": "joint-r-foot-1",
+            "default_position": [
+                -0.1860475093126297,
+                -0.13947831094264984,
+                -0.8087895512580872
+            ],
+            "strategy": "CUBE"
+        },
+        "use_connect": false,
+        "use_inherit_rotation": true,
+        "use_local_location": true
+    },
+    "hand_l": {
+        "head": {
+            "cube_name": "joint-l-hand",
+            "default_position": [
+                0.45331621170043945,
+                -0.18330499529838562,
+                0.1973104029893875
+            ],
+            "strategy": "CUBE"
+        },
+        "inherit_scale": "FULL",
+        "parent": "lowerarm_l",
+        "rigify": {},
+        "roll": -2.801286458969116,
+        "tail": {
+            "cube_name": "joint-l-hand-3",
+            "default_position": [
+                0.464027464389801,
+                -0.2093704342842102,
+                0.18163961172103882
+            ],
+            "strategy": "CUBE"
+        },
+        "use_connect": false,
+        "use_inherit_rotation": true,
+        "use_local_location": true
+    },
+    "hand_r": {
+        "head": {
+            "cube_name": "joint-r-hand",
+            "default_position": [
+                -0.45331621170043945,
+                -0.18330499529838562,
+                0.1973104029893875
+            ],
+            "strategy": "CUBE"
+        },
+        "inherit_scale": "FULL",
+        "parent": "lowerarm_r",
+        "rigify": {},
+        "roll": 2.801286458969116,
+        "tail": {
+            "cube_name": "joint-r-hand-3",
+            "default_position": [
+                -0.464027464389801,
+                -0.2093704342842102,
+                0.18163961172103882
+            ],
+            "strategy": "CUBE"
+        },
+        "use_connect": false,
+        "use_inherit_rotation": true,
+        "use_local_location": true
+    },
+    "head": {
+        "head": {
+            "cube_name": "joint-head",
+            "default_position": [
+                -0.0,
+                -0.04428749904036522,
+                0.696828305721283
+            ],
+            "strategy": "CUBE"
+        },
+        "inherit_scale": "FULL",
+        "parent": "neck_01",
+        "rigify": {},
+        "roll": 0.0,
+        "tail": {
+            "cube_name": "joint-head-2",
+            "default_position": [
+                0.0,
+                -0.0373532734811306,
+                0.8448141813278198
+            ],
+            "strategy": "CUBE"
+        },
+        "use_connect": false,
+        "use_inherit_rotation": true,
+        "use_local_location": true
+    },
+    "index_01_l": {
+        "head": {
+            "cube_name": "joint-l-finger-2-1",
+            "default_position": [
+                0.4810870885848999,
+                -0.27767249941825867,
+                0.15672460198402405
+            ],
+            "strategy": "CUBE"
+        },
+        "inherit_scale": "FULL",
+        "parent": "hand_l",
+        "rigify": {},
+        "roll": -1.1204230785369873,
+        "tail": {
+            "cube_name": "joint-l-finger-2-2",
+            "default_position": [
+                0.48443368077278137,
+                -0.29838085174560547,
+                0.14165125787258148
+            ],
+            "strategy": "CUBE"
+        },
+        "use_connect": false,
+        "use_inherit_rotation": true,
+        "use_local_location": true
+    },
+    "index_01_r": {
+        "head": {
+            "cube_name": "joint-r-finger-2-1",
+            "default_position": [
+                -0.4810870885848999,
+                -0.27767249941825867,
+                0.15672460198402405
+            ],
+            "strategy": "CUBE"
+        },
+        "inherit_scale": "FULL",
+        "parent": "hand_r",
+        "rigify": {},
+        "roll": 1.1204230785369873,
+        "tail": {
+            "cube_name": "joint-r-finger-2-2",
+            "default_position": [
+                -0.48443368077278137,
+                -0.29838085174560547,
+                0.14165125787258148
+            ],
+            "strategy": "CUBE"
+        },
+        "use_connect": false,
+        "use_inherit_rotation": true,
+        "use_local_location": true
+    },
+    "index_02_l": {
+        "head": {
+            "cube_name": "joint-l-finger-2-2",
+            "default_position": [
+                0.48443371057510376,
+                -0.2983807921409607,
+                0.1416511982679367
+            ],
+            "strategy": "CUBE"
+        },
+        "inherit_scale": "FULL",
+        "parent": "index_01_l",
+        "rigify": {},
+        "roll": -0.6691515445709229,
+        "tail": {
+            "cube_name": "joint-l-finger-2-3",
+            "default_position": [
+                0.4838699996471405,
+                -0.3147203326225281,
+                0.12535874545574188
+            ],
+            "strategy": "CUBE"
+        },
+        "use_connect": false,
+        "use_inherit_rotation": true,
+        "use_local_location": true
+    },
+    "index_02_r": {
+        "head": {
+            "cube_name": "joint-r-finger-2-2",
+            "default_position": [
+                -0.48443371057510376,
+                -0.2983807921409607,
+                0.1416511982679367
+            ],
+            "strategy": "CUBE"
+        },
+        "inherit_scale": "FULL",
+        "parent": "index_01_r",
+        "rigify": {},
+        "roll": 0.6691515445709229,
+        "tail": {
+            "cube_name": "joint-r-finger-2-3",
+            "default_position": [
+                -0.4838699996471405,
+                -0.3147203326225281,
+                0.12535874545574188
+            ],
+            "strategy": "CUBE"
+        },
+        "use_connect": false,
+        "use_inherit_rotation": true,
+        "use_local_location": true
+    },
+    "index_03_l": {
+        "head": {
+            "cube_name": "joint-l-finger-2-3",
+            "default_position": [
+                0.4838699996471405,
+                -0.31472039222717285,
+                0.12535880506038666
+            ],
+            "strategy": "CUBE"
+        },
+        "inherit_scale": "FULL",
+        "parent": "index_02_l",
+        "rigify": {},
+        "roll": -0.4245651364326477,
+        "tail": {
+            "cube_name": "joint-l-finger-2-4",
+            "default_position": [
+                0.4802025258541107,
+                -0.3322938084602356,
+                0.1052004024386406
+            ],
+            "strategy": "CUBE"
+        },
+        "use_connect": false,
+        "use_inherit_rotation": true,
+        "use_local_location": true
+    },
+    "index_03_r": {
+        "head": {
+            "cube_name": "joint-r-finger-2-3",
+            "default_position": [
+                -0.4838699996471405,
+                -0.31472039222717285,
+                0.12535880506038666
+            ],
+            "strategy": "CUBE"
+        },
+        "inherit_scale": "FULL",
+        "parent": "index_02_r",
+        "rigify": {},
+        "roll": 0.4245651364326477,
+        "tail": {
+            "cube_name": "joint-r-finger-2-4",
+            "default_position": [
+                -0.4802025258541107,
+                -0.3322938084602356,
+                0.1052004024386406
+            ],
+            "strategy": "CUBE"
+        },
+        "use_connect": false,
+        "use_inherit_rotation": true,
+        "use_local_location": true
+    },
+    "lowerarm_l": {
+        "head": {
+            "cube_name": "joint-l-elbow",
+            "default_position": [
+                0.33135080337524414,
+                -0.02012619934976101,
+                0.32153961062431335
+            ],
+            "strategy": "CUBE"
+        },
+        "inherit_scale": "FULL",
+        "parent": "upperarm_l",
+        "rigify": {},
+        "roll": 2.304720401763916,
+        "tail": {
+            "cube_name": "joint-l-hand",
+            "default_position": [
+                0.45331621170043945,
+                -0.18330496549606323,
+                0.1973104625940323
+            ],
+            "strategy": "CUBE"
+        },
+        "use_connect": false,
+        "use_inherit_rotation": true,
+        "use_local_location": true
+    },
+    "lowerarm_r": {
+        "head": {
+            "cube_name": "joint-r-elbow",
+            "default_position": [
+                -0.33135080337524414,
+                -0.02012619934976101,
+                0.32153961062431335
+            ],
+            "strategy": "CUBE"
+        },
+        "inherit_scale": "FULL",
+        "parent": "upperarm_r",
+        "rigify": {},
+        "roll": -2.304720401763916,
+        "tail": {
+            "cube_name": "joint-r-hand",
+            "default_position": [
+                -0.45331621170043945,
+                -0.18330496549606323,
+                0.1973104625940323
+            ],
+            "strategy": "CUBE"
+        },
+        "use_connect": false,
+        "use_inherit_rotation": true,
+        "use_local_location": true
+    },
+    "middle_01_l": {
+        "head": {
+            "cube_name": "joint-l-finger-3-1",
+            "default_position": [
+                0.497350811958313,
+                -0.25984540581703186,
+                0.1458338052034378
+            ],
+            "strategy": "CUBE"
+        },
+        "inherit_scale": "FULL",
+        "parent": "hand_l",
+        "rigify": {},
+        "roll": -1.3829948902130127,
+        "tail": {
+            "cube_name": "joint-l-finger-3-2",
+            "default_position": [
+                0.5045574307441711,
+                -0.28029748797416687,
+                0.11987122893333435
+            ],
+            "strategy": "CUBE"
+        },
+        "use_connect": false,
+        "use_inherit_rotation": true,
+        "use_local_location": true
+    },
+    "middle_01_r": {
+        "head": {
+            "cube_name": "joint-r-finger-3-1",
+            "default_position": [
+                -0.497350811958313,
+                -0.25984540581703186,
+                0.1458338052034378
+            ],
+            "strategy": "CUBE"
+        },
+        "inherit_scale": "FULL",
+        "parent": "hand_r",
+        "rigify": {},
+        "roll": 1.3829948902130127,
+        "tail": {
+            "cube_name": "joint-r-finger-3-2",
+            "default_position": [
+                -0.5045574307441711,
+                -0.28029748797416687,
+                0.11987122893333435
+            ],
+            "strategy": "CUBE"
+        },
+        "use_connect": false,
+        "use_inherit_rotation": true,
+        "use_local_location": true
+    },
+    "middle_02_l": {
+        "head": {
+            "cube_name": "joint-l-finger-3-2",
+            "default_position": [
+                0.5045573711395264,
+                -0.28029748797416687,
+                0.11987119913101196
+            ],
+            "strategy": "CUBE"
+        },
+        "inherit_scale": "FULL",
+        "parent": "middle_01_l",
+        "rigify": {},
+        "roll": -1.1418589353561401,
+        "tail": {
+            "cube_name": "joint-l-finger-3-3",
+            "default_position": [
+                0.5072174668312073,
+                -0.2974116802215576,
+                0.09835916757583618
+            ],
+            "strategy": "CUBE"
+        },
+        "use_connect": false,
+        "use_inherit_rotation": true,
+        "use_local_location": true
+    },
+    "middle_02_r": {
+        "head": {
+            "cube_name": "joint-r-finger-3-2",
+            "default_position": [
+                -0.5045573711395264,
+                -0.28029748797416687,
+                0.11987119913101196
+            ],
+            "strategy": "CUBE"
+        },
+        "inherit_scale": "FULL",
+        "parent": "middle_01_r",
+        "rigify": {},
+        "roll": 1.1418589353561401,
+        "tail": {
+            "cube_name": "joint-r-finger-3-3",
+            "default_position": [
+                -0.5072174668312073,
+                -0.2974116802215576,
+                0.09835916757583618
+            ],
+            "strategy": "CUBE"
+        },
+        "use_connect": false,
+        "use_inherit_rotation": true,
+        "use_local_location": true
+    },
+    "middle_03_l": {
+        "head": {
+            "cube_name": "joint-l-finger-3-3",
+            "default_position": [
+                0.507217526435852,
+                -0.29741171002388,
+                0.09835919737815857
+            ],
+            "strategy": "CUBE"
+        },
+        "inherit_scale": "FULL",
+        "parent": "middle_02_l",
+        "rigify": {},
+        "roll": -0.9326174259185791,
+        "tail": {
+            "cube_name": "joint-l-finger-3-4",
+            "default_position": [
+                0.5070179104804993,
+                -0.3122500479221344,
+                0.0758233368396759
+            ],
+            "strategy": "CUBE"
+        },
+        "use_connect": false,
+        "use_inherit_rotation": true,
+        "use_local_location": true
+    },
+    "middle_03_r": {
+        "head": {
+            "cube_name": "joint-r-finger-3-3",
+            "default_position": [
+                -0.507217526435852,
+                -0.29741171002388,
+                0.09835919737815857
+            ],
+            "strategy": "CUBE"
+        },
+        "inherit_scale": "FULL",
+        "parent": "middle_02_r",
+        "rigify": {},
+        "roll": 0.9326174259185791,
+        "tail": {
+            "cube_name": "joint-r-finger-3-4",
+            "default_position": [
+                -0.5070179104804993,
+                -0.3122500479221344,
+                0.0758233368396759
+            ],
+            "strategy": "CUBE"
+        },
+        "use_connect": false,
+        "use_inherit_rotation": true,
+        "use_local_location": true
+    },
+    "neck_01": {
+        "head": {
+            "cube_name": "joint-neck",
+            "default_position": [
+                0.0,
+                -0.005113299936056137,
+                0.595958411693573
+            ],
+            "strategy": "CUBE"
+        },
+        "inherit_scale": "FULL",
+        "parent": "spine_03",
+        "rigify": {},
+        "roll": -0.0,
+        "tail": {
+            "cube_name": "joint-head",
+            "default_position": [
+                0.0,
+                -0.04428739845752716,
+                0.696828305721283
+            ],
+            "strategy": "CUBE"
+        },
+        "use_connect": false,
+        "use_inherit_rotation": true,
+        "use_local_location": true
+    },
+    "pelvis": {
+        "head": {
+            "cube_name": "joint-pelvis",
+            "default_position": [
+                0.0,
+                -0.013204200193285942,
+                0.05597670003771782
+            ],
+            "strategy": "CUBE"
+        },
+        "inherit_scale": "FULL",
+        "parent": "Root",
+        "rigify": {},
+        "roll": 0.0,
+        "tail": {
+            "cube_name": "joint-spine-4",
+            "default_position": [
+                0.0,
+                0.02552914060652256,
+                0.13574758172035217
+            ],
+            "strategy": "CUBE"
+        },
+        "use_connect": false,
+        "use_inherit_rotation": true,
+        "use_local_location": true
+    },
+    "pinky_01_l": {
+        "head": {
+            "cube_name": "joint-l-finger-5-1",
+            "default_position": [
+                0.5063775181770325,
+                -0.22339540719985962,
+                0.1295246034860611
+            ],
+            "strategy": "CUBE"
+        },
+        "inherit_scale": "FULL",
+        "parent": "hand_l",
+        "rigify": {},
+        "roll": -1.7005133628845215,
+        "tail": {
+            "cube_name": "joint-l-finger-5-2",
+            "default_position": [
+                0.5122724771499634,
+                -0.230837881565094,
+                0.11045921593904495
+            ],
+            "strategy": "CUBE"
+        },
+        "use_connect": false,
+        "use_inherit_rotation": true,
+        "use_local_location": true
+    },
+    "pinky_01_r": {
+        "head": {
+            "cube_name": "joint-r-finger-5-1",
+            "default_position": [
+                -0.5063775181770325,
+                -0.22339540719985962,
+                0.1295246034860611
+            ],
+            "strategy": "CUBE"
+        },
+        "inherit_scale": "FULL",
+        "parent": "hand_r",
+        "rigify": {},
+        "roll": 1.7005133628845215,
+        "tail": {
+            "cube_name": "joint-r-finger-5-2",
+            "default_position": [
+                -0.5122724771499634,
+                -0.230837881565094,
+                0.11045921593904495
+            ],
+            "strategy": "CUBE"
+        },
+        "use_connect": false,
+        "use_inherit_rotation": true,
+        "use_local_location": true
+    },
+    "pinky_02_l": {
+        "head": {
+            "cube_name": "joint-l-finger-5-2",
+            "default_position": [
+                0.5122724771499634,
+                -0.2308378964662552,
+                0.11045920103788376
+            ],
+            "strategy": "CUBE"
+        },
+        "inherit_scale": "FULL",
+        "parent": "pinky_01_l",
+        "rigify": {},
+        "roll": -1.4528404474258423,
+        "tail": {
+            "cube_name": "joint-l-finger-5-3",
+            "default_position": [
+                0.513997495174408,
+                -0.2365262359380722,
+                0.09602461755275726
+            ],
+            "strategy": "CUBE"
+        },
+        "use_connect": false,
+        "use_inherit_rotation": true,
+        "use_local_location": true
+    },
+    "pinky_02_r": {
+        "head": {
+            "cube_name": "joint-r-finger-5-2",
+            "default_position": [
+                -0.5122724771499634,
+                -0.2308378964662552,
+                0.11045920103788376
+            ],
+            "strategy": "CUBE"
+        },
+        "inherit_scale": "FULL",
+        "parent": "pinky_01_r",
+        "rigify": {},
+        "roll": 1.4528404474258423,
+        "tail": {
+            "cube_name": "joint-r-finger-5-3",
+            "default_position": [
+                -0.513997495174408,
+                -0.2365262359380722,
+                0.09602461755275726
+            ],
+            "strategy": "CUBE"
+        },
+        "use_connect": false,
+        "use_inherit_rotation": true,
+        "use_local_location": true
+    },
+    "pinky_03_l": {
+        "head": {
+            "cube_name": "joint-l-finger-5-3",
+            "default_position": [
+                0.513997495174408,
+                -0.23652620613574982,
+                0.09602460265159607
+            ],
+            "strategy": "CUBE"
+        },
+        "inherit_scale": "FULL",
+        "parent": "pinky_02_l",
+        "rigify": {},
+        "roll": -1.4855616092681885,
+        "tail": {
+            "cube_name": "joint-l-finger-5-4",
+            "default_position": [
+                0.5166533589363098,
+                -0.24343334138393402,
+                0.07759036123752594
+            ],
+            "strategy": "CUBE"
+        },
+        "use_connect": false,
+        "use_inherit_rotation": true,
+        "use_local_location": true
+    },
+    "pinky_03_r": {
+        "head": {
+            "cube_name": "joint-r-finger-5-3",
+            "default_position": [
+                -0.513997495174408,
+                -0.23652620613574982,
+                0.09602460265159607
+            ],
+            "strategy": "CUBE"
+        },
+        "inherit_scale": "FULL",
+        "parent": "pinky_02_r",
+        "rigify": {},
+        "roll": 1.4855616092681885,
+        "tail": {
+            "cube_name": "joint-r-finger-5-4",
+            "default_position": [
+                -0.5166533589363098,
+                -0.24343334138393402,
+                0.07759036123752594
+            ],
+            "strategy": "CUBE"
+        },
+        "use_connect": false,
+        "use_inherit_rotation": true,
+        "use_local_location": true
+    },
+    "ring_01_l": {
+        "head": {
+            "cube_name": "joint-l-finger-4-1",
+            "default_position": [
+                0.5048841834068298,
+                -0.24275459349155426,
+                0.13818210363388062
+            ],
+            "strategy": "CUBE"
+        },
+        "inherit_scale": "FULL",
+        "parent": "hand_l",
+        "rigify": {},
+        "roll": -1.593974232673645,
+        "tail": {
+            "cube_name": "joint-l-finger-4-2",
+            "default_position": [
+                0.5141662955284119,
+                -0.2568216621875763,
+                0.11371083557605743
+            ],
+            "strategy": "CUBE"
+        },
+        "use_connect": false,
+        "use_inherit_rotation": true,
+        "use_local_location": true
+    },
+    "ring_01_r": {
+        "head": {
+            "cube_name": "joint-r-finger-4-1",
+            "default_position": [
+                -0.5048841834068298,
+                -0.24275459349155426,
+                0.13818210363388062
+            ],
+            "strategy": "CUBE"
+        },
+        "inherit_scale": "FULL",
+        "parent": "hand_r",
+        "rigify": {},
+        "roll": 1.593974232673645,
+        "tail": {
+            "cube_name": "joint-r-finger-4-2",
+            "default_position": [
+                -0.5141662955284119,
+                -0.2568216621875763,
+                0.11371083557605743
+            ],
+            "strategy": "CUBE"
+        },
+        "use_connect": false,
+        "use_inherit_rotation": true,
+        "use_local_location": true
+    },
+    "ring_02_l": {
+        "head": {
+            "cube_name": "joint-l-finger-4-2",
+            "default_position": [
+                0.5141661763191223,
+                -0.2568216919898987,
+                0.11371079832315445
+            ],
+            "strategy": "CUBE"
+        },
+        "inherit_scale": "FULL",
+        "parent": "ring_01_l",
+        "rigify": {},
+        "roll": -1.3491926193237305,
+        "tail": {
+            "cube_name": "joint-l-finger-4-3",
+            "default_position": [
+                0.5184119939804077,
+                -0.26934418082237244,
+                0.09273117780685425
+            ],
+            "strategy": "CUBE"
+        },
+        "use_connect": false,
+        "use_inherit_rotation": true,
+        "use_local_location": true
+    },
+    "ring_02_r": {
+        "head": {
+            "cube_name": "joint-r-finger-4-2",
+            "default_position": [
+                -0.5141661763191223,
+                -0.2568216919898987,
+                0.11371079832315445
+            ],
+            "strategy": "CUBE"
+        },
+        "inherit_scale": "FULL",
+        "parent": "ring_01_r",
+        "rigify": {},
+        "roll": 1.3491926193237305,
+        "tail": {
+            "cube_name": "joint-r-finger-4-3",
+            "default_position": [
+                -0.5184119939804077,
+                -0.26934418082237244,
+                0.09273117780685425
+            ],
+            "strategy": "CUBE"
+        },
+        "use_connect": false,
+        "use_inherit_rotation": true,
+        "use_local_location": true
+    },
+    "ring_03_l": {
+        "head": {
+            "cube_name": "joint-l-finger-4-3",
+            "default_position": [
+                0.5184119939804077,
+                -0.2693442106246948,
+                0.09273120015859604
+            ],
+            "strategy": "CUBE"
+        },
+        "inherit_scale": "FULL",
+        "parent": "ring_02_l",
+        "rigify": {},
+        "roll": -1.2047885656356812,
+        "tail": {
+            "cube_name": "joint-l-finger-4-4",
+            "default_position": [
+                0.5208549499511719,
+                -0.2805533707141876,
+                0.06861328333616257
+            ],
+            "strategy": "CUBE"
+        },
+        "use_connect": false,
+        "use_inherit_rotation": true,
+        "use_local_location": true
+    },
+    "ring_03_r": {
+        "head": {
+            "cube_name": "joint-r-finger-4-3",
+            "default_position": [
+                -0.5184119939804077,
+                -0.2693442106246948,
+                0.09273120015859604
+            ],
+            "strategy": "CUBE"
+        },
+        "inherit_scale": "FULL",
+        "parent": "ring_02_r",
+        "rigify": {},
+        "roll": 1.2047885656356812,
+        "tail": {
+            "cube_name": "joint-r-finger-4-4",
+            "default_position": [
+                -0.5208549499511719,
+                -0.2805533707141876,
+                0.06861328333616257
+            ],
+            "strategy": "CUBE"
+        },
+        "use_connect": false,
+        "use_inherit_rotation": true,
+        "use_local_location": true
+    },
+    "spine_01": {
+        "head": {
+            "cube_name": "joint-spine-4",
+            "default_position": [
+                0.0,
+                0.025529200211167336,
+                0.1357475072145462
+            ],
+            "strategy": "CUBE"
+        },
+        "inherit_scale": "FULL",
+        "parent": "pelvis",
+        "rigify": {},
+        "roll": 0.0,
+        "tail": {
+            "cube_name": "joint-spine-3",
+            "default_position": [
+                0.0,
+                0.010111729614436626,
+                0.20200671255588531
+            ],
+            "strategy": "CUBE"
+        },
+        "use_connect": false,
+        "use_inherit_rotation": true,
+        "use_local_location": true
+    },
+    "spine_02": {
+        "head": {
+            "cube_name": "joint-spine-3",
+            "default_position": [
+                0.0,
+                0.010111699812114239,
+                0.20200669765472412
+            ],
+            "strategy": "CUBE"
+        },
+        "inherit_scale": "FULL",
+        "parent": "spine_01",
+        "rigify": {},
+        "roll": 0.0,
+        "tail": {
+            "cube_name": "joint-spine-2",
+            "default_position": [
+                0.0,
+                0.00838004145771265,
+                0.2770608067512512
+            ],
+            "strategy": "CUBE"
+        },
+        "use_connect": false,
+        "use_inherit_rotation": true,
+        "use_local_location": true
+    },
+    "spine_03": {
+        "head": {
+            "cube_name": "joint-spine-2",
+            "default_position": [
+                0.0,
+                0.008379999548196793,
+                0.2770608067512512
+            ],
+            "strategy": "CUBE"
+        },
+        "inherit_scale": "FULL",
+        "parent": "spine_02",
+        "rigify": {},
+        "roll": 0.0,
+        "tail": {
+            "cube_name": "joint-spine-1",
+            "default_position": [
+                0.0,
+                0.01869996264576912,
+                0.4209800362586975
+            ],
+            "strategy": "CUBE"
+        },
+        "use_connect": false,
+        "use_inherit_rotation": true,
+        "use_local_location": true
+    },
+    "thigh_l": {
+        "head": {
+            "cube_name": "joint-l-upper-leg",
+            "default_position": [
+                0.10138169676065445,
+                -0.00493039982393384,
+                0.04789000004529953
+            ],
+            "strategy": "CUBE"
+        },
+        "inherit_scale": "FULL",
+        "parent": "pelvis",
+        "rigify": {},
+        "roll": -0.5723438858985901,
+        "tail": {
+            "cube_name": "joint-l-knee",
+            "default_position": [
+                0.142483651638031,
+                -0.03737910836935043,
+                -0.34305962920188904
+            ],
+            "strategy": "CUBE"
+        },
+        "use_connect": false,
+        "use_inherit_rotation": true,
+        "use_local_location": true
+    },
+    "thigh_r": {
+        "head": {
+            "cube_name": "joint-r-upper-leg",
+            "default_position": [
+                -0.10138169676065445,
+                -0.00493039982393384,
+                0.04789000004529953
+            ],
+            "strategy": "CUBE"
+        },
+        "inherit_scale": "FULL",
+        "parent": "pelvis",
+        "rigify": {},
+        "roll": 0.5723438858985901,
+        "tail": {
+            "cube_name": "joint-r-knee",
+            "default_position": [
+                -0.142483651638031,
+                -0.03737910836935043,
+                -0.34305962920188904
+            ],
+            "strategy": "CUBE"
+        },
+        "use_connect": false,
+        "use_inherit_rotation": true,
+        "use_local_location": true
+    },
+    "thumb_01_l": {
+        "head": {
+            "cube_name": "joint-l-finger-1-1",
+            "default_position": [
+                0.4544137120246887,
+                -0.22717000544071198,
+                0.1897767037153244
+            ],
+            "strategy": "CUBE"
+        },
+        "inherit_scale": "FULL",
+        "parent": "hand_l",
+        "rigify": {},
+        "roll": 2.4994399547576904,
+        "tail": {
+            "cube_name": "joint-l-finger-1-2",
+            "default_position": [
+                0.4335117042064667,
+                -0.2481449991464615,
+                0.18109585344791412
+            ],
+            "strategy": "CUBE"
+        },
+        "use_connect": false,
+        "use_inherit_rotation": true,
+        "use_local_location": true
+    },
+    "thumb_01_r": {
+        "head": {
+            "cube_name": "joint-r-finger-1-1",
+            "default_position": [
+                -0.4544137120246887,
+                -0.22717000544071198,
+                0.1897767037153244
+            ],
+            "strategy": "CUBE"
+        },
+        "inherit_scale": "FULL",
+        "parent": "hand_r",
+        "rigify": {},
+        "roll": -2.4994399547576904,
+        "tail": {
+            "cube_name": "joint-r-finger-1-2",
+            "default_position": [
+                -0.4335117042064667,
+                -0.2481449991464615,
+                0.18109585344791412
+            ],
+            "strategy": "CUBE"
+        },
+        "use_connect": false,
+        "use_inherit_rotation": true,
+        "use_local_location": true
+    },
+    "thumb_02_l": {
+        "head": {
+            "cube_name": "joint-l-finger-1-2",
+            "default_position": [
+                0.4335117042064667,
+                -0.2481449991464615,
+                0.18109579384326935
+            ],
+            "strategy": "CUBE"
+        },
+        "inherit_scale": "FULL",
+        "parent": "thumb_01_l",
+        "rigify": {},
+        "roll": 1.656487226486206,
+        "tail": {
+            "cube_name": "joint-l-finger-1-3",
+            "default_position": [
+                0.42112547159194946,
+                -0.2791815996170044,
+                0.1671462506055832
+            ],
+            "strategy": "CUBE"
+        },
+        "use_connect": false,
+        "use_inherit_rotation": true,
+        "use_local_location": true
+    },
+    "thumb_02_r": {
+        "head": {
+            "cube_name": "joint-r-finger-1-2",
+            "default_position": [
+                -0.4335117042064667,
+                -0.2481449991464615,
+                0.18109579384326935
+            ],
+            "strategy": "CUBE"
+        },
+        "inherit_scale": "FULL",
+        "parent": "thumb_01_r",
+        "rigify": {},
+        "roll": -1.656487226486206,
+        "tail": {
+            "cube_name": "joint-r-finger-1-3",
+            "default_position": [
+                -0.42112547159194946,
+                -0.2791815996170044,
+                0.1671462506055832
+            ],
+            "strategy": "CUBE"
+        },
+        "use_connect": false,
+        "use_inherit_rotation": true,
+        "use_local_location": true
+    },
+    "thumb_03_l": {
+        "head": {
+            "cube_name": "joint-l-finger-1-3",
+            "default_position": [
+                0.4211254119873047,
+                -0.2791815996170044,
+                0.16714629530906677
+            ],
+            "strategy": "CUBE"
+        },
+        "inherit_scale": "FULL",
+        "parent": "thumb_02_l",
+        "rigify": {},
+        "roll": 0.8834595680236816,
+        "tail": {
+            "cube_name": "joint-l-finger-1-4",
+            "default_position": [
+                0.4156253933906555,
+                -0.3004792034626007,
+                0.14974868297576904
+            ],
+            "strategy": "CUBE"
+        },
+        "use_connect": false,
+        "use_inherit_rotation": true,
+        "use_local_location": true
+    },
+    "thumb_03_r": {
+        "head": {
+            "cube_name": "joint-r-finger-1-3",
+            "default_position": [
+                -0.4211254119873047,
+                -0.2791815996170044,
+                0.16714629530906677
+            ],
+            "strategy": "CUBE"
+        },
+        "inherit_scale": "FULL",
+        "parent": "thumb_02_r",
+        "rigify": {},
+        "roll": -0.8834595680236816,
+        "tail": {
+            "cube_name": "joint-r-finger-1-4",
+            "default_position": [
+                -0.4156253933906555,
+                -0.3004792034626007,
+                0.14974868297576904
+            ],
+            "strategy": "CUBE"
+        },
+        "use_connect": false,
+        "use_inherit_rotation": true,
+        "use_local_location": true
+    },
+    "upperarm_l": {
+        "head": {
+            "cube_name": "joint-l-shoulder",
+            "default_position": [
+                0.1700395941734314,
+                -0.019311200827360153,
+                0.5021342039108276
+            ],
+            "strategy": "CUBE"
+        },
+        "inherit_scale": "FULL",
+        "parent": "clavicle_l",
+        "rigify": {},
+        "roll": 2.368039608001709,
+        "tail": {
+            "cube_name": "joint-l-elbow",
+            "default_position": [
+                0.3313508629798889,
+                -0.020126275718212128,
+                0.32153958082199097
+            ],
+            "strategy": "CUBE"
+        },
+        "use_connect": false,
+        "use_inherit_rotation": true,
+        "use_local_location": true
+    },
+    "upperarm_r": {
+        "head": {
+            "cube_name": "joint-r-shoulder",
+            "default_position": [
+                -0.1700395941734314,
+                -0.019311200827360153,
+                0.5021342039108276
+            ],
+            "strategy": "CUBE"
+        },
+        "inherit_scale": "FULL",
+        "parent": "clavicle_r",
+        "rigify": {},
+        "roll": -2.368039608001709,
+        "tail": {
+            "cube_name": "joint-r-elbow",
+            "default_position": [
+                -0.3313508629798889,
+                -0.020126275718212128,
+                0.32153958082199097
+            ],
+            "strategy": "CUBE"
+        },
+        "use_connect": false,
+        "use_inherit_rotation": true,
+        "use_local_location": true
+    }
+}
