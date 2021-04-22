@@ -70,6 +70,11 @@ class MPFB_PT_Developer_Panel(bpy.types.Panel):
         box.operator("mpfb.load_rig")
         box.operator("mpfb.save_rig")
 
+    def _weights(self, layout):
+        box = self._create_box(layout, "Load/Save weights")
+        #box.operator("mpfb.load_rig")
+        box.operator("mpfb.save_weights")
+
     def draw(self, context):
         _LOG.enter()
         layout = self.layout
@@ -77,6 +82,7 @@ class MPFB_PT_Developer_Panel(bpy.types.Panel):
         self._log_levels(scene, layout)
         self._nodes(layout)
         self._rig(layout)
+        self._weights(layout)
 
 
 ClassManager.add_class(MPFB_PT_Developer_Panel)
