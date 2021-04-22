@@ -84,6 +84,13 @@ class Rig:
         if strategy == "VERTEX":
             index = head_or_tail_info["vertex_index"]
             location = self.position_info["vertices"][index]
+        if strategy == "MEAN":
+            indices = head_or_tail_info["vertex_indices"]
+            vertex1 = self.position_info["vertices"][indices[0]]
+            vertex2 = self.position_info["vertices"][indices[1]]            
+            location = [0.0, 0.0, 0.0]
+            for i in range(3):
+                location[i] = (vertex1[i] + vertex2[i]) / 2
         if location is None:
             location = head_or_tail_info["default_position"]
         return location
@@ -319,8 +326,23 @@ class Rig:
                     bone_info["tail"]["strategy"] = "MEAN"
                     bone_info["tail"]["vertex_indices"] = tail_vertex_indices
 
-    def _distance(self, pos1, pos2):
+    def _distance(self, pos1, pos2):        
+        if pos1 is None:
+            raise ValueError("Pos 1 in _distance is None")
+        
+        if pos2 is None:
+            raise ValueError("Pos 2 in _distance is None")
+        
+        if len(pos1) != 3:
+            _LOG.error("Malformed pos 1", pos1)
+            raise ValueError("Pos 1 is not an array with three values")
+
+        if len(pos2) != 3:
+            _LOG.error("Malformed pos 2", pos2)
+            raise ValueError("Pos 2 is not an array with three values")
+        
         sqr_pos = [0.0, 0.0, 0.0]
+
         for i in range(3):
             sqr_pos[i] = abs(pos1[i]-pos2[i]) * abs(pos1[i]-pos2[i])
         return math.sqrt(sqr_pos[0] + sqr_pos[1] + sqr_pos[2])
@@ -452,12 +474,13 @@ class Rig:
 
         for idx1 in within_range_idxs:
             for idx2 in within_range_idxs:
-                vertex_mean = geometric_means_table
-                dist = self._distance(pos, vertex_mean)
-                if dist < max_dist_to_consider_exact:
-                    return [idx1, idx2]
-                if dist < best_match_dist and dist < max_allowed_dist:
-                    best_match_dist = dist
-                    best_match_idxs = [idx1, idx2]
+                if idx1 in geometric_means_table and idx2 in geometric_means_table[idx1]:
+                    vertex_mean = geometric_means_table[idx1][idx2]
+                    dist = self._distance(pos, vertex_mean)
+                    if dist < max_dist_to_consider_exact:
+                        return [idx1, idx2]
+                    if dist < best_match_dist and dist < max_allowed_dist:
+                        best_match_dist = dist
+                        best_match_idxs = [idx1, idx2]
 
         return best_match_idxs

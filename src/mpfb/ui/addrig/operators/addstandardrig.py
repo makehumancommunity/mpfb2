@@ -4,6 +4,7 @@ import bpy, os, gzip
 from mpfb.services.logservice import LogService
 from mpfb.services.objectservice import ObjectService
 from mpfb.services.locationservice import LocationService
+from mpfb.entities.rig import Rig
 from mpfb import ClassManager
 
 _LOG = LogService.get_logger("addrig.add_standard_rig")
@@ -33,6 +34,16 @@ class MPFB_OT_AddStandardRigOperator(bpy.types.Operator):
         from mpfb.ui.addrig.addrigpanel import ADD_RIG_PROPERTIES # pylint: disable=C0415
 
         import_weights = ADD_RIG_PROPERTIES.get_value("import_weights", entity_reference=scene)
+        standard_rig = ADD_RIG_PROPERTIES.get_value("standard_rig", entity_reference=scene)
+
+        rigs_dir = LocationService.get_mpfb_data("rigs")
+        standard_dir = os.path.join(rigs_dir, "standard")
+
+        rig_file = os.path.join(standard_dir, "rig." + standard_rig + ".json")
+        weights_file = os.path.join(standard_dir, "weights." + standard_rig + ".json")
+
+        rig = Rig.from_json_file_and_basemesh(rig_file, basemesh)
+        armature_object = rig.create_armature_and_fit_to_basemesh()
 
         self.report({'INFO'}, "A rig was added")
         return {'FINISHED'}

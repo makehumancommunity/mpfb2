@@ -3,6 +3,7 @@
 import os
 from mpfb import ClassManager
 from mpfb.services.logservice import LogService
+from mpfb.services.locationservice import LocationService
 from mpfb.services.uiservice import UiService
 from mpfb.services.sceneconfigset import SceneConfigSet
 from mpfb.ui.abstractpanel import Abstract_Panel
@@ -22,6 +23,7 @@ class MPFB_PT_Add_Rig_Panel(Abstract_Panel):
     def _standard_rig(self, scene, layout):
         box = self.create_box(layout, "Add standard rig")
         props = [
+            "standard_rig",
             "import_weights"
             ]
         ADD_RIG_PROPERTIES.draw_properties(scene, box, props)
