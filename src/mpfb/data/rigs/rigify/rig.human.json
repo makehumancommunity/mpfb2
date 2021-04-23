@@ -1,0 +1,5145 @@
+{
+    "breast.L": {
+        "head": {
+            "default_position": [
+                0.05886666104197502,
+                0.05631333589553833,
+                1.1871050596237183
+            ],
+            "strategy": "VERTEX",
+            "vertex_index": 10619
+        },
+        "inherit_scale": "FULL",
+        "parent": "spine.003",
+        "rigify": {
+            "rigify_type": "basic.super_copy"
+        },
+        "roll": 0.0,
+        "tail": {
+            "default_position": [
+                0.09750333428382874,
+                -0.1473666876554489,
+                1.2162916660308838
+            ],
+            "strategy": "VERTEX",
+            "vertex_index": 8436
+        },
+        "use_connect": false,
+        "use_inherit_rotation": true,
+        "use_local_location": true
+    },
+    "breast.R": {
+        "head": {
+            "default_position": [
+                -0.05886666104197502,
+                0.05631333589553833,
+                1.1871050596237183
+            ],
+            "strategy": "VERTEX",
+            "vertex_index": 3956
+        },
+        "inherit_scale": "FULL",
+        "parent": "spine.003",
+        "rigify": {
+            "rigify_type": "basic.super_copy"
+        },
+        "roll": -0.0,
+        "tail": {
+            "default_position": [
+                -0.09750333428382874,
+                -0.1473666876554489,
+                1.2162916660308838
+            ],
+            "strategy": "VERTEX",
+            "vertex_index": 1764
+        },
+        "use_connect": false,
+        "use_inherit_rotation": true,
+        "use_local_location": true
+    },
+    "brow.B.L": {
+        "head": {
+            "default_position": [
+                0.051516659557819366,
+                -0.12116333097219467,
+                1.5560417175292969
+            ],
+            "strategy": "VERTEX",
+            "vertex_index": 6964
+        },
+        "inherit_scale": "FULL",
+        "parent": "face",
+        "rigify": {},
+        "roll": 0.041200000792741776,
+        "tail": {
+            "default_position": [
+                0.0467199943959713,
+                -0.12745334208011627,
+                1.5589582920074463
+            ],
+            "strategy": "VERTEX",
+            "vertex_index": 6938
+        },
+        "use_connect": false,
+        "use_inherit_rotation": true,
+        "use_local_location": true
+    },
+    "brow.B.L.001": {
+        "head": {
+            "default_position": [
+                0.0467199943959713,
+                -0.12745334208011627,
+                1.5589582920074463
+            ],
+            "strategy": "VERTEX",
+            "vertex_index": 6938
+        },
+        "inherit_scale": "FULL",
+        "parent": "brow.B.L",
+        "rigify": {},
+        "roll": 0.019200000911951065,
+        "tail": {
+            "default_position": [
+                0.038760002702474594,
+                -0.13521000742912292,
+                1.5630016326904297
+            ],
+            "strategy": "VERTEX",
+            "vertex_index": 6948
+        },
+        "use_connect": true,
+        "use_inherit_rotation": true,
+        "use_local_location": true
+    },
+    "brow.B.L.002": {
+        "head": {
+            "default_position": [
+                0.038760002702474594,
+                -0.13521000742912292,
+                1.5630016326904297
+            ],
+            "strategy": "VERTEX",
+            "vertex_index": 6948
+        },
+        "inherit_scale": "FULL",
+        "parent": "brow.B.L.001",
+        "rigify": {},
+        "roll": 0.08470000326633453,
+        "tail": {
+            "default_position": [
+                0.021606668829917908,
+                -0.13888667523860931,
+                1.5630249977111816
+            ],
+            "strategy": "VERTEX",
+            "vertex_index": 6950
+        },
+        "use_connect": true,
+        "use_inherit_rotation": true,
+        "use_local_location": true
+    },
+    "brow.B.L.003": {
+        "head": {
+            "default_position": [
+                0.021606668829917908,
+                -0.13888667523860931,
+                1.5630249977111816
+            ],
+            "strategy": "VERTEX",
+            "vertex_index": 6950
+        },
+        "inherit_scale": "FULL",
+        "parent": "brow.B.L.002",
+        "rigify": {},
+        "roll": 0.1404999941587448,
+        "tail": {
+            "default_position": [
+                0.010700001381337643,
+                -0.13955000042915344,
+                1.5604350566864014
+            ],
+            "strategy": "VERTEX",
+            "vertex_index": 6943
+        },
+        "use_connect": true,
+        "use_inherit_rotation": true,
+        "use_local_location": true
+    },
+    "brow.B.R": {
+        "head": {
+            "default_position": [
+                -0.051516659557819366,
+                -0.12116333097219467,
+                1.5560417175292969
+            ],
+            "strategy": "VERTEX",
+            "vertex_index": 188
+        },
+        "inherit_scale": "FULL",
+        "parent": "face",
+        "rigify": {},
+        "roll": -0.041200000792741776,
+        "tail": {
+            "default_position": [
+                -0.0467199943959713,
+                -0.12745334208011627,
+                1.5589582920074463
+            ],
+            "strategy": "VERTEX",
+            "vertex_index": 160
+        },
+        "use_connect": false,
+        "use_inherit_rotation": true,
+        "use_local_location": true
+    },
+    "brow.B.R.001": {
+        "head": {
+            "default_position": [
+                -0.0467199943959713,
+                -0.12745334208011627,
+                1.5589582920074463
+            ],
+            "strategy": "VERTEX",
+            "vertex_index": 160
+        },
+        "inherit_scale": "FULL",
+        "parent": "brow.B.R",
+        "rigify": {},
+        "roll": -0.019200000911951065,
+        "tail": {
+            "default_position": [
+                -0.038760002702474594,
+                -0.13521000742912292,
+                1.5630016326904297
+            ],
+            "strategy": "VERTEX",
+            "vertex_index": 172
+        },
+        "use_connect": true,
+        "use_inherit_rotation": true,
+        "use_local_location": true
+    },
+    "brow.B.R.002": {
+        "head": {
+            "default_position": [
+                -0.038760002702474594,
+                -0.13521000742912292,
+                1.5630016326904297
+            ],
+            "strategy": "VERTEX",
+            "vertex_index": 172
+        },
+        "inherit_scale": "FULL",
+        "parent": "brow.B.R.001",
+        "rigify": {},
+        "roll": -0.08470000326633453,
+        "tail": {
+            "default_position": [
+                -0.021606668829917908,
+                -0.13888667523860931,
+                1.5630249977111816
+            ],
+            "strategy": "VERTEX",
+            "vertex_index": 174
+        },
+        "use_connect": true,
+        "use_inherit_rotation": true,
+        "use_local_location": true
+    },
+    "brow.B.R.003": {
+        "head": {
+            "default_position": [
+                -0.021606668829917908,
+                -0.13888667523860931,
+                1.5630249977111816
+            ],
+            "strategy": "VERTEX",
+            "vertex_index": 174
+        },
+        "inherit_scale": "FULL",
+        "parent": "brow.B.R.002",
+        "rigify": {},
+        "roll": -0.1404999941587448,
+        "tail": {
+            "default_position": [
+                -0.010700001381337643,
+                -0.13955000042915344,
+                1.5604350566864014
+            ],
+            "strategy": "VERTEX",
+            "vertex_index": 166
+        },
+        "use_connect": true,
+        "use_inherit_rotation": true,
+        "use_local_location": true
+    },
+    "brow.T.L": {
+        "head": {
+            "default_position": [
+                0.05852999910712242,
+                -0.11025666445493698,
+                1.5543416738510132
+            ],
+            "strategy": "VERTEX",
+            "vertex_index": 7032
+        },
+        "inherit_scale": "FULL",
+        "parent": "cheek.B.L.001",
+        "rigify": {},
+        "roll": 0.19900000095367432,
+        "tail": {
+            "default_position": [
+                0.05418333038687706,
+                -0.11859666556119919,
+                1.5625550746917725
+            ],
+            "strategy": "VERTEX",
+            "vertex_index": 7023
+        },
+        "use_connect": true,
+        "use_inherit_rotation": true,
+        "use_local_location": true
+    },
+    "brow.T.L.001": {
+        "head": {
+            "default_position": [
+                0.05418333038687706,
+                -0.11859666556119919,
+                1.5625550746917725
+            ],
+            "strategy": "VERTEX",
+            "vertex_index": 7023
+        },
+        "inherit_scale": "FULL",
+        "parent": "brow.T.L",
+        "rigify": {},
+        "roll": 0.23720000684261322,
+        "tail": {
+            "default_position": [
+                0.03982333466410637,
+                -0.13609667122364044,
+                1.5692517757415771
+            ],
+            "strategy": "VERTEX",
+            "vertex_index": 6981
+        },
+        "use_connect": true,
+        "use_inherit_rotation": true,
+        "use_local_location": true
+    },
+    "brow.T.L.002": {
+        "head": {
+            "default_position": [
+                0.03982333466410637,
+                -0.13609667122364044,
+                1.5692517757415771
+            ],
+            "strategy": "VERTEX",
+            "vertex_index": 6981
+        },
+        "inherit_scale": "FULL",
+        "parent": "brow.T.L.001",
+        "rigify": {},
+        "roll": 0.07240000367164612,
+        "tail": {
+            "default_position": [
+                0.015200003050267696,
+                -0.14342667162418365,
+                1.569624900817871
+            ],
+            "strategy": "VERTEX",
+            "vertex_index": 6983
+        },
+        "use_connect": true,
+        "use_inherit_rotation": true,
+        "use_local_location": true
+    },
+    "brow.T.L.003": {
+        "head": {
+            "default_position": [
+                0.015200003050267696,
+                -0.14342667162418365,
+                1.569624900817871
+            ],
+            "strategy": "VERTEX",
+            "vertex_index": 6983
+        },
+        "inherit_scale": "FULL",
+        "parent": "brow.T.L.002",
+        "rigify": {},
+        "roll": -0.04230000078678131,
+        "tail": {
+            "default_position": [
+                0.0,
+                -0.14132001996040344,
+                1.5541818141937256
+            ],
+            "strategy": "VERTEX",
+            "vertex_index": 132
+        },
+        "use_connect": true,
+        "use_inherit_rotation": true,
+        "use_local_location": true
+    },
+    "brow.T.R": {
+        "head": {
+            "default_position": [
+                -0.05852999910712242,
+                -0.11025666445493698,
+                1.5543416738510132
+            ],
+            "strategy": "VERTEX",
+            "vertex_index": 263
+        },
+        "inherit_scale": "FULL",
+        "parent": "cheek.B.R.001",
+        "rigify": {},
+        "roll": -0.19900000095367432,
+        "tail": {
+            "default_position": [
+                -0.05418333038687706,
+                -0.11859666556119919,
+                1.5625550746917725
+            ],
+            "strategy": "VERTEX",
+            "vertex_index": 254
+        },
+        "use_connect": true,
+        "use_inherit_rotation": true,
+        "use_local_location": true
+    },
+    "brow.T.R.001": {
+        "head": {
+            "default_position": [
+                -0.05418333038687706,
+                -0.11859666556119919,
+                1.5625550746917725
+            ],
+            "strategy": "VERTEX",
+            "vertex_index": 254
+        },
+        "inherit_scale": "FULL",
+        "parent": "brow.T.R",
+        "rigify": {},
+        "roll": -0.23720000684261322,
+        "tail": {
+            "default_position": [
+                -0.03982333466410637,
+                -0.13609667122364044,
+                1.5692517757415771
+            ],
+            "strategy": "VERTEX",
+            "vertex_index": 206
+        },
+        "use_connect": true,
+        "use_inherit_rotation": true,
+        "use_local_location": true
+    },
+    "brow.T.R.002": {
+        "head": {
+            "default_position": [
+                -0.03982333466410637,
+                -0.13609667122364044,
+                1.5692517757415771
+            ],
+            "strategy": "VERTEX",
+            "vertex_index": 206
+        },
+        "inherit_scale": "FULL",
+        "parent": "brow.T.R.001",
+        "rigify": {},
+        "roll": -0.07240000367164612,
+        "tail": {
+            "default_position": [
+                -0.015200003050267696,
+                -0.14342667162418365,
+                1.569624900817871
+            ],
+            "strategy": "VERTEX",
+            "vertex_index": 208
+        },
+        "use_connect": true,
+        "use_inherit_rotation": true,
+        "use_local_location": true
+    },
+    "brow.T.R.003": {
+        "head": {
+            "default_position": [
+                -0.015200003050267696,
+                -0.14342667162418365,
+                1.569624900817871
+            ],
+            "strategy": "VERTEX",
+            "vertex_index": 208
+        },
+        "inherit_scale": "FULL",
+        "parent": "brow.T.R.002",
+        "rigify": {},
+        "roll": 0.04230000078678131,
+        "tail": {
+            "default_position": [
+                0.0,
+                -0.14132001996040344,
+                1.5541818141937256
+            ],
+            "strategy": "VERTEX",
+            "vertex_index": 132
+        },
+        "use_connect": true,
+        "use_inherit_rotation": true,
+        "use_local_location": true
+    },
+    "cheek.B.L": {
+        "head": {
+            "default_position": [
+                0.02271333523094654,
+                -0.13869333267211914,
+                1.4858750104904175
+            ],
+            "strategy": "VERTEX",
+            "vertex_index": 7182
+        },
+        "inherit_scale": "FULL",
+        "parent": "chin.L",
+        "rigify": {},
+        "roll": 0.001500000013038516,
+        "tail": {
+            "default_position": [
+                0.05089665576815605,
+                -0.11603666841983795,
+                1.503035068511963
+            ],
+            "strategy": "VERTEX",
+            "vertex_index": 11767
+        },
+        "use_connect": true,
+        "use_inherit_rotation": true,
+        "use_local_location": true
+    },
+    "cheek.B.L.001": {
+        "head": {
+            "default_position": [
+                0.05089665576815605,
+                -0.11603666841983795,
+                1.503035068511963
+            ],
+            "strategy": "VERTEX",
+            "vertex_index": 11767
+        },
+        "inherit_scale": "FULL",
+        "parent": "cheek.B.L",
+        "rigify": {},
+        "roll": -0.0,
+        "tail": {
+            "default_position": [
+                0.05852999910712242,
+                -0.11025666445493698,
+                1.5543416738510132
+            ],
+            "strategy": "VERTEX",
+            "vertex_index": 7032
+        },
+        "use_connect": true,
+        "use_inherit_rotation": true,
+        "use_local_location": true
+    },
+    "cheek.B.R": {
+        "head": {
+            "default_position": [
+                -0.02271333523094654,
+                -0.13869333267211914,
+                1.4858750104904175
+            ],
+            "strategy": "VERTEX",
+            "vertex_index": 422
+        },
+        "inherit_scale": "FULL",
+        "parent": "chin.R",
+        "rigify": {},
+        "roll": -0.001500000013038516,
+        "tail": {
+            "default_position": [
+                -0.05089665576815605,
+                -0.11603666841983795,
+                1.503035068511963
+            ],
+            "strategy": "VERTEX",
+            "vertex_index": 5153
+        },
+        "use_connect": true,
+        "use_inherit_rotation": true,
+        "use_local_location": true
+    },
+    "cheek.B.R.001": {
+        "head": {
+            "default_position": [
+                -0.05089665576815605,
+                -0.11603666841983795,
+                1.503035068511963
+            ],
+            "strategy": "VERTEX",
+            "vertex_index": 5153
+        },
+        "inherit_scale": "FULL",
+        "parent": "cheek.B.R",
+        "rigify": {},
+        "roll": 0.0,
+        "tail": {
+            "default_position": [
+                -0.05852999910712242,
+                -0.11025666445493698,
+                1.5543416738510132
+            ],
+            "strategy": "VERTEX",
+            "vertex_index": 263
+        },
+        "use_connect": true,
+        "use_inherit_rotation": true,
+        "use_local_location": true
+    },
+    "cheek.T.L": {
+        "head": {
+            "default_position": [
+                0.05852999910712242,
+                -0.11025666445493698,
+                1.5543416738510132
+            ],
+            "strategy": "VERTEX",
+            "vertex_index": 7032
+        },
+        "inherit_scale": "FULL",
+        "parent": "face",
+        "rigify": {},
+        "roll": -0.009600000455975533,
+        "tail": {
+            "default_position": [
+                0.04230666533112526,
+                -0.12955334782600403,
+                1.526638388633728
+            ],
+            "strategy": "VERTEX",
+            "vertex_index": 11748
+        },
+        "use_connect": false,
+        "use_inherit_rotation": true,
+        "use_local_location": true
+    },
+    "cheek.T.L.001": {
+        "head": {
+            "default_position": [
+                0.04230666533112526,
+                -0.12955334782600403,
+                1.526638388633728
+            ],
+            "strategy": "VERTEX",
+            "vertex_index": 11748
+        },
+        "inherit_scale": "FULL",
+        "parent": "cheek.T.L",
+        "rigify": {},
+        "roll": 0.1386999934911728,
+        "tail": {
+            "default_position": [
+                0.012096668593585491,
+                -0.13776998221874237,
+                1.539278507232666
+            ],
+            "strategy": "VERTEX",
+            "vertex_index": 11715
+        },
+        "use_connect": true,
+        "use_inherit_rotation": true,
+        "use_local_location": true
+    },
+    "cheek.T.R": {
+        "head": {
+            "default_position": [
+                -0.05852999910712242,
+                -0.11025666445493698,
+                1.5543416738510132
+            ],
+            "strategy": "VERTEX",
+            "vertex_index": 263
+        },
+        "inherit_scale": "FULL",
+        "parent": "face",
+        "rigify": {},
+        "roll": 0.009600000455975533,
+        "tail": {
+            "default_position": [
+                -0.04230666533112526,
+                -0.12955334782600403,
+                1.526638388633728
+            ],
+            "strategy": "VERTEX",
+            "vertex_index": 5133
+        },
+        "use_connect": false,
+        "use_inherit_rotation": true,
+        "use_local_location": true
+    },
+    "cheek.T.R.001": {
+        "head": {
+            "default_position": [
+                -0.04230666533112526,
+                -0.12955334782600403,
+                1.526638388633728
+            ],
+            "strategy": "VERTEX",
+            "vertex_index": 5133
+        },
+        "inherit_scale": "FULL",
+        "parent": "cheek.T.R",
+        "rigify": {},
+        "roll": -0.1386999934911728,
+        "tail": {
+            "default_position": [
+                -0.012096668593585491,
+                -0.13776998221874237,
+                1.539278507232666
+            ],
+            "strategy": "VERTEX",
+            "vertex_index": 5100
+        },
+        "use_connect": true,
+        "use_inherit_rotation": true,
+        "use_local_location": true
+    },
+    "chin": {
+        "head": {
+            "default_position": [
+                0.0,
+                -0.1310500055551529,
+                1.4462950229644775
+            ],
+            "strategy": "VERTEX",
+            "vertex_index": 5296
+        },
+        "inherit_scale": "FULL",
+        "parent": "jaw",
+        "rigify": {},
+        "roll": 0.0,
+        "tail": {
+            "cube_name": "joint-jaw",
+            "default_position": [
+                0.0,
+                -0.14196667075157166,
+                1.459535002708435
+            ],
+            "strategy": "CUBE"
+        },
+        "use_connect": true,
+        "use_inherit_rotation": true,
+        "use_local_location": true
+    },
+    "chin.001": {
+        "head": {
+            "cube_name": "joint-jaw",
+            "default_position": [
+                0.0,
+                -0.14196667075157166,
+                1.459535002708435
+            ],
+            "strategy": "CUBE"
+        },
+        "inherit_scale": "FULL",
+        "parent": "chin",
+        "rigify": {},
+        "roll": 0.0,
+        "tail": {
+            "default_position": [
+                0.0,
+                -0.14168000221252441,
+                1.4688684940338135
+            ],
+            "strategy": "VERTEX",
+            "vertex_index": 724
+        },
+        "use_connect": true,
+        "use_inherit_rotation": true,
+        "use_local_location": true
+    },
+    "chin.L": {
+        "head": {
+            "default_position": [
+                0.020269999280571938,
+                -0.12838000059127808,
+                1.4525883197784424
+            ],
+            "strategy": "VERTEX",
+            "vertex_index": 11832
+        },
+        "inherit_scale": "FULL",
+        "parent": "jaw.L.001",
+        "rigify": {},
+        "roll": -0.2078000009059906,
+        "tail": {
+            "default_position": [
+                0.02271333523094654,
+                -0.13869333267211914,
+                1.4858750104904175
+            ],
+            "strategy": "VERTEX",
+            "vertex_index": 7182
+        },
+        "use_connect": true,
+        "use_inherit_rotation": true,
+        "use_local_location": true
+    },
+    "chin.R": {
+        "head": {
+            "default_position": [
+                -0.020269999280571938,
+                -0.12838000059127808,
+                1.4525883197784424
+            ],
+            "strategy": "VERTEX",
+            "vertex_index": 5222
+        },
+        "inherit_scale": "FULL",
+        "parent": "jaw.R.001",
+        "rigify": {},
+        "roll": 0.2078000009059906,
+        "tail": {
+            "default_position": [
+                -0.02271333523094654,
+                -0.13869333267211914,
+                1.4858750104904175
+            ],
+            "strategy": "VERTEX",
+            "vertex_index": 422
+        },
+        "use_connect": true,
+        "use_inherit_rotation": true,
+        "use_local_location": true
+    },
+    "ear.L": {
+        "head": {
+            "default_position": [
+                0.07043333351612091,
+                -0.05517665669322014,
+                1.5193417072296143
+            ],
+            "strategy": "VERTEX",
+            "vertex_index": 12064
+        },
+        "inherit_scale": "FULL",
+        "parent": "face",
+        "rigify": {},
+        "roll": -0.03240000084042549,
+        "tail": {
+            "default_position": [
+                0.07156333327293396,
+                -0.055190008133649826,
+                1.5269650220870972
+            ],
+            "strategy": "VERTEX",
+            "vertex_index": 12055
+        },
+        "use_connect": false,
+        "use_inherit_rotation": true,
+        "use_local_location": true
+    },
+    "ear.L.001": {
+        "head": {
+            "default_position": [
+                0.07156333327293396,
+                -0.055190008133649826,
+                1.5269650220870972
+            ],
+            "strategy": "VERTEX",
+            "vertex_index": 12055
+        },
+        "inherit_scale": "FULL",
+        "parent": "ear.L",
+        "rigify": {},
+        "roll": 0.06560000032186508,
+        "tail": {
+            "default_position": [
+                0.07626333087682724,
+                -0.05300666764378548,
+                1.5493483543395996
+            ],
+            "strategy": "VERTEX",
+            "vertex_index": 12046
+        },
+        "use_connect": true,
+        "use_inherit_rotation": true,
+        "use_local_location": true
+    },
+    "ear.L.002": {
+        "head": {
+            "default_position": [
+                0.07626333087682724,
+                -0.05300666764378548,
+                1.5493483543395996
+            ],
+            "strategy": "VERTEX",
+            "vertex_index": 12046
+        },
+        "inherit_scale": "FULL",
+        "parent": "ear.L.001",
+        "rigify": {},
+        "roll": -0.026499999687075615,
+        "tail": {
+            "default_position": [
+                0.08169000595808029,
+                -0.03941666707396507,
+                1.555411696434021
+            ],
+            "strategy": "VERTEX",
+            "vertex_index": 12037
+        },
+        "use_connect": true,
+        "use_inherit_rotation": true,
+        "use_local_location": true
+    },
+    "ear.L.003": {
+        "head": {
+            "default_position": [
+                0.08169000595808029,
+                -0.03941666707396507,
+                1.555411696434021
+            ],
+            "strategy": "VERTEX",
+            "vertex_index": 12037
+        },
+        "inherit_scale": "FULL",
+        "parent": "ear.L.002",
+        "rigify": {},
+        "roll": 0.30329999327659607,
+        "tail": {
+            "default_position": [
+                0.08092667162418365,
+                -0.03153333440423012,
+                1.5321850776672363
+            ],
+            "strategy": "VERTEX",
+            "vertex_index": 12061
+        },
+        "use_connect": true,
+        "use_inherit_rotation": true,
+        "use_local_location": true
+    },
+    "ear.L.004": {
+        "head": {
+            "default_position": [
+                0.08092667162418365,
+                -0.03153333440423012,
+                1.5321850776672363
+            ],
+            "strategy": "VERTEX",
+            "vertex_index": 12061
+        },
+        "inherit_scale": "FULL",
+        "parent": "ear.L.003",
+        "rigify": {},
+        "roll": 0.1518000066280365,
+        "tail": {
+            "default_position": [
+                0.0743200033903122,
+                -0.0522233322262764,
+                1.5082550048828125
+            ],
+            "strategy": "VERTEX",
+            "vertex_index": 12019
+        },
+        "use_connect": true,
+        "use_inherit_rotation": true,
+        "use_local_location": true
+    },
+    "ear.R": {
+        "head": {
+            "default_position": [
+                -0.07156333327293396,
+                -0.055190008133649826,
+                1.5269650220870972
+            ],
+            "strategy": "VERTEX",
+            "vertex_index": 5456
+        },
+        "inherit_scale": "FULL",
+        "parent": "face",
+        "rigify": {},
+        "roll": 0.03240000084042549,
+        "tail": {
+            "default_position": [
+                -0.07626333087682724,
+                -0.05300666764378548,
+                1.5493483543395996
+            ],
+            "strategy": "VERTEX",
+            "vertex_index": 5447
+        },
+        "use_connect": false,
+        "use_inherit_rotation": true,
+        "use_local_location": true
+    },
+    "ear.R.001": {
+        "head": {
+            "default_position": [
+                -0.07626333087682724,
+                -0.05300666764378548,
+                1.5493483543395996
+            ],
+            "strategy": "VERTEX",
+            "vertex_index": 5447
+        },
+        "inherit_scale": "FULL",
+        "parent": "ear.R",
+        "rigify": {},
+        "roll": -0.06560000032186508,
+        "tail": {
+            "default_position": [
+                -0.08169000595808029,
+                -0.03941666707396507,
+                1.555411696434021
+            ],
+            "strategy": "VERTEX",
+            "vertex_index": 5438
+        },
+        "use_connect": true,
+        "use_inherit_rotation": true,
+        "use_local_location": true
+    },
+    "ear.R.002": {
+        "head": {
+            "default_position": [
+                -0.08169000595808029,
+                -0.03941666707396507,
+                1.555411696434021
+            ],
+            "strategy": "VERTEX",
+            "vertex_index": 5438
+        },
+        "inherit_scale": "FULL",
+        "parent": "ear.R.001",
+        "rigify": {},
+        "roll": 0.026499999687075615,
+        "tail": {
+            "default_position": [
+                -0.08092667162418365,
+                -0.03153333440423012,
+                1.5321850776672363
+            ],
+            "strategy": "VERTEX",
+            "vertex_index": 5462
+        },
+        "use_connect": true,
+        "use_inherit_rotation": true,
+        "use_local_location": true
+    },
+    "ear.R.003": {
+        "head": {
+            "default_position": [
+                -0.08092667162418365,
+                -0.03153333440423012,
+                1.5321850776672363
+            ],
+            "strategy": "VERTEX",
+            "vertex_index": 5462
+        },
+        "inherit_scale": "FULL",
+        "parent": "ear.R.002",
+        "rigify": {},
+        "roll": -0.30329999327659607,
+        "tail": {
+            "default_position": [
+                -0.0743200033903122,
+                -0.0522233322262764,
+                1.5082550048828125
+            ],
+            "strategy": "VERTEX",
+            "vertex_index": 5420
+        },
+        "use_connect": true,
+        "use_inherit_rotation": true,
+        "use_local_location": true
+    },
+    "ear.R.004": {
+        "head": {
+            "default_position": [
+                -0.0743200033903122,
+                -0.0522233322262764,
+                1.5082550048828125
+            ],
+            "strategy": "VERTEX",
+            "vertex_index": 5420
+        },
+        "inherit_scale": "FULL",
+        "parent": "ear.R.003",
+        "rigify": {},
+        "roll": -0.1518000066280365,
+        "tail": {
+            "default_position": [
+                -0.07043333351612091,
+                -0.05517665669322014,
+                1.5193417072296143
+            ],
+            "strategy": "VERTEX",
+            "vertex_index": 5465
+        },
+        "use_connect": true,
+        "use_inherit_rotation": true,
+        "use_local_location": true
+    },
+    "eye.L": {
+        "head": {
+            "cube_name": "joint-l-eye",
+            "default_position": [
+                0.02889375202357769,
+                -0.11807875335216522,
+                1.5538179874420166
+            ],
+            "strategy": "CUBE"
+        },
+        "inherit_scale": "FULL",
+        "parent": "face",
+        "rigify": {},
+        "roll": 0.0,
+        "tail": {
+            "cube_name": "joint-l-eye-target",
+            "default_position": [
+                0.030670413747429848,
+                -0.15605667233467102,
+                1.550864577293396
+            ],
+            "strategy": "CUBE"
+        },
+        "use_connect": false,
+        "use_inherit_rotation": true,
+        "use_local_location": true
+    },
+    "eye.R": {
+        "head": {
+            "cube_name": "joint-r-eye",
+            "default_position": [
+                -0.02889375202357769,
+                -0.11807875335216522,
+                1.5538179874420166
+            ],
+            "strategy": "CUBE"
+        },
+        "inherit_scale": "FULL",
+        "parent": "face",
+        "rigify": {},
+        "roll": 0.0,
+        "tail": {
+            "cube_name": "joint-r-eye-target",
+            "default_position": [
+                -0.030670413747429848,
+                -0.15605667233467102,
+                1.550864577293396
+            ],
+            "strategy": "CUBE"
+        },
+        "use_connect": false,
+        "use_inherit_rotation": true,
+        "use_local_location": true
+    },
+    "f_index.01.L": {
+        "head": {
+            "cube_name": "joint-l-finger-2-1",
+            "default_position": [
+                0.4810870885848999,
+                -0.27767249941825867,
+                0.9750295877456665
+            ],
+            "strategy": "CUBE"
+        },
+        "inherit_scale": "FULL",
+        "parent": "palm.01.L",
+        "rigify": {
+            "rigify_parameters": {
+                "tweak_layers": [
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    true,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false
+                ]
+            },
+            "rigify_type": "limbs.super_finger"
+        },
+        "roll": -2.0315001010894775,
+        "tail": {
+            "cube_name": "joint-l-finger-2-2",
+            "default_position": [
+                0.48443374037742615,
+                -0.2983808219432831,
+                0.9599562883377075
+            ],
+            "strategy": "CUBE"
+        },
+        "use_connect": false,
+        "use_inherit_rotation": true,
+        "use_local_location": true
+    },
+    "f_index.01.R": {
+        "head": {
+            "cube_name": "joint-r-finger-2-1",
+            "default_position": [
+                -0.4810870885848999,
+                -0.27767249941825867,
+                0.9750295877456665
+            ],
+            "strategy": "CUBE"
+        },
+        "inherit_scale": "FULL",
+        "parent": "palm.01.R",
+        "rigify": {
+            "rigify_parameters": {
+                "tweak_layers": [
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    true,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false
+                ]
+            },
+            "rigify_type": "limbs.super_finger"
+        },
+        "roll": 2.0315001010894775,
+        "tail": {
+            "cube_name": "joint-r-finger-2-2",
+            "default_position": [
+                -0.48443374037742615,
+                -0.2983808219432831,
+                0.9599562883377075
+            ],
+            "strategy": "CUBE"
+        },
+        "use_connect": false,
+        "use_inherit_rotation": true,
+        "use_local_location": true
+    },
+    "f_index.02.L": {
+        "head": {
+            "cube_name": "joint-l-finger-2-2",
+            "default_position": [
+                0.48443374037742615,
+                -0.2983808219432831,
+                0.9599562883377075
+            ],
+            "strategy": "CUBE"
+        },
+        "inherit_scale": "FULL",
+        "parent": "f_index.01.L",
+        "rigify": {},
+        "roll": -1.8798999786376953,
+        "tail": {
+            "cube_name": "joint-l-finger-2-3",
+            "default_position": [
+                0.4838699698448181,
+                -0.31472042202949524,
+                0.9436637759208679
+            ],
+            "strategy": "CUBE"
+        },
+        "use_connect": true,
+        "use_inherit_rotation": true,
+        "use_local_location": true
+    },
+    "f_index.02.R": {
+        "head": {
+            "cube_name": "joint-r-finger-2-2",
+            "default_position": [
+                -0.48443374037742615,
+                -0.2983808219432831,
+                0.9599562883377075
+            ],
+            "strategy": "CUBE"
+        },
+        "inherit_scale": "FULL",
+        "parent": "f_index.01.R",
+        "rigify": {},
+        "roll": 1.8798999786376953,
+        "tail": {
+            "cube_name": "joint-r-finger-2-3",
+            "default_position": [
+                -0.4838699698448181,
+                -0.31472042202949524,
+                0.9436637759208679
+            ],
+            "strategy": "CUBE"
+        },
+        "use_connect": true,
+        "use_inherit_rotation": true,
+        "use_local_location": true
+    },
+    "f_index.03.L": {
+        "head": {
+            "cube_name": "joint-l-finger-2-3",
+            "default_position": [
+                0.4838699698448181,
+                -0.31472042202949524,
+                0.9436637759208679
+            ],
+            "strategy": "CUBE"
+        },
+        "inherit_scale": "FULL",
+        "parent": "f_index.02.L",
+        "rigify": {},
+        "roll": -1.6759999990463257,
+        "tail": {
+            "cube_name": "joint-l-finger-2-4",
+            "default_position": [
+                0.4802025258541107,
+                -0.3322937488555908,
+                0.923505425453186
+            ],
+            "strategy": "CUBE"
+        },
+        "use_connect": true,
+        "use_inherit_rotation": true,
+        "use_local_location": true
+    },
+    "f_index.03.R": {
+        "head": {
+            "cube_name": "joint-r-finger-2-3",
+            "default_position": [
+                -0.4838699698448181,
+                -0.31472042202949524,
+                0.9436637759208679
+            ],
+            "strategy": "CUBE"
+        },
+        "inherit_scale": "FULL",
+        "parent": "f_index.02.R",
+        "rigify": {},
+        "roll": 1.6759999990463257,
+        "tail": {
+            "cube_name": "joint-r-finger-2-4",
+            "default_position": [
+                -0.4802025258541107,
+                -0.3322937488555908,
+                0.923505425453186
+            ],
+            "strategy": "CUBE"
+        },
+        "use_connect": true,
+        "use_inherit_rotation": true,
+        "use_local_location": true
+    },
+    "f_middle.01.L": {
+        "head": {
+            "cube_name": "joint-l-finger-3-1",
+            "default_position": [
+                0.4973508417606354,
+                -0.25984543561935425,
+                0.9641387462615967
+            ],
+            "strategy": "CUBE"
+        },
+        "inherit_scale": "FULL",
+        "parent": "palm.02.L",
+        "rigify": {
+            "rigify_parameters": {
+                "tweak_layers": [
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    true,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false
+                ]
+            },
+            "rigify_type": "limbs.super_finger"
+        },
+        "roll": -2.006700038909912,
+        "tail": {
+            "cube_name": "joint-l-finger-3-2",
+            "default_position": [
+                0.5045574903488159,
+                -0.28029748797416687,
+                0.9381762742996216
+            ],
+            "strategy": "CUBE"
+        },
+        "use_connect": false,
+        "use_inherit_rotation": true,
+        "use_local_location": true
+    },
+    "f_middle.01.R": {
+        "head": {
+            "cube_name": "joint-r-finger-3-1",
+            "default_position": [
+                -0.4973508417606354,
+                -0.25984543561935425,
+                0.9641387462615967
+            ],
+            "strategy": "CUBE"
+        },
+        "inherit_scale": "FULL",
+        "parent": "palm.02.R",
+        "rigify": {
+            "rigify_parameters": {
+                "tweak_layers": [
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    true,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false
+                ]
+            },
+            "rigify_type": "limbs.super_finger"
+        },
+        "roll": 2.006700038909912,
+        "tail": {
+            "cube_name": "joint-r-finger-3-2",
+            "default_position": [
+                -0.5045574903488159,
+                -0.28029748797416687,
+                0.9381762742996216
+            ],
+            "strategy": "CUBE"
+        },
+        "use_connect": false,
+        "use_inherit_rotation": true,
+        "use_local_location": true
+    },
+    "f_middle.02.L": {
+        "head": {
+            "cube_name": "joint-l-finger-3-2",
+            "default_position": [
+                0.5045574903488159,
+                -0.28029748797416687,
+                0.9381762742996216
+            ],
+            "strategy": "CUBE"
+        },
+        "inherit_scale": "FULL",
+        "parent": "f_middle.01.L",
+        "rigify": {},
+        "roll": -1.8282999992370605,
+        "tail": {
+            "cube_name": "joint-l-finger-3-3",
+            "default_position": [
+                0.507217526435852,
+                -0.2974116802215576,
+                0.916664183139801
+            ],
+            "strategy": "CUBE"
+        },
+        "use_connect": true,
+        "use_inherit_rotation": true,
+        "use_local_location": true
+    },
+    "f_middle.02.R": {
+        "head": {
+            "cube_name": "joint-r-finger-3-2",
+            "default_position": [
+                -0.5045574903488159,
+                -0.28029748797416687,
+                0.9381762742996216
+            ],
+            "strategy": "CUBE"
+        },
+        "inherit_scale": "FULL",
+        "parent": "f_middle.01.R",
+        "rigify": {},
+        "roll": 1.8282999992370605,
+        "tail": {
+            "cube_name": "joint-r-finger-3-3",
+            "default_position": [
+                -0.507217526435852,
+                -0.2974116802215576,
+                0.916664183139801
+            ],
+            "strategy": "CUBE"
+        },
+        "use_connect": true,
+        "use_inherit_rotation": true,
+        "use_local_location": true
+    },
+    "f_middle.03.L": {
+        "head": {
+            "cube_name": "joint-l-finger-3-3",
+            "default_position": [
+                0.507217526435852,
+                -0.2974116802215576,
+                0.916664183139801
+            ],
+            "strategy": "CUBE"
+        },
+        "inherit_scale": "FULL",
+        "parent": "f_middle.02.L",
+        "rigify": {},
+        "roll": -1.7482999563217163,
+        "tail": {
+            "cube_name": "joint-l-finger-3-4",
+            "default_position": [
+                0.5070179104804993,
+                -0.312250018119812,
+                0.8941283822059631
+            ],
+            "strategy": "CUBE"
+        },
+        "use_connect": true,
+        "use_inherit_rotation": true,
+        "use_local_location": true
+    },
+    "f_middle.03.R": {
+        "head": {
+            "cube_name": "joint-r-finger-3-3",
+            "default_position": [
+                -0.507217526435852,
+                -0.2974116802215576,
+                0.916664183139801
+            ],
+            "strategy": "CUBE"
+        },
+        "inherit_scale": "FULL",
+        "parent": "f_middle.02.R",
+        "rigify": {},
+        "roll": 1.7482999563217163,
+        "tail": {
+            "cube_name": "joint-r-finger-3-4",
+            "default_position": [
+                -0.5070179104804993,
+                -0.312250018119812,
+                0.8941283822059631
+            ],
+            "strategy": "CUBE"
+        },
+        "use_connect": true,
+        "use_inherit_rotation": true,
+        "use_local_location": true
+    },
+    "f_pinky.01.L": {
+        "head": {
+            "cube_name": "joint-l-finger-5-1",
+            "default_position": [
+                0.5063775181770325,
+                -0.2233954221010208,
+                0.9478296041488647
+            ],
+            "strategy": "CUBE"
+        },
+        "inherit_scale": "FULL",
+        "parent": "palm.04.L",
+        "rigify": {
+            "rigify_parameters": {
+                "tweak_layers": [
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    true,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false
+                ]
+            },
+            "rigify_type": "limbs.super_finger"
+        },
+        "roll": -1.9749000072479248,
+        "tail": {
+            "cube_name": "joint-l-finger-5-2",
+            "default_position": [
+                0.5122724771499634,
+                -0.23083792626857758,
+                0.9287641644477844
+            ],
+            "strategy": "CUBE"
+        },
+        "use_connect": false,
+        "use_inherit_rotation": true,
+        "use_local_location": true
+    },
+    "f_pinky.01.R": {
+        "head": {
+            "cube_name": "joint-r-finger-5-1",
+            "default_position": [
+                -0.5063775181770325,
+                -0.2233954221010208,
+                0.9478296041488647
+            ],
+            "strategy": "CUBE"
+        },
+        "inherit_scale": "FULL",
+        "parent": "palm.04.R",
+        "rigify": {
+            "rigify_parameters": {
+                "tweak_layers": [
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    true,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false
+                ]
+            },
+            "rigify_type": "limbs.super_finger"
+        },
+        "roll": 1.9749000072479248,
+        "tail": {
+            "cube_name": "joint-r-finger-5-2",
+            "default_position": [
+                -0.5122724771499634,
+                -0.23083792626857758,
+                0.9287641644477844
+            ],
+            "strategy": "CUBE"
+        },
+        "use_connect": false,
+        "use_inherit_rotation": true,
+        "use_local_location": true
+    },
+    "f_pinky.02.L": {
+        "head": {
+            "cube_name": "joint-l-finger-5-2",
+            "default_position": [
+                0.5122724771499634,
+                -0.23083792626857758,
+                0.9287641644477844
+            ],
+            "strategy": "CUBE"
+        },
+        "inherit_scale": "FULL",
+        "parent": "f_pinky.01.L",
+        "rigify": {},
+        "roll": -1.905900001525879,
+        "tail": {
+            "cube_name": "joint-l-finger-5-3",
+            "default_position": [
+                0.5139975547790527,
+                -0.2365262508392334,
+                0.9143295884132385
+            ],
+            "strategy": "CUBE"
+        },
+        "use_connect": true,
+        "use_inherit_rotation": true,
+        "use_local_location": true
+    },
+    "f_pinky.02.R": {
+        "head": {
+            "cube_name": "joint-r-finger-5-2",
+            "default_position": [
+                -0.5122724771499634,
+                -0.23083792626857758,
+                0.9287641644477844
+            ],
+            "strategy": "CUBE"
+        },
+        "inherit_scale": "FULL",
+        "parent": "f_pinky.01.R",
+        "rigify": {},
+        "roll": 1.905900001525879,
+        "tail": {
+            "cube_name": "joint-r-finger-5-3",
+            "default_position": [
+                -0.5139975547790527,
+                -0.2365262508392334,
+                0.9143295884132385
+            ],
+            "strategy": "CUBE"
+        },
+        "use_connect": true,
+        "use_inherit_rotation": true,
+        "use_local_location": true
+    },
+    "f_pinky.03.L": {
+        "head": {
+            "cube_name": "joint-l-finger-5-3",
+            "default_position": [
+                0.5139975547790527,
+                -0.2365262508392334,
+                0.9143295884132385
+            ],
+            "strategy": "CUBE"
+        },
+        "inherit_scale": "FULL",
+        "parent": "f_pinky.02.L",
+        "rigify": {},
+        "roll": -1.7639000415802002,
+        "tail": {
+            "cube_name": "joint-l-finger-5-4",
+            "default_position": [
+                0.5166533589363098,
+                -0.24343334138393402,
+                0.8958954215049744
+            ],
+            "strategy": "CUBE"
+        },
+        "use_connect": true,
+        "use_inherit_rotation": true,
+        "use_local_location": true
+    },
+    "f_pinky.03.R": {
+        "head": {
+            "cube_name": "joint-r-finger-5-3",
+            "default_position": [
+                -0.5139975547790527,
+                -0.2365262508392334,
+                0.9143295884132385
+            ],
+            "strategy": "CUBE"
+        },
+        "inherit_scale": "FULL",
+        "parent": "f_pinky.02.R",
+        "rigify": {},
+        "roll": 1.7639000415802002,
+        "tail": {
+            "cube_name": "joint-r-finger-5-4",
+            "default_position": [
+                -0.5166533589363098,
+                -0.24343334138393402,
+                0.8958954215049744
+            ],
+            "strategy": "CUBE"
+        },
+        "use_connect": true,
+        "use_inherit_rotation": true,
+        "use_local_location": true
+    },
+    "f_ring.01.L": {
+        "head": {
+            "cube_name": "joint-l-finger-4-1",
+            "default_position": [
+                0.5048841834068298,
+                -0.24275459349155426,
+                0.9564871191978455
+            ],
+            "strategy": "CUBE"
+        },
+        "inherit_scale": "FULL",
+        "parent": "palm.03.L",
+        "rigify": {
+            "rigify_parameters": {
+                "tweak_layers": [
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    true,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false
+                ]
+            },
+            "rigify_type": "limbs.super_finger"
+        },
+        "roll": -2.00819993019104,
+        "tail": {
+            "cube_name": "joint-l-finger-4-2",
+            "default_position": [
+                0.5141662359237671,
+                -0.2568216919898987,
+                0.9320158362388611
+            ],
+            "strategy": "CUBE"
+        },
+        "use_connect": false,
+        "use_inherit_rotation": true,
+        "use_local_location": true
+    },
+    "f_ring.01.R": {
+        "head": {
+            "cube_name": "joint-r-finger-4-1",
+            "default_position": [
+                -0.5048841834068298,
+                -0.24275459349155426,
+                0.9564871191978455
+            ],
+            "strategy": "CUBE"
+        },
+        "inherit_scale": "FULL",
+        "parent": "palm.03.R",
+        "rigify": {
+            "rigify_parameters": {
+                "tweak_layers": [
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    true,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false
+                ]
+            },
+            "rigify_type": "limbs.super_finger"
+        },
+        "roll": 2.00819993019104,
+        "tail": {
+            "cube_name": "joint-r-finger-4-2",
+            "default_position": [
+                -0.5141662359237671,
+                -0.2568216919898987,
+                0.9320158362388611
+            ],
+            "strategy": "CUBE"
+        },
+        "use_connect": false,
+        "use_inherit_rotation": true,
+        "use_local_location": true
+    },
+    "f_ring.02.L": {
+        "head": {
+            "cube_name": "joint-l-finger-4-2",
+            "default_position": [
+                0.5141662359237671,
+                -0.2568216919898987,
+                0.9320158362388611
+            ],
+            "strategy": "CUBE"
+        },
+        "inherit_scale": "FULL",
+        "parent": "f_ring.01.L",
+        "rigify": {},
+        "roll": -1.8946000337600708,
+        "tail": {
+            "cube_name": "joint-l-finger-4-3",
+            "default_position": [
+                0.5184120535850525,
+                -0.26934418082237244,
+                0.9110362529754639
+            ],
+            "strategy": "CUBE"
+        },
+        "use_connect": true,
+        "use_inherit_rotation": true,
+        "use_local_location": true
+    },
+    "f_ring.02.R": {
+        "head": {
+            "cube_name": "joint-r-finger-4-2",
+            "default_position": [
+                -0.5141662359237671,
+                -0.2568216919898987,
+                0.9320158362388611
+            ],
+            "strategy": "CUBE"
+        },
+        "inherit_scale": "FULL",
+        "parent": "f_ring.01.R",
+        "rigify": {},
+        "roll": 1.8946000337600708,
+        "tail": {
+            "cube_name": "joint-r-finger-4-3",
+            "default_position": [
+                -0.5184120535850525,
+                -0.26934418082237244,
+                0.9110362529754639
+            ],
+            "strategy": "CUBE"
+        },
+        "use_connect": true,
+        "use_inherit_rotation": true,
+        "use_local_location": true
+    },
+    "f_ring.03.L": {
+        "head": {
+            "cube_name": "joint-l-finger-4-3",
+            "default_position": [
+                0.5184120535850525,
+                -0.26934418082237244,
+                0.9110362529754639
+            ],
+            "strategy": "CUBE"
+        },
+        "inherit_scale": "FULL",
+        "parent": "f_ring.02.L",
+        "rigify": {},
+        "roll": -1.6582000255584717,
+        "tail": {
+            "cube_name": "joint-l-finger-4-4",
+            "default_position": [
+                0.5208550691604614,
+                -0.28055334091186523,
+                0.8869183659553528
+            ],
+            "strategy": "CUBE"
+        },
+        "use_connect": true,
+        "use_inherit_rotation": true,
+        "use_local_location": true
+    },
+    "f_ring.03.R": {
+        "head": {
+            "cube_name": "joint-r-finger-4-3",
+            "default_position": [
+                -0.5184120535850525,
+                -0.26934418082237244,
+                0.9110362529754639
+            ],
+            "strategy": "CUBE"
+        },
+        "inherit_scale": "FULL",
+        "parent": "f_ring.02.R",
+        "rigify": {},
+        "roll": 1.6582000255584717,
+        "tail": {
+            "cube_name": "joint-r-finger-4-4",
+            "default_position": [
+                -0.5208550691604614,
+                -0.28055334091186523,
+                0.8869183659553528
+            ],
+            "strategy": "CUBE"
+        },
+        "use_connect": true,
+        "use_inherit_rotation": true,
+        "use_local_location": true
+    },
+    "face": {
+        "head": {
+            "cube_name": "joint-head",
+            "default_position": [
+                0.0,
+                -0.04428749904036522,
+                1.5151333808898926
+            ],
+            "strategy": "CUBE"
+        },
+        "inherit_scale": "FULL",
+        "parent": "spine.006",
+        "rigify": {
+            "rigify_parameters": {
+                "secondary_layers": [
+                    false,
+                    false,
+                    true,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false
+                ]
+            },
+            "rigify_type": "faces.super_face"
+        },
+        "roll": -2.384185791015625e-07,
+        "tail": {
+            "default_position": [
+                -5.568219026164756e-19,
+                -0.04225672781467438,
+                1.5866186618804932
+            ],
+            "strategy": "MEAN",
+            "vertex_indices": [
+                229,
+                18913
+            ]
+        },
+        "use_connect": false,
+        "use_inherit_rotation": true,
+        "use_local_location": true
+    },
+    "foot.L": {
+        "head": {
+            "cube_name": "joint-l-ankle",
+            "default_position": [
+                0.18058249354362488,
+                -0.022679584100842476,
+                0.06969292461872101
+            ],
+            "strategy": "CUBE"
+        },
+        "inherit_scale": "FULL",
+        "parent": "shin.L",
+        "rigify": {},
+        "roll": 0.0,
+        "tail": {
+            "cube_name": "joint-l-foot-1",
+            "default_position": [
+                0.1860474944114685,
+                -0.13947834074497223,
+                0.009515419602394104
+            ],
+            "strategy": "CUBE"
+        },
+        "use_connect": true,
+        "use_inherit_rotation": true,
+        "use_local_location": true
+    },
+    "foot.R": {
+        "head": {
+            "cube_name": "joint-r-ankle",
+            "default_position": [
+                -0.18058249354362488,
+                -0.022679584100842476,
+                0.06969292461872101
+            ],
+            "strategy": "CUBE"
+        },
+        "inherit_scale": "FULL",
+        "parent": "shin.R",
+        "rigify": {},
+        "roll": -0.0,
+        "tail": {
+            "cube_name": "joint-r-foot-1",
+            "default_position": [
+                -0.1860474944114685,
+                -0.13947834074497223,
+                0.009515419602394104
+            ],
+            "strategy": "CUBE"
+        },
+        "use_connect": true,
+        "use_inherit_rotation": true,
+        "use_local_location": true
+    },
+    "forearm.L": {
+        "head": {
+            "cube_name": "joint-l-elbow",
+            "default_position": [
+                0.33135083317756653,
+                -0.02012624964118004,
+                1.1398446559906006
+            ],
+            "strategy": "CUBE"
+        },
+        "inherit_scale": "FULL",
+        "parent": "upper_arm.L",
+        "rigify": {},
+        "roll": 2.1535000801086426,
+        "tail": {
+            "cube_name": "joint-l-hand",
+            "default_position": [
+                0.45331627130508423,
+                -0.18330499529838562,
+                1.015615463256836
+            ],
+            "strategy": "CUBE"
+        },
+        "use_connect": true,
+        "use_inherit_rotation": true,
+        "use_local_location": true
+    },
+    "forearm.R": {
+        "head": {
+            "cube_name": "joint-r-elbow",
+            "default_position": [
+                -0.33135083317756653,
+                -0.02012624964118004,
+                1.1398446559906006
+            ],
+            "strategy": "CUBE"
+        },
+        "inherit_scale": "FULL",
+        "parent": "upper_arm.R",
+        "rigify": {},
+        "roll": -2.1535000801086426,
+        "tail": {
+            "cube_name": "joint-r-hand",
+            "default_position": [
+                -0.45331627130508423,
+                -0.18330499529838562,
+                1.015615463256836
+            ],
+            "strategy": "CUBE"
+        },
+        "use_connect": true,
+        "use_inherit_rotation": true,
+        "use_local_location": true
+    },
+    "forehead.L": {
+        "head": {
+            "default_position": [
+                0.0081599997356534,
+                -0.13814666867256165,
+                1.5996816158294678
+            ],
+            "strategy": "VERTEX",
+            "vertex_index": 7015
+        },
+        "inherit_scale": "FULL",
+        "parent": "face",
+        "rigify": {},
+        "roll": 1.4313000440597534,
+        "tail": {
+            "default_position": [
+                0.015200003050267696,
+                -0.14342667162418365,
+                1.569624900817871
+            ],
+            "strategy": "VERTEX",
+            "vertex_index": 6983
+        },
+        "use_connect": false,
+        "use_inherit_rotation": true,
+        "use_local_location": true
+    },
+    "forehead.L.001": {
+        "head": {
+            "default_position": [
+                0.02821333520114422,
+                -0.13033334910869598,
+                1.6067249774932861
+            ],
+            "strategy": "VERTEX",
+            "vertex_index": 7011
+        },
+        "inherit_scale": "FULL",
+        "parent": "forehead.L",
+        "rigify": {},
+        "roll": 0.9927999973297119,
+        "tail": {
+            "default_position": [
+                0.03982333466410637,
+                -0.13609667122364044,
+                1.5692517757415771
+            ],
+            "strategy": "VERTEX",
+            "vertex_index": 6981
+        },
+        "use_connect": false,
+        "use_inherit_rotation": true,
+        "use_local_location": true
+    },
+    "forehead.L.002": {
+        "head": {
+            "default_position": [
+                0.04977665841579437,
+                -0.10950334370136261,
+                1.6081950664520264
+            ],
+            "strategy": "VERTEX",
+            "vertex_index": 7018
+        },
+        "inherit_scale": "FULL",
+        "parent": "forehead.L.001",
+        "rigify": {},
+        "roll": 0.45089998841285706,
+        "tail": {
+            "default_position": [
+                0.05418333038687706,
+                -0.11859666556119919,
+                1.5625550746917725
+            ],
+            "strategy": "VERTEX",
+            "vertex_index": 7023
+        },
+        "use_connect": false,
+        "use_inherit_rotation": true,
+        "use_local_location": true
+    },
+    "forehead.R": {
+        "head": {
+            "default_position": [
+                -0.0081599997356534,
+                -0.13814666867256165,
+                1.5996816158294678
+            ],
+            "strategy": "VERTEX",
+            "vertex_index": 245
+        },
+        "inherit_scale": "FULL",
+        "parent": "face",
+        "rigify": {},
+        "roll": -1.4313000440597534,
+        "tail": {
+            "default_position": [
+                -0.015200003050267696,
+                -0.14342667162418365,
+                1.569624900817871
+            ],
+            "strategy": "VERTEX",
+            "vertex_index": 208
+        },
+        "use_connect": false,
+        "use_inherit_rotation": true,
+        "use_local_location": true
+    },
+    "forehead.R.001": {
+        "head": {
+            "default_position": [
+                -0.02821333520114422,
+                -0.13033334910869598,
+                1.6067249774932861
+            ],
+            "strategy": "VERTEX",
+            "vertex_index": 240
+        },
+        "inherit_scale": "FULL",
+        "parent": "forehead.R",
+        "rigify": {},
+        "roll": -0.9927999973297119,
+        "tail": {
+            "default_position": [
+                -0.03982333466410637,
+                -0.13609667122364044,
+                1.5692517757415771
+            ],
+            "strategy": "VERTEX",
+            "vertex_index": 206
+        },
+        "use_connect": false,
+        "use_inherit_rotation": true,
+        "use_local_location": true
+    },
+    "forehead.R.002": {
+        "head": {
+            "default_position": [
+                -0.04977665841579437,
+                -0.10950334370136261,
+                1.6081950664520264
+            ],
+            "strategy": "VERTEX",
+            "vertex_index": 248
+        },
+        "inherit_scale": "FULL",
+        "parent": "forehead.R.001",
+        "rigify": {},
+        "roll": -0.45089998841285706,
+        "tail": {
+            "default_position": [
+                -0.05418333038687706,
+                -0.11859666556119919,
+                1.5625550746917725
+            ],
+            "strategy": "VERTEX",
+            "vertex_index": 254
+        },
+        "use_connect": false,
+        "use_inherit_rotation": true,
+        "use_local_location": true
+    },
+    "hand.L": {
+        "head": {
+            "cube_name": "joint-l-hand",
+            "default_position": [
+                0.45331627130508423,
+                -0.18330499529838562,
+                1.015615463256836
+            ],
+            "strategy": "CUBE"
+        },
+        "inherit_scale": "FULL",
+        "parent": "forearm.L",
+        "rigify": {},
+        "roll": 2.2102999687194824,
+        "tail": {
+            "cube_name": "joint-l-hand-3",
+            "default_position": [
+                0.4640274941921234,
+                -0.209370419383049,
+                0.9999445676803589
+            ],
+            "strategy": "CUBE"
+        },
+        "use_connect": true,
+        "use_inherit_rotation": true,
+        "use_local_location": true
+    },
+    "hand.R": {
+        "head": {
+            "cube_name": "joint-r-hand",
+            "default_position": [
+                -0.45331627130508423,
+                -0.18330499529838562,
+                1.015615463256836
+            ],
+            "strategy": "CUBE"
+        },
+        "inherit_scale": "FULL",
+        "parent": "forearm.R",
+        "rigify": {},
+        "roll": -2.2102999687194824,
+        "tail": {
+            "cube_name": "joint-r-hand-3",
+            "default_position": [
+                -0.4640274941921234,
+                -0.209370419383049,
+                0.9999445676803589
+            ],
+            "strategy": "CUBE"
+        },
+        "use_connect": true,
+        "use_inherit_rotation": true,
+        "use_local_location": true
+    },
+    "heel.02.L": {
+        "head": {
+            "default_position": [
+                0.17327332496643066,
+                0.0031600017100572586,
+                -0.0034583210945129395
+            ],
+            "strategy": "VERTEX",
+            "vertex_index": 16759
+        },
+        "inherit_scale": "FULL",
+        "parent": "foot.L",
+        "rigify": {},
+        "roll": 0.0,
+        "tail": {
+            "default_position": [
+                0.2102433443069458,
+                0.0005066649755463004,
+                0.0007682442665100098
+            ],
+            "strategy": "VERTEX",
+            "vertex_index": 16756
+        },
+        "use_connect": false,
+        "use_inherit_rotation": true,
+        "use_local_location": true
+    },
+    "heel.02.R": {
+        "head": {
+            "default_position": [
+                -0.17327332496643066,
+                0.0031600017100572586,
+                -0.0034583210945129395
+            ],
+            "strategy": "VERTEX",
+            "vertex_index": 15455
+        },
+        "inherit_scale": "FULL",
+        "parent": "foot.R",
+        "rigify": {},
+        "roll": -0.0,
+        "tail": {
+            "default_position": [
+                -0.2102433443069458,
+                0.0005066649755463004,
+                0.0007682442665100098
+            ],
+            "strategy": "VERTEX",
+            "vertex_index": 15452
+        },
+        "use_connect": false,
+        "use_inherit_rotation": true,
+        "use_local_location": true
+    },
+    "jaw": {
+        "head": {
+            "default_position": [
+                0.0,
+                -0.09603331983089447,
+                1.443005084991455
+            ],
+            "strategy": "VERTEX",
+            "vertex_index": 783
+        },
+        "inherit_scale": "FULL",
+        "parent": "face",
+        "rigify": {},
+        "roll": 0.0,
+        "tail": {
+            "default_position": [
+                0.0,
+                -0.1310500055551529,
+                1.4462950229644775
+            ],
+            "strategy": "VERTEX",
+            "vertex_index": 5296
+        },
+        "use_connect": false,
+        "use_inherit_rotation": true,
+        "use_local_location": true
+    },
+    "jaw.L": {
+        "head": {
+            "default_position": [
+                0.06612666696310043,
+                -0.0746999979019165,
+                1.5402483940124512
+            ],
+            "strategy": "VERTEX",
+            "vertex_index": 7572
+        },
+        "inherit_scale": "FULL",
+        "parent": "temple.L",
+        "rigify": {},
+        "roll": -0.08990000188350677,
+        "tail": {
+            "default_position": [
+                0.053503330796957016,
+                -0.0694633349776268,
+                1.4800816774368286
+            ],
+            "strategy": "VERTEX",
+            "vertex_index": 7459
+        },
+        "use_connect": true,
+        "use_inherit_rotation": true,
+        "use_local_location": true
+    },
+    "jaw.L.001": {
+        "head": {
+            "default_position": [
+                0.053503330796957016,
+                -0.0694633349776268,
+                1.4800816774368286
+            ],
+            "strategy": "VERTEX",
+            "vertex_index": 7459
+        },
+        "inherit_scale": "FULL",
+        "parent": "jaw.L",
+        "rigify": {},
+        "roll": 0.12229999899864197,
+        "tail": {
+            "default_position": [
+                0.020269999280571938,
+                -0.12838000059127808,
+                1.4525883197784424
+            ],
+            "strategy": "VERTEX",
+            "vertex_index": 11832
+        },
+        "use_connect": true,
+        "use_inherit_rotation": true,
+        "use_local_location": true
+    },
+    "jaw.R": {
+        "head": {
+            "default_position": [
+                -0.06612666696310043,
+                -0.0746999979019165,
+                1.5402483940124512
+            ],
+            "strategy": "VERTEX",
+            "vertex_index": 867
+        },
+        "inherit_scale": "FULL",
+        "parent": "temple.R",
+        "rigify": {},
+        "roll": 0.08990000188350677,
+        "tail": {
+            "default_position": [
+                -0.053503330796957016,
+                -0.0694633349776268,
+                1.4800816774368286
+            ],
+            "strategy": "VERTEX",
+            "vertex_index": 739
+        },
+        "use_connect": true,
+        "use_inherit_rotation": true,
+        "use_local_location": true
+    },
+    "jaw.R.001": {
+        "head": {
+            "default_position": [
+                -0.053503330796957016,
+                -0.0694633349776268,
+                1.4800816774368286
+            ],
+            "strategy": "VERTEX",
+            "vertex_index": 739
+        },
+        "inherit_scale": "FULL",
+        "parent": "jaw.R",
+        "rigify": {},
+        "roll": -0.12229999899864197,
+        "tail": {
+            "default_position": [
+                -0.020269999280571938,
+                -0.12838000059127808,
+                1.4525883197784424
+            ],
+            "strategy": "VERTEX",
+            "vertex_index": 5222
+        },
+        "use_connect": true,
+        "use_inherit_rotation": true,
+        "use_local_location": true
+    },
+    "lid.B.L": {
+        "head": {
+            "default_position": [
+                0.04646666347980499,
+                -0.12408999353647232,
+                1.5528550148010254
+            ],
+            "strategy": "VERTEX",
+            "vertex_index": 6869
+        },
+        "inherit_scale": "FULL",
+        "parent": "lid.T.L.003",
+        "rigify": {},
+        "roll": 0.07559999823570251,
+        "tail": {
+            "default_position": [
+                0.03953666612505913,
+                -0.12937001883983612,
+                1.5480084419250488
+            ],
+            "strategy": "VERTEX",
+            "vertex_index": 6818
+        },
+        "use_connect": true,
+        "use_inherit_rotation": true,
+        "use_local_location": true
+    },
+    "lid.B.L.001": {
+        "head": {
+            "default_position": [
+                0.03953666612505913,
+                -0.12937001883983612,
+                1.5480084419250488
+            ],
+            "strategy": "VERTEX",
+            "vertex_index": 6818
+        },
+        "inherit_scale": "FULL",
+        "parent": "lid.B.L",
+        "rigify": {},
+        "roll": 0.1014999970793724,
+        "tail": {
+            "default_position": [
+                0.029469996690750122,
+                -0.13319334387779236,
+                1.5461050271987915
+            ],
+            "strategy": "VERTEX",
+            "vertex_index": 6827
+        },
+        "use_connect": true,
+        "use_inherit_rotation": true,
+        "use_local_location": true
+    },
+    "lid.B.L.002": {
+        "head": {
+            "default_position": [
+                0.029469996690750122,
+                -0.13319334387779236,
+                1.5461050271987915
+            ],
+            "strategy": "VERTEX",
+            "vertex_index": 6827
+        },
+        "inherit_scale": "FULL",
+        "parent": "lid.B.L.001",
+        "rigify": {},
+        "roll": -0.07479999959468842,
+        "tail": {
+            "default_position": [
+                0.02218666858971119,
+                -0.13280333578586578,
+                1.546875
+            ],
+            "strategy": "VERTEX",
+            "vertex_index": 6832
+        },
+        "use_connect": true,
+        "use_inherit_rotation": true,
+        "use_local_location": true
+    },
+    "lid.B.L.003": {
+        "head": {
+            "default_position": [
+                0.02218666858971119,
+                -0.13280333578586578,
+                1.546875
+            ],
+            "strategy": "VERTEX",
+            "vertex_index": 6832
+        },
+        "inherit_scale": "FULL",
+        "parent": "lid.B.L.002",
+        "rigify": {},
+        "roll": -0.008500000461935997,
+        "tail": {
+            "default_position": [
+                0.014886667020618916,
+                -0.13227997720241547,
+                1.550708293914795
+            ],
+            "strategy": "VERTEX",
+            "vertex_index": 6851
+        },
+        "use_connect": true,
+        "use_inherit_rotation": true,
+        "use_local_location": true
+    },
+    "lid.B.R": {
+        "head": {
+            "default_position": [
+                -0.04646666347980499,
+                -0.12408999353647232,
+                1.5528550148010254
+            ],
+            "strategy": "VERTEX",
+            "vertex_index": 85
+        },
+        "inherit_scale": "FULL",
+        "parent": "lid.T.R.003",
+        "rigify": {},
+        "roll": -0.07559999823570251,
+        "tail": {
+            "default_position": [
+                -0.03953666612505913,
+                -0.12937001883983612,
+                1.5480084419250488
+            ],
+            "strategy": "VERTEX",
+            "vertex_index": 34
+        },
+        "use_connect": true,
+        "use_inherit_rotation": true,
+        "use_local_location": true
+    },
+    "lid.B.R.001": {
+        "head": {
+            "default_position": [
+                -0.03953666612505913,
+                -0.12937001883983612,
+                1.5480084419250488
+            ],
+            "strategy": "VERTEX",
+            "vertex_index": 34
+        },
+        "inherit_scale": "FULL",
+        "parent": "lid.B.R",
+        "rigify": {},
+        "roll": -0.1014999970793724,
+        "tail": {
+            "default_position": [
+                -0.029469996690750122,
+                -0.13319334387779236,
+                1.5461050271987915
+            ],
+            "strategy": "VERTEX",
+            "vertex_index": 43
+        },
+        "use_connect": true,
+        "use_inherit_rotation": true,
+        "use_local_location": true
+    },
+    "lid.B.R.002": {
+        "head": {
+            "default_position": [
+                -0.029469996690750122,
+                -0.13319334387779236,
+                1.5461050271987915
+            ],
+            "strategy": "VERTEX",
+            "vertex_index": 43
+        },
+        "inherit_scale": "FULL",
+        "parent": "lid.B.R.001",
+        "rigify": {},
+        "roll": 0.07479999959468842,
+        "tail": {
+            "default_position": [
+                -0.02218666858971119,
+                -0.13280333578586578,
+                1.546875
+            ],
+            "strategy": "VERTEX",
+            "vertex_index": 48
+        },
+        "use_connect": true,
+        "use_inherit_rotation": true,
+        "use_local_location": true
+    },
+    "lid.B.R.003": {
+        "head": {
+            "default_position": [
+                -0.02218666858971119,
+                -0.13280333578586578,
+                1.546875
+            ],
+            "strategy": "VERTEX",
+            "vertex_index": 48
+        },
+        "inherit_scale": "FULL",
+        "parent": "lid.B.R.002",
+        "rigify": {},
+        "roll": 0.008500000461935997,
+        "tail": {
+            "default_position": [
+                -0.014886667020618916,
+                -0.13227997720241547,
+                1.550708293914795
+            ],
+            "strategy": "VERTEX",
+            "vertex_index": 67
+        },
+        "use_connect": true,
+        "use_inherit_rotation": true,
+        "use_local_location": true
+    },
+    "lid.T.L": {
+        "head": {
+            "default_position": [
+                0.014886667020618916,
+                -0.13227997720241547,
+                1.550708293914795
+            ],
+            "strategy": "VERTEX",
+            "vertex_index": 6851
+        },
+        "inherit_scale": "FULL",
+        "parent": "face",
+        "rigify": {},
+        "roll": -0.2079000025987625,
+        "tail": {
+            "default_position": [
+                0.021780000999569893,
+                -0.134436696767807,
+                1.5560917854309082
+            ],
+            "strategy": "VERTEX",
+            "vertex_index": 6842
+        },
+        "use_connect": false,
+        "use_inherit_rotation": true,
+        "use_local_location": true
+    },
+    "lid.T.L.001": {
+        "head": {
+            "default_position": [
+                0.021780000999569893,
+                -0.134436696767807,
+                1.5560917854309082
+            ],
+            "strategy": "VERTEX",
+            "vertex_index": 6842
+        },
+        "inherit_scale": "FULL",
+        "parent": "lid.T.L",
+        "rigify": {},
+        "roll": 0.18369999527931213,
+        "tail": {
+            "default_position": [
+                0.029116669669747353,
+                -0.13588668406009674,
+                1.557931661605835
+            ],
+            "strategy": "VERTEX",
+            "vertex_index": 6787
+        },
+        "use_connect": true,
+        "use_inherit_rotation": true,
+        "use_local_location": true
+    },
+    "lid.T.L.002": {
+        "head": {
+            "default_position": [
+                0.029116669669747353,
+                -0.13588668406009674,
+                1.557931661605835
+            ],
+            "strategy": "VERTEX",
+            "vertex_index": 6787
+        },
+        "inherit_scale": "FULL",
+        "parent": "lid.T.L.001",
+        "rigify": {},
+        "roll": -0.09399999678134918,
+        "tail": {
+            "default_position": [
+                0.0391399972140789,
+                -0.132383331656456,
+                1.5564217567443848
+            ],
+            "strategy": "VERTEX",
+            "vertex_index": 6794
+        },
+        "use_connect": true,
+        "use_inherit_rotation": true,
+        "use_local_location": true
+    },
+    "lid.T.L.003": {
+        "head": {
+            "default_position": [
+                0.0391399972140789,
+                -0.132383331656456,
+                1.5564217567443848
+            ],
+            "strategy": "VERTEX",
+            "vertex_index": 6794
+        },
+        "inherit_scale": "FULL",
+        "parent": "lid.T.L.002",
+        "rigify": {},
+        "roll": 0.21940000355243683,
+        "tail": {
+            "default_position": [
+                0.04646666347980499,
+                -0.12408999353647232,
+                1.5528550148010254
+            ],
+            "strategy": "VERTEX",
+            "vertex_index": 6869
+        },
+        "use_connect": true,
+        "use_inherit_rotation": true,
+        "use_local_location": true
+    },
+    "lid.T.R": {
+        "head": {
+            "default_position": [
+                -0.014886667020618916,
+                -0.13227997720241547,
+                1.550708293914795
+            ],
+            "strategy": "VERTEX",
+            "vertex_index": 67
+        },
+        "inherit_scale": "FULL",
+        "parent": "face",
+        "rigify": {},
+        "roll": 0.2079000025987625,
+        "tail": {
+            "default_position": [
+                -0.021780000999569893,
+                -0.134436696767807,
+                1.5560917854309082
+            ],
+            "strategy": "VERTEX",
+            "vertex_index": 58
+        },
+        "use_connect": false,
+        "use_inherit_rotation": true,
+        "use_local_location": true
+    },
+    "lid.T.R.001": {
+        "head": {
+            "default_position": [
+                -0.021780000999569893,
+                -0.134436696767807,
+                1.5560917854309082
+            ],
+            "strategy": "VERTEX",
+            "vertex_index": 58
+        },
+        "inherit_scale": "FULL",
+        "parent": "lid.T.R",
+        "rigify": {},
+        "roll": -0.18369999527931213,
+        "tail": {
+            "default_position": [
+                -0.029116669669747353,
+                -0.13588668406009674,
+                1.557931661605835
+            ],
+            "strategy": "VERTEX",
+            "vertex_index": 3
+        },
+        "use_connect": true,
+        "use_inherit_rotation": true,
+        "use_local_location": true
+    },
+    "lid.T.R.002": {
+        "head": {
+            "default_position": [
+                -0.029116669669747353,
+                -0.13588668406009674,
+                1.557931661605835
+            ],
+            "strategy": "VERTEX",
+            "vertex_index": 3
+        },
+        "inherit_scale": "FULL",
+        "parent": "lid.T.R.001",
+        "rigify": {},
+        "roll": 0.09399999678134918,
+        "tail": {
+            "default_position": [
+                -0.0391399972140789,
+                -0.132383331656456,
+                1.5564217567443848
+            ],
+            "strategy": "VERTEX",
+            "vertex_index": 10
+        },
+        "use_connect": true,
+        "use_inherit_rotation": true,
+        "use_local_location": true
+    },
+    "lid.T.R.003": {
+        "head": {
+            "default_position": [
+                -0.0391399972140789,
+                -0.132383331656456,
+                1.5564217567443848
+            ],
+            "strategy": "VERTEX",
+            "vertex_index": 10
+        },
+        "inherit_scale": "FULL",
+        "parent": "lid.T.R.002",
+        "rigify": {},
+        "roll": -0.21940000355243683,
+        "tail": {
+            "default_position": [
+                -0.04646666347980499,
+                -0.12408999353647232,
+                1.5528550148010254
+            ],
+            "strategy": "VERTEX",
+            "vertex_index": 85
+        },
+        "use_connect": true,
+        "use_inherit_rotation": true,
+        "use_local_location": true
+    },
+    "lip.B.L": {
+        "head": {
+            "default_position": [
+                0.0,
+                -0.1495700180530548,
+                1.4810683727264404
+            ],
+            "strategy": "VERTEX",
+            "vertex_index": 495
+        },
+        "inherit_scale": "FULL",
+        "parent": "face",
+        "rigify": {},
+        "roll": -0.07890000194311142,
+        "tail": {
+            "default_position": [
+                0.012140000239014626,
+                -0.14663001894950867,
+                1.4823682308197021
+            ],
+            "strategy": "VERTEX",
+            "vertex_index": 7238
+        },
+        "use_connect": false,
+        "use_inherit_rotation": true,
+        "use_local_location": true
+    },
+    "lip.B.L.001": {
+        "head": {
+            "default_position": [
+                0.012140000239014626,
+                -0.14663001894950867,
+                1.4823682308197021
+            ],
+            "strategy": "VERTEX",
+            "vertex_index": 7238
+        },
+        "inherit_scale": "FULL",
+        "parent": "lip.B.L",
+        "rigify": {},
+        "roll": 0.0731000006198883,
+        "tail": {
+            "default_position": [
+                0.02271333523094654,
+                -0.13869333267211914,
+                1.4858750104904175
+            ],
+            "strategy": "VERTEX",
+            "vertex_index": 7182
+        },
+        "use_connect": true,
+        "use_inherit_rotation": true,
+        "use_local_location": true
+    },
+    "lip.B.R": {
+        "head": {
+            "default_position": [
+                0.0,
+                -0.1495700180530548,
+                1.4810683727264404
+            ],
+            "strategy": "VERTEX",
+            "vertex_index": 495
+        },
+        "inherit_scale": "FULL",
+        "parent": "face",
+        "rigify": {},
+        "roll": 0.07890000194311142,
+        "tail": {
+            "default_position": [
+                -0.012140000239014626,
+                -0.14663001894950867,
+                1.4823682308197021
+            ],
+            "strategy": "VERTEX",
+            "vertex_index": 483
+        },
+        "use_connect": false,
+        "use_inherit_rotation": true,
+        "use_local_location": true
+    },
+    "lip.B.R.001": {
+        "head": {
+            "default_position": [
+                -0.012140000239014626,
+                -0.14663001894950867,
+                1.4823682308197021
+            ],
+            "strategy": "VERTEX",
+            "vertex_index": 483
+        },
+        "inherit_scale": "FULL",
+        "parent": "lip.B.R",
+        "rigify": {},
+        "roll": -0.0731000006198883,
+        "tail": {
+            "default_position": [
+                -0.02271333523094654,
+                -0.13869333267211914,
+                1.4858750104904175
+            ],
+            "strategy": "VERTEX",
+            "vertex_index": 422
+        },
+        "use_connect": true,
+        "use_inherit_rotation": true,
+        "use_local_location": true
+    },
+    "lip.T.L": {
+        "head": {
+            "default_position": [
+                0.0,
+                -0.15252000093460083,
+                1.4920250177383423
+            ],
+            "strategy": "VERTEX",
+            "vertex_index": 467
+        },
+        "inherit_scale": "FULL",
+        "parent": "face",
+        "rigify": {},
+        "roll": 0.0,
+        "tail": {
+            "default_position": [
+                0.01344000082463026,
+                -0.147883340716362,
+                1.491265058517456
+            ],
+            "strategy": "VERTEX",
+            "vertex_index": 11954
+        },
+        "use_connect": false,
+        "use_inherit_rotation": true,
+        "use_local_location": true
+    },
+    "lip.T.L.001": {
+        "head": {
+            "default_position": [
+                0.01344000082463026,
+                -0.147883340716362,
+                1.491265058517456
+            ],
+            "strategy": "VERTEX",
+            "vertex_index": 11954
+        },
+        "inherit_scale": "FULL",
+        "parent": "lip.T.L",
+        "rigify": {},
+        "roll": 0.023600000888109207,
+        "tail": {
+            "default_position": [
+                0.02271333523094654,
+                -0.13869333267211914,
+                1.4858750104904175
+            ],
+            "strategy": "VERTEX",
+            "vertex_index": 7182
+        },
+        "use_connect": true,
+        "use_inherit_rotation": true,
+        "use_local_location": true
+    },
+    "lip.T.R": {
+        "head": {
+            "default_position": [
+                0.0,
+                -0.15252000093460083,
+                1.4920250177383423
+            ],
+            "strategy": "VERTEX",
+            "vertex_index": 467
+        },
+        "inherit_scale": "FULL",
+        "parent": "face",
+        "rigify": {},
+        "roll": -0.0,
+        "tail": {
+            "default_position": [
+                -0.01344000082463026,
+                -0.147883340716362,
+                1.491265058517456
+            ],
+            "strategy": "VERTEX",
+            "vertex_index": 5352
+        },
+        "use_connect": false,
+        "use_inherit_rotation": true,
+        "use_local_location": true
+    },
+    "lip.T.R.001": {
+        "head": {
+            "default_position": [
+                -0.01344000082463026,
+                -0.147883340716362,
+                1.491265058517456
+            ],
+            "strategy": "VERTEX",
+            "vertex_index": 5352
+        },
+        "inherit_scale": "FULL",
+        "parent": "lip.T.R",
+        "rigify": {},
+        "roll": -0.023600000888109207,
+        "tail": {
+            "default_position": [
+                -0.02271333523094654,
+                -0.13869333267211914,
+                1.4858750104904175
+            ],
+            "strategy": "VERTEX",
+            "vertex_index": 422
+        },
+        "use_connect": true,
+        "use_inherit_rotation": true,
+        "use_local_location": true
+    },
+    "nose": {
+        "head": {
+            "default_position": [
+                0.0,
+                -0.14132001996040344,
+                1.5541818141937256
+            ],
+            "strategy": "VERTEX",
+            "vertex_index": 132
+        },
+        "inherit_scale": "FULL",
+        "parent": "face",
+        "rigify": {},
+        "roll": 0.0,
+        "tail": {
+            "default_position": [
+                0.0,
+                -0.1517000049352646,
+                1.5321483612060547
+            ],
+            "strategy": "VERTEX",
+            "vertex_index": 164
+        },
+        "use_connect": false,
+        "use_inherit_rotation": true,
+        "use_local_location": true
+    },
+    "nose.001": {
+        "head": {
+            "default_position": [
+                0.0,
+                -0.1517000049352646,
+                1.5321483612060547
+            ],
+            "strategy": "VERTEX",
+            "vertex_index": 164
+        },
+        "inherit_scale": "FULL",
+        "parent": "nose",
+        "rigify": {},
+        "roll": 0.0,
+        "tail": {
+            "default_position": [
+                0.0,
+                -0.15958666801452637,
+                1.5160549879074097
+            ],
+            "strategy": "VERTEX",
+            "vertex_index": 297
+        },
+        "use_connect": true,
+        "use_inherit_rotation": true,
+        "use_local_location": true
+    },
+    "nose.002": {
+        "head": {
+            "default_position": [
+                0.0,
+                -0.15958666801452637,
+                1.5160549879074097
+            ],
+            "strategy": "VERTEX",
+            "vertex_index": 297
+        },
+        "inherit_scale": "FULL",
+        "parent": "nose.001",
+        "rigify": {},
+        "roll": 0.0,
+        "tail": {
+            "default_position": [
+                0.0,
+                -0.1532299965620041,
+                1.5093684196472168
+            ],
+            "strategy": "VERTEX",
+            "vertex_index": 312
+        },
+        "use_connect": true,
+        "use_inherit_rotation": true,
+        "use_local_location": true
+    },
+    "nose.003": {
+        "head": {
+            "default_position": [
+                0.0,
+                -0.1532299965620041,
+                1.5093684196472168
+            ],
+            "strategy": "VERTEX",
+            "vertex_index": 312
+        },
+        "inherit_scale": "FULL",
+        "parent": "nose.002",
+        "rigify": {},
+        "roll": 0.0,
+        "tail": {
+            "default_position": [
+                0.0,
+                -0.14930333197116852,
+                1.5056617259979248
+            ],
+            "strategy": "VERTEX",
+            "vertex_index": 343
+        },
+        "use_connect": true,
+        "use_inherit_rotation": true,
+        "use_local_location": true
+    },
+    "nose.004": {
+        "head": {
+            "default_position": [
+                0.0,
+                -0.14930333197116852,
+                1.5056617259979248
+            ],
+            "strategy": "VERTEX",
+            "vertex_index": 343
+        },
+        "inherit_scale": "FULL",
+        "parent": "nose.003",
+        "rigify": {},
+        "roll": 0.0,
+        "tail": {
+            "default_position": [
+                0.0,
+                -0.15252000093460083,
+                1.4920250177383423
+            ],
+            "strategy": "VERTEX",
+            "vertex_index": 467
+        },
+        "use_connect": true,
+        "use_inherit_rotation": true,
+        "use_local_location": true
+    },
+    "nose.L": {
+        "head": {
+            "default_position": [
+                0.012096668593585491,
+                -0.13776998221874237,
+                1.539278507232666
+            ],
+            "strategy": "VERTEX",
+            "vertex_index": 11715
+        },
+        "inherit_scale": "FULL",
+        "parent": "cheek.T.L.001",
+        "rigify": {},
+        "roll": 0.09969999641180038,
+        "tail": {
+            "default_position": [
+                0.01710333488881588,
+                -0.1408366709947586,
+                1.513271689414978
+            ],
+            "strategy": "VERTEX",
+            "vertex_index": 7099
+        },
+        "use_connect": true,
+        "use_inherit_rotation": true,
+        "use_local_location": true
+    },
+    "nose.L.001": {
+        "head": {
+            "default_position": [
+                0.01710333488881588,
+                -0.1408366709947586,
+                1.513271689414978
+            ],
+            "strategy": "VERTEX",
+            "vertex_index": 7099
+        },
+        "inherit_scale": "FULL",
+        "parent": "nose.L",
+        "rigify": {},
+        "roll": 0.10700000077486038,
+        "tail": {
+            "default_position": [
+                0.0,
+                -0.15958666801452637,
+                1.5160549879074097
+            ],
+            "strategy": "VERTEX",
+            "vertex_index": 297
+        },
+        "use_connect": true,
+        "use_inherit_rotation": true,
+        "use_local_location": true
+    },
+    "nose.R": {
+        "head": {
+            "default_position": [
+                -0.012096668593585491,
+                -0.13776998221874237,
+                1.539278507232666
+            ],
+            "strategy": "VERTEX",
+            "vertex_index": 5100
+        },
+        "inherit_scale": "FULL",
+        "parent": "cheek.T.R.001",
+        "rigify": {},
+        "roll": -0.09969999641180038,
+        "tail": {
+            "default_position": [
+                -0.01710333488881588,
+                -0.1408366709947586,
+                1.513271689414978
+            ],
+            "strategy": "VERTEX",
+            "vertex_index": 337
+        },
+        "use_connect": true,
+        "use_inherit_rotation": true,
+        "use_local_location": true
+    },
+    "nose.R.001": {
+        "head": {
+            "default_position": [
+                -0.01710333488881588,
+                -0.1408366709947586,
+                1.513271689414978
+            ],
+            "strategy": "VERTEX",
+            "vertex_index": 337
+        },
+        "inherit_scale": "FULL",
+        "parent": "nose.R",
+        "rigify": {},
+        "roll": -0.10700000077486038,
+        "tail": {
+            "default_position": [
+                0.0,
+                -0.15958666801452637,
+                1.5160549879074097
+            ],
+            "strategy": "VERTEX",
+            "vertex_index": 297
+        },
+        "use_connect": true,
+        "use_inherit_rotation": true,
+        "use_local_location": true
+    },
+    "palm.01.L": {
+        "head": {
+            "cube_name": "joint-l-hand-3",
+            "default_position": [
+                0.4640274941921234,
+                -0.209370419383049,
+                0.9999445676803589
+            ],
+            "strategy": "CUBE"
+        },
+        "inherit_scale": "FULL",
+        "parent": "hand.L",
+        "rigify": {
+            "rigify_type": "limbs.super_palm"
+        },
+        "roll": -2.492799997329712,
+        "tail": {
+            "cube_name": "joint-l-finger-2-1",
+            "default_position": [
+                0.4810870885848999,
+                -0.27767249941825867,
+                0.9750295877456665
+            ],
+            "strategy": "CUBE"
+        },
+        "use_connect": false,
+        "use_inherit_rotation": true,
+        "use_local_location": true
+    },
+    "palm.01.R": {
+        "head": {
+            "cube_name": "joint-r-hand-3",
+            "default_position": [
+                -0.4640274941921234,
+                -0.209370419383049,
+                0.9999445676803589
+            ],
+            "strategy": "CUBE"
+        },
+        "inherit_scale": "FULL",
+        "parent": "hand.R",
+        "rigify": {
+            "rigify_type": "limbs.super_palm"
+        },
+        "roll": 2.492799997329712,
+        "tail": {
+            "cube_name": "joint-r-finger-2-1",
+            "default_position": [
+                -0.4810870885848999,
+                -0.27767249941825867,
+                0.9750295877456665
+            ],
+            "strategy": "CUBE"
+        },
+        "use_connect": false,
+        "use_inherit_rotation": true,
+        "use_local_location": true
+    },
+    "palm.02.L": {
+        "head": {
+            "cube_name": "joint-l-hand-3",
+            "default_position": [
+                0.4640274941921234,
+                -0.209370419383049,
+                0.9999445676803589
+            ],
+            "strategy": "CUBE"
+        },
+        "inherit_scale": "FULL",
+        "parent": "hand.L",
+        "rigify": {},
+        "roll": -2.527400016784668,
+        "tail": {
+            "cube_name": "joint-l-finger-3-1",
+            "default_position": [
+                0.4973508417606354,
+                -0.25984543561935425,
+                0.9641387462615967
+            ],
+            "strategy": "CUBE"
+        },
+        "use_connect": false,
+        "use_inherit_rotation": true,
+        "use_local_location": true
+    },
+    "palm.02.R": {
+        "head": {
+            "cube_name": "joint-r-hand-3",
+            "default_position": [
+                -0.4640274941921234,
+                -0.209370419383049,
+                0.9999445676803589
+            ],
+            "strategy": "CUBE"
+        },
+        "inherit_scale": "FULL",
+        "parent": "hand.R",
+        "rigify": {},
+        "roll": 2.527400016784668,
+        "tail": {
+            "cube_name": "joint-r-finger-3-1",
+            "default_position": [
+                -0.4973508417606354,
+                -0.25984543561935425,
+                0.9641387462615967
+            ],
+            "strategy": "CUBE"
+        },
+        "use_connect": false,
+        "use_inherit_rotation": true,
+        "use_local_location": true
+    },
+    "palm.03.L": {
+        "head": {
+            "cube_name": "joint-l-hand-2",
+            "default_position": [
+                0.4757029116153717,
+                -0.19894208014011383,
+                0.9847429394721985
+            ],
+            "strategy": "CUBE"
+        },
+        "inherit_scale": "FULL",
+        "parent": "hand.L",
+        "rigify": {},
+        "roll": -2.5843000411987305,
+        "tail": {
+            "cube_name": "joint-l-finger-4-1",
+            "default_position": [
+                0.5048841834068298,
+                -0.24275459349155426,
+                0.9564871191978455
+            ],
+            "strategy": "CUBE"
+        },
+        "use_connect": false,
+        "use_inherit_rotation": true,
+        "use_local_location": true
+    },
+    "palm.03.R": {
+        "head": {
+            "cube_name": "joint-r-hand-2",
+            "default_position": [
+                -0.4757029116153717,
+                -0.19894208014011383,
+                0.9847429394721985
+            ],
+            "strategy": "CUBE"
+        },
+        "inherit_scale": "FULL",
+        "parent": "hand.R",
+        "rigify": {},
+        "roll": 2.5843000411987305,
+        "tail": {
+            "cube_name": "joint-r-finger-4-1",
+            "default_position": [
+                -0.5048841834068298,
+                -0.24275459349155426,
+                0.9564871191978455
+            ],
+            "strategy": "CUBE"
+        },
+        "use_connect": false,
+        "use_inherit_rotation": true,
+        "use_local_location": true
+    },
+    "palm.04.L": {
+        "head": {
+            "cube_name": "joint-l-hand-2",
+            "default_position": [
+                0.4757029116153717,
+                -0.19894208014011383,
+                0.9847429394721985
+            ],
+            "strategy": "CUBE"
+        },
+        "inherit_scale": "FULL",
+        "parent": "hand.L",
+        "rigify": {},
+        "roll": -2.515500068664551,
+        "tail": {
+            "cube_name": "joint-l-finger-5-1",
+            "default_position": [
+                0.5063775181770325,
+                -0.2233954221010208,
+                0.9478296041488647
+            ],
+            "strategy": "CUBE"
+        },
+        "use_connect": false,
+        "use_inherit_rotation": true,
+        "use_local_location": true
+    },
+    "palm.04.R": {
+        "head": {
+            "cube_name": "joint-r-hand-2",
+            "default_position": [
+                -0.4757029116153717,
+                -0.19894208014011383,
+                0.9847429394721985
+            ],
+            "strategy": "CUBE"
+        },
+        "inherit_scale": "FULL",
+        "parent": "hand.R",
+        "rigify": {},
+        "roll": 2.515500068664551,
+        "tail": {
+            "cube_name": "joint-r-finger-5-1",
+            "default_position": [
+                -0.5063775181770325,
+                -0.2233954221010208,
+                0.9478296041488647
+            ],
+            "strategy": "CUBE"
+        },
+        "use_connect": false,
+        "use_inherit_rotation": true,
+        "use_local_location": true
+    },
+    "pelvis.L": {
+        "head": {
+            "cube_name": "joint-pelvis",
+            "default_position": [
+                0.0,
+                -0.013204166665673256,
+                0.874281644821167
+            ],
+            "strategy": "CUBE"
+        },
+        "inherit_scale": "FULL",
+        "parent": "spine",
+        "rigify": {
+            "rigify_parameters": {
+                "make_control": false
+            },
+            "rigify_type": "basic.super_copy"
+        },
+        "roll": -1.075600028038025,
+        "tail": {
+            "default_position": [
+                0.15410999953746796,
+                -0.024806668981909752,
+                0.9017950296401978
+            ],
+            "strategy": "VERTEX",
+            "vertex_index": 10914
+        },
+        "use_connect": false,
+        "use_inherit_rotation": true,
+        "use_local_location": true
+    },
+    "pelvis.R": {
+        "head": {
+            "cube_name": "joint-pelvis",
+            "default_position": [
+                0.0,
+                -0.013204166665673256,
+                0.874281644821167
+            ],
+            "strategy": "CUBE"
+        },
+        "inherit_scale": "FULL",
+        "parent": "spine",
+        "rigify": {
+            "rigify_parameters": {
+                "make_control": false
+            },
+            "rigify_type": "basic.super_copy"
+        },
+        "roll": 1.075600028038025,
+        "tail": {
+            "default_position": [
+                -0.15410999953746796,
+                -0.024806668981909752,
+                0.9017950296401978
+            ],
+            "strategy": "VERTEX",
+            "vertex_index": 4284
+        },
+        "use_connect": false,
+        "use_inherit_rotation": true,
+        "use_local_location": true
+    },
+    "shin.L": {
+        "head": {
+            "cube_name": "joint-l-knee",
+            "default_position": [
+                0.14248375594615936,
+                -0.03737916797399521,
+                0.4752454459667206
+            ],
+            "strategy": "CUBE"
+        },
+        "inherit_scale": "FULL",
+        "parent": "thigh.L",
+        "rigify": {},
+        "roll": 0.0,
+        "tail": {
+            "cube_name": "joint-l-ankle",
+            "default_position": [
+                0.18058249354362488,
+                -0.022679584100842476,
+                0.06969292461872101
+            ],
+            "strategy": "CUBE"
+        },
+        "use_connect": true,
+        "use_inherit_rotation": true,
+        "use_local_location": true
+    },
+    "shin.R": {
+        "head": {
+            "cube_name": "joint-r-knee",
+            "default_position": [
+                -0.14248375594615936,
+                -0.03737916797399521,
+                0.4752454459667206
+            ],
+            "strategy": "CUBE"
+        },
+        "inherit_scale": "FULL",
+        "parent": "thigh.R",
+        "rigify": {},
+        "roll": 0.0,
+        "tail": {
+            "cube_name": "joint-r-ankle",
+            "default_position": [
+                -0.18058249354362488,
+                -0.022679584100842476,
+                0.06969292461872101
+            ],
+            "strategy": "CUBE"
+        },
+        "use_connect": true,
+        "use_inherit_rotation": true,
+        "use_local_location": true
+    },
+    "shoulder.L": {
+        "head": {
+            "cube_name": "joint-l-clavicle",
+            "default_position": [
+                0.02273624949157238,
+                -0.02162083610892296,
+                1.343106746673584
+            ],
+            "strategy": "CUBE"
+        },
+        "inherit_scale": "FULL",
+        "parent": "spine.003",
+        "rigify": {
+            "rigify_parameters": {
+                "make_widget": false
+            },
+            "rigify_type": "basic.super_copy"
+        },
+        "roll": 0.00039999998989515007,
+        "tail": {
+            "cube_name": "joint-l-scapula",
+            "default_position": [
+                0.09904958307743073,
+                -0.02166583575308323,
+                1.3591896295547485
+            ],
+            "strategy": "CUBE"
+        },
+        "use_connect": false,
+        "use_inherit_rotation": true,
+        "use_local_location": true
+    },
+    "shoulder.R": {
+        "head": {
+            "cube_name": "joint-r-clavicle",
+            "default_position": [
+                -0.02273624949157238,
+                -0.02162083610892296,
+                1.343106746673584
+            ],
+            "strategy": "CUBE"
+        },
+        "inherit_scale": "FULL",
+        "parent": "spine.003",
+        "rigify": {
+            "rigify_parameters": {
+                "make_widget": false
+            },
+            "rigify_type": "basic.super_copy"
+        },
+        "roll": -0.00039999998989515007,
+        "tail": {
+            "cube_name": "joint-r-scapula",
+            "default_position": [
+                -0.09904958307743073,
+                -0.02166583575308323,
+                1.3591896295547485
+            ],
+            "strategy": "CUBE"
+        },
+        "use_connect": false,
+        "use_inherit_rotation": true,
+        "use_local_location": true
+    },
+    "spine": {
+        "head": {
+            "cube_name": "joint-pelvis",
+            "default_position": [
+                0.0,
+                -0.013204166665673256,
+                0.874281644821167
+            ],
+            "strategy": "CUBE"
+        },
+        "inherit_scale": "FULL",
+        "parent": "",
+        "rigify": {
+            "rigify_parameters": {
+                "fk_layers": [
+                    false,
+                    false,
+                    false,
+                    false,
+                    true,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false
+                ],
+                "tweak_layers": [
+                    false,
+                    false,
+                    false,
+                    false,
+                    true,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false
+                ]
+            },
+            "rigify_type": "spines.basic_spine"
+        },
+        "roll": 0.0,
+        "tail": {
+            "cube_name": "joint-spine-4",
+            "default_position": [
+                0.0,
+                0.02552916668355465,
+                0.9540525674819946
+            ],
+            "strategy": "CUBE"
+        },
+        "use_connect": false,
+        "use_inherit_rotation": true,
+        "use_local_location": true
+    },
+    "spine.001": {
+        "head": {
+            "cube_name": "joint-spine-4",
+            "default_position": [
+                0.0,
+                0.02552916668355465,
+                0.9540525674819946
+            ],
+            "strategy": "CUBE"
+        },
+        "inherit_scale": "FULL",
+        "parent": "spine",
+        "rigify": {},
+        "roll": 0.0,
+        "tail": {
+            "cube_name": "joint-spine-3",
+            "default_position": [
+                0.0,
+                0.010111667215824127,
+                1.020311713218689
+            ],
+            "strategy": "CUBE"
+        },
+        "use_connect": true,
+        "use_inherit_rotation": true,
+        "use_local_location": true
+    },
+    "spine.002": {
+        "head": {
+            "cube_name": "joint-spine-3",
+            "default_position": [
+                0.0,
+                0.010111667215824127,
+                1.020311713218689
+            ],
+            "strategy": "CUBE"
+        },
+        "inherit_scale": "FULL",
+        "parent": "spine.001",
+        "rigify": {},
+        "roll": 0.0,
+        "tail": {
+            "cube_name": "joint-spine-2",
+            "default_position": [
+                0.0,
+                0.008379999548196793,
+                1.0953658819198608
+            ],
+            "strategy": "CUBE"
+        },
+        "use_connect": true,
+        "use_inherit_rotation": true,
+        "use_local_location": true
+    },
+    "spine.003": {
+        "head": {
+            "cube_name": "joint-spine-2",
+            "default_position": [
+                0.0,
+                0.008379999548196793,
+                1.0953658819198608
+            ],
+            "strategy": "CUBE"
+        },
+        "inherit_scale": "FULL",
+        "parent": "spine.002",
+        "rigify": {},
+        "roll": 0.0,
+        "tail": {
+            "cube_name": "joint-spine-1",
+            "default_position": [
+                0.0,
+                0.018699999898672104,
+                1.2392849922180176
+            ],
+            "strategy": "CUBE"
+        },
+        "use_connect": true,
+        "use_inherit_rotation": true,
+        "use_local_location": true
+    },
+    "spine.004": {
+        "head": {
+            "cube_name": "joint-spine-1",
+            "default_position": [
+                0.0,
+                0.018699999898672104,
+                1.2392849922180176
+            ],
+            "strategy": "CUBE"
+        },
+        "inherit_scale": "FULL",
+        "parent": "spine.003",
+        "rigify": {
+            "rigify_parameters": {
+                "connect_chain": true,
+                "tweak_layers": [
+                    false,
+                    false,
+                    false,
+                    false,
+                    true,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false
+                ]
+            },
+            "rigify_type": "spines.super_head"
+        },
+        "roll": 0.0,
+        "tail": {
+            "cube_name": "joint-neck",
+            "default_position": [
+                0.0,
+                -0.005113333463668823,
+                1.414263367652893
+            ],
+            "strategy": "CUBE"
+        },
+        "use_connect": false,
+        "use_inherit_rotation": true,
+        "use_local_location": true
+    },
+    "spine.005": {
+        "head": {
+            "cube_name": "joint-neck",
+            "default_position": [
+                0.0,
+                -0.005113333463668823,
+                1.414263367652893
+            ],
+            "strategy": "CUBE"
+        },
+        "inherit_scale": "FULL",
+        "parent": "spine.004",
+        "rigify": {},
+        "roll": 0.0,
+        "tail": {
+            "cube_name": "joint-head",
+            "default_position": [
+                0.0,
+                -0.04428749904036522,
+                1.5151333808898926
+            ],
+            "strategy": "CUBE"
+        },
+        "use_connect": true,
+        "use_inherit_rotation": true,
+        "use_local_location": true
+    },
+    "spine.006": {
+        "head": {
+            "cube_name": "joint-head",
+            "default_position": [
+                0.0,
+                -0.04428749904036522,
+                1.5151333808898926
+            ],
+            "strategy": "CUBE"
+        },
+        "inherit_scale": "FULL",
+        "parent": "spine.005",
+        "rigify": {},
+        "roll": 0.0,
+        "tail": {
+            "cube_name": "joint-head-2",
+            "default_position": [
+                0.0,
+                -0.037353333085775375,
+                1.6631191968917847
+            ],
+            "strategy": "CUBE"
+        },
+        "use_connect": true,
+        "use_inherit_rotation": true,
+        "use_local_location": true
+    },
+    "teeth.B": {
+        "head": {
+            "cube_name": "joint-tongue-4",
+            "default_position": [
+                0.0,
+                -0.13520334661006927,
+                1.4801850318908691
+            ],
+            "strategy": "CUBE"
+        },
+        "inherit_scale": "FULL",
+        "parent": "face",
+        "rigify": {},
+        "roll": 0.0,
+        "tail": {
+            "cube_name": "joint-tongue-2",
+            "default_position": [
+                0.0,
+                -0.09100333601236343,
+                1.4869518280029297
+            ],
+            "strategy": "CUBE"
+        },
+        "use_connect": false,
+        "use_inherit_rotation": true,
+        "use_local_location": true
+    },
+    "teeth.T": {
+        "head": {
+            "default_position": [
+                0.0,
+                -0.1370300054550171,
+                1.4959783554077148
+            ],
+            "strategy": "VERTEX",
+            "vertex_index": 15079
+        },
+        "inherit_scale": "FULL",
+        "parent": "face",
+        "rigify": {},
+        "roll": 0.0,
+        "tail": {
+            "cube_name": "joint-tongue-2",
+            "default_position": [
+                0.0,
+                -0.09134333580732346,
+                1.4978382587432861
+            ],
+            "strategy": "CUBE"
+        },
+        "use_connect": false,
+        "use_inherit_rotation": true,
+        "use_local_location": true
+    },
+    "temple.L": {
+        "head": {
+            "default_position": [
+                0.06527667492628098,
+                -0.0731833428144455,
+                1.5832083225250244
+            ],
+            "strategy": "VERTEX",
+            "vertex_index": 12159
+        },
+        "inherit_scale": "FULL",
+        "parent": "forehead.L.002",
+        "rigify": {},
+        "roll": -0.09130000323057175,
+        "tail": {
+            "default_position": [
+                0.06612666696310043,
+                -0.0746999979019165,
+                1.5402483940124512
+            ],
+            "strategy": "VERTEX",
+            "vertex_index": 7572
+        },
+        "use_connect": false,
+        "use_inherit_rotation": true,
+        "use_local_location": true
+    },
+    "temple.R": {
+        "head": {
+            "default_position": [
+                -0.06527667492628098,
+                -0.0731833428144455,
+                1.5832083225250244
+            ],
+            "strategy": "VERTEX",
+            "vertex_index": 5562
+        },
+        "inherit_scale": "FULL",
+        "parent": "forehead.R.002",
+        "rigify": {},
+        "roll": 0.09130000323057175,
+        "tail": {
+            "default_position": [
+                -0.06612666696310043,
+                -0.0746999979019165,
+                1.5402483940124512
+            ],
+            "strategy": "VERTEX",
+            "vertex_index": 867
+        },
+        "use_connect": false,
+        "use_inherit_rotation": true,
+        "use_local_location": true
+    },
+    "thigh.L": {
+        "head": {
+            "cube_name": "joint-l-upper-leg",
+            "default_position": [
+                0.10138167440891266,
+                -0.004930416122078896,
+                0.866195023059845
+            ],
+            "strategy": "CUBE"
+        },
+        "inherit_scale": "FULL",
+        "parent": "spine",
+        "rigify": {
+            "rigify_parameters": {
+                "fk_layers": [
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    true,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false
+                ],
+                "limb_type": "leg",
+                "tweak_layers": [
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    true,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false
+                ]
+            },
+            "rigify_type": "limbs.super_limb"
+        },
+        "roll": 0.0,
+        "tail": {
+            "cube_name": "joint-l-knee",
+            "default_position": [
+                0.14248375594615936,
+                -0.03737916797399521,
+                0.4752454459667206
+            ],
+            "strategy": "CUBE"
+        },
+        "use_connect": false,
+        "use_inherit_rotation": true,
+        "use_local_location": true
+    },
+    "thigh.R": {
+        "head": {
+            "cube_name": "joint-r-upper-leg",
+            "default_position": [
+                -0.10138167440891266,
+                -0.004930416122078896,
+                0.866195023059845
+            ],
+            "strategy": "CUBE"
+        },
+        "inherit_scale": "FULL",
+        "parent": "spine",
+        "rigify": {
+            "rigify_parameters": {
+                "fk_layers": [
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    true,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false
+                ],
+                "limb_type": "leg",
+                "tweak_layers": [
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    true,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false
+                ]
+            },
+            "rigify_type": "limbs.super_limb"
+        },
+        "roll": 0.0,
+        "tail": {
+            "cube_name": "joint-r-knee",
+            "default_position": [
+                -0.14248375594615936,
+                -0.03737916797399521,
+                0.4752454459667206
+            ],
+            "strategy": "CUBE"
+        },
+        "use_connect": false,
+        "use_inherit_rotation": true,
+        "use_local_location": true
+    },
+    "thumb.01.L": {
+        "head": {
+            "cube_name": "joint-l-finger-1-1",
+            "default_position": [
+                0.4544137418270111,
+                -0.22717000544071198,
+                1.0080816745758057
+            ],
+            "strategy": "CUBE"
+        },
+        "inherit_scale": "FULL",
+        "parent": "palm.01.L",
+        "rigify": {
+            "rigify_parameters": {
+                "tweak_layers": [
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    true,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false
+                ]
+            },
+            "rigify_type": "limbs.super_finger"
+        },
+        "roll": -0.15870000422000885,
+        "tail": {
+            "cube_name": "joint-l-finger-1-2",
+            "default_position": [
+                0.4335117042064667,
+                -0.2481449991464615,
+                0.9994008541107178
+            ],
+            "strategy": "CUBE"
+        },
+        "use_connect": false,
+        "use_inherit_rotation": true,
+        "use_local_location": true
+    },
+    "thumb.01.R": {
+        "head": {
+            "cube_name": "joint-r-finger-1-1",
+            "default_position": [
+                -0.4544137418270111,
+                -0.22717000544071198,
+                1.0080816745758057
+            ],
+            "strategy": "CUBE"
+        },
+        "inherit_scale": "FULL",
+        "parent": "palm.01.R",
+        "rigify": {
+            "rigify_parameters": {
+                "tweak_layers": [
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    true,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false
+                ]
+            },
+            "rigify_type": "limbs.super_finger"
+        },
+        "roll": 0.15870000422000885,
+        "tail": {
+            "cube_name": "joint-r-finger-1-2",
+            "default_position": [
+                -0.4335117042064667,
+                -0.2481449991464615,
+                0.9994008541107178
+            ],
+            "strategy": "CUBE"
+        },
+        "use_connect": false,
+        "use_inherit_rotation": true,
+        "use_local_location": true
+    },
+    "thumb.02.L": {
+        "head": {
+            "cube_name": "joint-l-finger-1-2",
+            "default_position": [
+                0.4335117042064667,
+                -0.2481449991464615,
+                0.9994008541107178
+            ],
+            "strategy": "CUBE"
+        },
+        "inherit_scale": "FULL",
+        "parent": "thumb.01.L",
+        "rigify": {},
+        "roll": -0.4797999858856201,
+        "tail": {
+            "cube_name": "joint-l-finger-1-3",
+            "default_position": [
+                0.4211254119873047,
+                -0.27918165922164917,
+                0.9854512810707092
+            ],
+            "strategy": "CUBE"
+        },
+        "use_connect": true,
+        "use_inherit_rotation": true,
+        "use_local_location": true
+    },
+    "thumb.02.R": {
+        "head": {
+            "cube_name": "joint-r-finger-1-2",
+            "default_position": [
+                -0.4335117042064667,
+                -0.2481449991464615,
+                0.9994008541107178
+            ],
+            "strategy": "CUBE"
+        },
+        "inherit_scale": "FULL",
+        "parent": "thumb.01.R",
+        "rigify": {},
+        "roll": 0.4797999858856201,
+        "tail": {
+            "cube_name": "joint-r-finger-1-3",
+            "default_position": [
+                -0.4211254119873047,
+                -0.27918165922164917,
+                0.9854512810707092
+            ],
+            "strategy": "CUBE"
+        },
+        "use_connect": true,
+        "use_inherit_rotation": true,
+        "use_local_location": true
+    },
+    "thumb.03.L": {
+        "head": {
+            "cube_name": "joint-l-finger-1-3",
+            "default_position": [
+                0.4211254119873047,
+                -0.27918165922164917,
+                0.9854512810707092
+            ],
+            "strategy": "CUBE"
+        },
+        "inherit_scale": "FULL",
+        "parent": "thumb.02.L",
+        "rigify": {},
+        "roll": -0.5825999975204468,
+        "tail": {
+            "cube_name": "joint-l-finger-1-4",
+            "default_position": [
+                0.4156254231929779,
+                -0.3004791736602783,
+                0.9680537581443787
+            ],
+            "strategy": "CUBE"
+        },
+        "use_connect": true,
+        "use_inherit_rotation": true,
+        "use_local_location": true
+    },
+    "thumb.03.R": {
+        "head": {
+            "cube_name": "joint-r-finger-1-3",
+            "default_position": [
+                -0.4211254119873047,
+                -0.27918165922164917,
+                0.9854512810707092
+            ],
+            "strategy": "CUBE"
+        },
+        "inherit_scale": "FULL",
+        "parent": "thumb.02.R",
+        "rigify": {},
+        "roll": 0.5825999975204468,
+        "tail": {
+            "cube_name": "joint-r-finger-1-4",
+            "default_position": [
+                -0.4156254231929779,
+                -0.3004791736602783,
+                0.9680537581443787
+            ],
+            "strategy": "CUBE"
+        },
+        "use_connect": true,
+        "use_inherit_rotation": true,
+        "use_local_location": true
+    },
+    "toe.L": {
+        "head": {
+            "cube_name": "joint-l-foot-1",
+            "default_position": [
+                0.1860474944114685,
+                -0.13947834074497223,
+                0.009515419602394104
+            ],
+            "strategy": "CUBE"
+        },
+        "inherit_scale": "FULL",
+        "parent": "foot.L",
+        "rigify": {},
+        "roll": -0.0,
+        "tail": {
+            "cube_name": "joint-l-foot-2",
+            "default_position": [
+                0.18828918039798737,
+                -0.21634501218795776,
+                0.01702836900949478
+            ],
+            "strategy": "CUBE"
+        },
+        "use_connect": true,
+        "use_inherit_rotation": true,
+        "use_local_location": true
+    },
+    "toe.R": {
+        "head": {
+            "cube_name": "joint-r-foot-1",
+            "default_position": [
+                -0.1860474944114685,
+                -0.13947834074497223,
+                0.009515419602394104
+            ],
+            "strategy": "CUBE"
+        },
+        "inherit_scale": "FULL",
+        "parent": "foot.R",
+        "rigify": {},
+        "roll": 0.0,
+        "tail": {
+            "cube_name": "joint-r-foot-2",
+            "default_position": [
+                -0.18828918039798737,
+                -0.21634501218795776,
+                0.01702836900949478
+            ],
+            "strategy": "CUBE"
+        },
+        "use_connect": true,
+        "use_inherit_rotation": true,
+        "use_local_location": true
+    },
+    "tongue": {
+        "head": {
+            "cube_name": "joint-tongue-4",
+            "default_position": [
+                0.0,
+                -0.13438832759857178,
+                1.4820083379745483
+            ],
+            "strategy": "CUBE"
+        },
+        "inherit_scale": "FULL",
+        "parent": "face",
+        "rigify": {},
+        "roll": 0.0,
+        "tail": {
+            "cube_name": "joint-tongue-3",
+            "default_position": [
+                0.0,
+                -0.11805916577577591,
+                1.4910025596618652
+            ],
+            "strategy": "CUBE"
+        },
+        "use_connect": false,
+        "use_inherit_rotation": true,
+        "use_local_location": true
+    },
+    "tongue.001": {
+        "head": {
+            "cube_name": "joint-tongue-3",
+            "default_position": [
+                0.0,
+                -0.11805916577577591,
+                1.4910025596618652
+            ],
+            "strategy": "CUBE"
+        },
+        "inherit_scale": "FULL",
+        "parent": "tongue",
+        "rigify": {},
+        "roll": 0.0,
+        "tail": {
+            "cube_name": "joint-tongue-2",
+            "default_position": [
+                0.0,
+                -0.09782000631093979,
+                1.4912009239196777
+            ],
+            "strategy": "CUBE"
+        },
+        "use_connect": true,
+        "use_inherit_rotation": true,
+        "use_local_location": true
+    },
+    "tongue.002": {
+        "head": {
+            "cube_name": "joint-tongue-2",
+            "default_position": [
+                0.0,
+                -0.09782000631093979,
+                1.4912009239196777
+            ],
+            "strategy": "CUBE"
+        },
+        "inherit_scale": "FULL",
+        "parent": "tongue.001",
+        "rigify": {},
+        "roll": 0.0,
+        "tail": {
+            "cube_name": "joint-tongue-1",
+            "default_position": [
+                0.0,
+                -0.06895499676465988,
+                1.4875342845916748
+            ],
+            "strategy": "CUBE"
+        },
+        "use_connect": true,
+        "use_inherit_rotation": true,
+        "use_local_location": true
+    },
+    "upper_arm.L": {
+        "head": {
+            "cube_name": "joint-l-shoulder",
+            "default_position": [
+                0.1700395941734314,
+                -0.019311251118779182,
+                1.3204392194747925
+            ],
+            "strategy": "CUBE"
+        },
+        "inherit_scale": "FULL",
+        "parent": "shoulder.L",
+        "rigify": {
+            "rigify_parameters": {
+                "fk_layers": [
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    true,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false
+                ],
+                "tweak_layers": [
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    true,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false
+                ]
+            },
+            "rigify_type": "limbs.super_limb"
+        },
+        "roll": 2.0724000930786133,
+        "tail": {
+            "cube_name": "joint-l-elbow",
+            "default_position": [
+                0.33135083317756653,
+                -0.02012624964118004,
+                1.1398446559906006
+            ],
+            "strategy": "CUBE"
+        },
+        "use_connect": false,
+        "use_inherit_rotation": true,
+        "use_local_location": true
+    },
+    "upper_arm.R": {
+        "head": {
+            "cube_name": "joint-r-shoulder",
+            "default_position": [
+                -0.1700395941734314,
+                -0.019311251118779182,
+                1.3204392194747925
+            ],
+            "strategy": "CUBE"
+        },
+        "inherit_scale": "FULL",
+        "parent": "shoulder.R",
+        "rigify": {
+            "rigify_parameters": {
+                "fk_layers": [
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    true,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false
+                ],
+                "tweak_layers": [
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    true,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false
+                ]
+            },
+            "rigify_type": "limbs.super_limb"
+        },
+        "roll": -2.0724000930786133,
+        "tail": {
+            "cube_name": "joint-r-elbow",
+            "default_position": [
+                -0.33135083317756653,
+                -0.02012624964118004,
+                1.1398446559906006
+            ],
+            "strategy": "CUBE"
+        },
+        "use_connect": false,
+        "use_inherit_rotation": true,
+        "use_local_location": true
+    }
+}

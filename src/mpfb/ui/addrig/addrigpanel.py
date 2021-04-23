@@ -3,7 +3,6 @@
 import os
 from mpfb import ClassManager
 from mpfb.services.logservice import LogService
-from mpfb.services.locationservice import LocationService
 from mpfb.services.uiservice import UiService
 from mpfb.services.sceneconfigset import SceneConfigSet
 from mpfb.ui.abstractpanel import Abstract_Panel
