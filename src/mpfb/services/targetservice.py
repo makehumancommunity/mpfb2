@@ -41,6 +41,8 @@ class TargetService:
         shape_key_idx = blender_object.data.shape_keys.key_blocks.find(shape_key_name)
         blender_object.active_shape_key_index = shape_key_idx
 
+        return blender_object.data.shape_keys.key_blocks[shape_key_name]
+
     @staticmethod
     def get_shape_key_as_dict(blender_object, shape_key_name, smaller_than_counts_as_unmodified=0.0001, only_modified_verts=True):
         _LOG.enter()
