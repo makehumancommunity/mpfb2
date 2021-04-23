@@ -133,6 +133,7 @@ disable=print-statement,
         too-few-public-methods,
         no-self-use,
         wrong-import-position,
+        import-outside-toplevel, # This is a design choice
         multiple-imports,
         R0801, # Duplicate code. Hard to avoid when having blender classes in separate files
         wrong-import-order,
@@ -368,8 +369,8 @@ function-naming-style=snake_case
 
 # Good variable names which should always be accepted, separated by a comma.
 good-names=i,
-           j,
-           k,
+           n,
+           e,
            ex,
            Run,
            x,
@@ -408,7 +409,7 @@ name-group=
 
 # Regular expression which should only match function or class names that do
 # not require a docstring.
-no-docstring-rgx=^_
+no-docstring-rgx=
 
 # List of decorators that produce properties, such as abc.abstractproperty. Add
 # to this list to register other decorators that produce valid properties.
