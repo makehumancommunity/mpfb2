@@ -9,6 +9,7 @@ _LOG = LogService.get_logger("services.rigservice")
 
 _RADIAN = 0.0174532925
 
+
 class RigService:
 
     def __init__(self):
@@ -199,7 +200,7 @@ class RigService:
                 # Bone has a parent, so add it to parent's list of children
                 parent_name = bone_info["parent"]
                 if not parent_name in bone_children:
-                     bone_children[parent_name] = []
+                    bone_children[parent_name] = []
                 bone_children[parent_name].append(bone_name)
             else:
                 # Bone does not have a parent. Assume it is a root.
@@ -211,7 +212,6 @@ class RigService:
         for bone_name in root_bones:
             RigService._recurse_set_orientation(armature_object, new_bone_orientation, bone_children, bone_name)
 
-
     @staticmethod
     def _add_bone(armature, bone_info, parent_bone=None, scale=0.1):
         bone = armature.edit_bones.new(bone_info["name"])
@@ -219,7 +219,7 @@ class RigService:
         head = bone_info["headPos"]
         tail = bone_info["tailPos"]
 
-        #scale = self.scaleFactor
+        # scale = self.scaleFactor
 
         # Z up
         vector_head = Vector((head[0] * scale, -head[2] * scale, head[1] * scale))
@@ -233,7 +233,7 @@ class RigService:
 
         if "matrix" in bone_info.keys():
             bone_matrix = Matrix(bone_info["matrix"])
-            normalized_matrix = Matrix((bone_matrix[0], -bone_matrix[2], bone_matrix[1])).to_3x3().to_4x4() #pylint: disable=E1136
+            normalized_matrix = Matrix((bone_matrix[0], -bone_matrix[2], bone_matrix[1])).to_3x3().to_4x4()  # pylint: disable=E1136
             normalized_matrix.col[3] = bone.matrix.col[3]
             bone.matrix = normalized_matrix
         else:
@@ -264,7 +264,6 @@ class RigService:
 
         return armature_object
 
-
     @staticmethod
     def ensure_armature_has_bone_shape_objects_as_children(armature_object):
         children = ObjectService.get_list_of_children(armature_object)
@@ -280,28 +279,28 @@ class RigService:
             if "bone_shape_arrow" in child.name:
                 has_arrow = True
         if not has_circle:
-            empty = ObjectService.create_empty(prefix + ".bone_shape_circle", type="CIRCLE", parent=armature_object)
+            empty = ObjectService.create_empty(prefix + ".bone_shape_circle", empty_type="CIRCLE", parent=armature_object)
             empty.hide_render = True
             empty.hide_viewport = True
         if not has_sphere:
-            empty = ObjectService.create_empty(prefix + ".bone_shape_sphere", type="SPHERE", parent=armature_object)
+            empty = ObjectService.create_empty(prefix + ".bone_shape_sphere", empty_type="SPHERE", parent=armature_object)
             empty.hide_render = True
             empty.hide_viewport = True
         if not has_arrow:
-            empty = ObjectService.create_empty(prefix + ".bone_shape_arrow", type="SINGLE_ARROW", parent=armature_object)
+            empty = ObjectService.create_empty(prefix + ".bone_shape_arrow", empty_type="SINGLE_ARROW", parent=armature_object)
             empty.hide_render = True
             empty.hide_viewport = True
 
     @staticmethod
-    def display_pose_bone_as_empty(armature_object, bone_name, type="SPHERE", scale=1.0):
+    def display_pose_bone_as_empty(armature_object, bone_name, empty_type="SPHERE", scale=1.0):
         bone = RigService.find_pose_bone_by_name(bone_name, armature_object)
         RigService.ensure_armature_has_bone_shape_objects_as_children(armature_object)
         children = ObjectService.get_list_of_children(armature_object)
         expected_name = "bone_shape_sphere"
-        if type == "CIRCLE":
-             expected_name = "bone_shape_circle"
-        if type == "SINGLE_ARROW":
-             expected_name = "bone_shape_arrow"
+        if empty_type == "CIRCLE":
+            expected_name = "bone_shape_circle"
+        if empty_type == "SINGLE_ARROW":
+            expected_name = "bone_shape_arrow"
         shape_object = None
         for child in children:
             if expected_name in child.name:
@@ -353,4 +352,43 @@ class RigService:
                         weights["weights"][name].append([vertex.index, weight])
 
         return weights
+
+    @staticmethod
+    def apply_weights(armature_object, basemesh, mhw_dict):
+        weights = mhw_dict["weights"]
+
+        for bone in armature_object.data.bones:
+            if bone.name in weights:
+                # Weights is array of [vertex_index, weight] pairs. Use zip to rotate it
+                # so we can get an array of the values of the first column
+                weight_array = weights[bone.name]
+                if len(weight_array) > 0:
+                    columns = list(zip(*weight_array))
+                    vertex_indices = columns[0]
+                else:
+                    vertex_indices = []
+
+                if not bone.name in basemesh.vertex_groups:
+                    basemesh.vertex_groups.new(name=bone.name)
+
+                vertex_group = basemesh.vertex_groups.get(bone.name)
+                if len(vertex_indices) > 0:
+                    vertex_group.add(vertex_indices, 1.0, 'ADD')
+
+        vertex_group_name_to_index = dict()
+
+        for vertex_group in basemesh.vertex_groups:
+            vertex_group_name_to_index[vertex_group.name] = vertex_group.index
+
+        for bone in armature_object.data.bones:
+            if bone.name in weights and bone.name in basemesh.vertex_groups:
+                for vertex_weight in weights[bone.name]:
+                    vertex_index = vertex_weight[0]
+                    weight = vertex_weight[1]
+                    vertex = basemesh.data.vertices[vertex_index]
+                    group_index = vertex_group_name_to_index[bone.name]
+                    for group in vertex.groups:
+                        if group.group == group_index:
+                            group.weight = weight
+                            break
 
