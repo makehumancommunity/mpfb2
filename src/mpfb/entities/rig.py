@@ -2,7 +2,7 @@
 
 from mpfb.services.logservice import LogService
 from mpfb.services.rigservice import RigService
-import bpy, math, json
+import bpy, math, json, random
 
 _LOG = LogService.get_logger("entities.rig")
 
@@ -55,10 +55,12 @@ class Rig:
     def create_armature_and_fit_to_basemesh(self):
         """Use the information in the object to construct an armature and adjust it to fit the base mesh."""
 
-        self.move_basemesh_if_needed()
+        #self.move_basemesh_if_needed()
 
-        bpy.ops.object.armature_add(location=(0.0, 0.0, 0.0))
+        bpy.ops.object.armature_add(location=self.basemesh.location)
         self.armature_object = bpy.context.object
+        self.armature_object.show_in_front = True
+        self.armature_object.data.display_type = 'WIRE'
 
         bpy.ops.object.mode_set(mode='EDIT', toggle=False)
 
@@ -68,10 +70,15 @@ class Rig:
         bpy.ops.object.mode_set(mode='OBJECT', toggle=False) # To commit removal of bones
 
         self.create_bones()
-        self.reposition_and_edit_metadata()
+        self.update_edit_bone_metadata()
         self.rigify_metadata()
 
         bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
+
+        modifier = self.basemesh.modifiers.new("Armature", 'ARMATURE')
+        modifier.object = self.armature_object
+        while self.basemesh.modifiers.find(modifier.name) != 0:
+            bpy.ops.object.modifier_move_up({'object': self.basemesh}, modifier=modifier.name)
 
         return self.armature_object
 
@@ -87,7 +94,7 @@ class Rig:
         if strategy == "MEAN":
             indices = head_or_tail_info["vertex_indices"]
             vertex1 = self.position_info["vertices"][indices[0]]
-            vertex2 = self.position_info["vertices"][indices[1]]            
+            vertex2 = self.position_info["vertices"][indices[1]]
             location = [0.0, 0.0, 0.0]
             for i in range(3):
                 location[i] = (vertex1[i] + vertex2[i]) / 2
@@ -105,23 +112,30 @@ class Rig:
             bone.roll = bone_info["roll"]
             bone.head = self._get_best_location_from_strategy(bone_info["head"])
             bone.tail = self._get_best_location_from_strategy(bone_info["tail"])
-
         bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
 
-    def reposition_and_edit_metadata(self):
-        """Reposition bones and assign metadata fitting for the edit bones."""
+    def reposition_edit_bone(self):
+        """Reposition bones to fit the current state of the basemesh."""
+        bpy.ops.object.mode_set(mode='EDIT', toggle=False)
+        for bone_name in self.rig_definition.keys():
+            bone_info = self.rig_definition[bone_name]
+            bone = RigService.find_edit_bone_by_name(bone_name, self.armature_object)
+            bone.head = self._get_best_location_from_strategy(bone_info["head"])
+            bone.tail = self._get_best_location_from_strategy(bone_info["tail"])
+        bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
+
+    def update_edit_bone_metadata(self):
+        """Assign metadata fitting for the edit bones."""
         bpy.ops.object.mode_set(mode='EDIT', toggle=False)
         for bone_name in self.rig_definition.keys():
             bone_info = self.rig_definition[bone_name]
             bone = RigService.find_edit_bone_by_name(bone_name, self.armature_object)
             if bone_info["parent"]:
                 bone.parent = RigService.find_edit_bone_by_name(bone_info["parent"], self.armature_object)
-
             bone.use_connect = bone_info["use_connect"]
             bone.use_local_location = bone_info["use_local_location"]
             bone.use_inherit_rotation = bone_info["use_inherit_rotation"]
             bone.inherit_scale = bone_info["inherit_scale"]
-
         bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
 
     def rigify_metadata(self):
@@ -172,8 +186,10 @@ class Rig:
             self.basemesh.location[2] = abs(self.lowest_point)
         bpy.ops.object.transform_apply(location=True, rotation=True, scale=True)
 
-    def build_basemesh_position_info(self):
-        """Populate the position information hash with positions from the base mesh."""
+    def build_basemesh_position_info(self, take_shape_keys_into_account=True):
+        """Populate the position information hash with positions from the base mesh.
+        We will here also extract and stor vertex positions and store them in the hash,
+        as these positions may be influenced by shape keys."""
 
         self.position_info = dict()
 
@@ -186,20 +202,35 @@ class Rig:
         cube_groups = dict()
         group_index_to_name = dict()
 
-        for group in self.basemesh.vertex_groups:
+        basemesh = self.basemesh
+
+        for group in basemesh.vertex_groups:
             idx = int(group.index)
             name = str(group.name)
             if "joint" in name:
                 cube_groups[name] = []
                 group_index_to_name[idx] = name
 
-        for vertex in self.basemesh.data.vertices:
-            vertices.append(list(vertex.co))
+        coords = basemesh.data.vertices
+        shape_key = None
+        key_name = None
+        if take_shape_keys_into_account and len(basemesh.data.shape_keys.key_blocks) > 0:
+            from mpfb.services.targetservice import TargetService
+            key_name = "temporary_fit_rig_key." + str(random.randrange(1000, 9999))
+            shape_key = TargetService.create_shape_key(basemesh, key_name, also_create_basis=True, create_from_mix=True)
+            coords = shape_key.data
+
+        for vertex in basemesh.data.vertices:
+            vertex_coords = list(coords[vertex.index].co) # Either actual vertex or the corresponding shape key point
+            vertices.append(vertex_coords)
             for group in vertex.groups:
                 idx = int(group.group)
                 if idx in group_index_to_name:
                     name = group_index_to_name[idx]
-                    cube_groups[name].append(list(vertex.co))
+                    cube_groups[name].append(vertex_coords)
+
+        if shape_key:
+            basemesh.shape_key_remove(shape_key)
 
         _LOG.dump("cube_groups", cube_groups)
 
@@ -326,13 +357,13 @@ class Rig:
                     bone_info["tail"]["strategy"] = "MEAN"
                     bone_info["tail"]["vertex_indices"] = tail_vertex_indices
 
-    def _distance(self, pos1, pos2):        
+    def _distance(self, pos1, pos2):
         if pos1 is None:
             raise ValueError("Pos 1 in _distance is None")
-        
+
         if pos2 is None:
             raise ValueError("Pos 2 in _distance is None")
-        
+
         if len(pos1) != 3:
             _LOG.error("Malformed pos 1", pos1)
             raise ValueError("Pos 1 is not an array with three values")
@@ -340,7 +371,7 @@ class Rig:
         if len(pos2) != 3:
             _LOG.error("Malformed pos 2", pos2)
             raise ValueError("Pos 2 is not an array with three values")
-        
+
         sqr_pos = [0.0, 0.0, 0.0]
 
         for i in range(3):
