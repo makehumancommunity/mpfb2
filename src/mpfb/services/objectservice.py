@@ -1,4 +1,4 @@
-import bpy, os, json
+import bpy, os, json, random
 from mpfb.services.logservice import LogService
 from mpfb.services.locationservice import LocationService
 from mpfb.entities.objectproperties import GeneralObjectProperties
@@ -30,10 +30,10 @@ class ObjectService:
         return obj
 
     @staticmethod
-    def create_empty(name, type="SPHERE", parent=None):
+    def create_empty(name, empty_type="SPHERE", parent=None):
         empty = bpy.data.objects.new(name=name, object_data=None)
         ObjectService.link_blender_object(empty, parent=parent)
-        empty.empty_display_type = type
+        empty.empty_display_type = empty_type
         return empty
 
     @staticmethod
@@ -173,6 +173,25 @@ class ObjectService:
         # Return a copy so it doesn't get accidentally modified
         return dict(_BASEMESH_VERTEX_GROUPS_EXPANDED)
 
+    @staticmethod
+    def get_lowest_point(basemesh, take_shape_keys_into_account=True):
+        lowest_point = 1000.0
+        vertex_data = basemesh.data.vertices
+        shape_key = None
+        key_name = None
+        if take_shape_keys_into_account and len(basemesh.data.shape_keys.key_blocks) > 0:
+            from .targetservice import TargetService
+            key_name = "temporary_lowest_point_key." + str(random.randrange(1000, 9999))
+            shape_key = TargetService.create_shape_key(basemesh, key_name, also_create_basis=True, create_from_mix=True)
+            vertex_data = shape_key.data
 
+        index = 0
+        for vertex in vertex_data:
+            if vertex.co[2] < lowest_point and index < 13380:
+                lowest_point = vertex.co[2]
+            index = index + 1
 
+        if shape_key:
+            basemesh.shape_key_remove(shape_key)
 
+        return lowest_point
