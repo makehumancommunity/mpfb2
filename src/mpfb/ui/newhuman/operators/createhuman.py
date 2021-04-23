@@ -134,6 +134,10 @@ class MPFB_OT_CreateHumanOperator(bpy.types.Operator):
         else:
             self.report({'INFO'}, "Human created.")
 
+        lowest_point = ObjectService.get_lowest_point(basemesh)
+        basemesh.location = (0.0, 0.0, abs(lowest_point))
+        bpy.ops.object.transform_apply(location=True, rotation=True, scale=True)
+
         return {'FINISHED'}
 
 
