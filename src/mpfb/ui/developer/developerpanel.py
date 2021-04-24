@@ -69,6 +69,8 @@ class MPFB_PT_Developer_Panel(bpy.types.Panel):
         box = self._create_box(layout, "Load/Save rig")
         box.operator("mpfb.load_rig")
         box.operator("mpfb.save_rig")
+        box.operator("mpfb.load_rigify_layers")
+        box.operator("mpfb.save_rigify_layers")
 
     def _weights(self, layout):
         box = self._create_box(layout, "Load/Save weights")
