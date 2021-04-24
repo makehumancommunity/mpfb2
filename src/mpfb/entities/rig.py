@@ -136,6 +136,12 @@ class Rig:
             bone.use_local_location = bone_info["use_local_location"]
             bone.use_inherit_rotation = bone_info["use_inherit_rotation"]
             bone.inherit_scale = bone_info["inherit_scale"]
+            if "layers" in bone_info:
+                i = 0
+                for layer in bone_info["layers"]:
+                    bone.layers[i] = layer
+                    i = i + 1
+
         bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
 
     def rigify_metadata(self):
@@ -214,7 +220,7 @@ class Rig:
         coords = basemesh.data.vertices
         shape_key = None
         key_name = None
-        if take_shape_keys_into_account and len(basemesh.data.shape_keys.key_blocks) > 0:
+        if take_shape_keys_into_account and basemesh.data.shape_keys and basemesh.data.shape_keys.key_blocks and len(basemesh.data.shape_keys.key_blocks) > 0:
             from mpfb.services.targetservice import TargetService
             key_name = "temporary_fit_rig_key." + str(random.randrange(1000, 9999))
             shape_key = TargetService.create_shape_key(basemesh, key_name, also_create_basis=True, create_from_mix=True)
@@ -268,6 +274,10 @@ class Rig:
             bone_info["use_local_location"] = bone.use_local_location
             bone_info["use_inherit_rotation"] = bone.use_inherit_rotation
             bone_info["inherit_scale"] = bone.inherit_scale
+
+            bone_info["layers"] = []
+            for layer in bone.layers:
+                bone_info["layers"].append(layer)
 
             self.rig_definition[bone.name] = bone_info
 

@@ -9,6 +9,7 @@ from mpfb.entities.rig import Rig
 from mpfb import ClassManager
 
 _LOG = LogService.get_logger("addrig.add_standard_rig")
+_LOG.set_level(LogService.DUMP)
 
 class MPFB_OT_AddRigifyRigOperator(bpy.types.Operator):
     """Add a rigify rig"""
@@ -46,6 +47,40 @@ class MPFB_OT_AddRigifyRigOperator(bpy.types.Operator):
         rig = Rig.from_json_file_and_basemesh(rig_file, basemesh)
         armature_object = rig.create_armature_and_fit_to_basemesh()
         armature_object.data.rigify_rig_basename = "Human.rigify"
+
+        rigify_ui = dict()
+        layer_file = os.path.join(rigify_dir, "rigify_layers.json")
+
+        with open(layer_file, "r") as json_file:
+            rigify_ui = json.load(json_file)
+
+        bpy.ops.armature.rigify_add_bone_groups()
+        bpy.ops.pose.rigify_layer_init()
+
+        armature_object.data.rigify_colors_lock = rigify_ui["rigify_colors_lock"]
+        armature_object.data.rigify_selection_colors.select = rigify_ui["selection_colors"]["select"]
+        armature_object.data.rigify_selection_colors.active = rigify_ui["selection_colors"]["active"]
+
+        i = 0
+        for color in armature_object.data.rigify_colors:
+            col = rigify_ui["colors"][i]
+            color.name = col["name"]
+            color.normal = col["normal"]
+            i = i + 1
+
+        i = 0
+        for rigify_layer in armature_object.data.layers:
+            armature_object.data.layers[i] = rigify_ui["layers"][i]
+            i = i + 1
+
+        i = 0
+        for rigify_layer in armature_object.data.rigify_layers:
+            layer = rigify_ui["rigify_layers"][i]
+            rigify_layer.name = layer["name"]
+            rigify_layer.row = layer["row"]
+            rigify_layer.selset = layer["selset"]
+            rigify_layer.group = layer["group"]
+            i = i + 1
 
         if not generate:
             basemesh.parent = armature_object
