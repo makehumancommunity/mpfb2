@@ -8,10 +8,6 @@ from mpfb.services.sceneconfigset import SceneConfigSet
 
 _LOG = LogService.get_logger("model.modelpanel")
 
-_LOC = os.path.dirname(__file__)
-MODEL_PROPERTIES_DIR = os.path.join(_LOC, "properties")
-MODEL_PROPERTIES = SceneConfigSet.from_definitions_in_json_directory(MODEL_PROPERTIES_DIR, prefix="MOD_")
-
 class MPFB_PT_Model_Panel(bpy.types.Panel):
     """Human modeling panel."""
 

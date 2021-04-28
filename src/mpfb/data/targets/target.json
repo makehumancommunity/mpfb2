@@ -1,0 +1,3275 @@
+{
+    "armslegs": {
+        "categories": [
+            {
+                "has_left_and_right": true,
+                "label": "foot-scale-horiz-decr-incr",
+                "name": "foot-scale-horiz-decr-incr",
+                "opposites": {
+                    "negative-left": "l-foot-scale-horiz-decr",
+                    "negative-right": "r-foot-scale-horiz-decr",
+                    "negative-unsided": "",
+                    "positive-left": "l-foot-scale-horiz-incr",
+                    "positive-right": "r-foot-scale-horiz-incr",
+                    "positive-unsided": ""
+                },
+                "targets": [
+                    "r-foot-scale-horiz-incr",
+                    "r-foot-scale-horiz-decr",
+                    "l-foot-scale-horiz-incr",
+                    "l-foot-scale-horiz-decr"
+                ]
+            },
+            {
+                "has_left_and_right": true,
+                "label": "upperleg-fat-decr-incr",
+                "name": "upperleg-fat-decr-incr",
+                "opposites": {
+                    "negative-left": "l-upperleg-fat-decr",
+                    "negative-right": "r-upperleg-fat-decr",
+                    "negative-unsided": "",
+                    "positive-left": "l-upperleg-fat-incr",
+                    "positive-right": "r-upperleg-fat-incr",
+                    "positive-unsided": ""
+                },
+                "targets": [
+                    "r-upperleg-fat-incr",
+                    "r-upperleg-fat-decr",
+                    "l-upperleg-fat-incr",
+                    "l-upperleg-fat-decr"
+                ]
+            },
+            {
+                "has_left_and_right": true,
+                "label": "lowerleg-muscle-decr-incr",
+                "name": "lowerleg-muscle-decr-incr",
+                "opposites": {
+                    "negative-left": "l-lowerleg-muscle-decr",
+                    "negative-right": "r-lowerleg-muscle-decr",
+                    "negative-unsided": "",
+                    "positive-left": "l-lowerleg-muscle-incr",
+                    "positive-right": "r-lowerleg-muscle-incr",
+                    "positive-unsided": ""
+                },
+                "targets": [
+                    "r-lowerleg-muscle-decr",
+                    "l-lowerleg-muscle-incr",
+                    "r-lowerleg-muscle-incr",
+                    "l-lowerleg-muscle-decr"
+                ]
+            },
+            {
+                "has_left_and_right": true,
+                "label": "lowerarm-scale-depth-decr-incr",
+                "name": "lowerarm-scale-depth-decr-incr",
+                "opposites": {
+                    "negative-left": "l-lowerarm-scale-depth-decr",
+                    "negative-right": "r-lowerarm-scale-depth-decr",
+                    "negative-unsided": "",
+                    "positive-left": "l-lowerarm-scale-depth-incr",
+                    "positive-right": "r-lowerarm-scale-depth-incr",
+                    "positive-unsided": ""
+                },
+                "targets": [
+                    "l-lowerarm-scale-depth-decr",
+                    "r-lowerarm-scale-depth-incr",
+                    "r-lowerarm-scale-depth-decr",
+                    "l-lowerarm-scale-depth-incr"
+                ]
+            },
+            {
+                "has_left_and_right": true,
+                "label": "upperarm-scale-horiz-decr-incr",
+                "name": "upperarm-scale-horiz-decr-incr",
+                "opposites": {
+                    "negative-left": "l-upperarm-scale-horiz-decr",
+                    "negative-right": "r-upperarm-scale-horiz-decr",
+                    "negative-unsided": "",
+                    "positive-left": "l-upperarm-scale-horiz-incr",
+                    "positive-right": "r-upperarm-scale-horiz-incr",
+                    "positive-unsided": ""
+                },
+                "targets": [
+                    "r-upperarm-scale-horiz-incr",
+                    "l-upperarm-scale-horiz-decr",
+                    "l-upperarm-scale-horiz-incr",
+                    "r-upperarm-scale-horiz-decr"
+                ]
+            },
+            {
+                "has_left_and_right": true,
+                "label": "leg-valgus-decr-incr",
+                "name": "leg-valgus-decr-incr",
+                "opposites": {
+                    "negative-left": "l-leg-valgus-decr",
+                    "negative-right": "r-leg-valgus-decr",
+                    "negative-unsided": "",
+                    "positive-left": "l-leg-valgus-incr",
+                    "positive-right": "r-leg-valgus-incr",
+                    "positive-unsided": ""
+                },
+                "targets": [
+                    "r-leg-valgus-incr",
+                    "r-leg-valgus-decr",
+                    "l-leg-valgus-decr",
+                    "l-leg-valgus-incr"
+                ]
+            },
+            {
+                "has_left_and_right": true,
+                "label": "upperarm-fat-decr-incr",
+                "name": "upperarm-fat-decr-incr",
+                "opposites": {
+                    "negative-left": "l-upperarm-fat-decr",
+                    "negative-right": "r-upperarm-fat-decr",
+                    "negative-unsided": "",
+                    "positive-left": "l-upperarm-fat-incr",
+                    "positive-right": "r-upperarm-fat-incr",
+                    "positive-unsided": ""
+                },
+                "targets": [
+                    "r-upperarm-fat-incr",
+                    "r-upperarm-fat-decr",
+                    "l-upperarm-fat-decr",
+                    "l-upperarm-fat-incr"
+                ]
+            },
+            {
+                "has_left_and_right": true,
+                "label": "foot-trans-in-out",
+                "name": "foot-trans-in-out",
+                "opposites": {
+                    "negative-left": "l-foot-trans-in",
+                    "negative-right": "r-foot-trans-in",
+                    "negative-unsided": "",
+                    "positive-left": "l-foot-trans-out",
+                    "positive-right": "r-foot-trans-out",
+                    "positive-unsided": ""
+                },
+                "targets": [
+                    "r-foot-trans-out",
+                    "l-foot-trans-in",
+                    "r-foot-trans-in",
+                    "l-foot-trans-out"
+                ]
+            },
+            {
+                "has_left_and_right": true,
+                "label": "hand-trans-in-out",
+                "name": "hand-trans-in-out",
+                "opposites": {
+                    "negative-left": "l-hand-trans-in",
+                    "negative-right": "r-hand-trans-in",
+                    "negative-unsided": "",
+                    "positive-left": "l-hand-trans-out",
+                    "positive-right": "r-hand-trans-out",
+                    "positive-unsided": ""
+                },
+                "targets": [
+                    "l-hand-trans-out",
+                    "r-hand-trans-out",
+                    "l-hand-trans-in",
+                    "r-hand-trans-in"
+                ]
+            },
+            {
+                "has_left_and_right": true,
+                "label": "lowerleg-scale-depth-decr-incr",
+                "name": "lowerleg-scale-depth-decr-incr",
+                "opposites": {
+                    "negative-left": "l-lowerleg-scale-depth-decr",
+                    "negative-right": "r-lowerleg-scale-depth-decr",
+                    "negative-unsided": "",
+                    "positive-left": "l-lowerleg-scale-depth-incr",
+                    "positive-right": "r-lowerleg-scale-depth-incr",
+                    "positive-unsided": ""
+                },
+                "targets": [
+                    "r-lowerleg-scale-depth-incr",
+                    "l-lowerleg-scale-depth-decr",
+                    "l-lowerleg-scale-depth-incr",
+                    "r-lowerleg-scale-depth-decr"
+                ]
+            },
+            {
+                "has_left_and_right": true,
+                "label": "lowerleg-scale-vert-decr-incr",
+                "name": "lowerleg-scale-vert-decr-incr",
+                "opposites": {
+                    "negative-left": "l-lowerleg-scale-vert-decr",
+                    "negative-right": "r-lowerleg-scale-vert-decr",
+                    "negative-unsided": "",
+                    "positive-left": "l-lowerleg-scale-vert-incr",
+                    "positive-right": "r-lowerleg-scale-vert-incr",
+                    "positive-unsided": ""
+                },
+                "targets": [
+                    "l-lowerleg-scale-vert-decr",
+                    "r-lowerleg-scale-vert-decr",
+                    "l-lowerleg-scale-vert-incr",
+                    "r-lowerleg-scale-vert-incr"
+                ]
+            },
+            {
+                "has_left_and_right": true,
+                "label": "upperleg-scale-depth-decr-incr",
+                "name": "upperleg-scale-depth-decr-incr",
+                "opposites": {
+                    "negative-left": "l-upperleg-scale-depth-decr",
+                    "negative-right": "r-upperleg-scale-depth-decr",
+                    "negative-unsided": "",
+                    "positive-left": "l-upperleg-scale-depth-incr",
+                    "positive-right": "r-upperleg-scale-depth-incr",
+                    "positive-unsided": ""
+                },
+                "targets": [
+                    "r-upperleg-scale-depth-decr",
+                    "l-upperleg-scale-depth-incr",
+                    "l-upperleg-scale-depth-decr",
+                    "r-upperleg-scale-depth-incr"
+                ]
+            },
+            {
+                "has_left_and_right": true,
+                "label": "upperleg-scale-horiz-decr-incr",
+                "name": "upperleg-scale-horiz-decr-incr",
+                "opposites": {
+                    "negative-left": "l-upperleg-scale-horiz-decr",
+                    "negative-right": "r-upperleg-scale-horiz-decr",
+                    "negative-unsided": "",
+                    "positive-left": "l-upperleg-scale-horiz-incr",
+                    "positive-right": "r-upperleg-scale-horiz-incr",
+                    "positive-unsided": ""
+                },
+                "targets": [
+                    "r-upperleg-scale-horiz-incr",
+                    "r-upperleg-scale-horiz-decr",
+                    "l-upperleg-scale-horiz-incr",
+                    "l-upperleg-scale-horiz-decr"
+                ]
+            },
+            {
+                "has_left_and_right": true,
+                "label": "hand-fingers-length-decr-incr",
+                "name": "hand-fingers-length-decr-incr",
+                "opposites": {
+                    "negative-left": "l-hand-fingers-length-decr",
+                    "negative-right": "r-hand-fingers-length-decr",
+                    "negative-unsided": "",
+                    "positive-left": "l-hand-fingers-length-incr",
+                    "positive-right": "r-hand-fingers-length-incr",
+                    "positive-unsided": ""
+                },
+                "targets": [
+                    "r-hand-fingers-length-decr",
+                    "l-hand-fingers-length-incr",
+                    "l-hand-fingers-length-decr",
+                    "r-hand-fingers-length-incr"
+                ]
+            },
+            {
+                "has_left_and_right": true,
+                "label": "hand-scale-decr-incr",
+                "name": "hand-scale-decr-incr",
+                "opposites": {
+                    "negative-left": "l-hand-scale-decr",
+                    "negative-right": "r-hand-scale-decr",
+                    "negative-unsided": "",
+                    "positive-left": "l-hand-scale-incr",
+                    "positive-right": "r-hand-scale-incr",
+                    "positive-unsided": ""
+                },
+                "targets": [
+                    "l-hand-scale-decr",
+                    "r-hand-scale-decr",
+                    "l-hand-scale-incr",
+                    "r-hand-scale-incr"
+                ]
+            },
+            {
+                "has_left_and_right": true,
+                "label": "lowerarm-fat-decr-incr",
+                "name": "lowerarm-fat-decr-incr",
+                "opposites": {
+                    "negative-left": "l-lowerarm-fat-decr",
+                    "negative-right": "r-lowerarm-fat-decr",
+                    "negative-unsided": "",
+                    "positive-left": "l-lowerarm-fat-incr",
+                    "positive-right": "r-lowerarm-fat-incr",
+                    "positive-unsided": ""
+                },
+                "targets": [
+                    "l-lowerarm-fat-incr",
+                    "l-lowerarm-fat-decr",
+                    "r-lowerarm-fat-incr",
+                    "r-lowerarm-fat-decr"
+                ]
+            },
+            {
+                "has_left_and_right": true,
+                "label": "hand-fingers-diameter-decr-incr",
+                "name": "hand-fingers-diameter-decr-incr",
+                "opposites": {
+                    "negative-left": "l-hand-fingers-diameter-decr",
+                    "negative-right": "r-hand-fingers-diameter-decr",
+                    "negative-unsided": "",
+                    "positive-left": "l-hand-fingers-diameter-incr",
+                    "positive-right": "r-hand-fingers-diameter-incr",
+                    "positive-unsided": ""
+                },
+                "targets": [
+                    "r-hand-fingers-diameter-decr",
+                    "l-hand-fingers-diameter-incr",
+                    "l-hand-fingers-diameter-decr",
+                    "r-hand-fingers-diameter-incr"
+                ]
+            },
+            {
+                "has_left_and_right": false,
+                "label": "upperlegs-height-decr-incr",
+                "name": "upperlegs-height-decr-incr",
+                "opposites": {
+                    "negative-left": "",
+                    "negative-right": "",
+                    "negative-unsided": "upperlegs-height-decr",
+                    "positive-left": "",
+                    "positive-right": "",
+                    "positive-unsided": "upperlegs-height-incr"
+                },
+                "targets": [
+                    "upperlegs-height-decr",
+                    "upperlegs-height-incr"
+                ]
+            },
+            {
+                "has_left_and_right": true,
+                "label": "lowerarm-scale-horiz-decr-incr",
+                "name": "lowerarm-scale-horiz-decr-incr",
+                "opposites": {
+                    "negative-left": "l-lowerarm-scale-horiz-decr",
+                    "negative-right": "r-lowerarm-scale-horiz-decr",
+                    "negative-unsided": "",
+                    "positive-left": "l-lowerarm-scale-horiz-incr",
+                    "positive-right": "r-lowerarm-scale-horiz-incr",
+                    "positive-unsided": ""
+                },
+                "targets": [
+                    "r-lowerarm-scale-horiz-decr",
+                    "l-lowerarm-scale-horiz-incr",
+                    "r-lowerarm-scale-horiz-incr",
+                    "l-lowerarm-scale-horiz-decr"
+                ]
+            },
+            {
+                "has_left_and_right": true,
+                "label": "lowerleg-fat-decr-incr",
+                "name": "lowerleg-fat-decr-incr",
+                "opposites": {
+                    "negative-left": "l-lowerleg-fat-decr",
+                    "negative-right": "r-lowerleg-fat-decr",
+                    "negative-unsided": "",
+                    "positive-left": "l-lowerleg-fat-incr",
+                    "positive-right": "r-lowerleg-fat-incr",
+                    "positive-unsided": ""
+                },
+                "targets": [
+                    "r-lowerleg-fat-incr",
+                    "l-lowerleg-fat-decr",
+                    "r-lowerleg-fat-decr",
+                    "l-lowerleg-fat-incr"
+                ]
+            },
+            {
+                "has_left_and_right": true,
+                "label": "lowerleg-scale-horiz-decr-incr",
+                "name": "lowerleg-scale-horiz-decr-incr",
+                "opposites": {
+                    "negative-left": "l-lowerleg-scale-horiz-decr",
+                    "negative-right": "r-lowerleg-scale-horiz-decr",
+                    "negative-unsided": "",
+                    "positive-left": "l-lowerleg-scale-horiz-incr",
+                    "positive-right": "r-lowerleg-scale-horiz-incr",
+                    "positive-unsided": ""
+                },
+                "targets": [
+                    "r-lowerleg-scale-horiz-incr",
+                    "r-lowerleg-scale-horiz-decr",
+                    "l-lowerleg-scale-horiz-decr",
+                    "l-lowerleg-scale-horiz-incr"
+                ]
+            },
+            {
+                "has_left_and_right": true,
+                "label": "lowerarm-muscle-decr-incr",
+                "name": "lowerarm-muscle-decr-incr",
+                "opposites": {
+                    "negative-left": "l-lowerarm-muscle-decr",
+                    "negative-right": "r-lowerarm-muscle-decr",
+                    "negative-unsided": "",
+                    "positive-left": "l-lowerarm-muscle-incr",
+                    "positive-right": "r-lowerarm-muscle-incr",
+                    "positive-unsided": ""
+                },
+                "targets": [
+                    "r-lowerarm-muscle-decr",
+                    "l-lowerarm-muscle-decr",
+                    "l-lowerarm-muscle-incr",
+                    "r-lowerarm-muscle-incr"
+                ]
+            },
+            {
+                "has_left_and_right": true,
+                "label": "upperarm-shoulder-muscle-decr-incr",
+                "name": "upperarm-shoulder-muscle-decr-incr",
+                "opposites": {
+                    "negative-left": "l-upperarm-shoulder-muscle-decr",
+                    "negative-right": "r-upperarm-shoulder-muscle-decr",
+                    "negative-unsided": "",
+                    "positive-left": "l-upperarm-shoulder-muscle-incr",
+                    "positive-right": "r-upperarm-shoulder-muscle-incr",
+                    "positive-unsided": ""
+                },
+                "targets": [
+                    "r-upperarm-shoulder-muscle-decr",
+                    "l-upperarm-shoulder-muscle-decr",
+                    "r-upperarm-shoulder-muscle-incr",
+                    "l-upperarm-shoulder-muscle-incr"
+                ]
+            },
+            {
+                "has_left_and_right": true,
+                "label": "foot-scale-vert-decr-incr",
+                "name": "foot-scale-vert-decr-incr",
+                "opposites": {
+                    "negative-left": "l-foot-scale-vert-decr",
+                    "negative-right": "r-foot-scale-vert-decr",
+                    "negative-unsided": "",
+                    "positive-left": "l-foot-scale-vert-incr",
+                    "positive-right": "r-foot-scale-vert-incr",
+                    "positive-unsided": ""
+                },
+                "targets": [
+                    "l-foot-scale-vert-incr",
+                    "r-foot-scale-vert-incr",
+                    "r-foot-scale-vert-decr",
+                    "l-foot-scale-vert-decr"
+                ]
+            },
+            {
+                "has_left_and_right": true,
+                "label": "foot-trans-backward-forward",
+                "name": "foot-trans-backward-forward",
+                "opposites": {
+                    "negative-left": "l-foot-trans-backward",
+                    "negative-right": "r-foot-trans-backward",
+                    "negative-unsided": "",
+                    "positive-left": "l-foot-trans-forward",
+                    "positive-right": "r-foot-trans-forward",
+                    "positive-unsided": ""
+                },
+                "targets": [
+                    "r-foot-trans-forward",
+                    "l-foot-trans-backward",
+                    "l-foot-trans-forward",
+                    "r-foot-trans-backward"
+                ]
+            },
+            {
+                "has_left_and_right": true,
+                "label": "hand-fingers-distance-decr-incr",
+                "name": "hand-fingers-distance-decr-incr",
+                "opposites": {
+                    "negative-left": "l-hand-fingers-distance-decr",
+                    "negative-right": "r-hand-fingers-distance-decr",
+                    "negative-unsided": "",
+                    "positive-left": "l-hand-fingers-distance-incr",
+                    "positive-right": "r-hand-fingers-distance-incr",
+                    "positive-unsided": ""
+                },
+                "targets": [
+                    "l-hand-fingers-distance-decr",
+                    "l-hand-fingers-distance-incr",
+                    "r-hand-fingers-distance-incr",
+                    "r-hand-fingers-distance-decr"
+                ]
+            },
+            {
+                "has_left_and_right": true,
+                "label": "foot-scale-depth-decr-incr",
+                "name": "foot-scale-depth-decr-incr",
+                "opposites": {
+                    "negative-left": "l-foot-scale-depth-decr",
+                    "negative-right": "r-foot-scale-depth-decr",
+                    "negative-unsided": "",
+                    "positive-left": "l-foot-scale-depth-incr",
+                    "positive-right": "r-foot-scale-depth-incr",
+                    "positive-unsided": ""
+                },
+                "targets": [
+                    "l-foot-scale-depth-incr",
+                    "r-foot-scale-depth-decr",
+                    "l-foot-scale-depth-decr",
+                    "r-foot-scale-depth-incr"
+                ]
+            },
+            {
+                "has_left_and_right": true,
+                "label": "upperarm-scale-depth-decr-incr",
+                "name": "upperarm-scale-depth-decr-incr",
+                "opposites": {
+                    "negative-left": "l-upperarm-scale-depth-decr",
+                    "negative-right": "r-upperarm-scale-depth-decr",
+                    "negative-unsided": "",
+                    "positive-left": "l-upperarm-scale-depth-incr",
+                    "positive-right": "r-upperarm-scale-depth-incr",
+                    "positive-unsided": ""
+                },
+                "targets": [
+                    "l-upperarm-scale-depth-decr",
+                    "r-upperarm-scale-depth-incr",
+                    "r-upperarm-scale-depth-decr",
+                    "l-upperarm-scale-depth-incr"
+                ]
+            },
+            {
+                "has_left_and_right": true,
+                "label": "foot-scale-decr-incr",
+                "name": "foot-scale-decr-incr",
+                "opposites": {
+                    "negative-left": "l-foot-scale-decr",
+                    "negative-right": "r-foot-scale-decr",
+                    "negative-unsided": "",
+                    "positive-left": "l-foot-scale-incr",
+                    "positive-right": "r-foot-scale-incr",
+                    "positive-unsided": ""
+                },
+                "targets": [
+                    "r-foot-scale-decr",
+                    "l-foot-scale-incr",
+                    "l-foot-scale-decr",
+                    "r-foot-scale-incr"
+                ]
+            },
+            {
+                "has_left_and_right": false,
+                "label": "lowerlegs-height-decr-incr",
+                "name": "lowerlegs-height-decr-incr",
+                "opposites": {
+                    "negative-left": "",
+                    "negative-right": "",
+                    "negative-unsided": "lowerlegs-height-decr",
+                    "positive-left": "",
+                    "positive-right": "",
+                    "positive-unsided": "lowerlegs-height-incr"
+                },
+                "targets": [
+                    "lowerlegs-height-incr",
+                    "lowerlegs-height-decr"
+                ]
+            },
+            {
+                "has_left_and_right": true,
+                "label": "upperleg-muscle-decr-incr",
+                "name": "upperleg-muscle-decr-incr",
+                "opposites": {
+                    "negative-left": "l-upperleg-muscle-decr",
+                    "negative-right": "r-upperleg-muscle-decr",
+                    "negative-unsided": "",
+                    "positive-left": "l-upperleg-muscle-incr",
+                    "positive-right": "r-upperleg-muscle-incr",
+                    "positive-unsided": ""
+                },
+                "targets": [
+                    "r-upperleg-muscle-decr",
+                    "l-upperleg-muscle-incr",
+                    "r-upperleg-muscle-incr",
+                    "l-upperleg-muscle-decr"
+                ]
+            },
+            {
+                "has_left_and_right": true,
+                "label": "upperleg-scale-vert-decr-incr",
+                "name": "upperleg-scale-vert-decr-incr",
+                "opposites": {
+                    "negative-left": "l-upperleg-scale-vert-decr",
+                    "negative-right": "r-upperleg-scale-vert-decr",
+                    "negative-unsided": "",
+                    "positive-left": "l-upperleg-scale-vert-incr",
+                    "positive-right": "r-upperleg-scale-vert-incr",
+                    "positive-unsided": ""
+                },
+                "targets": [
+                    "r-upperleg-scale-vert-incr",
+                    "l-upperleg-scale-vert-incr",
+                    "r-upperleg-scale-vert-decr",
+                    "l-upperleg-scale-vert-decr"
+                ]
+            },
+            {
+                "has_left_and_right": true,
+                "label": "lowerarm-scale-vert-decr-incr",
+                "name": "lowerarm-scale-vert-decr-incr",
+                "opposites": {
+                    "negative-left": "l-lowerarm-scale-vert-decr",
+                    "negative-right": "r-lowerarm-scale-vert-decr",
+                    "negative-unsided": "",
+                    "positive-left": "l-lowerarm-scale-vert-incr",
+                    "positive-right": "r-lowerarm-scale-vert-incr",
+                    "positive-unsided": ""
+                },
+                "targets": [
+                    "r-lowerarm-scale-vert-incr",
+                    "l-lowerarm-scale-vert-incr",
+                    "r-lowerarm-scale-vert-decr",
+                    "l-lowerarm-scale-vert-decr"
+                ]
+            },
+            {
+                "has_left_and_right": true,
+                "label": "foot-trans-down-up",
+                "name": "foot-trans-down-up",
+                "opposites": {
+                    "negative-left": "l-foot-trans-down",
+                    "negative-right": "r-foot-trans-down",
+                    "negative-unsided": "",
+                    "positive-left": "l-foot-trans-up",
+                    "positive-right": "r-foot-trans-up",
+                    "positive-unsided": ""
+                },
+                "targets": [
+                    "l-foot-trans-up",
+                    "l-foot-trans-down",
+                    "r-foot-trans-down",
+                    "r-foot-trans-up"
+                ]
+            },
+            {
+                "has_left_and_right": true,
+                "label": "upperarm-muscle-decr-incr",
+                "name": "upperarm-muscle-decr-incr",
+                "opposites": {
+                    "negative-left": "l-upperarm-muscle-decr",
+                    "negative-right": "r-upperarm-muscle-decr",
+                    "negative-unsided": "",
+                    "positive-left": "l-upperarm-muscle-incr",
+                    "positive-right": "r-upperarm-muscle-incr",
+                    "positive-unsided": ""
+                },
+                "targets": [
+                    "l-upperarm-muscle-incr",
+                    "r-upperarm-muscle-incr",
+                    "r-upperarm-muscle-decr",
+                    "l-upperarm-muscle-decr"
+                ]
+            },
+            {
+                "has_left_and_right": true,
+                "label": "upperarm-scale-vert-decr-incr",
+                "name": "upperarm-scale-vert-decr-incr",
+                "opposites": {
+                    "negative-left": "l-upperarm-scale-vert-decr",
+                    "negative-right": "r-upperarm-scale-vert-decr",
+                    "negative-unsided": "",
+                    "positive-left": "l-upperarm-scale-vert-incr",
+                    "positive-right": "r-upperarm-scale-vert-incr",
+                    "positive-unsided": ""
+                },
+                "targets": [
+                    "r-upperarm-scale-vert-incr",
+                    "l-upperarm-scale-vert-incr",
+                    "l-upperarm-scale-vert-decr",
+                    "r-upperarm-scale-vert-decr"
+                ]
+            }
+        ],
+        "include_per_default": true,
+        "label": "armslegs",
+        "unsorted": []
+    },
+    "breast": {
+        "categories": [
+            {
+                "has_left_and_right": false,
+                "label": "breast-point-decr-incr",
+                "name": "breast-point-decr-incr",
+                "opposites": {
+                    "negative-left": "",
+                    "negative-right": "",
+                    "negative-unsided": "breast-point-decr",
+                    "positive-left": "",
+                    "positive-right": "",
+                    "positive-unsided": "breast-point-incr"
+                },
+                "targets": [
+                    "breast-point-incr",
+                    "breast-point-decr"
+                ]
+            },
+            {
+                "has_left_and_right": false,
+                "label": "nipple-point-decr-incr",
+                "name": "nipple-point-decr-incr",
+                "opposites": {
+                    "negative-left": "",
+                    "negative-right": "",
+                    "negative-unsided": "nipple-point-decr",
+                    "positive-left": "",
+                    "positive-right": "",
+                    "positive-unsided": "nipple-point-incr"
+                },
+                "targets": [
+                    "nipple-point-decr",
+                    "nipple-point-incr"
+                ]
+            },
+            {
+                "has_left_and_right": false,
+                "label": "nipple-size-decr-incr",
+                "name": "nipple-size-decr-incr",
+                "opposites": {
+                    "negative-left": "",
+                    "negative-right": "",
+                    "negative-unsided": "nipple-size-decr",
+                    "positive-left": "",
+                    "positive-right": "",
+                    "positive-unsided": "nipple-size-incr"
+                },
+                "targets": [
+                    "nipple-size-incr",
+                    "nipple-size-decr"
+                ]
+            },
+            {
+                "has_left_and_right": false,
+                "label": "breast-dist-decr-incr",
+                "name": "breast-dist-decr-incr",
+                "opposites": {
+                    "negative-left": "",
+                    "negative-right": "",
+                    "negative-unsided": "breast-dist-decr",
+                    "positive-left": "",
+                    "positive-right": "",
+                    "positive-unsided": "breast-dist-incr"
+                },
+                "targets": [
+                    "breast-dist-incr",
+                    "breast-dist-decr"
+                ]
+            },
+            {
+                "has_left_and_right": false,
+                "label": "breast-volume-vert-down-up",
+                "name": "breast-volume-vert-down-up",
+                "opposites": {
+                    "negative-left": "",
+                    "negative-right": "",
+                    "negative-unsided": "breast-volume-vert-down",
+                    "positive-left": "",
+                    "positive-right": "",
+                    "positive-unsided": "breast-volume-vert-up"
+                },
+                "targets": [
+                    "breast-volume-vert-up",
+                    "breast-volume-vert-down"
+                ]
+            },
+            {
+                "has_left_and_right": false,
+                "label": "breast-trans-down-up",
+                "name": "breast-trans-down-up",
+                "opposites": {
+                    "negative-left": "",
+                    "negative-right": "",
+                    "negative-unsided": "breast-trans-down",
+                    "positive-left": "",
+                    "positive-right": "",
+                    "positive-unsided": "breast-trans-up"
+                },
+                "targets": [
+                    "breast-trans-up",
+                    "breast-trans-down"
+                ]
+            }
+        ],
+        "include_per_default": true,
+        "label": "breast",
+        "unsorted": []
+    },
+    "buttocks": {
+        "categories": [
+            {
+                "has_left_and_right": false,
+                "label": "buttocks-volume-decr-incr",
+                "name": "buttocks-volume-decr-incr",
+                "opposites": {
+                    "negative-left": "",
+                    "negative-right": "",
+                    "negative-unsided": "buttocks-volume-decr",
+                    "positive-left": "",
+                    "positive-right": "",
+                    "positive-unsided": "buttocks-volume-incr"
+                },
+                "targets": [
+                    "buttocks-volume-decr",
+                    "buttocks-volume-incr"
+                ]
+            }
+        ],
+        "include_per_default": true,
+        "label": "buttocks",
+        "unsorted": []
+    },
+    "cheek": {
+        "categories": [
+            {
+                "has_left_and_right": true,
+                "label": "cheek-trans-down-up",
+                "name": "cheek-trans-down-up",
+                "opposites": {
+                    "negative-left": "l-cheek-trans-down",
+                    "negative-right": "r-cheek-trans-down",
+                    "negative-unsided": "",
+                    "positive-left": "l-cheek-trans-up",
+                    "positive-right": "r-cheek-trans-up",
+                    "positive-unsided": ""
+                },
+                "targets": [
+                    "r-cheek-trans-up",
+                    "r-cheek-trans-down",
+                    "l-cheek-trans-down",
+                    "l-cheek-trans-up"
+                ]
+            },
+            {
+                "has_left_and_right": true,
+                "label": "cheek-volume-decr-incr",
+                "name": "cheek-volume-decr-incr",
+                "opposites": {
+                    "negative-left": "l-cheek-volume-decr",
+                    "negative-right": "r-cheek-volume-decr",
+                    "negative-unsided": "",
+                    "positive-left": "l-cheek-volume-incr",
+                    "positive-right": "r-cheek-volume-incr",
+                    "positive-unsided": ""
+                },
+                "targets": [
+                    "l-cheek-volume-incr",
+                    "r-cheek-volume-incr",
+                    "l-cheek-volume-decr",
+                    "r-cheek-volume-decr"
+                ]
+            },
+            {
+                "has_left_and_right": true,
+                "label": "cheek-inner-decr-incr",
+                "name": "cheek-inner-decr-incr",
+                "opposites": {
+                    "negative-left": "l-cheek-inner-decr",
+                    "negative-right": "r-cheek-inner-decr",
+                    "negative-unsided": "",
+                    "positive-left": "l-cheek-inner-incr",
+                    "positive-right": "r-cheek-inner-incr",
+                    "positive-unsided": ""
+                },
+                "targets": [
+                    "l-cheek-inner-decr",
+                    "l-cheek-inner-incr",
+                    "r-cheek-inner-incr",
+                    "r-cheek-inner-decr"
+                ]
+            },
+            {
+                "has_left_and_right": true,
+                "label": "cheek-bones-decr-incr",
+                "name": "cheek-bones-decr-incr",
+                "opposites": {
+                    "negative-left": "l-cheek-bones-decr",
+                    "negative-right": "r-cheek-bones-decr",
+                    "negative-unsided": "",
+                    "positive-left": "l-cheek-bones-incr",
+                    "positive-right": "r-cheek-bones-incr",
+                    "positive-unsided": ""
+                },
+                "targets": [
+                    "r-cheek-bones-decr",
+                    "l-cheek-bones-incr",
+                    "r-cheek-bones-incr",
+                    "l-cheek-bones-decr"
+                ]
+            }
+        ],
+        "include_per_default": true,
+        "label": "cheek",
+        "unsorted": []
+    },
+    "chin": {
+        "categories": [
+            {
+                "has_left_and_right": false,
+                "label": "chin-jaw-drop-decr-incr",
+                "name": "chin-jaw-drop-decr-incr",
+                "opposites": {
+                    "negative-left": "",
+                    "negative-right": "",
+                    "negative-unsided": "chin-jaw-drop-decr",
+                    "positive-left": "",
+                    "positive-right": "",
+                    "positive-unsided": "chin-jaw-drop-incr"
+                },
+                "targets": [
+                    "chin-jaw-drop-incr",
+                    "chin-jaw-drop-decr"
+                ]
+            },
+            {
+                "has_left_and_right": false,
+                "label": "chin-height-decr-incr",
+                "name": "chin-height-decr-incr",
+                "opposites": {
+                    "negative-left": "",
+                    "negative-right": "",
+                    "negative-unsided": "chin-height-decr",
+                    "positive-left": "",
+                    "positive-right": "",
+                    "positive-unsided": "chin-height-incr"
+                },
+                "targets": [
+                    "chin-height-decr",
+                    "chin-height-incr"
+                ]
+            },
+            {
+                "has_left_and_right": false,
+                "label": "chin-prominent-decr-incr",
+                "name": "chin-prominent-decr-incr",
+                "opposites": {
+                    "negative-left": "",
+                    "negative-right": "",
+                    "negative-unsided": "chin-prominent-decr",
+                    "positive-left": "",
+                    "positive-right": "",
+                    "positive-unsided": "chin-prominent-incr"
+                },
+                "targets": [
+                    "chin-prominent-incr",
+                    "chin-prominent-decr"
+                ]
+            },
+            {
+                "has_left_and_right": false,
+                "label": "chin-bones-decr-incr",
+                "name": "chin-bones-decr-incr",
+                "opposites": {
+                    "negative-left": "",
+                    "negative-right": "",
+                    "negative-unsided": "chin-bones-decr",
+                    "positive-left": "",
+                    "positive-right": "",
+                    "positive-unsided": "chin-bones-incr"
+                },
+                "targets": [
+                    "chin-bones-incr",
+                    "chin-bones-decr"
+                ]
+            },
+            {
+                "has_left_and_right": false,
+                "label": "chin-width-decr-incr",
+                "name": "chin-width-decr-incr",
+                "opposites": {
+                    "negative-left": "",
+                    "negative-right": "",
+                    "negative-unsided": "chin-width-decr",
+                    "positive-left": "",
+                    "positive-right": "",
+                    "positive-unsided": "chin-width-incr"
+                },
+                "targets": [
+                    "chin-width-decr",
+                    "chin-width-incr"
+                ]
+            },
+            {
+                "has_left_and_right": false,
+                "label": "chin-cleft-decr-incr",
+                "name": "chin-cleft-decr-incr",
+                "opposites": {
+                    "negative-left": "",
+                    "negative-right": "",
+                    "negative-unsided": "chin-cleft-decr",
+                    "positive-left": "",
+                    "positive-right": "",
+                    "positive-unsided": "chin-cleft-incr"
+                },
+                "targets": [
+                    "chin-cleft-decr",
+                    "chin-cleft-incr"
+                ]
+            },
+            {
+                "has_left_and_right": false,
+                "label": "chin-prognathism-decr-incr",
+                "name": "chin-prognathism-decr-incr",
+                "opposites": {
+                    "negative-left": "",
+                    "negative-right": "",
+                    "negative-unsided": "chin-prognathism-decr",
+                    "positive-left": "",
+                    "positive-right": "",
+                    "positive-unsided": "chin-prognathism-incr"
+                },
+                "targets": [
+                    "chin-prognathism-incr",
+                    "chin-prognathism-decr"
+                ]
+            }
+        ],
+        "include_per_default": true,
+        "label": "chin",
+        "unsorted": [
+            "chin-triangle"
+        ]
+    },
+    "ears": {
+        "categories": [
+            {
+                "has_left_and_right": true,
+                "label": "ear-lobe-decr-incr",
+                "name": "ear-lobe-decr-incr",
+                "opposites": {
+                    "negative-left": "l-ear-lobe-decr",
+                    "negative-right": "r-ear-lobe-decr",
+                    "negative-unsided": "",
+                    "positive-left": "l-ear-lobe-incr",
+                    "positive-right": "r-ear-lobe-incr",
+                    "positive-unsided": ""
+                },
+                "targets": [
+                    "l-ear-lobe-incr",
+                    "r-ear-lobe-incr",
+                    "l-ear-lobe-decr",
+                    "r-ear-lobe-decr"
+                ]
+            },
+            {
+                "has_left_and_right": true,
+                "label": "ear-shape-square-round",
+                "name": "ear-shape-square-round",
+                "opposites": {
+                    "negative-left": "l-ear-shape-square",
+                    "negative-right": "r-ear-shape-square",
+                    "negative-unsided": "",
+                    "positive-left": "l-ear-shape-round",
+                    "positive-right": "r-ear-shape-round",
+                    "positive-unsided": ""
+                },
+                "targets": [
+                    "l-ear-shape-round",
+                    "r-ear-shape-round",
+                    "r-ear-shape-square",
+                    "l-ear-shape-square"
+                ]
+            },
+            {
+                "has_left_and_right": true,
+                "label": "ear-trans-backward-forward",
+                "name": "ear-trans-backward-forward",
+                "opposites": {
+                    "negative-left": "l-ear-trans-backward",
+                    "negative-right": "r-ear-trans-backward",
+                    "negative-unsided": "",
+                    "positive-left": "l-ear-trans-forward",
+                    "positive-right": "r-ear-trans-forward",
+                    "positive-unsided": ""
+                },
+                "targets": [
+                    "r-ear-trans-forward",
+                    "l-ear-trans-forward",
+                    "l-ear-trans-backward",
+                    "r-ear-trans-backward"
+                ]
+            },
+            {
+                "has_left_and_right": true,
+                "label": "ear-rot-backward-forward",
+                "name": "ear-rot-backward-forward",
+                "opposites": {
+                    "negative-left": "l-ear-rot-backward",
+                    "negative-right": "r-ear-rot-backward",
+                    "negative-unsided": "",
+                    "positive-left": "l-ear-rot-forward",
+                    "positive-right": "r-ear-rot-forward",
+                    "positive-unsided": ""
+                },
+                "targets": [
+                    "l-ear-rot-backward",
+                    "r-ear-rot-forward",
+                    "r-ear-rot-backward",
+                    "l-ear-rot-forward"
+                ]
+            },
+            {
+                "has_left_and_right": true,
+                "label": "ear-trans-down-up",
+                "name": "ear-trans-down-up",
+                "opposites": {
+                    "negative-left": "l-ear-trans-down",
+                    "negative-right": "r-ear-trans-down",
+                    "negative-unsided": "",
+                    "positive-left": "l-ear-trans-up",
+                    "positive-right": "r-ear-trans-up",
+                    "positive-unsided": ""
+                },
+                "targets": [
+                    "l-ear-trans-up",
+                    "r-ear-trans-up",
+                    "l-ear-trans-down",
+                    "r-ear-trans-down"
+                ]
+            },
+            {
+                "has_left_and_right": true,
+                "label": "ear-scale-vert-decr-incr",
+                "name": "ear-scale-vert-decr-incr",
+                "opposites": {
+                    "negative-left": "l-ear-scale-vert-decr",
+                    "negative-right": "r-ear-scale-vert-decr",
+                    "negative-unsided": "",
+                    "positive-left": "l-ear-scale-vert-incr",
+                    "positive-right": "r-ear-scale-vert-incr",
+                    "positive-unsided": ""
+                },
+                "targets": [
+                    "l-ear-scale-vert-decr",
+                    "l-ear-scale-vert-incr",
+                    "r-ear-scale-vert-decr",
+                    "r-ear-scale-vert-incr"
+                ]
+            },
+            {
+                "has_left_and_right": true,
+                "label": "ear-flap-decr-incr",
+                "name": "ear-flap-decr-incr",
+                "opposites": {
+                    "negative-left": "l-ear-flap-decr",
+                    "negative-right": "r-ear-flap-decr",
+                    "negative-unsided": "",
+                    "positive-left": "l-ear-flap-incr",
+                    "positive-right": "r-ear-flap-incr",
+                    "positive-unsided": ""
+                },
+                "targets": [
+                    "r-ear-flap-incr",
+                    "l-ear-flap-incr",
+                    "l-ear-flap-decr",
+                    "r-ear-flap-decr"
+                ]
+            },
+            {
+                "has_left_and_right": true,
+                "label": "ear-shape-pointed-triangle",
+                "name": "ear-shape-pointed-triangle",
+                "opposites": {
+                    "negative-left": "l-ear-shape-pointed",
+                    "negative-right": "r-ear-shape-pointed",
+                    "negative-unsided": "",
+                    "positive-left": "l-ear-shape-triangle",
+                    "positive-right": "r-ear-shape-triangle",
+                    "positive-unsided": ""
+                },
+                "targets": [
+                    "l-ear-shape-pointed",
+                    "r-ear-shape-pointed",
+                    "l-ear-shape-triangle",
+                    "r-ear-shape-triangle"
+                ]
+            },
+            {
+                "has_left_and_right": true,
+                "label": "ear-scale-decr-incr",
+                "name": "ear-scale-decr-incr",
+                "opposites": {
+                    "negative-left": "l-ear-scale-decr",
+                    "negative-right": "r-ear-scale-decr",
+                    "negative-unsided": "",
+                    "positive-left": "l-ear-scale-incr",
+                    "positive-right": "r-ear-scale-incr",
+                    "positive-unsided": ""
+                },
+                "targets": [
+                    "r-ear-scale-decr",
+                    "r-ear-scale-incr",
+                    "l-ear-scale-incr",
+                    "l-ear-scale-decr"
+                ]
+            },
+            {
+                "has_left_and_right": true,
+                "label": "ear-scale-depth-decr-incr",
+                "name": "ear-scale-depth-decr-incr",
+                "opposites": {
+                    "negative-left": "l-ear-scale-depth-decr",
+                    "negative-right": "r-ear-scale-depth-decr",
+                    "negative-unsided": "",
+                    "positive-left": "l-ear-scale-depth-incr",
+                    "positive-right": "r-ear-scale-depth-incr",
+                    "positive-unsided": ""
+                },
+                "targets": [
+                    "l-ear-scale-depth-incr",
+                    "r-ear-scale-depth-decr",
+                    "l-ear-scale-depth-decr",
+                    "r-ear-scale-depth-incr"
+                ]
+            },
+            {
+                "has_left_and_right": true,
+                "label": "ear-wing-decr-incr",
+                "name": "ear-wing-decr-incr",
+                "opposites": {
+                    "negative-left": "l-ear-wing-decr",
+                    "negative-right": "r-ear-wing-decr",
+                    "negative-unsided": "",
+                    "positive-left": "l-ear-wing-incr",
+                    "positive-right": "r-ear-wing-incr",
+                    "positive-unsided": ""
+                },
+                "targets": [
+                    "l-ear-wing-incr",
+                    "r-ear-wing-decr",
+                    "r-ear-wing-incr",
+                    "l-ear-wing-decr"
+                ]
+            }
+        ],
+        "include_per_default": true,
+        "label": "ears",
+        "unsorted": []
+    },
+    "expression": {
+        "categories": [],
+        "include_per_default": true,
+        "label": "expression",
+        "unsorted": []
+    },
+    "eyebrows": {
+        "categories": [
+            {
+                "has_left_and_right": false,
+                "label": "eyebrows-angle-down-up",
+                "name": "eyebrows-angle-down-up",
+                "opposites": {
+                    "negative-left": "",
+                    "negative-right": "",
+                    "negative-unsided": "eyebrows-angle-down",
+                    "positive-left": "",
+                    "positive-right": "",
+                    "positive-unsided": "eyebrows-angle-up"
+                },
+                "targets": [
+                    "eyebrows-angle-up",
+                    "eyebrows-angle-down"
+                ]
+            },
+            {
+                "has_left_and_right": false,
+                "label": "eyebrows-trans-down-up",
+                "name": "eyebrows-trans-down-up",
+                "opposites": {
+                    "negative-left": "",
+                    "negative-right": "",
+                    "negative-unsided": "eyebrows-trans-down",
+                    "positive-left": "",
+                    "positive-right": "",
+                    "positive-unsided": "eyebrows-trans-up"
+                },
+                "targets": [
+                    "eyebrows-trans-down",
+                    "eyebrows-trans-up"
+                ]
+            },
+            {
+                "has_left_and_right": false,
+                "label": "eyebrows-trans-backward-forward",
+                "name": "eyebrows-trans-backward-forward",
+                "opposites": {
+                    "negative-left": "",
+                    "negative-right": "",
+                    "negative-unsided": "eyebrows-trans-backward",
+                    "positive-left": "",
+                    "positive-right": "",
+                    "positive-unsided": "eyebrows-trans-forward"
+                },
+                "targets": [
+                    "eyebrows-trans-forward",
+                    "eyebrows-trans-backward"
+                ]
+            }
+        ],
+        "include_per_default": true,
+        "label": "eyebrows",
+        "unsorted": []
+    },
+    "eyes": {
+        "categories": [
+            {
+                "has_left_and_right": true,
+                "label": "eye-corner1-down-up",
+                "name": "eye-corner1-down-up",
+                "opposites": {
+                    "negative-left": "l-eye-corner1-down",
+                    "negative-right": "r-eye-corner1-down",
+                    "negative-unsided": "",
+                    "positive-left": "l-eye-corner1-up",
+                    "positive-right": "r-eye-corner1-up",
+                    "positive-unsided": ""
+                },
+                "targets": [
+                    "l-eye-corner1-up",
+                    "r-eye-corner1-down",
+                    "l-eye-corner1-down",
+                    "r-eye-corner1-up"
+                ]
+            },
+            {
+                "has_left_and_right": true,
+                "label": "eye-height1-decr-incr",
+                "name": "eye-height1-decr-incr",
+                "opposites": {
+                    "negative-left": "l-eye-height1-decr",
+                    "negative-right": "r-eye-height1-decr",
+                    "negative-unsided": "",
+                    "positive-left": "l-eye-height1-incr",
+                    "positive-right": "r-eye-height1-incr",
+                    "positive-unsided": ""
+                },
+                "targets": [
+                    "r-eye-height1-incr",
+                    "l-eye-height1-decr",
+                    "r-eye-height1-decr",
+                    "l-eye-height1-incr"
+                ]
+            },
+            {
+                "has_left_and_right": true,
+                "label": "eye-scale-decr-incr",
+                "name": "eye-scale-decr-incr",
+                "opposites": {
+                    "negative-left": "l-eye-scale-decr",
+                    "negative-right": "r-eye-scale-decr",
+                    "negative-unsided": "",
+                    "positive-left": "l-eye-scale-incr",
+                    "positive-right": "r-eye-scale-incr",
+                    "positive-unsided": ""
+                },
+                "targets": [
+                    "l-eye-scale-decr",
+                    "l-eye-scale-incr",
+                    "r-eye-scale-incr",
+                    "r-eye-scale-decr"
+                ]
+            },
+            {
+                "has_left_and_right": true,
+                "label": "eye-push1-in-out",
+                "name": "eye-push1-in-out",
+                "opposites": {
+                    "negative-left": "l-eye-push1-in",
+                    "negative-right": "r-eye-push1-in",
+                    "negative-unsided": "",
+                    "positive-left": "l-eye-push1-out",
+                    "positive-right": "r-eye-push1-out",
+                    "positive-unsided": ""
+                },
+                "targets": [
+                    "l-eye-push1-in",
+                    "r-eye-push1-in",
+                    "l-eye-push1-out",
+                    "r-eye-push1-out"
+                ]
+            },
+            {
+                "has_left_and_right": true,
+                "label": "eye-eyefold-down-up",
+                "name": "eye-eyefold-down-up",
+                "opposites": {
+                    "negative-left": "l-eye-eyefold-down",
+                    "negative-right": "r-eye-eyefold-down",
+                    "negative-unsided": "",
+                    "positive-left": "l-eye-eyefold-up",
+                    "positive-right": "r-eye-eyefold-up",
+                    "positive-unsided": ""
+                },
+                "targets": [
+                    "l-eye-eyefold-up",
+                    "r-eye-eyefold-down",
+                    "l-eye-eyefold-down",
+                    "r-eye-eyefold-up"
+                ]
+            },
+            {
+                "has_left_and_right": true,
+                "label": "eye-height3-decr-incr",
+                "name": "eye-height3-decr-incr",
+                "opposites": {
+                    "negative-left": "l-eye-height3-decr",
+                    "negative-right": "r-eye-height3-decr",
+                    "negative-unsided": "",
+                    "positive-left": "l-eye-height3-incr",
+                    "positive-right": "r-eye-height3-incr",
+                    "positive-unsided": ""
+                },
+                "targets": [
+                    "r-eye-height3-decr",
+                    "r-eye-height3-incr",
+                    "l-eye-height3-decr",
+                    "l-eye-height3-incr"
+                ]
+            },
+            {
+                "has_left_and_right": true,
+                "label": "eye-height2-decr-incr",
+                "name": "eye-height2-decr-incr",
+                "opposites": {
+                    "negative-left": "l-eye-height2-decr",
+                    "negative-right": "r-eye-height2-decr",
+                    "negative-unsided": "",
+                    "positive-left": "l-eye-height2-incr",
+                    "positive-right": "r-eye-height2-incr",
+                    "positive-unsided": ""
+                },
+                "targets": [
+                    "r-eye-height2-incr",
+                    "l-eye-height2-incr",
+                    "r-eye-height2-decr",
+                    "l-eye-height2-decr"
+                ]
+            },
+            {
+                "has_left_and_right": true,
+                "label": "eye-bag-decr-incr",
+                "name": "eye-bag-decr-incr",
+                "opposites": {
+                    "negative-left": "l-eye-bag-decr",
+                    "negative-right": "r-eye-bag-decr",
+                    "negative-unsided": "",
+                    "positive-left": "l-eye-bag-incr",
+                    "positive-right": "r-eye-bag-incr",
+                    "positive-unsided": ""
+                },
+                "targets": [
+                    "r-eye-bag-incr",
+                    "r-eye-bag-decr",
+                    "l-eye-bag-decr",
+                    "l-eye-bag-incr"
+                ]
+            },
+            {
+                "has_left_and_right": true,
+                "label": "eye-push2-in-out",
+                "name": "eye-push2-in-out",
+                "opposites": {
+                    "negative-left": "l-eye-push2-in",
+                    "negative-right": "r-eye-push2-in",
+                    "negative-unsided": "",
+                    "positive-left": "l-eye-push2-out",
+                    "positive-right": "r-eye-push2-out",
+                    "positive-unsided": ""
+                },
+                "targets": [
+                    "r-eye-push2-in",
+                    "l-eye-push2-in",
+                    "l-eye-push2-out",
+                    "r-eye-push2-out"
+                ]
+            },
+            {
+                "has_left_and_right": true,
+                "label": "eye-trans-down-up",
+                "name": "eye-trans-down-up",
+                "opposites": {
+                    "negative-left": "l-eye-trans-down",
+                    "negative-right": "r-eye-trans-down",
+                    "negative-unsided": "",
+                    "positive-left": "l-eye-trans-up",
+                    "positive-right": "r-eye-trans-up",
+                    "positive-unsided": ""
+                },
+                "targets": [
+                    "r-eye-trans-down",
+                    "r-eye-trans-up",
+                    "l-eye-trans-up",
+                    "l-eye-trans-down"
+                ]
+            },
+            {
+                "has_left_and_right": true,
+                "label": "eye-bag-height-decr-incr",
+                "name": "eye-bag-height-decr-incr",
+                "opposites": {
+                    "negative-left": "l-eye-bag-height-decr",
+                    "negative-right": "r-eye-bag-height-decr",
+                    "negative-unsided": "",
+                    "positive-left": "l-eye-bag-height-incr",
+                    "positive-right": "r-eye-bag-height-incr",
+                    "positive-unsided": ""
+                },
+                "targets": [
+                    "r-eye-bag-height-incr",
+                    "r-eye-bag-height-decr",
+                    "l-eye-bag-height-decr",
+                    "l-eye-bag-height-incr"
+                ]
+            },
+            {
+                "has_left_and_right": true,
+                "label": "eye-epicanthus-in-out",
+                "name": "eye-epicanthus-in-out",
+                "opposites": {
+                    "negative-left": "l-eye-epicanthus-in",
+                    "negative-right": "r-eye-epicanthus-in",
+                    "negative-unsided": "",
+                    "positive-left": "l-eye-epicanthus-out",
+                    "positive-right": "r-eye-epicanthus-out",
+                    "positive-unsided": ""
+                },
+                "targets": [
+                    "l-eye-epicanthus-in",
+                    "r-eye-epicanthus-out",
+                    "r-eye-epicanthus-in",
+                    "l-eye-epicanthus-out"
+                ]
+            },
+            {
+                "has_left_and_right": true,
+                "label": "eye-eyefold-angle-down-up",
+                "name": "eye-eyefold-angle-down-up",
+                "opposites": {
+                    "negative-left": "l-eye-eyefold-angle-down",
+                    "negative-right": "r-eye-eyefold-angle-down",
+                    "negative-unsided": "",
+                    "positive-left": "l-eye-eyefold-angle-up",
+                    "positive-right": "r-eye-eyefold-angle-up",
+                    "positive-unsided": ""
+                },
+                "targets": [
+                    "l-eye-eyefold-angle-down",
+                    "r-eye-eyefold-angle-down",
+                    "l-eye-eyefold-angle-up",
+                    "r-eye-eyefold-angle-up"
+                ]
+            },
+            {
+                "has_left_and_right": true,
+                "label": "eye-bag-in-out",
+                "name": "eye-bag-in-out",
+                "opposites": {
+                    "negative-left": "l-eye-bag-in",
+                    "negative-right": "r-eye-bag-in",
+                    "negative-unsided": "",
+                    "positive-left": "l-eye-bag-out",
+                    "positive-right": "r-eye-bag-out",
+                    "positive-unsided": ""
+                },
+                "targets": [
+                    "l-eye-bag-in",
+                    "r-eye-bag-in",
+                    "r-eye-bag-out",
+                    "l-eye-bag-out"
+                ]
+            },
+            {
+                "has_left_and_right": true,
+                "label": "eye-corner2-down-up",
+                "name": "eye-corner2-down-up",
+                "opposites": {
+                    "negative-left": "l-eye-corner2-down",
+                    "negative-right": "r-eye-corner2-down",
+                    "negative-unsided": "",
+                    "positive-left": "l-eye-corner2-up",
+                    "positive-right": "r-eye-corner2-up",
+                    "positive-unsided": ""
+                },
+                "targets": [
+                    "r-eye-corner2-up",
+                    "r-eye-corner2-down",
+                    "l-eye-corner2-down",
+                    "l-eye-corner2-up"
+                ]
+            },
+            {
+                "has_left_and_right": true,
+                "label": "eye-trans-in-out",
+                "name": "eye-trans-in-out",
+                "opposites": {
+                    "negative-left": "l-eye-trans-in",
+                    "negative-right": "r-eye-trans-in",
+                    "negative-unsided": "",
+                    "positive-left": "l-eye-trans-out",
+                    "positive-right": "r-eye-trans-out",
+                    "positive-unsided": ""
+                },
+                "targets": [
+                    "l-eye-trans-in",
+                    "r-eye-trans-out",
+                    "r-eye-trans-in",
+                    "l-eye-trans-out"
+                ]
+            },
+            {
+                "has_left_and_right": true,
+                "label": "eye-eyefold-concave-convex",
+                "name": "eye-eyefold-concave-convex",
+                "targets": [
+                    "r-eye-eyefold-concave",
+                    "r-eye-eyefold-convex",
+                    "l-eye-eyefold-concave",
+                    "l-eye-eyefold-convex"
+                ]
+            }
+        ],
+        "include_per_default": true,
+        "label": "eyes",
+        "unsorted": []
+    },
+    "forehead": {
+        "categories": [
+            {
+                "has_left_and_right": false,
+                "label": "forehead-temple-decr-incr",
+                "name": "forehead-temple-decr-incr",
+                "opposites": {
+                    "negative-left": "",
+                    "negative-right": "",
+                    "negative-unsided": "forehead-temple-decr",
+                    "positive-left": "",
+                    "positive-right": "",
+                    "positive-unsided": "forehead-temple-incr"
+                },
+                "targets": [
+                    "forehead-temple-incr",
+                    "forehead-temple-decr"
+                ]
+            },
+            {
+                "has_left_and_right": false,
+                "label": "forehead-trans-backward-forward",
+                "name": "forehead-trans-backward-forward",
+                "opposites": {
+                    "negative-left": "",
+                    "negative-right": "",
+                    "negative-unsided": "forehead-trans-backward",
+                    "positive-left": "",
+                    "positive-right": "",
+                    "positive-unsided": "forehead-trans-forward"
+                },
+                "targets": [
+                    "forehead-trans-backward",
+                    "forehead-trans-forward"
+                ]
+            },
+            {
+                "has_left_and_right": false,
+                "label": "forehead-scale-vert-decr-incr",
+                "name": "forehead-scale-vert-decr-incr",
+                "opposites": {
+                    "negative-left": "",
+                    "negative-right": "",
+                    "negative-unsided": "forehead-scale-vert-decr",
+                    "positive-left": "",
+                    "positive-right": "",
+                    "positive-unsided": "forehead-scale-vert-incr"
+                },
+                "targets": [
+                    "forehead-scale-vert-decr",
+                    "forehead-scale-vert-incr"
+                ]
+            },
+            {
+                "has_left_and_right": false,
+                "label": "forehead-nubian-decr-incr",
+                "name": "forehead-nubian-decr-incr",
+                "opposites": {
+                    "negative-left": "",
+                    "negative-right": "",
+                    "negative-unsided": "forehead-nubian-decr",
+                    "positive-left": "",
+                    "positive-right": "",
+                    "positive-unsided": "forehead-nubian-incr"
+                },
+                "targets": [
+                    "forehead-nubian-incr",
+                    "forehead-nubian-decr"
+                ]
+            }
+        ],
+        "include_per_default": true,
+        "label": "forehead",
+        "unsorted": []
+    },
+    "genitals": {
+        "categories": [
+            {
+                "has_left_and_right": false,
+                "label": "penis-length-decr-incr",
+                "name": "penis-length-decr-incr",
+                "opposites": {
+                    "negative-left": "",
+                    "negative-right": "",
+                    "negative-unsided": "penis-length-decr",
+                    "positive-left": "",
+                    "positive-right": "",
+                    "positive-unsided": "penis-length-incr"
+                },
+                "targets": [
+                    "penis-length-decr",
+                    "penis-length-incr"
+                ]
+            },
+            {
+                "has_left_and_right": false,
+                "label": "penis-testicles-decr-incr",
+                "name": "penis-testicles-decr-incr",
+                "opposites": {
+                    "negative-left": "",
+                    "negative-right": "",
+                    "negative-unsided": "penis-testicles-decr",
+                    "positive-left": "",
+                    "positive-right": "",
+                    "positive-unsided": "penis-testicles-incr"
+                },
+                "targets": [
+                    "penis-testicles-decr",
+                    "penis-testicles-incr"
+                ]
+            },
+            {
+                "has_left_and_right": false,
+                "label": "penis-circ-decr-incr",
+                "name": "penis-circ-decr-incr",
+                "opposites": {
+                    "negative-left": "",
+                    "negative-right": "",
+                    "negative-unsided": "penis-circ-decr",
+                    "positive-left": "",
+                    "positive-right": "",
+                    "positive-unsided": "penis-circ-incr"
+                },
+                "targets": [
+                    "penis-circ-incr",
+                    "penis-circ-decr"
+                ]
+            }
+        ],
+        "include_per_default": true,
+        "label": "genitals",
+        "unsorted": []
+    },
+    "head": {
+        "categories": [
+            {
+                "has_left_and_right": false,
+                "label": "head-angle-in-out",
+                "name": "head-angle-in-out",
+                "opposites": {
+                    "negative-left": "",
+                    "negative-right": "",
+                    "negative-unsided": "head-angle-in",
+                    "positive-left": "",
+                    "positive-right": "",
+                    "positive-unsided": "head-angle-out"
+                },
+                "targets": [
+                    "head-angle-in",
+                    "head-angle-out"
+                ]
+            },
+            {
+                "has_left_and_right": false,
+                "label": "head-scale-vert-decr-incr",
+                "name": "head-scale-vert-decr-incr",
+                "opposites": {
+                    "negative-left": "",
+                    "negative-right": "",
+                    "negative-unsided": "head-scale-vert-decr",
+                    "positive-left": "",
+                    "positive-right": "",
+                    "positive-unsided": "head-scale-vert-incr"
+                },
+                "targets": [
+                    "head-scale-vert-decr",
+                    "head-scale-vert-incr"
+                ]
+            },
+            {
+                "has_left_and_right": false,
+                "label": "head-trans-backward-forward",
+                "name": "head-trans-backward-forward",
+                "opposites": {
+                    "negative-left": "",
+                    "negative-right": "",
+                    "negative-unsided": "head-trans-backward",
+                    "positive-left": "",
+                    "positive-right": "",
+                    "positive-unsided": "head-trans-forward"
+                },
+                "targets": [
+                    "head-trans-backward",
+                    "head-trans-forward"
+                ]
+            },
+            {
+                "has_left_and_right": false,
+                "label": "head-trans-down-up",
+                "name": "head-trans-down-up",
+                "opposites": {
+                    "negative-left": "",
+                    "negative-right": "",
+                    "negative-unsided": "head-trans-down",
+                    "positive-left": "",
+                    "positive-right": "",
+                    "positive-unsided": "head-trans-up"
+                },
+                "targets": [
+                    "head-trans-down",
+                    "head-trans-up"
+                ]
+            },
+            {
+                "has_left_and_right": false,
+                "label": "head-fat-decr-incr",
+                "name": "head-fat-decr-incr",
+                "opposites": {
+                    "negative-left": "",
+                    "negative-right": "",
+                    "negative-unsided": "head-fat-decr",
+                    "positive-left": "",
+                    "positive-right": "",
+                    "positive-unsided": "head-fat-incr"
+                },
+                "targets": [
+                    "head-fat-incr",
+                    "head-fat-decr"
+                ]
+            },
+            {
+                "has_left_and_right": false,
+                "label": "head-invertedtriangular",
+                "name": "head-invertedtriangular",
+                "targets": [
+                    "head-invertedtriangular"
+                ]
+            },
+            {
+                "has_left_and_right": false,
+                "label": "head-diamond",
+                "name": "head-diamond",
+                "targets": [
+                    "head-diamond"
+                ]
+            },
+            {
+                "has_left_and_right": false,
+                "label": "head-oval",
+                "name": "head-oval",
+                "targets": [
+                    "head-oval"
+                ]
+            },
+            {
+                "has_left_and_right": false,
+                "label": "head-rectangular",
+                "name": "head-rectangular",
+                "targets": [
+                    "head-rectangular"
+                ]
+            },
+            {
+                "has_left_and_right": false,
+                "label": "head-trans-in-out",
+                "name": "head-trans-in-out",
+                "opposites": {
+                    "negative-left": "",
+                    "negative-right": "",
+                    "negative-unsided": "head-trans-in",
+                    "positive-left": "",
+                    "positive-right": "",
+                    "positive-unsided": "head-trans-out"
+                },
+                "targets": [
+                    "head-trans-in",
+                    "head-trans-out"
+                ]
+            },
+            {
+                "has_left_and_right": false,
+                "label": "head-back-scale-depth-decr-incr",
+                "name": "head-back-scale-depth-decr-incr",
+                "opposites": {
+                    "negative-left": "",
+                    "negative-right": "",
+                    "negative-unsided": "head-back-scale-depth-decr",
+                    "positive-left": "",
+                    "positive-right": "",
+                    "positive-unsided": "head-back-scale-depth-incr"
+                },
+                "targets": [
+                    "head-back-scale-depth-decr",
+                    "head-back-scale-depth-incr"
+                ]
+            },
+            {
+                "has_left_and_right": false,
+                "label": "head-round",
+                "name": "head-round",
+                "targets": [
+                    "head-round"
+                ]
+            },
+            {
+                "has_left_and_right": false,
+                "label": "head-age-decr-incr",
+                "name": "head-age-decr-incr",
+                "opposites": {
+                    "negative-left": "",
+                    "negative-right": "",
+                    "negative-unsided": "head-age-decr",
+                    "positive-left": "",
+                    "positive-right": "",
+                    "positive-unsided": "head-age-incr"
+                },
+                "targets": [
+                    "head-age-incr",
+                    "head-age-decr"
+                ]
+            },
+            {
+                "has_left_and_right": false,
+                "label": "head-scale-depth-decr-incr",
+                "name": "head-scale-depth-decr-incr",
+                "opposites": {
+                    "negative-left": "",
+                    "negative-right": "",
+                    "negative-unsided": "head-scale-depth-decr",
+                    "positive-left": "",
+                    "positive-right": "",
+                    "positive-unsided": "head-scale-depth-incr"
+                },
+                "targets": [
+                    "head-scale-depth-decr",
+                    "head-scale-depth-incr"
+                ]
+            },
+            {
+                "has_left_and_right": false,
+                "label": "head-scale-horiz-decr-incr",
+                "name": "head-scale-horiz-decr-incr",
+                "opposites": {
+                    "negative-left": "",
+                    "negative-right": "",
+                    "negative-unsided": "head-scale-horiz-decr",
+                    "positive-left": "",
+                    "positive-right": "",
+                    "positive-unsided": "head-scale-horiz-incr"
+                },
+                "targets": [
+                    "head-scale-horiz-incr",
+                    "head-scale-horiz-decr"
+                ]
+            },
+            {
+                "has_left_and_right": false,
+                "label": "head-triangular",
+                "name": "head-triangular",
+                "targets": [
+                    "head-triangular"
+                ]
+            },
+            {
+                "has_left_and_right": false,
+                "label": "head-square",
+                "name": "head-square",
+                "targets": [
+                    "head-square"
+                ]
+            }
+        ],
+        "include_per_default": true,
+        "label": "head",
+        "unsorted": []
+    },
+    "hip": {
+        "categories": [
+            {
+                "has_left_and_right": false,
+                "label": "hip-trans-in-out",
+                "name": "hip-trans-in-out",
+                "opposites": {
+                    "negative-left": "",
+                    "negative-right": "",
+                    "negative-unsided": "hip-trans-in",
+                    "positive-left": "",
+                    "positive-right": "",
+                    "positive-unsided": "hip-trans-out"
+                },
+                "targets": [
+                    "hip-trans-in",
+                    "hip-trans-out"
+                ]
+            },
+            {
+                "has_left_and_right": false,
+                "label": "hip-scale-horiz-decr-incr",
+                "name": "hip-scale-horiz-decr-incr",
+                "opposites": {
+                    "negative-left": "",
+                    "negative-right": "",
+                    "negative-unsided": "hip-scale-horiz-decr",
+                    "positive-left": "",
+                    "positive-right": "",
+                    "positive-unsided": "hip-scale-horiz-incr"
+                },
+                "targets": [
+                    "hip-scale-horiz-decr",
+                    "hip-scale-horiz-incr"
+                ]
+            },
+            {
+                "has_left_and_right": false,
+                "label": "hip-scale-depth-decr-incr",
+                "name": "hip-scale-depth-decr-incr",
+                "opposites": {
+                    "negative-left": "",
+                    "negative-right": "",
+                    "negative-unsided": "hip-scale-depth-decr",
+                    "positive-left": "",
+                    "positive-right": "",
+                    "positive-unsided": "hip-scale-depth-incr"
+                },
+                "targets": [
+                    "hip-scale-depth-decr",
+                    "hip-scale-depth-incr"
+                ]
+            },
+            {
+                "has_left_and_right": false,
+                "label": "hip-waist-down-up",
+                "name": "hip-waist-down-up",
+                "opposites": {
+                    "negative-left": "",
+                    "negative-right": "",
+                    "negative-unsided": "hip-waist-down",
+                    "positive-left": "",
+                    "positive-right": "",
+                    "positive-unsided": "hip-waist-up"
+                },
+                "targets": [
+                    "hip-waist-down",
+                    "hip-waist-up"
+                ]
+            },
+            {
+                "has_left_and_right": false,
+                "label": "hip-trans-backward-forward",
+                "name": "hip-trans-backward-forward",
+                "opposites": {
+                    "negative-left": "",
+                    "negative-right": "",
+                    "negative-unsided": "hip-trans-backward",
+                    "positive-left": "",
+                    "positive-right": "",
+                    "positive-unsided": "hip-trans-forward"
+                },
+                "targets": [
+                    "hip-trans-backward",
+                    "hip-trans-forward"
+                ]
+            },
+            {
+                "has_left_and_right": false,
+                "label": "hip-scale-vert-decr-incr",
+                "name": "hip-scale-vert-decr-incr",
+                "opposites": {
+                    "negative-left": "",
+                    "negative-right": "",
+                    "negative-unsided": "hip-scale-vert-decr",
+                    "positive-left": "",
+                    "positive-right": "",
+                    "positive-unsided": "hip-scale-vert-incr"
+                },
+                "targets": [
+                    "hip-scale-vert-decr",
+                    "hip-scale-vert-incr"
+                ]
+            },
+            {
+                "has_left_and_right": false,
+                "label": "hip-trans-down-up",
+                "name": "hip-trans-down-up",
+                "opposites": {
+                    "negative-left": "",
+                    "negative-right": "",
+                    "negative-unsided": "hip-trans-down",
+                    "positive-left": "",
+                    "positive-right": "",
+                    "positive-unsided": "hip-trans-up"
+                },
+                "targets": [
+                    "hip-trans-up",
+                    "hip-trans-down"
+                ]
+            }
+        ],
+        "include_per_default": true,
+        "label": "hip",
+        "unsorted": []
+    },
+    "mouth": {
+        "categories": [
+            {
+                "has_left_and_right": false,
+                "label": "mouth-lowerlip-height-decr-incr",
+                "name": "mouth-lowerlip-height-decr-incr",
+                "opposites": {
+                    "negative-left": "",
+                    "negative-right": "",
+                    "negative-unsided": "mouth-lowerlip-height-decr",
+                    "positive-left": "",
+                    "positive-right": "",
+                    "positive-unsided": "mouth-lowerlip-height-incr"
+                },
+                "targets": [
+                    "mouth-lowerlip-height-decr",
+                    "mouth-lowerlip-height-incr"
+                ]
+            },
+            {
+                "has_left_and_right": false,
+                "label": "mouth-scale-horiz-decr-incr",
+                "name": "mouth-scale-horiz-decr-incr",
+                "opposites": {
+                    "negative-left": "",
+                    "negative-right": "",
+                    "negative-unsided": "mouth-scale-horiz-decr",
+                    "positive-left": "",
+                    "positive-right": "",
+                    "positive-unsided": "mouth-scale-horiz-incr"
+                },
+                "targets": [
+                    "mouth-scale-horiz-incr",
+                    "mouth-scale-horiz-decr"
+                ]
+            },
+            {
+                "has_left_and_right": false,
+                "label": "mouth-cupidsbow-decr-incr",
+                "name": "mouth-cupidsbow-decr-incr",
+                "opposites": {
+                    "negative-left": "",
+                    "negative-right": "",
+                    "negative-unsided": "mouth-cupidsbow-decr",
+                    "positive-left": "",
+                    "positive-right": "",
+                    "positive-unsided": "mouth-cupidsbow-incr"
+                },
+                "targets": [
+                    "mouth-cupidsbow-incr",
+                    "mouth-cupidsbow-decr"
+                ]
+            },
+            {
+                "has_left_and_right": false,
+                "label": "mouth-laugh-lines-in-out",
+                "name": "mouth-laugh-lines-in-out",
+                "opposites": {
+                    "negative-left": "",
+                    "negative-right": "",
+                    "negative-unsided": "mouth-laugh-lines-in",
+                    "positive-left": "",
+                    "positive-right": "",
+                    "positive-unsided": "mouth-laugh-lines-out"
+                },
+                "targets": [
+                    "mouth-laugh-lines-in",
+                    "mouth-laugh-lines-out"
+                ]
+            },
+            {
+                "has_left_and_right": false,
+                "label": "mouth-scale-depth-decr-incr",
+                "name": "mouth-scale-depth-decr-incr",
+                "opposites": {
+                    "negative-left": "",
+                    "negative-right": "",
+                    "negative-unsided": "mouth-scale-depth-decr",
+                    "positive-left": "",
+                    "positive-right": "",
+                    "positive-unsided": "mouth-scale-depth-incr"
+                },
+                "targets": [
+                    "mouth-scale-depth-incr",
+                    "mouth-scale-depth-decr"
+                ]
+            },
+            {
+                "has_left_and_right": false,
+                "label": "mouth-lowerlip-volume-decr-incr",
+                "name": "mouth-lowerlip-volume-decr-incr",
+                "opposites": {
+                    "negative-left": "",
+                    "negative-right": "",
+                    "negative-unsided": "mouth-lowerlip-volume-decr",
+                    "positive-left": "",
+                    "positive-right": "",
+                    "positive-unsided": "mouth-lowerlip-volume-incr"
+                },
+                "targets": [
+                    "mouth-lowerlip-volume-incr",
+                    "mouth-lowerlip-volume-decr"
+                ]
+            },
+            {
+                "has_left_and_right": false,
+                "label": "mouth-angles-down-up",
+                "name": "mouth-angles-down-up",
+                "opposites": {
+                    "negative-left": "",
+                    "negative-right": "",
+                    "negative-unsided": "mouth-angles-down",
+                    "positive-left": "",
+                    "positive-right": "",
+                    "positive-unsided": "mouth-angles-up"
+                },
+                "targets": [
+                    "mouth-angles-down",
+                    "mouth-angles-up"
+                ]
+            },
+            {
+                "has_left_and_right": false,
+                "label": "mouth-upperlip-ext-down-up",
+                "name": "mouth-upperlip-ext-down-up",
+                "opposites": {
+                    "negative-left": "",
+                    "negative-right": "",
+                    "negative-unsided": "mouth-upperlip-ext-down",
+                    "positive-left": "",
+                    "positive-right": "",
+                    "positive-unsided": "mouth-upperlip-ext-up"
+                },
+                "targets": [
+                    "mouth-upperlip-ext-down",
+                    "mouth-upperlip-ext-up"
+                ]
+            },
+            {
+                "has_left_and_right": false,
+                "label": "mouth-lowerlip-width-decr-incr",
+                "name": "mouth-lowerlip-width-decr-incr",
+                "opposites": {
+                    "negative-left": "",
+                    "negative-right": "",
+                    "negative-unsided": "mouth-lowerlip-width-decr",
+                    "positive-left": "",
+                    "positive-right": "",
+                    "positive-unsided": "mouth-lowerlip-width-incr"
+                },
+                "targets": [
+                    "mouth-lowerlip-width-incr",
+                    "mouth-lowerlip-width-decr"
+                ]
+            },
+            {
+                "has_left_and_right": false,
+                "label": "mouth-trans-backward-forward",
+                "name": "mouth-trans-backward-forward",
+                "opposites": {
+                    "negative-left": "",
+                    "negative-right": "",
+                    "negative-unsided": "mouth-trans-backward",
+                    "positive-left": "",
+                    "positive-right": "",
+                    "positive-unsided": "mouth-trans-forward"
+                },
+                "targets": [
+                    "mouth-trans-forward",
+                    "mouth-trans-backward"
+                ]
+            },
+            {
+                "has_left_and_right": false,
+                "label": "mouth-upperlip-width-decr-incr",
+                "name": "mouth-upperlip-width-decr-incr",
+                "opposites": {
+                    "negative-left": "",
+                    "negative-right": "",
+                    "negative-unsided": "mouth-upperlip-width-decr",
+                    "positive-left": "",
+                    "positive-right": "",
+                    "positive-unsided": "mouth-upperlip-width-incr"
+                },
+                "targets": [
+                    "mouth-upperlip-width-incr",
+                    "mouth-upperlip-width-decr"
+                ]
+            },
+            {
+                "has_left_and_right": false,
+                "label": "mouth-scale-vert-decr-incr",
+                "name": "mouth-scale-vert-decr-incr",
+                "opposites": {
+                    "negative-left": "",
+                    "negative-right": "",
+                    "negative-unsided": "mouth-scale-vert-decr",
+                    "positive-left": "",
+                    "positive-right": "",
+                    "positive-unsided": "mouth-scale-vert-incr"
+                },
+                "targets": [
+                    "mouth-scale-vert-decr",
+                    "mouth-scale-vert-incr"
+                ]
+            },
+            {
+                "has_left_and_right": false,
+                "label": "mouth-dimples-in-out",
+                "name": "mouth-dimples-in-out",
+                "opposites": {
+                    "negative-left": "",
+                    "negative-right": "",
+                    "negative-unsided": "mouth-dimples-in",
+                    "positive-left": "",
+                    "positive-right": "",
+                    "positive-unsided": "mouth-dimples-out"
+                },
+                "targets": [
+                    "mouth-dimples-in",
+                    "mouth-dimples-out"
+                ]
+            },
+            {
+                "has_left_and_right": false,
+                "label": "mouth-upperlip-height-decr-incr",
+                "name": "mouth-upperlip-height-decr-incr",
+                "opposites": {
+                    "negative-left": "",
+                    "negative-right": "",
+                    "negative-unsided": "mouth-upperlip-height-decr",
+                    "positive-left": "",
+                    "positive-right": "",
+                    "positive-unsided": "mouth-upperlip-height-incr"
+                },
+                "targets": [
+                    "mouth-upperlip-height-decr",
+                    "mouth-upperlip-height-incr"
+                ]
+            },
+            {
+                "has_left_and_right": false,
+                "label": "mouth-upperlip-volume-decr-incr",
+                "name": "mouth-upperlip-volume-decr-incr",
+                "opposites": {
+                    "negative-left": "",
+                    "negative-right": "",
+                    "negative-unsided": "mouth-upperlip-volume-decr",
+                    "positive-left": "",
+                    "positive-right": "",
+                    "positive-unsided": "mouth-upperlip-volume-incr"
+                },
+                "targets": [
+                    "mouth-upperlip-volume-incr",
+                    "mouth-upperlip-volume-decr"
+                ]
+            },
+            {
+                "has_left_and_right": false,
+                "label": "mouth-cupidsbow-width-decr-incr",
+                "name": "mouth-cupidsbow-width-decr-incr",
+                "opposites": {
+                    "negative-left": "",
+                    "negative-right": "",
+                    "negative-unsided": "mouth-cupidsbow-width-decr",
+                    "positive-left": "",
+                    "positive-right": "",
+                    "positive-unsided": "mouth-cupidsbow-width-incr"
+                },
+                "targets": [
+                    "mouth-cupidsbow-width-decr",
+                    "mouth-cupidsbow-width-incr"
+                ]
+            },
+            {
+                "has_left_and_right": false,
+                "label": "mouth-lowerlip-ext-down-up",
+                "name": "mouth-lowerlip-ext-down-up",
+                "opposites": {
+                    "negative-left": "",
+                    "negative-right": "",
+                    "negative-unsided": "mouth-lowerlip-ext-down",
+                    "positive-left": "",
+                    "positive-right": "",
+                    "positive-unsided": "mouth-lowerlip-ext-up"
+                },
+                "targets": [
+                    "mouth-lowerlip-ext-down",
+                    "mouth-lowerlip-ext-up"
+                ]
+            },
+            {
+                "has_left_and_right": false,
+                "label": "mouth-upperlip-middle-down-up",
+                "name": "mouth-upperlip-middle-down-up",
+                "opposites": {
+                    "negative-left": "",
+                    "negative-right": "",
+                    "negative-unsided": "mouth-upperlip-middle-down",
+                    "positive-left": "",
+                    "positive-right": "",
+                    "positive-unsided": "mouth-upperlip-middle-up"
+                },
+                "targets": [
+                    "mouth-upperlip-middle-down",
+                    "mouth-upperlip-middle-up"
+                ]
+            },
+            {
+                "has_left_and_right": false,
+                "label": "mouth-trans-down-up",
+                "name": "mouth-trans-down-up",
+                "opposites": {
+                    "negative-left": "",
+                    "negative-right": "",
+                    "negative-unsided": "mouth-trans-down",
+                    "positive-left": "",
+                    "positive-right": "",
+                    "positive-unsided": "mouth-trans-up"
+                },
+                "targets": [
+                    "mouth-trans-up",
+                    "mouth-trans-down"
+                ]
+            },
+            {
+                "has_left_and_right": false,
+                "label": "mouth-trans-in-out",
+                "name": "mouth-trans-in-out",
+                "opposites": {
+                    "negative-left": "",
+                    "negative-right": "",
+                    "negative-unsided": "mouth-trans-in",
+                    "positive-left": "",
+                    "positive-right": "",
+                    "positive-unsided": "mouth-trans-out"
+                },
+                "targets": [
+                    "mouth-trans-in",
+                    "mouth-trans-out"
+                ]
+            },
+            {
+                "has_left_and_right": false,
+                "label": "mouth-lowerlip-middle-down-up",
+                "name": "mouth-lowerlip-middle-down-up",
+                "opposites": {
+                    "negative-left": "",
+                    "negative-right": "",
+                    "negative-unsided": "mouth-lowerlip-middle-down",
+                    "positive-left": "",
+                    "positive-right": "",
+                    "positive-unsided": "mouth-lowerlip-middle-up"
+                },
+                "targets": [
+                    "mouth-lowerlip-middle-down",
+                    "mouth-lowerlip-middle-up"
+                ]
+            },
+            {
+                "has_left_and_right": false,
+                "label": "mouth-philtrum-volume-decr-incr",
+                "name": "mouth-philtrum-volume-decr-incr",
+                "opposites": {
+                    "negative-left": "",
+                    "negative-right": "",
+                    "negative-unsided": "mouth-philtrum-volume-decr",
+                    "positive-left": "",
+                    "positive-right": "",
+                    "positive-unsided": "mouth-philtrum-volume-incr"
+                },
+                "targets": [
+                    "mouth-philtrum-volume-decr",
+                    "mouth-philtrum-volume-incr"
+                ]
+            }
+        ],
+        "include_per_default": true,
+        "label": "mouth",
+        "unsorted": []
+    },
+    "neck": {
+        "categories": [
+            {
+                "has_left_and_right": false,
+                "label": "neck-scale-depth-decr-incr",
+                "name": "neck-scale-depth-decr-incr",
+                "opposites": {
+                    "negative-left": "",
+                    "negative-right": "",
+                    "negative-unsided": "neck-scale-depth-decr",
+                    "positive-left": "",
+                    "positive-right": "",
+                    "positive-unsided": "neck-scale-depth-incr"
+                },
+                "targets": [
+                    "neck-scale-depth-decr",
+                    "neck-scale-depth-incr"
+                ]
+            },
+            {
+                "has_left_and_right": false,
+                "label": "neck-trans-backward-forward",
+                "name": "neck-trans-backward-forward",
+                "opposites": {
+                    "negative-left": "",
+                    "negative-right": "",
+                    "negative-unsided": "neck-trans-backward",
+                    "positive-left": "",
+                    "positive-right": "",
+                    "positive-unsided": "neck-trans-forward"
+                },
+                "targets": [
+                    "neck-trans-backward",
+                    "neck-trans-forward"
+                ]
+            },
+            {
+                "has_left_and_right": false,
+                "label": "neck-double-decr-incr",
+                "name": "neck-double-decr-incr",
+                "opposites": {
+                    "negative-left": "",
+                    "negative-right": "",
+                    "negative-unsided": "neck-double-decr",
+                    "positive-left": "",
+                    "positive-right": "",
+                    "positive-unsided": "neck-double-incr"
+                },
+                "targets": [
+                    "neck-double-decr",
+                    "neck-double-incr"
+                ]
+            },
+            {
+                "has_left_and_right": false,
+                "label": "neck-trans-in-out",
+                "name": "neck-trans-in-out",
+                "opposites": {
+                    "negative-left": "",
+                    "negative-right": "",
+                    "negative-unsided": "neck-trans-in",
+                    "positive-left": "",
+                    "positive-right": "",
+                    "positive-unsided": "neck-trans-out"
+                },
+                "targets": [
+                    "neck-trans-in",
+                    "neck-trans-out"
+                ]
+            },
+            {
+                "has_left_and_right": false,
+                "label": "neck-back-scale-depth-decr-incr",
+                "name": "neck-back-scale-depth-decr-incr",
+                "opposites": {
+                    "negative-left": "",
+                    "negative-right": "",
+                    "negative-unsided": "neck-back-scale-depth-decr",
+                    "positive-left": "",
+                    "positive-right": "",
+                    "positive-unsided": "neck-back-scale-depth-incr"
+                },
+                "targets": [
+                    "neck-back-scale-depth-incr",
+                    "neck-back-scale-depth-decr"
+                ]
+            },
+            {
+                "has_left_and_right": false,
+                "label": "neck-scale-horiz-decr-incr",
+                "name": "neck-scale-horiz-decr-incr",
+                "opposites": {
+                    "negative-left": "",
+                    "negative-right": "",
+                    "negative-unsided": "neck-scale-horiz-decr",
+                    "positive-left": "",
+                    "positive-right": "",
+                    "positive-unsided": "neck-scale-horiz-incr"
+                },
+                "targets": [
+                    "neck-scale-horiz-decr",
+                    "neck-scale-horiz-incr"
+                ]
+            },
+            {
+                "has_left_and_right": false,
+                "label": "neck-scale-vert-decr-incr",
+                "name": "neck-scale-vert-decr-incr",
+                "opposites": {
+                    "negative-left": "",
+                    "negative-right": "",
+                    "negative-unsided": "neck-scale-vert-decr",
+                    "positive-left": "",
+                    "positive-right": "",
+                    "positive-unsided": "neck-scale-vert-incr"
+                },
+                "targets": [
+                    "neck-scale-vert-decr",
+                    "neck-scale-vert-incr"
+                ]
+            },
+            {
+                "has_left_and_right": false,
+                "label": "neck-trans-down-up",
+                "name": "neck-trans-down-up",
+                "opposites": {
+                    "negative-left": "",
+                    "negative-right": "",
+                    "negative-unsided": "neck-trans-down",
+                    "positive-left": "",
+                    "positive-right": "",
+                    "positive-unsided": "neck-trans-up"
+                },
+                "targets": [
+                    "neck-trans-up",
+                    "neck-trans-down"
+                ]
+            }
+        ],
+        "include_per_default": true,
+        "label": "neck",
+        "unsorted": []
+    },
+    "nose": {
+        "categories": [
+            {
+                "has_left_and_right": false,
+                "label": "nose-nostrils-angle-down-up",
+                "name": "nose-nostrils-angle-down-up",
+                "opposites": {
+                    "negative-left": "",
+                    "negative-right": "",
+                    "negative-unsided": "nose-nostrils-angle-down",
+                    "positive-left": "",
+                    "positive-right": "",
+                    "positive-unsided": "nose-nostrils-angle-up"
+                },
+                "targets": [
+                    "nose-nostrils-angle-down",
+                    "nose-nostrils-angle-up"
+                ]
+            },
+            {
+                "has_left_and_right": false,
+                "label": "nose-flaring-decr-incr",
+                "name": "nose-flaring-decr-incr",
+                "opposites": {
+                    "negative-left": "",
+                    "negative-right": "",
+                    "negative-unsided": "nose-flaring-decr",
+                    "positive-left": "",
+                    "positive-right": "",
+                    "positive-unsided": "nose-flaring-incr"
+                },
+                "targets": [
+                    "nose-flaring-decr",
+                    "nose-flaring-incr"
+                ]
+            },
+            {
+                "has_left_and_right": false,
+                "label": "nose-curve-concave-convex",
+                "name": "nose-curve-concave-convex",
+                "targets": [
+                    "nose-curve-convex",
+                    "nose-curve-concave"
+                ]
+            },
+            {
+                "has_left_and_right": false,
+                "label": "nose-scale-depth-decr-incr",
+                "name": "nose-scale-depth-decr-incr",
+                "opposites": {
+                    "negative-left": "",
+                    "negative-right": "",
+                    "negative-unsided": "nose-scale-depth-decr",
+                    "positive-left": "",
+                    "positive-right": "",
+                    "positive-unsided": "nose-scale-depth-incr"
+                },
+                "targets": [
+                    "nose-scale-depth-decr",
+                    "nose-scale-depth-incr"
+                ]
+            },
+            {
+                "has_left_and_right": false,
+                "label": "nose-scale-vert-decr-incr",
+                "name": "nose-scale-vert-decr-incr",
+                "opposites": {
+                    "negative-left": "",
+                    "negative-right": "",
+                    "negative-unsided": "nose-scale-vert-decr",
+                    "positive-left": "",
+                    "positive-right": "",
+                    "positive-unsided": "nose-scale-vert-incr"
+                },
+                "targets": [
+                    "nose-scale-vert-decr",
+                    "nose-scale-vert-incr"
+                ]
+            },
+            {
+                "has_left_and_right": false,
+                "label": "nose-point-width-decr-incr",
+                "name": "nose-point-width-decr-incr",
+                "opposites": {
+                    "negative-left": "",
+                    "negative-right": "",
+                    "negative-unsided": "nose-point-width-decr",
+                    "positive-left": "",
+                    "positive-right": "",
+                    "positive-unsided": "nose-point-width-incr"
+                },
+                "targets": [
+                    "nose-point-width-incr",
+                    "nose-point-width-decr"
+                ]
+            },
+            {
+                "has_left_and_right": false,
+                "label": "nose-scale-horiz-decr-incr",
+                "name": "nose-scale-horiz-decr-incr",
+                "opposites": {
+                    "negative-left": "",
+                    "negative-right": "",
+                    "negative-unsided": "nose-scale-horiz-decr",
+                    "positive-left": "",
+                    "positive-right": "",
+                    "positive-unsided": "nose-scale-horiz-incr"
+                },
+                "targets": [
+                    "nose-scale-horiz-incr",
+                    "nose-scale-horiz-decr"
+                ]
+            },
+            {
+                "has_left_and_right": false,
+                "label": "nose-width1-decr-incr",
+                "name": "nose-width1-decr-incr",
+                "opposites": {
+                    "negative-left": "",
+                    "negative-right": "",
+                    "negative-unsided": "nose-width1-decr",
+                    "positive-left": "",
+                    "positive-right": "",
+                    "positive-unsided": "nose-width1-incr"
+                },
+                "targets": [
+                    "nose-width1-decr",
+                    "nose-width1-incr"
+                ]
+            },
+            {
+                "has_left_and_right": false,
+                "label": "nose-trans-backward-forward",
+                "name": "nose-trans-backward-forward",
+                "opposites": {
+                    "negative-left": "",
+                    "negative-right": "",
+                    "negative-unsided": "nose-trans-backward",
+                    "positive-left": "",
+                    "positive-right": "",
+                    "positive-unsided": "nose-trans-forward"
+                },
+                "targets": [
+                    "nose-trans-backward",
+                    "nose-trans-forward"
+                ]
+            },
+            {
+                "has_left_and_right": false,
+                "label": "nose-trans-down-up",
+                "name": "nose-trans-down-up",
+                "opposites": {
+                    "negative-left": "",
+                    "negative-right": "",
+                    "negative-unsided": "nose-trans-down",
+                    "positive-left": "",
+                    "positive-right": "",
+                    "positive-unsided": "nose-trans-up"
+                },
+                "targets": [
+                    "nose-trans-down",
+                    "nose-trans-up"
+                ]
+            },
+            {
+                "has_left_and_right": false,
+                "label": "nose-hump-decr-incr",
+                "name": "nose-hump-decr-incr",
+                "opposites": {
+                    "negative-left": "",
+                    "negative-right": "",
+                    "negative-unsided": "nose-hump-decr",
+                    "positive-left": "",
+                    "positive-right": "",
+                    "positive-unsided": "nose-hump-incr"
+                },
+                "targets": [
+                    "nose-hump-decr",
+                    "nose-hump-incr"
+                ]
+            },
+            {
+                "has_left_and_right": false,
+                "label": "nose-nostrils-width-decr-incr",
+                "name": "nose-nostrils-width-decr-incr",
+                "opposites": {
+                    "negative-left": "",
+                    "negative-right": "",
+                    "negative-unsided": "nose-nostrils-width-decr",
+                    "positive-left": "",
+                    "positive-right": "",
+                    "positive-unsided": "nose-nostrils-width-incr"
+                },
+                "targets": [
+                    "nose-nostrils-width-incr",
+                    "nose-nostrils-width-decr"
+                ]
+            },
+            {
+                "has_left_and_right": false,
+                "label": "nose-trans-in-out",
+                "name": "nose-trans-in-out",
+                "opposites": {
+                    "negative-left": "",
+                    "negative-right": "",
+                    "negative-unsided": "nose-trans-in",
+                    "positive-left": "",
+                    "positive-right": "",
+                    "positive-unsided": "nose-trans-out"
+                },
+                "targets": [
+                    "nose-trans-in",
+                    "nose-trans-out"
+                ]
+            },
+            {
+                "has_left_and_right": false,
+                "label": "nose-greek-decr-incr",
+                "name": "nose-greek-decr-incr",
+                "opposites": {
+                    "negative-left": "",
+                    "negative-right": "",
+                    "negative-unsided": "nose-greek-decr",
+                    "positive-left": "",
+                    "positive-right": "",
+                    "positive-unsided": "nose-greek-incr"
+                },
+                "targets": [
+                    "nose-greek-decr",
+                    "nose-greek-incr"
+                ]
+            },
+            {
+                "has_left_and_right": false,
+                "label": "nose-point-down-up",
+                "name": "nose-point-down-up",
+                "opposites": {
+                    "negative-left": "",
+                    "negative-right": "",
+                    "negative-unsided": "nose-point-down",
+                    "positive-left": "",
+                    "positive-right": "",
+                    "positive-unsided": "nose-point-up"
+                },
+                "targets": [
+                    "nose-point-down",
+                    "nose-point-up"
+                ]
+            },
+            {
+                "has_left_and_right": false,
+                "label": "nose-width2-decr-incr",
+                "name": "nose-width2-decr-incr",
+                "opposites": {
+                    "negative-left": "",
+                    "negative-right": "",
+                    "negative-unsided": "nose-width2-decr",
+                    "positive-left": "",
+                    "positive-right": "",
+                    "positive-unsided": "nose-width2-incr"
+                },
+                "targets": [
+                    "nose-width2-decr",
+                    "nose-width2-incr"
+                ]
+            },
+            {
+                "has_left_and_right": false,
+                "label": "nose-width3-decr-incr",
+                "name": "nose-width3-decr-incr",
+                "opposites": {
+                    "negative-left": "",
+                    "negative-right": "",
+                    "negative-unsided": "nose-width3-decr",
+                    "positive-left": "",
+                    "positive-right": "",
+                    "positive-unsided": "nose-width3-incr"
+                },
+                "targets": [
+                    "nose-width3-decr",
+                    "nose-width3-incr"
+                ]
+            },
+            {
+                "has_left_and_right": false,
+                "label": "nose-septumangle-decr-incr",
+                "name": "nose-septumangle-decr-incr",
+                "opposites": {
+                    "negative-left": "",
+                    "negative-right": "",
+                    "negative-unsided": "nose-septumangle-decr",
+                    "positive-left": "",
+                    "positive-right": "",
+                    "positive-unsided": "nose-septumangle-incr"
+                },
+                "targets": [
+                    "nose-septumangle-decr",
+                    "nose-septumangle-incr"
+                ]
+            },
+            {
+                "has_left_and_right": false,
+                "label": "nose-base-down-up",
+                "name": "nose-base-down-up",
+                "opposites": {
+                    "negative-left": "",
+                    "negative-right": "",
+                    "negative-unsided": "nose-base-down",
+                    "positive-left": "",
+                    "positive-right": "",
+                    "positive-unsided": "nose-base-up"
+                },
+                "targets": [
+                    "nose-base-up",
+                    "nose-base-down"
+                ]
+            },
+            {
+                "has_left_and_right": false,
+                "label": "nose-compression-compress-uncompress",
+                "name": "nose-compression-compress-uncompress",
+                "targets": [
+                    "nose-compression-compress",
+                    "nose-compression-uncompress"
+                ]
+            },
+            {
+                "has_left_and_right": false,
+                "label": "nose-volume-decr-incr",
+                "name": "nose-volume-decr-incr",
+                "opposites": {
+                    "negative-left": "",
+                    "negative-right": "",
+                    "negative-unsided": "nose-volume-decr",
+                    "positive-left": "",
+                    "positive-right": "",
+                    "positive-unsided": "nose-volume-incr"
+                },
+                "targets": [
+                    "nose-volume-decr",
+                    "nose-volume-incr"
+                ]
+            }
+        ],
+        "include_per_default": true,
+        "label": "nose",
+        "unsorted": []
+    },
+    "pelvis": {
+        "categories": [
+            {
+                "has_left_and_right": false,
+                "label": "bulge-decr-incr",
+                "name": "bulge-decr-incr",
+                "opposites": {
+                    "negative-left": "",
+                    "negative-right": "",
+                    "negative-unsided": "bulge-decr",
+                    "positive-left": "",
+                    "positive-right": "",
+                    "positive-unsided": "bulge-incr"
+                },
+                "targets": [
+                    "bulge-incr",
+                    "bulge-decr"
+                ]
+            },
+            {
+                "has_left_and_right": false,
+                "label": "pelvis-tone-decr-incr",
+                "name": "pelvis-tone-decr-incr",
+                "opposites": {
+                    "negative-left": "",
+                    "negative-right": "",
+                    "negative-unsided": "pelvis-tone-decr",
+                    "positive-left": "",
+                    "positive-right": "",
+                    "positive-unsided": "pelvis-tone-incr"
+                },
+                "targets": [
+                    "pelvis-tone-decr",
+                    "pelvis-tone-incr"
+                ]
+            }
+        ],
+        "include_per_default": true,
+        "label": "pelvis",
+        "unsorted": []
+    },
+    "stomach": {
+        "categories": [
+            {
+                "has_left_and_right": false,
+                "label": "stomach-pregnant-decr-incr",
+                "name": "stomach-pregnant-decr-incr",
+                "opposites": {
+                    "negative-left": "",
+                    "negative-right": "",
+                    "negative-unsided": "stomach-pregnant-decr",
+                    "positive-left": "",
+                    "positive-right": "",
+                    "positive-unsided": "stomach-pregnant-incr"
+                },
+                "targets": [
+                    "stomach-pregnant-decr",
+                    "stomach-pregnant-incr"
+                ]
+            },
+            {
+                "has_left_and_right": false,
+                "label": "stomach-navel-in-out",
+                "name": "stomach-navel-in-out",
+                "opposites": {
+                    "negative-left": "",
+                    "negative-right": "",
+                    "negative-unsided": "stomach-navel-in",
+                    "positive-left": "",
+                    "positive-right": "",
+                    "positive-unsided": "stomach-navel-out"
+                },
+                "targets": [
+                    "stomach-navel-out",
+                    "stomach-navel-in"
+                ]
+            },
+            {
+                "has_left_and_right": false,
+                "label": "stomach-navel-down-up",
+                "name": "stomach-navel-down-up",
+                "opposites": {
+                    "negative-left": "",
+                    "negative-right": "",
+                    "negative-unsided": "stomach-navel-down",
+                    "positive-left": "",
+                    "positive-right": "",
+                    "positive-unsided": "stomach-navel-up"
+                },
+                "targets": [
+                    "stomach-navel-up",
+                    "stomach-navel-down"
+                ]
+            },
+            {
+                "has_left_and_right": false,
+                "label": "stomach-tone-decr-incr",
+                "name": "stomach-tone-decr-incr",
+                "opposites": {
+                    "negative-left": "",
+                    "negative-right": "",
+                    "negative-unsided": "stomach-tone-decr",
+                    "positive-left": "",
+                    "positive-right": "",
+                    "positive-unsided": "stomach-tone-incr"
+                },
+                "targets": [
+                    "stomach-tone-decr",
+                    "stomach-tone-incr"
+                ]
+            }
+        ],
+        "include_per_default": true,
+        "label": "stomach",
+        "unsorted": []
+    },
+    "torso": {
+        "categories": [
+            {
+                "has_left_and_right": false,
+                "label": "torso-trans-backward-forward",
+                "name": "torso-trans-backward-forward",
+                "opposites": {
+                    "negative-left": "",
+                    "negative-right": "",
+                    "negative-unsided": "torso-trans-backward",
+                    "positive-left": "",
+                    "positive-right": "",
+                    "positive-unsided": "torso-trans-forward"
+                },
+                "targets": [
+                    "torso-trans-backward",
+                    "torso-trans-forward"
+                ]
+            },
+            {
+                "has_left_and_right": false,
+                "label": "torso-muscle-pectoral-decr-incr",
+                "name": "torso-muscle-pectoral-decr-incr",
+                "opposites": {
+                    "negative-left": "",
+                    "negative-right": "",
+                    "negative-unsided": "torso-muscle-pectoral-decr",
+                    "positive-left": "",
+                    "positive-right": "",
+                    "positive-unsided": "torso-muscle-pectoral-incr"
+                },
+                "targets": [
+                    "torso-muscle-pectoral-incr",
+                    "torso-muscle-pectoral-decr"
+                ]
+            },
+            {
+                "has_left_and_right": false,
+                "label": "torso-scale-horiz-decr-incr",
+                "name": "torso-scale-horiz-decr-incr",
+                "opposites": {
+                    "negative-left": "",
+                    "negative-right": "",
+                    "negative-unsided": "torso-scale-horiz-decr",
+                    "positive-left": "",
+                    "positive-right": "",
+                    "positive-unsided": "torso-scale-horiz-incr"
+                },
+                "targets": [
+                    "torso-scale-horiz-incr",
+                    "torso-scale-horiz-decr"
+                ]
+            },
+            {
+                "has_left_and_right": false,
+                "label": "torso-scale-depth-decr-incr",
+                "name": "torso-scale-depth-decr-incr",
+                "opposites": {
+                    "negative-left": "",
+                    "negative-right": "",
+                    "negative-unsided": "torso-scale-depth-decr",
+                    "positive-left": "",
+                    "positive-right": "",
+                    "positive-unsided": "torso-scale-depth-incr"
+                },
+                "targets": [
+                    "torso-scale-depth-incr",
+                    "torso-scale-depth-decr"
+                ]
+            },
+            {
+                "has_left_and_right": false,
+                "label": "torso-vshape-decr-incr",
+                "name": "torso-vshape-decr-incr",
+                "opposites": {
+                    "negative-left": "",
+                    "negative-right": "",
+                    "negative-unsided": "torso-vshape-decr",
+                    "positive-left": "",
+                    "positive-right": "",
+                    "positive-unsided": "torso-vshape-incr"
+                },
+                "targets": [
+                    "torso-vshape-decr",
+                    "torso-vshape-incr"
+                ]
+            },
+            {
+                "has_left_and_right": false,
+                "label": "torso-trans-down-up",
+                "name": "torso-trans-down-up",
+                "opposites": {
+                    "negative-left": "",
+                    "negative-right": "",
+                    "negative-unsided": "torso-trans-down",
+                    "positive-left": "",
+                    "positive-right": "",
+                    "positive-unsided": "torso-trans-up"
+                },
+                "targets": [
+                    "torso-trans-up",
+                    "torso-trans-down"
+                ]
+            },
+            {
+                "has_left_and_right": false,
+                "label": "torso-muscle-dorsi-decr-incr",
+                "name": "torso-muscle-dorsi-decr-incr",
+                "opposites": {
+                    "negative-left": "",
+                    "negative-right": "",
+                    "negative-unsided": "torso-muscle-dorsi-decr",
+                    "positive-left": "",
+                    "positive-right": "",
+                    "positive-unsided": "torso-muscle-dorsi-incr"
+                },
+                "targets": [
+                    "torso-muscle-dorsi-incr",
+                    "torso-muscle-dorsi-decr"
+                ]
+            },
+            {
+                "has_left_and_right": false,
+                "label": "torso-scale-vert-decr-incr",
+                "name": "torso-scale-vert-decr-incr",
+                "opposites": {
+                    "negative-left": "",
+                    "negative-right": "",
+                    "negative-unsided": "torso-scale-vert-decr",
+                    "positive-left": "",
+                    "positive-right": "",
+                    "positive-unsided": "torso-scale-vert-incr"
+                },
+                "targets": [
+                    "torso-scale-vert-decr",
+                    "torso-scale-vert-incr"
+                ]
+            },
+            {
+                "has_left_and_right": false,
+                "label": "torso-trans-in-out",
+                "name": "torso-trans-in-out",
+                "opposites": {
+                    "negative-left": "",
+                    "negative-right": "",
+                    "negative-unsided": "torso-trans-in",
+                    "positive-left": "",
+                    "positive-right": "",
+                    "positive-unsided": "torso-trans-out"
+                },
+                "targets": [
+                    "torso-trans-out",
+                    "torso-trans-in"
+                ]
+            }
+        ],
+        "include_per_default": true,
+        "label": "torso",
+        "unsorted": []
+    }
+}

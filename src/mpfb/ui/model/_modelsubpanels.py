@@ -1,27 +1,21 @@
 """Target subpanels for modeling humans"""
 
-import bpy, os
-from operator import itemgetter
-from bpy.props import BoolProperty
+import bpy, os, json
+from bpy.props import FloatProperty
 from mpfb import ClassManager
 from mpfb.services.logservice import LogService
 from mpfb.services.locationservice import LocationService
-from mpfb.services.uiservice import UiService
-from mpfb.services.sceneconfigset import SceneConfigSet
+from mpfb.services.objectservice import ObjectService
+from mpfb.services.targetservice import TargetService
+
+from ._modelingicons import MODELING_ICONS
 
 _LOG = LogService.get_logger("model.modelsubpanel")
 
 _TARGETS_DIR = LocationService.get_mpfb_data("targets")
-_TARGETS_CATEGORIES = []
-
-_LOG.debug(_TARGETS_DIR)
-
-for name in os.listdir(_TARGETS_DIR):
-    _LOG.debug(name)
-    if os.path.isdir(os.path.join(_TARGETS_DIR, name)) and not name in [".", "macrodetails"]:
-        _TARGETS_CATEGORIES.append(name)
-
-_TARGETS_CATEGORIES.sort()
+_LOG.debug("Target dir:", _TARGETS_DIR)
+_TARGETS_JSON = os.path.join(_TARGETS_DIR, "target.json")
+_LOG.debug("Targets json:", _TARGETS_JSON)
 
 class _Abstract_Model_Panel(bpy.types.Panel):
     """Human modeling panel."""
@@ -31,111 +25,221 @@ class _Abstract_Model_Panel(bpy.types.Panel):
     bl_region_type = "UI"
     bl_parent_id = "MPFB_PT_Model_Panel"
     bl_options = {'DEFAULT_CLOSED'}
+
+    section = dict()
+    section_name = "-"
     target_dir = "-"
-    target_list = []
-    category_names = []
-    categories = dict()
 
-    def _target_filename_to_category(self, target):
-        name = str(target).replace(".target.gz", "")
+    def _draw_category(self, scene, layout, category, basemesh):
+        box = layout.box()
+        box.label(text=category["label"])
+        if category["name"] in MODELING_ICONS:
+            image = MODELING_ICONS[category["name"]]
+            box.template_icon(icon_value=image.icon_id, scale=6.0)
+        else:
+            _LOG.debug("No image for ", category["name"])
 
-        category_suffix = ""
-
-        if name.endswith("-decr") or name.endswith("-incr"):
-            category_suffix = "-decr-incr"
-
-        if name.endswith("-in") or name.endswith("-out"):
-            category_suffix = "-in-out"
-
-        if name.endswith("-down") or name.endswith("-up"):
-            category_suffix = "-down-up"
-
-        for strip in ["-decr", "-incr", "-down", "-up", "-in", "-out"]:
-            name = name.replace(strip, "")
-
-        if str(name).startswith("r-"):
-            name = name[2:]
-
-        if str(name).startswith("l-"):
-            name = name[2:]
-
-        return name + category_suffix
-
-    def _target_filename_to_label(self, target):
-        label = str(target).replace(".target.gz", "")
-        label = label.replace("-decr", " decrease")
-        label = label.replace("-incr", " increase")
-        label = label.replace("-down", " down")
-        label = label.replace("-up", " up")
-        label = label.replace("-in", " in")
-        label = label.replace("-out", " out")
-        label = label.replace("-", " ")
-        label = label.replace(".", " ")
-
-        if str(target).startswith("r-"):
-            label = label[2:] + " (right)"
-
-        if str(target).startswith("l-"):
-            label = label[2:] + " (left)"
-
-        return label
-
-    def _rebuild_target_list(self):
-        self.target_list = []
-        self.categories = dict()
-        self.category_names = []
-        targets = []
-        for name in os.listdir(self.target_dir):
-            if not (str(name).startswith("female-") and self.bl_label == "breast"):
-                targets.append(name)
-        targets.sort()
-
-        _LOG.dump("Target files", targets)
-
-        for target in targets:
-            category = self._target_filename_to_category(target)
-            if not category in self.category_names:
-                self.category_names.append(category)
-            target_hash = {
-                "name": str(target).replace(".target.gz", ""),
-                "label": self._target_filename_to_label(target),
-                "target": target,
-                "category": category
-                }
-            self.target_list.append(target_hash)
-            if not category in self.categories:
-                self.categories[category] = []
-            self.categories[category].append(target_hash)
-
-        #self.target_list.sort(key=itemgetter('label'))
-        self.category_names.sort()
-
-        _LOG.dump("Target list", self.target_list)
-        _LOG.dump("Category names", self.category_names)
-
-    def _draw_targets(self, scene, layout):
-        for category_name in self.category_names:
-            box = layout.box()
-            box.label(text=category_name)
-            for targdef in self.categories[category_name]:
-                _LOG.dump("targdef", targdef)
-                op = box.operator('mpfb.add_target', text=targdef["label"])
-                op.target_file = targdef["target"]
-                op.target_name = targdef["name"]
-                op.target_dir = self.target_dir
+        if category["has_left_and_right"]:
+            box.prop(scene, self.section_name + ".l-" + category["name"], text="Left:")
+            box.prop(scene, self.section_name + ".r-" + category["name"], text="Right:")
+        else:
+            box.prop(scene, self.section_name + "." + category["name"], text="Value:")
 
     def draw(self, context):
         _LOG.enter()
-        if not self.target_list or len(self.target_list) < 1:
-            self._rebuild_target_list()
         layout = self.layout
         scene = context.scene
-        _LOG.dump("target_dir", self.target_dir)
-        self._draw_targets(scene, layout)
 
-for name in _TARGETS_CATEGORIES:
-    sub_panel = type("MPFB_PT_Model_Sub_Panel_" + name, (_Abstract_Model_Panel, ), {
-        "bl_label": name,
-        "target_dir": os.path.join(_TARGETS_DIR, name)
-        })
+        if not context.object:
+            return
+
+        if not ObjectService.object_is_basemesh(context.object):
+            return
+
+        basemesh = context.object
+
+        _LOG.dump("target_dir", self.target_dir)
+        for category in self.section["categories"]:
+            self._draw_category(scene, layout, category, basemesh)
+
+_sections = dict()
+with open(_TARGETS_JSON, "r") as _json_file:
+    _sections = json.load(_json_file)
+
+def _set_simple_modifier_value(scene, blender_object, section, category, value, side="unsided", load_target_if_needed=True):
+    """This modifier is not a combination of opposing targets ("decr-incr", "in-out"...)"""
+    name = category["name"]
+    if side == "right":
+        name = "r-" + name
+    if side == "left":
+        name = "l-" + name
+    if not TargetService.has_target(blender_object, name):
+        target_path = os.path.join(_TARGETS_DIR, section, name + ".target.gz")
+        _LOG.debug("Will implicitly attempt a load of a system target", target_path)
+        TargetService.load_target(blender_object, target_path, weight=value, name=name)
+    else:
+        TargetService.set_target_value(blender_object, name, value, delete_target_on_zero=True)
+
+def _get_simple_modifier_value(scene, blender_object, section, category, side="unsided"):
+    """This modifier is not a combination of opposing targets ("decr-incr", "in-out"...)"""
+    name = category["name"]
+    if side == "right":
+        name = "r-" + name
+    if side == "left":
+        name = "l-" + name
+    return TargetService.get_target_value(blender_object, name)
+
+def _get_opposed_modifier_value(scene, blender_object, section, category, side="unsided"):
+    """This modifier is a combination of opposing targets ("decr-incr", "in-out"...)"""
+    positive = category["opposites"]["positive-" + side]
+    negative = category["opposites"]["negative-" + side]
+
+    if TargetService.has_target(blender_object, positive):
+        return TargetService.get_target_value(blender_object, positive)
+
+    if TargetService.has_target(blender_object, negative):
+        return -TargetService.get_target_value(blender_object, negative)
+
+    return 0.0
+
+def _set_opposed_modifier_value(scene, blender_object, section, category, value, side="unsided"):
+    """This modifier is a combination of opposing targets ("decr-incr", "in-out"...)"""
+    positive = category["opposites"]["positive-" + side]
+    negative = category["opposites"]["negative-" + side]
+
+    if value < 0.0001 and TargetService.has_target(blender_object, positive):
+        TargetService.set_target_value(blender_object, positive, 0.0, delete_target_on_zero=True)
+
+    if value > -0.0001 and TargetService.has_target(blender_object, negative):
+        TargetService.set_target_value(blender_object, negative, 0.0, delete_target_on_zero=True)
+
+    if value > 0.0:
+        if not TargetService.has_target(blender_object, positive):
+            target_path = os.path.join(_TARGETS_DIR, section, positive + ".target.gz")
+            _LOG.debug("Will implicitly attempt a load of a system target", target_path)
+            TargetService.load_target(blender_object, target_path, weight=value, name=positive)
+        else:
+            TargetService.set_target_value(blender_object, positive, value, delete_target_on_zero=True)
+
+    if value < 0.0:
+        if not TargetService.has_target(blender_object, negative):
+            target_path = os.path.join(_TARGETS_DIR, section, negative + ".target.gz")
+            _LOG.debug("Will implicitly attempt a load of a system target", target_path)
+            TargetService.load_target(blender_object, target_path, weight=abs(value), name=negative)
+        else:
+            TargetService.set_target_value(blender_object, negative, abs(value), delete_target_on_zero=True)
+
+
+def _set_modifier_value(scene, blender_object, section, category, value, side="unsided"):
+    _LOG.dump("_set_modifier_value", (blender_object, category, value, side))
+    if "opposites" in category:
+        _set_opposed_modifier_value(scene, blender_object, section, category, value, side)
+    else:
+        _set_simple_modifier_value(scene, blender_object, section, category, value, side)
+
+def _get_modifier_value(scene, blender_object, section, category, side="unsided"):
+    _LOG.dump("enter _get_modifier_value", (blender_object, category, side))
+    if "opposites" in category:
+        return _get_opposed_modifier_value(scene, blender_object, section, category, side)
+    return _get_simple_modifier_value(scene, blender_object, section, category, side)
+
+for name in _sections:
+
+    _section = _sections[name]
+    _i = 0
+    for _category in _section["categories"]:
+        _unsided_name = name + "." + _category["name"]
+        _left_name = name + ".l-" + _category["name"]
+        _right_name = name + ".r-" + _category["name"]
+
+        _LOG.debug("names", (_unsided_name, _left_name, _right_name))
+
+        # This is so ugly it makes me want to cry, but there doesn't seem to be any clean way to get both
+        # dynamically created properties AND getter/setter methods
+        #
+        # Anyway, we can keep creating functions with the same name here. When we feed the property with the
+        # reference to a function, what it gets is a function pointer. This is independent of name.
+
+        _function_str_general = ""
+        _function_str_general = _function_str_general + "    obj = bpy.context.object\n"
+        _function_str_general = _function_str_general + "    secname = \"" + name + "\"\n"
+        _function_str_general = _function_str_general + "    cat = _sections[secname][\"categories\"][" + str(_i) + "]\n"
+
+        _function_str = "def _get_wrapper_unsided(self):\n"
+        _function_str = _function_str + _function_str_general
+        _function_str = _function_str + "    modif = \"" + _unsided_name + "\"\n"
+        _function_str = _function_str + "    _LOG.trace(\"_get_wrapper_unsided for\", modif)\n"
+        _function_str = _function_str + "    return _get_modifier_value(self, obj, secname, cat)\n"
+        exec(_function_str)
+
+        _function_str = "def _set_wrapper_unsided(self, value):\n"
+        _function_str = _function_str + _function_str_general
+        _function_str = _function_str + "    modif = \"" + _unsided_name + "\"\n"
+        _function_str = _function_str + "    _LOG.trace(\"_set_wrapper_unsided for\", modif)\n"
+        _function_str = _function_str + "    _set_modifier_value(self, obj, secname, cat, value)\n"
+        exec(_function_str)
+
+        _function_str = "def _get_wrapper_left(self):\n"
+        _function_str = _function_str + _function_str_general
+        _function_str = _function_str + "    modif = \"" + _left_name + "\"\n"
+        _function_str = _function_str + "    side = \"left\"\n"
+        _function_str = _function_str + "    _LOG.trace(\"_get_wrapper_left for\", modif)\n"
+        _function_str = _function_str + "    return _get_modifier_value(self, obj, secname, cat, side)\n"
+        exec(_function_str)
+
+        _function_str = "def _set_wrapper_left(self, value):\n"
+        _function_str = _function_str + _function_str_general
+        _function_str = _function_str + "    modif = \"" + _left_name + "\"\n"
+        _function_str = _function_str + "    side = \"left\"\n"
+        _function_str = _function_str + "    _LOG.trace(\"_set_wrapper_left for\", modif)\n"
+        _function_str = _function_str + "    _set_modifier_value(self, obj, secname, cat, value, side)\n"
+        exec(_function_str)
+
+        _function_str = "def _get_wrapper_right(self):\n"
+        _function_str = _function_str + _function_str_general
+        _function_str = _function_str + "    modif = \"" + _right_name + "\"\n"
+        _function_str = _function_str + "    side = \"right\"\n"
+        _function_str = _function_str + "    _LOG.trace(\"_get_wrapper_right for\", modif)\n"
+        _function_str = _function_str + "    return _get_modifier_value(self, obj, secname, cat, side)\n"
+        exec(_function_str)
+
+        _function_str = "def _set_wrapper_right(self, value):\n"
+        _function_str = _function_str + _function_str_general
+        _function_str = _function_str + "    modif = \"" + _right_name + "\"\n"
+        _function_str = _function_str + "    side = \"right\"\n"
+        _function_str = _function_str + "    _LOG.trace(\"_set_wrapper_right for\", modif)\n"
+        _function_str = _function_str + "    _set_modifier_value(self, obj, secname, cat, value, side)\n"
+        exec(_function_str)
+
+        _min_val = 0.0
+        if "opposites" in _category:
+            _min_val = -1.0
+
+        if _category["has_left_and_right"]:
+            prop = FloatProperty(name=_left_name, get=_get_wrapper_left, set=_set_wrapper_left, description="Set target value", max=1.0, min=_min_val)
+            setattr(bpy.types.Scene, _left_name, prop)
+            _LOG.debug("property", prop)
+            prop = FloatProperty(name=_right_name, get=_get_wrapper_right, set=_set_wrapper_right, description="Set target value", max=1.0, min=_min_val)
+            setattr(bpy.types.Scene, _right_name, prop)
+            _LOG.debug("property", prop)
+        else:
+            prop = FloatProperty(name=_unsided_name, get=_get_wrapper_unsided, set=_set_wrapper_unsided, description="Set target value", max=1.0, min=_min_val)
+            setattr(bpy.types.Scene, _unsided_name, prop)
+            _LOG.debug("property", prop)
+
+        _i = _i + 1
+
+    definition = {
+        "bl_label": _section["label"],
+        "target_dir": os.path.join(_TARGETS_DIR, name),
+        "section": _section,
+        "section_name": name
+        }
+
+    sub_panel = type("MPFB_PT_Model_Sub_Panel_" + name, (_Abstract_Model_Panel, ), definition)
+
+    _LOG.debug("sub_panel", sub_panel)
+
     ClassManager.add_class(sub_panel)
+
+

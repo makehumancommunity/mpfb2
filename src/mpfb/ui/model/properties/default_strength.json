@@ -1,7 +1,0 @@
-{
-    "type": "float",
-    "name": "default_strength",
-    "description": "When adding a new target as shape key, set its default strength to this",
-    "label": "Default strength",
-    "default": 0.5
-}

@@ -1,6 +1,6 @@
 """Module for managing targets and shape keys."""
 
-import os
+import os, gzip, bpy
 from pathlib import Path
 from mpfb.services.logservice import LogService
 from mpfb.services.locationservice import LocationService
@@ -224,3 +224,106 @@ class TargetService:
             target.data[to_idx].co[1] = target.data[from_idx].co[1]
             target.data[to_idx].co[2] = target.data[from_idx].co[2]
 
+    @staticmethod
+    def get_target_stack(blender_object, exclude_starts_with=None, exclude_ends_with=None):
+        if blender_object is None or blender_object.type != 'MESH':
+            raise ValueError('Must provide a valid mesh object')
+
+        keys = blender_object.data.shape_keys
+
+        if keys is None or keys.key_blocks is None or len(keys.key_blocks) < 1:
+            _LOG.debug("Object does not have any shape keys, returning empty array")
+            return []
+
+        stack = []
+
+        for shape_key in keys.key_blocks:
+            sk_name = str(shape_key.name).lower()
+
+            exclude = False
+            if not exclude_starts_with is None and sk_name.startswith(str(exclude_starts_with).lower()):
+                exclude = True
+            if not exclude_ends_with is None and sk_name.endswith(str(exclude_ends_with).lower()):
+                exclude = True
+
+            if not exclude:
+                stack.append({"target": shape_key.name, "value": shape_key.value})
+
+        return stack
+
+    @staticmethod
+    def has_target(blender_object, target_name):
+        if blender_object is None or target_name is None or not target_name:
+            _LOG.debug("Empty object or target", (blender_object, target_name))
+            return False
+        stack = TargetService.get_target_stack(blender_object)
+        for target in stack:
+            if target["target"] == target_name:
+                return True
+        return False
+
+    @staticmethod
+    def get_target_value(blender_object, target_name):
+        if blender_object is None or target_name is None or not target_name:
+            _LOG.debug("Empty object or target", (blender_object, target_name))
+            return 0.0
+        stack = TargetService.get_target_stack(blender_object)
+        for target in stack:
+            _LOG.debug("Target", target)
+            if target["target"] == target_name:
+                return target["value"]
+        return 0.0
+
+    @staticmethod
+    def set_target_value(blender_object, target_name, value, delete_target_on_zero=False):
+        if blender_object is None or target_name is None or not target_name:
+            _LOG.error("Empty object or target", (blender_object, target_name))
+            raise ValueError('Empty object or target')
+
+        keys = blender_object.data.shape_keys
+
+        if keys is None or keys.key_blocks is None or len(keys.key_blocks) < 1:
+            _LOG.error("Object does not have any shape keys")
+            raise ValueError('Empty object or target')
+
+        for shape_key in keys.key_blocks:
+            if shape_key.name == target_name:
+                shape_key.value = value
+                if value < 0.0001 and delete_target_on_zero:
+                    # TODO: This simply assumes that the blender_object is also the context active object.
+                    # If this is not the case, this might cause a bit of pain...
+                    shape_key_idx = blender_object.data.shape_keys.key_blocks.find(shape_key.name)
+                    blender_object.active_shape_key_index = shape_key_idx
+                    bpy.ops.object.shape_key_remove()
+
+
+    @staticmethod
+    def load_target(blender_object, full_path, weight=0.0, name=None):
+        if blender_object is None:
+            raise ValueError("Can only load targets onto specified mesh objects")
+        if full_path is None or not full_path:
+            raise ValueError("Must specify a valid path")
+        if not os.path.exists(full_path):
+            raise IOError(full_path + " does not exist")
+        target_string = None
+        shape_key = None
+
+        if name is None:
+            name = os.path.basename(full_path)
+            name = name.replace(".target.gz", "")
+            name = name.replace(".target", "")
+
+        if str(full_path).endswith(".gz"):
+            with gzip.open(full_path, "rb") as gzip_file:
+                raw_data = gzip_file.read()
+                target_string = raw_data.decode('utf-8')
+                if not target_string is None:
+                    shape_key = TargetService.target_string_to_shape_key(target_string, name, blender_object)
+                    shape_key.value = weight
+        else:
+            with open(full_path, "r") as target_file:
+                target_string = target_file.read()
+                if not target_string is None:
+                    shape_key = TargetService.target_string_to_shape_key(target_string, name, blender_object)
+                    shape_key.value = weight
+        return shape_key
