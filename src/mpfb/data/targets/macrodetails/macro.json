@@ -1,0 +1,156 @@
+{
+	"macrotargets": {
+	
+		"gender": {
+			"label": "Gender",		
+			"parts": [
+				{
+					"lowest": -0.01,
+					"highest": 1.01,
+					"low": "female",
+					"high": "male"
+				}
+			]
+		},
+		
+		"age": {
+			"label": "Age",		
+			"parts": [
+				{
+					"lowest": -0.01,
+					"highest": 0.18749,
+					"low": "baby",
+					"high": "child"
+				},
+				{
+					"lowest": 0.18750,
+					"highest": 0.49998,
+					"low": "child",
+					"high": "young"
+				},
+				{
+					"lowest": 0.49999,
+					"highest": 1.01,
+					"low": "young",
+					"high": "old"
+				}
+			]
+		},
+
+		"muscle": {
+			"label": "Muscularity",		
+			"parts": [
+				{
+					"lowest": -0.01,
+					"highest": 0.49998,
+					"low": "minmuscle",
+					"high": "averagemuscle"
+				},
+				{
+					"lowest": 0.49999,
+					"highest": 1.01,
+					"low": "averagemuscle",
+					"high": "maxmuscle"
+				}
+			]
+		},
+
+		"weight": {
+			"label": "Weight",		
+			"parts": [
+				{
+					"lowest": -0.01,
+					"highest": 0.49998,
+					"low": "minweight",
+					"high": "averageweight"
+				},
+				{
+					"lowest": 0.49999,
+					"highest": 1.01,
+					"low": "averageweight",
+					"high": "maxweight"
+				}
+			]
+		},
+
+		"proportions": {
+			"label": "Proportions",		
+			"parts": [
+				{
+					"lowest": -0.01,
+					"highest": 0.49,
+					"low": "uncommonproportions",
+					"high": ""
+				},
+				{
+					"lowest": 0.51,
+					"highest": 1.01,
+					"low": "",
+					"high": "idealproportions"
+				}
+			]
+		},
+
+		"height": {
+			"label": "Height",		
+			"parts": [
+				{
+					"lowest": -0.01,
+					"highest": 0.49,
+					"low": "minheight",
+					"high": ""
+				},
+				{
+					"lowest": 0.51,
+					"highest": 1.01,
+					"low": "",
+					"high": "maxheight"
+				}
+			]
+		},
+		
+		"cupsize": {
+			"label": "Cup size",		
+			"parts": [
+				{
+					"lowest": -0.01,
+					"highest": 0.49998,
+					"low": "mincup",
+					"high": "averagecup"
+				},
+				{
+					"lowest": 0.49999,
+					"highest": 1.01,
+					"low": "averagecup",
+					"high": "maxcup"
+				}
+			]
+		},
+								
+		"firmness": {
+			"label": "Breast firmness",		
+			"parts": [
+				{
+					"lowest": -0.01,
+					"highest": 0.49,
+					"low": "minfirmness",
+					"high": ""
+				},
+				{
+					"lowest": 0.51,
+					"highest": 1.01,
+					"low": "",
+					"high": "maxfirmness"
+				}
+			]
+		}
+	},
+	
+	"combinations": {
+		"racegenderage": ["race", "gender", "age"], 
+		"genderagemuscleweight": ["gender", "age", "muscle", "weight"], 
+		"genderagemuscleweightproportions": ["gender", "age", "muscle", "weight", "proportions"],
+		"genderagemuscleweightheight": ["gender", "age", "muscle", "weight", "height"],
+		"genderagemuscleweightcupsizefirmness": ["gender", "age", "muscle", "weight", "cupsize", "firmness"]
+	}
+}

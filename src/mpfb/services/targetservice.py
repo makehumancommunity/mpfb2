@@ -1,12 +1,13 @@
 """Module for managing targets and shape keys."""
 
-import os, gzip, bpy
+import os, gzip, bpy, json
 from pathlib import Path
 from mpfb.services.logservice import LogService
 from mpfb.services.locationservice import LocationService
 from mpfb.entities.objectproperties import GeneralObjectProperties
 
 _LOG = LogService.get_logger("services.targetservice")
+_LOG.set_level(LogService.DUMP)
 
 _HEADER = """# This is a target file for MakeHuman
 #
@@ -19,6 +20,13 @@ _HEADER = """# This is a target file for MakeHuman
 
 _MIRROR_LEFT = None
 _MIRROR_RIGHT = None
+
+_MACRO_CONFIG = dict()
+_TARGETS_DIR = LocationService.get_mpfb_data("targets")
+_MACRO_FILE = os.path.join(_TARGETS_DIR, "macrodetails", "macro.json")
+
+with open(_MACRO_FILE, "r") as json_file:
+    _MACRO_CONFIG = json.load(json_file)
 
 class TargetService:
 
@@ -327,3 +335,105 @@ class TargetService:
                     shape_key = TargetService.target_string_to_shape_key(target_string, name, blender_object)
                     shape_key.value = weight
         return shape_key
+
+    @staticmethod
+    def get_default_macro_info_dict():
+        return {
+            "gender": 0.5,            
+            "age": 0.5,
+            "muscle": 0.5,
+            "weight": 0.5,
+            "proportions": 0.5,
+            "height": 0.5,
+            "cupsize": 0.5,
+            "firmness": 0.5,
+            "race": {
+                "asian": 0.0,
+                "caucasian": 1.0,
+                "african": 0.0
+                }
+            }
+        
+    @staticmethod
+    def _interpolate_macro_components(macro_name, value):
+        macrotarget = _MACRO_CONFIG["macrotargets"][macro_name]
+        components = []
+        _LOG.debug("target", macrotarget)
+        for parts in macrotarget["parts"]:
+            highest = parts["highest"]
+            lowest = parts["lowest"]
+            low = parts["low"]
+            high = parts["high"]
+            range = highest-lowest
+            
+            if value > lowest and value < highest:                
+                position = value-lowest
+                position_pct = position/range
+                lowweight = round(1 - position_pct, 4)
+                highweight = round(position_pct, 4)
+                   
+                if low:
+                     components.append([low, round(lowweight, 4)])
+                if high:
+                     components.append([high, round(highweight, 4)])
+                     
+        return components
+        
+    
+    @staticmethod
+    def calculate_target_stack_from_macro_info_dict(macro_info):
+        if macro_info is None:
+            macro_info = TargetService.get_default_macro_info_dict()
+            
+        components = dict()
+        for macro_name in ["gender", "age", "muscle", "weight", "proportions", "height", "cupsize", "firmness"]:
+            value = macro_info[macro_name]
+            components[macro_name] = TargetService._interpolate_macro_components(macro_name, value)
+            
+        _LOG.dump("components", components)
+        
+        targets = []
+        
+        # Targets for race-gender-age
+        for race in macro_info["race"].keys():
+            _LOG.debug("race", (race, macro_info["race"][race]))
+            if macro_info["race"][race] > 0.0001:
+                for age_component in components["age"]:
+                    _LOG.debug("age", age_component)
+                    for gender_component in components["gender"]:
+                        _LOG.debug("gender", gender_component)
+                        if gender_component[0] != "universal":
+                            _LOG.debug("components", ([race, macro_info["race"][race]], gender_component, age_component))
+                            complete_name = "macrodetails/" + race + "-" + gender_component[0] + "-" + age_component[0]
+                            weight = macro_info["race"][race] * gender_component[1] * age_component[1]
+                            if weight > 0.0001:
+                                _LOG.debug("Appending race-gender-age target", [complete_name, weight])
+                                targets.append([complete_name, weight])
+        
+        # Targets for (universal)-gender-age-muscle-weight
+        for gender_component in components["gender"]:
+            _LOG.debug("gender", gender_component)
+            for age_component in components["age"]:
+                _LOG.debug("age", age_component)
+                for muscle_component in components["muscle"]:
+                    _LOG.debug("muscle", muscle_component)
+                    for weight_component in components["weight"]:
+                        _LOG.debug("weight", weight_component)
+                        complete_name = "macrodetails/universal"
+                        complete_name = complete_name + "-" + gender_component[0]
+                        complete_name = complete_name + "-" + age_component[0]
+                        complete_name = complete_name + "-" + muscle_component[0]
+                        complete_name = complete_name + "-" + weight_component[0]
+                        weight = 1.0
+                        weight = weight * gender_component[1]
+                        weight = weight * age_component[1]
+                        weight = weight * muscle_component[1]
+                        weight = weight * weight_component[1]
+                        if weight > 0.0001:
+                            _LOG.debug("Appending universal-gender-age-muscle-weight target", [complete_name, weight])
+                            targets.append([complete_name, weight])
+                        else:
+                            _LOG.debug("Not appending universal-gender-age-muscle-weight target", [complete_name, weight])
+                                
+        _LOG.dump("targets", targets)
+        return targets                    
