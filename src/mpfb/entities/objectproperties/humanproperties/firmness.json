@@ -1,0 +1,7 @@
+{
+    "type": "float",
+    "name": "firmness",
+    "description": "The firmness of the breasts. On male characters, anything but 0.5 will look strange",
+    "label": "Breast firmness",
+    "default": 0.5
+}

@@ -1,0 +1,7 @@
+{
+    "type": "float",
+    "name": "african",
+    "description": "How much the african race target influences the phenotype",
+    "label": "African",
+    "default": 0.33
+}

@@ -1,0 +1,7 @@
+{
+    "type": "float",
+    "name": "gender",
+    "description": "The gender of the character, where 0.0 is female and 1.0 is male",
+    "label": "Gender",
+    "default": 0.5
+}

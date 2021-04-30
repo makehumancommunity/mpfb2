@@ -1,0 +1,7 @@
+{
+    "type": "float",
+    "name": "muscle",
+    "description": "The muscularity of the character",
+    "label": "Muscle",
+    "default": 0.5
+}

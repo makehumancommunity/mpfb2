@@ -1,0 +1,7 @@
+{
+    "type": "float",
+    "name": "weight",
+    "description": "The weight of the character",
+    "label": "Weight",
+    "default": 0.5
+}

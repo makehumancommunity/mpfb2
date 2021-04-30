@@ -1,0 +1,7 @@
+{
+    "type": "float",
+    "name": "cupsize",
+    "description": "The cup size of the breasts. On male characters, anything but 0.5 will look strange.",
+    "label": "Cup size",
+    "default": 0.5
+}

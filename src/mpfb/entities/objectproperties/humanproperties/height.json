@@ -1,0 +1,7 @@
+{
+    "type": "float",
+    "name": "height",
+    "description": "The height of the character",
+    "label": "Height",
+    "default": 0.5
+}

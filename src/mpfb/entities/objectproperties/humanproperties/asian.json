@@ -1,0 +1,7 @@
+{
+    "type": "float",
+    "name": "asian",
+    "description": "How much the asian race target influences the phenotype",
+    "label": "Asian",
+    "default": 0.33
+}

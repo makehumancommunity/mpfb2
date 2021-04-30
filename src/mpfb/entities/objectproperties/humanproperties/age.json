@@ -1,0 +1,7 @@
+{
+    "type": "float",
+    "name": "age",
+    "description": "The general age of the character, where baby=0.0, child=0.1875, young=0.5, old=1.0",
+    "label": "Age",
+    "default": 0.5
+}
