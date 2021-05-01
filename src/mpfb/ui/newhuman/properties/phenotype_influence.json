@@ -1,9 +1,9 @@
 {
     "type": "float",
     "name": "phenotype_influence",
-    "description": "Initial strength of phenotype targets. This can be changed under shape keys later.",
+    "description": "Initial strength of phenotype targets. This can be changed in the modeling panel later.",
     "label": "Phenotype influence",
-    "default": 0.75,
+    "default": 1.0,
     "max": 1.0,
     "min": 0.0
 }
