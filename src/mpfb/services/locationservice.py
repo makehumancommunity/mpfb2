@@ -72,6 +72,10 @@ class _LocationService():
         _LOG.enter()
         return self._return_path(self._mpfb_data, sub_path)
 
+    def get_mpfb_root(self, sub_path=None):
+        _LOG.enter()
+        return self._return_path(self._mpfb_root, sub_path)
+
     def get_log_dir(self, sub_path=None):
         _LOG.enter()
         return self._return_path(self._log_dir, sub_path)
