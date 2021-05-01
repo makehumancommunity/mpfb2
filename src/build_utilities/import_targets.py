@@ -1,7 +1,8 @@
 #!/usr/bin/python3
 
 from pathlib import Path
-import os, sys, re, pprint, numpy, gzip, shutil, json
+import os, sys, re, pprint, numpy, gzip, shutil, json, fnmatch
+from numpy.polynomial.polyutils import mapparms
 
 if not "TARGETS_DIR" in os.environ:
     print("Must set the TARGETS_DIR environment variable")
@@ -15,47 +16,87 @@ imagedir = os.path.join(outdir, "_images")
 
 targets_dir = os.path.abspath(os.environ["TARGETS_DIR"])
     
-#===============================================================================
-# for file in Path(targets_dir).rglob('*.target'):
-#     
-#     print("Reading " + str(file))
-#     with open(file, "r") as target_file:
-#         lines = target_file.readlines()
-#     
-#     stripped_target = ""
-#             
-#     for line in lines:
-#         line = str(line).strip()
-#         if line and not line.startswith("#"):            
-#             line = re.sub(r'\s+', " ", line) + "\n"
-#             stripped_target = stripped_target + line
-#     
-#     subpath = str(file.parent)
-#     subpath = subpath.replace(targets_dir, "")
-# 
-#     if not subpath.startswith("/"):
-#         subpath = "/" + subpath
-#     if not subpath.endswith("/"):
-#         subpath = subpath + "/"
-# 
-#     destdir = outdir + subpath
-#     os.makedirs(destdir, exist_ok=True)
-# 
-#     outfile = os.path.join(destdir, file.name + ".gz")
-#     print("Writing " + str(outfile))
-#     with gzip.open(outfile, "wb") as gzip_file:
-#         gzip_file.write(bytearray(stripped_target, 'utf8'))
-#         
-#     print()
-#===============================================================================
+for file in Path(targets_dir).rglob('*.target'):
+     
+    print("Reading " + str(file))
+    with open(file, "r") as target_file:
+        lines = target_file.readlines()
+     
+    stripped_target = ""
+             
+    for line in lines:
+        line = str(line).strip()
+        if line and not line.startswith("#"):            
+            line = re.sub(r'\s+', " ", line) + "\n"
+            stripped_target = stripped_target + line
+     
+    subpath = str(file.parent)
+    subpath = subpath.replace(targets_dir, "")
+ 
+    if not subpath.startswith("/"):
+        subpath = "/" + subpath
+    if not subpath.endswith("/"):
+        subpath = subpath + "/"
+ 
+    destdir = outdir + subpath
+    os.makedirs(destdir, exist_ok=True)
+ 
+    outfile = os.path.join(destdir, file.name + ".gz")
+    print("Writing " + str(outfile))
+    with gzip.open(outfile, "wb") as gzip_file:
+        gzip_file.write(bytearray(stripped_target, 'utf8'))
+         
+    print()
 
-#===============================================================================
-# for file in Path(targets_dir).rglob('*.png'):
-#     
-#     if not os.path.basename(file).startswith("r-"):
-#         print("Copying image: " + str(file))
-#         shutil.copy(file, os.path.join(imagedir, os.path.basename(file)))
-#===============================================================================
+for file in Path(targets_dir).rglob('*.png'):
+     
+    if not os.path.basename(file).startswith("r-"):
+        print("Copying image: " + str(file))
+        shutil.copy(file, os.path.join(imagedir, os.path.basename(file)))
+
+# We'll rearrange the target categories in order to avoid categories with 
+# a huge amount of targets
+
+new_sub_dirs = ["arms", "legs", "feet", "hands"]
+
+for dirname in new_sub_dirs:
+    full_path = os.path.join(outdir, dirname)
+    if os.path.exists(full_path):
+        shutil.rmtree(full_path, ignore_errors=True)
+    os.makedirs(full_path, exist_ok=True)
+
+rearrangements = [
+    ["armslegs", "*arm-*", "arms"],
+    ["armslegs", "*leg-*", "legs"],
+    ["armslegs", "*legs-*", "legs"],
+    ["armslegs", "*foot-*", "feet"],
+    ["armslegs", "*hand-*", "hands"],
+    ["measure", "*arm-*", "arms"],
+    ["measure", "*leg-*", "legs"],
+    ["measure", "*knee-*", "legs"],
+    ["measure", "*calf-*", "legs"],
+    ["measure", "*thigh-*", "legs"],
+    ["measure", "*ankle-*", "feet"],
+    ["measure", "*foot-*", "feet"],
+    ["measure", "*hand-*", "hands"],
+    ["measure", "*wrist-*", "hands"],
+    ["measure", "*neck-*", "neck"],
+    ["measure", "*chest-*", "torso"],
+    ["measure", "*bust-*", "torso"],
+    ["measure", "*hips-*", "torso"],
+    ["measure", "*waist*", "torso"],
+    ["measure", "*shoulder-*", "torso"]         
+    ]
+
+for rearrangement in rearrangements:
+    fromdir = rearrangement[0]
+    pattern = rearrangement[1]
+    todir = rearrangement[2]
+    fullfrom = os.path.join(outdir, fromdir)
+    fullto = os.path.join(outdir, todir)
+    for file in os.listdir(fullfrom):
+        if fnmatch.fnmatch(file, pattern):
+            shutil.move(os.path.join(fullfrom, file), os.path.join(fullto, file))
 
 target_list = dict()
 
@@ -118,8 +159,7 @@ def guess_category_name(target):
         guessed_name = re.sub(r"^r-", "l-", guessed_name)
         guessed_image_path = os.path.join(imagedir, guessed_name + ".png")
         if not os.path.exists(guessed_image_path):        
-            print("Wrong guess: " + guessed_image_path)
-            guessed_name = None        
+            print("WARNING: guessed target base has no image: " + guessed_image_path)            
         
     if not guessed_name is None:
         if guessed_name.startswith("r-") or guessed_name.startswith("l-"):
@@ -129,7 +169,7 @@ def guess_category_name(target):
     return guessed_name
 
 def excluded_dirname(dirname):
-    for match in ["macrodetails", "_images", "asym", "measure"]:
+    for match in ["macrodetails", "_images", "asym", "expression", "armslegs"]:
         if dirname == match:
             return True
     return False
