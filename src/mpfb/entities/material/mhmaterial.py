@@ -43,7 +43,7 @@ class MhMaterial:
             # handle multiple occurences of tag (create a comma-separated entry)
             #
             if key == 'tag':
-                if self._settings[key]:
+                if key in self._settings and self._settings[key]:
                     self._settings[key] += ", " + value
                 else:
                     self._settings[key] = value
