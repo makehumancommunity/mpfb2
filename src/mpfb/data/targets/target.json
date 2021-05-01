@@ -1,63 +1,6 @@
 {
-    "armslegs": {
+    "arms": {
         "categories": [
-            {
-                "has_left_and_right": true,
-                "label": "foot-scale-horiz-decr-incr",
-                "name": "foot-scale-horiz-decr-incr",
-                "opposites": {
-                    "negative-left": "l-foot-scale-horiz-decr",
-                    "negative-right": "r-foot-scale-horiz-decr",
-                    "negative-unsided": "",
-                    "positive-left": "l-foot-scale-horiz-incr",
-                    "positive-right": "r-foot-scale-horiz-incr",
-                    "positive-unsided": ""
-                },
-                "targets": [
-                    "r-foot-scale-horiz-incr",
-                    "r-foot-scale-horiz-decr",
-                    "l-foot-scale-horiz-incr",
-                    "l-foot-scale-horiz-decr"
-                ]
-            },
-            {
-                "has_left_and_right": true,
-                "label": "upperleg-fat-decr-incr",
-                "name": "upperleg-fat-decr-incr",
-                "opposites": {
-                    "negative-left": "l-upperleg-fat-decr",
-                    "negative-right": "r-upperleg-fat-decr",
-                    "negative-unsided": "",
-                    "positive-left": "l-upperleg-fat-incr",
-                    "positive-right": "r-upperleg-fat-incr",
-                    "positive-unsided": ""
-                },
-                "targets": [
-                    "r-upperleg-fat-incr",
-                    "r-upperleg-fat-decr",
-                    "l-upperleg-fat-incr",
-                    "l-upperleg-fat-decr"
-                ]
-            },
-            {
-                "has_left_and_right": true,
-                "label": "lowerleg-muscle-decr-incr",
-                "name": "lowerleg-muscle-decr-incr",
-                "opposites": {
-                    "negative-left": "l-lowerleg-muscle-decr",
-                    "negative-right": "r-lowerleg-muscle-decr",
-                    "negative-unsided": "",
-                    "positive-left": "l-lowerleg-muscle-incr",
-                    "positive-right": "r-lowerleg-muscle-incr",
-                    "positive-unsided": ""
-                },
-                "targets": [
-                    "r-lowerleg-muscle-decr",
-                    "l-lowerleg-muscle-incr",
-                    "r-lowerleg-muscle-incr",
-                    "l-lowerleg-muscle-decr"
-                ]
-            },
             {
                 "has_left_and_right": true,
                 "label": "lowerarm-scale-depth-decr-incr",
@@ -98,25 +41,6 @@
             },
             {
                 "has_left_and_right": true,
-                "label": "leg-valgus-decr-incr",
-                "name": "leg-valgus-decr-incr",
-                "opposites": {
-                    "negative-left": "l-leg-valgus-decr",
-                    "negative-right": "r-leg-valgus-decr",
-                    "negative-unsided": "",
-                    "positive-left": "l-leg-valgus-incr",
-                    "positive-right": "r-leg-valgus-incr",
-                    "positive-unsided": ""
-                },
-                "targets": [
-                    "r-leg-valgus-incr",
-                    "r-leg-valgus-decr",
-                    "l-leg-valgus-decr",
-                    "l-leg-valgus-incr"
-                ]
-            },
-            {
-                "has_left_and_right": true,
                 "label": "upperarm-fat-decr-incr",
                 "name": "upperarm-fat-decr-incr",
                 "opposites": {
@@ -135,155 +59,20 @@
                 ]
             },
             {
-                "has_left_and_right": true,
-                "label": "foot-trans-in-out",
-                "name": "foot-trans-in-out",
+                "has_left_and_right": false,
+                "label": "measure-upperarm-length-decr-incr",
+                "name": "measure-upperarm-length-decr-incr",
                 "opposites": {
-                    "negative-left": "l-foot-trans-in",
-                    "negative-right": "r-foot-trans-in",
-                    "negative-unsided": "",
-                    "positive-left": "l-foot-trans-out",
-                    "positive-right": "r-foot-trans-out",
-                    "positive-unsided": ""
+                    "negative-left": "",
+                    "negative-right": "",
+                    "negative-unsided": "measure-upperarm-length-decr",
+                    "positive-left": "",
+                    "positive-right": "",
+                    "positive-unsided": "measure-upperarm-length-incr"
                 },
                 "targets": [
-                    "r-foot-trans-out",
-                    "l-foot-trans-in",
-                    "r-foot-trans-in",
-                    "l-foot-trans-out"
-                ]
-            },
-            {
-                "has_left_and_right": true,
-                "label": "hand-trans-in-out",
-                "name": "hand-trans-in-out",
-                "opposites": {
-                    "negative-left": "l-hand-trans-in",
-                    "negative-right": "r-hand-trans-in",
-                    "negative-unsided": "",
-                    "positive-left": "l-hand-trans-out",
-                    "positive-right": "r-hand-trans-out",
-                    "positive-unsided": ""
-                },
-                "targets": [
-                    "l-hand-trans-out",
-                    "r-hand-trans-out",
-                    "l-hand-trans-in",
-                    "r-hand-trans-in"
-                ]
-            },
-            {
-                "has_left_and_right": true,
-                "label": "lowerleg-scale-depth-decr-incr",
-                "name": "lowerleg-scale-depth-decr-incr",
-                "opposites": {
-                    "negative-left": "l-lowerleg-scale-depth-decr",
-                    "negative-right": "r-lowerleg-scale-depth-decr",
-                    "negative-unsided": "",
-                    "positive-left": "l-lowerleg-scale-depth-incr",
-                    "positive-right": "r-lowerleg-scale-depth-incr",
-                    "positive-unsided": ""
-                },
-                "targets": [
-                    "r-lowerleg-scale-depth-incr",
-                    "l-lowerleg-scale-depth-decr",
-                    "l-lowerleg-scale-depth-incr",
-                    "r-lowerleg-scale-depth-decr"
-                ]
-            },
-            {
-                "has_left_and_right": true,
-                "label": "lowerleg-scale-vert-decr-incr",
-                "name": "lowerleg-scale-vert-decr-incr",
-                "opposites": {
-                    "negative-left": "l-lowerleg-scale-vert-decr",
-                    "negative-right": "r-lowerleg-scale-vert-decr",
-                    "negative-unsided": "",
-                    "positive-left": "l-lowerleg-scale-vert-incr",
-                    "positive-right": "r-lowerleg-scale-vert-incr",
-                    "positive-unsided": ""
-                },
-                "targets": [
-                    "l-lowerleg-scale-vert-decr",
-                    "r-lowerleg-scale-vert-decr",
-                    "l-lowerleg-scale-vert-incr",
-                    "r-lowerleg-scale-vert-incr"
-                ]
-            },
-            {
-                "has_left_and_right": true,
-                "label": "upperleg-scale-depth-decr-incr",
-                "name": "upperleg-scale-depth-decr-incr",
-                "opposites": {
-                    "negative-left": "l-upperleg-scale-depth-decr",
-                    "negative-right": "r-upperleg-scale-depth-decr",
-                    "negative-unsided": "",
-                    "positive-left": "l-upperleg-scale-depth-incr",
-                    "positive-right": "r-upperleg-scale-depth-incr",
-                    "positive-unsided": ""
-                },
-                "targets": [
-                    "r-upperleg-scale-depth-decr",
-                    "l-upperleg-scale-depth-incr",
-                    "l-upperleg-scale-depth-decr",
-                    "r-upperleg-scale-depth-incr"
-                ]
-            },
-            {
-                "has_left_and_right": true,
-                "label": "upperleg-scale-horiz-decr-incr",
-                "name": "upperleg-scale-horiz-decr-incr",
-                "opposites": {
-                    "negative-left": "l-upperleg-scale-horiz-decr",
-                    "negative-right": "r-upperleg-scale-horiz-decr",
-                    "negative-unsided": "",
-                    "positive-left": "l-upperleg-scale-horiz-incr",
-                    "positive-right": "r-upperleg-scale-horiz-incr",
-                    "positive-unsided": ""
-                },
-                "targets": [
-                    "r-upperleg-scale-horiz-incr",
-                    "r-upperleg-scale-horiz-decr",
-                    "l-upperleg-scale-horiz-incr",
-                    "l-upperleg-scale-horiz-decr"
-                ]
-            },
-            {
-                "has_left_and_right": true,
-                "label": "hand-fingers-length-decr-incr",
-                "name": "hand-fingers-length-decr-incr",
-                "opposites": {
-                    "negative-left": "l-hand-fingers-length-decr",
-                    "negative-right": "r-hand-fingers-length-decr",
-                    "negative-unsided": "",
-                    "positive-left": "l-hand-fingers-length-incr",
-                    "positive-right": "r-hand-fingers-length-incr",
-                    "positive-unsided": ""
-                },
-                "targets": [
-                    "r-hand-fingers-length-decr",
-                    "l-hand-fingers-length-incr",
-                    "l-hand-fingers-length-decr",
-                    "r-hand-fingers-length-incr"
-                ]
-            },
-            {
-                "has_left_and_right": true,
-                "label": "hand-scale-decr-incr",
-                "name": "hand-scale-decr-incr",
-                "opposites": {
-                    "negative-left": "l-hand-scale-decr",
-                    "negative-right": "r-hand-scale-decr",
-                    "negative-unsided": "",
-                    "positive-left": "l-hand-scale-incr",
-                    "positive-right": "r-hand-scale-incr",
-                    "positive-unsided": ""
-                },
-                "targets": [
-                    "l-hand-scale-decr",
-                    "r-hand-scale-decr",
-                    "l-hand-scale-incr",
-                    "r-hand-scale-incr"
+                    "measure-upperarm-length-decr",
+                    "measure-upperarm-length-incr"
                 ]
             },
             {
@@ -307,42 +96,6 @@
             },
             {
                 "has_left_and_right": true,
-                "label": "hand-fingers-diameter-decr-incr",
-                "name": "hand-fingers-diameter-decr-incr",
-                "opposites": {
-                    "negative-left": "l-hand-fingers-diameter-decr",
-                    "negative-right": "r-hand-fingers-diameter-decr",
-                    "negative-unsided": "",
-                    "positive-left": "l-hand-fingers-diameter-incr",
-                    "positive-right": "r-hand-fingers-diameter-incr",
-                    "positive-unsided": ""
-                },
-                "targets": [
-                    "r-hand-fingers-diameter-decr",
-                    "l-hand-fingers-diameter-incr",
-                    "l-hand-fingers-diameter-decr",
-                    "r-hand-fingers-diameter-incr"
-                ]
-            },
-            {
-                "has_left_and_right": false,
-                "label": "upperlegs-height-decr-incr",
-                "name": "upperlegs-height-decr-incr",
-                "opposites": {
-                    "negative-left": "",
-                    "negative-right": "",
-                    "negative-unsided": "upperlegs-height-decr",
-                    "positive-left": "",
-                    "positive-right": "",
-                    "positive-unsided": "upperlegs-height-incr"
-                },
-                "targets": [
-                    "upperlegs-height-decr",
-                    "upperlegs-height-incr"
-                ]
-            },
-            {
-                "has_left_and_right": true,
                 "label": "lowerarm-scale-horiz-decr-incr",
                 "name": "lowerarm-scale-horiz-decr-incr",
                 "opposites": {
@@ -358,44 +111,6 @@
                     "l-lowerarm-scale-horiz-incr",
                     "r-lowerarm-scale-horiz-incr",
                     "l-lowerarm-scale-horiz-decr"
-                ]
-            },
-            {
-                "has_left_and_right": true,
-                "label": "lowerleg-fat-decr-incr",
-                "name": "lowerleg-fat-decr-incr",
-                "opposites": {
-                    "negative-left": "l-lowerleg-fat-decr",
-                    "negative-right": "r-lowerleg-fat-decr",
-                    "negative-unsided": "",
-                    "positive-left": "l-lowerleg-fat-incr",
-                    "positive-right": "r-lowerleg-fat-incr",
-                    "positive-unsided": ""
-                },
-                "targets": [
-                    "r-lowerleg-fat-incr",
-                    "l-lowerleg-fat-decr",
-                    "r-lowerleg-fat-decr",
-                    "l-lowerleg-fat-incr"
-                ]
-            },
-            {
-                "has_left_and_right": true,
-                "label": "lowerleg-scale-horiz-decr-incr",
-                "name": "lowerleg-scale-horiz-decr-incr",
-                "opposites": {
-                    "negative-left": "l-lowerleg-scale-horiz-decr",
-                    "negative-right": "r-lowerleg-scale-horiz-decr",
-                    "negative-unsided": "",
-                    "positive-left": "l-lowerleg-scale-horiz-incr",
-                    "positive-right": "r-lowerleg-scale-horiz-incr",
-                    "positive-unsided": ""
-                },
-                "targets": [
-                    "r-lowerleg-scale-horiz-incr",
-                    "r-lowerleg-scale-horiz-decr",
-                    "l-lowerleg-scale-horiz-decr",
-                    "l-lowerleg-scale-horiz-incr"
                 ]
             },
             {
@@ -437,79 +152,20 @@
                 ]
             },
             {
-                "has_left_and_right": true,
-                "label": "foot-scale-vert-decr-incr",
-                "name": "foot-scale-vert-decr-incr",
+                "has_left_and_right": false,
+                "label": "measure-upperarm-circ-decr-incr",
+                "name": "measure-upperarm-circ-decr-incr",
                 "opposites": {
-                    "negative-left": "l-foot-scale-vert-decr",
-                    "negative-right": "r-foot-scale-vert-decr",
-                    "negative-unsided": "",
-                    "positive-left": "l-foot-scale-vert-incr",
-                    "positive-right": "r-foot-scale-vert-incr",
-                    "positive-unsided": ""
+                    "negative-left": "",
+                    "negative-right": "",
+                    "negative-unsided": "measure-upperarm-circ-decr",
+                    "positive-left": "",
+                    "positive-right": "",
+                    "positive-unsided": "measure-upperarm-circ-incr"
                 },
                 "targets": [
-                    "l-foot-scale-vert-incr",
-                    "r-foot-scale-vert-incr",
-                    "r-foot-scale-vert-decr",
-                    "l-foot-scale-vert-decr"
-                ]
-            },
-            {
-                "has_left_and_right": true,
-                "label": "foot-trans-backward-forward",
-                "name": "foot-trans-backward-forward",
-                "opposites": {
-                    "negative-left": "l-foot-trans-backward",
-                    "negative-right": "r-foot-trans-backward",
-                    "negative-unsided": "",
-                    "positive-left": "l-foot-trans-forward",
-                    "positive-right": "r-foot-trans-forward",
-                    "positive-unsided": ""
-                },
-                "targets": [
-                    "r-foot-trans-forward",
-                    "l-foot-trans-backward",
-                    "l-foot-trans-forward",
-                    "r-foot-trans-backward"
-                ]
-            },
-            {
-                "has_left_and_right": true,
-                "label": "hand-fingers-distance-decr-incr",
-                "name": "hand-fingers-distance-decr-incr",
-                "opposites": {
-                    "negative-left": "l-hand-fingers-distance-decr",
-                    "negative-right": "r-hand-fingers-distance-decr",
-                    "negative-unsided": "",
-                    "positive-left": "l-hand-fingers-distance-incr",
-                    "positive-right": "r-hand-fingers-distance-incr",
-                    "positive-unsided": ""
-                },
-                "targets": [
-                    "l-hand-fingers-distance-decr",
-                    "l-hand-fingers-distance-incr",
-                    "r-hand-fingers-distance-incr",
-                    "r-hand-fingers-distance-decr"
-                ]
-            },
-            {
-                "has_left_and_right": true,
-                "label": "foot-scale-depth-decr-incr",
-                "name": "foot-scale-depth-decr-incr",
-                "opposites": {
-                    "negative-left": "l-foot-scale-depth-decr",
-                    "negative-right": "r-foot-scale-depth-decr",
-                    "negative-unsided": "",
-                    "positive-left": "l-foot-scale-depth-incr",
-                    "positive-right": "r-foot-scale-depth-incr",
-                    "positive-unsided": ""
-                },
-                "targets": [
-                    "l-foot-scale-depth-incr",
-                    "r-foot-scale-depth-decr",
-                    "l-foot-scale-depth-decr",
-                    "r-foot-scale-depth-incr"
+                    "measure-upperarm-circ-incr",
+                    "measure-upperarm-circ-decr"
                 ]
             },
             {
@@ -533,80 +189,6 @@
             },
             {
                 "has_left_and_right": true,
-                "label": "foot-scale-decr-incr",
-                "name": "foot-scale-decr-incr",
-                "opposites": {
-                    "negative-left": "l-foot-scale-decr",
-                    "negative-right": "r-foot-scale-decr",
-                    "negative-unsided": "",
-                    "positive-left": "l-foot-scale-incr",
-                    "positive-right": "r-foot-scale-incr",
-                    "positive-unsided": ""
-                },
-                "targets": [
-                    "r-foot-scale-decr",
-                    "l-foot-scale-incr",
-                    "l-foot-scale-decr",
-                    "r-foot-scale-incr"
-                ]
-            },
-            {
-                "has_left_and_right": false,
-                "label": "lowerlegs-height-decr-incr",
-                "name": "lowerlegs-height-decr-incr",
-                "opposites": {
-                    "negative-left": "",
-                    "negative-right": "",
-                    "negative-unsided": "lowerlegs-height-decr",
-                    "positive-left": "",
-                    "positive-right": "",
-                    "positive-unsided": "lowerlegs-height-incr"
-                },
-                "targets": [
-                    "lowerlegs-height-incr",
-                    "lowerlegs-height-decr"
-                ]
-            },
-            {
-                "has_left_and_right": true,
-                "label": "upperleg-muscle-decr-incr",
-                "name": "upperleg-muscle-decr-incr",
-                "opposites": {
-                    "negative-left": "l-upperleg-muscle-decr",
-                    "negative-right": "r-upperleg-muscle-decr",
-                    "negative-unsided": "",
-                    "positive-left": "l-upperleg-muscle-incr",
-                    "positive-right": "r-upperleg-muscle-incr",
-                    "positive-unsided": ""
-                },
-                "targets": [
-                    "r-upperleg-muscle-decr",
-                    "l-upperleg-muscle-incr",
-                    "r-upperleg-muscle-incr",
-                    "l-upperleg-muscle-decr"
-                ]
-            },
-            {
-                "has_left_and_right": true,
-                "label": "upperleg-scale-vert-decr-incr",
-                "name": "upperleg-scale-vert-decr-incr",
-                "opposites": {
-                    "negative-left": "l-upperleg-scale-vert-decr",
-                    "negative-right": "r-upperleg-scale-vert-decr",
-                    "negative-unsided": "",
-                    "positive-left": "l-upperleg-scale-vert-incr",
-                    "positive-right": "r-upperleg-scale-vert-incr",
-                    "positive-unsided": ""
-                },
-                "targets": [
-                    "r-upperleg-scale-vert-incr",
-                    "l-upperleg-scale-vert-incr",
-                    "r-upperleg-scale-vert-decr",
-                    "l-upperleg-scale-vert-decr"
-                ]
-            },
-            {
-                "has_left_and_right": true,
                 "label": "lowerarm-scale-vert-decr-incr",
                 "name": "lowerarm-scale-vert-decr-incr",
                 "opposites": {
@@ -625,22 +207,20 @@
                 ]
             },
             {
-                "has_left_and_right": true,
-                "label": "foot-trans-down-up",
-                "name": "foot-trans-down-up",
+                "has_left_and_right": false,
+                "label": "measure-lowerarm-length-decr-incr",
+                "name": "measure-lowerarm-length-decr-incr",
                 "opposites": {
-                    "negative-left": "l-foot-trans-down",
-                    "negative-right": "r-foot-trans-down",
-                    "negative-unsided": "",
-                    "positive-left": "l-foot-trans-up",
-                    "positive-right": "r-foot-trans-up",
-                    "positive-unsided": ""
+                    "negative-left": "",
+                    "negative-right": "",
+                    "negative-unsided": "measure-lowerarm-length-decr",
+                    "positive-left": "",
+                    "positive-right": "",
+                    "positive-unsided": "measure-lowerarm-length-incr"
                 },
                 "targets": [
-                    "l-foot-trans-up",
-                    "l-foot-trans-down",
-                    "r-foot-trans-down",
-                    "r-foot-trans-up"
+                    "measure-lowerarm-length-decr",
+                    "measure-lowerarm-length-incr"
                 ]
             },
             {
@@ -683,7 +263,7 @@
             }
         ],
         "include_per_default": true,
-        "label": "armslegs",
+        "label": "arms",
         "unsorted": []
     },
     "breast": {
@@ -1008,6 +588,14 @@
             },
             {
                 "has_left_and_right": false,
+                "label": "chin-triangle",
+                "name": "chin-triangle",
+                "targets": [
+                    "chin-triangle"
+                ]
+            },
+            {
+                "has_left_and_right": false,
                 "label": "chin-prognathism-decr-incr",
                 "name": "chin-prognathism-decr-incr",
                 "opposites": {
@@ -1026,9 +614,7 @@
         ],
         "include_per_default": true,
         "label": "chin",
-        "unsorted": [
-            "chin-triangle"
-        ]
+        "unsorted": []
     },
     "ears": {
         "categories": [
@@ -1244,12 +830,6 @@
         ],
         "include_per_default": true,
         "label": "ears",
-        "unsorted": []
-    },
-    "expression": {
-        "categories": [],
-        "include_per_default": true,
-        "label": "expression",
         "unsorted": []
     },
     "eyebrows": {
@@ -1632,6 +1212,163 @@
         "label": "eyes",
         "unsorted": []
     },
+    "feet": {
+        "categories": [
+            {
+                "has_left_and_right": true,
+                "label": "foot-scale-horiz-decr-incr",
+                "name": "foot-scale-horiz-decr-incr",
+                "opposites": {
+                    "negative-left": "l-foot-scale-horiz-decr",
+                    "negative-right": "r-foot-scale-horiz-decr",
+                    "negative-unsided": "",
+                    "positive-left": "l-foot-scale-horiz-incr",
+                    "positive-right": "r-foot-scale-horiz-incr",
+                    "positive-unsided": ""
+                },
+                "targets": [
+                    "r-foot-scale-horiz-incr",
+                    "r-foot-scale-horiz-decr",
+                    "l-foot-scale-horiz-incr",
+                    "l-foot-scale-horiz-decr"
+                ]
+            },
+            {
+                "has_left_and_right": true,
+                "label": "foot-trans-in-out",
+                "name": "foot-trans-in-out",
+                "opposites": {
+                    "negative-left": "l-foot-trans-in",
+                    "negative-right": "r-foot-trans-in",
+                    "negative-unsided": "",
+                    "positive-left": "l-foot-trans-out",
+                    "positive-right": "r-foot-trans-out",
+                    "positive-unsided": ""
+                },
+                "targets": [
+                    "r-foot-trans-out",
+                    "l-foot-trans-in",
+                    "r-foot-trans-in",
+                    "l-foot-trans-out"
+                ]
+            },
+            {
+                "has_left_and_right": true,
+                "label": "foot-scale-vert-decr-incr",
+                "name": "foot-scale-vert-decr-incr",
+                "opposites": {
+                    "negative-left": "l-foot-scale-vert-decr",
+                    "negative-right": "r-foot-scale-vert-decr",
+                    "negative-unsided": "",
+                    "positive-left": "l-foot-scale-vert-incr",
+                    "positive-right": "r-foot-scale-vert-incr",
+                    "positive-unsided": ""
+                },
+                "targets": [
+                    "l-foot-scale-vert-incr",
+                    "r-foot-scale-vert-incr",
+                    "r-foot-scale-vert-decr",
+                    "l-foot-scale-vert-decr"
+                ]
+            },
+            {
+                "has_left_and_right": true,
+                "label": "foot-trans-backward-forward",
+                "name": "foot-trans-backward-forward",
+                "opposites": {
+                    "negative-left": "l-foot-trans-backward",
+                    "negative-right": "r-foot-trans-backward",
+                    "negative-unsided": "",
+                    "positive-left": "l-foot-trans-forward",
+                    "positive-right": "r-foot-trans-forward",
+                    "positive-unsided": ""
+                },
+                "targets": [
+                    "r-foot-trans-forward",
+                    "l-foot-trans-backward",
+                    "l-foot-trans-forward",
+                    "r-foot-trans-backward"
+                ]
+            },
+            {
+                "has_left_and_right": true,
+                "label": "foot-scale-depth-decr-incr",
+                "name": "foot-scale-depth-decr-incr",
+                "opposites": {
+                    "negative-left": "l-foot-scale-depth-decr",
+                    "negative-right": "r-foot-scale-depth-decr",
+                    "negative-unsided": "",
+                    "positive-left": "l-foot-scale-depth-incr",
+                    "positive-right": "r-foot-scale-depth-incr",
+                    "positive-unsided": ""
+                },
+                "targets": [
+                    "l-foot-scale-depth-incr",
+                    "r-foot-scale-depth-decr",
+                    "l-foot-scale-depth-decr",
+                    "r-foot-scale-depth-incr"
+                ]
+            },
+            {
+                "has_left_and_right": true,
+                "label": "foot-scale-decr-incr",
+                "name": "foot-scale-decr-incr",
+                "opposites": {
+                    "negative-left": "l-foot-scale-decr",
+                    "negative-right": "r-foot-scale-decr",
+                    "negative-unsided": "",
+                    "positive-left": "l-foot-scale-incr",
+                    "positive-right": "r-foot-scale-incr",
+                    "positive-unsided": ""
+                },
+                "targets": [
+                    "r-foot-scale-decr",
+                    "l-foot-scale-incr",
+                    "l-foot-scale-decr",
+                    "r-foot-scale-incr"
+                ]
+            },
+            {
+                "has_left_and_right": true,
+                "label": "foot-trans-down-up",
+                "name": "foot-trans-down-up",
+                "opposites": {
+                    "negative-left": "l-foot-trans-down",
+                    "negative-right": "r-foot-trans-down",
+                    "negative-unsided": "",
+                    "positive-left": "l-foot-trans-up",
+                    "positive-right": "r-foot-trans-up",
+                    "positive-unsided": ""
+                },
+                "targets": [
+                    "l-foot-trans-up",
+                    "l-foot-trans-down",
+                    "r-foot-trans-down",
+                    "r-foot-trans-up"
+                ]
+            },
+            {
+                "has_left_and_right": false,
+                "label": "measure-ankle-circ-decr-incr",
+                "name": "measure-ankle-circ-decr-incr",
+                "opposites": {
+                    "negative-left": "",
+                    "negative-right": "",
+                    "negative-unsided": "measure-ankle-circ-decr",
+                    "positive-left": "",
+                    "positive-right": "",
+                    "positive-unsided": "measure-ankle-circ-incr"
+                },
+                "targets": [
+                    "measure-ankle-circ-decr",
+                    "measure-ankle-circ-incr"
+                ]
+            }
+        ],
+        "include_per_default": true,
+        "label": "feet",
+        "unsorted": []
+    },
     "forehead": {
         "categories": [
             {
@@ -1763,6 +1500,125 @@
         ],
         "include_per_default": true,
         "label": "genitals",
+        "unsorted": []
+    },
+    "hands": {
+        "categories": [
+            {
+                "has_left_and_right": true,
+                "label": "hand-trans-in-out",
+                "name": "hand-trans-in-out",
+                "opposites": {
+                    "negative-left": "l-hand-trans-in",
+                    "negative-right": "r-hand-trans-in",
+                    "negative-unsided": "",
+                    "positive-left": "l-hand-trans-out",
+                    "positive-right": "r-hand-trans-out",
+                    "positive-unsided": ""
+                },
+                "targets": [
+                    "l-hand-trans-out",
+                    "r-hand-trans-out",
+                    "l-hand-trans-in",
+                    "r-hand-trans-in"
+                ]
+            },
+            {
+                "has_left_and_right": true,
+                "label": "hand-fingers-length-decr-incr",
+                "name": "hand-fingers-length-decr-incr",
+                "opposites": {
+                    "negative-left": "l-hand-fingers-length-decr",
+                    "negative-right": "r-hand-fingers-length-decr",
+                    "negative-unsided": "",
+                    "positive-left": "l-hand-fingers-length-incr",
+                    "positive-right": "r-hand-fingers-length-incr",
+                    "positive-unsided": ""
+                },
+                "targets": [
+                    "r-hand-fingers-length-decr",
+                    "l-hand-fingers-length-incr",
+                    "l-hand-fingers-length-decr",
+                    "r-hand-fingers-length-incr"
+                ]
+            },
+            {
+                "has_left_and_right": true,
+                "label": "hand-scale-decr-incr",
+                "name": "hand-scale-decr-incr",
+                "opposites": {
+                    "negative-left": "l-hand-scale-decr",
+                    "negative-right": "r-hand-scale-decr",
+                    "negative-unsided": "",
+                    "positive-left": "l-hand-scale-incr",
+                    "positive-right": "r-hand-scale-incr",
+                    "positive-unsided": ""
+                },
+                "targets": [
+                    "l-hand-scale-decr",
+                    "r-hand-scale-decr",
+                    "l-hand-scale-incr",
+                    "r-hand-scale-incr"
+                ]
+            },
+            {
+                "has_left_and_right": true,
+                "label": "hand-fingers-diameter-decr-incr",
+                "name": "hand-fingers-diameter-decr-incr",
+                "opposites": {
+                    "negative-left": "l-hand-fingers-diameter-decr",
+                    "negative-right": "r-hand-fingers-diameter-decr",
+                    "negative-unsided": "",
+                    "positive-left": "l-hand-fingers-diameter-incr",
+                    "positive-right": "r-hand-fingers-diameter-incr",
+                    "positive-unsided": ""
+                },
+                "targets": [
+                    "r-hand-fingers-diameter-decr",
+                    "l-hand-fingers-diameter-incr",
+                    "l-hand-fingers-diameter-decr",
+                    "r-hand-fingers-diameter-incr"
+                ]
+            },
+            {
+                "has_left_and_right": true,
+                "label": "hand-fingers-distance-decr-incr",
+                "name": "hand-fingers-distance-decr-incr",
+                "opposites": {
+                    "negative-left": "l-hand-fingers-distance-decr",
+                    "negative-right": "r-hand-fingers-distance-decr",
+                    "negative-unsided": "",
+                    "positive-left": "l-hand-fingers-distance-incr",
+                    "positive-right": "r-hand-fingers-distance-incr",
+                    "positive-unsided": ""
+                },
+                "targets": [
+                    "l-hand-fingers-distance-decr",
+                    "l-hand-fingers-distance-incr",
+                    "r-hand-fingers-distance-incr",
+                    "r-hand-fingers-distance-decr"
+                ]
+            },
+            {
+                "has_left_and_right": false,
+                "label": "measure-wrist-circ-decr-incr",
+                "name": "measure-wrist-circ-decr-incr",
+                "opposites": {
+                    "negative-left": "",
+                    "negative-right": "",
+                    "negative-unsided": "measure-wrist-circ-decr",
+                    "positive-left": "",
+                    "positive-right": "",
+                    "positive-unsided": "measure-wrist-circ-incr"
+                },
+                "targets": [
+                    "measure-wrist-circ-incr",
+                    "measure-wrist-circ-decr"
+                ]
+            }
+        ],
+        "include_per_default": true,
+        "label": "hands",
         "unsorted": []
     },
     "head": {
@@ -2122,6 +1978,347 @@
         ],
         "include_per_default": true,
         "label": "hip",
+        "unsorted": []
+    },
+    "legs": {
+        "categories": [
+            {
+                "has_left_and_right": false,
+                "label": "measure-calf-circ-decr-incr",
+                "name": "measure-calf-circ-decr-incr",
+                "opposites": {
+                    "negative-left": "",
+                    "negative-right": "",
+                    "negative-unsided": "measure-calf-circ-decr",
+                    "positive-left": "",
+                    "positive-right": "",
+                    "positive-unsided": "measure-calf-circ-incr"
+                },
+                "targets": [
+                    "measure-calf-circ-incr",
+                    "measure-calf-circ-decr"
+                ]
+            },
+            {
+                "has_left_and_right": false,
+                "label": "measure-lowerleg-height-decr-incr",
+                "name": "measure-lowerleg-height-decr-incr",
+                "opposites": {
+                    "negative-left": "",
+                    "negative-right": "",
+                    "negative-unsided": "measure-lowerleg-height-decr",
+                    "positive-left": "",
+                    "positive-right": "",
+                    "positive-unsided": "measure-lowerleg-height-incr"
+                },
+                "targets": [
+                    "measure-lowerleg-height-decr",
+                    "measure-lowerleg-height-incr"
+                ]
+            },
+            {
+                "has_left_and_right": true,
+                "label": "upperleg-fat-decr-incr",
+                "name": "upperleg-fat-decr-incr",
+                "opposites": {
+                    "negative-left": "l-upperleg-fat-decr",
+                    "negative-right": "r-upperleg-fat-decr",
+                    "negative-unsided": "",
+                    "positive-left": "l-upperleg-fat-incr",
+                    "positive-right": "r-upperleg-fat-incr",
+                    "positive-unsided": ""
+                },
+                "targets": [
+                    "r-upperleg-fat-incr",
+                    "r-upperleg-fat-decr",
+                    "l-upperleg-fat-incr",
+                    "l-upperleg-fat-decr"
+                ]
+            },
+            {
+                "has_left_and_right": true,
+                "label": "lowerleg-muscle-decr-incr",
+                "name": "lowerleg-muscle-decr-incr",
+                "opposites": {
+                    "negative-left": "l-lowerleg-muscle-decr",
+                    "negative-right": "r-lowerleg-muscle-decr",
+                    "negative-unsided": "",
+                    "positive-left": "l-lowerleg-muscle-incr",
+                    "positive-right": "r-lowerleg-muscle-incr",
+                    "positive-unsided": ""
+                },
+                "targets": [
+                    "r-lowerleg-muscle-decr",
+                    "l-lowerleg-muscle-incr",
+                    "r-lowerleg-muscle-incr",
+                    "l-lowerleg-muscle-decr"
+                ]
+            },
+            {
+                "has_left_and_right": true,
+                "label": "leg-valgus-decr-incr",
+                "name": "leg-valgus-decr-incr",
+                "opposites": {
+                    "negative-left": "l-leg-valgus-decr",
+                    "negative-right": "r-leg-valgus-decr",
+                    "negative-unsided": "",
+                    "positive-left": "l-leg-valgus-incr",
+                    "positive-right": "r-leg-valgus-incr",
+                    "positive-unsided": ""
+                },
+                "targets": [
+                    "r-leg-valgus-incr",
+                    "r-leg-valgus-decr",
+                    "l-leg-valgus-decr",
+                    "l-leg-valgus-incr"
+                ]
+            },
+            {
+                "has_left_and_right": true,
+                "label": "lowerleg-scale-depth-decr-incr",
+                "name": "lowerleg-scale-depth-decr-incr",
+                "opposites": {
+                    "negative-left": "l-lowerleg-scale-depth-decr",
+                    "negative-right": "r-lowerleg-scale-depth-decr",
+                    "negative-unsided": "",
+                    "positive-left": "l-lowerleg-scale-depth-incr",
+                    "positive-right": "r-lowerleg-scale-depth-incr",
+                    "positive-unsided": ""
+                },
+                "targets": [
+                    "r-lowerleg-scale-depth-incr",
+                    "l-lowerleg-scale-depth-decr",
+                    "l-lowerleg-scale-depth-incr",
+                    "r-lowerleg-scale-depth-decr"
+                ]
+            },
+            {
+                "has_left_and_right": true,
+                "label": "lowerleg-scale-vert-decr-incr",
+                "name": "lowerleg-scale-vert-decr-incr",
+                "opposites": {
+                    "negative-left": "l-lowerleg-scale-vert-decr",
+                    "negative-right": "r-lowerleg-scale-vert-decr",
+                    "negative-unsided": "",
+                    "positive-left": "l-lowerleg-scale-vert-incr",
+                    "positive-right": "r-lowerleg-scale-vert-incr",
+                    "positive-unsided": ""
+                },
+                "targets": [
+                    "l-lowerleg-scale-vert-decr",
+                    "r-lowerleg-scale-vert-decr",
+                    "l-lowerleg-scale-vert-incr",
+                    "r-lowerleg-scale-vert-incr"
+                ]
+            },
+            {
+                "has_left_and_right": true,
+                "label": "upperleg-scale-depth-decr-incr",
+                "name": "upperleg-scale-depth-decr-incr",
+                "opposites": {
+                    "negative-left": "l-upperleg-scale-depth-decr",
+                    "negative-right": "r-upperleg-scale-depth-decr",
+                    "negative-unsided": "",
+                    "positive-left": "l-upperleg-scale-depth-incr",
+                    "positive-right": "r-upperleg-scale-depth-incr",
+                    "positive-unsided": ""
+                },
+                "targets": [
+                    "r-upperleg-scale-depth-decr",
+                    "l-upperleg-scale-depth-incr",
+                    "l-upperleg-scale-depth-decr",
+                    "r-upperleg-scale-depth-incr"
+                ]
+            },
+            {
+                "has_left_and_right": true,
+                "label": "upperleg-scale-horiz-decr-incr",
+                "name": "upperleg-scale-horiz-decr-incr",
+                "opposites": {
+                    "negative-left": "l-upperleg-scale-horiz-decr",
+                    "negative-right": "r-upperleg-scale-horiz-decr",
+                    "negative-unsided": "",
+                    "positive-left": "l-upperleg-scale-horiz-incr",
+                    "positive-right": "r-upperleg-scale-horiz-incr",
+                    "positive-unsided": ""
+                },
+                "targets": [
+                    "r-upperleg-scale-horiz-incr",
+                    "r-upperleg-scale-horiz-decr",
+                    "l-upperleg-scale-horiz-incr",
+                    "l-upperleg-scale-horiz-decr"
+                ]
+            },
+            {
+                "has_left_and_right": false,
+                "label": "upperlegs-height-decr-incr",
+                "name": "upperlegs-height-decr-incr",
+                "opposites": {
+                    "negative-left": "",
+                    "negative-right": "",
+                    "negative-unsided": "upperlegs-height-decr",
+                    "positive-left": "",
+                    "positive-right": "",
+                    "positive-unsided": "upperlegs-height-incr"
+                },
+                "targets": [
+                    "upperlegs-height-decr",
+                    "upperlegs-height-incr"
+                ]
+            },
+            {
+                "has_left_and_right": true,
+                "label": "lowerleg-fat-decr-incr",
+                "name": "lowerleg-fat-decr-incr",
+                "opposites": {
+                    "negative-left": "l-lowerleg-fat-decr",
+                    "negative-right": "r-lowerleg-fat-decr",
+                    "negative-unsided": "",
+                    "positive-left": "l-lowerleg-fat-incr",
+                    "positive-right": "r-lowerleg-fat-incr",
+                    "positive-unsided": ""
+                },
+                "targets": [
+                    "r-lowerleg-fat-incr",
+                    "l-lowerleg-fat-decr",
+                    "r-lowerleg-fat-decr",
+                    "l-lowerleg-fat-incr"
+                ]
+            },
+            {
+                "has_left_and_right": true,
+                "label": "lowerleg-scale-horiz-decr-incr",
+                "name": "lowerleg-scale-horiz-decr-incr",
+                "opposites": {
+                    "negative-left": "l-lowerleg-scale-horiz-decr",
+                    "negative-right": "r-lowerleg-scale-horiz-decr",
+                    "negative-unsided": "",
+                    "positive-left": "l-lowerleg-scale-horiz-incr",
+                    "positive-right": "r-lowerleg-scale-horiz-incr",
+                    "positive-unsided": ""
+                },
+                "targets": [
+                    "r-lowerleg-scale-horiz-incr",
+                    "r-lowerleg-scale-horiz-decr",
+                    "l-lowerleg-scale-horiz-decr",
+                    "l-lowerleg-scale-horiz-incr"
+                ]
+            },
+            {
+                "has_left_and_right": false,
+                "label": "lowerlegs-height-decr-incr",
+                "name": "lowerlegs-height-decr-incr",
+                "opposites": {
+                    "negative-left": "",
+                    "negative-right": "",
+                    "negative-unsided": "lowerlegs-height-decr",
+                    "positive-left": "",
+                    "positive-right": "",
+                    "positive-unsided": "lowerlegs-height-incr"
+                },
+                "targets": [
+                    "lowerlegs-height-incr",
+                    "lowerlegs-height-decr"
+                ]
+            },
+            {
+                "has_left_and_right": false,
+                "label": "measure-upperleg-height-decr-incr",
+                "name": "measure-upperleg-height-decr-incr",
+                "opposites": {
+                    "negative-left": "",
+                    "negative-right": "",
+                    "negative-unsided": "measure-upperleg-height-decr",
+                    "positive-left": "",
+                    "positive-right": "",
+                    "positive-unsided": "measure-upperleg-height-incr"
+                },
+                "targets": [
+                    "measure-upperleg-height-incr",
+                    "measure-upperleg-height-decr"
+                ]
+            },
+            {
+                "has_left_and_right": true,
+                "label": "upperleg-muscle-decr-incr",
+                "name": "upperleg-muscle-decr-incr",
+                "opposites": {
+                    "negative-left": "l-upperleg-muscle-decr",
+                    "negative-right": "r-upperleg-muscle-decr",
+                    "negative-unsided": "",
+                    "positive-left": "l-upperleg-muscle-incr",
+                    "positive-right": "r-upperleg-muscle-incr",
+                    "positive-unsided": ""
+                },
+                "targets": [
+                    "r-upperleg-muscle-decr",
+                    "l-upperleg-muscle-incr",
+                    "r-upperleg-muscle-incr",
+                    "l-upperleg-muscle-decr"
+                ]
+            },
+            {
+                "has_left_and_right": false,
+                "label": "measure-knee-circ-decr-incr",
+                "name": "measure-knee-circ-decr-incr",
+                "opposites": {
+                    "negative-left": "",
+                    "negative-right": "",
+                    "negative-unsided": "measure-knee-circ-decr",
+                    "positive-left": "",
+                    "positive-right": "",
+                    "positive-unsided": "measure-knee-circ-incr"
+                },
+                "targets": [
+                    "measure-knee-circ-decr",
+                    "measure-knee-circ-incr"
+                ]
+            },
+            {
+                "has_left_and_right": false,
+                "label": "measure-thigh-circ-decr-incr",
+                "name": "measure-thigh-circ-decr-incr",
+                "opposites": {
+                    "negative-left": "",
+                    "negative-right": "",
+                    "negative-unsided": "measure-thigh-circ-decr",
+                    "positive-left": "",
+                    "positive-right": "",
+                    "positive-unsided": "measure-thigh-circ-incr"
+                },
+                "targets": [
+                    "measure-thigh-circ-incr",
+                    "measure-thigh-circ-decr"
+                ]
+            },
+            {
+                "has_left_and_right": true,
+                "label": "upperleg-scale-vert-decr-incr",
+                "name": "upperleg-scale-vert-decr-incr",
+                "opposites": {
+                    "negative-left": "l-upperleg-scale-vert-decr",
+                    "negative-right": "r-upperleg-scale-vert-decr",
+                    "negative-unsided": "",
+                    "positive-left": "l-upperleg-scale-vert-incr",
+                    "positive-right": "r-upperleg-scale-vert-incr",
+                    "positive-unsided": ""
+                },
+                "targets": [
+                    "r-upperleg-scale-vert-incr",
+                    "l-upperleg-scale-vert-incr",
+                    "r-upperleg-scale-vert-decr",
+                    "l-upperleg-scale-vert-decr"
+                ]
+            }
+        ],
+        "include_per_default": true,
+        "label": "legs",
+        "unsorted": []
+    },
+    "measure": {
+        "categories": [],
+        "include_per_default": true,
+        "label": "measure",
         "unsorted": []
     },
     "mouth": {
@@ -2507,6 +2704,40 @@
     },
     "neck": {
         "categories": [
+            {
+                "has_left_and_right": false,
+                "label": "measure-neck-circ-decr-incr",
+                "name": "measure-neck-circ-decr-incr",
+                "opposites": {
+                    "negative-left": "",
+                    "negative-right": "",
+                    "negative-unsided": "measure-neck-circ-decr",
+                    "positive-left": "",
+                    "positive-right": "",
+                    "positive-unsided": "measure-neck-circ-incr"
+                },
+                "targets": [
+                    "measure-neck-circ-decr",
+                    "measure-neck-circ-incr"
+                ]
+            },
+            {
+                "has_left_and_right": false,
+                "label": "measure-neck-height-decr-incr",
+                "name": "measure-neck-height-decr-incr",
+                "opposites": {
+                    "negative-left": "",
+                    "negative-right": "",
+                    "negative-unsided": "measure-neck-height-decr",
+                    "positive-left": "",
+                    "positive-right": "",
+                    "positive-unsided": "measure-neck-height-incr"
+                },
+                "targets": [
+                    "measure-neck-height-incr",
+                    "measure-neck-height-decr"
+                ]
+            },
             {
                 "has_left_and_right": false,
                 "label": "neck-scale-depth-decr-incr",
@@ -3150,6 +3381,23 @@
             },
             {
                 "has_left_and_right": false,
+                "label": "measure-underbust-circ-decr-incr",
+                "name": "measure-underbust-circ-decr-incr",
+                "opposites": {
+                    "negative-left": "",
+                    "negative-right": "",
+                    "negative-unsided": "measure-underbust-circ-decr",
+                    "positive-left": "",
+                    "positive-right": "",
+                    "positive-unsided": "measure-underbust-circ-incr"
+                },
+                "targets": [
+                    "measure-underbust-circ-incr",
+                    "measure-underbust-circ-decr"
+                ]
+            },
+            {
+                "has_left_and_right": false,
                 "label": "torso-scale-horiz-decr-incr",
                 "name": "torso-scale-horiz-decr-incr",
                 "opposites": {
@@ -3180,6 +3428,74 @@
                 "targets": [
                     "torso-scale-depth-incr",
                     "torso-scale-depth-decr"
+                ]
+            },
+            {
+                "has_left_and_right": false,
+                "label": "measure-napetowaist-dist-decr-incr",
+                "name": "measure-napetowaist-dist-decr-incr",
+                "opposites": {
+                    "negative-left": "",
+                    "negative-right": "",
+                    "negative-unsided": "measure-napetowaist-dist-decr",
+                    "positive-left": "",
+                    "positive-right": "",
+                    "positive-unsided": "measure-napetowaist-dist-incr"
+                },
+                "targets": [
+                    "measure-napetowaist-dist-incr",
+                    "measure-napetowaist-dist-decr"
+                ]
+            },
+            {
+                "has_left_and_right": false,
+                "label": "measure-waisttohip-dist-decr-incr",
+                "name": "measure-waisttohip-dist-decr-incr",
+                "opposites": {
+                    "negative-left": "",
+                    "negative-right": "",
+                    "negative-unsided": "measure-waisttohip-dist-decr",
+                    "positive-left": "",
+                    "positive-right": "",
+                    "positive-unsided": "measure-waisttohip-dist-incr"
+                },
+                "targets": [
+                    "measure-waisttohip-dist-decr",
+                    "measure-waisttohip-dist-incr"
+                ]
+            },
+            {
+                "has_left_and_right": false,
+                "label": "measure-shoulder-dist-decr-incr",
+                "name": "measure-shoulder-dist-decr-incr",
+                "opposites": {
+                    "negative-left": "",
+                    "negative-right": "",
+                    "negative-unsided": "measure-shoulder-dist-decr",
+                    "positive-left": "",
+                    "positive-right": "",
+                    "positive-unsided": "measure-shoulder-dist-incr"
+                },
+                "targets": [
+                    "measure-shoulder-dist-incr",
+                    "measure-shoulder-dist-decr"
+                ]
+            },
+            {
+                "has_left_and_right": false,
+                "label": "measure-hips-circ-decr-incr",
+                "name": "measure-hips-circ-decr-incr",
+                "opposites": {
+                    "negative-left": "",
+                    "negative-right": "",
+                    "negative-unsided": "measure-hips-circ-decr",
+                    "positive-left": "",
+                    "positive-right": "",
+                    "positive-unsided": "measure-hips-circ-incr"
+                },
+                "targets": [
+                    "measure-hips-circ-incr",
+                    "measure-hips-circ-decr"
                 ]
             },
             {
@@ -3235,6 +3551,40 @@
             },
             {
                 "has_left_and_right": false,
+                "label": "measure-waist-circ-decr-incr",
+                "name": "measure-waist-circ-decr-incr",
+                "opposites": {
+                    "negative-left": "",
+                    "negative-right": "",
+                    "negative-unsided": "measure-waist-circ-decr",
+                    "positive-left": "",
+                    "positive-right": "",
+                    "positive-unsided": "measure-waist-circ-incr"
+                },
+                "targets": [
+                    "measure-waist-circ-incr",
+                    "measure-waist-circ-decr"
+                ]
+            },
+            {
+                "has_left_and_right": false,
+                "label": "measure-frontchest-dist-decr-incr",
+                "name": "measure-frontchest-dist-decr-incr",
+                "opposites": {
+                    "negative-left": "",
+                    "negative-right": "",
+                    "negative-unsided": "measure-frontchest-dist-decr",
+                    "positive-left": "",
+                    "positive-right": "",
+                    "positive-unsided": "measure-frontchest-dist-incr"
+                },
+                "targets": [
+                    "measure-frontchest-dist-decr",
+                    "measure-frontchest-dist-incr"
+                ]
+            },
+            {
+                "has_left_and_right": false,
                 "label": "torso-scale-vert-decr-incr",
                 "name": "torso-scale-vert-decr-incr",
                 "opposites": {
@@ -3248,6 +3598,23 @@
                 "targets": [
                     "torso-scale-vert-decr",
                     "torso-scale-vert-incr"
+                ]
+            },
+            {
+                "has_left_and_right": false,
+                "label": "measure-bust-circ-decr-incr",
+                "name": "measure-bust-circ-decr-incr",
+                "opposites": {
+                    "negative-left": "",
+                    "negative-right": "",
+                    "negative-unsided": "measure-bust-circ-decr",
+                    "positive-left": "",
+                    "positive-right": "",
+                    "positive-unsided": "measure-bust-circ-incr"
+                },
+                "targets": [
+                    "measure-bust-circ-decr",
+                    "measure-bust-circ-incr"
                 ]
             },
             {
