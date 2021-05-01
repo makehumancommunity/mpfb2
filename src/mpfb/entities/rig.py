@@ -2,6 +2,7 @@
 
 from mpfb.services.logservice import LogService
 from mpfb.services.rigservice import RigService
+from mpfb.entities.objectproperties import GeneralObjectProperties
 import bpy, math, json, random
 
 _LOG = LogService.get_logger("entities.rig")
@@ -59,6 +60,11 @@ class Rig:
 
         bpy.ops.object.armature_add(location=self.basemesh.location)
         self.armature_object = bpy.context.object
+
+        scale_factor = GeneralObjectProperties.get_value("scale_factor", entity_reference=self.basemesh)
+        GeneralObjectProperties.set_value("scale_factor", scale_factor, entity_reference=self.armature_object)
+        GeneralObjectProperties.set_value("object_type", "Skeleton", entity_reference=self.armature_object)
+
         self.armature_object.show_in_front = True
         self.armature_object.data.display_type = 'WIRE'
 
