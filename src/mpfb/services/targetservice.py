@@ -535,8 +535,11 @@ class TargetService:
                                     weight = weight * cup_component[1]
                                     weight = weight * firmness_component[1]
                                     if weight > 0.0001:
-                                        _LOG.debug("Appending gender-age-muscle-weight-cupsize-firmness target", [complete_name, weight])
-                                        targets.append([complete_name, weight])
+                                        if "averagecup-averagefirmness" in complete_name:
+                                            _LOG.debug("Excluding forbidden breast modifier combination", complete_name)
+                                        else:
+                                            _LOG.debug("Appending gender-age-muscle-weight-cupsize-firmness target", [complete_name, weight])
+                                            targets.append([complete_name, weight])
                                     else:
                                         _LOG.debug("Not appending gender-age-muscle-weight-cupsize-firmness target", [complete_name, weight])
 

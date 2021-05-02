@@ -134,12 +134,12 @@
 					"lowest": -0.01,
 					"highest": 0.49,
 					"low": "minfirmness",
-					"high": ""
+					"high": "averagefirmness"
 				},
 				{
 					"lowest": 0.51,
 					"highest": 1.01,
-					"low": "",
+					"low": "averagefirmness",
 					"high": "maxfirmness"
 				}
 			]
