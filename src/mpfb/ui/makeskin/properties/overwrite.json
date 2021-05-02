@@ -3,5 +3,5 @@
     "name": "overwrite",
     "description": "Overwrite existing material without asking",
     "label": "Overwrite",
-    "default": false
+    "default": true
 }

@@ -3,7 +3,9 @@
 import bpy
 from bpy_extras.io_utils import ImportHelper
 from bpy.props import StringProperty
+from mpfb.entities.material.makeskinmaterial import MakeSkinMaterial
 from mpfb.services.logservice import LogService
+from mpfb.services.materialservice import MaterialService
 from mpfb import ClassManager
 
 _LOG = LogService.get_logger("makeskin.importmaterial")
@@ -28,25 +30,24 @@ class MPFB_OT_ImportMaterialOperator(bpy.types.Operator, ImportHelper):
         obj = context.active_object
         scn = context.scene
 
-#===============================================================================
-#         if hasMaterial(obj):
-#             if not scn.MhMsOverwrite:
-#                 self.report({'ERROR'}, "A material for this object already exists, change 'replace' option in common settings to overwrite material")
-#                 return {'FINISHED'}
-#             else:
-#                 while len(obj.data.materials) > 0:
-#                     obj.data.materials.pop(index=0)
-#
-#         mhmat = MHMat(fileName=self.filepath)
-#         mhmat.assignAsNodesMaterialForObj(scn, obj, True)
-#
-#         ##- Load Blend -##
-#         path = mhmat.settings["blendMaterial"]
-#         if path:
-#             blendMatLoad(path)
-#
-#         self.report({'INFO'}, "Material imported")
-#===============================================================================
+        from mpfb.ui.makeskin.makeskinpanel import MAKESKIN_PROPERTIES
+
+        if MaterialService.has_materials(obj):
+            if not MAKESKIN_PROPERTIES.get_value("overwrite", entity_reference=scn):
+                self.report({'ERROR'}, "A material for this object already exists, change 'replace' option in common settings to overwrite material")
+                return {'FINISHED'}
+            else:
+                while len(obj.data.materials) > 0:
+                    obj.data.materials.pop(index=0)
+
+        material = MaterialService.create_empty_material("makeskinmaterial", obj)
+
+        mhmat = MakeSkinMaterial()
+        mhmat.populate_from_mhmat(self.filepath)
+        mhmat.apply_node_tree(material)
+
+
+        self.report({'INFO'}, "Material imported")
         return {'FINISHED'}
 
 ClassManager.add_class(MPFB_OT_ImportMaterialOperator)
