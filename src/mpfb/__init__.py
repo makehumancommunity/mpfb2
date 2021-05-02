@@ -39,7 +39,10 @@ def register():
 
     # Preferences will be needed before starting the rest of the addon
     from ._preferences import MpfbPreferences
-    register_class(MpfbPreferences)
+    try:        
+        register_class(MpfbPreferences)
+    except:
+        print("WARNING: Could not register preferences class. Maybe it was registered by an earlier version of MPFB?")
 
     global _LOG # pylint: disable=W0603
 
