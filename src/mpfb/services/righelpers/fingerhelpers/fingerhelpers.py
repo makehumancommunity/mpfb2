@@ -171,7 +171,7 @@ class FingerHelpers():
         bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
 
         bpy.ops.object.mode_set(mode='POSE', toggle=False)
-        RigService.display_pose_bone_as_empty(armature_object, bone_name, type="SPHERE")
+        RigService.display_pose_bone_as_empty(armature_object, bone_name, empty_type="SPHERE")
         pose_bone = RigService.find_pose_bone_by_name(bone_name, armature_object)
 
         scales = [0.5, 0.5, 0.5, 0.5, 0.7]

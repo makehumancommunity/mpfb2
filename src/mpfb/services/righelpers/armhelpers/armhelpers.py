@@ -174,7 +174,7 @@ class ArmHelpers():
         bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
         bpy.ops.object.mode_set(mode='POSE', toggle=False)
 
-        RigService.display_pose_bone_as_empty(armature_object, self.which_arm + "_hand_ik", type="CIRCLE")
+        RigService.display_pose_bone_as_empty(armature_object, self.which_arm + "_hand_ik", empty_type="CIRCLE")
 
         if self.settings["arm_target_rotates_hand"]:
 
@@ -212,7 +212,7 @@ class ArmHelpers():
         bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
         bpy.ops.object.mode_set(mode='POSE', toggle=False)
 
-        RigService.display_pose_bone_as_empty(armature_object, self.which_arm + "_elbow_ik", type="SPHERE")
+        RigService.display_pose_bone_as_empty(armature_object, self.which_arm + "_elbow_ik", empty_type="SPHERE")
 
         pose_bone = RigService.find_pose_bone_by_name(self.which_arm + "_elbow_ik", armature_object)
         for i in range(3):
@@ -234,7 +234,7 @@ class ArmHelpers():
         bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
         bpy.ops.object.mode_set(mode='POSE', toggle=False)
 
-        RigService.display_pose_bone_as_empty(armature_object, self.which_arm + "_shoulder_ik", type="SPHERE")
+        RigService.display_pose_bone_as_empty(armature_object, self.which_arm + "_shoulder_ik", empty_type="SPHERE")
 
         pose_bone = RigService.find_pose_bone_by_name(self.which_arm + "_shoulder_ik", armature_object)
         for i in range(3):

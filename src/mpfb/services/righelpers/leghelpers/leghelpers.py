@@ -154,7 +154,7 @@ class LegHelpers():
         bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
 
         bpy.ops.object.mode_set(mode='POSE', toggle=False)
-        RigService.display_pose_bone_as_empty(armature_object, self.which_leg + "_foot_ik", type="CIRCLE")
+        RigService.display_pose_bone_as_empty(armature_object, self.which_leg + "_foot_ik", empty_type="CIRCLE")
         pose_bone = RigService.find_pose_bone_by_name(self.which_leg + "_foot_ik", armature_object)
         pose_bone.custom_shape_scale = 0.5
 
@@ -192,7 +192,7 @@ class LegHelpers():
 
         bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
         bpy.ops.object.mode_set(mode='POSE', toggle=False)
-        RigService.display_pose_bone_as_empty(armature_object, self.which_leg + "_knee_ik", type="SPHERE")
+        RigService.display_pose_bone_as_empty(armature_object, self.which_leg + "_knee_ik", empty_type="SPHERE")
 
         pose_bone = RigService.find_pose_bone_by_name(self.which_leg + "_knee_ik", armature_object)
         for i in range(3):
@@ -214,7 +214,7 @@ class LegHelpers():
 
         bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
         bpy.ops.object.mode_set(mode='POSE', toggle=False)
-        RigService.display_pose_bone_as_empty(armature_object, self.which_leg + "_hip_ik", type="SPHERE")
+        RigService.display_pose_bone_as_empty(armature_object, self.which_leg + "_hip_ik", empty_type="SPHERE")
 
         pose_bone = RigService.find_pose_bone_by_name(self.which_leg + "_hip_ik", armature_object)
         for i in range(3):
