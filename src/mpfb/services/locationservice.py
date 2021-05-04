@@ -1,9 +1,7 @@
-
 import os, bpy
-
+from mpfb import get_preference
 from .logservice import LogService
 _LOG = LogService.get_logger("services.locationservice")
-
 
 class _LocationService():
 
@@ -12,6 +10,15 @@ class _LocationService():
         self._bpy_home = os.path.abspath(bpy.utils.resource_path('USER'))
 
         self._user_home = os.path.join(self._bpy_home, "mpfb")
+        overriden_user_home = None
+        try:
+            overriden_user_home = get_preference("mpfb_user_data")
+        except:
+            _LOG.warn("Could not read preference mpfb_user_data")
+        _LOG.debug("overriden_user_home", overriden_user_home)
+        if overriden_user_home:
+            self._user_home = overriden_user_home
+
         self._user_data = os.path.join(self._user_home, "data")
         self._user_config = os.path.join(self._user_home, "config")
 
@@ -79,6 +86,12 @@ class _LocationService():
     def get_log_dir(self, sub_path=None):
         _LOG.enter()
         return self._return_path(self._log_dir, sub_path)
+
+    def is_mh_user_dir_enabled(self):
+        return False
+
+    def is_mh_user_dir_autoscan_enabled(self):
+        return False
 
 
 LocationService = _LocationService() # pylint: disable=C0103
