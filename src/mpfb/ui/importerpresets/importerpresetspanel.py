@@ -1,10 +1,10 @@
-
 import os, bpy
 from mpfb._classmanager import ClassManager
 from mpfb.services.logservice import LogService
 from mpfb.services.locationservice import LocationService
 from mpfb.services.sceneconfigset import SceneConfigSet
 from mpfb.services.uiservice import UiService
+from mpfb.ui.abstractpanel import Abstract_Panel
 
 _LOG = LogService.get_logger("ui.importerpresets")
 
@@ -32,13 +32,11 @@ _PRESETS_LIST_PROP = {
 IMPORTER_PRESETS_PROPERTIES.add_property(_PRESETS_LIST_PROP, _populate_presets)
 
 
-
-class MPFB_PT_Importer_Presets_Panel(bpy.types.Panel):
-    bl_label = "Importer Presets"
-    bl_space_type = "VIEW_3D"
-    bl_region_type = "UI"
+class MPFB_PT_Importer_Presets_Panel(Abstract_Panel):
+    bl_label = "Importer Presets"    
     bl_category = UiService.get_value("IMPORTERCATEGORY")
     bl_options = {'DEFAULT_CLOSED'}
+    bl_parent_id = "MPFB_PT_New_Panel"
 
     def _create_box(self, layout, box_text, box_icon=None):
         _LOG.enter()

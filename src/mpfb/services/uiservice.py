@@ -16,7 +16,7 @@ class _UiService():
         self.set_value("PROPERTYPREFIX", "MPFB_")
         ui_prefix = "MPFB v%d.%d" % (VERSION[0], VERSION[1])
 
-        multi = get_preference("multi_panel")
+        multi = False #get_preference("multi_panel")
         _LOG.debug("multi_panel", multi)
 
         self.set_value("UIPREFIX", ui_prefix)

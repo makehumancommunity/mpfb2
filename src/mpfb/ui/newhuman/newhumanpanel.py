@@ -13,13 +13,14 @@ NEW_HUMAN_PROPERTIES_DIR = os.path.join(_LOC, "properties")
 NEW_HUMAN_PROPERTIES = SceneConfigSet.from_definitions_in_json_directory(NEW_HUMAN_PROPERTIES_DIR, prefix="NH_")
 
 class MPFB_PT_NewHuman_Panel(bpy.types.Panel):
-    """New human main panel."""
+    """Create human from scratch main panel."""
 
-    bl_label = "New human"
+    bl_label = "From scratch"
     bl_space_type = "VIEW_3D"
     bl_region_type = "UI"
     bl_category = UiService.get_value("MODELCATEGORY")
-    #bl_options = {'DEFAULT_CLOSED'}
+    bl_options = {'DEFAULT_CLOSED'}
+    bl_parent_id = "MPFB_PT_New_Panel"
 
     def _create_box(self, layout, box_text):
         _LOG.enter()

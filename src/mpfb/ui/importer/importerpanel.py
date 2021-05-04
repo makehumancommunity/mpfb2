@@ -1,9 +1,9 @@
-
 import os, bpy
 from mpfb._classmanager import ClassManager
 from mpfb.services.logservice import LogService
 from mpfb.services.sceneconfigset import SceneConfigSet
 from mpfb.services.uiservice import UiService
+from mpfb.ui.abstractpanel import Abstract_Panel
 
 _LOG = LogService.get_logger("importer.importerpanel")
 
@@ -66,11 +66,11 @@ IMPORTER_PROPERTIES.add_property(_EYE_SETTINGS_LIST_PROP, _populate_skin_setting
 
 UiService.set_value("importer_properties", IMPORTER_PROPERTIES)
 
-class MPFB_PT_Importer_Panel(bpy.types.Panel):
-    bl_label = "Import from MakeHuman"
-    bl_space_type = "VIEW_3D"
-    bl_region_type = "UI"
+class MPFB_PT_Importer_Panel(Abstract_Panel):
+    bl_label = "From MakeHuman"    
     bl_category = UiService.get_value("IMPORTERCATEGORY")
+    bl_options = {'DEFAULT_CLOSED'}
+    bl_parent_id = "MPFB_PT_New_Panel"
 
     def draw(self, context):
         _LOG.enter()

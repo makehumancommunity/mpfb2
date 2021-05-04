@@ -5,6 +5,7 @@ from mpfb.services.logservice import LogService
 from mpfb.services.sceneconfigset import SceneConfigSet
 from mpfb.services.uiservice import UiService
 from mpfb.ui.righelpers import RigHelpersProperties
+from mpfb.ui.abstractpanel import Abstract_Panel
 
 _LOG = LogService.get_logger("righelpers.righelperspanel")
 
@@ -12,18 +13,11 @@ _LOC = os.path.dirname(__file__)
 SETUP_HELPERS_PROPERTIES_DIR = os.path.join(_LOC, "properties")
 SETUP_HELPERS_PROPERTIES = SceneConfigSet.from_definitions_in_json_directory(SETUP_HELPERS_PROPERTIES_DIR, prefix="SIK_")
 
-class MPFB_PT_RigHelpersPanel(bpy.types.Panel):
+class MPFB_PT_RigHelpersPanel(Abstract_Panel):
     bl_label = "Rig helpers"
-    bl_space_type = "VIEW_3D"
-    bl_region_type = "UI"
     bl_category = UiService.get_value("RIGCATEGORY")
     bl_options = {'DEFAULT_CLOSED'}
-
-    def _create_box(self, layout, box_text, box_icon=None):
-        _LOG.enter()
-        box = layout.box()
-        box.label(text=box_text, icon=box_icon)
-        return box
+    bl_parent_id = "MPFB_PT_Rig_Panel"
 
     def _arm_helpers(self, scene, layout):
         box = self._create_box(layout, "Arm helpers", "BONE_DATA")

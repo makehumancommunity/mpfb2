@@ -1,32 +1,38 @@
-
 from mpfb.services.logservice import LogService
 _LOG = LogService.get_logger("ui.init")
 _LOG.trace("initializing ui module")
 
-# Model
-from mpfb.ui.newhuman import *
+# Top level panels
+from mpfb.ui.newpanel import *
 from mpfb.ui.model import *
-from mpfb.ui.addrig import *
+from mpfb.ui.assetspanel import *
+from mpfb.ui.materialspanel import *
+from mpfb.ui.rigpanel import *
+from mpfb.ui.createpanel import *
 
-# Imports
+# New human panels
+from mpfb.ui.newhuman import *
 from mpfb.ui.importer import *
 from mpfb.ui.importerpresets import *
 
-# Rigging
+# Create assets panels
+from mpfb.ui.makeskin import *
+from mpfb.ui.maketarget import *
+from mpfb.ui.makeclothes import *
+
+# Rig panels
+from mpfb.ui.addrig import *
 from mpfb.ui.rigify import *
 from mpfb.ui.righelpers import *
 
 # Materials
 from mpfb.ui.enhancedsettings import *
 from mpfb.ui.eyesettings import *
-from mpfb.ui.makeskin import *
 
 # Clothes
 from mpfb.ui.loadclothes import *
-from mpfb.ui.makeclothes import *
 
 # Targets
-from mpfb.ui.maketarget import *
 
 # Old
 #from .clothespanel import MPFB_PT_Clothes_Panel
@@ -37,6 +43,8 @@ from mpfb.ui.maketarget import *
 from mpfb.ui.developer import *
 
 __all__ = [
+    "MPFB_PT_New_Panel",
+    "MPFB_PT_Create_Panel",
     "MPFB_PT_Add_Rig_Panel",
     "MPFB_PT_Importer_Panel",
     "MPFB_PT_Importer_Presets_Panel",

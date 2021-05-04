@@ -5,25 +5,18 @@ from mpfb import ClassManager
 from mpfb.services.logservice import LogService
 from mpfb.services.uiservice import UiService
 from mpfb.entities.objectproperties import GeneralObjectProperties
-
+from mpfb.ui.abstractpanel import Abstract_Panel
 from mpfb.ui.maketarget import MakeTargetObjectProperties
 
 _LOG = LogService.get_logger("maketarget.maketargetpanel")
 
-class MPFB_PT_MakeTarget_Panel(bpy.types.Panel):
+class MPFB_PT_MakeTarget_Panel(Abstract_Panel):
     """MakeTarget main panel."""
 
     bl_label = "MakeTarget"
-    bl_space_type = "VIEW_3D"
-    bl_region_type = "UI"
     bl_category = UiService.get_value("TARGETSCATEGORY")
     bl_options = {'DEFAULT_CLOSED'}
-
-    def _create_box(self, layout, box_text, box_icon=None):
-        _LOG.enter()
-        box = layout.box()
-        box.label(text=box_text, icon=box_icon)
-        return box
+    bl_parent_id = "MPFB_PT_Create_Panel"
 
     def _initialize_target(self, blender_object, layout):
         box = self._create_box(layout, "Initialize", "TOOL_SETTINGS")

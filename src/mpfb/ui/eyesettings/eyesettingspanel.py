@@ -6,6 +6,7 @@ from mpfb.services.logservice import LogService
 from mpfb.services.locationservice import LocationService
 from mpfb.services.sceneconfigset import SceneConfigSet
 from mpfb.services.uiservice import UiService
+from mpfb.ui.abstractpanel import Abstract_Panel
 
 _LOG = LogService.get_logger("ui.eyesettings")
 
@@ -31,20 +32,13 @@ _SETTINGS_LIST_PROP = {
 }
 EYE_SETTINGS_PROPERTIES.add_property(_SETTINGS_LIST_PROP, _populate_settings)
 
-class MPFB_PT_Eye_Settings_Panel(bpy.types.Panel):
+class MPFB_PT_Eye_Settings_Panel(Abstract_Panel):
     """Panel for saving/loading eye material settings."""
 
     bl_label = "Eye material settings"
-    bl_space_type = "VIEW_3D"
-    bl_region_type = "UI"
     bl_category = UiService.get_value("MATERIALSCATEGORY")
     bl_options = {'DEFAULT_CLOSED'}
-
-    def _create_box(self, layout, box_text, box_icon=None):
-        _LOG.enter()
-        box = layout.box()
-        box.label(text=box_text, icon=box_icon)
-        return box
+    bl_parent_id = "MPFB_PT_Materials_Panel"
 
     def _load_save_box(self, scene, layout):
         _LOG.enter()

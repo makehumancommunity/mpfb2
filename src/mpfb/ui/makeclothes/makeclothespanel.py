@@ -6,6 +6,7 @@ from mpfb.services.logservice import LogService
 from mpfb.services.sceneconfigset import SceneConfigSet
 from mpfb.services.uiservice import UiService
 from mpfb.ui.makeclothes import MakeClothesObjectProperties
+from mpfb.ui.abstractpanel import Abstract_Panel
 
 _LOC = os.path.dirname(__file__)
 MAKECLOTHES_PROPERTIES_DIR = os.path.join(_LOC, "properties")
@@ -13,20 +14,13 @@ MAKECLOTHES_PROPERTIES = SceneConfigSet.from_definitions_in_json_directory(MAKEC
 
 _LOG = LogService.get_logger("makeclothes.makeclothespanel")
 
-class MPFB_PT_MakeClothes_Panel(bpy.types.Panel):
+class MPFB_PT_MakeClothes_Panel(Abstract_Panel):
     """MakeClothes main panel."""
 
     bl_label = "MakeClothes"
-    bl_space_type = "VIEW_3D"
-    bl_region_type = "UI"
     bl_category = UiService.get_value("CLOTHESCATEGORY")
     bl_options = {'DEFAULT_CLOSED'}
-
-    def _create_box(self, layout, box_text, box_icon=None):
-        _LOG.enter()
-        box = layout.box()
-        box.label(text=box_text, icon=box_icon)
-        return box
+    bl_parent_id = "MPFB_PT_Create_Panel"
 
     def _setup_clothes(self, scene, layout):
         box = self._create_box(layout, "Set up clothes", "TOOL_SETTINGS")

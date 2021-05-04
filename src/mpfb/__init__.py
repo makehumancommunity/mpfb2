@@ -47,7 +47,7 @@ def get_preference(name):
             _LOG.error("There were addon preferences, but key did not exist:", name)
             _LOG.error("preferences", dir(prefs))
             _LOG.error("hasattr", hasattr(prefs, name))
-            _LOG.error("name in", name in prefs) 
+            _LOG.error("name in", name in prefs)
             return None
         _LOG.crash("The 'mpfb' addon does not have any preferences")
         raise ValueError("Preferences have not been initialized properly")
@@ -60,7 +60,7 @@ def register():
 
     # Preferences will be needed before starting the rest of the addon
     from ._preferences import MpfbPreferences
-    try:        
+    try:
         register_class(MpfbPreferences)
     except:
         print("WARNING: Could not register preferences class. Maybe it was registered by an earlier version of MPFB?")

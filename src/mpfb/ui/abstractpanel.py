@@ -20,3 +20,6 @@ class Abstract_Panel(bpy.types.Panel):
         box = layout.box()
         box.label(text=box_text)
         return box
+
+    def _create_box(self, layout, box_text, icon=None):
+        return self.create_box(layout, box_text, icon)

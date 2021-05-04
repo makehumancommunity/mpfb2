@@ -7,11 +7,13 @@ class MpfbPreferences(bpy.types.AddonPreferences):
 
     bl_idname = __package__
 
-    multi_panel: bpy.props.BoolProperty(
-        name="UI layout with multiple panels",
-        description="Use a layout with multiple panels, such as one for targets, one for materials and so on, rather than everything in a single panel.",
-        default=False
-    )
+    #===========================================================================
+    # multi_panel: bpy.props.BoolProperty(
+    #     name="UI layout with multiple panels",
+    #     description="Use a layout with multiple panels, such as one for targets, one for materials and so on, rather than everything in a single panel.",
+    #     default=False
+    # )
+    #===========================================================================
 
     mpfb_user_data: bpy.props.StringProperty(
         name="Path to MPFB user data",
@@ -35,7 +37,7 @@ class MpfbPreferences(bpy.types.AddonPreferences):
         layout = self.layout
         layout.label(text='You need to restart blender before changes below come into effect.')
         layout.label(text='Remember to save preferences before restarting.')
-        layout.prop(self, 'multi_panel')
+#        layout.prop(self, 'multi_panel')
         layout.prop(self, 'mpfb_user_data')
         layout.prop(self, 'mh_user_data')
         layout.prop(self, 'mh_auto_user_data')

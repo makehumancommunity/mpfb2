@@ -4,6 +4,7 @@ from mpfb._classmanager import ClassManager
 from mpfb.services.logservice import LogService
 from mpfb.services.uiservice import UiService
 from mpfb.services.sceneconfigset import SceneConfigSet
+from mpfb.ui.abstractpanel import Abstract_Panel
 import bpy, os
 
 _LOG = LogService.get_logger("ui.rigifypanel")
@@ -12,14 +13,13 @@ _LOC = os.path.dirname(__file__)
 RIGIFY_PROPERTIES_DIR = os.path.join(_LOC, "properties")
 RIGIFY_PROPERTIES = SceneConfigSet.from_definitions_in_json_directory(RIGIFY_PROPERTIES_DIR, prefix="RF_")
 
-class MPFB_PT_Rigify_Panel(bpy.types.Panel):
+class MPFB_PT_Rigify_Panel(Abstract_Panel):
     """The rigfy functionality panel."""
 
     bl_label = "Convert to rigify"
-    bl_space_type = "VIEW_3D"
-    bl_region_type = "UI"
     bl_category = UiService.get_value("RIGCATEGORY")
     bl_options = {'DEFAULT_CLOSED'}
+    bl_parent_id = "MPFB_PT_Rig_Panel"
 
     def draw(self, context):
         _LOG.enter()

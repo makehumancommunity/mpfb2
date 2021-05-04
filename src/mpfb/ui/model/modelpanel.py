@@ -43,6 +43,10 @@ class MPFB_PT_Model_Panel(bpy.types.Panel):
         scene = context.scene
 
         self._refit(scene, layout)
+        
+    @classmethod
+    def poll(cls, context):
+        return ObjectService.object_is_basemesh(context.active_object)
 
 ClassManager.add_class(MPFB_PT_Model_Panel)
 

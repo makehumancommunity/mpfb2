@@ -18,6 +18,7 @@ class MPFB_PT_Add_Rig_Panel(Abstract_Panel):
 
     bl_label = "Add rig"
     bl_category = UiService.get_value("MODELCATEGORY")
+    bl_parent_id = "MPFB_PT_Rig_Panel"
 
     def _standard_rig(self, scene, layout):
         box = self.create_box(layout, "Add standard rig")
