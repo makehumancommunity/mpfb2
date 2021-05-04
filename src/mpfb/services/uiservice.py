@@ -3,7 +3,7 @@ import os, bpy
 from fnmatch import fnmatch
 from .logservice import LogService
 from .locationservice import LocationService
-from mpfb import VERSION
+from mpfb import VERSION, get_preference
 
 _LOG = LogService.get_logger("services.uiservice")
 
@@ -16,7 +16,7 @@ class _UiService():
         self.set_value("PROPERTYPREFIX", "MPFB_")
         ui_prefix = "MPFB v%d.%d" % (VERSION[0], VERSION[1])
 
-        multi = self.get_preference("multi_panel")
+        multi = get_preference("multi_panel")
         _LOG.debug("multi_panel", multi)
 
         self.set_value("UIPREFIX", ui_prefix)
@@ -32,23 +32,6 @@ class _UiService():
         else:
             for category in ["MODELCATEGORY", "IMPORTERCATEGORY", "CLOTHESCATEGORY", "TARGETSCATEGORY", "MATERIALSCATEGORY", "RIGCATEGORY", "DEVELOPERCATEGORY"]:
                 self.set_value(category, ui_prefix)
-
-    def get_preference(self, name):
-        _LOG.enter()
-        if "mpfb" in bpy.context.preferences.addons:
-            mpfb = bpy.context.preferences.addons['mpfb']
-            if hasattr(mpfb, "preferences"):
-                prefs = mpfb.preferences
-                if hasattr(prefs, name) and name in prefs:
-                    value = prefs[name]
-                    _LOG.debug("Found addon preference", (name, value))
-                    return value
-                _LOG.error("There were addon preferences, but key did not exist:", name)
-                return None
-            _LOG.crash("The 'mpfb' addon does not have any preferences")
-            raise ValueError("Preferences have not been initialized properly")
-        _LOG.crash("The 'mpfb' addon does not exist!?")
-        raise ValueError("I don't seem to exist")
 
     def get_value(self, name):
         _LOG.enter()

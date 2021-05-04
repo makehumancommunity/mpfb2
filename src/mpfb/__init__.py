@@ -31,7 +31,28 @@ _LOG = None
 # pylint: disable=W0611
 
 from ._classmanager import ClassManager
+import bpy
 from bpy.utils import register_class
+
+def get_preference(name):
+    _LOG.enter()
+    if "mpfb" in bpy.context.preferences.addons:
+        mpfb = bpy.context.preferences.addons['mpfb']
+        if hasattr(mpfb, "preferences"):
+            prefs = mpfb.preferences
+            if hasattr(prefs, name):
+                value = getattr(prefs, name)
+                _LOG.debug("Found addon preference", (name, value))
+                return value
+            _LOG.error("There were addon preferences, but key did not exist:", name)
+            _LOG.error("preferences", dir(prefs))
+            _LOG.error("hasattr", hasattr(prefs, name))
+            _LOG.error("name in", name in prefs) 
+            return None
+        _LOG.crash("The 'mpfb' addon does not have any preferences")
+        raise ValueError("Preferences have not been initialized properly")
+    _LOG.crash("The 'mpfb' addon does not exist!?")
+    raise ValueError("I don't seem to exist")
 
 def register():
     """At this point blender is ready enough for it to make sense to
