@@ -1,3 +1,4 @@
+
 """This file handles addon preferences."""
 
 import bpy

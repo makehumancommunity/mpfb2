@@ -31,7 +31,7 @@ _LOG = None
 # pylint: disable=W0611
 
 from ._classmanager import ClassManager
-import bpy
+import bpy, os
 from bpy.utils import register_class
 
 def get_preference(name):
@@ -98,26 +98,30 @@ def register():
 
     _LOG.debug("About to check if MakeHuman is online")
 
-    # Try to fetch some basic information (doesn't really matter which) from
-    # makehuman to see if it responds at all.
-
+    # Try to find out where the makehuman user data is at
+    from mpfb.services.locationservice import LocationService
     from mpfb.services.socketservice import SocketService
-
-    mh_user_dir = None
-    try:
-        mh_user_dir = SocketService.get_user_dir()
-        _LOG.info("MakeHuman user dir is", mh_user_dir)
-    except ConnectionRefusedError as err:
-        _LOG.error("Could not read mh_user_dir. Maybe socket server is down? Error was:", err)
+    if LocationService.is_mh_auto_user_data_enabled():
         mh_user_dir = None
+        try:
+            mh_user_dir = SocketService.get_user_dir()
+            _LOG.info("Socket service says makeHuman user dir is at", mh_user_dir)
+            if mh_user_dir and os.path.exists(mh_user_dir):
+                mh_user_data = os.path.join(mh_user_dir, "data")
+                LocationService.update_mh_user_data_if_relevant(mh_user_data)
+        except ConnectionRefusedError as err:
+            _LOG.error("Could not read mh_user_dir. Maybe socket server is down? Error was:", err)
+            mh_user_dir = None
 
-    mh_sys_dir = None
-    try:
-        mh_sys_dir = SocketService.get_sys_dir()
-        _LOG.info("MakeHuman sys dir is", mh_sys_dir)
-    except ConnectionRefusedError as err:
-        _LOG.error("Could not read mh_sys_dir. Maybe socket server is down? Error was:", err)
-        mh_sys_dir = None
+    #===========================================================================
+    # mh_sys_dir = None
+    # try:
+    #     mh_sys_dir = SocketService.get_sys_dir()
+    #     _LOG.info("MakeHuman sys dir is", mh_sys_dir)
+    # except ConnectionRefusedError as err:
+    #     _LOG.error("Could not read mh_sys_dir. Maybe socket server is down? Error was:", err)
+    #     mh_sys_dir = None
+    #===========================================================================
 
     _LOG.time("Number of milliseconds to run entire register() method:")
     _LOG.info("MPFB initialization has finished.")

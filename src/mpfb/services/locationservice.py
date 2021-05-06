@@ -1,6 +1,7 @@
 import os, bpy
 from mpfb import get_preference
 from .logservice import LogService
+from pathlib import Path
 _LOG = LogService.get_logger("services.locationservice")
 
 class _LocationService():
@@ -18,6 +19,10 @@ class _LocationService():
         _LOG.debug("overriden_user_home", overriden_user_home)
         if overriden_user_home:
             self._user_home = overriden_user_home
+
+        self._mh_user_data = None
+        self._mh_auto_user_data = False
+        self._check_set_mh_user_dir()
 
         self._user_data = os.path.join(self._user_home, "data")
         self._user_config = os.path.join(self._user_home, "config")
@@ -40,6 +45,52 @@ class _LocationService():
 
         self._relevant_directories.append(self._mpfb_root)
         self._relevant_directories.append(self._mpfb_data)
+
+    def _check_set_mh_user_dir(self):
+        _LOG.enter()
+        try:
+            mh_user_data = get_preference("mh_user_data")
+        except:
+            _LOG.warn("Could not read preference mh_user_data")
+
+        if mh_user_data is not None:
+            mh_user_data = mh_user_data.strip()
+
+        if not mh_user_data:
+            mh_auto_user_data = False
+            try:
+                mh_auto_user_data = get_preference("mh_auto_user_data")
+            except:
+                _LOG.warn("Could not read preference mh_auto_user_data")
+
+            if mh_auto_user_data:
+                _LOG.warn("mh_user_dir is not explicitly set, and autodiscovery is enabled")
+                self._mh_auto_user_data = True
+                _LOG.info("Will attempt to autodiscover mh user data via local paths")
+                home = str(Path.home())
+                if os.path.exists(home):
+                    # Very primitive routine for finding the usual suspects for the makehuman home dir.
+                    # The better options are explicitly setting it in the preferences or, failing that,
+                    # letting MH figure out the location via a socket call
+                    check_subdirs = ["Document", "Documents", "document", "documents", "Dokument", "dokument", "."]
+                    for subdir in check_subdirs:
+                        full_path = os.path.join(home, subdir, "makehuman", "v1py3", "data")
+                        if os.path.exists(full_path):
+                            full_path = os.path.abspath(os.path.realpath(full_path))
+                            _LOG.info("Autodiscovered mh user data at", full_path)
+                            self._mh_user_data = full_path
+                            break
+                        else:
+                            _LOG.debug("Mh user data is not at", full_path)
+            else:
+                _LOG.info("mh_user_dir is not explicitly set but autodiscovery is disabled")
+        else:
+            _LOG.info("mh_user_data explicitly set to", mh_user_data)
+            self._mh_user_data = mh_user_data
+
+    def update_mh_user_data_if_relevant(self, new_path):
+        if self._mh_auto_user_data:
+            self._mh_user_data = new_path
 
     def ensure_relevant_directories_exist(self):
         _LOG.enter()
@@ -87,11 +138,17 @@ class _LocationService():
         _LOG.enter()
         return self._return_path(self._log_dir, sub_path)
 
-    def is_mh_user_dir_enabled(self):
-        return False
+    def get_mh_user_data(self, sub_path=None):
+        _LOG.enter()
+        if not self.is_mh_user_data_enabled():
+            return None
+        return self._return_path(self._mh_user_data, sub_path)
 
-    def is_mh_user_dir_autoscan_enabled(self):
-        return False
+    def is_mh_user_data_enabled(self):
+        return self._mh_user_data is not None
+
+    def is_mh_auto_user_data_enabled(self):
+        return self._mh_auto_user_data
 
 
 LocationService = _LocationService() # pylint: disable=C0103
