@@ -33,7 +33,7 @@ IMPORTER_PRESETS_PROPERTIES.add_property(_PRESETS_LIST_PROP, _populate_presets)
 
 
 class MPFB_PT_Importer_Presets_Panel(Abstract_Panel):
-    bl_label = "Importer Presets"    
+    bl_label = "Importer Presets"
     bl_category = UiService.get_value("IMPORTERCATEGORY")
     bl_options = {'DEFAULT_CLOSED'}
     bl_parent_id = "MPFB_PT_New_Panel"

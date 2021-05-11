@@ -9,7 +9,6 @@ from mpfb import ClassManager
 from mpfb.entities.socketobject import BASEMESH_EXTRA_GROUPS
 
 _LOG = LogService.get_logger("newhuman.createhuman")
-_LOG.set_level(LogService.DUMP)
 
 class MPFB_OT_CreateHumanOperator(bpy.types.Operator):
     """Create a new human"""

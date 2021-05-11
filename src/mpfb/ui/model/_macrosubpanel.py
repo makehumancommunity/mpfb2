@@ -10,7 +10,6 @@ from mpfb.services.targetservice import TargetService
 from mpfb.entities.objectproperties import HumanObjectProperties
 
 _LOG = LogService.get_logger("model.macrosubpanel")
-_LOG.set_level(LogService.DEBUG)
 
 _TARGETS_DIR = LocationService.get_mpfb_data("targets")
 _LOG.debug("Target dir:", _TARGETS_DIR)

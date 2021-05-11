@@ -81,7 +81,7 @@ def register():
     from ._classmanager import ClassManager as _ClassManager
     global ClassManager
     ClassManager = _ClassManager
-    
+
     if not ClassManager.isinitialized():
         classmanager = ClassManager() # pylint: disable=W0612
 

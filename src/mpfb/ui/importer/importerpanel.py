@@ -67,7 +67,7 @@ IMPORTER_PROPERTIES.add_property(_EYE_SETTINGS_LIST_PROP, _populate_skin_setting
 UiService.set_value("importer_properties", IMPORTER_PROPERTIES)
 
 class MPFB_PT_Importer_Panel(Abstract_Panel):
-    bl_label = "From MakeHuman"    
+    bl_label = "From MakeHuman"
     bl_category = UiService.get_value("IMPORTERCATEGORY")
     bl_options = {'DEFAULT_CLOSED'}
     bl_parent_id = "MPFB_PT_New_Panel"

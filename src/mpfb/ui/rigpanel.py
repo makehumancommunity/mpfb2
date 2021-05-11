@@ -14,19 +14,19 @@ class MPFB_PT_Rig_Panel(Abstract_Panel):
         _LOG.enter()
         layout = self.layout
         scn = context.scene
-        
+
     @classmethod
     def poll(cls, context):
         obj = context.active_object
         if not obj:
             return False
-        
+
         if ObjectService.object_is_basemesh_or_body_proxy(obj):
-            return True  
+            return True
 
         if ObjectService.object_is_skeleton(obj):
-            return True  
+            return True
 
         return False
-        
+
 ClassManager.add_class(MPFB_PT_Rig_Panel)

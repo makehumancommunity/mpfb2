@@ -1,0 +1,7 @@
+{
+    "type": "boolean",
+    "name": "material_instances",
+    "description": "When using enhanced skin, also create instance for extra vertex groups and place them in material slots. This will mean the body will get for example both a body material and a fingernails material.",
+    "label": "Material instances",
+    "default": true
+}

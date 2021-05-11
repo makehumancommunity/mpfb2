@@ -17,7 +17,7 @@ if _OVERRIDDEN_HOME is None or not _OVERRIDDEN_HOME:
     _MPFBHOME = os.path.join(_BPYHOME, "mpfb")
 else:
     _MPFBHOME = _OVERRIDDEN_HOME
-    
+
 _LOGDIR = os.path.abspath(os.path.join(_MPFBHOME, "logs"))
 _COMBINED = os.path.join(_LOGDIR, "combined.txt")
 _CONFIG_DIR = os.path.join(_BPYHOME, "mpfb", "config")

@@ -8,7 +8,6 @@ from mpfb.entities.objectproperties import GeneralObjectProperties
 from mpfb.entities.objectproperties import HumanObjectProperties
 
 _LOG = LogService.get_logger("services.targetservice")
-_LOG.set_level(LogService.DUMP)
 
 _HEADER = """# This is a target file for MakeHuman
 #

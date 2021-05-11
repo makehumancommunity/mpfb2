@@ -1,0 +1,7 @@
+{
+    "type": "boolean",
+    "name": "procedural_eyes",
+    "description": "Apply a procedural texture to the eyes rather than using the standard material.",
+    "label": "Procedural eyes",
+    "default": true
+}

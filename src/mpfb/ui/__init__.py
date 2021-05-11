@@ -29,8 +29,10 @@ from mpfb.ui.righelpers import *
 from mpfb.ui.enhancedsettings import *
 from mpfb.ui.eyesettings import *
 
-# Clothes
+# Assets
+from mpfb.ui.assetlibrary import *
 from mpfb.ui.loadclothes import *
+
 
 # Targets
 

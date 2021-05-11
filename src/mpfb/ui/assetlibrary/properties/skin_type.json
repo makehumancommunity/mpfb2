@@ -1,0 +1,12 @@
+{
+    "type": "enum",
+    "name": "skin_type",
+    "description": "What type of skin should be loaded?",
+    "label": "Skin type",
+    "default": "ENHANCED",
+    "items": [
+		["MAKESKIN", "Standard material", "Use a standard (makeskin/mhmat) material. This is usually a plain diffuse texture with no extras.", 1],
+		["ENHANCED", "Enhanced skin material", "Enhanced skin material", 2],
+		["ENHANCED_SSS", "Enhanced skin with SSS", "Enhanced skin material with SSS", 3]
+    ]
+}

@@ -9,7 +9,6 @@ from mpfb.entities.rig import Rig
 from mpfb import ClassManager
 
 _LOG = LogService.get_logger("addrig.add_standard_rig")
-_LOG.set_level(LogService.DUMP)
 
 class MPFB_OT_AddRigifyRigOperator(bpy.types.Operator):
     """Add a rigify rig"""
