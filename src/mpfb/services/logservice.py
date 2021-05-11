@@ -5,8 +5,19 @@ import os, bpy, time, pprint, inspect, json
 # There's a catch 22 where paths should be read from the location
 # service, but the location service is dependent on the log service
 
+_OVERRIDDEN_HOME = None
+
+try:
+    _OVERRIDDEN_HOME = bpy.context.preferences.addons['mpfb'].preferences['mpfb_user_data']
+except:
+    print("Could not read preference mpfb_user_data")
+
 _BPYHOME = bpy.utils.resource_path('USER') # pylint: disable=E1111
-_MPFBHOME = os.path.join(_BPYHOME, "mpfb")
+if _OVERRIDDEN_HOME is None or not _OVERRIDDEN_HOME:
+    _MPFBHOME = os.path.join(_BPYHOME, "mpfb")
+else:
+    _MPFBHOME = _OVERRIDDEN_HOME
+    
 _LOGDIR = os.path.abspath(os.path.join(_MPFBHOME, "logs"))
 _COMBINED = os.path.join(_LOGDIR, "combined.txt")
 _CONFIG_DIR = os.path.join(_BPYHOME, "mpfb", "config")

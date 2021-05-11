@@ -30,7 +30,6 @@ _LOG = None
 # importing here is to just make sure everything is up and running
 # pylint: disable=W0611
 
-from ._classmanager import ClassManager
 import bpy, os
 from bpy.utils import register_class
 
@@ -53,6 +52,8 @@ def get_preference(name):
         raise ValueError("Preferences have not been initialized properly")
     _LOG.crash("The 'mpfb' addon does not exist!?")
     raise ValueError("I don't seem to exist")
+
+ClassManager = None
 
 def register():
     """At this point blender is ready enough for it to make sense to
@@ -77,6 +78,10 @@ def register():
     # time. Thus we'll import all packages which can theoretically
     # contain blender classes.
 
+    from ._classmanager import ClassManager as _ClassManager
+    global ClassManager
+    ClassManager = _ClassManager
+    
     if not ClassManager.isinitialized():
         classmanager = ClassManager() # pylint: disable=W0612
 
@@ -133,6 +138,7 @@ def unregister():
     global _LOG # pylint: disable=W0603
 
     _LOG.debug("About to unregister classes")
+    global ClassManager
     ClassManager.unregister_classes()
 
 
