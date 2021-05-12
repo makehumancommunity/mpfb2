@@ -50,6 +50,8 @@ class _Abstract_Asset_Library_Panel(bpy.types.Panel):
             op = None
             if self.asset_type == "mhclo":
                 op = box.operator("mpfb.load_library_clothes")
+            if self.asset_type == "proxy":
+                op = box.operator("mpfb.load_library_proxy")
             if self.asset_type == "mhmat":
                 if self.skin_overrides:
                     op = box.operator("mpfb.load_library_skin")

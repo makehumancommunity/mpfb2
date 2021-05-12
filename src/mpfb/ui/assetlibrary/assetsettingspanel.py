@@ -23,13 +23,16 @@ class MPFB_PT_Asset_Settings_Panel(Abstract_Panel):
 
     def _draw_mhclo(self, scene, layout):
         box = layout.box()
-        box.label(text="Clothes & Bodyparts")
+        box.label(text="Clothes, Bodyparts & Proxies")
         ASSET_SETTINGS_PROPERTIES.draw_properties(scene, box, [
             "fit_to_body",
+            "mask_base_mesh",
             "delete_group",
             "specific_delete_group",
             "set_up_rigging",
             "interpolate_weights",
+            "add_subdiv_modifier",
+            "subdiv_levels",
             "makeclothes_metadata"
             ])
 

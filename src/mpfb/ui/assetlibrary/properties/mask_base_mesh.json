@@ -1,0 +1,7 @@
+{
+    "type": "boolean",
+    "name": "mask_base_mesh",
+    "description": "If a body proxy is imported, then add a mask modifier to the base mesh to hide it",
+    "label": "Mask base mesh",
+    "default": true
+}

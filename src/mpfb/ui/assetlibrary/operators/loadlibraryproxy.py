@@ -1,4 +1,4 @@
-"""Operator for importing MHCLO clothes from asset library."""
+"""Operator for importing PROXY from asset library."""
 
 import bpy, os
 from bpy.props import StringProperty
@@ -11,16 +11,16 @@ from mpfb.entities.objectproperties import GeneralObjectProperties
 from mpfb.entities.material.makeskinmaterial import MakeSkinMaterial
 from mpfb import ClassManager
 
-_LOG = LogService.get_logger("assetlibrary.loadlibraryclothes")
+_LOG = LogService.get_logger("assetlibrary.loadlibraryproxy")
 
-class MPFB_OT_Load_Library_Clothes_Operator(bpy.types.Operator):
-    """Load MHCLO from asset library."""
-    bl_idname = "mpfb.load_library_clothes"
+class MPFB_OT_Load_Library_Proxy_Operator(bpy.types.Operator):
+    """Load PROXY from asset library."""
+    bl_idname = "mpfb.load_library_proxy"
     bl_label = "Load"
     bl_options = {'REGISTER', 'UNDO'}
 
     filepath = StringProperty(name="filepath", description="Full path to asset", default="")
-    object_type = StringProperty(name="object_type", description="type of the object", default="Clothes")
+    object_type = StringProperty(name="object_type", description="type of the object", default="Proxymeshes")
 
     def execute(self, context):
 
@@ -40,6 +40,7 @@ class MPFB_OT_Load_Library_Clothes_Operator(bpy.types.Operator):
         makeclothes_metadata = ASSET_SETTINGS_PROPERTIES.get_value("makeclothes_metadata", entity_reference=scene)
         add_subdiv_modifier = ASSET_SETTINGS_PROPERTIES.get_value("add_subdiv_modifier", entity_reference=scene)
         subdiv_levels = ASSET_SETTINGS_PROPERTIES.get_value("subdiv_levels", entity_reference=scene)
+        mask_base_mesh = ASSET_SETTINGS_PROPERTIES.get_value("mask_base_mesh", entity_reference=scene)
 
         blender_object = context.active_object
 
@@ -75,7 +76,7 @@ class MPFB_OT_Load_Library_Clothes_Operator(bpy.types.Operator):
         clothes = mhclo.load_mesh(context)
 
         if not clothes or clothes is None:
-            self.report({'ERROR'}, "failed to import the clothes mesh")
+            self.report({'ERROR'}, "failed to import the proxy")
             return {'FINISHED'}
 
         GeneralObjectProperties.set_value("object_type", object_type, entity_reference=clothes)
@@ -95,16 +96,6 @@ class MPFB_OT_Load_Library_Clothes_Operator(bpy.types.Operator):
             ClothesService.fit_clothes_to_human(clothes, basemesh, mhclo)
             mhclo.set_scalings(context, basemesh)
 
-        delete_name = "Delete"
-        if delete_group:
-            if specific_delete_group:
-                delete_name = str(os.path.basename(self.filepath)) # pylint: disable=E1101
-                delete_name = delete_name.replace(".mhclo", "")
-                delete_name = delete_name.replace(".MHCLO", "")
-                delete_name = delete_name.replace(" ", "_")
-                delete_name = "Delete." + delete_name
-            ClothesService.update_delete_group(mhclo, basemesh, replace_delete_group=False, delete_group_name=delete_name)
-
         if set_up_rigging:
             clothes.location = (0.0, 0.0, 0.0)
             clothes.parent = rig
@@ -113,15 +104,20 @@ class MPFB_OT_Load_Library_Clothes_Operator(bpy.types.Operator):
             if interpolate_weights:
                 ClothesService.interpolate_weights(basemesh, clothes, rig, mhclo)
 
-        if makeclothes_metadata:
-            ClothesService.set_makeclothes_object_properties_from_mhclo(clothes, mhclo, delete_group_name=delete_name)
-
         if add_subdiv_modifier:
             modifier = clothes.modifiers.new("Subdivision", 'SUBSURF')
             modifier.levels = 0
             modifier.render_levels = subdiv_levels
 
-        self.report({'INFO'}, "Clothes were loaded")
+        if mask_base_mesh:
+            modifier = basemesh.modifiers.new("Hide base mesh", 'MASK')
+            modifier.vertex_group = "body"
+            modifier.invert_vertex_group = True
+
+        if makeclothes_metadata:
+            ClothesService.set_makeclothes_object_properties_from_mhclo(clothes, mhclo, delete_group_name=delete_name)
+
+        self.report({'INFO'}, "Proxy was loaded")
         return {'FINISHED'}
 
-ClassManager.add_class(MPFB_OT_Load_Library_Clothes_Operator)
+ClassManager.add_class(MPFB_OT_Load_Library_Proxy_Operator)

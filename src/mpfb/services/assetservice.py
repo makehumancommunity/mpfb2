@@ -174,6 +174,8 @@ class AssetService:
                 _LOG.debug("Will try to load icon", (label, thumb))
                 _ASSET_THUMBS.load(thumb, thumb, 'IMAGE')
                 item["thumb"] = _ASSET_THUMBS[thumb]
+            else:
+                _LOG.warn("Missing thumb", thumb)
 
             _LOG.dump("Item", item)
             asset_list[label] = item
