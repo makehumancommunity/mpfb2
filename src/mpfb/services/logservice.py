@@ -126,6 +126,9 @@ class Logger():
         """Reset the timer for this log channel"""
         self.time_stamp = int(time.time() * 1000.0)
 
+    def get_path_to_log_file(self):
+        return os.path.abspath(self.path)
+
 
 class LogService():
     """Service for logging messages."""
@@ -177,6 +180,10 @@ class LogService():
     def reset_log_levels():
         """Reset all levels (including the default) to the factory settings."""
         _LOGSERVICE.reset_log_levels()
+
+    @staticmethod
+    def get_path_to_combined_log_file():
+        return os.path.abspath(_COMBINED)
 
 class _LogService():
 

@@ -5,6 +5,7 @@ _LOG = LogService.get_logger("developer.operators.init")
 _LOG.trace("initializing developers operators")
 
 from .listloglevels import MPFB_OT_List_Log_Levels_Operator
+from .exportlog import MPFB_OT_Export_Log_Operator
 from .resetloglevels import MPFB_OT_Reset_Log_Levels_Operator
 from .setloglevel import MPFB_OT_Set_Log_Level_Operator
 from .savenodes import MPFB_OT_Save_Nodes_Operator

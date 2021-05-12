@@ -60,6 +60,12 @@ class MPFB_PT_Developer_Panel(bpy.types.Panel):
         LOG_LEVELS_PROPERTIES.draw_properties(scene, box, ["available_loggers", "chosen_level"])
         box.operator("mpfb.set_log_level")
 
+    def _export_log_file(self, scene, layout):
+        box = self._create_box(layout, "Export log file")
+        box.label(text="Use default for combined log")
+        LOG_LEVELS_PROPERTIES.draw_properties(scene, box, ["available_loggers"])
+        box.operator("mpfb.export_log")
+
     def _nodes(self, layout):
         box = self._create_box(layout, "Load/save nodes")
         box.operator("mpfb.save_nodes")
@@ -82,6 +88,7 @@ class MPFB_PT_Developer_Panel(bpy.types.Panel):
         layout = self.layout
         scene = context.scene
         self._log_levels(scene, layout)
+        self._export_log_file(scene, layout)
         self._nodes(layout)
         self._rig(layout)
         self._weights(layout)
