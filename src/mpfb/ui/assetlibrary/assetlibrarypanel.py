@@ -6,7 +6,7 @@ from mpfb import ClassManager
 from mpfb.services.logservice import LogService
 from mpfb.services.locationservice import LocationService
 from mpfb.services.objectservice import ObjectService
-from mpfb.services.assetservice import AssetService
+from mpfb.services.assetservice import AssetService, ASSET_LIBRARY_SECTIONS
 
 _LOG = LogService.get_logger("assetlibrary.assetlibrarypanel")
 
@@ -74,76 +74,7 @@ class _Abstract_Asset_Library_Panel(bpy.types.Panel):
         self._draw_section(scene, layout)
 
 
-_SECTIONS = [
-        #=======================================================================
-        # {
-        #     "bl_label": "Topologies library",
-        #     "asset_subdir": "proxymeshes",
-        #     "asset_type": "proxy",
-        #     "eye_overrides": False,
-        #     "skin_overrides": True
-        #     },
-        #=======================================================================
-        {
-            "bl_label": "Skins library",
-            "asset_subdir": "skins",
-            "asset_type": "mhmat",
-            "eye_overrides": False,
-            "skin_overrides": True
-            },
-        {
-            "bl_label": "Eyes library",
-            "asset_subdir": "eyes",
-            "asset_type": "mhclo",
-            "eye_overrides": True,
-            "skin_overrides": False
-            },
-        {
-            "bl_label": "Eyebrows library",
-            "asset_subdir": "eyebrows",
-            "asset_type": "mhclo",
-            "eye_overrides": False,
-            "skin_overrides": False
-            },
-        {
-            "bl_label": "Eyelashes library",
-            "asset_subdir": "eyelashes",
-            "asset_type": "mhclo",
-            "eye_overrides": False,
-            "skin_overrides": False
-            },
-        {
-            "bl_label": "Hair library",
-            "asset_subdir": "hair",
-            "asset_type": "mhclo",
-            "eye_overrides": False,
-            "skin_overrides": False
-            },
-        {
-            "bl_label": "Teeth library",
-            "asset_subdir": "teeth",
-            "asset_type": "mhclo",
-            "eye_overrides": False,
-            "skin_overrides": False
-            },
-        {
-            "bl_label": "Tongue library",
-            "asset_subdir": "tongue",
-            "asset_type": "mhclo",
-            "eye_overrides": False,
-            "skin_overrides": False
-            },
-        {
-            "bl_label": "Clothes library",
-            "asset_subdir": "clothes",
-            "asset_type": "mhclo",
-            "eye_overrides": False,
-            "skin_overrides": False
-            }
-
-    ]
-
-for _definition in _SECTIONS:
+for _definition in ASSET_LIBRARY_SECTIONS:
     _LOG.dump("Definition", _definition)
     _sub_panel = type("MPFB_PT_Asset_Library_Panel_" + _definition["asset_subdir"], (_Abstract_Asset_Library_Panel,), _definition)
     _LOG.debug("sub_panel", _sub_panel)

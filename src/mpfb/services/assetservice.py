@@ -12,6 +12,73 @@ _LOG = LogService.get_logger("services.assetservice")
 _ASSETS = dict()
 _ASSET_THUMBS = bpy.utils.previews.new()
 
+ASSET_LIBRARY_SECTIONS = [
+        {
+            "bl_label": "Topologies library",
+            "asset_subdir": "proxymeshes",
+            "asset_type": "proxy",
+            "eye_overrides": False,
+            "skin_overrides": True
+            },
+        {
+            "bl_label": "Skins library",
+            "asset_subdir": "skins",
+            "asset_type": "mhmat",
+            "eye_overrides": False,
+            "skin_overrides": True
+            },
+        {
+            "bl_label": "Eyes library",
+            "asset_subdir": "eyes",
+            "asset_type": "mhclo",
+            "eye_overrides": True,
+            "skin_overrides": False
+            },
+        {
+            "bl_label": "Eyebrows library",
+            "asset_subdir": "eyebrows",
+            "asset_type": "mhclo",
+            "eye_overrides": False,
+            "skin_overrides": False
+            },
+        {
+            "bl_label": "Eyelashes library",
+            "asset_subdir": "eyelashes",
+            "asset_type": "mhclo",
+            "eye_overrides": False,
+            "skin_overrides": False
+            },
+        {
+            "bl_label": "Hair library",
+            "asset_subdir": "hair",
+            "asset_type": "mhclo",
+            "eye_overrides": False,
+            "skin_overrides": False
+            },
+        {
+            "bl_label": "Teeth library",
+            "asset_subdir": "teeth",
+            "asset_type": "mhclo",
+            "eye_overrides": False,
+            "skin_overrides": False
+            },
+        {
+            "bl_label": "Tongue library",
+            "asset_subdir": "tongue",
+            "asset_type": "mhclo",
+            "eye_overrides": False,
+            "skin_overrides": False
+            },
+        {
+            "bl_label": "Clothes library",
+            "asset_subdir": "clothes",
+            "asset_type": "mhclo",
+            "eye_overrides": False,
+            "skin_overrides": False
+            }
+
+    ]
+
 class AssetService:
 
     def __init__(self):
@@ -112,6 +179,13 @@ class AssetService:
             asset_list[label] = item
 
         _ASSETS[asset_subdir] = asset_list
+
+    @staticmethod
+    def update_all_asset_lists():
+        for section in ASSET_LIBRARY_SECTIONS:
+            asset_subdir = section["asset_subdir"]
+            asset_type = section["asset_type"]
+            AssetService.update_asset_list(asset_subdir, asset_type)
 
     @staticmethod
     def get_asset_list(asset_subdir="clothes", asset_type="mhclo"):
