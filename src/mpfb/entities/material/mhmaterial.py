@@ -37,7 +37,7 @@ class MhMaterial:
                     (used_key, value) = key_obj.parse(line)
                 _LOG.debug("actual key from key object", used_key)
             else:
-                if key not in ["shader", "shader_config"]:
+                if key not in ["shader", "shader_config", "shaderConfig"]:
                     _LOG.warn("Not a valid key: ", key)
             #
             # handle multiple occurences of tag (create a comma-separated entry)
