@@ -85,6 +85,7 @@ class Mhclo:
 
             if words[0] == "material":
                 self.material = os.path.join(folder, words[1])
+                continue
 
             # read vertices lines
             #
