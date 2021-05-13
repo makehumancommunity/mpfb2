@@ -69,6 +69,8 @@ class MhMatFileKey(MhMatKey):
             # TODO: handle case where location is absolute. We cannot use basename since the path
             # TODO: continues into the structure of the file
             value = location + "/" + value
+        value = value.replace("\\\\", "/") # Try to avoid windows style slashes
+        value = value.replace("\\", "/")
         return self.key_name, value
 
 
