@@ -33,11 +33,12 @@ class MPFB_PT_Add_Rig_Panel(Abstract_Panel):
         box = self.create_box(layout, "Add rigify rig")
         props = [
             "import_weights_rigify",
-            "generate",
-            "delete_after_generate"
+            "delete_after_generate",
+            "generate"
             ]
         ADD_RIG_PROPERTIES.draw_properties(scene, box, props)
         box.operator('mpfb.add_rigify_rig')
+        box.operator('mpfb.generate_rigify_rig')
 
     def draw(self, context):
         _LOG.enter()

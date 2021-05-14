@@ -1,7 +1,7 @@
 {
     "type": "boolean",
     "name": "generate",
-    "description": "Also generate the final rig. If not checked, the meta-rig will be used as rig.",
+    "description": "Also generate the final rig. If not checked, the meta-rig will be used as rig. If you plan to add clothes, you should do so BEFORE generating.",
     "label": "Generate",
-    "default": true
+    "default": false
 }

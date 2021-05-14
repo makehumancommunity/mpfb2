@@ -1,7 +1,7 @@
 {
     "type": "boolean",
     "name": "delete_after_generate",
-    "description": "After having generated the final rig, delete the meta rig. This will have no effect if generate is unchecked",
+    "description": "After having generated the final rig, delete the meta rig",
     "label": "Delete meta rig",
     "default": true
 }
