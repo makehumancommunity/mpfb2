@@ -67,7 +67,21 @@ class MakeSkinMaterial(MhMaterial):
         for key in template_values:
             template_data = template_data.replace("\"$" + key + "\"", template_values[key])
 
-        node_tree_dict = json.loads(template_data)
+        _LOG.dump("Template data", template_data)
+
+        node_tree_dict = dict()
+        parse_error = None
+
+        try:
+            node_tree_dict = json.loads(template_data)
+        except Exception as exc:
+            _LOG.error("An error was thrown when trying to parse the template data:", exc)
+            _LOG.error("Full contents of template data", "\n\n" + str(template_data) + "\n\n")
+            parse_error = "Failed to parse material: " + str(exc) + ". See material.makeskinmaterial log for more info."
+
+        if not parse_error is None:
+            raise ValueError(parse_error)
+
         _LOG.dump("node_tree", node_tree_dict)
 
         NodeService.apply_node_tree_from_dict(blender_material.node_tree, node_tree_dict, True)
