@@ -179,7 +179,7 @@ class ObjectService:
         vertex_data = basemesh.data.vertices
         shape_key = None
         key_name = None
-        if take_shape_keys_into_account and len(basemesh.data.shape_keys.key_blocks) > 0:
+        if take_shape_keys_into_account and basemesh.data.shape_keys and basemesh.data.shape_keys.key_blocks and len(basemesh.data.shape_keys.key_blocks) > 0:
             from .targetservice import TargetService
             key_name = "temporary_lowest_point_key." + str(random.randrange(1000, 9999))
             shape_key = TargetService.create_shape_key(basemesh, key_name, also_create_basis=True, create_from_mix=True)
