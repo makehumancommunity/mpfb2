@@ -9,6 +9,7 @@ from mpfb.ui.assetspanel import *
 from mpfb.ui.materialspanel import *
 from mpfb.ui.rigpanel import *
 from mpfb.ui.createpanel import *
+from mpfb.ui.systempanel import *
 
 # New human panels
 from mpfb.ui.newhuman import *
@@ -33,6 +34,9 @@ from mpfb.ui.eyesettings import *
 from mpfb.ui.assetlibrary import *
 from mpfb.ui.loadclothes import *
 
+# System
+from mpfb.ui.webresources import *
+from mpfb.ui.dirresources import *
 
 # Targets
 
