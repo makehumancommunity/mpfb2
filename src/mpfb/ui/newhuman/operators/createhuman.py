@@ -195,6 +195,10 @@ class MPFB_OT_CreateHumanOperator(bpy.types.Operator):
         basemesh.location = (0.0, 0.0, abs(lowest_point))
         bpy.ops.object.transform_apply(location=True, rotation=True, scale=True)
 
+        bpy.ops.object.select_all(action='DESELECT')
+        bpy.context.view_layer.objects.active = basemesh
+        basemesh.select_set(True)
+
         return {'FINISHED'}
 
 
