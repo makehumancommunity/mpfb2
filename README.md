@@ -17,3 +17,5 @@ Note that MPFB 2 requires a Blender version of at least 2.90.
 The root of the documentation is [available here](docs/README.md). If you are unfamiliar with MPFB, you will want
 to read [the introduction to what MPFB is](docs/general/about.md). Otherwise, the
 [installation instructions](docs/general/install.md) might be a good place to start.
+
+The [FAQ](docs/faq/faq.md) might be a good idea to skin through too.
