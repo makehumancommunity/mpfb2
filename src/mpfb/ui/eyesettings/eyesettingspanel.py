@@ -6,6 +6,7 @@ from mpfb.services.logservice import LogService
 from mpfb.services.locationservice import LocationService
 from mpfb.services.sceneconfigset import SceneConfigSet
 from mpfb.services.uiservice import UiService
+from mpfb.services.objectservice import ObjectService
 from mpfb.ui.abstractpanel import Abstract_Panel
 
 _LOG = LogService.get_logger("ui.eyesettings")
@@ -35,10 +36,10 @@ EYE_SETTINGS_PROPERTIES.add_property(_SETTINGS_LIST_PROP, _populate_settings)
 class MPFB_PT_Eye_Settings_Panel(Abstract_Panel):
     """Panel for saving/loading eye material settings."""
 
-    bl_label = "Eye material settings"
+    bl_label = "Eye material presets"
     bl_category = UiService.get_value("MATERIALSCATEGORY")
     bl_options = {'DEFAULT_CLOSED'}
-    bl_parent_id = "MPFB_PT_Materials_Panel"
+    bl_parent_id = "MPFB_PT_Presets_Panel"
 
     def _load_save_box(self, scene, layout):
         _LOG.enter()
@@ -60,6 +61,23 @@ class MPFB_PT_Eye_Settings_Panel(Abstract_Panel):
         scene = context.scene
 
         self._load_save_box(scene, self._create_box(layout, "Load/save presets", "MODIFIER"))
+
+    @classmethod
+    def poll(cls, context):
+        obj = context.active_object
+        if not obj:
+            return False
+
+        if ObjectService.object_is_basemesh_or_body_proxy(obj):
+            return True
+
+        if ObjectService.object_is_skeleton(obj):
+            return True
+
+        if ObjectService.object_is_eyes(obj):
+            return True
+
+        return False
 
 def ensure_eye_settings_default_exists():
     """Check that the json file with the default eye settings exists in the user config dir.

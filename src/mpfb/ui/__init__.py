@@ -6,7 +6,8 @@ _LOG.trace("initializing ui module")
 from mpfb.ui.newpanel import *
 from mpfb.ui.model import *
 from mpfb.ui.assetspanel import *
-from mpfb.ui.materialspanel import *
+#from mpfb.ui.materialspanel import *
+from mpfb.ui.presetspanel import *
 from mpfb.ui.rigpanel import *
 from mpfb.ui.createpanel import *
 from mpfb.ui.systempanel import *
@@ -26,7 +27,8 @@ from mpfb.ui.addrig import *
 from mpfb.ui.rigify import *
 from mpfb.ui.righelpers import *
 
-# Materials
+# Presets
+from mpfb.ui.humanpresets import *
 from mpfb.ui.enhancedsettings import *
 from mpfb.ui.eyesettings import *
 
@@ -54,7 +56,7 @@ __all__ = [
     "MPFB_PT_Add_Rig_Panel",
     "MPFB_PT_Importer_Panel",
     "MPFB_PT_Importer_Presets_Panel",
-    #"MPFB_PT_Materials_Panel",
+    "MPFB_PT_Presets_Panel",
     #"MPFB_PT_Targets_Panel",
     #"MPFB_PT_Clothes_Panel",
     "MPFB_PT_Save_Nodes_Panel",
