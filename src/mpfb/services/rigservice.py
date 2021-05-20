@@ -392,3 +392,23 @@ class RigService:
                             group.weight = weight
                             break
 
+    @staticmethod
+    def identify_rig(armature_object):
+        bone_name_to_rig = [
+            ["oculi02.R", "toe1-1.L", "default"],
+            ["oculi02.R", "default_no_toes"],
+            ["thumb_01_l", "game_engine"],
+            ["RThumb", "cmu_mb"],
+            ["brow.T.R.002", "rigify_meta"],
+            ["thumb.01_master.L", "rigify_generated"]
+            ]
+
+        for identification in bone_name_to_rig:
+            if len(identification) == 3:
+                if identification[0] in armature_object.data.bones and identification[1] in armature_object.data.bones:
+                    return identification[2]
+            else:
+                if identification[0] in armature_object.data.bones:
+                    return identification[1]
+
+        return unknown

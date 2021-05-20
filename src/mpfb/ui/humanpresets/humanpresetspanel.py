@@ -5,6 +5,7 @@ from mpfb.services.locationservice import LocationService
 from mpfb.services.sceneconfigset import SceneConfigSet
 from mpfb.services.uiservice import UiService
 from mpfb.services.objectservice import ObjectService
+from mpfb.services.humanservice import HumanService
 from mpfb.ui.abstractpanel import Abstract_Panel
 
 _LOG = LogService.get_logger("ui.humanpresetspanel")
@@ -17,18 +18,12 @@ HUMAN_PRESETS_PROPERTIES = SceneConfigSet.from_definitions_in_json_directory(HUM
 def _populate_settings(self, context):
     _LOG.enter()
     _LOG.trace("Context is scene", isinstance(context, bpy.types.Scene))
-    #===========================================================================
-    # available_settings = UiService.get_human_presets_panel_list()
-    # if available_settings is None:
-    #     available_settings = []
-    # return available_settings
-    #===========================================================================
-    return []
+    return HumanService.get_list_of_human_presets()
 
 _SETTINGS_LIST_PROP = {
     "type": "enum",
     "name": "available_presets",
-    "description": "Available presets",
+    "description": "These are the currently available saved humans",
     "label": "Available presets",
     "default": 0
 }

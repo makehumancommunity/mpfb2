@@ -41,6 +41,19 @@ class MPFB_OT_Save_New_Presets_Operator(bpy.types.Operator):
             self.report({'ERROR'}, "Presets with that name already exist")
             return {'FINISHED'}
 
+        basemesh = None
+        if ObjectService.object_is_basemesh(context.object):
+            basemesh = context.object
+        else:
+            basemesh = ObjectService.find_object_of_type_amongst_nearest_relatives(context.object, "Basemesh")
+
+        if basemesh is None:
+            self.report({'ERROR'}, "Could not find basemesh amongst relatives of selected object")
+            return {'FINISHED'}
+
+        HumanService.serialize_to_json_file(basemesh, file_name, True)
+        self.report({'INFO'}, "Human saved as " + file_name)
+
         return {'FINISHED'}
 
     @classmethod

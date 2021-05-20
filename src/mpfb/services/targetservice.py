@@ -269,7 +269,8 @@ class TargetService:
         for shape_key in keys.key_blocks:
             sk_name = str(shape_key.name).lower()
 
-            exclude = False
+            exclude = "basis" in sk_name
+
             if not exclude_starts_with is None and sk_name.startswith(str(exclude_starts_with).lower()):
                 exclude = True
             if not exclude_ends_with is None and sk_name.endswith(str(exclude_ends_with).lower()):
