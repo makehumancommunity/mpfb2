@@ -1,0 +1,7 @@
+{
+    "type": "string",
+    "name": "material_source",
+    "description": "If the skin was based on a MHMAT file, then which file was that?",
+    "label": "Material source",
+    "default": ""
+}

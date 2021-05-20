@@ -17,6 +17,7 @@ ASSET_LIBRARY_SECTIONS = [
             "bl_label": "Topologies library",
             "asset_subdir": "proxymeshes",
             "asset_type": "proxy",
+            "object_type": "Proxymeshes",
             "eye_overrides": False,
             "skin_overrides": True
             },
@@ -31,6 +32,7 @@ ASSET_LIBRARY_SECTIONS = [
             "bl_label": "Eyes library",
             "asset_subdir": "eyes",
             "asset_type": "mhclo",
+            "object_type": "Eyes",
             "eye_overrides": True,
             "skin_overrides": False
             },
@@ -38,6 +40,7 @@ ASSET_LIBRARY_SECTIONS = [
             "bl_label": "Eyebrows library",
             "asset_subdir": "eyebrows",
             "asset_type": "mhclo",
+            "object_type": "Eyebrows",
             "eye_overrides": False,
             "skin_overrides": False
             },
@@ -45,6 +48,7 @@ ASSET_LIBRARY_SECTIONS = [
             "bl_label": "Eyelashes library",
             "asset_subdir": "eyelashes",
             "asset_type": "mhclo",
+            "object_type": "Eyelashes",
             "eye_overrides": False,
             "skin_overrides": False
             },
@@ -52,6 +56,7 @@ ASSET_LIBRARY_SECTIONS = [
             "bl_label": "Hair library",
             "asset_subdir": "hair",
             "asset_type": "mhclo",
+            "object_type": "Hair",
             "eye_overrides": False,
             "skin_overrides": False
             },
@@ -59,6 +64,7 @@ ASSET_LIBRARY_SECTIONS = [
             "bl_label": "Teeth library",
             "asset_subdir": "teeth",
             "asset_type": "mhclo",
+            "object_type": "Teeth",
             "eye_overrides": False,
             "skin_overrides": False
             },
@@ -66,6 +72,7 @@ ASSET_LIBRARY_SECTIONS = [
             "bl_label": "Tongue library",
             "asset_subdir": "tongue",
             "asset_type": "mhclo",
+            "object_type": "Tongue",
             "eye_overrides": False,
             "skin_overrides": False
             },
@@ -73,6 +80,7 @@ ASSET_LIBRARY_SECTIONS = [
             "bl_label": "Clothes library",
             "asset_subdir": "clothes",
             "asset_type": "mhclo",
+            "object_type": "Clothes",
             "eye_overrides": False,
             "skin_overrides": False
             }

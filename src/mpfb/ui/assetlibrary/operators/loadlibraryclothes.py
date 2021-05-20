@@ -12,6 +12,7 @@ from mpfb.entities.material.makeskinmaterial import MakeSkinMaterial
 from mpfb import ClassManager
 
 _LOG = LogService.get_logger("assetlibrary.loadlibraryclothes")
+_LOG.set_level(LogService.DUMP)
 
 class MPFB_OT_Load_Library_Clothes_Operator(bpy.types.Operator):
     """Load MHCLO from asset library."""
@@ -25,6 +26,7 @@ class MPFB_OT_Load_Library_Clothes_Operator(bpy.types.Operator):
     def execute(self, context):
 
         _LOG.debug("filepath", self.filepath)
+        _LOG.debug("object_type", self.object_type)
 
         from mpfb.ui.assetlibrary.assetsettingspanel import ASSET_SETTINGS_PROPERTIES # pylint: disable=C0415
 
@@ -78,7 +80,12 @@ class MPFB_OT_Load_Library_Clothes_Operator(bpy.types.Operator):
             self.report({'ERROR'}, "failed to import the clothes mesh")
             return {'FINISHED'}
 
+        asset_dir = os.path.basename(os.path.dirname(os.path.realpath(self.filepath)))
+        asset_source = asset_dir + "/" + os.path.basename(self.filepath)
+
         GeneralObjectProperties.set_value("object_type", object_type, entity_reference=clothes)
+        GeneralObjectProperties.set_value("asset_source", asset_source, entity_reference=clothes)
+
         bpy.ops.object.shade_smooth()
 
         if not material_type == "PRINCIPLED":

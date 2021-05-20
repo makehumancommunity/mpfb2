@@ -21,7 +21,7 @@ class MPFB_PT_Web_Resources_Panel(Abstract_Panel):
     def draw(self, context):
         _LOG.enter()
         layout = self.layout
-        
+
         self._url(layout, "Project home", "https://github.com/makehumancommunity/mpfb2")
         self._url(layout, "Documentation", "https://github.com/makehumancommunity/mpfb2/blob/master/docs/README.md")
         #self._url(layout, "Asset packs", "https://github.com/makehumancommunity/mpfb2")

@@ -9,6 +9,7 @@ from mpfb.services.objectservice import ObjectService
 from mpfb.services.assetservice import AssetService, ASSET_LIBRARY_SECTIONS
 
 _LOG = LogService.get_logger("assetlibrary.assetlibrarypanel")
+_LOG.set_level(LogService.DUMP)
 
 _NOASSETS = [
     "No assets in this section.",
@@ -30,6 +31,7 @@ class _Abstract_Asset_Library_Panel(bpy.types.Panel):
     asset_type = "mhclo"
     skin_overrides = False
     eye_overrides = False
+    object_type = "Clothes"
 
     def _draw_section(self, scene, layout):
         _LOG.enter()
@@ -57,6 +59,7 @@ class _Abstract_Asset_Library_Panel(bpy.types.Panel):
                     op = box.operator("mpfb.load_library_skin")
             if not op is None:
                 op.filepath = asset["full_path"]
+                op.object_type = self.object_type
 
     def draw(self, context):
         _LOG.enter()

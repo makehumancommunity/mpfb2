@@ -1,0 +1,7 @@
+{
+    "type": "string",
+    "name": "asset_source",
+    "description": "if this was an asset created from (for example) a MHCLO file, then which file was that?",
+    "label": "Asset source",
+    "default": ""
+}
