@@ -1,6 +1,6 @@
 """High-level functionality for human objects"""
 
-import os, json, fnmatch, re
+import os, json, fnmatch, re, bpy
 from mpfb.entities.objectproperties import HumanObjectProperties
 from mpfb.services.objectservice import ObjectService
 from mpfb.services.targetservice import TargetService
@@ -8,6 +8,7 @@ from mpfb.services.rigservice import RigService
 from mpfb.services.materialservice import MaterialService
 from mpfb.services.locationservice import LocationService
 from mpfb.entities.objectproperties import GeneralObjectProperties
+from mpfb.entities.socketobject import BASEMESH_EXTRA_GROUPS
 from .logservice import LogService
 
 _LOG = LogService.get_logger("services.humanservice")
@@ -121,5 +122,50 @@ class HumanService:
             json_file.write(json_string)
         HumanService.update_list_of_human_presets()
 
+    @staticmethod
+    def create_human(mask_helpers=True, detailed_helpers=True, extra_vertex_groups=True, feet_on_ground=True, scale=0.1, macro_detail_dict=None):
+        exclude = []
 
+        if not detailed_helpers:
+            groups = ObjectService.get_base_mesh_vertex_group_definition()
+            for group_name in groups.keys():
+                if str(group_name).startswith("helper-") or str(group_name).startswith("joint-"):
+                    exclude.append(str(group_name))
+
+        if not extra_vertex_groups:
+            # rather than extend in order to explicitly cast to str
+            for group_name in BASEMESH_EXTRA_GROUPS.keys():
+                exclude.append(str(group_name))
+            exclude.extend(["Mid", "Right", "Left"])
+
+        basemesh = ObjectService.load_base_mesh(context=bpy.context, scale_factor=scale, load_vertex_groups=True, exclude_vertex_groups=exclude)
+
+        if macro_detail_dict is None:
+            macro_detail_dict = TargetService.get_default_macro_info_dict()
+
+        for key in macro_detail_dict.keys():
+            name = str(key)
+            if name != "race":
+                HumanObjectProperties.set_value(name, macro_detail_dict[key], entity_reference=basemesh)
+
+        for key in macro_detail_dict["race"].keys():
+            name = str(key)
+            HumanObjectProperties.set_value(name, macro_detail_dict["race"][key], entity_reference=basemesh)
+
+        TargetService.reapply_macro_details(basemesh)
+
+        if mask_helpers:
+            modifier = basemesh.modifiers.new("Hide helpers", 'MASK')
+            modifier.vertex_group = "body"
+            modifier.show_in_editmode = True
+            modifier.show_on_cage = True
+
+        HumanObjectProperties.set_value("is_human_project", True, entity_reference=basemesh)
+
+        if feet_on_ground:
+            lowest_point = ObjectService.get_lowest_point(basemesh)
+            basemesh.location = (0.0, 0.0, abs(lowest_point))
+            bpy.ops.object.transform_apply(location=True, rotation=True, scale=True)
+
+        return basemesh
 

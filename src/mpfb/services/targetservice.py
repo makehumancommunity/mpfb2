@@ -373,9 +373,9 @@ class TargetService:
             "cupsize": 0.5,
             "firmness": 0.5,
             "race": {
-                "asian": 0.0,
-                "caucasian": 1.0,
-                "african": 0.0
+                "asian": 0.33,
+                "caucasian": 0.33,
+                "african": 0.33
                 }
             }
 
@@ -407,18 +407,18 @@ class TargetService:
             lowest = parts["lowest"]
             low = parts["low"]
             high = parts["high"]
-            range = highest-lowest
+            hlrange = highest-lowest
 
             if value > lowest and value < highest:
                 position = value-lowest
-                position_pct = position/range
+                position_pct = position/hlrange
                 lowweight = round(1 - position_pct, 4)
                 highweight = round(position_pct, 4)
 
                 if low:
-                     components.append([low, round(lowweight, 4)])
+                    components.append([low, round(lowweight, 4)])
                 if high:
-                     components.append([high, round(highweight, 4)])
+                    components.append([high, round(highweight, 4)])
 
         return components
 
@@ -569,7 +569,7 @@ class TargetService:
         for target in required_macro_targets:
             requested = str(TargetService.macrodetail_filename_to_shapekey_name(target[0], encode_name=False)).strip()
             _LOG.debug("Checking if target exists", requested)
-            if not requested in current_macro_targets:
+            if requested not in current_macro_targets:
                 to_load = os.path.join(LocationService.get_mpfb_data("targets"), target[0] + ".target.gz")
                 name = TargetService.macrodetail_filename_to_shapekey_name(to_load, encode_name=True)
                 _LOG.debug("Need to add target: ", (name, to_load))
