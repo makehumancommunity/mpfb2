@@ -46,7 +46,7 @@ class MPFB_PT_From_Presets_Panel(Abstract_Panel):
             "extra_vertex_groups",
             "mask_helpers"
             ])
-        #layout.operator('mpfb.create_human')
+        layout.operator('mpfb.human_from_presets')
 
     def draw(self, context):
         _LOG.enter()

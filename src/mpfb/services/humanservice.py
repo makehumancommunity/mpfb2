@@ -123,6 +123,28 @@ class HumanService:
         HumanService.update_list_of_human_presets()
 
     @staticmethod
+    def deserialize_from_json_string(human_info, mask_helpers=True, detailed_helpers=True, extra_vertex_groups=True, feet_on_ground=True, scale=0.1):
+        if human_info is None:
+            raise ValueError('Cannot use None as human_info')
+        if len(human_info.keys()) < 1:
+            raise ValueError('The provided dict does not seem to be a valid human_info')
+
+        macro_detail_dict = human_info["phenotype"]
+
+        basemesh = HumanService.create_human(mask_helpers, detailed_helpers, extra_vertex_groups, feet_on_ground, scale, macro_detail_dict)
+
+        return basemesh
+
+    @staticmethod
+    def deserialize_from_json_file(filename, mask_helpers=True, detailed_helpers=True, extra_vertex_groups=True, feet_on_ground=True, scale=0.1):
+        if not os.path.exists(filename):
+            raise IOError(str(filename) + " does not exist")
+        human_info = None
+        with open(filename, "r") as json_file:
+            human_info = json.load(json_file)
+        return HumanService.deserialize_from_json_string(human_info, mask_helpers, detailed_helpers, extra_vertex_groups, feet_on_ground, scale)
+
+    @staticmethod
     def create_human(mask_helpers=True, detailed_helpers=True, extra_vertex_groups=True, feet_on_ground=True, scale=0.1, macro_detail_dict=None):
         exclude = []
 
