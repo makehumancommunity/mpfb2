@@ -25,6 +25,7 @@ ASSET_LIBRARY_SECTIONS = [
             "bl_label": "Skins library",
             "asset_subdir": "skins",
             "asset_type": "mhmat",
+            "object_type": "Material",
             "eye_overrides": False,
             "skin_overrides": True
             },
@@ -102,6 +103,46 @@ class AssetService:
                 if os.path.isfile(path):
                     found_files.append(path)
         return found_files
+
+    @staticmethod
+    def find_asset_absolute_path(asset_path_fragment, asset_subdir="clothes"):
+        _LOG.enter()
+        roots = AssetService.get_asset_roots(asset_subdir)
+        filename = asset_path_fragment
+        if "/" in asset_path_fragment:
+            filename = os.path.basename(filename)
+        matches = []
+        _LOG.debug("Searching for asset with basename", filename)
+        for root in roots:
+            for dirpath, subdirs, files in os.walk(root):
+                _LOG.debug("Looking in directory", dirpath)
+                if filename in files:
+                    full_path = os.path.join(root, dirpath, filename)
+                    _LOG.debug("Found match", full_path)
+                    matches.append(full_path)
+
+        if len(matches) < 1:
+            # We couldn't find the asset in question
+            _LOG.warn("Tried to locate non-existing asset", asset_path_fragment)
+            return None
+
+        if len(matches) < 2:
+            # There weren't multiple matches, so we'll assume the only
+            # found answer is the best possible
+            return os.path.abspath(matches[0])
+
+        for match in matches:
+            last_part = os.path.basename(os.path.dirname(match)) + "/" + os.path.basename(match)
+            _LOG.debug("Last part of match vs submitted path fragment", (last_part, asset_path_fragment))
+            if last_part == asset_path_fragment:
+                return os.path.abspath(match)
+
+        # Something is strange. At this point we have multiple matches for the filename, but none of them
+        # matched the asset's subdir. We'll return the first match in the hope that this is the most
+        # correct answer.
+
+        return os.path.abspath(matches[0])
+
 
     @staticmethod
     def list_mhclo_assets(asset_subdir="clothes"):
