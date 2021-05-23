@@ -59,7 +59,8 @@ class _Abstract_Asset_Library_Panel(bpy.types.Panel):
                     op = box.operator("mpfb.load_library_skin")
             if not op is None:
                 op.filepath = asset["full_path"]
-                op.object_type = self.object_type
+                if hasattr(op, "object_type") and self.object_type:
+                    op.object_type = self.object_type
 
     def draw(self, context):
         _LOG.enter()
