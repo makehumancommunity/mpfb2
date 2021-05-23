@@ -11,6 +11,7 @@ from mpfb.services.nodeservice import NodeService
 from mpfb.entities.mhclo import Mhclo
 from mpfb.entities.rig import Rig
 from mpfb.entities.material.makeskinmaterial import MakeSkinMaterial
+from mpfb.entities.material.enhancedskinmaterial import EnhancedSkinMaterial
 from mpfb.services.materialservice import MaterialService
 from mpfb.services.locationservice import LocationService
 from mpfb.entities.objectproperties import GeneralObjectProperties
@@ -234,9 +235,12 @@ class HumanService:
             rig_name = human_info["rig"]
             if not "rigify" in rig_name:
                 _LOG.debug("Adding a standard rig:", rig_name)
-                HumanService.add_standard_rig(basemesh, rig_name, import_weights=True)
+                rig = HumanService.add_standard_rig(basemesh, rig_name, import_weights=True)
         else:
             _LOG.debug("Not adding a rig, since rig setting is empty")
+
+        if rig and "name" in human_info and human_info["name"]:
+            rig.name = human_info["name"]
 
     @staticmethod
     def _check_add_bodyparts(human_info, basemesh, subdiv_levels=1):
@@ -252,9 +256,48 @@ class HumanService:
                         modifier = bodypart_object.modifiers.new("Subdivision", 'SUBSURF')
                         modifier.levels = 0
                         modifier.render_levels = subdiv_levels
+                    if bodypart_object and "name" in human_info and human_info["name"]:
+                        bodypart_object.name = human_info["name"] + "." + bodypart_object.name
+
                 else:
                     _LOG.warn("Could not locate bodypart", asset_filename)
 
+    @staticmethod
+    def _set_skin(human_info, basemesh):
+        _LOG.enter()
+
+        if not "skin_mhmat" in human_info or not human_info["skin_mhmat"]:
+            return
+
+        _LOG.debug("Skin mhmat", human_info["skin_mhmat"])
+
+        mhmat = AssetService.find_asset_absolute_path(human_info["skin_mhmat"], "skins")
+        _LOG.debug("mhmat full path", mhmat)
+        if mhmat is None:
+            _LOG.warn("Could not locate skin mhmat")
+
+        skin_type = human_info["skin_material_type"]
+        if not skin_type or skin_type == "NONE":
+            return
+
+        name = basemesh.name + ".body"
+        MaterialService.delete_all_materials(basemesh)
+        blender_material = MaterialService.create_empty_material(name, basemesh)
+
+        if skin_type == "MAKESKIN":
+            makeskin_material = MakeSkinMaterial()
+            makeskin_material.populate_from_mhmat(mhmat)
+            makeskin_material.apply_node_tree(blender_material)
+
+        if "ENHANCED" in skin_type:
+            settings = dict()
+            settings["skin_material_type"] = skin_type
+
+            enhanced_skin = EnhancedSkinMaterial(settings)
+            enhanced_skin.populate_from_mhmat(mhmat)
+            enhanced_skin.apply_node_tree(blender_material)
+
+        HumanObjectProperties.set_value("material_source", human_info["skin_mhmat"], entity_reference=basemesh)
 
     @staticmethod
     def deserialize_from_dict(human_info, mask_helpers=True, detailed_helpers=True, extra_vertex_groups=True, feet_on_ground=True, scale=0.1, subdiv_levels=1):
@@ -267,6 +310,8 @@ class HumanService:
 
         macro_detail_dict = human_info["phenotype"]
         basemesh = HumanService.create_human(mask_helpers, detailed_helpers, extra_vertex_groups, feet_on_ground, scale, macro_detail_dict)
+        if "name" in human_info and human_info["name"]:
+            basemesh.name = human_info["name"] + ".body"
 
         if subdiv_levels > 0:
             modifier = basemesh.modifiers.new("Subdivision", 'SUBSURF')
@@ -275,6 +320,7 @@ class HumanService:
 
         HumanService._check_add_rig(human_info, basemesh)
         HumanService._check_add_bodyparts(human_info, basemesh, subdiv_levels=subdiv_levels)
+        HumanService._set_skin(human_info, basemesh)
 
         return basemesh
 
@@ -285,6 +331,9 @@ class HumanService:
         human_info = None
         with open(filename, "r") as json_file:
             human_info = json.load(json_file)
+        match = re.search(r'human\.([^/\\]*)\.json$', filename)
+        name = match.group(1)
+        human_info["name"] = name
         return HumanService.deserialize_from_dict(human_info, mask_helpers, detailed_helpers, extra_vertex_groups, feet_on_ground, scale, subdiv_levels)
 
     @staticmethod
