@@ -4,7 +4,13 @@ import os, json, fnmatch, re, bpy
 from mpfb.entities.objectproperties import HumanObjectProperties
 from mpfb.services.objectservice import ObjectService
 from mpfb.services.targetservice import TargetService
+from mpfb.services.assetservice import AssetService
+from mpfb.services.clothesservice import ClothesService
 from mpfb.services.rigservice import RigService
+from mpfb.services.nodeservice import NodeService
+from mpfb.entities.mhclo import Mhclo
+from mpfb.entities.rig import Rig
+from mpfb.entities.material.makeskinmaterial import MakeSkinMaterial
 from mpfb.services.materialservice import MaterialService
 from mpfb.services.locationservice import LocationService
 from mpfb.entities.objectproperties import GeneralObjectProperties
@@ -48,6 +54,53 @@ class HumanService:
         return out
 
     @staticmethod
+    def _populate_human_info_with_skin_info(human_info, basemesh):
+        proxymesh = ObjectService.find_object_of_type_amongst_nearest_relatives(basemesh, "Proxymeshes")
+
+        bodyobject = basemesh
+        if proxymesh and not proxymesh is None:
+            bodyobject = proxymesh
+
+        skin = HumanObjectProperties.get_value("material_source", entity_reference=bodyobject)
+        if skin is None:
+            skin = ""
+        human_info["skin_mhmat"] = skin
+
+        slots = bodyobject.material_slots
+        if not slots or len(slots) < 1:
+            return
+
+        material = slots[0].material
+        group_node = NodeService.find_first_node_by_type_name(material.node_tree, "ShaderNodeGroup")
+        values = None
+
+        if group_node:
+            values = NodeService.get_socket_default_values(group_node)
+
+        if values is None or not "colorMixIn" in values:
+            human_info["skin_material_type"] = "MAKESKIN"
+            return
+
+        human_info["skin_material_type"] = "ENHANCED"
+        if "SSS Color" in values:
+            human_info["skin_material_type"] = "ENHANCED_SSS"
+
+        for slot in slots:
+            material = slot.material
+            group_node = NodeService.find_first_node_by_type_name(material.node_tree, "ShaderNodeGroup")
+            if group_node:
+                values = NodeService.get_socket_default_values(group_node)
+                if "colorMixIn" in values:
+                    # This seems to be an enhanced skin material
+                    name = material.name
+                    if "." in name:
+                        (prefix, name) = name.split(".", 2)
+                    if "." in name:
+                        (name, number) = name.split(".", 2)
+                    human_info["skin_material_settings"][name] = values
+
+
+    @staticmethod
     def _populate_human_info_with_basemesh_info(human_info, basemesh):
         human_info["phenotype"] = TargetService.get_macro_info_dict_from_basemesh(basemesh)
         human_info["targets"] = TargetService.get_target_stack(basemesh, exclude_starts_with="$md-")
@@ -88,6 +141,7 @@ class HumanService:
         human_info["tongue"] = ""
         human_info["targets"] = []
         human_info["clothes"] = []
+        human_info["skin_mhmat"] = ""
         human_info["skin_material_type"] = "NONE"
         human_info["eyes_material_type"] = "MAKESKIN"
         human_info["skin_material_settings"] = dict()
@@ -108,6 +162,7 @@ class HumanService:
         HumanService._populate_human_info_with_basemesh_info(human_info, basemesh)
         HumanService._populate_human_info_with_rig_info(human_info, basemesh)
         HumanService._populate_human_info_with_bodyparts_info(human_info, basemesh)
+        HumanService._populate_human_info_with_skin_info(human_info, basemesh)
 
         _LOG.dump("Human info", human_info)
         return json.dumps(human_info, indent=4, sort_keys=True)
@@ -123,26 +178,114 @@ class HumanService:
         HumanService.update_list_of_human_presets()
 
     @staticmethod
-    def deserialize_from_json_string(human_info, mask_helpers=True, detailed_helpers=True, extra_vertex_groups=True, feet_on_ground=True, scale=0.1):
+    def add_mhclo_asset(mhclo_file, basemesh, asset_type="Clothes", subdiv_levels=1, load_mhmat=True):
+        mhclo = Mhclo()
+        mhclo.load(mhclo_file) # pylint: disable=E1101
+        clothes = mhclo.load_mesh(bpy.context)
+        clothes.location = (0.0, 0.0, 0.0)
+
+        if not clothes or clothes is None:
+            raise IOError("failed to import the clothes mesh: object was None after import")
+
+        afn = os.path.abspath(mhclo_file)
+        asset_source = os.path.basename(os.path.dirname(afn)) + "/" + os.path.basename(afn)
+        GeneralObjectProperties.set_value("asset_source", asset_source, entity_reference=clothes)
+
+        atype = str(asset_type).lower().capitalize()
+        GeneralObjectProperties.set_value("object_type", atype, entity_reference=clothes)
+
+        bpy.ops.object.shade_smooth()
+
+        if not mhclo.material is None and load_mhmat:
+            MaterialService.delete_all_materials(clothes)
+            makeskin_material = MakeSkinMaterial()
+            makeskin_material.populate_from_mhmat(mhclo.material)
+            name = os.path.basename(mhclo.material)
+            blender_material = MaterialService.create_empty_material(name, clothes)
+            makeskin_material.apply_node_tree(blender_material)
+
+        ClothesService.fit_clothes_to_human(clothes, basemesh, mhclo)
+        mhclo.set_scalings(bpy.context, basemesh)
+
+        delete_name = str(os.path.basename(mhclo_file)) # pylint: disable=E1101
+        delete_name = delete_name.replace(".mhclo", "")
+        delete_name = delete_name.replace(".MHCLO", "")
+        delete_name = delete_name.replace(" ", "_")
+        delete_name = "Delete." + delete_name
+        ClothesService.update_delete_group(mhclo, basemesh, replace_delete_group=False, delete_group_name=delete_name)
+
+        rig = ObjectService.find_object_of_type_amongst_nearest_relatives(basemesh, "Skeleton")
+        if rig:
+            clothes.parent = rig
+            modifier = clothes.modifiers.new("Armature", 'ARMATURE')
+            modifier.object = rig
+            ClothesService.interpolate_weights(basemesh, clothes, rig, mhclo)
+        else:
+            clothes.parent = basemesh
+
+        ClothesService.set_makeclothes_object_properties_from_mhclo(clothes, mhclo, delete_group_name=delete_name)
+
+        return clothes
+
+    @staticmethod
+    def _check_add_rig(human_info, basemesh):
+        rig = None
+        if "rig" in human_info and not human_info["rig"] is None and not str(human_info["rig"]).strip() == "":
+            rig_name = human_info["rig"]
+            if not "rigify" in rig_name:
+                _LOG.debug("Adding a standard rig:", rig_name)
+                HumanService.add_standard_rig(basemesh, rig_name, import_weights=True)
+        else:
+            _LOG.debug("Not adding a rig, since rig setting is empty")
+
+    @staticmethod
+    def _check_add_bodyparts(human_info, basemesh, subdiv_levels=1):
+        for bodypart in ["eyes", "eyelashes", "eyebrows", "tongue", "teeth", "hair"]:
+            if bodypart in human_info and not human_info[bodypart] is None and not str(human_info[bodypart]).strip() == "":
+                asset_filename = human_info[bodypart]
+                _LOG.debug("A bodypart was specified", (bodypart, asset_filename))
+                asset_absolute_path = AssetService.find_asset_absolute_path(asset_filename, asset_subdir=bodypart)
+                _LOG.debug("Asset absolute path", asset_absolute_path)
+                if not asset_absolute_path is None:
+                    bodypart_object = HumanService.add_mhclo_asset(asset_absolute_path, basemesh, asset_type=bodypart, subdiv_levels=subdiv_levels)
+                    if subdiv_levels > 0:
+                        modifier = bodypart_object.modifiers.new("Subdivision", 'SUBSURF')
+                        modifier.levels = 0
+                        modifier.render_levels = subdiv_levels
+                else:
+                    _LOG.warn("Could not locate bodypart", asset_filename)
+
+
+    @staticmethod
+    def deserialize_from_dict(human_info, mask_helpers=True, detailed_helpers=True, extra_vertex_groups=True, feet_on_ground=True, scale=0.1, subdiv_levels=1):
         if human_info is None:
             raise ValueError('Cannot use None as human_info')
         if len(human_info.keys()) < 1:
             raise ValueError('The provided dict does not seem to be a valid human_info')
 
-        macro_detail_dict = human_info["phenotype"]
+        _LOG.dump("human_info", human_info)
 
+        macro_detail_dict = human_info["phenotype"]
         basemesh = HumanService.create_human(mask_helpers, detailed_helpers, extra_vertex_groups, feet_on_ground, scale, macro_detail_dict)
+
+        if subdiv_levels > 0:
+            modifier = basemesh.modifiers.new("Subdivision", 'SUBSURF')
+            modifier.levels = 0
+            modifier.render_levels = subdiv_levels
+
+        HumanService._check_add_rig(human_info, basemesh)
+        HumanService._check_add_bodyparts(human_info, basemesh, subdiv_levels=subdiv_levels)
 
         return basemesh
 
     @staticmethod
-    def deserialize_from_json_file(filename, mask_helpers=True, detailed_helpers=True, extra_vertex_groups=True, feet_on_ground=True, scale=0.1):
+    def deserialize_from_json_file(filename, mask_helpers=True, detailed_helpers=True, extra_vertex_groups=True, feet_on_ground=True, scale=0.1, subdiv_levels=1):
         if not os.path.exists(filename):
             raise IOError(str(filename) + " does not exist")
         human_info = None
         with open(filename, "r") as json_file:
             human_info = json.load(json_file)
-        return HumanService.deserialize_from_json_string(human_info, mask_helpers, detailed_helpers, extra_vertex_groups, feet_on_ground, scale)
+        return HumanService.deserialize_from_dict(human_info, mask_helpers, detailed_helpers, extra_vertex_groups, feet_on_ground, scale, subdiv_levels)
 
     @staticmethod
     def create_human(mask_helpers=True, detailed_helpers=True, extra_vertex_groups=True, feet_on_ground=True, scale=0.1, macro_detail_dict=None):
@@ -191,3 +334,23 @@ class HumanService:
 
         return basemesh
 
+    @staticmethod
+    def add_standard_rig(basemesh, rig_name, import_weights=True):
+        rigs_dir = LocationService.get_mpfb_data("rigs")
+        standard_dir = os.path.join(rigs_dir, "standard")
+        rig_file = os.path.join(standard_dir, "rig." + rig_name + ".json")
+        rig = Rig.from_json_file_and_basemesh(rig_file, basemesh)
+        armature_object = rig.create_armature_and_fit_to_basemesh()
+        basemesh.parent = armature_object
+
+        armature_object.location = basemesh.location
+        basemesh.location = (0.0, 0.0, 0.0)
+
+        if import_weights:
+            weights_file = os.path.join(standard_dir, "weights." + rig_name + ".json")
+            weights = dict()
+            with open(weights_file, 'r') as json_file:
+                weights = json.load(json_file)
+            RigService.apply_weights(armature_object, basemesh, weights)
+
+        return armature_object
