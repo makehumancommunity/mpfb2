@@ -6,6 +6,7 @@ from mpfb.services.logservice import LogService
 from mpfb.services.objectservice import ObjectService
 from mpfb.services.materialservice import MaterialService
 from mpfb.entities.objectproperties import GeneralObjectProperties
+from mpfb.entities.objectproperties import HumanObjectProperties
 from mpfb.entities.material.makeskinmaterial import MakeSkinMaterial
 from mpfb.entities.material.enhancedskinmaterial import EnhancedSkinMaterial
 from mpfb import ClassManager
@@ -24,6 +25,15 @@ class MPFB_OT_Load_Library_Skin_Operator(bpy.types.Operator):
 
         _LOG.debug("filepath", self.filepath)
 
+        mhclo_dir = os.path.basename(os.path.dirname(self.filepath))
+        mhclo_file = os.path.basename(self.filepath)
+
+        material_source = mhclo_dir + "/" + mhclo_file
+
+        _LOG.debug("material_source", material_source)
+
+        HumanObjectProperties.set_value("material_source", material_source, entity_reference=context.active_object)
+
         from mpfb.ui.assetlibrary.assetsettingspanel import ASSET_SETTINGS_PROPERTIES # pylint: disable=C0415
 
         scene = context.scene
@@ -36,6 +46,8 @@ class MPFB_OT_Load_Library_Skin_Operator(bpy.types.Operator):
         MaterialService.delete_all_materials(blender_object)
 
         name = blender_object.name + ".body"
+
+
 
         if skin_type == "MAKESKIN":
             makeskin_material = MakeSkinMaterial()
