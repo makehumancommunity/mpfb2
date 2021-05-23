@@ -90,8 +90,14 @@ class ClothesService:
         basemesh.shape_key_remove(shape_key)
 
     @staticmethod
-    def update_delete_group(mhclo, basemesh, replace_delete_group=False, delete_group_name=None, add_modifier=True):
+    def update_delete_group(mhclo, basemesh, replace_delete_group=False, delete_group_name=None, add_modifier=True, skip_if_empty_delete_group=True):
         """Create or update a "delete" group on the base mesh."""
+
+        if skip_if_empty_delete_group:
+            if not mhclo.delete or not mhclo.delverts or len(mhclo.delverts) < 1:
+                # mhclo has empty delete group. There's no point continuing.
+                return
+
         if delete_group_name is None:
             if mhclo.delete_group is None:
                 delete_group_name = "Delete"
