@@ -128,6 +128,15 @@ class HumanService:
                     human_info[str(bodypart).lower()] = str(asset_source).strip()
 
     @staticmethod
+    def _populate_human_info_with_proxy_info(human_info, basemesh):
+        proxy = ObjectService.find_object_of_type_amongst_nearest_relatives(basemesh, "Proxymeshes")
+        if not proxy:
+            return
+        asset_source = GeneralObjectProperties.get_value("asset_source", entity_reference=proxy)
+        if not asset_source is None:
+            human_info["proxy"] = str(asset_source).strip()
+
+    @staticmethod
     def _create_default_human_info_dict():
         human_info = dict()
         human_info["phenotype"] = TargetService.get_default_macro_info_dict()
@@ -163,6 +172,7 @@ class HumanService:
         HumanService._populate_human_info_with_basemesh_info(human_info, basemesh)
         HumanService._populate_human_info_with_rig_info(human_info, basemesh)
         HumanService._populate_human_info_with_bodyparts_info(human_info, basemesh)
+        HumanService._populate_human_info_with_proxy_info(human_info, basemesh)
         HumanService._populate_human_info_with_skin_info(human_info, basemesh)
 
         _LOG.dump("Human info", human_info)
