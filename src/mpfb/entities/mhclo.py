@@ -31,6 +31,7 @@ class Mhclo:
         self.delverts = []
         self.delete = False
         self.delete_group = "Delete"
+        self.uuid = None
 
     def load(self, mhclo_filename):
         """Populate settings from contents of a MHCLO file. This will not automatically load the
@@ -147,6 +148,8 @@ class Mhclo:
                 self.name = words[1]
             elif key == 'z_depth':
                 self.zdepth = int(words[1])
+            elif key == 'uuid':
+                self.uuid = words[1]
             elif key == 'tag':
                 if self.tags != "":
                     self.tags += ","
