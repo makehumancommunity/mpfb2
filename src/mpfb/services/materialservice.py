@@ -1,8 +1,8 @@
 import os, bpy
 
 from .logservice import LogService
+from .objectservice import ObjectService
 _LOG = LogService.get_logger("services.materialservice")
-
 
 class MaterialService():
 
@@ -97,6 +97,57 @@ class MaterialService():
         if not blender_object is None:
             blender_object.data.materials.append(mat)
         return mat
+
+    @staticmethod
+    def _assign_material_instance(blender_object, material, group_name):
+        _LOG.enter()
+        _LOG.debug("blender_object, material, group_name", (blender_object, material, group_name))
+
+        if not ObjectService.has_vertex_group(blender_object, group_name):
+            return
+
+        ObjectService.activate_blender_object(blender_object)
+        bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
+
+        blender_object.data.materials.append(material)
+        slot_number = blender_object.material_slots.find(material.name)
+        _LOG.dump("slot_number", slot_number)
+
+        bpy.context.object.active_material_index = slot_number
+
+        bpy.ops.object.mode_set(mode='EDIT', toggle=False)
+        bpy.ops.mesh.select_all(action='DESELECT')
+        bpy.ops.object.vertex_group_set_active(group=group_name)
+        bpy.ops.object.vertex_group_select()
+        bpy.ops.object.material_slot_assign()
+
+        bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
+
+    @staticmethod
+    def create_and_assign_material_slots(basemesh, bodyproxy=None):
+        if not MaterialService.has_materials(basemesh):
+            raise ValueError("Basemesh must have the initial material created before calling this method")
+
+        _LOG.debug("basemesh, proxymesh", (basemesh, bodyproxy))
+
+        base_material = basemesh.material_slots[0].material
+        parts = str(base_material.name).split(".")
+        prefix = parts[0]
+
+        _LOG.debug("prefix", prefix)
+
+        if not bodyproxy is None:
+            MaterialService.delete_all_materials(bodyproxy)
+            MaterialService.assign_new_or_existing_material(base_material.name, bodyproxy)
+
+        for group_name in ["nipple", "lips", "fingernails", "toenails", "ears", "genitals"]:
+            _LOG.debug("About to create material instance for", group_name)
+            material_instance = base_material.copy()
+            material_instance.name = prefix + "." + group_name
+            if basemesh and ObjectService.has_vertex_group(basemesh, group_name):
+                MaterialService._assign_material_instance(basemesh, material_instance, group_name)
+            if bodyproxy and ObjectService.has_vertex_group(bodyproxy, group_name):
+                MaterialService._assign_material_instance(bodyproxy, material_instance, group_name)
 
     @staticmethod
     def get_skin_diffuse_color():

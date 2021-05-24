@@ -42,17 +42,19 @@ class MPFB_OT_Load_Library_Skin_Operator(bpy.types.Operator):
         material_instances = ASSET_SETTINGS_PROPERTIES.get_value("material_instances", entity_reference=scene)
 
         blender_object = context.active_object
+        basemesh = ObjectService.find_object_of_type_amongst_nearest_relatives(blender_object, "Basemesh")
+        bodyproxy = ObjectService.find_object_of_type_amongst_nearest_relatives(blender_object, "Proxymeshes")
 
-        MaterialService.delete_all_materials(blender_object)
+        MaterialService.delete_all_materials(basemesh)
+        if bodyproxy:
+            MaterialService.delete_all_materials(bodyproxy)
 
-        name = blender_object.name + ".body"
-
-
+        name = basemesh.name + ".body"
 
         if skin_type == "MAKESKIN":
             makeskin_material = MakeSkinMaterial()
             makeskin_material.populate_from_mhmat(self.filepath)
-            blender_material = MaterialService.create_empty_material(name, blender_object)
+            blender_material = MaterialService.create_empty_material(name, basemesh)
             makeskin_material.apply_node_tree(blender_material)
 
         if skin_type in ["ENHANCED", "ENHANCED_SSS"]:
@@ -62,8 +64,10 @@ class MPFB_OT_Load_Library_Skin_Operator(bpy.types.Operator):
 
             enhanced_material = EnhancedSkinMaterial(presets)
             enhanced_material.populate_from_mhmat(self.filepath)
-            blender_material = MaterialService.create_empty_material(name, blender_object)
+            blender_material = MaterialService.create_empty_material(name, basemesh)
             enhanced_material.apply_node_tree(blender_material)
+
+        MaterialService.create_and_assign_material_slots(basemesh, bodyproxy)
 
         self.report({'INFO'}, "Skin was loaded")
         return {'FINISHED'}

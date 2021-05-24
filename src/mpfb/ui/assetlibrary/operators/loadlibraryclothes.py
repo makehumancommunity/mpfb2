@@ -128,6 +128,9 @@ class MPFB_OT_Load_Library_Clothes_Operator(bpy.types.Operator):
             modifier.levels = 0
             modifier.render_levels = subdiv_levels
 
+        if clothes and mhclo.uuid:
+            GeneralObjectProperties.set_value("uuid", mhclo.uuid, entity_reference=clothes)
+
         self.report({'INFO'}, "Clothes were loaded")
         return {'FINISHED'}
 

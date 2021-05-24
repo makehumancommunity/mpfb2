@@ -7,11 +7,13 @@ from mpfb.services.objectservice import ObjectService
 from mpfb.services.materialservice import MaterialService
 from mpfb.services.clothesservice import ClothesService
 from mpfb.entities.mhclo import Mhclo
+from mpfb.entities.socketobject import ALL_EXTRA_GROUPS
 from mpfb.entities.objectproperties import GeneralObjectProperties
 from mpfb.entities.material.makeskinmaterial import MakeSkinMaterial
 from mpfb import ClassManager
 
 _LOG = LogService.get_logger("assetlibrary.loadlibraryproxy")
+_LOG.set_level(LogService.DUMP)
 
 class MPFB_OT_Load_Library_Proxy_Operator(bpy.types.Operator):
     """Load PROXY from asset library."""
@@ -116,6 +118,16 @@ class MPFB_OT_Load_Library_Proxy_Operator(bpy.types.Operator):
 
         if makeclothes_metadata:
             ClothesService.set_makeclothes_object_properties_from_mhclo(clothes, mhclo, delete_group_name=delete_name)
+
+        _LOG.debug("clothes, uuid", (clothes, mhclo.uuid))
+        if clothes and mhclo.uuid:
+            GeneralObjectProperties.set_value("uuid", mhclo.uuid, entity_reference=clothes)
+            _LOG.debug("Has extra vgroups", mhclo.uuid in ALL_EXTRA_GROUPS)
+            if mhclo.uuid in ALL_EXTRA_GROUPS:
+                for vgroup_name in ALL_EXTRA_GROUPS[mhclo.uuid].keys():
+                    _LOG.debug("Will create vgroup", vgroup_name)
+                    vgroup = clothes.vertex_groups.new(name=vgroup_name)
+                    vgroup.add(ALL_EXTRA_GROUPS[mhclo.uuid][vgroup_name], 1.0, 'ADD')
 
         self.report({'INFO'}, "Proxy was loaded")
         return {'FINISHED'}

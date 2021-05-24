@@ -9,7 +9,6 @@ from mpfb.services.objectservice import ObjectService
 from mpfb.services.assetservice import AssetService, ASSET_LIBRARY_SECTIONS
 
 _LOG = LogService.get_logger("assetlibrary.assetlibrarypanel")
-_LOG.set_level(LogService.DUMP)
 
 _NOASSETS = [
     "No assets in this section.",
