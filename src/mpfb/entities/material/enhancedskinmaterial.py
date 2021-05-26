@@ -19,10 +19,11 @@ class EnhancedSkinMaterial(MhMaterial):
     def _template(self, template_values, has, tex, key):
         template_values[has] = "false"
         template_values[tex] = "\"\""
-        if key in self._settings and self._settings[key]:
+        value = self.get_value(key)
+        if value:
             _LOG.debug(key + " is set in mhmat")
             template_values[has] = "true"
-            template_values[tex] = "\"" + self._settings[key] + "\""
+            template_values[tex] = "\"" + value + "\""
         else:
             _LOG.debug(key + " is not set in mhmat")
 

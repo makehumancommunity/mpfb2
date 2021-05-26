@@ -95,6 +95,26 @@ class MhMaterial:
         material_info = SocketService.get_proxy_material_info(uuid)
         self._populate(material_info, load_mhmat_if_provided)
 
+    def get_value(self, mhmat_key_name, case_insensitive=True):
+        if mhmat_key_name in self._settings and self._settings[mhmat_key_name]:
+            _LOG.debug("value existed with current case", (mhmat_key_name, self._settings[mhmat_key_name]))
+            return self._settings[mhmat_key_name]
+
+        if case_insensitive:
+            requested_name = str(mhmat_key_name).lower().strip()
+            for key in self._settings.keys():
+                existing_name = str(key).lower().strip()
+                _LOG.debug("Checking for match", (requested_name, existing_name, key))
+                if requested_name == existing_name and self._settings[key]:
+                    _LOG.debug("value existed with different case", (mhmat_key_name, requested_name, self._settings[key]))
+                    return self._settings[key]
+        else:
+            _LOG.debug("Will not check different case")
+
+        _LOG.debug("Value did not exist or was not set", mhmat_key_name)
+
+        return None
+
     def as_mhmat(self):
         mat = "# This is a material for MakeHuman\n"
 
