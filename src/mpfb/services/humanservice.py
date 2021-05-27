@@ -19,7 +19,6 @@ from mpfb.entities.socketobject import BASEMESH_EXTRA_GROUPS, ALL_EXTRA_GROUPS
 from .logservice import LogService
 
 _LOG = LogService.get_logger("services.humanservice")
-_LOG.set_level(LogService.DEBUG)
 
 _EXISTING_PRESETS = None
 
@@ -484,6 +483,43 @@ class HumanService:
         HumanObjectProperties.set_value("material_source", human_info["skin_mhmat"], entity_reference=basemesh)
 
     @staticmethod
+    def _set_eyes(human_info, basemesh):
+        _LOG.enter()
+
+        eyes = ObjectService.find_object_of_type_amongst_nearest_relatives(basemesh, "Eyes")
+        if not eyes:
+            _LOG.debug("There are no eyes")
+            return
+
+        if not "eyes_material_type" in human_info or not human_info["eyes_material_type"]:
+            _LOG.debug("Eyes material type not specified")
+            return
+
+        if human_info["eyes_material_type"] != "PROCEDURAL_EYES":
+            _LOG.debug("Eyes material is not procedural")
+            return
+
+        if not "eyes_material_settings" in human_info or not human_info["eyes_material_settings"]:
+            _LOG.debug("There are no eye material overrides, going with the default")
+            return
+
+        settings = human_info["eyes_material_settings"]
+        _LOG.dump("Eye material overrides", settings)
+
+        slot = eyes.material_slots[0]
+        material = slot.material
+        group_node = NodeService.find_first_node_by_type_name(material.node_tree, "ShaderNodeGroup")
+        if group_node:
+            material_settings = NodeService.get_socket_default_values(group_node)
+            if "IrisMinorColor" in material_settings:
+                _LOG.dump("will try to apply settings", settings)
+                NodeService.set_socket_default_values(group_node, settings)
+            else:
+                _LOG.warn("Material group node did not have expected key -> not procedural eyes")
+        else:
+            _LOG.warn("Material had no group node -> not procedural eyes")
+
+    @staticmethod
     def deserialize_from_dict(human_info, mask_helpers=True, detailed_helpers=True, extra_vertex_groups=True, feet_on_ground=True, scale=0.1, subdiv_levels=1):
         if human_info is None:
             raise ValueError('Cannot use None as human_info')
@@ -506,6 +542,7 @@ class HumanService:
         HumanService._check_add_bodyparts(human_info, basemesh, subdiv_levels=subdiv_levels)
         HumanService._check_add_proxy(human_info, basemesh, subdiv_levels=subdiv_levels)
         HumanService._set_skin(human_info, basemesh)
+        HumanService._set_eyes(human_info, basemesh)
 
         return basemesh
 
