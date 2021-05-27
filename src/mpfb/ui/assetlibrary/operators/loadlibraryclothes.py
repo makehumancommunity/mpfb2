@@ -1,14 +1,10 @@
 """Operator for importing MHCLO clothes from asset library."""
 
-import bpy, os
+import bpy
 from bpy.props import StringProperty
 from mpfb.services.logservice import LogService
 from mpfb.services.objectservice import ObjectService
-from mpfb.services.materialservice import MaterialService
-from mpfb.services.clothesservice import ClothesService
-from mpfb.entities.mhclo import Mhclo
-from mpfb.entities.objectproperties import GeneralObjectProperties
-from mpfb.entities.material.makeskinmaterial import MakeSkinMaterial
+from mpfb.services.humanservice import HumanService
 from mpfb import ClassManager
 
 _LOG = LogService.get_logger("assetlibrary.loadlibraryclothes")
@@ -22,24 +18,24 @@ class MPFB_OT_Load_Library_Clothes_Operator(bpy.types.Operator):
 
     filepath = StringProperty(name="filepath", description="Full path to asset", default="")
     object_type = StringProperty(name="object_type", description="type of the object", default="Clothes")
+    material_type = StringProperty(name="material_type", description="type of material", default="MAKESKIN")
 
     def execute(self, context):
 
         _LOG.debug("filepath", self.filepath)
         _LOG.debug("object_type", self.object_type)
+        _LOG.debug("material_type", self.object_type)
 
         from mpfb.ui.assetlibrary.assetsettingspanel import ASSET_SETTINGS_PROPERTIES # pylint: disable=C0415
 
         scene = context.scene
 
-        object_type = self.object_type
-        material_type = "MAKESKIN" # TODO: some kind of operator argument
         fit_to_body = ASSET_SETTINGS_PROPERTIES.get_value("fit_to_body", entity_reference=scene)
         delete_group = ASSET_SETTINGS_PROPERTIES.get_value("delete_group", entity_reference=scene)
-        specific_delete_group = ASSET_SETTINGS_PROPERTIES.get_value("specific_delete_group", entity_reference=scene)
+        # TODO: specific_delete_group = ASSET_SETTINGS_PROPERTIES.get_value("specific_delete_group", entity_reference=scene)
         set_up_rigging = ASSET_SETTINGS_PROPERTIES.get_value("set_up_rigging", entity_reference=scene)
         interpolate_weights = ASSET_SETTINGS_PROPERTIES.get_value("interpolate_weights", entity_reference=scene)
-        makeclothes_metadata = ASSET_SETTINGS_PROPERTIES.get_value("makeclothes_metadata", entity_reference=scene)
+        # TODO: makeclothes_metadata = ASSET_SETTINGS_PROPERTIES.get_value("makeclothes_metadata", entity_reference=scene)
         add_subdiv_modifier = ASSET_SETTINGS_PROPERTIES.get_value("add_subdiv_modifier", entity_reference=scene)
         subdiv_levels = ASSET_SETTINGS_PROPERTIES.get_value("subdiv_levels", entity_reference=scene)
 
@@ -72,64 +68,10 @@ class MPFB_OT_Load_Library_Clothes_Operator(bpy.types.Operator):
             self.report({'ERROR'}, "set up rigging is enabled, but could not find a rig to attach to")
             return {'FINISHED'}
 
-        mhclo = Mhclo()
-        mhclo.load(self.filepath) # pylint: disable=E1101
-        clothes = mhclo.load_mesh(context)
+        if not add_subdiv_modifier:
+            subdiv_levels = 0
 
-        if not clothes or clothes is None:
-            self.report({'ERROR'}, "failed to import the clothes mesh")
-            return {'FINISHED'}
-
-        asset_dir = os.path.basename(os.path.dirname(os.path.realpath(self.filepath)))
-        asset_source = asset_dir + "/" + os.path.basename(self.filepath)
-
-        GeneralObjectProperties.set_value("object_type", object_type, entity_reference=clothes)
-        GeneralObjectProperties.set_value("asset_source", asset_source, entity_reference=clothes)
-
-        bpy.ops.object.shade_smooth()
-
-        if not material_type == "PRINCIPLED":
-            MaterialService.delete_all_materials(clothes)
-
-        if material_type == "MAKESKIN" and not mhclo.material is None:
-            makeskin_material = MakeSkinMaterial()
-            makeskin_material.populate_from_mhmat(mhclo.material)
-            name = os.path.basename(mhclo.material)
-            blender_material = MaterialService.create_empty_material(name, clothes)
-            makeskin_material.apply_node_tree(blender_material)
-
-        if fit_to_body:
-            ClothesService.fit_clothes_to_human(clothes, basemesh, mhclo)
-            mhclo.set_scalings(context, basemesh)
-
-        delete_name = "Delete"
-        if delete_group:
-            if specific_delete_group:
-                delete_name = str(os.path.basename(self.filepath)) # pylint: disable=E1101
-                delete_name = delete_name.replace(".mhclo", "")
-                delete_name = delete_name.replace(".MHCLO", "")
-                delete_name = delete_name.replace(" ", "_")
-                delete_name = "Delete." + delete_name
-            ClothesService.update_delete_group(mhclo, basemesh, replace_delete_group=False, delete_group_name=delete_name)
-
-        if set_up_rigging:
-            clothes.location = (0.0, 0.0, 0.0)
-            clothes.parent = rig
-            modifier = clothes.modifiers.new("Armature", 'ARMATURE')
-            modifier.object = rig
-            if interpolate_weights:
-                ClothesService.interpolate_weights(basemesh, clothes, rig, mhclo)
-
-        if makeclothes_metadata:
-            ClothesService.set_makeclothes_object_properties_from_mhclo(clothes, mhclo, delete_group_name=delete_name)
-
-        if add_subdiv_modifier:
-            modifier = clothes.modifiers.new("Subdivision", 'SUBSURF')
-            modifier.levels = 0
-            modifier.render_levels = subdiv_levels
-
-        if clothes and mhclo.uuid:
-            GeneralObjectProperties.set_value("uuid", mhclo.uuid, entity_reference=clothes)
+        HumanService.add_mhclo_asset(self.filepath, basemesh, asset_type=self.object_type, subdiv_levels=subdiv_levels, material_type=self.material_type)
 
         self.report({'INFO'}, "Clothes were loaded")
         return {'FINISHED'}
