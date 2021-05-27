@@ -7,6 +7,7 @@ from mpfb.services.logservice import LogService
 from mpfb.services.locationservice import LocationService
 from mpfb.services.objectservice import ObjectService
 from mpfb.services.assetservice import AssetService, ASSET_LIBRARY_SECTIONS
+from mpfb.ui.assetlibrary.assetsettingspanel import ASSET_SETTINGS_PROPERTIES
 
 _LOG = LogService.get_logger("assetlibrary.assetlibrarypanel")
 
@@ -60,6 +61,11 @@ class _Abstract_Asset_Library_Panel(bpy.types.Panel):
                 op.filepath = asset["full_path"]
                 if hasattr(op, "object_type") and self.object_type:
                     op.object_type = self.object_type
+                procedural_eyes = ASSET_SETTINGS_PROPERTIES.get_value("procedural_eyes", entity_reference=scene)
+                _LOG.debug("Eye settings, eye_overrides, procedural_eyes", (self.eye_overrides, procedural_eyes))
+                if hasattr(op, "material_type") and self.eye_overrides and procedural_eyes:
+                    op.material_type = "PROCEDURAL_EYES"
+
 
     def draw(self, context):
         _LOG.enter()
