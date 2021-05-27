@@ -1,14 +1,10 @@
 """Operator for importing MHCLO skin from asset library."""
 
-import bpy, os
+import bpy
 from bpy.props import StringProperty
 from mpfb.services.logservice import LogService
 from mpfb.services.objectservice import ObjectService
-from mpfb.services.materialservice import MaterialService
-from mpfb.entities.objectproperties import GeneralObjectProperties
-from mpfb.entities.objectproperties import HumanObjectProperties
-from mpfb.entities.material.makeskinmaterial import MakeSkinMaterial
-from mpfb.entities.material.enhancedskinmaterial import EnhancedSkinMaterial
+from mpfb.services.humanservice import HumanService
 from mpfb import ClassManager
 
 _LOG = LogService.get_logger("assetlibrary.loadlibraryskin")
@@ -25,15 +21,6 @@ class MPFB_OT_Load_Library_Skin_Operator(bpy.types.Operator):
 
         _LOG.debug("filepath", self.filepath)
 
-        mhclo_dir = os.path.basename(os.path.dirname(self.filepath))
-        mhclo_file = os.path.basename(self.filepath)
-
-        material_source = mhclo_dir + "/" + mhclo_file
-
-        _LOG.debug("material_source", material_source)
-
-        HumanObjectProperties.set_value("material_source", material_source, entity_reference=context.active_object)
-
         from mpfb.ui.assetlibrary.assetsettingspanel import ASSET_SETTINGS_PROPERTIES # pylint: disable=C0415
 
         scene = context.scene
@@ -45,29 +32,7 @@ class MPFB_OT_Load_Library_Skin_Operator(bpy.types.Operator):
         basemesh = ObjectService.find_object_of_type_amongst_nearest_relatives(blender_object, "Basemesh")
         bodyproxy = ObjectService.find_object_of_type_amongst_nearest_relatives(blender_object, "Proxymeshes")
 
-        MaterialService.delete_all_materials(basemesh)
-        if bodyproxy:
-            MaterialService.delete_all_materials(bodyproxy)
-
-        name = basemesh.name + ".body"
-
-        if skin_type == "MAKESKIN":
-            makeskin_material = MakeSkinMaterial()
-            makeskin_material.populate_from_mhmat(self.filepath)
-            blender_material = MaterialService.create_empty_material(name, basemesh)
-            makeskin_material.apply_node_tree(blender_material)
-
-        if skin_type in ["ENHANCED", "ENHANCED_SSS"]:
-            presets = dict()
-            presets["skin_material_type"] = skin_type
-            presets["scale_factor"] = "METER" # TODO: get from active object
-
-            enhanced_material = EnhancedSkinMaterial(presets)
-            enhanced_material.populate_from_mhmat(self.filepath)
-            blender_material = MaterialService.create_empty_material(name, basemesh)
-            enhanced_material.apply_node_tree(blender_material)
-
-        MaterialService.create_and_assign_material_slots(basemesh, bodyproxy)
+        HumanService.set_character_skin(self.filepath, basemesh, bodyproxy=bodyproxy, skin_type=skin_type, material_instances=material_instances)
 
         self.report({'INFO'}, "Skin was loaded")
         return {'FINISHED'}
