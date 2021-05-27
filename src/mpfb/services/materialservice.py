@@ -131,8 +131,8 @@ class MaterialService():
         _LOG.debug("basemesh, proxymesh", (basemesh, bodyproxy))
 
         base_material = basemesh.material_slots[0].material
-        parts = str(base_material.name).split(".")
-        prefix = parts[0]
+
+        prefix = str(basemesh.name).split(".")[0]
 
         _LOG.debug("prefix", prefix)
 
@@ -144,10 +144,13 @@ class MaterialService():
             _LOG.debug("About to create material instance for", group_name)
             material_instance = base_material.copy()
             material_instance.name = prefix + "." + group_name
+            _LOG.debug("Material final name", material_instance.name)
             if basemesh and ObjectService.has_vertex_group(basemesh, group_name):
                 MaterialService._assign_material_instance(basemesh, material_instance, group_name)
             if bodyproxy and ObjectService.has_vertex_group(bodyproxy, group_name):
                 MaterialService._assign_material_instance(bodyproxy, material_instance, group_name)
+            else:
+                _LOG.debug("Not adding slot to bodyproxy because it is none or group does not exist", (bodyproxy, group_name))
 
     @staticmethod
     def get_skin_diffuse_color():
@@ -163,11 +166,11 @@ class MaterialService():
 
     @staticmethod
     def get_eye_diffuse_color():
-        return [0.9, 0.9, 0.9, 1.0]
+        return [0.95, 0.95, 0.95, 1.0]
 
     @staticmethod
     def get_teeth_diffuse_color():
-        return [0.9, 0.9, 0.9, 1.0]
+        return [0.95, 0.95, 0.95, 1.0]
 
     @staticmethod
     def get_diffuse_colors():
@@ -179,5 +182,8 @@ class MaterialService():
         colors["Bodyproxy"] = MaterialService.get_skin_diffuse_color()
         colors["Basemesh"] = MaterialService.get_skin_diffuse_color()
         colors["Clothes"] = MaterialService.get_generic_clothes_diffuse_color()
-        colors["Bodypart"] = MaterialService.get_generic_bodypart_diffuse_color()
+
+        for key in ["Bodypart", "Eyebrows", "Eyelashes", "Hair", "Tongue"]:
+            colors[key] = MaterialService.get_generic_bodypart_diffuse_color()
+
         return colors
