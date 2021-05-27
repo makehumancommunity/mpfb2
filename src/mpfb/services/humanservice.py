@@ -15,11 +15,11 @@ from mpfb.entities.material.enhancedskinmaterial import EnhancedSkinMaterial
 from mpfb.services.materialservice import MaterialService
 from mpfb.services.locationservice import LocationService
 from mpfb.entities.objectproperties import GeneralObjectProperties
-from mpfb.entities.socketobject import BASEMESH_EXTRA_GROUPS
+from mpfb.entities.socketobject import BASEMESH_EXTRA_GROUPS, ALL_EXTRA_GROUPS
 from .logservice import LogService
 
 _LOG = LogService.get_logger("services.humanservice")
-_LOG.set_level(LogService.DUMP)
+_LOG.set_level(LogService.DEBUG)
 
 _EXISTING_PRESETS = None
 
@@ -95,11 +95,38 @@ class HumanService:
                     # This seems to be an enhanced skin material
                     name = material.name
                     if "." in name:
-                        (prefix, name) = name.split(".", 2)
+                        name = str(name).split(".", maxsplit=1)[1]
                     if "." in name:
-                        (name, number) = name.split(".", 2)
+                        name = str(name).split(".", maxsplit=1)[0]
                     human_info["skin_material_settings"][name] = values
 
+    @staticmethod
+    def _populate_human_info_with_eye_material_info(human_info, basemesh):
+        eyes = ObjectService.find_object_of_type_amongst_nearest_relatives(basemesh, "Eyes")
+
+        if not eyes:
+            return
+
+        if not MaterialService.has_materials(eyes):
+            human_info["eyes_material_type"] = "NONE"
+            return
+
+        material_settings = dict()
+
+        _LOG.debug("material_slots", eyes.material_slots)
+
+        slot = eyes.material_slots[0]
+
+        material = slot.material
+        group_node = NodeService.find_first_node_by_type_name(material.node_tree, "ShaderNodeGroup")
+        if group_node:
+            material_settings = NodeService.get_socket_default_values(group_node)
+            if "IrisMinorColor" not in material_settings:
+                # Material exists, but does not seem procedural. Assume it is a MAKESKIN material
+                human_info["eyes_material_type"] = "MAKESKIN"
+            else:
+                human_info["eyes_material_type"] = "PROCEDURAL_EYES"
+                human_info["eyes_material_settings"] = material_settings
 
     @staticmethod
     def _populate_human_info_with_basemesh_info(human_info, basemesh):
@@ -174,6 +201,7 @@ class HumanService:
         HumanService._populate_human_info_with_bodyparts_info(human_info, basemesh)
         HumanService._populate_human_info_with_proxy_info(human_info, basemesh)
         HumanService._populate_human_info_with_skin_info(human_info, basemesh)
+        HumanService._populate_human_info_with_eye_material_info(human_info, basemesh)
 
         _LOG.dump("Human info", human_info)
         return json.dumps(human_info, indent=4, sort_keys=True)
@@ -189,7 +217,7 @@ class HumanService:
         HumanService.update_list_of_human_presets()
 
     @staticmethod
-    def add_mhclo_asset(mhclo_file, basemesh, asset_type="Clothes", subdiv_levels=1, load_mhmat=True):
+    def add_mhclo_asset(mhclo_file, basemesh, asset_type="Clothes", subdiv_levels=1, material_type="MAKESKIN"):
         mhclo = Mhclo()
         mhclo.load(mhclo_file) # pylint: disable=E1101
         clothes = mhclo.load_mesh(bpy.context)
@@ -207,13 +235,45 @@ class HumanService:
 
         bpy.ops.object.shade_smooth()
 
-        if not mhclo.material is None and load_mhmat:
+        name = basemesh.name
+
+        if "." in name:
+            name = str(name).split(".")[0]
+
+        name = name + "." + str(os.path.basename(mhclo_file)).replace(".mhclo", "").replace(".proxy", "")
+        clothes.name = name
+
+        _LOG.debug("Given name (basemesh, variable, clothes)", (basemesh.name, name, clothes.name))
+
+        colors = MaterialService.get_diffuse_colors()
+        _LOG.dump("Colors, atype, exists", (colors, atype, atype in colors))
+
+        color = (0.8, 0.8, 0.8, 1.0)
+
+        if atype in colors:
+            color = colors[atype]
+
+        if not mhclo.material is None and material_type == "MAKESKIN":
             MaterialService.delete_all_materials(clothes)
             makeskin_material = MakeSkinMaterial()
             makeskin_material.populate_from_mhmat(mhclo.material)
-            name = os.path.basename(mhclo.material)
             blender_material = MaterialService.create_empty_material(name, clothes)
             makeskin_material.apply_node_tree(blender_material)
+            blender_material.diffuse_color = color
+
+        if material_type == "PROCEDURAL_EYES":
+            MaterialService.delete_all_materials(clothes)
+            _LOG.debug("Setting up procedural eyes")
+            tree_dir = LocationService.get_mpfb_data("node_trees")
+            json_file_name = os.path.join(tree_dir, "procedural_eyes.json")
+            with open(json_file_name, "r") as json_file:
+                node_tree_dict = json.load(json_file)
+            _LOG.dump("procedural_eyes", node_tree_dict)
+            blender_material = MaterialService.create_empty_material(name, clothes)
+            NodeService.apply_node_tree_from_dict(blender_material.node_tree, node_tree_dict, True)
+            blender_material.blend_method = "BLEND"
+            blender_material.show_transparent_back = True
+            blender_material.diffuse_color = color
 
         ClothesService.fit_clothes_to_human(clothes, basemesh, mhclo)
         mhclo.set_scalings(bpy.context, basemesh)
@@ -235,6 +295,14 @@ class HumanService:
             clothes.parent = basemesh
 
         ClothesService.set_makeclothes_object_properties_from_mhclo(clothes, mhclo, delete_group_name=delete_name)
+
+        if subdiv_levels > 0:
+            modifier = clothes.modifiers.new("Subdivision", 'SUBSURF')
+            modifier.levels = 0
+            modifier.render_levels = subdiv_levels
+
+        if mhclo.uuid:
+            GeneralObjectProperties.set_value("uuid", mhclo.uuid, entity_reference=clothes)
 
         return clothes
 
@@ -260,17 +328,131 @@ class HumanService:
                 _LOG.debug("A bodypart was specified", (bodypart, asset_filename))
                 asset_absolute_path = AssetService.find_asset_absolute_path(asset_filename, asset_subdir=bodypart)
                 _LOG.debug("Asset absolute path", asset_absolute_path)
+                material = "MAKESKIN"
+                if bodypart == "eyes" and "eyes_material_type" in human_info and human_info["eyes_material_type"]:
+                    material = human_info["eyes_material_type"]
                 if not asset_absolute_path is None:
-                    bodypart_object = HumanService.add_mhclo_asset(asset_absolute_path, basemesh, asset_type=bodypart, subdiv_levels=subdiv_levels)
-                    if subdiv_levels > 0:
-                        modifier = bodypart_object.modifiers.new("Subdivision", 'SUBSURF')
-                        modifier.levels = 0
-                        modifier.render_levels = subdiv_levels
-                    if bodypart_object and "name" in human_info and human_info["name"]:
-                        bodypart_object.name = human_info["name"] + "." + bodypart_object.name
-
+                    bodypart_object = HumanService.add_mhclo_asset(asset_absolute_path, basemesh, asset_type=bodypart, subdiv_levels=subdiv_levels, material_type=material)
+                    #if bodypart_object and "name" in human_info and human_info["name"]:
+                    #    bodypart_object.name = human_info["name"] + "." + bodypart_object.name
                 else:
                     _LOG.warn("Could not locate bodypart", asset_filename)
+
+    @staticmethod
+    def _check_add_proxy(human_info, basemesh, subdiv_levels=1):
+        if not "proxy" in human_info:
+            _LOG.warn("Did not find proxy key in human_info")
+            return
+        if human_info["proxy"] is None or not human_info["proxy"]:
+            _LOG.debug("No proxy was specified")
+            return
+
+        _LOG.debug("A proxy was specified", human_info["proxy"])
+        asset_absolute_path = AssetService.find_asset_absolute_path(human_info["proxy"], asset_subdir="proxymeshes")
+        _LOG.debug("Asset absolute path", asset_absolute_path)
+
+        if not asset_absolute_path is None:
+            proxy_object = HumanService.add_mhclo_asset(asset_absolute_path, basemesh, asset_type="Proxymeshes", subdiv_levels=subdiv_levels, material_type="NONE")
+            if proxy_object and "name" in human_info and human_info["name"]:
+                proxy_object.name = human_info["name"] + "." + proxy_object.name
+            modifier = basemesh.modifiers.new("Hide base mesh", 'MASK')
+            modifier.vertex_group = "body"
+            modifier.invert_vertex_group = True
+
+            uuid = GeneralObjectProperties.get_value("uuid", entity_reference=proxy_object)
+            if uuid and uuid in ALL_EXTRA_GROUPS:
+                for vgroup_name in ALL_EXTRA_GROUPS[uuid].keys():
+                    _LOG.debug("Will create proxy vgroup", vgroup_name)
+                    vgroup = proxy_object.vertex_groups.new(name=vgroup_name)
+                    vgroup.add(ALL_EXTRA_GROUPS[uuid][vgroup_name], 1.0, 'ADD')
+        else:
+            _LOG.warn("Could not locate proxy", human_info[proxy])
+
+    @staticmethod
+    def set_character_skin(mhmat_file, basemesh, bodyproxy=None, skin_type="ENHANCED_SSS", material_instances=True, slot_overrides=None):
+
+        if bodyproxy is None:
+            bodyproxy = ObjectService.find_object_of_type_amongst_nearest_relatives(basemesh, "Proxymeshes")
+
+        material_source = os.path.basename(os.path.dirname(mhmat_file)) + "/" + os.path.basename(mhmat_file)
+
+        _LOG.debug("material_source", material_source)
+
+        HumanObjectProperties.set_value("material_source", material_source, entity_reference=basemesh)
+        if not bodyproxy is None:
+            HumanObjectProperties.set_value("material_source", material_source, entity_reference=bodyproxy)
+
+        MaterialService.delete_all_materials(basemesh)
+        if bodyproxy:
+            MaterialService.delete_all_materials(bodyproxy)
+
+        name = basemesh.name
+        if not str(name).endswith(".body"):
+            name = name + ".body"
+
+        if skin_type == "MAKESKIN":
+            makeskin_material = MakeSkinMaterial()
+            makeskin_material.populate_from_mhmat(mhmat_file)
+            blender_material = MaterialService.create_empty_material(name, basemesh)
+            makeskin_material.apply_node_tree(blender_material)
+
+        if skin_type in ["ENHANCED", "ENHANCED_SSS"]:
+            presets = dict()
+            presets["skin_material_type"] = skin_type
+
+            scale_name = "METER"
+            scale_factor = GeneralObjectProperties.get_value("scale_factor", entity_reference=basemesh)
+            if scale_factor > 0.9:
+                scale_name = "DECIMETER"
+            if scale_factor > 9:
+                scale_name = "CENTIMETER"
+
+            presets["scale_factor"] = scale_name
+
+            enhanced_material = EnhancedSkinMaterial(presets)
+            enhanced_material.populate_from_mhmat(mhmat_file)
+            blender_material = MaterialService.create_empty_material(name, basemesh)
+            enhanced_material.apply_node_tree(blender_material)
+
+        if material_instances:
+            _LOG.debug("Will now attempt to create material slots for", (basemesh, bodyproxy))
+            MaterialService.create_and_assign_material_slots(basemesh, bodyproxy)
+
+            file_name = LocationService.get_user_config("enhanced_settings.default.json")
+            settings = dict()
+            _LOG.debug("Will attempt to load", file_name)
+            with open(file_name, "r") as json_file:
+                settings = json.load(json_file)
+
+            _LOG.dump("Settings before overrides", settings)
+            _LOG.dump("Overrides", slot_overrides)
+            if not slot_overrides is None:
+                for slot_name in slot_overrides.keys():
+                    _LOG.debug("Reading overrides for slot", slot_name)
+                    if not slot_name in settings:
+                        settings[slot_name] = dict()
+                    for key_name in slot_overrides[slot_name].keys():
+                        _LOG.dump("Reading overrides for slot key", (slot_name, key_name, slot_overrides[slot_name][key_name]))
+                        settings[slot_name][key_name] = slot_overrides[slot_name][key_name]
+
+            _LOG.dump("Settings after overrides", settings)
+            for slot in basemesh.material_slots:
+                material = slot.material
+                group_node = NodeService.find_first_node_by_type_name(material.node_tree, "ShaderNodeGroup")
+                if group_node:
+                    values = NodeService.get_socket_default_values(group_node)
+                    if "colorMixIn" in values:
+                        # This seems to be an enhanced skin material
+                        name = material.name
+                        _LOG.debug("Material name", name)
+                        if "." in name:
+                            name = str(name).split(".", maxsplit=1)[1]
+                        if "." in name:
+                            name = str(name).split(".", maxsplit=1)[0]
+                        _LOG.debug("final name", name)
+                        if name in settings:
+                            _LOG.debug("will try to apply settings", settings[name])
+                            NodeService.set_socket_default_values(group_node, settings[name])
 
     @staticmethod
     def _set_skin(human_info, basemesh):
@@ -281,32 +463,24 @@ class HumanService:
 
         _LOG.debug("Skin mhmat", human_info["skin_mhmat"])
 
-        mhmat = AssetService.find_asset_absolute_path(human_info["skin_mhmat"], "skins")
-        _LOG.debug("mhmat full path", mhmat)
-        if mhmat is None:
+        mhmat_file = AssetService.find_asset_absolute_path(human_info["skin_mhmat"], "skins")
+        _LOG.debug("mhmat full path", mhmat_file)
+        if mhmat_file is None:
             _LOG.warn("Could not locate skin mhmat")
+            return
 
         skin_type = human_info["skin_material_type"]
         if not skin_type or skin_type == "NONE":
             return
 
-        name = basemesh.name + ".body"
-        MaterialService.delete_all_materials(basemesh)
-        blender_material = MaterialService.create_empty_material(name, basemesh)
+        slot_overrides = None
+        if "skin_material_settings" in human_info:
+            slot_overrides = human_info["skin_material_settings"]
+            _LOG.dump("There are slot overrides", slot_overrides)
+        else:
+            _LOG.debug("There are no slot overrides")
 
-        if skin_type == "MAKESKIN":
-            makeskin_material = MakeSkinMaterial()
-            makeskin_material.populate_from_mhmat(mhmat)
-            makeskin_material.apply_node_tree(blender_material)
-
-        if "ENHANCED" in skin_type:
-            settings = dict()
-            settings["skin_material_type"] = skin_type
-
-            enhanced_skin = EnhancedSkinMaterial(settings)
-            enhanced_skin.populate_from_mhmat(mhmat)
-            enhanced_skin.apply_node_tree(blender_material)
-
+        HumanService.set_character_skin(mhmat_file, basemesh, skin_type=skin_type, material_instances=True, slot_overrides=slot_overrides)
         HumanObjectProperties.set_value("material_source", human_info["skin_mhmat"], entity_reference=basemesh)
 
     @staticmethod
@@ -330,6 +504,7 @@ class HumanService:
 
         HumanService._check_add_rig(human_info, basemesh)
         HumanService._check_add_bodyparts(human_info, basemesh, subdiv_levels=subdiv_levels)
+        HumanService._check_add_proxy(human_info, basemesh, subdiv_levels=subdiv_levels)
         HumanService._set_skin(human_info, basemesh)
 
         return basemesh
