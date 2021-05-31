@@ -15,7 +15,7 @@ class MPFB_OT_Load_Library_Skin_Operator(bpy.types.Operator):
     bl_label = "Load"
     bl_options = {'REGISTER', 'UNDO'}
 
-    filepath = StringProperty(name="filepath", description="Full path to asset", default="")
+    filepath: StringProperty(name="filepath", description="Full path to asset", default="")
 
     def execute(self, context):
 

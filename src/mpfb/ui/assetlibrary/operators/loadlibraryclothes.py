@@ -16,9 +16,9 @@ class MPFB_OT_Load_Library_Clothes_Operator(bpy.types.Operator):
     bl_label = "Load"
     bl_options = {'REGISTER', 'UNDO'}
 
-    filepath = StringProperty(name="filepath", description="Full path to asset", default="")
-    object_type = StringProperty(name="object_type", description="type of the object", default="Clothes")
-    material_type = StringProperty(name="material_type", description="type of material", default="MAKESKIN")
+    filepath: StringProperty(name="filepath", description="Full path to asset", default="")
+    object_type: StringProperty(name="object_type", description="type of the object", default="Clothes")
+    material_type: StringProperty(name="material_type", description="type of material", default="MAKESKIN")
 
     def execute(self, context):
 

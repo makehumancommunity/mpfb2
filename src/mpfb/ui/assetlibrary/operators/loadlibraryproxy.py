@@ -21,8 +21,8 @@ class MPFB_OT_Load_Library_Proxy_Operator(bpy.types.Operator):
     bl_label = "Load"
     bl_options = {'REGISTER', 'UNDO'}
 
-    filepath = StringProperty(name="filepath", description="Full path to asset", default="")
-    object_type = StringProperty(name="object_type", description="type of the object", default="Proxymeshes")
+    filepath: StringProperty(name="filepath", description="Full path to asset", default="")
+    object_type: StringProperty(name="object_type", description="type of the object", default="Proxymeshes")
 
     def execute(self, context):
 
