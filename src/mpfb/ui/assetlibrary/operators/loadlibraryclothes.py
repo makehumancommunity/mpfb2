@@ -24,7 +24,7 @@ class MPFB_OT_Load_Library_Clothes_Operator(bpy.types.Operator):
 
         _LOG.debug("filepath", self.filepath)
         _LOG.debug("object_type", self.object_type)
-        _LOG.debug("material_type", self.object_type)
+        _LOG.debug("material_type", self.material_type)
 
         from mpfb.ui.assetlibrary.assetsettingspanel import ASSET_SETTINGS_PROPERTIES # pylint: disable=C0415
 

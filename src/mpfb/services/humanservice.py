@@ -252,7 +252,11 @@ class HumanService:
         if atype in colors:
             color = colors[atype]
 
+        if not mhclo.material:
+            _LOG.debug("Material is not set in mhclo")
+
         if not mhclo.material is None and material_type == "MAKESKIN":
+            _LOG.debug("Setting up MAKESKIN material", mhclo.material)
             MaterialService.delete_all_materials(clothes)
             makeskin_material = MakeSkinMaterial()
             makeskin_material.populate_from_mhmat(mhclo.material)

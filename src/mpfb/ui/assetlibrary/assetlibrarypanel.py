@@ -65,6 +65,10 @@ class _Abstract_Asset_Library_Panel(bpy.types.Panel):
                 _LOG.debug("Eye settings, eye_overrides, procedural_eyes", (self.eye_overrides, procedural_eyes))
                 if hasattr(op, "material_type") and self.eye_overrides and procedural_eyes:
                     op.material_type = "PROCEDURAL_EYES"
+                if hasattr(op, "material_type"):
+                    _LOG.debug("Operator material type is now", op.material_type)
+                else:
+                    _LOG.debug("Operator does not have a material type")
 
 
     def draw(self, context):
