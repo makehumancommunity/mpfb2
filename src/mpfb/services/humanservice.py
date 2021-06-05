@@ -369,7 +369,7 @@ class HumanService:
                     vgroup = proxy_object.vertex_groups.new(name=vgroup_name)
                     vgroup.add(ALL_EXTRA_GROUPS[uuid][vgroup_name], 1.0, 'ADD')
         else:
-            _LOG.warn("Could not locate proxy", human_info[proxy])
+            _LOG.warn("Could not locate proxy", human_info["proxy"])
 
     @staticmethod
     def set_character_skin(mhmat_file, basemesh, bodyproxy=None, skin_type="ENHANCED_SSS", material_instances=True, slot_overrides=None):
