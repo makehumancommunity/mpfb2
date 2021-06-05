@@ -121,8 +121,8 @@ class MPFB_OT_Load_Library_Proxy_Operator(bpy.types.Operator):
             modifier.vertex_group = "body"
             modifier.invert_vertex_group = True
 
-        if makeclothes_metadata:
-            ClothesService.set_makeclothes_object_properties_from_mhclo(clothes, mhclo, delete_group_name=delete_name)
+        #if makeclothes_metadata:
+        #    ClothesService.set_makeclothes_object_properties_from_mhclo(clothes, mhclo, delete_group_name=delete_name)
 
         _LOG.debug("clothes, uuid", (clothes, mhclo.uuid))
         if clothes and mhclo.uuid:
