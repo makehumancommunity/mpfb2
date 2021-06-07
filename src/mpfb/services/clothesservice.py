@@ -7,7 +7,6 @@ from mpfb.services.logservice import LogService
 from mpfb.entities.objectproperties import GeneralObjectProperties
 
 _LOG = LogService.get_logger("services.clothesservice")
-_LOG.set_level(LogService.DEBUG)
 
 class ClothesService:
     """Utility functions for clothes."""

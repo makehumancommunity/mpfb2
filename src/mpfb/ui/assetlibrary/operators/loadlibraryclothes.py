@@ -8,7 +8,6 @@ from mpfb.services.humanservice import HumanService
 from mpfb import ClassManager
 
 _LOG = LogService.get_logger("assetlibrary.loadlibraryclothes")
-_LOG.set_level(LogService.DUMP)
 
 class MPFB_OT_Load_Library_Clothes_Operator(bpy.types.Operator):
     """Load MHCLO from asset library."""

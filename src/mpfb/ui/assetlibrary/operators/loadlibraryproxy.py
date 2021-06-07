@@ -13,7 +13,6 @@ from mpfb.entities.material.makeskinmaterial import MakeSkinMaterial
 from mpfb import ClassManager
 
 _LOG = LogService.get_logger("assetlibrary.loadlibraryproxy")
-_LOG.set_level(LogService.DUMP)
 
 class MPFB_OT_Load_Library_Proxy_Operator(bpy.types.Operator):
     """Load PROXY from asset library."""
