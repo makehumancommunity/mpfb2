@@ -5,7 +5,7 @@ from mpfb.services.logservice import LogService
 from mpfb.services.uiservice import UiService
 from mpfb.services.sceneconfigset import SceneConfigSet
 from mpfb.ui.abstractpanel import Abstract_Panel
-import bpy, os
+import os
 
 _LOG = LogService.get_logger("assetlibrary.assetsettingspanel")
 

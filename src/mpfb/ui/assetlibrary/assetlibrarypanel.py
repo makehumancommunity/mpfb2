@@ -1,11 +1,8 @@
 """Asset library subpanels"""
 
-import bpy, os, json
-from bpy.props import FloatProperty
+import bpy
 from mpfb import ClassManager
 from mpfb.services.logservice import LogService
-from mpfb.services.locationservice import LocationService
-from mpfb.services.objectservice import ObjectService
 from mpfb.services.assetservice import AssetService, ASSET_LIBRARY_SECTIONS
 from mpfb.ui.assetlibrary.assetsettingspanel import ASSET_SETTINGS_PROPERTIES
 

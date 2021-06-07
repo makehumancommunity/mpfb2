@@ -24,9 +24,9 @@ class MPFB_PT_Web_Resources_Panel(Abstract_Panel):
 
         self._url(layout, "Project home", "https://github.com/makehumancommunity/mpfb2")
         self._url(layout, "Documentation", "https://github.com/makehumancommunity/mpfb2/blob/master/docs/README.md")
-        #self._url(layout, "Asset packs", "https://github.com/makehumancommunity/mpfb2")
         self._url(layout, "Get support", "http://www.makehumancommunity.org/forum/")
         self._url(layout, "Report a bug", "https://github.com/makehumancommunity/mpfb2/issues")
+        self._url(layout, "Asset packs", "http://download.tuxfamily.org/makehuman/asset_packs/index.html")
 
 
 ClassManager.add_class(MPFB_PT_Web_Resources_Panel)
