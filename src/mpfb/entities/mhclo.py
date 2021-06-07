@@ -194,7 +194,7 @@ class Mhclo:
             # I think it is okay to check only one dimension to figure out on
             # what the piece of cloth was created
             #
-            if dims['xmin'] == self.x_scale[0] and dims['xmax'] == self.x_scale[1]:
+            if self.x_scale and dims['xmin'] == self.x_scale[0] and dims['xmax'] == self.x_scale[1]:
                 pass
                 # TODO: Need to update with new names for makeclothes properties
                 #context.active_object.MhOffsetScale = bodypart

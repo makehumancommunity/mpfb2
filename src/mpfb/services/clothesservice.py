@@ -4,8 +4,10 @@ import random
 from mathutils import Vector
 from mpfb.services.objectservice import ObjectService
 from mpfb.services.logservice import LogService
+from mpfb.entities.objectproperties import GeneralObjectProperties
 
 _LOG = LogService.get_logger("services.clothesservice")
+_LOG.set_level(LogService.DEBUG)
 
 class ClothesService:
     """Utility functions for clothes."""
@@ -43,19 +45,26 @@ class ClothesService:
         human_vertices = shape_key.data
         human_vertices_count = len(human_vertices)
 
-        # test if we inside mesh, if not, leave
-        #
-        if mhclo.x_scale[0] >= human_vertices_count or mhclo.x_scale[1] > human_vertices_count \
-            or mhclo.y_scale[0] >= human_vertices_count or mhclo.y_scale[1] >= human_vertices_count \
-            or mhclo.z_scale[0] >= human_vertices_count or mhclo.z_scale[1] >= human_vertices_count:
-            _LOG.warn("Giving up refitting, not inside")
-            raise ValueError("Cannot refit as we are not inside")
+        scale_factor = GeneralObjectProperties.get_value("scale_factor", entity_reference=basemesh)
+        if not scale_factor:
+            scale_factor = 1.0
 
-        # get sizes
-        #
-        x_size = abs(human_vertices[mhclo.x_scale[0]].co[0] - human_vertices[mhclo.x_scale[1]].co[0]) / mhclo.x_scale[2]
-        y_size = abs(human_vertices[mhclo.y_scale[0]].co[2] - human_vertices[mhclo.y_scale[1]].co[2]) / mhclo.y_scale[2]
-        z_size = abs(human_vertices[mhclo.z_scale[0]].co[1] - human_vertices[mhclo.z_scale[1]].co[1]) / mhclo.z_scale[2]
+        # Fallback for if no scale is specified in mhclo
+        z_size = y_size = x_size = scale_factor
+
+        if mhclo.x_scale:
+            if mhclo.x_scale[0] >= human_vertices_count or mhclo.x_scale[1] > human_vertices_count \
+                or mhclo.y_scale[0] >= human_vertices_count or mhclo.y_scale[1] >= human_vertices_count \
+                or mhclo.z_scale[0] >= human_vertices_count or mhclo.z_scale[1] >= human_vertices_count:
+                _LOG.warn("Giving up refitting, not inside")
+                raise ValueError("Cannot refit as we are not inside")
+
+            x_size = abs(human_vertices[mhclo.x_scale[0]].co[0] - human_vertices[mhclo.x_scale[1]].co[0]) / mhclo.x_scale[2]
+            y_size = abs(human_vertices[mhclo.y_scale[0]].co[2] - human_vertices[mhclo.y_scale[1]].co[2]) / mhclo.y_scale[2]
+            z_size = abs(human_vertices[mhclo.z_scale[0]].co[1] - human_vertices[mhclo.z_scale[1]].co[1]) / mhclo.z_scale[2]
+
+        _LOG.debug("x_scale, y_scale, z_scale", (mhclo.x_scale, mhclo.y_scale, mhclo.z_scale))
+        _LOG.debug("x_size, y_size, z_size", (x_size, y_size, z_size))
 
         clothes_vertices = mhclo.clothes.data.vertices
 
