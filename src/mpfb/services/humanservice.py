@@ -245,7 +245,7 @@ class HumanService:
         _LOG.debug("Given name (basemesh, variable, clothes)", (basemesh.name, name, clothes.name))
 
         colors = MaterialService.get_diffuse_colors()
-        _LOG.dump("Colors, atype, exists", (colors, atype, atype in colors))
+        _LOG.dump("Colors, atype, exists, mhclo.material, material_type", (colors, atype, atype in colors, mhclo.material, material_type))
 
         color = (0.8, 0.8, 0.8, 1.0)
 

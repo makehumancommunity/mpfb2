@@ -70,6 +70,7 @@ class MPFB_OT_Load_Library_Clothes_Operator(bpy.types.Operator):
         if not add_subdiv_modifier:
             subdiv_levels = 0
 
+        _LOG.debug("Will call add_mhclo_asset: (asset_type, material_type)", (self.object_type, self.material_type))
         HumanService.add_mhclo_asset(self.filepath, basemesh, asset_type=self.object_type, subdiv_levels=subdiv_levels, material_type=self.material_type)
 
         self.report({'INFO'}, "Clothes were loaded")
