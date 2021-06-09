@@ -6,8 +6,11 @@
                 0.05631333589553833,
                 1.1871050596237183
             ],
-            "strategy": "VERTEX",
-            "vertex_index": 10619
+            "strategy": "MEAN",
+            "vertex_indices": [
+                8436,
+                10619
+            ]
         },
         "inherit_scale": "FULL",
         "layers": [
@@ -69,8 +72,11 @@
                 0.05631333589553833,
                 1.1871050596237183
             ],
-            "strategy": "VERTEX",
-            "vertex_index": 3956
+            "strategy": "MEAN",
+            "vertex_indices": [
+                1764,
+                3956
+            ]
         },
         "inherit_scale": "FULL",
         "layers": [
