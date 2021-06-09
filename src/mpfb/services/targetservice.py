@@ -1,6 +1,6 @@
 """Module for managing targets and shape keys."""
 
-import os, gzip, bpy, json
+import os, gzip, bpy, json, bmesh
 from pathlib import Path
 from mpfb.services.logservice import LogService
 from mpfb.services.locationservice import LocationService
@@ -192,19 +192,29 @@ class TargetService:
 
     @staticmethod
     def target_string_to_shape_key(target_string, shape_key_name, blender_object):
+        _LOG.enter()
+        _LOG.reset_timer()
+
         TargetService.create_shape_key(blender_object, shape_key_name)
         shape_key_info = TargetService._target_string_to_shape_key_info(target_string, shape_key_name, blender_object)
 
-        target = blender_object.data.shape_keys.key_blocks[shape_key_name]
+        mesh = bmesh.new()
+        mesh.from_mesh(blender_object.data)
+        mesh.verts.ensure_lookup_table()
+
+        target = mesh.verts.layers.shape[shape_key_name]
+        _LOG.debug("bmesh, target", (mesh, target))
 
         for vertex in shape_key_info["vertices"]:
             index = vertex["index"]
-            target_co = vertex["target_coordinates"]
+            mesh.verts[index][target] = vertex["target_coordinates"]
 
-            for i in [0, 1, 2]:
-                target.data[index].co[i] = target_co[i]
+        mesh.to_mesh(blender_object.data)
+        mesh.free()
 
-        return target
+        _LOG.time("Target was loaded in")
+
+        return blender_object.data.shape_keys.key_blocks[shape_key_name]
 
     @staticmethod
     def _load_mirror_table():

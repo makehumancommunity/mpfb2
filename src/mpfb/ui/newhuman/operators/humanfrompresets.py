@@ -16,6 +16,7 @@ class MPFB_OT_HumanFromPresetsOperator(bpy.types.Operator):
 
     def execute(self, context):
 
+        _LOG.reset_timer()
         from mpfb.ui.newhuman.frompresetspanel import PRESETS_HUMAN_PROPERTIES  # pylint: disable=C0415
 
         name = PRESETS_HUMAN_PROPERTIES.get_value("available_presets", entity_reference=context.scene)
@@ -55,6 +56,9 @@ class MPFB_OT_HumanFromPresetsOperator(bpy.types.Operator):
         bpy.context.view_layer.objects.active = basemesh
         basemesh.select_set(True)
 
+        _LOG.time("Human created in")
+
+        self.report({'INFO'}, "Human created")
         return {'FINISHED'}
 
 
