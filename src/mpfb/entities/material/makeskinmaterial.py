@@ -32,12 +32,13 @@ class MakeSkinMaterial(MhMaterial):
     def _template(self, template_values, has, tex, key):
         template_values[has] = "false"
         template_values[tex] = "\"\""
-        if key in self._settings and self._settings[key]:
-            _LOG.debug(key + " is set in mhmat", self._settings[key])
-            self._settings[key] = str(self._settings[key]).replace("\\\\", "/")
-            self._settings[key] = str(self._settings[key]).replace("\\", "/")
+        setting = self.get_value(key)
+        if setting:
+            _LOG.debug(key + " is set in mhmat", setting)
+            setting = setting.replace("\\\\", "/")
+            setting = setting.replace("\\", "/")
             template_values[has] = "true"
-            template_values[tex] = "\"" + self._settings[key] + "\""
+            template_values[tex] = "\"" + setting + "\""
         else:
             _LOG.debug(key + " is not set in mhmat")
 
