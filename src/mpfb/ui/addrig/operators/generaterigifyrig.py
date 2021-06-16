@@ -3,6 +3,7 @@
 import bpy
 from mpfb.services.logservice import LogService
 from mpfb.services.objectservice import ObjectService
+from mpfb.services.rigservice import RigService
 from mpfb import ClassManager
 
 _LOG = LogService.get_logger("addrig.generate_rigify_rig")
@@ -44,7 +45,7 @@ class MPFB_OT_GenerateRigifyRigOperator(bpy.types.Operator):
 
             for bone in armature_object.data.bones:
                 name = bone.name
-                if name in child.vertex_groups:
+                if name in child.vertex_groups and not "teeth" in name:
                     vertex_group = child.vertex_groups.get(name)
                     vertex_group.name = "DEF-" + name
 
@@ -55,6 +56,13 @@ class MPFB_OT_GenerateRigifyRigOperator(bpy.types.Operator):
         if delete_after_generate:
             objs = bpy.data.objects
             objs.remove(objs[armature_object.name], do_unlink=True)
+
+        bpy.ops.object.mode_set(mode='EDIT', toggle=False)
+
+        teethb = RigService.find_edit_bone_by_name("teeth.B", rigify_object)
+        teethb.use_deform = True
+
+        bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
 
         self.report({'INFO'}, "A rig was generated")
         return {'FINISHED'}
