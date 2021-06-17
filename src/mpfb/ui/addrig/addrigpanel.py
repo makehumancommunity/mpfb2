@@ -4,6 +4,7 @@ import os
 from mpfb import ClassManager
 from mpfb.services.logservice import LogService
 from mpfb.services.uiservice import UiService
+from mpfb.services.objectservice import ObjectService
 from mpfb.services.sceneconfigset import SceneConfigSet
 from mpfb.ui.abstractpanel import Abstract_Panel
 
@@ -29,22 +30,39 @@ class MPFB_PT_Add_Rig_Panel(Abstract_Panel):
         ADD_RIG_PROPERTIES.draw_properties(scene, box, props)
         box.operator('mpfb.add_standard_rig')
 
-    def _rigify_rig(self, scene, layout):
+    def _add_rigify_rig(self, scene, layout):
         box = self.create_box(layout, "Add rigify rig")
         props = [
-            "import_weights_rigify",
-            "delete_after_generate",
-            "generate"
+            "import_weights_rigify"
             ]
         ADD_RIG_PROPERTIES.draw_properties(scene, box, props)
         box.operator('mpfb.add_rigify_rig')
+
+    def _generate_rigify_rig(self, scene, layout):
+        box = self.create_box(layout, "Generate rigify rig")
+        props = [
+            "delete_after_generate",
+            "teeth"
+            ]
+        ADD_RIG_PROPERTIES.draw_properties(scene, box, props)
         box.operator('mpfb.generate_rigify_rig')
 
     def draw(self, context):
         _LOG.enter()
         layout = self.layout
         scene = context.scene
-        self._standard_rig(scene, layout)
-        self._rigify_rig(scene, layout)
+
+        if context.active_object is None:
+            _LOG.debug("There is no active object")
+            return
+
+        armature_object = ObjectService.find_object_of_type_amongst_nearest_relatives(context.active_object, "Skeleton")
+        _LOG.debug("Armature object", armature_object)
+
+        if not armature_object:
+            self._standard_rig(scene, layout)
+            self._add_rigify_rig(scene, layout)
+        else:
+            self._generate_rigify_rig(scene, layout)
 
 ClassManager.add_class(MPFB_PT_Add_Rig_Panel)

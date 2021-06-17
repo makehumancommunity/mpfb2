@@ -1,0 +1,12 @@
+{
+    "type": "enum",
+    "name": "teeth",
+    "description": "Rigify does not consider teeth to be a part of the body in the sense that it should be posed by deformation. Instead, the standard rigify way of handling this is having separate objects for upper and lower teeth and having the lower teeth object as a child of the lower teeth bone. This is incompatible with the MakeHuman teeth assets. Here you can choose which strategy to adopt when generating a rigify rig that influences teeth.",
+    "label": "Teeth strategy",
+    "default": "SPLIT",
+    "items": [
+    	["KEEP", "Keep", "Do nothing about the teeth. If your character doesn't have teeth or never opens his mouth, then this is a safe choice", 0],
+    	["RIG", "Change rig", "Adapt the generated rig so that it deforms the teeth object. This is the most MakeHuman way.", 1],
+    	["SPLIT", "Split and parent", "Split the teeth object into two and make the lower object a child of the lower teeth bone. This is the most Rigify way.", 2]    	
+    ]
+}

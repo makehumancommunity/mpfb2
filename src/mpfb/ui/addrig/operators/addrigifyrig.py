@@ -35,7 +35,6 @@ class MPFB_OT_AddRigifyRigOperator(bpy.types.Operator):
         from mpfb.ui.addrig.addrigpanel import ADD_RIG_PROPERTIES # pylint: disable=C0415
 
         import_weights = ADD_RIG_PROPERTIES.get_value("import_weights_rigify", entity_reference=scene)
-        generate = ADD_RIG_PROPERTIES.get_value("generate", entity_reference=scene)
         delete_after_generate = ADD_RIG_PROPERTIES.get_value("delete_after_generate", entity_reference=scene)
 
         rigs_dir = LocationService.get_mpfb_data("rigs")
@@ -81,8 +80,7 @@ class MPFB_OT_AddRigifyRigOperator(bpy.types.Operator):
             rigify_layer.group = layer["group"]
             i = i + 1
 
-        if not generate:
-            basemesh.parent = armature_object
+        basemesh.parent = armature_object
 
         if import_weights:
             weights_file = os.path.join(rigify_dir, "weights.human.json")
@@ -90,36 +88,6 @@ class MPFB_OT_AddRigifyRigOperator(bpy.types.Operator):
             with open(weights_file, 'r') as json_file:
                 weights = json.load(json_file)
             RigService.apply_weights(armature_object, basemesh, weights)
-
-        if generate:
-            bpy.ops.pose.rigify_generate()
-            rigify_object = context.active_object
-            rigify_object.show_in_front = True
-
-            _LOG.debug("rigify", rigify_object)
-            basemesh.parent = rigify_object
-
-            for bone in armature_object.data.bones:
-                name = bone.name
-                if name in basemesh.vertex_groups and not "teeth" in name:
-                    vertex_group = basemesh.vertex_groups.get(name)
-                    vertex_group.name = "DEF-" + name
-
-            for modifier in basemesh.modifiers:
-                if modifier.type == 'ARMATURE':
-                    modifier.object = rigify_object
-
-            if delete_after_generate:
-                objs = bpy.data.objects
-                objs.remove(objs[armature_object.name], do_unlink=True)
-
-            bpy.ops.object.mode_set(mode='EDIT', toggle=False)
-
-            teethb = RigService.find_edit_bone_by_name("teeth.B", rigify_object)
-            teethb.use_deform = True
-
-            bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
-
 
         self.report({'INFO'}, "A rig was added")
         return {'FINISHED'}
