@@ -24,6 +24,24 @@ class ObjectService:
         return False
 
     @staticmethod
+    def get_vertex_indexes_for_vertex_group(blender_object, vertex_group_name):
+        if not blender_object or not vertex_group_name:
+            return []
+        group_index = None
+        for group in blender_object.vertex_groups:
+            if group.name == vertex_group_name:
+                group_index = group.index
+        if group_index is None:
+            return []
+        relevant_vertices = []
+        for vertex in blender_object.data.vertices:
+            for group in vertex.groups:
+                if group.group == group_index:
+                    if not vertex.index in relevant_vertices:
+                        relevant_vertices.append(vertex.index)
+        return relevant_vertices
+
+    @staticmethod
     def create_blender_object_with_mesh(name="NewObject"):
         mesh = bpy.data.meshes.new(name + "Mesh")
         obj = bpy.data.objects.new(name, mesh)
