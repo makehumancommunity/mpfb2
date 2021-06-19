@@ -147,6 +147,9 @@ class MPFB_OT_CreateHumanOperator(bpy.types.Operator):
 
         _LOG.debug("Basemesh", basemesh)
 
+        # Otherwise all targets will be set to 100% when entering edit mode
+        basemesh.use_shape_key_edit_mode = True
+
         bpy.ops.object.select_all(action='DESELECT')
         bpy.context.view_layer.objects.active = basemesh
         basemesh.select_set(True)
