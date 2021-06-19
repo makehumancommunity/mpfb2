@@ -4,7 +4,9 @@ import random
 from mathutils import Vector
 from mpfb.services.objectservice import ObjectService
 from mpfb.services.logservice import LogService
+from mpfb.services.assetservice import AssetService
 from mpfb.entities.objectproperties import GeneralObjectProperties
+from mpfb.entities.mhclo import Mhclo
 
 _LOG = LogService.get_logger("services.clothesservice")
 
@@ -150,6 +152,44 @@ class ClothesService:
             modifier = basemesh.modifiers.new(name=delete_group_name, type="MASK")
             modifier.vertex_group = delete_group_name
             modifier.invert_vertex_group = True
+
+    @staticmethod
+    def interpolate_vertex_group_from_basemesh_to_clothes(basemesh, clothes_object, vertex_group_name, match_cutoff=0.3, mhclo_full_path=None):
+        _LOG.enter()
+        relevant_basemesh_vert_idxs = ObjectService.get_vertex_indexes_for_vertex_group(basemesh, vertex_group_name)
+        _LOG.debug("Number of relevant basemesh vertices:", len(relevant_basemesh_vert_idxs))
+        _LOG.dump("Relevant basemesh vertices", relevant_basemesh_vert_idxs)
+        if not mhclo_full_path:
+            asset_source = GeneralObjectProperties.get_value("asset_source", entity_reference=clothes_object)
+            object_type = str(GeneralObjectProperties.get_value("object_type", entity_reference=clothes_object)).lower()
+            _LOG.debug("asset source, object type", (asset_source, object_type))
+            mhclo_full_path = AssetService.find_asset_absolute_path(asset_source, object_type)
+        _LOG.debug("mhclo full path", mhclo_full_path)
+
+        new_vert_group = clothes_object.vertex_groups.new(name=vertex_group_name)
+
+        mhclo = Mhclo()
+        mhclo.load(mhclo_full_path)
+
+        relevant_clothes_vert_idxs = []
+
+        for clothes_vert_idx in mhclo.verts:
+            mhclo_vert = mhclo.verts[clothes_vert_idx]
+            _LOG.dump("mhclo_vert", (clothes_vert_idx, mhclo_vert))
+            for match_vert in range(3):
+                basemesh_vert_idx = mhclo_vert["verts"][match_vert]
+                basemesh_vert_weight = mhclo_vert["weights"][match_vert]
+                if basemesh_vert_idx in relevant_basemesh_vert_idxs:
+                    if clothes_vert_idx not in relevant_clothes_vert_idxs:
+                        relevant_clothes_vert_idxs.append(clothes_vert_idx)
+
+        _LOG.debug("Number of matching vertices", len(relevant_clothes_vert_idxs))
+        _LOG.dump("Relevant clothes idxs", relevant_clothes_vert_idxs)
+
+        new_vert_group.add(relevant_clothes_vert_idxs, 1.0, 'ADD')
+
+        return new_vert_group
+
 
     @staticmethod
     def interpolate_weights(basemesh, clothes, rig, mhclo):
