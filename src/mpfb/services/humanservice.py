@@ -288,6 +288,14 @@ class HumanService:
         delete_name = "Delete." + delete_name
         ClothesService.update_delete_group(mhclo, basemesh, replace_delete_group=False, delete_group_name=delete_name)
 
+        if asset_type == "Clothes": # TODO: Maybe there are body parts with delete groups?
+            proxymesh = ObjectService.find_object_of_type_amongst_nearest_relatives(basemesh, mpfb_type_name="Proxymeshes")
+            if proxymesh:
+                ClothesService.interpolate_vertex_group_from_basemesh_to_clothes(basemesh, proxymesh, delete_name)
+                modifier = proxymesh.modifiers.new(name=delete_name, type="MASK")
+                modifier.vertex_group = delete_name
+                modifier.invert_vertex_group = True
+
         rig = ObjectService.find_object_of_type_amongst_nearest_relatives(basemesh, "Skeleton")
         if rig:
             clothes.parent = rig
@@ -547,6 +555,9 @@ class HumanService:
         HumanService._check_add_proxy(human_info, basemesh, subdiv_levels=subdiv_levels)
         HumanService._set_skin(human_info, basemesh)
         HumanService._set_eyes(human_info, basemesh)
+
+        # Otherwise all targets will be set to 100% when entering edit mode
+        basemesh.use_shape_key_edit_mode = True
 
         return basemesh
 
