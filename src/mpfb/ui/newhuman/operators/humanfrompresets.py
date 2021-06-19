@@ -4,6 +4,7 @@ import bpy
 from mpfb.services.logservice import LogService
 from mpfb.services.locationservice import LocationService
 from mpfb.services.humanservice import HumanService
+from mpfb.services.objectservice import ObjectService
 from mpfb import ClassManager
 
 _LOG = LogService.get_logger("newhuman.humanfrompresets")
@@ -55,6 +56,12 @@ class MPFB_OT_HumanFromPresetsOperator(bpy.types.Operator):
         bpy.ops.object.select_all(action='DESELECT')
         bpy.context.view_layer.objects.active = basemesh
         basemesh.select_set(True)
+
+        rig = ObjectService.find_object_of_type_amongst_nearest_relatives(basemesh, mpfb_type_name="Skeleton")
+        if rig:
+            bpy.context.view_layer.objects.active = rig
+            basemesh.select_set(False)
+            rig.select_set(True)
 
         _LOG.time("Human created in")
 
