@@ -1,6 +1,6 @@
 """This module contains utility functions for clothes."""
 
-import random
+import random, os
 from mathutils import Vector
 from mpfb.services.objectservice import ObjectService
 from mpfb.services.logservice import LogService
@@ -31,7 +31,20 @@ class ClothesService:
             raise ValueError('The provided object is not a basemesh')
 
         if mhclo is None:
-            raise NotImplemented("Searching for MHCLO info is not implemented yet, you must provide the MHCLO object")
+            mhclo_fragment = GeneralObjectProperties.get_value("asset_source", entity_reference=clothes)
+            object_type = GeneralObjectProperties.get_value("object_type", entity_reference=clothes)
+
+            if mhclo_fragment and object_type:
+                mhclo_path = AssetService.find_asset_absolute_path(mhclo_fragment, str(object_type).lower())
+                if not mhclo_path:
+                    raise IOError(mhclo_fragment + " does not exist")
+                if not os.path.exists(mhclo_path):
+                    raise IOError(mhclo_path + " does not exist")
+                mhclo = Mhclo()
+                mhclo.load(mhclo_path)
+            else:
+                raise ValueError('There is not enough info to refit this asset, at least asset source and object type is needed')
+            mhclo.clothes = clothes
 
         # We cannot rely on the vertex position data directly, since it represent positions
         # as they are *before* targets are applied. We want the shape of the mesh *after*
