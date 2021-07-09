@@ -9,6 +9,7 @@ _LOG = _LogService.get_logger("model.init")
 _LOG.trace("initializing the model module")
 
 from .modelpanel import MPFB_PT_Model_Panel
+from mpfb.ui.model.operators import *
 
 __all__ = [
     "MPFB_PT_Model_Panel"

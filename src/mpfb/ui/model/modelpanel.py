@@ -24,25 +24,16 @@ class MPFB_PT_Model_Panel(bpy.types.Panel):
         box.label(text=box_text)
         return box
 
-    def _refit(self, scene, layout):
-        box = self._create_box(layout, "Refit")
-        #=======================================================================
-        # NEW_HUMAN_PROPERTIES.draw_properties(scene, box, [
-        #     "scale_factor",
-        #     "detailed_helpers",
-        #     "extra_vertex_groups",
-        #     "mask_helpers"
-        #     ])
-        # box.operator('mpfb.create_human')
-        #=======================================================================
-
+    def _general(self, scene, layout):
+        box = self._create_box(layout, "General")
+        box.operator('mpfb.refit_human')
 
     def draw(self, context):
         _LOG.enter()
         layout = self.layout
         scene = context.scene
 
-        self._refit(scene, layout)
+        self._general(scene, layout)
 
     @classmethod
     def poll(cls, context):

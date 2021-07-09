@@ -640,3 +640,27 @@ class HumanService:
             RigService.apply_weights(armature_object, basemesh, weights)
 
         return armature_object
+
+    @staticmethod
+    def refit(blender_object):
+        _LOG.enter()
+        basemesh = ObjectService.find_object_of_type_amongst_nearest_relatives(blender_object, "Basemesh")
+        rig = ObjectService.find_object_of_type_amongst_nearest_relatives(blender_object, "Skeleton")
+
+        if basemesh is None:
+            raise ValueError('Could not find basemesh as relative of given object')
+
+        parent_object = basemesh
+        if rig:
+            parent_object = rig
+
+        _LOG.dump("basemesh, rig, parent_object", (basemesh, rig, parent_object))
+
+        children = ObjectService.get_list_of_children(parent_object)
+        _LOG.dump("children", children)
+
+        for child in children:
+            object_type = GeneralObjectProperties.get_value("object_type", entity_reference=child)
+            if not object_type in ["Basemesh", "Skeleton"]:
+                _LOG.debug("Will try to refit child proxy", (object_type, child))
+                ClothesService.fit_clothes_to_human(child, basemesh)
