@@ -21,6 +21,7 @@ from mpfb.ui.importerpresets import *
 from mpfb.ui.makeskin import *
 from mpfb.ui.maketarget import *
 from mpfb.ui.makeclothes import *
+from mpfb.ui.makeweight import *
 
 # Rig panels
 from mpfb.ui.addrig import *
