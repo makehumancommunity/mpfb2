@@ -1,12 +1,10 @@
 from mpfb.services.logservice import LogService
-from mpfb.services.uiservice import UiService
 from mpfb.services.locationservice import LocationService
 from mpfb.services.objectservice import ObjectService
-from mpfb.services.nodeservice import NodeService
 from mpfb.services.humanservice import HumanService
 from mpfb.ui.humanpresets.humanpresetspanel import HUMAN_PRESETS_PROPERTIES
 from mpfb._classmanager import ClassManager
-import bpy, os, json
+import bpy, os
 
 _LOG = LogService.get_logger("humanpresets.overwritepresets")
 
@@ -33,6 +31,19 @@ class MPFB_OT_Overwrite_Human_Presets_Operator(bpy.types.Operator):
 
         confdir = LocationService.get_user_config()
         file_name = os.path.join(confdir, "human." + name + ".json")
+
+        basemesh = None
+        if ObjectService.object_is_basemesh(context.object):
+            basemesh = context.object
+        else:
+            basemesh = ObjectService.find_object_of_type_amongst_nearest_relatives(context.object, "Basemesh")
+
+        if basemesh is None:
+            self.report({'ERROR'}, "Could not find basemesh amongst relatives of selected object")
+            return {'FINISHED'}
+
+        HumanService.serialize_to_json_file(basemesh, file_name, True)
+        self.report({'INFO'}, "Human saved as " + file_name)
 
         return {'FINISHED'}
 
