@@ -1,3 +1,4 @@
+"""Service for working with rigs, bones and weights."""
 
 import bpy
 from mathutils import Matrix, Vector
@@ -11,20 +12,26 @@ _RADIAN = 0.0174532925
 
 
 class RigService:
+    """Service with utility functions for working with rigs, bones and weights. It only has static methods, so you don't
+    need to instance it."""
 
     def __init__(self):
+        """Do not instance, there are only static methods in the class"""
         raise RuntimeError("You should not instance RigService. Use its static methods instead.")
 
     @staticmethod
     def find_pose_bone_by_name(name, armature_object):
+        """Find a bone with the given name of the armature object, in pose mode."""
         return armature_object.pose.bones.get(name)
 
     @staticmethod
     def find_edit_bone_by_name(name, armature_object):
+        """Find a bone with the given name of the armature object, in edit mode."""
         return armature_object.data.edit_bones.get(name)
 
     @staticmethod
     def activate_pose_bone_by_name(name, armature_object, also_select_bone=True, also_deselect_all_other_bones=True):
+        """Activate a bone with the given name of the armature object, in pose mode."""
         if also_deselect_all_other_bones:
             for bone in armature_object.pose.bones:
                 bone.bone.select = False
@@ -36,6 +43,8 @@ class RigService:
 
     @staticmethod
     def remove_all_constraints_from_pose_bone(bone_name, armature_object):
+        """Clear and remove all pose mode bone constraints from a bone."""
+
         _LOG.enter()
         bone = RigService.find_pose_bone_by_name(bone_name, armature_object)
         _LOG.debug("bone", bone)
@@ -53,6 +62,7 @@ class RigService:
 
     @staticmethod
     def add_bone_constraint_to_pose_bone(bone_name, armature_object, constraint_name):
+        """Add a pose mode constraint to a bone."""
         bone = RigService.find_pose_bone_by_name(bone_name, armature_object)
         return bone.constraints.new(constraint_name)
 
@@ -412,4 +422,45 @@ class RigService:
                 if identification[0] in armature_object.data.bones:
                     return identification[1]
 
-        return unknown
+        return "unknown"
+
+    @staticmethod
+    def mirror_bone_weights_to_other_side_bone(armature_object, source_bone_name, target_bone_name):
+        _LOG.enter()
+        _LOG.debug("Will mirror side-to-side", (source_bone_name, target_bone_name))
+
+    @staticmethod
+    def mirror_bone_weights_inside_center_bone(armature_object, bone_name, left_to_right=False):
+        _LOG.enter()
+        _LOG.debug("Will mirror internally", (bone_name, left_to_right))
+
+    @staticmethod
+    def symmetrize_all_bone_weights(armature_object, left_to_right=False, rig_type=None):
+        _LOG.enter()
+        source_terms = {
+            True: {
+                "default": ".L"
+                },
+            False: {
+                "default": ".R"
+                }
+            }
+        if not rig_type:
+            rig_type = RigService.identify_rig(armature_object)
+        if not rig_type or rig_type == "unknown":
+            rig_type = "default"
+        source_term = source_terms[left_to_right][rig_type]
+        destination_term = source_terms[not left_to_right][rig_type]
+
+        for bone in armature_object.data.bones:
+            if str(bone.name).lower().endswith(str(source_term).lower()):
+                _LOG.debug("Source side bone", bone.name)
+                neutral_name = str(bone.name)[0:len(bone.name)-len(source_term)]
+                destination_name = neutral_name + destination_term
+                RigService.mirror_bone_weights_to_other_side_bone(armature_object, str(bone.name), destination_name)
+            else:
+                if str(bone.name).lower().endswith(str(destination_term).lower()):
+                    _LOG.debug("Destination side bone", bone.name)
+                else:
+                    _LOG.debug("Center bone", bone.name)
+                    RigService.mirror_bone_weights_inside_center_bone(armature_object, str(bone.name), left_to_right)
