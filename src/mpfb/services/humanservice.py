@@ -292,7 +292,7 @@ class HumanService:
         if asset_type == "Clothes": # TODO: Maybe there are body parts with delete groups?
             proxymesh = ObjectService.find_object_of_type_amongst_nearest_relatives(basemesh, mpfb_type_name="Proxymeshes")
             if proxymesh:
-                ClothesService.interpolate_vertex_group_from_basemesh_to_clothes(basemesh, proxymesh, delete_name)
+                ClothesService.interpolate_vertex_group_from_basemesh_to_clothes(basemesh, proxymesh, delete_name, mhclo_full_path=mhclo_file)
                 modifier = proxymesh.modifiers.new(name=delete_name, type="MASK")
                 modifier.vertex_group = delete_name
                 modifier.invert_vertex_group = True
@@ -707,11 +707,11 @@ class HumanService:
 
         _LOG.dump("human_info", human_info)
         basemesh = HumanService.deserialize_from_dict(human_info, mask_helpers, detailed_helpers, extra_vertex_groups, feet_on_ground, scale, subdiv_levels)
-        target_stack = TargetService.get_target_stack(basemesh)
 
+        # TODO: The following is for debug only and should probably be removed once the code seems stable
+        target_stack = TargetService.get_target_stack(basemesh)
         for target in target_stack:
             target["name"] = TargetService.decode_shapekey_name(target["target"])
-
         _LOG.dump("Target stack", target_stack)
         TargetService.reapply_macro_details(basemesh)
 
