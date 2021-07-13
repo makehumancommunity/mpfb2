@@ -49,10 +49,53 @@ _SHAPEKEY_ENCODING = [
     ["child", "$ch"],
     ]
 
+_OPPOSITES = [
+    "decr-incr",
+    "down-up",
+    "in-out",
+    "backward-forward",
+    "concave-convex"
+    "compress-uncompress",
+    "square-round",
+    "pointed-triangle"
+    ]
+
 class TargetService:
 
     def __init__(self):
         raise RuntimeError("You should not instance TargetService. Use its static methods instead.")
+
+    @staticmethod
+    def translate_mhm_target_line_to_target_fragment(mhm_line):
+        if mhm_line.startswith("modifier "):
+            mhm_line.replace("modifier ", "")
+        name, weight = mhm_line.split(" ", 1)
+        weight = float(weight)
+        for opposite in _OPPOSITES:
+            negative, positive = opposite.split("-", 1)
+            mhm_term = negative + "|" + positive
+            if mhm_term in mhm_line:
+                if weight < 0.0:
+                    name = name.replace(mhm_term, negative)
+                    weight = -weight
+                else:
+                    name = name.replace(mhm_term, positive)
+        if "/" in name:
+            dirname, name = name.split("/", 1)
+        return { "target": name, "value": weight }
+
+    @staticmethod
+    def target_full_path(target_name):
+        _LOG.enter()
+        targets_dir = LocationService.get_mpfb_data("targets")
+        _LOG.debug("Target dir:", targets_dir)
+        for name in Path(targets_dir).rglob("*.target.gz"):
+            _LOG.dump("matching vs file", name)
+            if target_name in str(name):
+                return str(name)
+        _LOG.debug("Did not find matching target")
+        return None
+
 
     @staticmethod
     def create_shape_key(blender_object, shape_key_name, also_create_basis=True, create_from_mix=False):
@@ -409,6 +452,7 @@ class TargetService:
 
     @staticmethod
     def _interpolate_macro_components(macro_name, value):
+        _LOG.debug("Interpolating macro target", (macro_name, value))
         macrotarget = _MACRO_CONFIG["macrotargets"][macro_name]
         components = []
         _LOG.debug("target", macrotarget)
