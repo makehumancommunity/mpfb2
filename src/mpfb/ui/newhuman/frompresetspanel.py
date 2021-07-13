@@ -47,6 +47,7 @@ class MPFB_PT_From_Presets_Panel(Abstract_Panel):
             "mask_helpers"
             ])
         layout.operator('mpfb.human_from_presets')
+        layout.operator('mpfb.human_from_mhm')
 
     def draw(self, context):
         _LOG.enter()

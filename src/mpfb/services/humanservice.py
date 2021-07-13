@@ -1,6 +1,7 @@
 """High-level functionality for human objects"""
 
 import os, json, fnmatch, re, bpy
+from pathlib import Path
 from mpfb.entities.objectproperties import HumanObjectProperties
 from mpfb.services.objectservice import ObjectService
 from mpfb.services.targetservice import TargetService
@@ -532,6 +533,16 @@ class HumanService:
             _LOG.warn("Material had no group node -> not procedural eyes")
 
     @staticmethod
+    def _load_targets(human_info, basemesh):
+        if not "targets" in human_info:
+            return
+        for target in human_info["targets"]:
+            _LOG.debug("Will attempt to load target", target)
+            target_full_path = TargetService.target_full_path(target["target"])
+            _LOG.debug("Full path", target_full_path)
+            TargetService.load_target(basemesh, target_full_path, target["value"], target["target"])
+
+    @staticmethod
     def deserialize_from_dict(human_info, mask_helpers=True, detailed_helpers=True, extra_vertex_groups=True, feet_on_ground=True, scale=0.1, subdiv_levels=1):
         if human_info is None:
             raise ValueError('Cannot use None as human_info')
@@ -555,6 +566,7 @@ class HumanService:
         HumanService._check_add_proxy(human_info, basemesh, subdiv_levels=subdiv_levels)
         HumanService._set_skin(human_info, basemesh)
         HumanService._set_eyes(human_info, basemesh)
+        HumanService._load_targets(human_info, basemesh)
 
         # Otherwise all targets will be set to 100% when entering edit mode
         basemesh.use_shape_key_edit_mode = True
@@ -572,6 +584,138 @@ class HumanService:
         name = match.group(1)
         human_info["name"] = name
         return HumanService.deserialize_from_dict(human_info, mask_helpers, detailed_helpers, extra_vertex_groups, feet_on_ground, scale, subdiv_levels)
+
+    @staticmethod
+    def _parse_mhm_modifier_line(human_info, line):
+        line = str(line).replace("modifier ", "")
+
+        _LOG.debug("parsing modifier line", line)
+        for simple_macro in ["Age", "Gender", "Muscle", "Weight", "Height", "BodyProportions", "Asian", "African", "Caucasian", "BreastSize", "BreastFirmness"]:
+            macroline = line
+            macroline = macroline.replace("breast/", "")
+            macroline = macroline.replace("macrodetails/", "")
+            macroline = macroline.replace("macrodetails-height/", "")
+            macroline = macroline.replace("macrodetails-universal/", "")
+            macroline = macroline.replace("macrodetails-proportions/", "")
+
+            if macroline.startswith(simple_macro + " "):
+                target, weight = macroline.split(" ", 1)
+                weight = float(weight)
+                _LOG.debug("Found macro target", (target, weight))
+                if simple_macro in ["Asian", "African", "Caucasian"]:
+                    human_info["phenotype"]["race"][simple_macro.lower()] = weight
+                    return
+                if simple_macro in ["Age", "Gender", "Muscle", "Weight", "Height"]:
+                    human_info["phenotype"][simple_macro.lower()] = weight
+                    return
+                if simple_macro == "BodyProportions":
+                    human_info["phenotype"]["proportions"] = weight
+                    return
+                if simple_macro == "BreastSize":
+                    human_info["phenotype"]["cupsize"] = weight
+                    return
+                if simple_macro == "BreastFirmness":
+                    human_info["phenotype"]["firmness"] = weight
+                    return
+        _LOG.debug("modifier was not a macrodetail")
+        target = TargetService.translate_mhm_target_line_to_target_fragment(line)
+        _LOG.debug("Translated target", target)
+        if not "targets" in human_info or not human_info["targets"]:
+            human_info["targets"] = []
+        human_info["targets"].append(target)
+
+
+    @staticmethod
+    def _check_parse_mhm_bodypart_line(human_info, line):
+        for bodypart in ["eyes", "eyelashes", "eyebrows", "teeth", "tongue", "hair", "proxy"]:
+            if line.startswith(bodypart + " "):
+                parts = line.split(" ", 2)
+                part = parts[0]
+                name = parts[1]
+                uuid = None
+                if len(parts) > 2:
+                    uuid = parts[2]
+
+                _LOG.debug("found bodypart asset", (part, name, uuid))
+
+                root_name = part
+                asset_type = "mhclo"
+                if bodypart == "proxy":
+                    asset_type = "proxy"
+                    root_name = "proxymeshes"
+
+                assets = AssetService.get_asset_list(root_name, asset_type)
+                _LOG.dump("Potential assets", assets)
+                for asset_name in assets:
+                    asset = assets[asset_name]
+                    mhclo = Mhclo()
+                    mhclo.load(asset["full_path"])
+                    if uuid and mhclo.uuid == uuid:
+                        _LOG.debug("Matching asset", (asset["full_path"], asset["fragment"]))
+                        human_info[bodypart] = asset["fragment"]
+                        return True
+                for asset_name in assets:
+                    asset = assets[asset_name]
+                    mhclo = Mhclo()
+                    mhclo.load(asset["full_path"])
+                    given_name = str(asset_name).lower()
+                    mhclo_name = str(mhclo.name).lower()
+                    label = asset["label"].lower()
+
+                    if given_name == mhclo_name or given_name == label:
+                        _LOG.debug("Matching asset", (asset["full_path"], asset["fragment"]))
+                        human_info[bodypart] = asset["fragment"]
+                        return True
+        return False
+
+
+    @staticmethod_LOG.set_level(LogService.DUMP)
+    def deserialize_from_mhm(filename, mask_helpers=True, detailed_helpers=True, extra_vertex_groups=True, feet_on_ground=True, scale=0.1, subdiv_levels=1):
+        _LOG.debug("filename", filename)
+        if not os.path.exists(filename):
+            raise IOError(str(filename) + " does not exist")
+        mhm_string = Path(filename).read_text()
+        _LOG.dump("mhm string", mhm_string)
+
+        human_info = HumanService._create_default_human_info_dict()
+        name = None
+
+        for line in mhm_string.splitlines():
+            _LOG.debug("line", line)
+            if line.startswith("modifier"):
+                HumanService._parse_mhm_modifier_line(human_info, line)
+            else:
+                is_bodypart_line = False
+                if not HumanService._check_parse_mhm_bodypart_line(human_info, line):
+                    _LOG.debug("line is neither modifier or bodypart")
+                    if line.startswith("skinMaterial"):
+                        skinLine = line.replace("skinMaterial skins/", "")
+                        skinLine = line.replace("skinMaterial", "")
+                        human_info["skin_mhmat"] = skinLine
+                        human_info["skin_material_type"] = "ENHANCED_SSS"
+                    if line.startswith("name "):
+                        name = line.replace("name ", "")
+
+        if not "rig" in human_info or not human_info["rig"]:
+            human_info["rig"] = "default"
+
+        if not name:
+            match = re.search(r'.*([^/\\]*)\.(mhm|MHM)$', filename)
+            name = match.group(1)
+
+        human_info["name"] = name
+
+        _LOG.dump("human_info", human_info)
+        basemesh = HumanService.deserialize_from_dict(human_info, mask_helpers, detailed_helpers, extra_vertex_groups, feet_on_ground, scale, subdiv_levels)
+        target_stack = TargetService.get_target_stack(basemesh)
+
+        for target in target_stack:
+            target["name"] = TargetService.decode_shapekey_name(target["target"])
+
+        _LOG.dump("Target stack", target_stack)
+        TargetService.reapply_macro_details(basemesh)
+
+        return basemesh
 
     @staticmethod
     def create_human(mask_helpers=True, detailed_helpers=True, extra_vertex_groups=True, feet_on_ground=True, scale=0.1, macro_detail_dict=None):

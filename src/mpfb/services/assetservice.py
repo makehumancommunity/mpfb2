@@ -210,6 +210,7 @@ class AssetService:
             item["full_path"] = str(asset)
             item["basename"] = os.path.basename(asset)
             item["dirname"] = os.path.dirname(asset)
+            item["fragment"] = os.path.basename(item["dirname"]) + "/" + item["basename"]
             item["name_without_ext"] = str(item["basename"]).replace("." + asset_type, "")
             item["thumb"] = None
             item["thumb_path"] = None
