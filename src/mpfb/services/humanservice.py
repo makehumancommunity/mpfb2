@@ -669,7 +669,7 @@ class HumanService:
         return False
 
 
-    @staticmethod_LOG.set_level(LogService.DUMP)
+    @staticmethod
     def deserialize_from_mhm(filename, mask_helpers=True, detailed_helpers=True, extra_vertex_groups=True, feet_on_ground=True, scale=0.1, subdiv_levels=1):
         _LOG.debug("filename", filename)
         if not os.path.exists(filename):
