@@ -132,12 +132,12 @@
 			"parts": [
 				{
 					"lowest": -0.01,
-					"highest": 0.49,
+					"highest": 0.4998,
 					"low": "minfirmness",
 					"high": "averagefirmness"
 				},
 				{
-					"lowest": 0.51,
+					"lowest": 0.4999,
 					"highest": 1.01,
 					"low": "averagefirmness",
 					"high": "maxfirmness"
