@@ -1,4 +1,4 @@
-import bpy, os, json, random
+import bpy, os, json, random, gzip
 from mpfb.services.logservice import LogService
 from mpfb.services.locationservice import LocationService
 from mpfb.entities.objectproperties import GeneralObjectProperties
@@ -8,6 +8,9 @@ _LOG = LogService.get_logger("services.objectservice")
 
 _BASEMESH_VERTEX_GROUPS_UNEXPANDED = None
 _BASEMESH_VERTEX_GROUPS_EXPANDED = None
+
+_BASEMESH_FACE_TO_VERTEX_TABLE = None
+_BASEMESH_VERTEX_TO_FACE_TABLE = None
 
 class ObjectService:
 
@@ -217,3 +220,29 @@ class ObjectService:
             basemesh.shape_key_remove(shape_key)
 
         return lowest_point
+
+    @staticmethod
+    def get_face_to_vertex_table():
+        global _BASEMESH_FACE_TO_VERTEX_TABLE # pylint: disable=W0603
+
+        meta_data_dir = LocationService.get_mpfb_data("mesh_metadata")
+        definition_file = os.path.join(meta_data_dir, "basemesh_face_to_vertex_table.json.gz")
+
+        if _BASEMESH_FACE_TO_VERTEX_TABLE is None:
+            with gzip.open(definition_file, "rb") as json_file:
+                _BASEMESH_FACE_TO_VERTEX_TABLE = json.load(json_file)
+
+        return _BASEMESH_FACE_TO_VERTEX_TABLE
+
+    @staticmethod
+    def get_vertex_to_face_table():
+        global _BASEMESH_VERTEX_TO_FACE_TABLE # pylint: disable=W0603
+
+        meta_data_dir = LocationService.get_mpfb_data("mesh_metadata")
+        definition_file = os.path.join(meta_data_dir, "basemesh_vertex_to_face_table.json.gz")
+
+        if _BASEMESH_VERTEX_TO_FACE_TABLE is None:
+            with gzip.open(definition_file, "rb") as json_file:
+                _BASEMESH_VERTEX_TO_FACE_TABLE = json.load(json_file)
+
+        return _BASEMESH_VERTEX_TO_FACE_TABLE

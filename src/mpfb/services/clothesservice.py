@@ -113,6 +113,41 @@ class ClothesService:
         basemesh.shape_key_remove(shape_key)
 
     @staticmethod
+    def _conservative_mask(basemesh, vertices_list):
+
+        vertices_list.sort()
+
+        _LOG.reset_timer()
+
+        vertex_to_face = ObjectService.get_vertex_to_face_table()
+        face_to_vertex = ObjectService.get_face_to_vertex_table()
+        _LOG.time("loading tables")
+        _LOG.reset_timer()
+
+        relevant_faces = set()
+        for vertex_index in vertices_list:
+            for face_index in vertex_to_face[vertex_index]:
+                relevant_faces.add(face_index)
+        _LOG.time("extracting relevant faces")
+        _LOG.reset_timer()
+
+        partially_affected_faces = set()
+        for face_index in relevant_faces:
+            for vertex_index in face_to_vertex[face_index]:
+                if not vertex_index in vertices_list:
+                    partially_affected_faces.add(face_index)
+                    break
+        _LOG.time("finding faces with non-group vertices")
+        _LOG.reset_timer()
+
+        for face_index in partially_affected_faces:
+            for vertex in face_to_vertex[face_index]:
+                if vertex in vertices_list:
+                    vertices_list.remove(vertex)
+
+        _LOG.time("excluding vertices")
+
+    @staticmethod
     def update_delete_group(mhclo, basemesh, replace_delete_group=False, delete_group_name=None, add_modifier=True, skip_if_empty_delete_group=True):
         """Create or update a "delete" group on the base mesh."""
 
@@ -149,7 +184,10 @@ class ClothesService:
             delete_vertices_list = []
             for vertex_to_delete in  mhclo.delverts:
                 if vertex_to_delete < human_vertices_count:
-                    delete_vertices_list.append(vertex_to_delete)
+                    delete_vertices_list.append(int(vertex_to_delete))
+
+            # Remove outliers
+            ClothesService._conservative_mask(basemesh, delete_vertices_list)
 
             # Add the delete vertices to the previously created vertex group
             delete_group.add(delete_vertices_list, 1.0, 'ADD')
@@ -172,12 +210,14 @@ class ClothesService:
         relevant_basemesh_vert_idxs = ObjectService.get_vertex_indexes_for_vertex_group(basemesh, vertex_group_name)
         _LOG.debug("Number of relevant basemesh vertices:", len(relevant_basemesh_vert_idxs))
         _LOG.dump("Relevant basemesh vertices", relevant_basemesh_vert_idxs)
+        _LOG.debug("Supplied mhclo_full_path", mhclo_full_path)
+        _LOG.debug("clothes_object", clothes_object)
         if not mhclo_full_path:
             asset_source = GeneralObjectProperties.get_value("asset_source", entity_reference=clothes_object)
             object_type = str(GeneralObjectProperties.get_value("object_type", entity_reference=clothes_object)).lower()
             _LOG.debug("asset source, object type", (asset_source, object_type))
             mhclo_full_path = AssetService.find_asset_absolute_path(asset_source, object_type)
-        _LOG.debug("mhclo full path", mhclo_full_path)
+        _LOG.debug("final mhclo full path", mhclo_full_path)
 
         new_vert_group = clothes_object.vertex_groups.new(name=vertex_group_name)
 

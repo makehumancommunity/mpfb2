@@ -292,7 +292,7 @@ class HumanService:
         if asset_type == "Clothes": # TODO: Maybe there are body parts with delete groups?
             proxymesh = ObjectService.find_object_of_type_amongst_nearest_relatives(basemesh, mpfb_type_name="Proxymeshes")
             if proxymesh:
-                ClothesService.interpolate_vertex_group_from_basemesh_to_clothes(basemesh, proxymesh, delete_name, mhclo_full_path=mhclo_file)
+                ClothesService.interpolate_vertex_group_from_basemesh_to_clothes(basemesh, proxymesh, delete_name, mhclo_full_path=None)
                 modifier = proxymesh.modifiers.new(name=delete_name, type="MASK")
                 modifier.vertex_group = delete_name
                 modifier.invert_vertex_group = True
