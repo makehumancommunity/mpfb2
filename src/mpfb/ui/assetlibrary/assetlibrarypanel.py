@@ -5,6 +5,7 @@ from mpfb import ClassManager
 from mpfb.services.logservice import LogService
 from mpfb.services.assetservice import AssetService, ASSET_LIBRARY_SECTIONS
 from mpfb.ui.assetlibrary.assetsettingspanel import ASSET_SETTINGS_PROPERTIES
+from mpfb.ui.assetspanel import FILTER_PROPERTIES
 
 _LOG = LogService.get_logger("assetlibrary.assetlibrarypanel")
 
@@ -33,12 +34,23 @@ class _Abstract_Asset_Library_Panel(bpy.types.Panel):
     def _draw_section(self, scene, layout):
         _LOG.enter()
         items = AssetService.get_asset_list(self.asset_subdir, self.asset_type)
-        names = list(items.keys())
-        if len(names) < 1:
+        allnames = list(items.keys())
+        if len(allnames) < 1:
             for line in _NOASSETS:
                 layout.label(text=line)
             return
-        names.sort()
+        allnames.sort()
+
+        filter_term = str(FILTER_PROPERTIES.get_value("filter", entity_reference=scene)).strip().lower()
+
+        names = []
+        for name in allnames:
+            if not filter_term:
+                names.append(name)
+            else:
+                if filter_term in str(name).lower():
+                    names.append(name)
+
         for name in names:
             box = layout.box()
             box.label(text=name)
@@ -46,26 +58,26 @@ class _Abstract_Asset_Library_Panel(bpy.types.Panel):
             _LOG.debug("Asset", asset)
             if "thumb" in asset and not asset["thumb"] is None:
                 box.template_icon(icon_value=asset["thumb"].icon_id, scale=6.0)
-            op = None
+            operator = None
             if self.asset_type == "mhclo":
-                op = box.operator("mpfb.load_library_clothes")
+                operator = box.operator("mpfb.load_library_clothes")
             if self.asset_type == "proxy":
-                op = box.operator("mpfb.load_library_proxy")
+                operator = box.operator("mpfb.load_library_proxy")
             if self.asset_type == "mhmat":
                 if self.skin_overrides:
-                    op = box.operator("mpfb.load_library_skin")
-            if not op is None:
-                op.filepath = asset["full_path"]
-                if hasattr(op, "object_type") and self.object_type:
-                    op.object_type = self.object_type
-                if hasattr(op, "material_type"):
+                    operator = box.operator("mpfb.load_library_skin")
+            if not operator is None:
+                operator.filepath = asset["full_path"]
+                if hasattr(operator, "object_type") and self.object_type:
+                    operator.object_type = self.object_type
+                if hasattr(operator, "material_type"):
                     procedural_eyes = ASSET_SETTINGS_PROPERTIES.get_value("procedural_eyes", entity_reference=scene)
                     _LOG.debug("Eye settings, eye_overrides, procedural_eyes", (self.eye_overrides, procedural_eyes))
                     if self.eye_overrides and procedural_eyes:
-                        op.material_type = "PROCEDURAL_EYES"
+                        operator.material_type = "PROCEDURAL_EYES"
                     else:
-                        op.material_type = "MAKESKIN"
-                    _LOG.debug("Operator material type is now", op.material_type)
+                        operator.material_type = "MAKESKIN"
+                    _LOG.debug("Operator material type is now", operator.material_type)
                 else:
                     _LOG.debug("Operator does not have a material type")
 
