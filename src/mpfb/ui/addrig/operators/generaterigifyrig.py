@@ -61,6 +61,10 @@ class MPFB_OT_GenerateRigifyRigOperator(bpy.types.Operator):
         armature_object = context.active_object
         delete_after_generate = ADD_RIG_PROPERTIES.get_value("delete_after_generate", entity_reference=scene)
         teeth = ADD_RIG_PROPERTIES.get_value("teeth", entity_reference=scene)
+        name = str(ADD_RIG_PROPERTIES.get_value("name", entity_reference=scene)).strip()
+
+        if name:
+            armature_object.data.rigify_rig_basename = name
 
         bpy.ops.pose.rigify_generate()
         rigify_object = context.active_object

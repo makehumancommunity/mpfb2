@@ -41,6 +41,7 @@ class MPFB_PT_Add_Rig_Panel(Abstract_Panel):
     def _generate_rigify_rig(self, scene, layout):
         box = self.create_box(layout, "Generate rigify rig")
         props = [
+            "name",
             "delete_after_generate",
             "teeth"
             ]

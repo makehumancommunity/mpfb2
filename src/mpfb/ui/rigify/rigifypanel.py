@@ -25,7 +25,7 @@ class MPFB_PT_Rigify_Panel(Abstract_Panel):
         _LOG.enter()
         layout = self.layout
         scene = context.scene
-        RIGIFY_PROPERTIES.draw_properties(scene, layout, ["produce", "keep_meta"])
+        RIGIFY_PROPERTIES.draw_properties(scene, layout, ["name", "produce", "keep_meta"])
         layout.operator("mpfb.convert_to_rigify")
 
 ClassManager.add_class(MPFB_PT_Rigify_Panel)

@@ -1,0 +1,7 @@
+{
+    "type": "string",
+    "name": "name",
+    "description": "Name to use when generating the final rig. If not specified, the name set in the panel \"object data properties\" -> \"advanced options\" -> \"rig name\" will be used",
+    "label": "Name",
+    "default": ""
+}
