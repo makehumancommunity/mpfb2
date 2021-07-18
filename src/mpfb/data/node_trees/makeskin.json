@@ -105,12 +105,7 @@
                 "Alpha": 1.0,
                 "Anisotropic": 0.0,
                 "Anisotropic Rotation": 0.0,
-                "Base Color": [
-                    0.5,
-                    0.5,
-                    0.5,
-                    1.0
-                ],
+                "Base Color": "$diffuseColor",
                 "Clearcoat": 0.0,
                 "Clearcoat Roughness": 0.029999999329447746,
                 "Emission": [
@@ -177,12 +172,7 @@
             "name": "diffuseIntensity",
             "type": "ShaderNodeMixRGB",
             "values": {
-                "Color1": [
-                    0.5,
-                    0.5,
-                    0.5,
-                    1.0
-                ],
+                "Color1": "$diffuseColor",
                 "Color2": [
                     0.5,
                     0.5,

@@ -64,6 +64,19 @@ class MakeSkinMaterial(MhMaterial):
 
         _LOG.dump("template_values", template_values)
 
+        color_keys = {
+            "diffuseColor": "[0.5, 0.5, 0.5, 1.0]"
+        }
+        for key in color_keys.keys():
+            if not key in template_values:
+                value = self.get_value(key)
+                if value:
+                    if len(value) < 4:
+                        value.append(1.0)
+                    template_values[key] = str(value)
+                else:
+                    template_values[key] = color_keys[key]
+
         template_data = Path(json_file).read_text()
         for key in template_values:
             template_data = template_data.replace("\"$" + key + "\"", template_values[key])
