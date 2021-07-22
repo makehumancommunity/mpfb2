@@ -222,7 +222,8 @@ class AssetService:
             if os.path.exists(thumb):
                 item["thumb_path"] = thumb
                 _LOG.debug("Will try to load icon", (label, thumb))
-                _ASSET_THUMBS.load(thumb, thumb, 'IMAGE')
+                if not thumb in _ASSET_THUMBS:
+                    _ASSET_THUMBS.load(thumb, thumb, 'IMAGE')
                 item["thumb"] = _ASSET_THUMBS[thumb]
             else:
                 _LOG.warn("Missing thumb", thumb)
