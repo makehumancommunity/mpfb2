@@ -20,6 +20,7 @@ from mpfb.entities.socketobject import BASEMESH_EXTRA_GROUPS, ALL_EXTRA_GROUPS
 from .logservice import LogService
 
 _LOG = LogService.get_logger("services.humanservice")
+_LOG.set_level(LogService.DEBUG)
 
 _EXISTING_PRESETS = None
 
@@ -351,6 +352,22 @@ class HumanService:
                     _LOG.warn("Could not locate bodypart", asset_filename)
 
     @staticmethod
+    def _check_add_clothes(human_info, basemesh, subdiv_levels=1):
+        if not "clothes" in human_info:
+            return
+        for asset_filename in human_info["clothes"]:
+            _LOG.debug("A clothes asset was specified", asset_filename)
+            asset_absolute_path = AssetService.find_asset_absolute_path(asset_filename, asset_subdir="clothes")
+            _LOG.debug("Asset absolute path", asset_absolute_path)
+            material = "MAKESKIN"
+            if not asset_absolute_path is None:
+                bodypart_object = HumanService.add_mhclo_asset(asset_absolute_path, basemesh, asset_type="clothes", subdiv_levels=subdiv_levels, material_type=material)
+                #if bodypart_object and "name" in human_info and human_info["name"]:
+                #    bodypart_object.name = human_info["name"] + "." + bodypart_object.name
+            else:
+                _LOG.warn("Could not locate asset", asset_filename)
+
+    @staticmethod
     def _check_add_proxy(human_info, basemesh, subdiv_levels=1):
         if not "proxy" in human_info:
             _LOG.warn("Did not find proxy key in human_info")
@@ -564,6 +581,7 @@ class HumanService:
         HumanService._check_add_rig(human_info, basemesh)
         HumanService._check_add_bodyparts(human_info, basemesh, subdiv_levels=subdiv_levels)
         HumanService._check_add_proxy(human_info, basemesh, subdiv_levels=subdiv_levels)
+        HumanService._check_add_clothes(human_info, basemesh, subdiv_levels=subdiv_levels)
         HumanService._set_skin(human_info, basemesh)
         HumanService._set_eyes(human_info, basemesh)
         HumanService._load_targets(human_info, basemesh)
@@ -646,6 +664,20 @@ class HumanService:
 
                 assets = AssetService.get_asset_list(root_name, asset_type)
                 _LOG.dump("Potential assets", assets)
+                # Find asset which match both filename and UUID
+                for asset_name in assets:            
+                    asset = assets[asset_name]            
+                    given_name = str(asset_name).lower()
+                    mhclo_name = str(name).lower()                        
+                    _LOG.debug("Checking ", (mhclo_name, given_name))
+                    if mhclo_name in given_name and uuid:
+                        mhclo = Mhclo()
+                        mhclo.load(asset["full_path"])
+                        if mhclo.uuid == uuid:
+                            _LOG.debug("Matching asset", (asset["full_path"], asset["fragment"]))
+                            human_info["clothes"].append(asset["fragment"])
+                            return True
+                # Find asset which match only uuid
                 for asset_name in assets:
                     asset = assets[asset_name]
                     mhclo = Mhclo()
@@ -654,6 +686,7 @@ class HumanService:
                         _LOG.debug("Matching asset", (asset["full_path"], asset["fragment"]))
                         human_info[bodypart] = asset["fragment"]
                         return True
+                # Find asset which match only filename
                 for asset_name in assets:
                     asset = assets[asset_name]
                     mhclo = Mhclo()
@@ -666,6 +699,64 @@ class HumanService:
                         _LOG.debug("Matching asset", (asset["full_path"], asset["fragment"]))
                         human_info[bodypart] = asset["fragment"]
                         return True
+        # Give up
+        return False
+
+    @staticmethod
+    def _check_parse_mhm_clothes_line(human_info, line):
+        parts = line.split(" ", 2)
+        part = parts[0]
+        name = parts[1]
+        uuid = None
+        if len(parts) > 2:
+            uuid = parts[2]
+
+        _LOG.debug("found clothes asset", (part, name, uuid))
+
+        root_name = part
+        asset_type = "mhclo"
+
+        if not "clothes" in human_info:
+            human_info["clothes"] = []
+            
+        assets = AssetService.get_asset_list(root_name, asset_type)
+        _LOG.dump("Potential assets", assets)
+        # Find asset which match both filename and UUID
+        for asset_name in assets:            
+            asset = assets[asset_name]            
+            given_name = str(asset_name).lower()
+            mhclo_name = str(name).lower()                        
+            _LOG.debug("Checking ", (mhclo_name, given_name))
+            if mhclo_name in given_name and uuid:
+                mhclo = Mhclo()
+                mhclo.load(asset["full_path"])
+                if mhclo.uuid == uuid:
+                    _LOG.debug("Matching asset", (asset["full_path"], asset["fragment"]))
+                    human_info["clothes"].append(asset["fragment"])
+                    return True
+        # Find assets that only match UUID
+        for asset_name in assets:
+            asset = assets[asset_name]
+            mhclo = Mhclo()
+            mhclo.load(asset["full_path"])
+            if uuid and mhclo.uuid == uuid:
+                _LOG.debug("Matching asset", (asset["full_path"], asset["fragment"]))
+                human_info["clothes"].append(asset["fragment"])
+                return True
+        # Find assets that only match filename
+        for asset_name in assets:
+            asset = assets[asset_name]
+            mhclo = Mhclo()
+            mhclo.load(asset["full_path"])
+            given_name = str(asset_name).lower()
+            mhclo_name = str(mhclo.name).lower()
+            label = asset["label"].lower()
+
+            if given_name == mhclo_name or given_name == label:
+                _LOG.debug("Matching asset", (asset["full_path"], asset["fragment"]))
+                human_info["clothes"].append(asset["fragment"])
+                return True
+        # Give up
         return False
 
 
@@ -695,6 +786,11 @@ class HumanService:
                         human_info["skin_material_type"] = "ENHANCED_SSS"
                     if line.startswith("name "):
                         name = line.replace("name ", "")
+
+        for line in mhm_string.splitlines():
+            _LOG.debug("line", line)
+            if line.startswith("clothes"):
+                HumanService._check_parse_mhm_clothes_line(human_info, line)
 
         if not "rig" in human_info or not human_info["rig"]:
             human_info["rig"] = "default"
