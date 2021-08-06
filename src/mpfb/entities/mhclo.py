@@ -133,7 +133,7 @@ class Mhclo:
             status = ""
             if key == 'obj_file':
                 self.obj_file = os.path.join(folder, words[1])
-                print ("Loading: " + self.obj_file + "\n")
+                _LOG.debug("obj_file", self.obj_file)
             elif key == 'verts':
                 if len(words) > 1:
                     self.first = int(words[1])      # this value will be ignored, we always start from zero
