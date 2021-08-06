@@ -20,7 +20,6 @@ from mpfb.entities.socketobject import BASEMESH_EXTRA_GROUPS, ALL_EXTRA_GROUPS
 from .logservice import LogService
 
 _LOG = LogService.get_logger("services.humanservice")
-_LOG.set_level(LogService.DEBUG)
 
 _EXISTING_PRESETS = None
 
@@ -156,6 +155,22 @@ class HumanService:
                     human_info[str(bodypart).lower()] = str(asset_source).strip()
 
     @staticmethod
+    def _populate_human_info_with_clothes_info(human_info, basemesh):
+        if not "clothes" in human_info:
+            human_info["clothes"] = []
+
+        parent = basemesh
+        if basemesh.parent:
+            parent = basemesh.parent
+
+        clothes = ObjectService.get_list_of_children(parent)
+        for clothes_obj in clothes:
+            _LOG.debug("Found clothes", clothes_obj)
+            asset_source = GeneralObjectProperties.get_value("asset_source", entity_reference=clothes_obj)
+            if not asset_source is None:
+                human_info["clothes"].append(str(asset_source).strip())
+
+    @staticmethod
     def _populate_human_info_with_proxy_info(human_info, basemesh):
         proxy = ObjectService.find_object_of_type_amongst_nearest_relatives(basemesh, "Proxymeshes")
         if not proxy:
@@ -200,6 +215,7 @@ class HumanService:
         HumanService._populate_human_info_with_basemesh_info(human_info, basemesh)
         HumanService._populate_human_info_with_rig_info(human_info, basemesh)
         HumanService._populate_human_info_with_bodyparts_info(human_info, basemesh)
+        HumanService._populate_human_info_with_clothes_info(human_info, basemesh)
         HumanService._populate_human_info_with_proxy_info(human_info, basemesh)
         HumanService._populate_human_info_with_skin_info(human_info, basemesh)
         HumanService._populate_human_info_with_eye_material_info(human_info, basemesh)
@@ -560,7 +576,7 @@ class HumanService:
             TargetService.load_target(basemesh, target_full_path, target["value"], target["target"])
 
     @staticmethod
-    def deserialize_from_dict(human_info, mask_helpers=True, detailed_helpers=True, extra_vertex_groups=True, feet_on_ground=True, scale=0.1, subdiv_levels=1):
+    def deserialize_from_dict(human_info, mask_helpers=True, detailed_helpers=True, extra_vertex_groups=True, feet_on_ground=True, scale=0.1, subdiv_levels=1, load_clothes=True):
         if human_info is None:
             raise ValueError('Cannot use None as human_info')
         if len(human_info.keys()) < 1:
@@ -581,7 +597,8 @@ class HumanService:
         HumanService._check_add_rig(human_info, basemesh)
         HumanService._check_add_bodyparts(human_info, basemesh, subdiv_levels=subdiv_levels)
         HumanService._check_add_proxy(human_info, basemesh, subdiv_levels=subdiv_levels)
-        HumanService._check_add_clothes(human_info, basemesh, subdiv_levels=subdiv_levels)
+        if load_clothes:
+            HumanService._check_add_clothes(human_info, basemesh, subdiv_levels=subdiv_levels)
         HumanService._set_skin(human_info, basemesh)
         HumanService._set_eyes(human_info, basemesh)
         HumanService._load_targets(human_info, basemesh)
@@ -592,7 +609,7 @@ class HumanService:
         return basemesh
 
     @staticmethod
-    def deserialize_from_json_file(filename, mask_helpers=True, detailed_helpers=True, extra_vertex_groups=True, feet_on_ground=True, scale=0.1, subdiv_levels=1):
+    def deserialize_from_json_file(filename, mask_helpers=True, detailed_helpers=True, extra_vertex_groups=True, feet_on_ground=True, scale=0.1, subdiv_levels=1, load_clothes=True):
         if not os.path.exists(filename):
             raise IOError(str(filename) + " does not exist")
         human_info = None
@@ -601,7 +618,7 @@ class HumanService:
         match = re.search(r'human\.([^/\\]*)\.json$', filename)
         name = match.group(1)
         human_info["name"] = name
-        return HumanService.deserialize_from_dict(human_info, mask_helpers, detailed_helpers, extra_vertex_groups, feet_on_ground, scale, subdiv_levels)
+        return HumanService.deserialize_from_dict(human_info, mask_helpers, detailed_helpers, extra_vertex_groups, feet_on_ground, scale, subdiv_levels, load_clothes=load_clothes)
 
     @staticmethod
     def _parse_mhm_modifier_line(human_info, line):
@@ -665,10 +682,10 @@ class HumanService:
                 assets = AssetService.get_asset_list(root_name, asset_type)
                 _LOG.dump("Potential assets", assets)
                 # Find asset which match both filename and UUID
-                for asset_name in assets:            
-                    asset = assets[asset_name]            
+                for asset_name in assets:
+                    asset = assets[asset_name]
                     given_name = str(asset_name).lower()
-                    mhclo_name = str(name).lower()                        
+                    mhclo_name = str(name).lower()
                     _LOG.debug("Checking ", (mhclo_name, given_name))
                     if mhclo_name in given_name and uuid:
                         mhclo = Mhclo()
@@ -718,14 +735,14 @@ class HumanService:
 
         if not "clothes" in human_info:
             human_info["clothes"] = []
-            
+
         assets = AssetService.get_asset_list(root_name, asset_type)
         _LOG.dump("Potential assets", assets)
         # Find asset which match both filename and UUID
-        for asset_name in assets:            
-            asset = assets[asset_name]            
+        for asset_name in assets:
+            asset = assets[asset_name]
             given_name = str(asset_name).lower()
-            mhclo_name = str(name).lower()                        
+            mhclo_name = str(name).lower()
             _LOG.debug("Checking ", (mhclo_name, given_name))
             if mhclo_name in given_name and uuid:
                 mhclo = Mhclo()
@@ -761,7 +778,7 @@ class HumanService:
 
 
     @staticmethod
-    def deserialize_from_mhm(filename, mask_helpers=True, detailed_helpers=True, extra_vertex_groups=True, feet_on_ground=True, scale=0.1, subdiv_levels=1):
+    def deserialize_from_mhm(filename, mask_helpers=True, detailed_helpers=True, extra_vertex_groups=True, feet_on_ground=True, scale=0.1, subdiv_levels=1, load_clothes=True):
         _LOG.debug("filename", filename)
         if not os.path.exists(filename):
             raise IOError(str(filename) + " does not exist")
@@ -802,14 +819,7 @@ class HumanService:
         human_info["name"] = name
 
         _LOG.dump("human_info", human_info)
-        basemesh = HumanService.deserialize_from_dict(human_info, mask_helpers, detailed_helpers, extra_vertex_groups, feet_on_ground, scale, subdiv_levels)
-
-        # TODO: The following is for debug only and should probably be removed once the code seems stable
-        target_stack = TargetService.get_target_stack(basemesh)
-        for target in target_stack:
-            target["name"] = TargetService.decode_shapekey_name(target["target"])
-        _LOG.dump("Target stack", target_stack)
-        TargetService.reapply_macro_details(basemesh)
+        basemesh = HumanService.deserialize_from_dict(human_info, mask_helpers, detailed_helpers, extra_vertex_groups, feet_on_ground, scale, subdiv_levels, load_clothes=load_clothes)
 
         return basemesh
 

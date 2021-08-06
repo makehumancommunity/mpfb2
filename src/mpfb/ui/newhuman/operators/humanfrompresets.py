@@ -30,6 +30,7 @@ class MPFB_OT_HumanFromPresetsOperator(bpy.types.Operator):
         extra_vertex_groups = PRESETS_HUMAN_PROPERTIES.get_value("extra_vertex_groups", entity_reference=context.scene)
         mask_helpers = PRESETS_HUMAN_PROPERTIES.get_value("mask_helpers", entity_reference=context.scene)
         scale_factor = PRESETS_HUMAN_PROPERTIES.get_value("scale_factor", entity_reference=context.scene)
+        load_clothes = PRESETS_HUMAN_PROPERTIES.get_value("load_clothes", entity_reference=context.scene)
 
         scale = 0.1
 
@@ -49,7 +50,8 @@ class MPFB_OT_HumanFromPresetsOperator(bpy.types.Operator):
                                                            detailed_helpers=detailed_helpers,
                                                            extra_vertex_groups=extra_vertex_groups,
                                                            feet_on_ground=True,
-                                                           scale=scale)
+                                                           scale=scale,
+                                                           load_clothes=load_clothes)
 
         _LOG.debug("Basemesh", basemesh)
 

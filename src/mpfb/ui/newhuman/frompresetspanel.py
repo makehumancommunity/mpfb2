@@ -44,7 +44,8 @@ class MPFB_PT_From_Presets_Panel(Abstract_Panel):
             "scale_factor",
             "detailed_helpers",
             "extra_vertex_groups",
-            "mask_helpers"
+            "mask_helpers",
+            "load_clothes"
             ])
         layout.operator('mpfb.human_from_presets')
         layout.operator('mpfb.human_from_mhm')
