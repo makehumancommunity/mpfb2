@@ -246,3 +246,53 @@ class ObjectService:
                 _BASEMESH_VERTEX_TO_FACE_TABLE = json.load(json_file)
 
         return _BASEMESH_VERTEX_TO_FACE_TABLE
+
+    @staticmethod
+    def extract_vertex_group_to_new_object(existing_object, vertex_group_name):
+
+        clothes_obj = existing_object.copy()
+        clothes_obj.data = clothes_obj.data.copy()
+        clothes_obj.parent = None
+        clothes_obj.animation_data_clear()
+        clothes_obj.name = "clothes"
+        bpy.context.collection.objects.link(clothes_obj)
+
+        for modifier in clothes_obj.modifiers:
+            clothes_obj.modifiers.remove(modifier)
+
+        for vgroup in clothes_obj.vertex_groups:
+            if vertex_group_name != vgroup.name:
+                clothes_obj.vertex_groups.remove(vgroup)
+
+        existing_object.select_set(False)
+        clothes_obj.select_set(True)
+        bpy.context.view_layer.objects.active = clothes_obj
+
+        bpy.ops.object.mode_set(mode='EDIT', toggle=False)
+        bpy.ops.mesh.select_all(action='DESELECT')
+        bpy.ops.object.vertex_group_select()
+        bpy.ops.mesh.select_all(action='INVERT')
+        bpy.ops.mesh.delete(type='VERT')
+        bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
+
+        from mpfb.services.materialservice import MaterialService
+        MaterialService.delete_all_materials(clothes_obj)
+
+        GeneralObjectProperties.set_value("asset_source", "", entity_reference=clothes_obj)
+        GeneralObjectProperties.set_value("object_type", "Clothes", entity_reference=clothes_obj)
+
+        key_name = "temporary_fitting_key." + str(random.randrange(1000, 9999))
+        clothes_obj.shape_key_add(name=key_name, from_mix=True)
+        print(len(clothes_obj.data.shape_keys.key_blocks))
+
+        for name in clothes_obj.data.shape_keys.key_blocks.keys():
+            if name != key_name and name != "Basis":
+                shape_key = clothes_obj.data.shape_keys.key_blocks[name]
+                clothes_obj.shape_key_remove(shape_key)
+
+        if "Basis" in clothes_obj.data.shape_keys.key_blocks.keys():
+            shape_key = clothes_obj.data.shape_keys.key_blocks["Basis"]
+            clothes_obj.shape_key_remove(shape_key)
+
+        shape_key = clothes_obj.data.shape_keys.key_blocks[key_name]
+        clothes_obj.shape_key_remove(shape_key)
