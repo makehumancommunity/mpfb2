@@ -6,6 +6,7 @@ from mpfb.services.logservice import LogService
 from mpfb.services.locationservice import LocationService
 from mpfb.entities.objectproperties import GeneralObjectProperties
 from mpfb.entities.objectproperties import HumanObjectProperties
+from mpfb.entities.primitiveprofiler import PrimitiveProfiler
 
 _LOG = LogService.get_logger("services.targetservice")
 
@@ -27,6 +28,9 @@ _MACRO_FILE = os.path.join(_TARGETS_DIR, "macrodetails", "macro.json")
 
 with open(_MACRO_FILE, "r") as json_file:
     _MACRO_CONFIG = json.load(json_file)
+
+_LOADER = LogService.get_logger("target loader")
+_LOADER.set_level(LogService.DUMP)
 
 # This is very annoying, but the maximum length of a shape key name is 61 characters
 # in blender. The combinations used in MH filenames tend to be longer than that.
@@ -67,6 +71,8 @@ class TargetService:
 
     @staticmethod
     def translate_mhm_target_line_to_target_fragment(mhm_line):
+        profiler = PrimitiveProfiler("TargetService")
+        profiler.enter("translate_mhm_target_line_to_target_fragment")
         if mhm_line.startswith("modifier "):
             mhm_line.replace("modifier ", "")
         name, weight = mhm_line.split(" ", 1)
@@ -82,6 +88,7 @@ class TargetService:
                     name = name.replace(mhm_term, positive)
         if "/" in name:
             dirname, name = name.split("/", 1)
+        profiler.leave("translate_mhm_target_line_to_target_fragment")
         return { "target": name, "value": weight }
 
     @staticmethod
@@ -100,7 +107,8 @@ class TargetService:
     @staticmethod
     def create_shape_key(blender_object, shape_key_name, also_create_basis=True, create_from_mix=False):
         _LOG.enter()
-
+        profiler = PrimitiveProfiler("TargetService")
+        profiler.enter("create_shape_key")
         if also_create_basis:
             if not blender_object.data.shape_keys or not "Basis" in blender_object.data.shape_keys.key_blocks:
                 blender_object.shape_key_add(name="Basis", from_mix=False)
@@ -112,13 +120,15 @@ class TargetService:
 
         shape_key_idx = blender_object.data.shape_keys.key_blocks.find(shape_key_name)
         blender_object.active_shape_key_index = shape_key_idx
-
+        profiler.leave("create_shape_key")
         return blender_object.data.shape_keys.key_blocks[shape_key_name]
 
     @staticmethod
     def get_shape_key_as_dict(blender_object, shape_key_name, smaller_than_counts_as_unmodified=0.0001, only_modified_verts=True):
         _LOG.enter()
         _LOG.reset_timer()
+        profiler = PrimitiveProfiler("TargetService")
+        profiler.enter("get_shape_key_as_dict")
         if blender_object is None:
             raise ValueError("A none object cannot have shape keys")
         if not blender_object.data.shape_keys:
@@ -168,6 +178,9 @@ class TargetService:
 
             i = i + 1
         _LOG.time("Extracting shape key took")
+
+        profiler.leave("get_shape_key_as_dict")
+
         return info
 
     @staticmethod
@@ -185,6 +198,8 @@ class TargetService:
     @staticmethod
     def _target_string_to_shape_key_info(target_string, shape_key_name, blender_object, scale_factor=None):
 
+        profiler = PrimitiveProfiler("TargetService")
+        profiler.enter("_target_string_to_shape_key_info")
         if scale_factor is None and not blender_object is None:
             scale_factor = GeneralObjectProperties.get_value("scale_factor", entity_reference=blender_object)
         if not scale_factor or scale_factor < 0.0001:
@@ -199,7 +214,9 @@ class TargetService:
 
         lines = target_string.splitlines()
 
+        profiler.enter("- parse_target_lines")
         for line in lines:
+            profiler.enter("-- parse_target_line")
             target_line = str(line.strip())
             if target_line and not target_line.startswith("#") and not target_line.startswith("\""):
                 parts = target_line.split(" ", 4)
@@ -211,12 +228,16 @@ class TargetService:
                 vert_info["index"] = index
                 vert_info["coordinate_difference"] = [x * scale_factor, y * scale_factor, z * scale_factor]
                 vert_info["scaled_coordinate_difference"] = [x, y, z]
+                profiler.leave("-- parse_target_line")
+                profiler.enter("-- insert_target_line")
                 if not blender_object is None:
                     vert = blender_object.data.vertices[index]
 
                     diff = vert_info["coordinate_difference"]
+                    profiler.enter("copy_vert")
                     bco = vert.co.copy()
                     tco = [bco[0] + diff[0], bco[1] + diff[1], bco[2] + diff[2]]
+                    profiler.leave("copy_vert")
 
                     vert_info["basis_coordinates"] = bco
                     vert_info["target_coordinates"] = tco
@@ -224,6 +245,8 @@ class TargetService:
                     vert_info["basis_coordinates"] = [0.0, 0.0, 0.0] # We have no info about the mesh here
                     vert_info["target_coordinates"] = [0.0, 0.0, 0.0] # We have no info about the mesh here
                 info["vertices"].append(vert_info)
+                profiler.leave("-- insert_target_line")
+        profiler.leave("- parse_target_lines")
 
         info["number_of_modified_vertices"] = len(info["vertices"])
         if not blender_object is None:
@@ -231,32 +254,46 @@ class TargetService:
         else:
             info["total_number_of_vertices"] = len(info["vertices"])
 
+        profiler.leave("_target_string_to_shape_key_info")
         return info
 
     @staticmethod
     def target_string_to_shape_key(target_string, shape_key_name, blender_object):
         _LOG.enter()
         _LOG.reset_timer()
-
+        profiler = PrimitiveProfiler("TargetService")
+        profiler.enter("target_string_to_shape_key_info")
         TargetService.create_shape_key(blender_object, shape_key_name)
         shape_key_info = TargetService._target_string_to_shape_key_info(target_string, shape_key_name, blender_object)
 
+        profiler.enter("- apply_shape_key_info")
+
+        profiler.enter("-- setup_bmesh")
         mesh = bmesh.new()
         mesh.from_mesh(blender_object.data)
+        profiler.leave("-- setup_bmesh")
+        profiler.enter("-- ensure_lookup_table")
         mesh.verts.ensure_lookup_table()
+        profiler.leave("-- ensure_lookup_table")
 
         target = mesh.verts.layers.shape[shape_key_name]
         _LOG.debug("bmesh, target", (mesh, target))
 
+        profiler.enter("-- apply_verts")
         for vertex in shape_key_info["vertices"]:
             index = vertex["index"]
             mesh.verts[index][target] = vertex["target_coordinates"]
+        profiler.leave("-- apply_verts")
 
+        profiler.enter("-- apply_bmesh")
         mesh.to_mesh(blender_object.data)
         mesh.free()
+        profiler.leave("-- apply_bmesh")
+
+        profiler.leave("- apply_shape_key_info")
 
         _LOG.time("Target was loaded in")
-
+        profiler.leave("target_string_to_shape_key_info")
         return blender_object.data.shape_keys.key_blocks[shape_key_name]
 
     @staticmethod
@@ -266,6 +303,9 @@ class TargetService:
 
         if not _MIRROR_LEFT is None and not _MIRROR_RIGHT is None:
             return
+
+        profiler = PrimitiveProfiler("TargetService")
+        profiler.enter("_load_mirror_table")
 
         _MIRROR_LEFT = []
         _MIRROR_RIGHT = []
@@ -284,6 +324,8 @@ class TargetService:
                     _MIRROR_LEFT.append([from_idx, to_idx])
                 if side == "r":
                     _MIRROR_RIGHT.append([from_idx, to_idx])
+
+        profiler.leave("_load_mirror_table")
 
 
     @staticmethod
@@ -308,6 +350,9 @@ class TargetService:
 
     @staticmethod
     def get_target_stack(blender_object, exclude_starts_with=None, exclude_ends_with=None):
+        profiler = PrimitiveProfiler("TargetService")
+        profiler.enter("get_target_stack")
+
         if blender_object is None or blender_object.type != 'MESH':
             raise ValueError('Must provide a valid mesh object')
 
@@ -315,6 +360,7 @@ class TargetService:
 
         if keys is None or keys.key_blocks is None or len(keys.key_blocks) < 1:
             _LOG.debug("Object does not have any shape keys, returning empty array")
+            profiler.leave("get_target_stack")
             return []
 
         stack = []
@@ -332,6 +378,7 @@ class TargetService:
             if not exclude:
                 stack.append({"target": shape_key.name, "value": shape_key.value})
 
+        profiler.leave("get_target_stack")
         return stack
 
     @staticmethod
@@ -385,6 +432,10 @@ class TargetService:
 
     @staticmethod
     def load_target(blender_object, full_path, weight=0.0, name=None):
+
+        profiler = PrimitiveProfiler("TargetService")
+        profiler.enter("load_target")
+
         if blender_object is None:
             raise ValueError("Can only load targets onto specified mesh objects")
         if full_path is None or not full_path:
@@ -399,19 +450,27 @@ class TargetService:
             name = name.replace(".target.gz", "")
             name = name.replace(".target", "")
 
+        _LOADER.reset_timer()
         if str(full_path).endswith(".gz"):
+            profiler.enter("load_target_gzip")
             with gzip.open(full_path, "rb") as gzip_file:
                 raw_data = gzip_file.read()
                 target_string = raw_data.decode('utf-8')
+                profiler.leave("load_target_gzip")
                 if not target_string is None:
                     shape_key = TargetService.target_string_to_shape_key(target_string, name, blender_object)
                     shape_key.value = weight
         else:
+            profiler.enter("load_target_plain")
             with open(full_path, "r") as target_file:
                 target_string = target_file.read()
+                profiler.leave("load_target_plain")
                 if not target_string is None:
                     shape_key = TargetService.target_string_to_shape_key(target_string, name, blender_object)
                     shape_key.value = weight
+        _LOADER.time(full_path + " " + str(weight))
+        profiler.leave("load_target")
+
         return shape_key
 
     @staticmethod
@@ -452,6 +511,10 @@ class TargetService:
 
     @staticmethod
     def _interpolate_macro_components(macro_name, value):
+
+        profiler = PrimitiveProfiler("TargetService")
+        profiler.enter("_interpolate_macro_components")
+
         _LOG.debug("Interpolating macro target", (macro_name, value))
         macrotarget = _MACRO_CONFIG["macrotargets"][macro_name]
         components = []
@@ -474,11 +537,17 @@ class TargetService:
                 if high:
                     components.append([high, round(highweight, 4)])
 
+        profiler.leave("_interpolate_macro_components")
+
         return components
 
 
     @staticmethod
-    def calculate_target_stack_from_macro_info_dict(macro_info):
+    def calculate_target_stack_from_macro_info_dict(macro_info, cutoff=0.01):
+
+        profiler = PrimitiveProfiler("TargetService")
+        profiler.enter("calculate_target_stack_from_macro_info_dict")
+
         if macro_info is None:
             macro_info = TargetService.get_default_macro_info_dict()
 
@@ -503,7 +572,7 @@ class TargetService:
                             _LOG.debug("components", ([race, macro_info["race"][race]], gender_component, age_component))
                             complete_name = "macrodetails/" + race + "-" + gender_component[0] + "-" + age_component[0]
                             weight = macro_info["race"][race] * gender_component[1] * age_component[1]
-                            if weight > 0.0001:
+                            if weight > cutoff:
                                 _LOG.debug("Appending race-gender-age target", [complete_name, weight])
                                 targets.append([complete_name, weight])
 
@@ -526,7 +595,7 @@ class TargetService:
                         weight = weight * age_component[1]
                         weight = weight * muscle_component[1]
                         weight = weight * weight_component[1]
-                        if weight > 0.0001:
+                        if weight > cutoff:
                             _LOG.debug("Appending universal-gender-age-muscle-weight target", [complete_name, weight])
                             targets.append([complete_name, weight])
                         else:
@@ -554,7 +623,7 @@ class TargetService:
                             weight = weight * muscle_component[1]
                             weight = weight * weight_component[1]
                             weight = weight * height_component[1]
-                            if weight > 0.0001:
+                            if weight > cutoff:
                                 _LOG.debug("Appending gender-age-muscle-weight-height target", [complete_name, weight])
                                 targets.append([complete_name, weight])
                             else:
@@ -588,7 +657,7 @@ class TargetService:
                                     weight = weight * weight_component[1]
                                     weight = weight * cup_component[1]
                                     weight = weight * firmness_component[1]
-                                    if weight > 0.0001:
+                                    if weight > cutoff:
                                         if "averagecup-averagefirmness" in complete_name:
                                             _LOG.debug("Excluding forbidden breast modifier combination", complete_name)
                                         else:
@@ -598,6 +667,7 @@ class TargetService:
                                         _LOG.debug("Not appending gender-age-muscle-weight-cupsize-firmness target", [complete_name, weight])
 
         _LOG.dump("targets", targets)
+        profiler.leave("calculate_target_stack_from_macro_info_dict")
         return targets
 
     @staticmethod
@@ -613,6 +683,9 @@ class TargetService:
 
     @staticmethod
     def reapply_macro_details(basemesh, remove_zero_weight_targets=True):
+        profiler = PrimitiveProfiler("TargetService")
+        profiler.enter("reapply_macro_details")
+
         macro_info = TargetService.get_macro_info_dict_from_basemesh(basemesh)
         for target in TargetService.get_current_macro_targets(basemesh, decode_names=False):
             basemesh.data.shape_keys.key_blocks[target].value = 0.0
@@ -641,6 +714,8 @@ class TargetService:
                     shape_key_idx = basemesh.data.shape_keys.key_blocks.find(shape_key.name)
                     basemesh.active_shape_key_index = shape_key_idx
                     bpy.ops.object.shape_key_remove()
+
+        profiler.leave("reapply_macro_details")
 
 
     @staticmethod
