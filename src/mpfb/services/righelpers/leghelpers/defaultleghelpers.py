@@ -19,7 +19,7 @@ _ROTATION_LIMITS = {
         "upperleg01": {
             "X": [-120, 40],
             "Y": [-45, 45],
-            "Z": [-70, 30]
+            "Z": [-130, 30]
             },
         "upperleg02": {
             "Y": [-45, 45]
@@ -28,6 +28,12 @@ _ROTATION_LIMITS = {
             "X": [-15, 15],
             "Y": [-45, 33],
             "Z": [-10, 10]
+            }
+    }
+
+_REVERSE_LIMITS = {
+        "upperleg01.R": {
+            "Z": True
             }
     }
 
@@ -91,6 +97,10 @@ class DefaultLegHelpers(LegHelpers):
             for axis_name in _ROTATION_LIMITS[unsided_name].keys():
                 name = self._sided(unsided_name)
                 limits = _ROTATION_LIMITS[unsided_name][axis_name]
+                if name in _REVERSE_LIMITS:
+                    if axis_name in _REVERSE_LIMITS[name] and _REVERSE_LIMITS[name][axis_name]:
+                        limits1 = [-limits[1], -limits[0]]
+                        limits = limits1
                 RigService.set_ik_rotation_limits(name, armature_object, axis=axis_name, min_angle=limits[0], max_angle=limits[1])
 
     def _sided_rotation_lock(self, unsided_name, armature_object):
