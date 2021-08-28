@@ -143,6 +143,13 @@ class Rig:
             bone.use_inherit_rotation = bone_info["use_inherit_rotation"]
             bone.inherit_scale = bone_info["inherit_scale"]
             if "layers" in bone_info:
+
+                # Mask layers to allow deselection
+                i = 0
+                for layer in bone_info["layers"]:
+                    bone.layers[i] = True
+                    i = i + 1
+
                 i = 0
                 for layer in bone_info["layers"]:
                     bone.layers[i] = layer
