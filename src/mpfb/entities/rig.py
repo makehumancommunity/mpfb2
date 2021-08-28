@@ -170,11 +170,8 @@ class Rig:
             if "rigify_parameters" in bone_info:
                 for key in bone_info["rigify_parameters"].keys():
                     value = bone_info["rigify_parameters"][key]
-                    if isinstance(value, list):
-                        pass
-                    else:
-                        _LOG.debug("Will attempt to set bone.parameters.", key)
-                        setattr(bone.rigify_parameters, str(key), value)
+                    _LOG.debug("Will attempt to set bone.parameters.", key)
+                    setattr(bone.rigify_parameters, str(key), value)
 
         bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
 
