@@ -143,6 +143,13 @@ class Rig:
             bone.use_inherit_rotation = bone_info["use_inherit_rotation"]
             bone.inherit_scale = bone_info["inherit_scale"]
             if "layers" in bone_info:
+
+                # Mask layers to allow deselection
+                i = 0
+                for layer in bone_info["layers"]:
+                    bone.layers[i] = True
+                    i = i + 1
+
                 i = 0
                 for layer in bone_info["layers"]:
                     bone.layers[i] = layer
@@ -163,11 +170,8 @@ class Rig:
             if "rigify_parameters" in bone_info:
                 for key in bone_info["rigify_parameters"].keys():
                     value = bone_info["rigify_parameters"][key]
-                    if isinstance(value, list):
-                        pass
-                    else:
-                        _LOG.debug("Will attempt to set bone.parameters.", key)
-                        setattr(bone.rigify_parameters, str(key), value)
+                    _LOG.debug("Will attempt to set bone.parameters.", key)
+                    setattr(bone.rigify_parameters, str(key), value)
 
         bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
 
