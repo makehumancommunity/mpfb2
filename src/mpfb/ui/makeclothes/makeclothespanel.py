@@ -85,7 +85,7 @@ class MPFB_PT_MakeClothes_Panel(Abstract_Panel):
         layout.label(text="WARNING: MakeClothes has")
         layout.label(text="not been fully ported yet.")
         layout.label(text="Only some parts work.")
-        
+
         blender_object = context.active_object
 
         if not blender_object:

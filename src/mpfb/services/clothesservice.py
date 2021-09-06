@@ -6,7 +6,7 @@ from mpfb.services.objectservice import ObjectService
 from mpfb.services.logservice import LogService
 from mpfb.services.assetservice import AssetService
 from mpfb.entities.objectproperties import GeneralObjectProperties
-from mpfb.entities.mhclo import Mhclo
+from mpfb.entities.clothes.mhclo import Mhclo
 
 _LOG = LogService.get_logger("services.clothesservice")
 

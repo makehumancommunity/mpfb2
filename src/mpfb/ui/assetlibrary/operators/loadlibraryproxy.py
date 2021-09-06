@@ -6,7 +6,7 @@ from mpfb.services.logservice import LogService
 from mpfb.services.objectservice import ObjectService
 from mpfb.services.materialservice import MaterialService
 from mpfb.services.clothesservice import ClothesService
-from mpfb.entities.mhclo import Mhclo
+from mpfb.entities.clothes.mhclo import Mhclo
 from mpfb.entities.socketobject import ALL_EXTRA_GROUPS
 from mpfb.entities.objectproperties import GeneralObjectProperties
 from mpfb.entities.material.makeskinmaterial import MakeSkinMaterial

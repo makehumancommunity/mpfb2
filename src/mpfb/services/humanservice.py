@@ -9,7 +9,7 @@ from mpfb.services.assetservice import AssetService
 from mpfb.services.clothesservice import ClothesService
 from mpfb.services.rigservice import RigService
 from mpfb.services.nodeservice import NodeService
-from mpfb.entities.mhclo import Mhclo
+from mpfb.entities.clothes.mhclo import Mhclo
 from mpfb.entities.rig import Rig
 from mpfb.entities.material.makeskinmaterial import MakeSkinMaterial
 from mpfb.entities.material.enhancedskinmaterial import EnhancedSkinMaterial
