@@ -1,7 +1,8 @@
 """Service for working with rigs, bones and weights."""
 
-import bpy
+import bpy, os
 from mathutils import Matrix, Vector
+from mpfb.services.locationservice import LocationService
 from mpfb.services.logservice import LogService
 from .objectservice import ObjectService
 from bpy.types import PoseBone
@@ -406,8 +407,8 @@ class RigService:
     @staticmethod
     def identify_rig(armature_object):
         bone_name_to_rig = [
-            ["oculi02.R", "toe1-1.L", "default"],
             ["oculi02.R", "default_no_toes"],
+            ["oculi02.R", "toe1-1.L", "default"],
             ["thumb_01_l", "game_engine"],
             ["RThumb", "cmu_mb"],
             ["brow.T.R.002", "rigify_meta"],
@@ -464,3 +465,43 @@ class RigService:
                 else:
                     _LOG.debug("Center bone", bone.name)
                     RigService.mirror_bone_weights_inside_center_bone(armature_object, str(bone.name), left_to_right)
+
+    @staticmethod
+    def refit_existing_armature(armature_object):
+
+        from mpfb.entities.rig import Rig
+        _LOG.reset_timer()
+
+        current_active_object = bpy.context.view_layer.objects.active
+        bpy.context.view_layer.objects.active = armature_object
+
+        _LOG.debug("Armature object", armature_object)
+        basemesh = ObjectService.find_object_of_type_amongst_nearest_relatives(armature_object, "Basemesh")
+        if not basemesh:
+            raise ValueError("Could not find basemesh amongst rig's relatives")
+
+        rig_type = RigService.identify_rig(armature_object)
+
+        if not rig_type:
+            raise ValueError("Could not identify rig")
+
+        if "generated" in rig_type:
+            raise ValueError("Cannot refit a generated rigify rig")
+
+        rigdir = LocationService.get_mpfb_data("rigs")
+        if "rigify" in rig_type:
+            rigdir = os.path.join(rigdir, "rigify")
+            rig_type = "human"
+        else:
+            rigdir = os.path.join(rigdir, "standard")
+
+        rigfile = os.path.join(rigdir, "rig." + rig_type + ".json")
+        _LOG.debug("Rig file", rigfile)
+
+        rig = Rig.from_json_file_and_basemesh(rigfile, basemesh)
+        rig.armature_object = armature_object
+
+        rig.reposition_edit_bone()
+
+        bpy.context.view_layer.objects.active = current_active_object
+        _LOG.time("Refitting took")

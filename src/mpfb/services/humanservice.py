@@ -914,3 +914,6 @@ class HumanService:
             if not object_type in ["Basemesh", "Skeleton"]:
                 _LOG.debug("Will try to refit child proxy", (object_type, child))
                 ClothesService.fit_clothes_to_human(child, basemesh)
+
+        if rig:
+            RigService.refit_existing_armature(rig)

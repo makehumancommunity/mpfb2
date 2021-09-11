@@ -204,7 +204,7 @@ class Rig:
 
     def build_basemesh_position_info(self, take_shape_keys_into_account=True):
         """Populate the position information hash with positions from the base mesh.
-        We will here also extract and stor vertex positions and store them in the hash,
+        We will here also extract and store vertex positions and store them in the hash,
         as these positions may be influenced by shape keys."""
 
         self.position_info = dict()
