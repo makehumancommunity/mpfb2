@@ -7,6 +7,7 @@ from mpfb.services.logservice import LogService
 from mpfb.services.locationservice import LocationService
 from mpfb.services.objectservice import ObjectService
 from mpfb.services.targetservice import TargetService
+from mpfb.services.assetservice import AssetService
 
 from ._modelingicons import MODELING_ICONS
 
@@ -66,6 +67,27 @@ _sections = dict()
 with open(_TARGETS_JSON, "r") as _json_file:
     _sections = json.load(_json_file)
 
+user_targets_dir = LocationService.get_user_data("targets")
+custom_asset_roots = AssetService.get_asset_roots("custom")
+custom_asset_roots.extend(AssetService.get_asset_roots("targets/custom"))
+
+custom_targets = AssetService.find_asset_files_matching_pattern(custom_asset_roots, "*.target")
+custom_targets.extend(AssetService.find_asset_files_matching_pattern(custom_asset_roots, "*.target.gz"))
+
+if len(custom_targets) > 0:
+    _sections["custom"] = dict()
+    _sections["custom"]["include_per_default"] = True
+    _sections["custom"]["label"] = "Custom targets"
+    _sections["custom"]["categories"] = []
+    for target in custom_targets:
+        _sections["custom"]["categories"].append({
+                "has_left_and_right": False,
+                "label": os.path.basename(target).replace(".target","").replace("_", " "),
+                "name": os.path.basename(target).replace(".target",""),
+                "targets": [target],
+                "full_path": target
+                })
+
 def _set_simple_modifier_value(scene, blender_object, section, category, value, side="unsided", load_target_if_needed=True):
     """This modifier is not a combination of opposing targets ("decr-incr", "in-out"...)"""
     name = category["name"]
@@ -74,8 +96,15 @@ def _set_simple_modifier_value(scene, blender_object, section, category, value, 
     if side == "left":
         name = "l-" + name
     if not TargetService.has_target(blender_object, name):
-        target_path = os.path.join(_TARGETS_DIR, section, name + ".target.gz")
-        _LOG.debug("Will implicitly attempt a load of a system target", target_path)
+        if "full_path" in category:
+            target_path = category["full_path"]
+        else:
+            target_path = os.path.join(_TARGETS_DIR, section, name + ".target.gz")
+            if not os.path.exists(target_path):
+                target_path = os.path.join(_TARGETS_DIR, section, name + ".target")
+        if not os.path.exists(target_path):
+            _LOG.warn("Target path does not exist", target_path)
+        _LOG.debug("Will implicitly attempt a load of a target", target_path)
         TargetService.load_target(blender_object, target_path, weight=value, name=name)
     else:
         TargetService.set_target_value(blender_object, name, value, delete_target_on_zero=True)
@@ -148,6 +177,8 @@ for name in _sections:
     _section = _sections[name]
     _i = 0
     for _category in _section["categories"]:
+        _LOG.debug("_category", _category)
+
         _unsided_name = name + "." + _category["name"]
         _left_name = name + ".l-" + _category["name"]
         _right_name = name + ".r-" + _category["name"]

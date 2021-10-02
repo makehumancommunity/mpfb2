@@ -10,7 +10,7 @@ from mpfb.services.uiservice import UiService
 _LOG = LogService.get_logger("services.assetservice")
 
 _ASSETS = dict()
-_ASSET_THUMBS = bpy.utils.previews.new()
+_ASSET_THUMBS = None
 
 ASSET_LIBRARY_SECTIONS = [
         {
@@ -217,6 +217,9 @@ class AssetService:
             label = str(item["name_without_ext"]).lower().replace("_", " ")
             label = label.capitalize()
             item["label"] = label
+
+            if _ASSET_THUMBS is None:
+                _ASSET_THUMBS = bpy.utils.previews.new()
 
             thumb = os.path.join(os.path.dirname(asset), item["name_without_ext"] + ".thumb")
             if os.path.exists(thumb):
