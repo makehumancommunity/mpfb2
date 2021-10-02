@@ -30,7 +30,7 @@ with open(_MACRO_FILE, "r") as json_file:
     _MACRO_CONFIG = json.load(json_file)
 
 _LOADER = LogService.get_logger("target loader")
-_LOADER.set_level(LogService.DUMP)
+#_LOADER.set_level(LogService.DUMP)
 
 # This is very annoying, but the maximum length of a shape key name is 61 characters
 # in blender. The combinations used in MH filenames tend to be longer than that.
@@ -216,9 +216,9 @@ class TargetService:
 
         profiler.enter("- parse_target_lines")
         for line in lines:
-            profiler.enter("-- parse_target_line")
             target_line = str(line.strip())
             if target_line and not target_line.startswith("#") and not target_line.startswith("\""):
+                profiler.enter("-- parse_target_line")
                 parts = target_line.split(" ", 4)
                 index = int(parts[0])
                 x = float(parts[1])
@@ -468,7 +468,7 @@ class TargetService:
                 if not target_string is None:
                     shape_key = TargetService.target_string_to_shape_key(target_string, name, blender_object)
                     shape_key.value = weight
-        _LOADER.time(full_path + " " + str(weight))
+        _LOADER.time(str(full_path) + " " + str(weight))
         profiler.leave("load_target")
 
         return shape_key
