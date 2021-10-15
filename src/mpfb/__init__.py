@@ -30,8 +30,19 @@ _LOG = None
 # importing here is to just make sure everything is up and running
 # pylint: disable=W0611
 
-import bpy, os
+import bpy, os, sys, traceback
 from bpy.utils import register_class
+
+_OLD_EXCEPTHOOK = None
+
+def log_crash(type, value, tb):
+    global _OLD_EXCEPTHOOK
+    stacktrace = "\n"
+    for line in traceback.extract_tb(tb).format():
+        stacktrace = stacktrace + line
+    _LOG.error("Unhandled crash", stacktrace + "\n" + str(value) + "\n")
+    if _OLD_EXCEPTHOOK:
+        _OLD_EXCEPTHOOK(type, value, tb)
 
 def get_preference(name):
     _LOG.enter()
@@ -67,6 +78,10 @@ def register():
         print("WARNING: Could not register preferences class. Maybe it was registered by an earlier version of MPFB?")
 
     global _LOG # pylint: disable=W0603
+    global _OLD_EXCEPTHOOK # pylint: disable=W0603
+
+    _OLD_EXCEPTHOOK = sys.excepthook
+    sys.excepthook = log_crash
 
     from mpfb.services.logservice import LogService
     _LOG = LogService.get_logger("mpfb.init")
