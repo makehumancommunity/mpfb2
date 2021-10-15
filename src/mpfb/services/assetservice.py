@@ -199,6 +199,8 @@ class AssetService:
     def update_asset_list(asset_subdir="clothes", asset_type="mhclo"):
         _LOG.enter()
 
+        global _ASSET_THUMBS
+
         roots = AssetService.get_asset_roots(asset_subdir)
         assets = AssetService.find_asset_files_matching_pattern(roots, "*." + asset_type)
 
