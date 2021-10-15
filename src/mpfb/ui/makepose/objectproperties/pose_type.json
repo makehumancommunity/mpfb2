@@ -1,0 +1,12 @@
+{
+    "type": "enum",
+    "name": "pose_type",
+    "description": "Mark the pose as IK or FK?",
+    "label": "Pose type",
+    "default": "AUTO",
+    "items": [
+    	["AUTO", "Auto", "If the rig has IK bones, mark pose as IK+FK. Otherwise mark it FK", 1],
+    	["FK", "FK", "Mark pose as FK only", 2],
+    	["IKFK", "IK+FK", "Mark the pose as IK+FK", 3]
+    ]
+}

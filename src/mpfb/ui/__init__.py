@@ -22,11 +22,13 @@ from mpfb.ui.makeskin import *
 from mpfb.ui.maketarget import *
 from mpfb.ui.makeclothes import *
 from mpfb.ui.makeweight import *
+from mpfb.ui.makepose import *
 
 # Rig panels
 from mpfb.ui.addrig import *
 from mpfb.ui.rigify import *
 from mpfb.ui.righelpers import *
+from mpfb.ui.applypose import *
 
 # Presets
 from mpfb.ui.humanpresets import *

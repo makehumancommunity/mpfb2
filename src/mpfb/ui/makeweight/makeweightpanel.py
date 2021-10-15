@@ -13,7 +13,6 @@ MAKEWEIGHT_PROPERTIES_DIR = os.path.join(_LOC, "properties")
 MAKEWEIGHT_PROPERTIES = SceneConfigSet.from_definitions_in_json_directory(MAKEWEIGHT_PROPERTIES_DIR, prefix="MW_")
 
 _LOG = LogService.get_logger("makeweight.makeweightpanel")
-_LOG.set_level(LogService.DEBUG)
 
 def _populate_groups(self, context):
     _LOG.enter()

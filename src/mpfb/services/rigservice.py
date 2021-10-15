@@ -6,6 +6,7 @@ from mpfb.services.locationservice import LocationService
 from mpfb.services.logservice import LogService
 from .objectservice import ObjectService
 from bpy.types import PoseBone
+from mathutils import Vector
 
 _LOG = LogService.get_logger("services.rigservice")
 
@@ -465,6 +466,113 @@ class RigService:
                 else:
                     _LOG.debug("Center bone", bone.name)
                     RigService.mirror_bone_weights_inside_center_bone(armature_object, str(bone.name), left_to_right)
+
+    @staticmethod
+    def set_pose_from_dict(armature_object, pose):
+        bpy.ops.pose.select_all(action="SELECT")
+        bpy.ops.pose.transforms_clear()
+        bpy.ops.pose.select_all(action="DESELECT")
+
+        trans_factor_x = 1
+        trans_factor_y = 1
+        trans_factor_z = 1
+
+        if "default" in pose["skeleton_type"]:
+            bottom = RigService.find_pose_bone_by_name("spine05", armature_object).head
+            top = RigService.find_pose_bone_by_name("spine01", armature_object).tail
+            left = RigService.find_pose_bone_by_name("shoulder01.L", armature_object).tail
+            right = RigService.find_pose_bone_by_name("shoulder01.R", armature_object).tail
+
+            spine_length = abs( (top - bottom).length )
+            shoulder_width = abs( (left - right).length )
+
+            if "original_spine_length" in pose and pose["original_spine_length"] > 0.0001:
+                trans_factor_z = spine_length / pose["original_spine_length"]
+
+            if "original_shoulder_width" in pose and pose["original_shoulder_width"] > 0.0001:
+                trans_factor_x = trans_factor_y = shoulder_width / pose["original_shoulder_width"]
+
+        for name in pose["bone_translations"]:
+            bone = RigService.find_pose_bone_by_name(name, armature_object)
+            if bone:
+                trans = [0, 0, 0]
+                trans[0] = pose["bone_translations"][name][0] * trans_factor_x
+                trans[1] = pose["bone_translations"][name][1] * trans_factor_y
+                trans[2] = pose["bone_translations"][name][2] * trans_factor_z
+                bone.location = bone.location + Vector(trans)
+        for name in pose["bone_rotations"]:
+            bone = RigService.find_pose_bone_by_name(name, armature_object)
+            if bone:
+                bone.rotation_mode = "XYZ"
+                bone.rotation_euler = pose["bone_rotations"][name]
+
+
+    @staticmethod
+    def get_pose_as_dict(armature_object, root_bone_translation=True, ik_bone_translation=True):
+        pose = dict()
+        pose["skeleton_type"] = RigService.identify_rig(armature_object)
+
+        ik_terms = []
+        root_bone_name = ""
+        spine_length = 0
+        shoulder_width = 0
+
+        if "default" in pose["skeleton_type"]:
+            ik_terms.append("_grip")
+            ik_terms.append("_ik")
+            root_bone_name = "root"
+            bottom = RigService.find_pose_bone_by_name("spine05", armature_object).head
+            top = RigService.find_pose_bone_by_name("spine01", armature_object).tail
+
+            left = RigService.find_pose_bone_by_name("shoulder01.L", armature_object).tail
+            right = RigService.find_pose_bone_by_name("shoulder01.R", armature_object).tail
+
+            spine_length = abs( (top - bottom).length )
+            shoulder_width = abs( (left - right).length )
+
+        pose["original_spine_length"] = spine_length
+        pose["original_shoulder_width"] = shoulder_width
+
+        pose["bone_rotations"] = dict()
+        pose["bone_translations"] = dict()
+        pose["has_ik_bones"] = False
+
+        for bone in armature_object.pose.bones:
+            bone.rotation_mode = "XYZ"
+            euler = bone.rotation_euler
+            x = abs(euler[0])
+            y = abs(euler[1])
+            z = abs(euler[2])
+
+            if x > 0.0001 or y > 0.0001 or z > 0.0001:
+                pose["bone_rotations"][bone.name] = [euler[0], euler[1], euler[2]]
+
+            is_ik = False
+            for term in ik_terms:
+                if str(bone.name).endswith(term):
+                    is_ik = True
+                    pose["has_ik_bones"] = True
+
+            matrix = None
+            if is_ik and ik_bone_translation:
+                matrix = bone.matrix_basis
+
+            if bone.name == root_bone_name and root_bone_translation:
+                matrix = bone.matrix_basis
+
+            if matrix:
+                _LOG.debug("matrix", matrix)
+                (trans, loc, scale) = matrix.decompose()
+                _LOG.debug("trans", trans)
+
+                x = abs(trans[0])
+                y = abs(trans[1])
+                z = abs(trans[2])
+
+                if x > 0.0001 or y > 0.0001 or z > 0.0001:
+                    pose["bone_translations"][bone.name] = [ trans[0], trans[1], trans[2] ]
+
+        return pose
 
     @staticmethod
     def refit_existing_armature(armature_object):

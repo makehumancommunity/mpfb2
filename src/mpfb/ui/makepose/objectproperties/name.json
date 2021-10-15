@@ -1,0 +1,7 @@
+{
+    "type": "string",
+    "name": "name",
+    "description": "What to call the new pose",
+    "label": "Pose name",
+    "default": ""
+}

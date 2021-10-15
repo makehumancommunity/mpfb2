@@ -1,0 +1,7 @@
+{
+    "type": "boolean",
+    "name": "overwrite",
+    "description": "If an existing pose of this type exists, then overwrite it",
+    "label": "Overwrite",
+    "default": false
+}

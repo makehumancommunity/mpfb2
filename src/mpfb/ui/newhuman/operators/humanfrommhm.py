@@ -9,7 +9,6 @@ from mpfb.services.objectservice import ObjectService
 from mpfb import ClassManager
 
 _LOG = LogService.get_logger("newhuman.humanfrommhm")
-_LOG.set_level(LogService.DUMP)
 
 class MPFB_OT_HumanFromMHMOperator(bpy.types.Operator, ImportHelper):
     """Create a new human from MHM"""
