@@ -911,7 +911,7 @@ class HumanService:
 
         for child in children:
             object_type = GeneralObjectProperties.get_value("object_type", entity_reference=child)
-            if not object_type in ["Basemesh", "Skeleton"]:
+            if object_type and not object_type in ["Basemesh", "Skeleton"]:
                 _LOG.debug("Will try to refit child proxy", (object_type, child))
                 ClothesService.fit_clothes_to_human(child, basemesh)
 
