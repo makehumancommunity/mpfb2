@@ -193,7 +193,7 @@ class ObjectService:
                 group_name = str(group)
                 _BASEMESH_VERTEX_GROUPS_EXPANDED[group_name] = []
                 for start_stop in _BASEMESH_VERTEX_GROUPS_UNEXPANDED[group]:
-                    _BASEMESH_VERTEX_GROUPS_EXPANDED[group_name].extend(range(start_stop[0], start_stop[1]))
+                    _BASEMESH_VERTEX_GROUPS_EXPANDED[group_name].extend(range(start_stop[0], start_stop[1]+1))
             _BASEMESH_VERTEX_GROUPS_EXPANDED.update(BASEMESH_EXTRA_GROUPS)
         # Return a copy so it doesn't get accidentally modified
         return dict(_BASEMESH_VERTEX_GROUPS_EXPANDED)
