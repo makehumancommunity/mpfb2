@@ -175,8 +175,15 @@ class FingerHelpers():
         pose_bone = RigService.find_pose_bone_by_name(bone_name, armature_object)
 
         scales = [0.5, 0.5, 0.5, 0.5, 0.7]
-        pose_bone.custom_shape_scale = scales[finger_number - 1]
-        _LOG.debug("scale", pose_bone.custom_shape_scale)
+
+        scale = scales[finger_number - 1]
+        if hasattr(pose_bone, "custom_shape_scale"):
+            pose_bone.custom_shape_scale = scale
+            _LOG.debug("scale", pose_bone.custom_shape_scale)
+        if hasattr(pose_bone, "custom_shape_scale_xyz"):
+            pose_bone.custom_shape_scale_xyz = [scale, scale, scale]
+            _LOG.debug("scale", pose_bone.custom_shape_scale_xyz)
+
 
     def _create_grip_bone(self, finger_number, armature_object):
         _LOG.enter()
@@ -212,7 +219,14 @@ class FingerHelpers():
         RigService.display_pose_bone_as_empty(armature_object, bone_name, 'CIRCLE')
 
         scales = [0.1, 0.15, 0.1, 0.1, 0.2]
-        pose_bone.custom_shape_scale = scales[finger_number-1]
+
+        scale = scales[finger_number - 1]
+        if hasattr(pose_bone, "custom_shape_scale"):
+            pose_bone.custom_shape_scale = scale
+            _LOG.debug("scale", pose_bone.custom_shape_scale)
+        if hasattr(pose_bone, "custom_shape_scale_xyz"):
+            pose_bone.custom_shape_scale_xyz = [scale, scale, scale]
+            _LOG.debug("scale", pose_bone.custom_shape_scale_xyz)
 
         for i in range(3):
             pose_bone.lock_location[i] = True
@@ -264,7 +278,14 @@ class FingerHelpers():
         pose_bone.location = (root_bone3.location + root_bone4.location) / 2
 
         RigService.display_pose_bone_as_empty(armature_object, bone_name, 'CIRCLE')
-        pose_bone.custom_shape_scale = 0.6
+
+        scale = 0.6
+        if hasattr(pose_bone, "custom_shape_scale"):
+            pose_bone.custom_shape_scale = scale
+            _LOG.debug("scale", pose_bone.custom_shape_scale)
+        if hasattr(pose_bone, "custom_shape_scale_xyz"):
+            pose_bone.custom_shape_scale_xyz = [scale, scale, scale]
+            _LOG.debug("scale", pose_bone.custom_shape_scale_xyz)
 
         for i in range(3):
             pose_bone.lock_location[i] = True

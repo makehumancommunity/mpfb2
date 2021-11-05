@@ -319,7 +319,10 @@ class RigService:
                 shape_object = child
         if shape_object:
             bone.custom_shape = shape_object
-            bone.custom_shape_scale = scale
+            if hasattr(bone, "custom_shape_scale"):
+                bone.custom_shape_scale = scale
+            if hasattr(bone, "custom_shape_scale_xyz"):
+                bone.custom_shape_scale_xyz = [scale, scale, scale]
         else:
             _LOG.warn("Was not able to find empty child")
 

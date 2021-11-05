@@ -156,7 +156,12 @@ class LegHelpers():
         bpy.ops.object.mode_set(mode='POSE', toggle=False)
         RigService.display_pose_bone_as_empty(armature_object, self.which_leg + "_foot_ik", empty_type="CIRCLE")
         pose_bone = RigService.find_pose_bone_by_name(self.which_leg + "_foot_ik", armature_object)
-        pose_bone.custom_shape_scale = 0.5
+
+        scale = 0.5
+        if hasattr(pose_bone, "custom_shape_scale"):
+            pose_bone.custom_shape_scale = scale
+        if hasattr(pose_bone, "custom_shape_scale_xyz"):
+            pose_bone.custom_shape_scale_xyz = [scale, scale, scale]
 
         if self.settings["leg_target_rotates_foot"]:
             bpy.ops.object.mode_set(mode='POSE', toggle=False)
