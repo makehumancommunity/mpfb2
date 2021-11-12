@@ -9,6 +9,7 @@ from bpy.types import PoseBone
 from mathutils import Vector
 
 _LOG = LogService.get_logger("services.rigservice")
+_LOG.set_level(LogService.DEBUG)
 
 _RADIAN = 0.0174532925
 
@@ -471,9 +472,10 @@ class RigService:
                     RigService.mirror_bone_weights_inside_center_bone(armature_object, str(bone.name), left_to_right)
 
     @staticmethod
-    def set_pose_from_dict(armature_object, pose):
+    def set_pose_from_dict(armature_object, pose, from_rest_pose=True):
         bpy.ops.pose.select_all(action="SELECT")
-        bpy.ops.pose.transforms_clear()
+        if from_rest_pose:
+            bpy.ops.pose.transforms_clear()
         bpy.ops.pose.select_all(action="DESELECT")
 
         trans_factor_x = 1
@@ -511,7 +513,7 @@ class RigService:
 
 
     @staticmethod
-    def get_pose_as_dict(armature_object, root_bone_translation=True, ik_bone_translation=True):
+    def get_pose_as_dict(armature_object, root_bone_translation=True, ik_bone_translation=True, fk_bone_translation=False, onlyselected=False):
         pose = dict()
         pose["skeleton_type"] = RigService.identify_rig(armature_object)
 
@@ -539,7 +541,12 @@ class RigService:
         pose["bone_rotations"] = dict()
         pose["bone_translations"] = dict()
         pose["has_ik_bones"] = False
+        
+        _LOG.debug("onlyselected", onlyselected)
 
+        for bone in bpy.context.selected_pose_bones_from_active_object:
+            _LOG.debug("bone in selected", bone)
+    
         for bone in armature_object.pose.bones:
             bone.rotation_mode = "XYZ"
             euler = bone.rotation_euler
@@ -547,8 +554,9 @@ class RigService:
             y = abs(euler[1])
             z = abs(euler[2])
 
-            if x > 0.0001 or y > 0.0001 or z > 0.0001:
-                pose["bone_rotations"][bone.name] = [euler[0], euler[1], euler[2]]
+            if not onlyselected or bone in bpy.context.selected_pose_bones:
+                if x > 0.0001 or y > 0.0001 or z > 0.0001:
+                    pose["bone_rotations"][bone.name] = [euler[0], euler[1], euler[2]]
 
             is_ik = False
             for term in ik_terms:
@@ -558,11 +566,19 @@ class RigService:
 
             matrix = None
             if is_ik and ik_bone_translation:
-                matrix = bone.matrix_basis
+                matrix = bone.matrix_basis    
 
             if bone.name == root_bone_name and root_bone_translation:
                 matrix = bone.matrix_basis
 
+            if bone.name != root_bone_name and not is_ik and fk_bone_translation:
+                # Assume this is a FK bone
+                matrix = bone.matrix_basis
+                
+            if onlyselected:
+                if not bone in bpy.context.selected_pose_bones:
+                    matrix = None
+                    
             if matrix:
                 _LOG.debug("matrix", matrix)
                 (trans, loc, scale) = matrix.decompose()

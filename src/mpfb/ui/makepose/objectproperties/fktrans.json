@@ -1,0 +1,7 @@
+{
+    "type": "boolean",
+    "name": "fktrans",
+    "description": "Allow FK bone translations",
+    "label": "FK bone translations",
+    "default": false
+}

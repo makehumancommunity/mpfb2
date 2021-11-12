@@ -1,0 +1,7 @@
+{
+    "type": "boolean",
+    "name": "iktrans",
+    "description": "Allow IK bone translations",
+    "label": "IK bone translations",
+    "default": true
+}

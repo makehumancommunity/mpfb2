@@ -1,0 +1,7 @@
+{
+    "type": "boolean",
+    "name": "roottrans",
+    "description": "Allow root bone translation",
+    "label": "Root bone translation",
+    "default": true
+}

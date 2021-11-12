@@ -37,7 +37,10 @@ class MPFB_OT_Save_Pose_Operator(bpy.types.Operator):
         name = MakePoseProperties.get_value('name', entity_reference=context.scene)
         pose_type = MakePoseProperties.get_value('pose_type', entity_reference=context.scene)
         overwrite = MakePoseProperties.get_value('overwrite', entity_reference=context.scene)
-
+        roottrans = MakePoseProperties.get_value('roottrans', entity_reference=context.scene)
+        iktrans = MakePoseProperties.get_value('iktrans', entity_reference=context.scene)
+        fktrans = MakePoseProperties.get_value('fktrans', entity_reference=context.scene)
+        
         if name:
             name = str(name).strip()
 
@@ -47,20 +50,25 @@ class MPFB_OT_Save_Pose_Operator(bpy.types.Operator):
 
         bpy.ops.object.mode_set(mode='POSE', toggle=False)
 
-        pose = RigService.get_pose_as_dict(armature_object)
-
-        _LOG.dump("Pose", pose)
-
         rig_type = RigService.identify_rig(armature_object)
         if "default" in rig_type:
             rig_type = "default"
 
         save_pose_as = "fk"
 
-        if pose_type == "AUTO" and pose["has_ik_bones"]:
-            save_pose_as = "ik"
-
         if pose_type == "IKFK":
+            save_pose_as = "ik"
+        
+        onlyselected = False
+           
+        if pose_type == "PARTIAL":
+            save_pose_as = "partial"
+            onlyselected = True
+
+        pose = RigService.get_pose_as_dict(armature_object, ik_bone_translation=iktrans, root_bone_translation=roottrans, fk_bone_translation=fktrans, onlyselected=onlyselected)
+        _LOG.dump("Pose", pose)
+
+        if pose_type == "AUTO" and pose["has_ik_bones"]:
             save_pose_as = "ik"
 
         poses_root = LocationService.get_user_data("poses")

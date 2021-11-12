@@ -7,6 +7,7 @@
     "items": [
     	["AUTO", "Auto", "If the rig has IK bones, mark pose as IK+FK. Otherwise mark it FK", 1],
     	["FK", "FK", "Mark pose as FK only", 2],
-    	["IKFK", "IK+FK", "Mark the pose as IK+FK", 3]
+    	["IKFK", "IK+FK", "Mark the pose as IK+FK", 3],
+    	["PARTIAL", "Partial", "Create a pose fragment with only the selected bones", 4]
     ]
 }

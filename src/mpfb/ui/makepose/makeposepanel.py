@@ -54,7 +54,7 @@ class MPFB_PT_MakePose_Panel(Abstract_Panel):
         if object_type != "Skeleton":
             return
 
-        props = ["name", "pose_type", "overwrite"]
+        props = ["name", "pose_type", "roottrans", "iktrans", "fktrans", "overwrite"]
         MakePoseProperties.draw_properties(scene, layout, props)
         layout.operator('mpfb.save_pose')
 
