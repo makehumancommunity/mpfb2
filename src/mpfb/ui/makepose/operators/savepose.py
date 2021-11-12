@@ -72,6 +72,10 @@ class MPFB_OT_Save_Pose_Operator(bpy.types.Operator):
 
         absolute_file_path = os.path.join(pose_root, name + ".json")
         _LOG.debug("absolute_file_path", absolute_file_path)
+        
+        if not overwrite and os.path.exists(absolute_file_path):
+            self.report({'ERROR'}, "Pose file already exists: " + absolute_file_path)
+            return {'FINISHED'}
 
         with open(absolute_file_path, "w") as json_file:
             json.dump(pose, json_file, indent=4, sort_keys=True)
