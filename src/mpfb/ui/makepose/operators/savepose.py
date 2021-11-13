@@ -40,7 +40,7 @@ class MPFB_OT_Save_Pose_Operator(bpy.types.Operator):
         roottrans = MakePoseProperties.get_value('roottrans', entity_reference=context.scene)
         iktrans = MakePoseProperties.get_value('iktrans', entity_reference=context.scene)
         fktrans = MakePoseProperties.get_value('fktrans', entity_reference=context.scene)
-        
+
         if name:
             name = str(name).strip()
 
@@ -58,9 +58,9 @@ class MPFB_OT_Save_Pose_Operator(bpy.types.Operator):
 
         if pose_type == "IKFK":
             save_pose_as = "ik"
-        
+
         onlyselected = False
-           
+
         if pose_type == "PARTIAL":
             save_pose_as = "partial"
             onlyselected = True
@@ -80,7 +80,7 @@ class MPFB_OT_Save_Pose_Operator(bpy.types.Operator):
 
         absolute_file_path = os.path.join(pose_root, name + ".json")
         _LOG.debug("absolute_file_path", absolute_file_path)
-        
+
         if not overwrite and os.path.exists(absolute_file_path):
             self.report({'ERROR'}, "Pose file already exists: " + absolute_file_path)
             return {'FINISHED'}

@@ -9,7 +9,6 @@ from bpy.types import PoseBone
 from mathutils import Vector
 
 _LOG = LogService.get_logger("services.rigservice")
-_LOG.set_level(LogService.DEBUG)
 
 _RADIAN = 0.0174532925
 
@@ -473,9 +472,20 @@ class RigService:
 
     @staticmethod
     def set_pose_from_dict(armature_object, pose, from_rest_pose=True):
-        bpy.ops.pose.select_all(action="SELECT")
+
         if from_rest_pose:
-            bpy.ops.pose.transforms_clear()
+            bpy.ops.pose.select_all(action="SELECT")
+        else:
+            bpy.ops.pose.select_all(action="DESELECT")
+            for bone_name in pose["bone_rotations"].keys():
+                bone = RigService.find_pose_bone_by_name(bone_name, armature_object)
+                if bone:
+                    bone.bone.select = True
+            for bone_name in pose["bone_translations"].keys():
+                bone = RigService.find_pose_bone_by_name(bone_name, armature_object)
+                if bone:
+                    bone.bone.select = True
+        bpy.ops.pose.transforms_clear()
         bpy.ops.pose.select_all(action="DESELECT")
 
         trans_factor_x = 1
@@ -541,12 +551,12 @@ class RigService:
         pose["bone_rotations"] = dict()
         pose["bone_translations"] = dict()
         pose["has_ik_bones"] = False
-        
+
         _LOG.debug("onlyselected", onlyselected)
 
         for bone in bpy.context.selected_pose_bones_from_active_object:
             _LOG.debug("bone in selected", bone)
-    
+
         for bone in armature_object.pose.bones:
             bone.rotation_mode = "XYZ"
             euler = bone.rotation_euler
@@ -566,7 +576,7 @@ class RigService:
 
             matrix = None
             if is_ik and ik_bone_translation:
-                matrix = bone.matrix_basis    
+                matrix = bone.matrix_basis
 
             if bone.name == root_bone_name and root_bone_translation:
                 matrix = bone.matrix_basis
@@ -574,11 +584,11 @@ class RigService:
             if bone.name != root_bone_name and not is_ik and fk_bone_translation:
                 # Assume this is a FK bone
                 matrix = bone.matrix_basis
-                
+
             if onlyselected:
                 if not bone in bpy.context.selected_pose_bones:
                     matrix = None
-                    
+
             if matrix:
                 _LOG.debug("matrix", matrix)
                 (trans, loc, scale) = matrix.decompose()

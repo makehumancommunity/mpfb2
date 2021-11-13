@@ -464,12 +464,12 @@ class HumanService:
             MaterialService.create_and_assign_material_slots(basemesh, bodyproxy)
 
             file_name = LocationService.get_user_config("enhanced_settings.default.json")
-            
+
             if not os.path.exists(file_name):
                 sysset = LocationService.get_mpfb_data("settings")
                 origloc = os.path.join(sysset, "enhanced_settings.default.json")
                 shutil.copy(origloc, file_name)
-            
+
             settings = dict()
             _LOG.debug("Will attempt to load", file_name)
             with open(file_name, "r") as json_file:
