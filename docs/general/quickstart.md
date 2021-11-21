@@ -121,7 +121,7 @@ You can adjust the settings for different parts of the body separately.
 
 In the same way you can tweak the procedural aspects of the eyes by selecting the eyes and going to the materials panel:
 
-![Adjust eyes](images/adjust_skin.png)
+![Adjust eyes](images/adjust_eyes.png)
 
 ## Storing your character settings for later re-use
 
