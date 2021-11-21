@@ -4,6 +4,8 @@ This is what is intended to become version 2 of MPFB. MPFB2 is a complete rewrit
 different code structure, which is why it is in a separate git repository. For a list of new features,
 see [the change log](docs/general/changes.md).
 
+In order to get up and running quickly, see the [quick start](docs/general/quickstart.md) guide. 
+
 While most basic functionality (for example the importer) is implemented and working, it is still a work in
 progress. For more information see the [current status](docs/general/status.md) page.
 

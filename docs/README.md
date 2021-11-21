@@ -4,6 +4,8 @@ This is the documentation for the MakeHuman Plugin for Blender (MPFB).
 
 ## Getting started
 
+If you just want to get up and running quickly, see the [quick start](general/quickstart.md) guide. 
+
 New users will want to start with reading the following:
 
 - [What is MPFB?](general/about.md): A general introduction to what MPFB is and what it is capable of.
