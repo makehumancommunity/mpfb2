@@ -666,6 +666,34 @@ class TargetService:
                                     else:
                                         _LOG.debug("Not appending gender-age-muscle-weight-cupsize-firmness target", [complete_name, weight])
 
+        # Targets for gender-age-muscle-weight-proportions
+        for gender_component in components["gender"]:
+            _LOG.debug("gender", gender_component)
+            for age_component in components["age"]:
+                _LOG.debug("age", age_component)
+                for muscle_component in components["muscle"]:
+                    _LOG.debug("muscle", muscle_component)
+                    for weight_component in components["weight"]:
+                        _LOG.debug("weight", weight_component)
+                        for proportions_component in components["proportions"]:
+                            complete_name = "macrodetails/proportions/"
+                            complete_name = complete_name + gender_component[0]
+                            complete_name = complete_name + "-" + age_component[0]
+                            complete_name = complete_name + "-" + muscle_component[0]
+                            complete_name = complete_name + "-" + weight_component[0]
+                            complete_name = complete_name + "-" + proportions_component[0]
+                            weight = 1.0
+                            weight = weight * gender_component[1]
+                            weight = weight * age_component[1]
+                            weight = weight * muscle_component[1]
+                            weight = weight * weight_component[1]
+                            weight = weight * proportions_component[1]
+                            if weight > cutoff:
+                                _LOG.debug("Appending gender-age-muscle-weight-proportions target", [complete_name, weight])
+                                targets.append([complete_name, weight])
+                            else:
+                                _LOG.debug("Not appending gender-age-muscle-weight-proportions target", [complete_name, weight])
+
         _LOG.dump("targets", targets)
         profiler.leave("calculate_target_stack_from_macro_info_dict")
         return targets

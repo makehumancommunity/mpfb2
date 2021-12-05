@@ -27,7 +27,7 @@ def _populate_partials(self, context):
 
     line = 0
     poses = []
-    items = os.listdir(pose_root)    
+    items = os.listdir(pose_root)
     for item in items:
         if str(item).endswith(".json"):
             name = str(item).replace(".json", "")
@@ -56,7 +56,7 @@ def _populate_poses(self, context):
 
     line = 0
     poses = []
-    items = os.listdir(pose_root)    
+    items = os.listdir(pose_root)
     for item in items:
         if str(item).endswith(".json"):
             name = str(item).replace(".json", "")
