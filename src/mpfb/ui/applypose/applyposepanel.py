@@ -27,13 +27,13 @@ def _populate_partials(self, context):
 
     line = 0
     poses = []
-    items = os.listdir(pose_root)
-    items.sort()
+    items = os.listdir(pose_root)    
     for item in items:
         if str(item).endswith(".json"):
             name = str(item).replace(".json", "")
             poses.append((name, name, name, line))
             line = line + 1
+    poses.sort()
     return poses
 
 def _populate_poses(self, context):
@@ -56,13 +56,13 @@ def _populate_poses(self, context):
 
     line = 0
     poses = []
-    items = os.listdir(pose_root)
-    items.sort()
+    items = os.listdir(pose_root)    
     for item in items:
         if str(item).endswith(".json"):
             name = str(item).replace(".json", "")
             poses.append((name, name, name, line))
             line = line + 1
+    poses.sort()
     return poses
 
 _SETTINGS_LIST_PROP = {
