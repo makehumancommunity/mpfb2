@@ -42,6 +42,7 @@ class MPFB_OT_CreateHumanOperator(bpy.types.Operator):
             muscle = NEW_HUMAN_PROPERTIES.get_value("phenotype_muscle", entity_reference=context.scene)
             weight = NEW_HUMAN_PROPERTIES.get_value("phenotype_weight", entity_reference=context.scene)
             height = NEW_HUMAN_PROPERTIES.get_value("phenotype_height", entity_reference=context.scene)
+            proportions = NEW_HUMAN_PROPERTIES.get_value("phenotype_proportions", entity_reference=context.scene)
             race = NEW_HUMAN_PROPERTIES.get_value("phenotype_race", entity_reference=context.scene)
             influence = NEW_HUMAN_PROPERTIES.get_value("phenotype_influence", entity_reference=context.scene)
             firmness = NEW_HUMAN_PROPERTIES.get_value("phenotype_breastfirmness", entity_reference=context.scene)
@@ -98,6 +99,13 @@ class MPFB_OT_CreateHumanOperator(bpy.types.Operator):
 
             if weight == "maxweight":
                 macro_details["weight"] = 0.5 + influence * 0.5
+
+            ### PROPORTIONS ###
+            if proportions == "min":
+                macro_details["proportions"] = 0.5 - influence * 0.5
+
+            if proportions == "max":
+                macro_details["proportions"] = 0.5 + influence * 0.5
 
             ### HEIGHT ###
 

@@ -46,6 +46,7 @@ class MPFB_PT_NewHuman_Panel(bpy.types.Panel):
             "phenotype_muscle",
             "phenotype_weight",
             "phenotype_height",
+            "phenotype_proportions",
             "phenotype_race",
             "add_phenotype",
             "phenotype_influence"
