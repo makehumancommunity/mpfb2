@@ -12,15 +12,15 @@ from mpfb import ClassManager
 
 _LOG = LogService.get_logger("maketarget.writetarget")
 
-class MPFB_OT_WriteTargetOperator(bpy.types.Operator, ExportHelper):
-    """Write target to target file"""
-    bl_idname = "mpfb.write_maketarget_target"
-    bl_label = "Save target"
+class MPFB_OT_WritePtargetOperator(bpy.types.Operator, ExportHelper):
+    """Write proxy-specific target to ptarget file"""
+    bl_idname = "mpfb.write_maketarget_ptarget"
+    bl_label = "Save proxy-specific target"
     bl_options = {'REGISTER'}
 
-    filename_ext = '.target'
+    filename_ext = '.ptarget'
 
-    filter_glob: StringProperty(default='*.target', options={'HIDDEN'})
+    filter_glob: StringProperty(default='*.ptarget', options={'HIDDEN'})
     filepath: StringProperty(name="File Path", description="Filepath used for exporting the file", maxlen=1024, subtype='FILE_PATH')
 
     @classmethod
@@ -31,7 +31,7 @@ class MPFB_OT_WriteTargetOperator(bpy.types.Operator, ExportHelper):
 
         object_type = GeneralObjectProperties.get_value("object_type", entity_reference=blender_object)
 
-        if not object_type or object_type != "Basemesh":
+        if not object_type or object_type == "Skeleton" or object_type == "Basemesh":
             return False
 
         if context.active_object.data.shape_keys:
@@ -42,7 +42,7 @@ class MPFB_OT_WriteTargetOperator(bpy.types.Operator, ExportHelper):
     def invoke(self, context, event):
         blender_object = context.active_object
         name = MakeTargetObjectProperties.get_value("name", entity_reference=blender_object)
-        self.filepath = bpy.path.clean_name(name, replace="-") + ".target"
+        self.filepath = bpy.path.clean_name(name, replace="-") + ".ptarget"
         return super().invoke(context, event)
 
     def execute(self, context):
@@ -54,7 +54,7 @@ class MPFB_OT_WriteTargetOperator(bpy.types.Operator, ExportHelper):
         with open(self.filepath, "w") as target_file:
             target_file.write(TargetService.shape_key_info_as_target_string(info))
 
-        self.report({'INFO'}, "Target was saved as " + str(self.filepath))
+        self.report({'INFO'}, "PTarget was saved as " + str(self.filepath))
         return {'FINISHED'}
 
-ClassManager.add_class(MPFB_OT_WriteTargetOperator)
+ClassManager.add_class(MPFB_OT_WritePtargetOperator)

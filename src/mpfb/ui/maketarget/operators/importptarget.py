@@ -8,28 +8,36 @@ from mpfb.services.logservice import LogService
 from mpfb.services.objectservice import ObjectService
 from mpfb.services.targetservice import TargetService
 from mpfb.ui.maketarget import MakeTargetObjectProperties
+from mpfb.entities.objectproperties import GeneralObjectProperties
 from mpfb import ClassManager
 
-_LOG = LogService.get_logger("maketarget.importtarget")
+_LOG = LogService.get_logger("maketarget.importptarget")
 
-class MPFB_OT_ImportTargetOperator(bpy.types.Operator, ImportHelper):
-    """Import target"""
-    bl_idname = "mpfb.import_maketarget_target"
-    bl_label = "Import target"
+class MPFB_OT_ImportPtargetOperator(bpy.types.Operator, ImportHelper):
+    """Import proxy-specific target"""
+    bl_idname = "mpfb.import_maketarget_ptarget"
+    bl_label = "Import proxy-specific target"
     bl_options = {'REGISTER', 'UNDO'}
 
-    filter_glob: StringProperty(default='*.target', options={'HIDDEN'})
+    filter_glob: StringProperty(default='*.ptarget', options={'HIDDEN'})
 
     @classmethod
     def poll(cls, context):
-        if not ObjectService.object_is_basemesh(context.active_object):
+        blender_object = context.active_object
+        if blender_object is None:
             return False
+
+        object_type = GeneralObjectProperties.get_value("object_type", entity_reference=blender_object)
+
+        if not object_type or object_type == "Skeleton" or object_type == "Basemesh":
+            return False
+
         return not context.active_object.data.shape_keys
 
     def invoke(self, context, event):
         blender_object = context.active_object
         name = MakeTargetObjectProperties.get_value("name", entity_reference=blender_object)
-        self.filepath = bpy.path.clean_name(name, replace="-") + ".target"
+        self.filepath = bpy.path.clean_name(name, replace="-") + ".ptarget"
         return super().invoke(context, event)
 
     def execute(self, context):
@@ -47,4 +55,4 @@ class MPFB_OT_ImportTargetOperator(bpy.types.Operator, ImportHelper):
         self.report({'INFO'}, "Target was imported as shape key")
         return {'FINISHED'}
 
-ClassManager.add_class(MPFB_OT_ImportTargetOperator)
+ClassManager.add_class(MPFB_OT_ImportPtargetOperator)

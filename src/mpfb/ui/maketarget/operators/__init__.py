@@ -6,7 +6,9 @@ _LOG.trace("initializing maketarget operators module")
 
 from .createtarget import MPFB_OT_CreateTargetOperator
 from .importtarget import MPFB_OT_ImportTargetOperator
+from .importptarget import MPFB_OT_ImportPtargetOperator
 from .writetarget import MPFB_OT_WriteTargetOperator
+from .writeptarget import MPFB_OT_WritePtargetOperator
 from .printtarget import MPFB_OT_PrintTargetOperator
 from .symmetrizeleft import MPFB_OT_SymmetrizeLeftOperator
 from .symmetrizeright import MPFB_OT_SymmetrizeRightOperator

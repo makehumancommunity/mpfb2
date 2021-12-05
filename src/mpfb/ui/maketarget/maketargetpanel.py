@@ -24,10 +24,12 @@ class MPFB_PT_MakeTarget_Panel(Abstract_Panel):
         MakeTargetObjectProperties.draw_properties(blender_object, box, props)
         box.operator('mpfb.create_maketarget_target')
         box.operator('mpfb.import_maketarget_target')
+        box.operator('mpfb.import_maketarget_ptarget')
 
     def _save_target(self, scene, layout):
         box = self._create_box(layout, "Save target", "TOOL_SETTINGS")
         box.operator('mpfb.write_maketarget_target')
+        box.operator('mpfb.write_maketarget_ptarget')
 
     def _symmetrize_target(self, scene, layout):
         box = self._create_box(layout, "Symmetrize", "TOOL_SETTINGS")
@@ -49,12 +51,13 @@ class MPFB_PT_MakeTarget_Panel(Abstract_Panel):
 
         object_type = GeneralObjectProperties.get_value("object_type", entity_reference=blender_object)
 
-        if object_type == "Basemesh":
+        if object_type and not object_type == "Skeleton":
             if not blender_object.data.shape_keys:
                 self._initialize_target(blender_object, layout)
             else:
                 self._save_target(scene, layout)
-                self._symmetrize_target(scene, layout)
+                if object_type == "Basemesh":
+                    self._symmetrize_target(scene, layout)
                 self._debug_target(scene, layout)
 
 
