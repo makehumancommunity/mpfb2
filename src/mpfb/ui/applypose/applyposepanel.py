@@ -22,8 +22,12 @@ def _populate_partials(self, context):
     mode = "_partial"
 
     poses_root = LocationService.get_user_data("poses")
+    if not os.path.exists(poses_root):
+        return []
     pose_root = os.path.join(poses_root, rig_type + mode)
     _LOG.debug("pose root", pose_root)
+    if not os.path.exists(pose_root):
+        return []
 
     line = 0
     poses = []
@@ -51,8 +55,12 @@ def _populate_poses(self, context):
             mode = "_ik"
 
     poses_root = LocationService.get_user_data("poses")
+    if not os.path.exists(poses_root):
+        return []
     pose_root = os.path.join(poses_root, rig_type + mode)
     _LOG.debug("pose root", pose_root)
+    if not os.path.exists(pose_root):
+        return []
 
     line = 0
     poses = []
