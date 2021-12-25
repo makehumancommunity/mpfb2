@@ -21,6 +21,8 @@ class ClothesService:
     def fit_clothes_to_human(clothes, basemesh, mhclo=None):
         """Move clothes vertices so they fit the current shape of the base mesh."""
 
+        _LOG.dump("Given MHCLO object", mhclo)
+
         if basemesh is None:
             raise ValueError('Cannot refit to None basemesh')
 
@@ -45,6 +47,9 @@ class ClothesService:
             else:
                 raise ValueError('There is not enough info to refit this asset, at least asset source and object type is needed')
             mhclo.clothes = clothes
+
+        if not mhclo.verts or len(mhclo.verts.keys()) <1:
+            raise ValueError('There is no vertex info in the MHCLO!?')
 
         # We cannot rely on the vertex position data directly, since it represent positions
         # as they are *before* targets are applied. We want the shape of the mesh *after*
@@ -87,6 +92,7 @@ class ClothesService:
 
         for clothes_vertex_number in range(len(clothes_vertices)):
             vertex_match_info = mhclo.verts[clothes_vertex_number]
+            _LOG.dump("Vertex match info", (clothes_vertex_number, vertex_match_info))
             (human_vertex1, human_vertex2, human_vertex3) = vertex_match_info["verts"]
 
             # test if we inside mesh, if not, no chance

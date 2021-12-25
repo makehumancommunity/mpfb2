@@ -88,10 +88,15 @@ class Mhclo:
                 self.material = os.path.join(folder, words[1])
                 continue
 
+            if str(words[0]).startswith("vertexboneweights"):
+                # Workaround for fixing ancient system assets
+                continue
+
             # read vertices lines
             #
             if status == 'v':
                 if words[0].isnumeric() is False:
+                    _LOG.debug("Breaking vertex listing loop on", words)
                     status = ""
                     continue
                 if l == 1:
