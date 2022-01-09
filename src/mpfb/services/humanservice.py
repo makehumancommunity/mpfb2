@@ -234,6 +234,46 @@ class HumanService:
         HumanService.update_list_of_human_presets()
 
     @staticmethod
+    def _proxy_corrective(proxymesh):
+        uuid = GeneralObjectProperties.get_value("uuid", entity_reference=proxymesh)
+        if not uuid:
+            _LOG.warn("Tried to do proxy corrective for an object without uuid", proxymesh)
+            return
+
+        metadata = LocationService.get_mpfb_data("mesh_metadata")
+        corrective_path = os.path.join(metadata, "proxy_corrective.json")
+
+        if not os.path.exists(corrective_path):
+            _LOG.warn("File does not exist", corrective_path)
+            return
+
+        with open(corrective_path, "r") as json_file:
+            corrective = json.load(json_file)
+
+        if uuid in corrective:
+            _LOG.debug("There is corrective information for ", uuid)
+            bpy.ops.object.mode_set(mode='OBJECT')
+            if "fix_leftright_weights_for_groups" in corrective[uuid]:
+                _LOG.debug("Will try to fix left/right groups")
+                group_names = {}
+                for group in proxymesh.vertex_groups:
+                    group_names[group.index] = str(group.name).lower()
+                for vertex in proxymesh.data.vertices:
+                    for group in vertex.groups:
+                        group_name = group_names[group.group]
+                        is_sided = False
+                        if (group_name.endswith(".r") or group_name.startswith("r-") or group_name.startswith("r_")) and vertex.co[0] > 0.0001:
+                            # Vertex is on right side, but has a group weight for a left side bone. So nuke this weight.
+                            group.weight = 0.0
+                            _LOG.debug("Nuked weight for vertex", (vertex.index, vertex.co, group_name))
+                        if (group_name.endswith(".l") or group_name.startswith("l-") or group_name.startswith("l_")) and vertex.co[0] < -0.0001:
+                            # Vertex is on left side, but has a group weight for a right side bone. So nuke this weight.
+                            group.weight = 0.0
+                            _LOG.debug("Nuked weight for vertex", (vertex.index, vertex.co, group_name))
+        else:
+            _LOG.debug("There is no corrective information for", uuid)
+
+    @staticmethod
     def add_mhclo_asset(mhclo_file, basemesh, asset_type="Clothes", subdiv_levels=1, material_type="MAKESKIN"):
         mhclo = Mhclo()
         mhclo.load(mhclo_file) # pylint: disable=E1101
@@ -410,6 +450,8 @@ class HumanService:
                     _LOG.debug("Will create proxy vgroup", vgroup_name)
                     vgroup = proxy_object.vertex_groups.new(name=vgroup_name)
                     vgroup.add(ALL_EXTRA_GROUPS[uuid][vgroup_name], 1.0, 'ADD')
+
+            HumanService._proxy_corrective(proxy_object)
         else:
             _LOG.warn("Could not locate proxy", human_info["proxy"])
 
