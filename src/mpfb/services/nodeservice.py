@@ -218,11 +218,16 @@ class NodeService:
         return for_output
 
     @staticmethod
-    def clear_node_tree(node_tree):
+    def clear_node_tree(node_tree, also_destroy_groups=False):
         """Delete all nodes in a node tree. The tree instance as such will be preserved."""
         nodes = []
         for node in node_tree.nodes:
+            _LOG.debug("Node", (node, isinstance(node, ShaderNodeGroup)))
             nodes.append(node)
+            if also_destroy_groups and isinstance(node, ShaderNodeGroup):
+                _LOG.debug("found group to destroy", (node, node.name, node.node_tree, node.node_tree.name))
+                node.name = node.name + ".unused"
+                node.node_tree.name = node.node_tree.name + ".unused"
         for node in nodes:
             node_tree.nodes.remove(node)
 
