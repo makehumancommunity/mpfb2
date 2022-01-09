@@ -2,7 +2,9 @@ import os, bpy
 
 from .logservice import LogService
 from .objectservice import ObjectService
+from .nodeservice import NodeService
 _LOG = LogService.get_logger("services.materialservice")
+_LOG.set_level(LogService.DUMP)
 
 class MaterialService():
 
@@ -10,10 +12,17 @@ class MaterialService():
         raise RuntimeError("You should not instance MaterialService. Use its static methods instead.")
 
     @staticmethod
-    def delete_all_materials(blender_object):
-        for x in blender_object.material_slots:
-            blender_object.active_material_index = 0
-            bpy.ops.object.material_slot_remove({'object': blender_object})
+    def delete_all_materials(blender_object, also_destroy_groups=False):
+        _LOG.dump("Current materials", (blender_object.data.materials, len(blender_object.data.materials)))
+        for material in blender_object.data.materials:
+            material.name = material.name + ".unused"
+            if also_destroy_groups:
+                NodeService.clear_node_tree(material.node_tree, also_destroy_groups=True)
+        while len(blender_object.data.materials) > 0:
+            blender_object.data.materials.pop()
+        for block in bpy.data.materials:
+            if block.users == 0:
+                bpy.data.materials.remove(block)
 
     @staticmethod
     def has_materials(blender_object):
