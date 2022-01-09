@@ -469,9 +469,9 @@ class HumanService:
         if not bodyproxy is None:
             HumanObjectProperties.set_value("material_source", material_source, entity_reference=bodyproxy)
 
-        MaterialService.delete_all_materials(basemesh)
+        MaterialService.delete_all_materials(basemesh, also_destroy_groups=True)
         if bodyproxy:
-            MaterialService.delete_all_materials(bodyproxy)
+            MaterialService.delete_all_materials(bodyproxy, also_destroy_groups=True)
 
         name = basemesh.name
         if not str(name).endswith(".body"):
