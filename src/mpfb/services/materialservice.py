@@ -4,7 +4,6 @@ from .logservice import LogService
 from .objectservice import ObjectService
 from .nodeservice import NodeService
 _LOG = LogService.get_logger("services.materialservice")
-_LOG.set_level(LogService.DUMP)
 
 class MaterialService():
 
