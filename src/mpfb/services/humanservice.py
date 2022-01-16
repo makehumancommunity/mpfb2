@@ -621,7 +621,10 @@ class HumanService:
             _LOG.debug("Will attempt to load target", target)
             target_full_path = TargetService.target_full_path(target["target"])
             _LOG.debug("Full path", target_full_path)
-            TargetService.load_target(basemesh, target_full_path, target["value"], target["target"])
+            if target_full_path:
+                TargetService.load_target(basemesh, target_full_path, target["value"], target["target"])
+            else:
+                _LOG.warn("Skipping target because it could not be resolved to a path", target)
 
     @staticmethod
     def deserialize_from_dict(human_info, mask_helpers=True, detailed_helpers=True, extra_vertex_groups=True, feet_on_ground=True, scale=0.1, subdiv_levels=1, load_clothes=True):

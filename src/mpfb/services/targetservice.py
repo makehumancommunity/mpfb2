@@ -100,7 +100,7 @@ class TargetService:
             _LOG.dump("matching vs file", name)
             if target_name in str(name):
                 return str(name)
-        _LOG.debug("Did not find matching target")
+        _LOG.warn("Did not find matching target for", target_name)
         return None
 
 
@@ -439,7 +439,7 @@ class TargetService:
         if blender_object is None:
             raise ValueError("Can only load targets onto specified mesh objects")
         if full_path is None or not full_path:
-            raise ValueError("Must specify a valid path")
+            raise ValueError("Must specify a valid path - null or none was given")
         if not os.path.exists(full_path):
             raise IOError(full_path + " does not exist")
         target_string = None
