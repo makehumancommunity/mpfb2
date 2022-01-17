@@ -58,7 +58,7 @@ _OPPOSITES = [
     "down-up",
     "in-out",
     "backward-forward",
-    "concave-convex"
+    "concave-convex",
     "compress-uncompress",
     "square-round",
     "pointed-triangle"
@@ -73,14 +73,18 @@ class TargetService:
     def translate_mhm_target_line_to_target_fragment(mhm_line):
         profiler = PrimitiveProfiler("TargetService")
         profiler.enter("translate_mhm_target_line_to_target_fragment")
+        _LOG.debug("Will try to parse MHM line", mhm_line)
         if mhm_line.startswith("modifier "):
             mhm_line.replace("modifier ", "")
         name, weight = mhm_line.split(" ", 1)
+        _LOG.dump("name, weight", (name, weight))
         weight = float(weight)
         for opposite in _OPPOSITES:
             negative, positive = opposite.split("-", 1)
             mhm_term = negative + "|" + positive
+            _LOG.dump("Matching against mhm term", (mhm_term, mhm_line))
             if mhm_term in mhm_line:
+                _LOG.debug("Matched mhm_term", mhm_term)
                 if weight < 0.0:
                     name = name.replace(mhm_term, negative)
                     weight = -weight
@@ -88,6 +92,7 @@ class TargetService:
                     name = name.replace(mhm_term, positive)
         if "/" in name:
             dirname, name = name.split("/", 1)
+        _LOG.debug("Translation result", (name, weight))
         profiler.leave("translate_mhm_target_line_to_target_fragment")
         return { "target": name, "value": weight }
 
