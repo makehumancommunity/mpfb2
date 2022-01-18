@@ -60,6 +60,8 @@ class MPFB_OT_HumanFromMHMOperator(bpy.types.Operator, ImportHelper):
             basemesh.select_set(False)
             rig.select_set(True)
 
+        HumanService.refit(basemesh)
+
         _LOG.time("Human created in")
 
         self.report({'INFO'}, "Human created. You should check the model, as the MHM might not map exactly to what is available in MPFB2.")
