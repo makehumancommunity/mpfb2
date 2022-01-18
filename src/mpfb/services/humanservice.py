@@ -806,24 +806,32 @@ class HumanService:
         for asset_name in assets:
             asset = assets[asset_name]
             mhclo = Mhclo()
-            mhclo.load(asset["full_path"])
-            if uuid and mhclo.uuid == uuid:
-                _LOG.debug("Matching asset", (asset["full_path"], asset["fragment"]))
-                human_info["clothes"].append(asset["fragment"])
-                return True
+            try:
+                mhclo.load(asset["full_path"])
+                if uuid and mhclo.uuid == uuid:
+                    _LOG.debug("Matching asset", (asset["full_path"], asset["fragment"]))
+                    human_info["clothes"].append(asset["fragment"])
+                    return True
+            except:
+                _LOG.error("Failed to load asset ", asset["full_path"])
+
         # Find assets that only match filename
         for asset_name in assets:
             asset = assets[asset_name]
             mhclo = Mhclo()
-            mhclo.load(asset["full_path"])
-            given_name = str(asset_name).lower()
-            mhclo_name = str(mhclo.name).lower()
-            label = asset["label"].lower()
+            try:
+                mhclo.load(asset["full_path"])
+                given_name = str(asset_name).lower()
+                mhclo_name = str(mhclo.name).lower()
+                label = asset["label"].lower()
 
-            if given_name == mhclo_name or given_name == label:
-                _LOG.debug("Matching asset", (asset["full_path"], asset["fragment"]))
-                human_info["clothes"].append(asset["fragment"])
-                return True
+                if given_name == mhclo_name or given_name == label:
+                    _LOG.debug("Matching asset", (asset["full_path"], asset["fragment"]))
+                    human_info["clothes"].append(asset["fragment"])
+                    return True
+            except:
+                _LOG.error("Failed to load asset ", asset["full_path"])
+
         # Give up
         return False
 

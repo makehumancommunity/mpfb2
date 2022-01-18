@@ -50,7 +50,7 @@ class Mhclo:
         folder = os.path.dirname(realpath)
 
         try:
-            fp = open(mhclo_filename, "r")
+            fp = open(mhclo_filename, "r", encoding="utf8", errors="surrogateescape")
         except:
             _LOG.error("Error trying to open file:", sys.exc_info()[0])
             return None
