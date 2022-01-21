@@ -645,6 +645,14 @@ class HumanService:
             modifier.levels = 0
             modifier.render_levels = subdiv_levels
 
+        HumanService._load_targets(human_info, basemesh)
+        # Do an extra feet_on_ground here, since the one in create_human only
+        # takes macro details into account
+        if feet_on_ground:
+            lowest_point = ObjectService.get_lowest_point(basemesh)
+            basemesh.location = (0.0, 0.0, abs(lowest_point))
+            bpy.ops.object.transform_apply(location=True, rotation=True, scale=True)
+
         HumanService._check_add_rig(human_info, basemesh)
         HumanService._check_add_bodyparts(human_info, basemesh, subdiv_levels=subdiv_levels)
         HumanService._check_add_proxy(human_info, basemesh, subdiv_levels=subdiv_levels)
@@ -652,7 +660,6 @@ class HumanService:
             HumanService._check_add_clothes(human_info, basemesh, subdiv_levels=subdiv_levels)
         HumanService._set_skin(human_info, basemesh)
         HumanService._set_eyes(human_info, basemesh)
-        HumanService._load_targets(human_info, basemesh)
 
         # Otherwise all targets will be set to 100% when entering edit mode
         basemesh.use_shape_key_edit_mode = True
