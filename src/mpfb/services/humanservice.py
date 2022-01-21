@@ -857,11 +857,22 @@ class HumanService:
                     _LOG.debug("line is neither modifier or bodypart")
                     if line.startswith("skinMaterial"):
                         skinLine = line.replace("skinMaterial skins/", "")
-                        skinLine = line.replace("skinMaterial", "")
+                        skinLine = skinLine.replace("skinMaterial", "")
                         human_info["skin_mhmat"] = skinLine
                         human_info["skin_material_type"] = "ENHANCED_SSS"
                     if line.startswith("name "):
                         name = line.replace("name ", "")
+                    if line.startswith("skeleton"):
+                        skeleton_line = line.replace("skeleton ", "")
+                        skeleton_line = skeleton_line.replace(".mhskel", "").lower()
+                        if "default" in skeleton_line:
+                            human_info["rig"] = "default"
+                        if "toes" in skeleton_line:
+                            human_info["rig"] = "default_no_toes"
+                        if "game" in skeleton_line:
+                            human_info["rig"] = "game_engine"
+                        if "cmu" in skeleton_line:
+                            human_info["rig"] = "cmu_mb"
 
         for line in mhm_string.splitlines():
             _LOG.debug("line", line)
