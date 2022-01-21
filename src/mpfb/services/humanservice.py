@@ -18,6 +18,7 @@ from mpfb.services.locationservice import LocationService
 from mpfb.entities.objectproperties import GeneralObjectProperties
 from mpfb.entities.socketobject import BASEMESH_EXTRA_GROUPS, ALL_EXTRA_GROUPS
 from .logservice import LogService
+from mpfb.entities.primitiveprofiler import PrimitiveProfiler
 
 _LOG = LogService.get_logger("services.humanservice")
 
@@ -409,7 +410,10 @@ class HumanService:
 
     @staticmethod
     def _check_add_clothes(human_info, basemesh, subdiv_levels=1):
+        profiler = PrimitiveProfiler("HumanService")
+        profiler.enter("_check_add_clothes")
         if not "clothes" in human_info:
+            profiler.leave("_check_add_clothes")
             return
         for asset_filename in human_info["clothes"]:
             _LOG.debug("A clothes asset was specified", asset_filename)
@@ -422,6 +426,7 @@ class HumanService:
                 #    bodypart_object.name = human_info["name"] + "." + bodypart_object.name
             else:
                 _LOG.warn("Could not locate asset", asset_filename)
+        profiler.leave("_check_add_clothes")
 
     @staticmethod
     def _check_add_proxy(human_info, basemesh, subdiv_levels=1):
@@ -615,7 +620,11 @@ class HumanService:
 
     @staticmethod
     def _load_targets(human_info, basemesh):
+        profiler = PrimitiveProfiler("HumanService")
+        profiler.enter("_load_targets")
+
         if not "targets" in human_info:
+            profiler.leave("_load_targets")
             return
         for target in human_info["targets"]:
             _LOG.debug("Will attempt to load target", target)
@@ -625,6 +634,7 @@ class HumanService:
                 TargetService.load_target(basemesh, target_full_path, target["value"], target["target"])
             else:
                 _LOG.warn("Skipping target because it could not be resolved to a path", target)
+        profiler.leave("_load_targets")
 
     @staticmethod
     def deserialize_from_dict(human_info, mask_helpers=True, detailed_helpers=True, extra_vertex_groups=True, feet_on_ground=True, scale=0.1, subdiv_levels=1, load_clothes=True):
@@ -845,6 +855,8 @@ class HumanService:
 
     @staticmethod
     def deserialize_from_mhm(filename, mask_helpers=True, detailed_helpers=True, extra_vertex_groups=True, feet_on_ground=True, scale=0.1, subdiv_levels=1, load_clothes=True):
+        profiler = PrimitiveProfiler("HumanService")
+        profiler.enter("deserialize_from_mhm")
         _LOG.debug("filename", filename)
         if not os.path.exists(filename):
             raise IOError(str(filename) + " does not exist")
@@ -898,10 +910,15 @@ class HumanService:
         _LOG.dump("human_info", human_info)
         basemesh = HumanService.deserialize_from_dict(human_info, mask_helpers, detailed_helpers, extra_vertex_groups, feet_on_ground, scale, subdiv_levels, load_clothes=load_clothes)
 
+        profiler.leave("deserialize_from_mhm")
         return basemesh
 
     @staticmethod
     def create_human(mask_helpers=True, detailed_helpers=True, extra_vertex_groups=True, feet_on_ground=True, scale=0.1, macro_detail_dict=None):
+
+        profiler = PrimitiveProfiler("HumanService")
+        profiler.enter("create_human")
+
         exclude = []
 
         if not detailed_helpers:
@@ -945,6 +962,7 @@ class HumanService:
             basemesh.location = (0.0, 0.0, abs(lowest_point))
             bpy.ops.object.transform_apply(location=True, rotation=True, scale=True)
 
+        profiler.leave("create_human")
         return basemesh
 
     @staticmethod

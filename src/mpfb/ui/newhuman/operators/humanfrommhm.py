@@ -64,6 +64,12 @@ class MPFB_OT_HumanFromMHMOperator(bpy.types.Operator, ImportHelper):
 
         _LOG.time("Human created in")
 
+        # from mpfb.entities.primitiveprofiler import PrimitiveProfiler
+        # human_profiler = PrimitiveProfiler("HumanService")
+        # target_profiler = PrimitiveProfiler("TargetService")
+        # human_profiler.dump()
+        # target_profiler.dump()
+
         self.report({'INFO'}, "Human created. You should check the model, as the MHM might not map exactly to what is available in MPFB2.")
         return {'FINISHED'}
 
