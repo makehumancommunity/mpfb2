@@ -434,6 +434,75 @@ class TargetService:
                     blender_object.active_shape_key_index = shape_key_idx
                     bpy.ops.object.shape_key_remove()
 
+    @staticmethod
+    def bulk_load_targets(blender_object, target_stack, encode_target_names=False):
+        profiler = PrimitiveProfiler("TargetService")
+        profiler.enter("bulk_load_targets")
+
+        _LOG.debug("Target stack", target_stack)
+
+        load_info = dict()
+        load_info["parsed_target_stack"] = []
+
+        profiler.enter(" -- bulk load -> load string data")
+        for target in target_stack:
+            _LOG.debug("Listed target", target)
+            target_full_path = TargetService.target_full_path(target["target"])
+            _LOG.debug("Full path", target_full_path)
+            if target_full_path:
+                parsed_target = dict()
+                parsed_target["full_path"] = target_full_path
+                parsed_target["name"] = target["target"]
+                parsed_target["value"] = target["value"]
+                if str(target_full_path).endswith(".gz"):
+                    with gzip.open(target_full_path, "rb") as gzip_file:
+                        raw_data = gzip_file.read()
+                        parsed_target["target_string"] = raw_data.decode('utf-8')
+                else:
+                    with open(target_full_path, "r") as target_file:
+                        parsed_target["target_string"] = target_file.read()
+                name = os.path.basename(target_full_path)
+                name = name.replace(".target.gz", "")
+                name = name.replace(".target", "")
+                parsed_target["shape_key_name"] = name
+                load_info["parsed_target_stack"].append(parsed_target)
+            else:
+                _LOG.warn("Skipping target because it could not be resolved to a path", target)
+        profiler.leave(" -- bulk load -> load string data")
+
+        profiler.enter(" -- bulk load -> shape key placeholders")
+        for target in load_info["parsed_target_stack"]:
+            TargetService.create_shape_key(blender_object, target["shape_key_name"])
+        profiler.leave(" -- bulk load -> shape key placeholders")
+
+        profiler.enter(" -- bulk load -> setup bmesh")
+        mesh = bmesh.new()
+        mesh.from_mesh(blender_object.data)
+        mesh.verts.ensure_lookup_table()
+        profiler.leave(" -- bulk load -> setup bmesh")
+
+        profiler.enter(" -- bulk load -> populate shape keys")
+        for target_info in load_info["parsed_target_stack"]:
+            shape_key_info = TargetService._target_string_to_shape_key_info(target_info["target_string"], target_info["shape_key_name"], blender_object)
+            target = mesh.verts.layers.shape[target_info["shape_key_name"]]
+            _LOG.debug("bmesh, target", (mesh, target))
+            for vertex in shape_key_info["vertices"]:
+                index = vertex["index"]
+                mesh.verts[index][target] = vertex["target_coordinates"]
+        profiler.leave(" -- bulk load -> populate shape keys")
+        profiler.enter("- apply_shape_key_info")
+
+        profiler.enter(" -- bulk load -> apply bmesh")
+        mesh.to_mesh(blender_object.data)
+        mesh.free()
+        profiler.leave(" -- bulk load -> apply bmesh")
+
+        profiler.enter(" -- bulk load -> set target values")
+        for target_info in load_info["parsed_target_stack"]:
+            blender_object.data.shape_keys.key_blocks[target_info["shape_key_name"]].value = target_info["value"]
+        profiler.leave(" -- bulk load -> set target values")
+
+        profiler.leave("bulk_load_targets")
 
     @staticmethod
     def load_target(blender_object, full_path, weight=0.0, name=None):
