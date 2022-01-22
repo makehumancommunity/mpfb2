@@ -406,7 +406,7 @@ class HumanService:
                     #if bodypart_object and "name" in human_info and human_info["name"]:
                     #    bodypart_object.name = human_info["name"] + "." + bodypart_object.name
                 else:
-                    _LOG.warn("Could not locate bodypart", asset_filename)
+                    _LOG.warn("Could not locate bodypart", (bodypart, asset_filename))
 
     @staticmethod
     def _check_add_clothes(human_info, basemesh, subdiv_levels=1):
@@ -425,7 +425,7 @@ class HumanService:
                 #if bodypart_object and "name" in human_info and human_info["name"]:
                 #    bodypart_object.name = human_info["name"] + "." + bodypart_object.name
             else:
-                _LOG.warn("Could not locate asset", asset_filename)
+                _LOG.warn("Could not locate clothes", asset_filename)
         profiler.leave("_check_add_clothes")
 
     @staticmethod
@@ -626,15 +626,6 @@ class HumanService:
         if not "targets" in human_info:
             profiler.leave("_load_targets")
             return
-        #for target in human_info["targets"]:
-        #    _LOG.debug("Will attempt to load target", target)
-        #    target_full_path = TargetService.target_full_path(target["target"])
-        #    _LOG.debug("Full path", target_full_path)
-        #    if target_full_path:
-        #        TargetService.load_target(basemesh, target_full_path, target["value"], target["target"])
-        #    else:
-        #        _LOG.warn("Skipping target because it could not be resolved to a path", target)
-
         TargetService.bulk_load_targets(basemesh, human_info["targets"])
 
         profiler.leave("_load_targets")
@@ -745,7 +736,10 @@ class HumanService:
 
 
     @staticmethod
-    def _check_parse_mhm_bodypart_line(human_info, line):
+    def _check_parse_mhm_bodypart_line(human_info, line, perform_deep_search=True):
+        profiler = PrimitiveProfiler("HumanService")
+        profiler.enter("_check_parse_mhm_bodypart_line")
+
         for bodypart in ["eyes", "eyelashes", "eyebrows", "teeth", "tongue", "hair", "proxy"]:
             if line.startswith(bodypart + " "):
                 parts = line.split(" ", 2)
@@ -776,8 +770,16 @@ class HumanService:
                         mhclo.load(asset["full_path"])
                         if mhclo.uuid == uuid:
                             _LOG.debug("Matching asset", (asset["full_path"], asset["fragment"]))
-                            human_info["clothes"].append(asset["fragment"])
+                            human_info[bodypart] = asset["fragment"]
+                            profiler.leave("_check_parse_mhm_bodypart_line")
                             return True
+
+                if not perform_deep_search:
+                    _LOG.warn("Giving up because bodypart could not be found", (bodypart, name))
+                    return False
+
+                _LOG.warn("About to perform deep search for bodypart, which will take a long time", (bodypart, name))
+
                 # Find asset which match only uuid
                 for asset_name in assets:
                     asset = assets[asset_name]
@@ -786,6 +788,7 @@ class HumanService:
                     if uuid and mhclo.uuid == uuid:
                         _LOG.debug("Matching asset", (asset["full_path"], asset["fragment"]))
                         human_info[bodypart] = asset["fragment"]
+                        profiler.leave("_check_parse_mhm_bodypart_line")
                         return True
                 # Find asset which match only filename
                 for asset_name in assets:
@@ -799,12 +802,14 @@ class HumanService:
                     if given_name == mhclo_name or given_name == label:
                         _LOG.debug("Matching asset", (asset["full_path"], asset["fragment"]))
                         human_info[bodypart] = asset["fragment"]
+                        profiler.leave("_check_parse_mhm_bodypart_line")
                         return True
+        profiler.leave("_check_parse_mhm_bodypart_line")
         # Give up
         return False
 
     @staticmethod
-    def _check_parse_mhm_clothes_line(human_info, line, assets=None):
+    def _check_parse_mhm_clothes_line(human_info, line, perform_deep_search=False):
         profiler = PrimitiveProfiler("HumanService")
         profiler.enter("_check_parse_mhm_clothes_line")
         parts = line.split(" ", 2)
@@ -849,7 +854,12 @@ class HumanService:
                     _LOG.set_level(LogService.INFO)
                     return True
 
+        if not perform_deep_search:
+            _LOG.warn("Giving up since asset could not be found: ", name)
+            return False
+
         _LOG.warn("Asset was not found in assets list, it will take time to find it", name)
+
 
         # Find assets that only match UUID
         for asset_name in assets:
@@ -890,7 +900,7 @@ class HumanService:
 
 
     @staticmethod
-    def deserialize_from_mhm(filename, mask_helpers=True, detailed_helpers=True, extra_vertex_groups=True, feet_on_ground=True, scale=0.1, subdiv_levels=1, load_clothes=True):
+    def deserialize_from_mhm(filename, mask_helpers=True, detailed_helpers=True, extra_vertex_groups=True, feet_on_ground=True, scale=0.1, subdiv_levels=1, load_clothes=True, clothes_deep_search=False, bodypart_deep_search=True):
         profiler = PrimitiveProfiler("HumanService")
         profiler.enter("deserialize_from_mhm")
         _LOG.debug("filename", filename)
@@ -908,7 +918,7 @@ class HumanService:
                 HumanService._parse_mhm_modifier_line(human_info, line)
             else:
                 is_bodypart_line = False
-                if not HumanService._check_parse_mhm_bodypart_line(human_info, line):
+                if not HumanService._check_parse_mhm_bodypart_line(human_info, line, bodypart_deep_search):
                     _LOG.debug("line is neither modifier or bodypart")
                     if line.startswith("skinMaterial"):
                         skinLine = line.replace("skinMaterial skins/", "")
@@ -932,7 +942,7 @@ class HumanService:
         for line in mhm_string.splitlines():
             _LOG.debug("line", line)
             if line.startswith("clothes"):
-                HumanService._check_parse_mhm_clothes_line(human_info, line)
+                HumanService._check_parse_mhm_clothes_line(human_info, line, clothes_deep_search)
 
         if not "rig" in human_info or not human_info["rig"]:
             human_info["rig"] = "default"

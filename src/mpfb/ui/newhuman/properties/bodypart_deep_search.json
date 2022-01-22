@@ -1,0 +1,7 @@
+{
+    "type": "boolean",
+    "name": "bodypart_deep_search",
+    "description": "In case a specified body part cannot be immediately found, perform a deep search for it by trying to match file contents. WARNING: This is potentially a long operation",
+    "label": "Body part deep search",
+    "default": true
+}

@@ -31,6 +31,8 @@ class MPFB_OT_HumanFromMHMOperator(bpy.types.Operator, ImportHelper):
         mask_helpers = PRESETS_HUMAN_PROPERTIES.get_value("mask_helpers", entity_reference=context.scene)
         scale_factor = PRESETS_HUMAN_PROPERTIES.get_value("scale_factor", entity_reference=context.scene)
         load_clothes = PRESETS_HUMAN_PROPERTIES.get_value("load_clothes", entity_reference=context.scene)
+        bodypart_deep_search = PRESETS_HUMAN_PROPERTIES.get_value("bodypart_deep_search", entity_reference=context.scene)
+        clothes_deep_search = PRESETS_HUMAN_PROPERTIES.get_value("clothes_deep_search", entity_reference=context.scene)
 
         scale = 0.1
 
@@ -46,7 +48,9 @@ class MPFB_OT_HumanFromMHMOperator(bpy.types.Operator, ImportHelper):
                                                      extra_vertex_groups=extra_vertex_groups,
                                                      feet_on_ground=True,
                                                      scale=scale,
-                                                     load_clothes=load_clothes)
+                                                     load_clothes=load_clothes,
+                                                     bodypart_deep_search=bodypart_deep_search,
+                                                     clothes_deep_search=clothes_deep_search)
 
         _LOG.debug("Basemesh", basemesh)
 

@@ -45,7 +45,9 @@ class MPFB_PT_From_Presets_Panel(Abstract_Panel):
             "detailed_helpers",
             "extra_vertex_groups",
             "mask_helpers",
-            "load_clothes"
+            "load_clothes",
+            "bodypart_deep_search",
+            "clothes_deep_search"
             ])
         layout.operator('mpfb.human_from_presets')
         layout.operator('mpfb.human_from_mhm')
