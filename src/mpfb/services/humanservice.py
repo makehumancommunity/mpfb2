@@ -626,18 +626,24 @@ class HumanService:
         if not "targets" in human_info:
             profiler.leave("_load_targets")
             return
-        for target in human_info["targets"]:
-            _LOG.debug("Will attempt to load target", target)
-            target_full_path = TargetService.target_full_path(target["target"])
-            _LOG.debug("Full path", target_full_path)
-            if target_full_path:
-                TargetService.load_target(basemesh, target_full_path, target["value"], target["target"])
-            else:
-                _LOG.warn("Skipping target because it could not be resolved to a path", target)
+        #for target in human_info["targets"]:
+        #    _LOG.debug("Will attempt to load target", target)
+        #    target_full_path = TargetService.target_full_path(target["target"])
+        #    _LOG.debug("Full path", target_full_path)
+        #    if target_full_path:
+        #        TargetService.load_target(basemesh, target_full_path, target["value"], target["target"])
+        #    else:
+        #        _LOG.warn("Skipping target because it could not be resolved to a path", target)
+
+        TargetService.bulk_load_targets(basemesh, human_info["targets"])
+
         profiler.leave("_load_targets")
 
     @staticmethod
     def deserialize_from_dict(human_info, mask_helpers=True, detailed_helpers=True, extra_vertex_groups=True, feet_on_ground=True, scale=0.1, subdiv_levels=1, load_clothes=True):
+        profiler = PrimitiveProfiler("HumanService")
+        profiler.enter("deserialize_from_dict")
+
         if human_info is None:
             raise ValueError('Cannot use None as human_info')
         if len(human_info.keys()) < 1:
@@ -674,6 +680,8 @@ class HumanService:
         # Otherwise all targets will be set to 100% when entering edit mode
         basemesh.use_shape_key_edit_mode = True
 
+        profiler.leave("deserialize_from_dict")
+
         return basemesh
 
     @staticmethod
@@ -690,6 +698,8 @@ class HumanService:
 
     @staticmethod
     def _parse_mhm_modifier_line(human_info, line):
+        profiler = PrimitiveProfiler("HumanService")
+        profiler.enter("_parse_mhm_modifier_line")
         line = str(line).replace("modifier ", "")
 
         _LOG.debug("parsing modifier line", line)
@@ -707,18 +717,23 @@ class HumanService:
                 _LOG.debug("Found macro target", (target, weight))
                 if simple_macro in ["Asian", "African", "Caucasian"]:
                     human_info["phenotype"]["race"][simple_macro.lower()] = weight
+                    profiler.leave("_parse_mhm_modifier_line")
                     return
                 if simple_macro in ["Age", "Gender", "Muscle", "Weight", "Height"]:
                     human_info["phenotype"][simple_macro.lower()] = weight
+                    profiler.leave("_parse_mhm_modifier_line")
                     return
                 if simple_macro == "BodyProportions":
                     human_info["phenotype"]["proportions"] = weight
+                    profiler.leave("_parse_mhm_modifier_line")
                     return
                 if simple_macro == "BreastSize":
                     human_info["phenotype"]["cupsize"] = weight
+                    profiler.leave("_parse_mhm_modifier_line")
                     return
                 if simple_macro == "BreastFirmness":
                     human_info["phenotype"]["firmness"] = weight
+                    profiler.leave("_parse_mhm_modifier_line")
                     return
         _LOG.debug("modifier was not a macrodetail")
         target = TargetService.translate_mhm_target_line_to_target_fragment(line)
@@ -726,6 +741,7 @@ class HumanService:
         if not "targets" in human_info or not human_info["targets"]:
             human_info["targets"] = []
         human_info["targets"].append(target)
+        profiler.leave("_parse_mhm_modifier_line")
 
 
     @staticmethod
@@ -788,13 +804,17 @@ class HumanService:
         return False
 
     @staticmethod
-    def _check_parse_mhm_clothes_line(human_info, line):
+    def _check_parse_mhm_clothes_line(human_info, line, assets=None):
+        profiler = PrimitiveProfiler("HumanService")
+        profiler.enter("_check_parse_mhm_clothes_line")
         parts = line.split(" ", 2)
         part = parts[0]
         name = parts[1]
         uuid = None
         if len(parts) > 2:
             uuid = parts[2]
+
+        _LOG.set_level(LogService.INFO)
 
         _LOG.debug("found clothes asset", (part, name, uuid))
 
@@ -805,20 +825,32 @@ class HumanService:
             human_info["clothes"] = []
 
         assets = AssetService.get_asset_list(root_name, asset_type)
+
         _LOG.dump("Potential assets", assets)
         # Find asset which match both filename and UUID
         for asset_name in assets:
             asset = assets[asset_name]
             given_name = str(asset_name).lower()
+            given_name_compact = str(asset_name).lower().replace(" ", "")
+            given_name_compact = str(given_name_compact).lower().replace("_", "")
+
             mhclo_name = str(name).lower()
-            _LOG.debug("Checking ", (mhclo_name, given_name))
-            if mhclo_name in given_name and uuid:
+            mhclo_name_compact = mhclo_name.replace("_", "")
+            mhclo_name_compact = mhclo_name_compact.replace(" ", "")
+
+            _LOG.debug("Checking ", (mhclo_name, given_name, given_name_compact))
+            if (mhclo_name in given_name or mhclo_name_compact in given_name_compact) and uuid:
                 mhclo = Mhclo()
                 mhclo.load(asset["full_path"])
                 if mhclo.uuid == uuid:
                     _LOG.debug("Matching asset", (asset["full_path"], asset["fragment"]))
                     human_info["clothes"].append(asset["fragment"])
+                    profiler.leave("_check_parse_mhm_clothes_line")
+                    _LOG.set_level(LogService.INFO)
                     return True
+
+        _LOG.warn("Asset was not found in assets list, it will take time to find it", name)
+
         # Find assets that only match UUID
         for asset_name in assets:
             asset = assets[asset_name]
@@ -828,6 +860,7 @@ class HumanService:
                 if uuid and mhclo.uuid == uuid:
                     _LOG.debug("Matching asset", (asset["full_path"], asset["fragment"]))
                     human_info["clothes"].append(asset["fragment"])
+                    profiler.leave("_check_parse_mhm_clothes_line")
                     return True
             except:
                 _LOG.error("Failed to load asset ", asset["full_path"])
@@ -845,9 +878,12 @@ class HumanService:
                 if given_name == mhclo_name or given_name == label:
                     _LOG.debug("Matching asset", (asset["full_path"], asset["fragment"]))
                     human_info["clothes"].append(asset["fragment"])
+                    profiler.leave("_check_parse_mhm_clothes_line")
                     return True
             except:
                 _LOG.error("Failed to load asset ", asset["full_path"])
+
+        profiler.leave("_check_parse_mhm_clothes_line")
 
         # Give up
         return False
