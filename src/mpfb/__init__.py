@@ -5,11 +5,12 @@ bl_info = { # pylint: disable=C0103
     "name": "mpfb",
     "author": "Joel Palmius",
     "version": (2, 0, 1),
-    "blender": (2, 90, 0),
+    "blender": (2, 93, 0),
     "warning": "Plugin is in Alpha stage",
-    "location": "View3D > Properties > MH",
+    "location": "View3D > Properties > MPFB",
     "description": "MakeHuman Plugin For Blender",
-    "wiki_url": "https://github.com/makehumancommunity/makehuman-plugin-for-blender",
+    "doc_url": "http://static.makehumancommunity.org/mpfb.html",
+    "tracker_url": "https://github.com/makehumancommunity/mpfb2/issues",
     "category": "MakeHuman"}
 
 # These are constants that can be imported from submodules
