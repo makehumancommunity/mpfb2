@@ -4,7 +4,7 @@ the README.md file in the zip."""
 bl_info = { # pylint: disable=C0103
     "name": "mpfb",
     "author": "Joel Palmius",
-    "version": (1, 9, 9),
+    "version": (2, 0, 1),
     "blender": (2, 90, 0),
     "warning": "Plugin is in Alpha stage",
     "location": "View3D > Properties > MH",

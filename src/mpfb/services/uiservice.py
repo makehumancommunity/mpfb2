@@ -14,7 +14,7 @@ class _UiService():
         _LOG.debug("Constructing ui service")
         self._state = dict()
         self.set_value("PROPERTYPREFIX", "MPFB_")
-        ui_prefix = "MPFB v%d.%d" % (VERSION[0], VERSION[1])
+        ui_prefix = "MPFB v%d.%d-a%d" % (VERSION[0], VERSION[1], VERSION[2])
 
         multi = False #get_preference("multi_panel")
         _LOG.debug("multi_panel", multi)
