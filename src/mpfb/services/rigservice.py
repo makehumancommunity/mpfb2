@@ -274,6 +274,12 @@ class RigService:
 
         bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
 
+        bpy.ops.object.mode_set(mode='POSE', toggle=False)
+        for bone in armature_object.pose.bones:
+            bone.rotation_mode = "XYZ"
+
+        bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
+
         return armature_object
 
     @staticmethod
@@ -518,7 +524,6 @@ class RigService:
         for name in pose["bone_rotations"]:
             bone = RigService.find_pose_bone_by_name(name, armature_object)
             if bone:
-                bone.rotation_mode = "XYZ"
                 bone.rotation_euler = pose["bone_rotations"][name]
 
 
@@ -558,7 +563,6 @@ class RigService:
             _LOG.debug("bone in selected", bone)
 
         for bone in armature_object.pose.bones:
-            bone.rotation_mode = "XYZ"
             euler = bone.rotation_euler
             x = abs(euler[0])
             y = abs(euler[1])
