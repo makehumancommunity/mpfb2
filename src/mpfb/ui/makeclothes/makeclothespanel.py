@@ -55,7 +55,7 @@ class MPFB_PT_MakeClothes_Panel(Abstract_Panel):
             props = ["available_groups"]
             MAKECLOTHES_PROPERTIES.draw_properties(scene, box, props)
             box.operator('mpfb.extract_makeclothes_clothes')
-        box.operator('mpfb.mark_makeclothes_clothes')
+        #box.operator('mpfb.mark_makeclothes_clothes')
 
     def _write_clothes(self, blender_object, scene, layout):
         box = self._create_box(layout, "Write clothes", "MATERIAL_DATA")
@@ -83,8 +83,12 @@ class MPFB_PT_MakeClothes_Panel(Abstract_Panel):
         scene = context.scene
 
         layout.label(text="WARNING: MakeClothes has")
-        layout.label(text="not been fully ported yet.")
-        layout.label(text="Only some parts work.")
+        layout.label(text="not been ported yet.")
+        layout.label(text="Only clothes extraction works.")
+        layout.label(text=" ")
+        layout.label(text="TO CREATE CLOTHES, USE THE")
+        layout.label(text="STANDALONE VERSION OF")
+        layout.label(text="MAKECLOTHES FOR NOW")
 
         blender_object = context.active_object
 
@@ -94,8 +98,8 @@ class MPFB_PT_MakeClothes_Panel(Abstract_Panel):
         if blender_object:
             self._setup_clothes(scene, layout, blender_object)
 
-        if blender_object.type == "MESH":
-            self._write_clothes(blender_object, scene, layout)
+        #if blender_object.type == "MESH":
+        #    self._write_clothes(blender_object, scene, layout)
 
 
 ClassManager.add_class(MPFB_PT_MakeClothes_Panel)
