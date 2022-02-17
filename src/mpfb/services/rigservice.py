@@ -272,13 +272,7 @@ class RigService:
         for bone_info in data["bones"]:
             RigService._add_bone(armature, bone_info, scale=scale)
 
-        bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
-
-        bpy.ops.object.mode_set(mode='POSE', toggle=False)
-        for bone in armature_object.pose.bones:
-            bone.rotation_mode = "XYZ"
-
-        bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
+        RigService.normalize_rotation_mode(armature_object)
 
         return armature_object
 
@@ -646,3 +640,11 @@ class RigService:
 
         bpy.context.view_layer.objects.active = current_active_object
         _LOG.time("Refitting took")
+
+    @staticmethod
+    def normalize_rotation_mode(armature_object, rotation_mode="XYZ"):
+        bpy.context.view_layer.objects.active = armature_object
+        bpy.ops.object.mode_set(mode='POSE', toggle=False)
+        for bone in armature_object.pose.bones:
+            bone.rotation_mode = rotation_mode
+        bpy.ops.object.mode_set(mode='OBJECT', toggle=False)

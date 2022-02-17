@@ -79,6 +79,9 @@ class MPFB_OT_AddHelpersOperator(bpy.types.Operator):
             _LOG.debug("Not adding eye ik")
 
         self.report({'INFO'}, "Helpers were added")
+
+        RigService.normalize_rotation_mode(armature_object)
+
         return {'FINISHED'}
 
     @classmethod

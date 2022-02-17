@@ -1030,6 +1030,8 @@ class HumanService:
                 weights = json.load(json_file)
             RigService.apply_weights(armature_object, basemesh, weights)
 
+        RigService.normalize_rotation_mode(armature_object)
+
         return armature_object
 
     @staticmethod
