@@ -112,6 +112,12 @@ class Rig:
             location = [0.0, 0.0, 0.0]
             for i in range(3):
                 location[i] = (vertex1[i] + vertex2[i]) / 2
+        if strategy == "XYZ":
+            # Special strategy for Rigify heel marker.
+            # Uses different vertices for each coordinate channel.
+            indices = head_or_tail_info["vertex_indices"]
+            vertices = [self.position_info["vertices"][i] for i in indices]
+            location = [vertices[i][i] for i in range(3)]
         if location is None and use_default:
             location = head_or_tail_info["default_position"]
         return location
@@ -219,7 +225,7 @@ class Rig:
             bone[prefix + "_cube_name"] = info["cube_name"]
         elif strategy == "VERTEX":
             bone[prefix + "_vertex_index"] = info["vertex_index"]
-        elif strategy == "MEAN":
+        elif strategy in ("MEAN", "XYZ"):
             bone[prefix + "_vertex_indices"] = info["vertex_indices"]
         else:
             return
@@ -243,7 +249,7 @@ class Rig:
                 info["cube_name"] = bone[prefix + "_cube_name"]
             elif strategy == "VERTEX":
                 info["vertex_index"] = bone[prefix + "_vertex_index"]
-            elif strategy == "MEAN":
+            elif strategy in ("MEAN", "XYZ"):
                 info["vertex_indices"] = list(bone[prefix + "_vertex_indices"])
             else:
                 return None, False

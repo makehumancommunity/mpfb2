@@ -5176,12 +5176,16 @@
     "heel.02.L": {
         "head": {
             "default_position": [
-                0.17358502745628357,
-                0.0034880414605140686,
-                -0.00398697704076767
+                0.1495850384235382,
+                0.01819804310798645,
+                1.132139004766941e-08
             ],
-            "strategy": "VERTEX",
-            "vertex_index": 16759
+            "strategy": "XYZ",
+            "vertex_indices": [
+                13319,
+                12820,
+                13057
+            ]
         },
         "inherit_scale": "FULL",
         "layers": [
@@ -5223,12 +5227,16 @@
         "roll": 0.0,
         "tail": {
             "default_position": [
-                0.21060656011104584,
-                0.0008275415748357773,
-                0.00024804106215015054
+                0.22769154608249664,
+                0.01819804310798645,
+                1.132139004766941e-08
             ],
-            "strategy": "VERTEX",
-            "vertex_index": 16756
+            "strategy": "XYZ",
+            "vertex_indices": [
+                12863,
+                12820,
+                13057
+            ]
         },
         "use_connect": false,
         "use_inherit_rotation": true,
@@ -5237,12 +5245,16 @@
     "heel.02.R": {
         "head": {
             "default_position": [
-                -0.17358502745628357,
-                0.0034880414605140686,
-                -0.00398697704076767
+                -0.1495850384235382,
+                0.01819804310798645,
+                1.132139004766941e-08
             ],
-            "strategy": "VERTEX",
-            "vertex_index": 15455
+            "strategy": "XYZ",
+            "vertex_indices": [
+                6723,
+                6223,
+                6461
+            ]
         },
         "inherit_scale": "FULL",
         "layers": [
@@ -5284,12 +5296,16 @@
         "roll": -0.0,
         "tail": {
             "default_position": [
-                -0.21060656011104584,
-                0.0008275415748357773,
-                0.00024804106215015054
+                -0.22769154608249664,
+                0.01819804310798645,
+                1.132139004766941e-08
             ],
-            "strategy": "VERTEX",
-            "vertex_index": 15452
+            "strategy": "XYZ",
+            "vertex_indices": [
+                6266,
+                6223,
+                6461
+            ]
         },
         "use_connect": false,
         "use_inherit_rotation": true,
