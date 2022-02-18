@@ -178,7 +178,7 @@
         ],
         "parent": "face",
         "rigify": {},
-        "roll": 0.041200000792741776,
+        "roll": 0.7290862202644348,
         "tail": {
             "default_position": [
                 0.04674500972032547,
@@ -239,7 +239,7 @@
         ],
         "parent": "brow.B.L",
         "rigify": {},
-        "roll": 0.019200000911951065,
+        "roll": 0.6642882227897644,
         "tail": {
             "default_position": [
                 0.03878100961446762,
@@ -361,7 +361,7 @@
         ],
         "parent": "brow.B.L.002",
         "rigify": {},
-        "roll": 0.1404999941587448,
+        "roll": -0.5411243438720703,
         "tail": {
             "default_position": [
                 0.01070450246334076,
@@ -422,7 +422,7 @@
         ],
         "parent": "face",
         "rigify": {},
-        "roll": -0.041200000792741776,
+        "roll": -0.7290862202644348,
         "tail": {
             "default_position": [
                 -0.04674500972032547,
@@ -483,7 +483,7 @@
         ],
         "parent": "brow.B.R",
         "rigify": {},
-        "roll": -0.019200000911951065,
+        "roll": -0.6642882227897644,
         "tail": {
             "default_position": [
                 -0.03878100961446762,
@@ -605,7 +605,7 @@
         ],
         "parent": "brow.B.R.002",
         "rigify": {},
-        "roll": -0.1404999941587448,
+        "roll": 0.5411243438720703,
         "tail": {
             "default_position": [
                 -0.01070450246334076,
@@ -666,7 +666,7 @@
         ],
         "parent": "cheek.B.L.001",
         "rigify": {},
-        "roll": 0.19900000095367432,
+        "roll": 2.0225343704223633,
         "tail": {
             "default_position": [
                 0.054206013679504395,
@@ -727,7 +727,7 @@
         ],
         "parent": "brow.T.L",
         "rigify": {},
-        "roll": 0.23720000684261322,
+        "roll": 0.8737796545028687,
         "tail": {
             "default_position": [
                 0.03984001278877258,
@@ -849,7 +849,7 @@
         ],
         "parent": "brow.T.L.002",
         "rigify": {},
-        "roll": -0.04230000078678131,
+        "roll": -0.7744950652122498,
         "tail": {
             "default_position": [
                 0.0,
@@ -910,7 +910,7 @@
         ],
         "parent": "cheek.B.R.001",
         "rigify": {},
-        "roll": -0.19900000095367432,
+        "roll": -2.0225343704223633,
         "tail": {
             "default_position": [
                 -0.054206013679504395,
@@ -971,7 +971,7 @@
         ],
         "parent": "brow.T.R",
         "rigify": {},
-        "roll": -0.23720000684261322,
+        "roll": -0.8737796545028687,
         "tail": {
             "default_position": [
                 -0.03984001278877258,
@@ -1093,7 +1093,7 @@
         ],
         "parent": "brow.T.R.002",
         "rigify": {},
-        "roll": 0.04230000078678131,
+        "roll": 0.7744950652122498,
         "tail": {
             "default_position": [
                 0.0,
@@ -1154,7 +1154,7 @@
         ],
         "parent": "chin.L",
         "rigify": {},
-        "roll": 0.001500000013038516,
+        "roll": -3.356484889984131,
         "tail": {
             "default_position": [
                 0.050938013941049576,
@@ -1215,7 +1215,7 @@
         ],
         "parent": "cheek.B.L",
         "rigify": {},
-        "roll": -0.0,
+        "roll": -3.695835828781128,
         "tail": {
             "default_position": [
                 0.058561015874147415,
@@ -1276,7 +1276,7 @@
         ],
         "parent": "chin.R",
         "rigify": {},
-        "roll": -0.001500000013038516,
+        "roll": 3.356484889984131,
         "tail": {
             "default_position": [
                 -0.050938013941049576,
@@ -1337,7 +1337,7 @@
         ],
         "parent": "cheek.B.R",
         "rigify": {},
-        "roll": 0.0,
+        "roll": 3.695835828781128,
         "tail": {
             "default_position": [
                 -0.058561015874147415,
@@ -1398,7 +1398,7 @@
         ],
         "parent": "face",
         "rigify": {},
-        "roll": -0.009600000455975533,
+        "roll": -1.7441697120666504,
         "tail": {
             "default_position": [
                 0.04235250875353813,
@@ -1459,7 +1459,7 @@
         ],
         "parent": "cheek.T.L",
         "rigify": {},
-        "roll": 0.1386999934911728,
+        "roll": 0.5115631818771362,
         "tail": {
             "default_position": [
                 0.012116003781557083,
@@ -1520,7 +1520,7 @@
         ],
         "parent": "face",
         "rigify": {},
-        "roll": 0.009600000455975533,
+        "roll": 1.7441697120666504,
         "tail": {
             "default_position": [
                 -0.04235250875353813,
@@ -1581,7 +1581,7 @@
         ],
         "parent": "cheek.T.R",
         "rigify": {},
-        "roll": -0.1386999934911728,
+        "roll": -0.5115631818771362,
         "tail": {
             "default_position": [
                 -0.012116003781557083,
@@ -1764,7 +1764,7 @@
         ],
         "parent": "jaw.L.001",
         "rigify": {},
-        "roll": -0.2078000009059906,
+        "roll": 2.1883082389831543,
         "tail": {
             "default_position": [
                 0.02339850552380085,
@@ -1825,7 +1825,7 @@
         ],
         "parent": "jaw.R.001",
         "rigify": {},
-        "roll": 0.2078000009059906,
+        "roll": -2.1883082389831543,
         "tail": {
             "default_position": [
                 -0.02339850552380085,
@@ -2656,7 +2656,7 @@
             },
             "rigify_type": "limbs.super_finger"
         },
-        "roll": -2.0315001010894775,
+        "roll": -1.2465431690216064,
         "tail": {
             "cube_name": "joint-l-finger-2-2",
             "default_position": [
@@ -2755,7 +2755,7 @@
             },
             "rigify_type": "limbs.super_finger"
         },
-        "roll": 2.0315001010894775,
+        "roll": 1.2465431690216064,
         "tail": {
             "cube_name": "joint-r-finger-2-2",
             "default_position": [
@@ -2816,7 +2816,7 @@
         ],
         "parent": "f_index.01.L",
         "rigify": {},
-        "roll": -1.8798999786376953,
+        "roll": -0.8115463256835938,
         "tail": {
             "cube_name": "joint-l-finger-2-3",
             "default_position": [
@@ -2877,7 +2877,7 @@
         ],
         "parent": "f_index.01.R",
         "rigify": {},
-        "roll": 1.8798999786376953,
+        "roll": 0.8115463256835938,
         "tail": {
             "cube_name": "joint-r-finger-2-3",
             "default_position": [
@@ -2938,7 +2938,7 @@
         ],
         "parent": "f_index.02.L",
         "rigify": {},
-        "roll": -1.6759999990463257,
+        "roll": -0.5659769773483276,
         "tail": {
             "cube_name": "joint-l-finger-2-4",
             "default_position": [
@@ -2999,7 +2999,7 @@
         ],
         "parent": "f_index.02.R",
         "rigify": {},
-        "roll": 1.6759999990463257,
+        "roll": 0.5659769773483276,
         "tail": {
             "cube_name": "joint-r-finger-2-4",
             "default_position": [
@@ -3098,7 +3098,7 @@
             },
             "rigify_type": "limbs.super_finger"
         },
-        "roll": -2.006700038909912,
+        "roll": -1.4916096925735474,
         "tail": {
             "cube_name": "joint-l-finger-3-2",
             "default_position": [
@@ -3197,7 +3197,7 @@
             },
             "rigify_type": "limbs.super_finger"
         },
-        "roll": 2.006700038909912,
+        "roll": 1.4916096925735474,
         "tail": {
             "cube_name": "joint-r-finger-3-2",
             "default_position": [
@@ -3258,7 +3258,7 @@
         ],
         "parent": "f_middle.01.L",
         "rigify": {},
-        "roll": -1.8282999992370605,
+        "roll": -1.278769612312317,
         "tail": {
             "cube_name": "joint-l-finger-3-3",
             "default_position": [
@@ -3319,7 +3319,7 @@
         ],
         "parent": "f_middle.01.R",
         "rigify": {},
-        "roll": 1.8282999992370605,
+        "roll": 1.278769612312317,
         "tail": {
             "cube_name": "joint-r-finger-3-3",
             "default_position": [
@@ -3380,7 +3380,7 @@
         ],
         "parent": "f_middle.02.L",
         "rigify": {},
-        "roll": -1.7482999563217163,
+        "roll": -1.0537185668945312,
         "tail": {
             "cube_name": "joint-l-finger-3-4",
             "default_position": [
@@ -3441,7 +3441,7 @@
         ],
         "parent": "f_middle.02.R",
         "rigify": {},
-        "roll": 1.7482999563217163,
+        "roll": 1.0537185668945312,
         "tail": {
             "cube_name": "joint-r-finger-3-4",
             "default_position": [
@@ -3540,7 +3540,7 @@
             },
             "rigify_type": "limbs.super_finger"
         },
-        "roll": -1.9749000072479248,
+        "roll": -1.6170220375061035,
         "tail": {
             "cube_name": "joint-l-finger-5-2",
             "default_position": [
@@ -3639,7 +3639,7 @@
             },
             "rigify_type": "limbs.super_finger"
         },
-        "roll": 1.9749000072479248,
+        "roll": 1.6170220375061035,
         "tail": {
             "cube_name": "joint-r-finger-5-2",
             "default_position": [
@@ -3700,7 +3700,7 @@
         ],
         "parent": "f_pinky.01.L",
         "rigify": {},
-        "roll": -1.905900001525879,
+        "roll": -1.3720757961273193,
         "tail": {
             "cube_name": "joint-l-finger-5-3",
             "default_position": [
@@ -3761,7 +3761,7 @@
         ],
         "parent": "f_pinky.01.R",
         "rigify": {},
-        "roll": 1.905900001525879,
+        "roll": 1.3720757961273193,
         "tail": {
             "cube_name": "joint-r-finger-5-3",
             "default_position": [
@@ -3822,7 +3822,7 @@
         ],
         "parent": "f_pinky.02.L",
         "rigify": {},
-        "roll": -1.7639000415802002,
+        "roll": -1.3983116149902344,
         "tail": {
             "cube_name": "joint-l-finger-5-4",
             "default_position": [
@@ -3883,7 +3883,7 @@
         ],
         "parent": "f_pinky.02.R",
         "rigify": {},
-        "roll": 1.7639000415802002,
+        "roll": 1.3983116149902344,
         "tail": {
             "cube_name": "joint-r-finger-5-4",
             "default_position": [
@@ -3982,7 +3982,7 @@
             },
             "rigify_type": "limbs.super_finger"
         },
-        "roll": -2.00819993019104,
+        "roll": -1.6628540754318237,
         "tail": {
             "cube_name": "joint-l-finger-4-2",
             "default_position": [
@@ -4081,7 +4081,7 @@
             },
             "rigify_type": "limbs.super_finger"
         },
-        "roll": 2.00819993019104,
+        "roll": 1.6628540754318237,
         "tail": {
             "cube_name": "joint-r-finger-4-2",
             "default_position": [
@@ -4142,7 +4142,7 @@
         ],
         "parent": "f_ring.01.L",
         "rigify": {},
-        "roll": -1.8946000337600708,
+        "roll": -1.442432165145874,
         "tail": {
             "cube_name": "joint-l-finger-4-3",
             "default_position": [
@@ -4203,7 +4203,7 @@
         ],
         "parent": "f_ring.01.R",
         "rigify": {},
-        "roll": 1.8946000337600708,
+        "roll": 1.442432165145874,
         "tail": {
             "cube_name": "joint-r-finger-4-3",
             "default_position": [
@@ -4264,7 +4264,7 @@
         ],
         "parent": "f_ring.02.L",
         "rigify": {},
-        "roll": -1.6582000255584717,
+        "roll": -1.2809538841247559,
         "tail": {
             "cube_name": "joint-l-finger-4-4",
             "default_position": [
@@ -4325,7 +4325,7 @@
         ],
         "parent": "f_ring.02.R",
         "rigify": {},
-        "roll": 1.6582000255584717,
+        "roll": 1.2809538841247559,
         "tail": {
             "cube_name": "joint-r-finger-4-4",
             "default_position": [
@@ -4732,7 +4732,7 @@
         ],
         "parent": "face",
         "rigify": {},
-        "roll": 1.4313000440597534,
+        "roll": 1.195013403892517,
         "tail": {
             "default_position": [
                 0.015209503471851349,
@@ -4793,7 +4793,7 @@
         ],
         "parent": "forehead.L",
         "rigify": {},
-        "roll": 0.9927999973297119,
+        "roll": 0.7809202075004578,
         "tail": {
             "default_position": [
                 0.03984001278877258,
@@ -4915,7 +4915,7 @@
         ],
         "parent": "face",
         "rigify": {},
-        "roll": -1.4313000440597534,
+        "roll": -1.195013403892517,
         "tail": {
             "default_position": [
                 -0.015209503471851349,
@@ -4976,7 +4976,7 @@
         ],
         "parent": "forehead.R",
         "rigify": {},
-        "roll": -0.9927999973297119,
+        "roll": -0.7809202075004578,
         "tail": {
             "default_position": [
                 -0.03984001278877258,
@@ -5403,7 +5403,7 @@
         ],
         "parent": "temple.L",
         "rigify": {},
-        "roll": -0.08990000188350677,
+        "roll": -2.7427802085876465,
         "tail": {
             "default_position": [
                 0.053521014750003815,
@@ -5464,7 +5464,7 @@
         ],
         "parent": "jaw.L",
         "rigify": {},
-        "roll": 0.12229999899864197,
+        "roll": -1.807252049446106,
         "tail": {
             "default_position": [
                 0.020287003368139267,
@@ -5525,7 +5525,7 @@
         ],
         "parent": "temple.R",
         "rigify": {},
-        "roll": 0.08990000188350677,
+        "roll": 2.7427802085876465,
         "tail": {
             "default_position": [
                 -0.053521014750003815,
@@ -5586,7 +5586,7 @@
         ],
         "parent": "jaw.R",
         "rigify": {},
-        "roll": -0.12229999899864197,
+        "roll": 1.807252049446106,
         "tail": {
             "default_position": [
                 -0.020287003368139267,
@@ -5647,7 +5647,7 @@
         ],
         "parent": "lid.T.L.003",
         "rigify": {},
-        "roll": 0.07559999823570251,
+        "roll": -1.7899582386016846,
         "tail": {
             "default_position": [
                 0.03955551236867905,
@@ -5708,7 +5708,7 @@
         ],
         "parent": "lid.B.L",
         "rigify": {},
-        "roll": 0.1014999970793724,
+        "roll": -6.721197128295898,
         "tail": {
             "default_position": [
                 0.029485005885362625,
@@ -5769,7 +5769,7 @@
         ],
         "parent": "lid.B.L.001",
         "rigify": {},
-        "roll": -0.07479999959468842,
+        "roll": -6.283714294433594,
         "tail": {
             "default_position": [
                 0.02194950543344021,
@@ -5830,7 +5830,7 @@
         ],
         "parent": "lid.B.L.002",
         "rigify": {},
-        "roll": -0.008500000461935997,
+        "roll": 0.38175246119499207,
         "tail": {
             "default_position": [
                 0.015555504709482193,
@@ -5891,7 +5891,7 @@
         ],
         "parent": "lid.T.R.003",
         "rigify": {},
-        "roll": -0.07559999823570251,
+        "roll": 1.7899582386016846,
         "tail": {
             "default_position": [
                 -0.03955551236867905,
@@ -5952,7 +5952,7 @@
         ],
         "parent": "lid.B.R",
         "rigify": {},
-        "roll": -0.1014999970793724,
+        "roll": 6.721197128295898,
         "tail": {
             "default_position": [
                 -0.029485005885362625,
@@ -6013,7 +6013,7 @@
         ],
         "parent": "lid.B.R.001",
         "rigify": {},
-        "roll": 0.07479999959468842,
+        "roll": 6.283714294433594,
         "tail": {
             "default_position": [
                 -0.02194950543344021,
@@ -6074,7 +6074,7 @@
         ],
         "parent": "lid.B.R.002",
         "rigify": {},
-        "roll": 0.008500000461935997,
+        "roll": -0.38175246119499207,
         "tail": {
             "default_position": [
                 -0.015555504709482193,
@@ -6257,7 +6257,7 @@
         ],
         "parent": "lid.T.L.001",
         "rigify": {},
-        "roll": -0.09399999678134918,
+        "roll": 0.08583958446979523,
         "tail": {
             "default_position": [
                 0.03916401043534279,
@@ -6318,7 +6318,7 @@
         ],
         "parent": "lid.T.L.002",
         "rigify": {},
-        "roll": 0.21940000355243683,
+        "roll": 0.3745877146720886,
         "tail": {
             "default_position": [
                 0.04648850858211517,
@@ -6501,7 +6501,7 @@
         ],
         "parent": "lid.T.R.001",
         "rigify": {},
-        "roll": 0.09399999678134918,
+        "roll": -0.08583958446979523,
         "tail": {
             "default_position": [
                 -0.03916401043534279,
@@ -6562,7 +6562,7 @@
         ],
         "parent": "lid.T.R.002",
         "rigify": {},
-        "roll": -0.21940000355243683,
+        "roll": -0.3745877146720886,
         "tail": {
             "default_position": [
                 -0.04648850858211517,
@@ -7416,7 +7416,7 @@
         ],
         "parent": "cheek.T.L.001",
         "rigify": {},
-        "roll": 0.09969999641180038,
+        "roll": -2.3615570068359375,
         "tail": {
             "default_position": [
                 0.017101004719734192,
@@ -7538,7 +7538,7 @@
         ],
         "parent": "cheek.T.R.001",
         "rigify": {},
-        "roll": -0.09969999641180038,
+        "roll": 2.3615570068359375,
         "tail": {
             "default_position": [
                 -0.017101004719734192,
@@ -7662,7 +7662,7 @@
         "rigify": {
             "rigify_type": "limbs.super_palm"
         },
-        "roll": -2.492799997329712,
+        "roll": -2.1502792835235596,
         "tail": {
             "cube_name": "joint-l-finger-2-1",
             "default_position": [
@@ -7725,7 +7725,7 @@
         "rigify": {
             "rigify_type": "limbs.super_palm"
         },
-        "roll": 2.492799997329712,
+        "roll": 2.1502792835235596,
         "tail": {
             "cube_name": "joint-r-finger-2-1",
             "default_position": [
@@ -7786,7 +7786,7 @@
         ],
         "parent": "hand.L",
         "rigify": {},
-        "roll": -2.527400016784668,
+        "roll": -2.2922286987304688,
         "tail": {
             "cube_name": "joint-l-finger-3-1",
             "default_position": [
@@ -7847,7 +7847,7 @@
         ],
         "parent": "hand.R",
         "rigify": {},
-        "roll": 2.527400016784668,
+        "roll": 2.2922286987304688,
         "tail": {
             "cube_name": "joint-r-finger-3-1",
             "default_position": [
@@ -7908,7 +7908,7 @@
         ],
         "parent": "hand.L",
         "rigify": {},
-        "roll": -2.5843000411987305,
+        "roll": -2.367171287536621,
         "tail": {
             "cube_name": "joint-l-finger-4-1",
             "default_position": [
@@ -7969,7 +7969,7 @@
         ],
         "parent": "hand.R",
         "rigify": {},
-        "roll": 2.5843000411987305,
+        "roll": 2.367171287536621,
         "tail": {
             "cube_name": "joint-r-finger-4-1",
             "default_position": [
@@ -8030,7 +8030,7 @@
         ],
         "parent": "hand.L",
         "rigify": {},
-        "roll": -2.515500068664551,
+        "roll": -2.246424913406372,
         "tail": {
             "cube_name": "joint-l-finger-5-1",
             "default_position": [
@@ -8091,7 +8091,7 @@
         ],
         "parent": "hand.R",
         "rigify": {},
-        "roll": 2.515500068664551,
+        "roll": 2.246424913406372,
         "tail": {
             "cube_name": "joint-r-finger-5-1",
             "default_position": [
@@ -9198,7 +9198,7 @@
         ],
         "parent": "forehead.L.002",
         "rigify": {},
-        "roll": -0.09130000323057175,
+        "roll": -2.9314465522766113,
         "tail": {
             "default_position": [
                 0.06616651266813278,
@@ -9259,7 +9259,7 @@
         ],
         "parent": "forehead.R.002",
         "rigify": {},
-        "roll": 0.09130000323057175,
+        "roll": 2.9314465522766113,
         "tail": {
             "default_position": [
                 -0.06616651266813278,
@@ -9626,7 +9626,7 @@
             },
             "rigify_type": "limbs.super_finger"
         },
-        "roll": -0.15870000422000885,
+        "roll": 2.7460577487945557,
         "tail": {
             "cube_name": "joint-l-finger-1-2",
             "default_position": [
@@ -9725,7 +9725,7 @@
             },
             "rigify_type": "limbs.super_finger"
         },
-        "roll": 0.15870000422000885,
+        "roll": -2.7460577487945557,
         "tail": {
             "cube_name": "joint-r-finger-1-2",
             "default_position": [
@@ -9786,7 +9786,7 @@
         ],
         "parent": "thumb.01.L",
         "rigify": {},
-        "roll": -0.4797999858856201,
+        "roll": 1.8846209049224854,
         "tail": {
             "cube_name": "joint-l-finger-1-3",
             "default_position": [
@@ -9847,7 +9847,7 @@
         ],
         "parent": "thumb.01.R",
         "rigify": {},
-        "roll": 0.4797999858856201,
+        "roll": -1.8846209049224854,
         "tail": {
             "cube_name": "joint-r-finger-1-3",
             "default_position": [
@@ -9908,7 +9908,7 @@
         ],
         "parent": "thumb.02.L",
         "rigify": {},
-        "roll": -0.5825999975204468,
+        "roll": 1.1503196954727173,
         "tail": {
             "cube_name": "joint-l-finger-1-4",
             "default_position": [
@@ -9969,7 +9969,7 @@
         ],
         "parent": "thumb.02.R",
         "rigify": {},
-        "roll": 0.5825999975204468,
+        "roll": -1.1503196954727173,
         "tail": {
             "cube_name": "joint-r-finger-1-4",
             "default_position": [
