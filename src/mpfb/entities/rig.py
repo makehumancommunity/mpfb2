@@ -3,7 +3,10 @@
 from mpfb.services.logservice import LogService
 from mpfb.services.rigservice import RigService
 from mpfb.entities.objectproperties import GeneralObjectProperties
+
 import bpy, math, json, random
+
+from mathutils import Vector, Matrix
 
 _LOG = LogService.get_logger("entities.rig")
 
@@ -113,6 +116,16 @@ class Rig:
             location = head_or_tail_info["default_position"]
         return location
 
+    def _align_roll_by_strategy(self, bone, bone_info):
+        roll_strategy = bone_info.get("roll_strategy", None)
+        matrix = None
+
+        if roll_strategy == "ALIGN_Z_WORLD_Z":
+            matrix = matrix_from_axis_pair(bone.y_axis, (0,0,1), 'z')
+
+        if matrix:
+            bone.roll = bpy.types.Bone.AxisRollFromMatrix(matrix, axis=bone.y_axis)[1]
+
     def create_bones(self):
         """Create the actual bones in the armature object."""
         bpy.ops.object.mode_set(mode='EDIT', toggle=False)
@@ -123,6 +136,9 @@ class Rig:
             bone.roll = bone_info["roll"]
             bone.head = self._get_best_location_from_strategy(bone_info["head"])
             bone.tail = self._get_best_location_from_strategy(bone_info["tail"])
+
+            self._align_roll_by_strategy(bone, bone_info)
+
         bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
 
     def reposition_edit_bone(self):
@@ -188,6 +204,10 @@ class Rig:
 
             self._save_end_strategy(bone, bone_info["head"], "mpfb_head")
             self._save_end_strategy(bone, bone_info["tail"], "mpfb_tail")
+
+            roll_strategy = bone_info.get("roll_strategy", None)
+            if roll_strategy:
+                bone["mpfb_roll_strategy"] = roll_strategy
 
     def _save_end_strategy(self, bone, info, prefix):
         strategy = info["strategy"]
@@ -437,6 +457,14 @@ class Rig:
         for bone in self.armature_object.data.bones:
             bone_info = self.rig_definition[bone.name]
 
+            roll_strategy = bone.get("mpfb_roll_strategy", None)
+            if roll_strategy:
+                bone_info["roll_strategy"] = roll_strategy
+
+                # Clear roll if it will be overwritten
+                if roll_strategy in ("ALIGN_Z_WORLD_Z"):
+                    bone_info["roll"] = 0.0
+
             self._restore_end_strategy(bone, bone_info, "head")
             self._restore_end_strategy(bone, bone_info, "tail")
 
@@ -623,3 +651,18 @@ class Rig:
                         best_match_idxs = [idx1, idx2]
 
         return best_match_idxs
+
+
+def matrix_from_axis_pair(y_axis, other_axis, axis_name):
+    assert axis_name in 'xz'
+
+    y_axis = Vector(y_axis).normalized()
+
+    if axis_name == 'x':
+        z_axis = Vector(other_axis).cross(y_axis).normalized()
+        x_axis = y_axis.cross(z_axis)
+    else:
+        x_axis = y_axis.cross(other_axis).normalized()
+        z_axis = x_axis.cross(y_axis)
+
+    return Matrix((x_axis, y_axis, z_axis)).transposed()
