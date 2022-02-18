@@ -187,16 +187,19 @@ class Rig:
     def rigify_metadata(self):
         """Assign bone meta data fitting for the pose bones."""
         bpy.ops.object.mode_set(mode='POSE', toggle=False)
-        for bone_name in self.rig_definition.keys():
-            bone_info = self.rig_definition[bone_name]["rigify"]
+        for bone_name, bone_info in self.rig_definition.items():
             bone = RigService.find_pose_bone_by_name(bone_name, self.armature_object)
 
-            if "rigify_type" in bone_info and bone_info["rigify_type"]:
-                bone.rigify_type = bone_info["rigify_type"]
+            bone.rotation_mode = bone_info.get("rotation_mode", "QUATERNION")
 
-            if "rigify_parameters" in bone_info:
-                for key in bone_info["rigify_parameters"].keys():
-                    value = bone_info["rigify_parameters"][key]
+            rigify = bone_info["rigify"]
+
+            if "rigify_type" in rigify and rigify["rigify_type"]:
+                bone.rigify_type = rigify["rigify_type"]
+
+            if "rigify_parameters" in rigify:
+                for key in rigify["rigify_parameters"].keys():
+                    value = rigify["rigify_parameters"][key]
                     _LOG.debug("Will attempt to set bone.parameters.", key)
                     try:
                         setattr(bone.rigify_parameters, str(key), value)
@@ -383,6 +386,10 @@ class Rig:
 
         for bone in self.armature_object.pose.bones:
             bone_info = self.rig_definition[bone.name]
+
+            if bone.rotation_mode != "QUATERNION":
+                bone_info["rotation_mode"] = bone.rotation_mode
+
             bone_info["rigify"] = dict()
             rigify = bone_info["rigify"]
 
