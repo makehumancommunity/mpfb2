@@ -9,6 +9,7 @@ _LOG = LogService.get_logger("entities.rig")
 
 _MAX_ALLOWED_DIST = 0.01
 _MAX_DIST_TO_CONSIDER_EXACT = 0.001
+_STRATEGY_REPLACE_THRESHOLD = 0.0001
 
 class Rig:
 
@@ -50,10 +51,11 @@ class Rig:
         rig.match_edit_bones_with_joint_cubes()
         rig.match_remaining_edit_bones_with_vertices()
         rig.match_remaining_edit_bones_with_vertex_means()
+        rig.restore_saved_strategies()
 
         return rig
 
-    def create_armature_and_fit_to_basemesh(self):
+    def create_armature_and_fit_to_basemesh(self, for_developer=False):
         """Use the information in the object to construct an armature and adjust it to fit the base mesh."""
 
         #self.move_basemesh_if_needed()
@@ -79,6 +81,9 @@ class Rig:
         self.update_edit_bone_metadata()
         self.rigify_metadata()
 
+        if for_developer:
+            self.save_strategies()
+
         bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
 
         modifier = self.basemesh.modifiers.new("Armature", 'ARMATURE')
@@ -88,7 +93,7 @@ class Rig:
 
         return self.armature_object
 
-    def _get_best_location_from_strategy(self, head_or_tail_info):
+    def _get_best_location_from_strategy(self, head_or_tail_info, use_default=True):
         strategy = head_or_tail_info["strategy"]
         location = None
         if strategy == "CUBE":
@@ -104,7 +109,7 @@ class Rig:
             location = [0.0, 0.0, 0.0]
             for i in range(3):
                 location[i] = (vertex1[i] + vertex2[i]) / 2
-        if location is None:
+        if location is None and use_default:
             location = head_or_tail_info["default_position"]
         return location
 
@@ -174,6 +179,55 @@ class Rig:
                     setattr(bone.rigify_parameters, str(key), value)
 
         bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
+
+    def save_strategies(self):
+        """Save strategy data in the pose bones for development."""
+
+        for bone_name, bone_info in self.rig_definition.items():
+            bone = RigService.find_pose_bone_by_name(bone_name, self.armature_object).bone
+
+            self._save_end_strategy(bone, bone_info["head"], "mpfb_head")
+            self._save_end_strategy(bone, bone_info["tail"], "mpfb_tail")
+
+    def _save_end_strategy(self, bone, info, prefix):
+        strategy = info["strategy"]
+
+        if strategy == "CUBE":
+            bone[prefix + "_cube_name"] = info["cube_name"]
+        elif strategy == "VERTEX":
+            bone[prefix + "_vertex_index"] = info["vertex_index"]
+        elif strategy == "MEAN":
+            bone[prefix + "_vertex_indices"] = info["vertex_indices"]
+        else:
+            return
+
+        bone[prefix + "_strategy"] = strategy
+
+    def _get_end_strategy(self, bone, prefix):
+        """Retrieve head or tail strategy settings from a bone."""
+        try:
+            force = False
+            strategy = bone[prefix + "_strategy"]
+
+            # Allow using e.g. "!CUBE" to override the distance check
+            if strategy[0] == '!':
+                strategy = strategy[1:]
+                force = True
+
+            info = { "strategy": strategy }
+
+            if strategy == "CUBE":
+                info["cube_name"] = bone[prefix + "_cube_name"]
+            elif strategy == "VERTEX":
+                info["vertex_index"] = bone[prefix + "_vertex_index"]
+            elif strategy == "MEAN":
+                info["vertex_indices"] = list(bone[prefix + "_vertex_indices"])
+            else:
+                return None, False
+
+            return info, force
+        except KeyError:
+            return None, False
 
     def list_unmatched_bones(self):
         """List bones which are still marked as using the DEFAULT positioning strategy."""
@@ -376,6 +430,40 @@ class Rig:
                 if not tail_vertex_indices is None:
                     bone_info["tail"]["strategy"] = "MEAN"
                     bone_info["tail"]["vertex_indices"] = tail_vertex_indices
+
+    def restore_saved_strategies(self):
+        """Check if the saved strategies are better and apply them."""
+
+        for bone in self.armature_object.data.bones:
+            bone_info = self.rig_definition[bone.name]
+
+            self._restore_end_strategy(bone, bone_info, "head")
+            self._restore_end_strategy(bone, bone_info, "tail")
+
+    def _restore_end_strategy(self, bone, bone_info, field):
+        saved_head, force = self._get_end_strategy(bone, "mpfb_" + field)
+
+        if saved_head:
+            cur_head = bone_info[field]
+            true_pos = cur_head["default_position"]
+            saved_pos = self._get_best_location_from_strategy(saved_head, use_default=False)
+
+            if not saved_pos:
+                return
+
+            if not force:
+                cur_pos = self._get_best_location_from_strategy(cur_head, use_default=False)
+
+                if cur_pos:
+                    # If the saved strategy is not worse, use it
+                    cur_dist = self._distance(true_pos, cur_pos)
+                    saved_dist = self._distance(true_pos, saved_pos)
+
+                    if saved_dist - cur_dist > _STRATEGY_REPLACE_THRESHOLD:
+                        return
+
+            saved_head["default_position"] = true_pos
+            bone_info[field] = saved_head
 
     def _distance(self, pos1, pos2):
         if pos1 is None:
