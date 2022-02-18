@@ -52,6 +52,7 @@
             "rigify_type": "basic.super_copy"
         },
         "roll": 0.0,
+        "roll_strategy": "ALIGN_Z_WORLD_Z",
         "tail": {
             "default_position": [
                 0.09827899187803268,
@@ -117,7 +118,8 @@
         "rigify": {
             "rigify_type": "basic.super_copy"
         },
-        "roll": -0.0,
+        "roll": 0.0,
+        "roll_strategy": "ALIGN_Z_WORLD_Z",
         "tail": {
             "default_position": [
                 -0.09827899187803268,
@@ -5149,11 +5151,11 @@
         "roll": 2.2102999687194824,
         "rotation_mode": "ZXY",
         "tail": {
-            "cube_name": "joint-l-hand-3",
+            "cube_name": "joint-l-finger-3-1",
             "default_position": [
-                0.4636784791946411,
-                -0.20924536883831024,
-                0.999792218208313
+                0.4969857633113861,
+                -0.25972598791122437,
+                0.9640042781829834
             ],
             "strategy": "CUBE"
         },
@@ -5211,11 +5213,11 @@
         "roll": -2.2102999687194824,
         "rotation_mode": "ZXY",
         "tail": {
-            "cube_name": "joint-r-hand-3",
+            "cube_name": "joint-r-finger-3-1",
             "default_position": [
-                -0.4636784791946411,
-                -0.20924536883831024,
-                0.999792218208313
+                -0.4969857633113861,
+                -0.25972598791122437,
+                0.9640042781829834
             ],
             "strategy": "CUBE"
         },
@@ -7729,11 +7731,11 @@
     },
     "palm.01.L": {
         "head": {
-            "cube_name": "joint-l-hand-3",
+            "cube_name": "joint-l-finger-1-1",
             "default_position": [
-                0.4636784791946411,
-                -0.20924536883831024,
-                0.999792218208313
+                0.4540647864341736,
+                -0.22703273594379425,
+                1.0079275369644165
             ],
             "strategy": "CUBE"
         },
@@ -7792,11 +7794,11 @@
     },
     "palm.01.R": {
         "head": {
-            "cube_name": "joint-r-hand-3",
+            "cube_name": "joint-r-finger-1-1",
             "default_position": [
-                -0.4636784791946411,
-                -0.20924536883831024,
-                0.999792218208313
+                -0.4540647864341736,
+                -0.22703273594379425,
+                1.0079275369644165
             ],
             "strategy": "CUBE"
         },
@@ -7977,13 +7979,16 @@
     },
     "palm.03.L": {
         "head": {
-            "cube_name": "joint-l-hand-2",
             "default_position": [
-                0.4753429591655731,
-                -0.19882811605930328,
-                0.9845902323722839
+                0.4730563163757324,
+                -0.19941529631614685,
+                0.9896396398544312
             ],
-            "strategy": "CUBE"
+            "strategy": "MEAN",
+            "vertex_indices": [
+                14022,
+                14026
+            ]
         },
         "inherit_scale": "FULL",
         "layers": [
@@ -8038,13 +8043,16 @@
     },
     "palm.03.R": {
         "head": {
-            "cube_name": "joint-r-hand-2",
             "default_position": [
-                -0.4753429591655731,
-                -0.19882811605930328,
-                0.9845902323722839
+                -0.4730563163757324,
+                -0.19941529631614685,
+                0.9896396398544312
             ],
-            "strategy": "CUBE"
+            "strategy": "MEAN",
+            "vertex_indices": [
+                14462,
+                14466
+            ]
         },
         "inherit_scale": "FULL",
         "layers": [
@@ -8099,13 +8107,16 @@
     },
     "palm.04.L": {
         "head": {
-            "cube_name": "joint-l-hand-2",
             "default_position": [
-                0.4753429591655731,
-                -0.19882811605930328,
-                0.9845902323722839
+                0.47700411081314087,
+                -0.1936718225479126,
+                0.9859180450439453
             ],
-            "strategy": "CUBE"
+            "strategy": "MEAN",
+            "vertex_indices": [
+                14023,
+                14027
+            ]
         },
         "inherit_scale": "FULL",
         "layers": [
@@ -8160,13 +8171,16 @@
     },
     "palm.04.R": {
         "head": {
-            "cube_name": "joint-r-hand-2",
             "default_position": [
-                -0.4753429591655731,
-                -0.19882811605930328,
-                0.9845902323722839
+                -0.47700411081314087,
+                -0.1936718225479126,
+                0.9859180450439453
             ],
-            "strategy": "CUBE"
+            "strategy": "MEAN",
+            "vertex_indices": [
+                14463,
+                14467
+            ]
         },
         "inherit_scale": "FULL",
         "layers": [
@@ -8271,7 +8285,8 @@
             },
             "rigify_type": "basic.super_copy"
         },
-        "roll": -1.075600028038025,
+        "roll": 0.0,
+        "roll_strategy": "ALIGN_Z_WORLD_Z",
         "tail": {
             "default_position": [
                 0.1542595773935318,
@@ -8337,7 +8352,8 @@
             },
             "rigify_type": "basic.super_copy"
         },
-        "roll": 1.075600028038025,
+        "roll": 0.0,
+        "roll_strategy": "ALIGN_Z_WORLD_Z",
         "tail": {
             "default_position": [
                 -0.1542595773935318,
@@ -8523,18 +8539,20 @@
         "parent": "spine.003",
         "rigify": {
             "rigify_parameters": {
-                "make_widget": false
+                "make_widget": true,
+                "super_copy_widget_type": "shoulder"
             },
             "rigify_type": "basic.super_copy"
         },
-        "roll": 0.00039999998989515007,
+        "roll": 0.0,
+        "roll_strategy": "ALIGN_Z_WORLD_Z",
         "rotation_mode": "YXZ",
         "tail": {
-            "cube_name": "joint-l-scapula",
+            "cube_name": "joint-l-shoulder",
             "default_position": [
-                0.09924247115850449,
-                -0.021956661716103554,
-                1.358741044998169
+                0.1700163632631302,
+                -0.019264213740825653,
+                1.3201014995574951
             ],
             "strategy": "CUBE"
         },
@@ -8590,18 +8608,20 @@
         "parent": "spine.003",
         "rigify": {
             "rigify_parameters": {
-                "make_widget": false
+                "make_widget": true,
+                "super_copy_widget_type": "shoulder"
             },
             "rigify_type": "basic.super_copy"
         },
-        "roll": -0.00039999998989515007,
+        "roll": 0.0,
+        "roll_strategy": "ALIGN_Z_WORLD_Z",
         "rotation_mode": "YXZ",
         "tail": {
-            "cube_name": "joint-r-scapula",
+            "cube_name": "joint-r-shoulder",
             "default_position": [
-                -0.09924247115850449,
-                -0.021956661716103554,
-                1.358741044998169
+                -0.1700163632631302,
+                -0.019264213740825653,
+                1.3201014995574951
             ],
             "strategy": "CUBE"
         },
@@ -8611,13 +8631,13 @@
     },
     "spine": {
         "head": {
-            "cube_name": "joint-pelvis",
             "default_position": [
                 0.0,
-                -0.01321663148701191,
-                0.8738864064216614
+                -0.007973501458764076,
+                0.7844451665878296
             ],
-            "strategy": "CUBE"
+            "strategy": "VERTEX",
+            "vertex_index": 4374
         },
         "inherit_scale": "FULL",
         "layers": [
@@ -8975,46 +8995,7 @@
             false
         ],
         "parent": "spine.003",
-        "rigify": {
-            "rigify_parameters": {
-                "connect_chain": true,
-                "tweak_layers": [
-                    false,
-                    false,
-                    false,
-                    false,
-                    true,
-                    false,
-                    false,
-                    false,
-                    false,
-                    false,
-                    false,
-                    false,
-                    false,
-                    false,
-                    false,
-                    false,
-                    false,
-                    false,
-                    false,
-                    false,
-                    false,
-                    false,
-                    false,
-                    false,
-                    false,
-                    false,
-                    false,
-                    false,
-                    false,
-                    false,
-                    false,
-                    false
-                ]
-            },
-            "rigify_type": "spines.super_head"
-        },
+        "rigify": {},
         "roll": 0.0,
         "rotation_mode": "XYZ",
         "tail": {
@@ -9026,7 +9007,7 @@
             ],
             "strategy": "CUBE"
         },
-        "use_connect": false,
+        "use_connect": true,
         "use_inherit_rotation": true,
         "use_local_location": true
     },
@@ -9076,7 +9057,46 @@
             false
         ],
         "parent": "spine.004",
-        "rigify": {},
+        "rigify": {
+            "rigify_parameters": {
+                "connect_chain": true,
+                "tweak_layers": [
+                    false,
+                    false,
+                    false,
+                    false,
+                    true,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false
+                ]
+            },
+            "rigify_type": "spines.super_head"
+        },
         "roll": 0.0,
         "tail": {
             "cube_name": "joint-head",
@@ -9087,7 +9107,7 @@
             ],
             "strategy": "CUBE"
         },
-        "use_connect": true,
+        "use_connect": false,
         "use_inherit_rotation": true,
         "use_local_location": true
     },
@@ -9450,6 +9470,7 @@
         "parent": "spine",
         "rigify": {
             "rigify_parameters": {
+                "extra_ik_toe": true,
                 "fk_layers": [
                     false,
                     false,
@@ -9484,6 +9505,7 @@
                     false,
                     false
                 ],
+                "ik_local_location": false,
                 "limb_type": "leg",
                 "tweak_layers": [
                     false,
@@ -9584,6 +9606,7 @@
         "parent": "spine",
         "rigify": {
             "rigify_parameters": {
+                "extra_ik_toe": true,
                 "fk_layers": [
                     false,
                     false,
@@ -9618,6 +9641,7 @@
                     false,
                     false
                 ],
+                "ik_local_location": false,
                 "limb_type": "leg",
                 "tweak_layers": [
                     false,
@@ -10165,7 +10189,8 @@
         ],
         "parent": "foot.L",
         "rigify": {},
-        "roll": -0.0,
+        "roll": 0.0,
+        "roll_strategy": "ALIGN_Z_WORLD_Z",
         "rotation_mode": "XYZ",
         "tail": {
             "cube_name": "joint-l-foot-2",
@@ -10228,6 +10253,7 @@
         "parent": "foot.R",
         "rigify": {},
         "roll": 0.0,
+        "roll_strategy": "ALIGN_Z_WORLD_Z",
         "rotation_mode": "XYZ",
         "tail": {
             "cube_name": "joint-r-foot-2",
@@ -10507,6 +10533,7 @@
                     false,
                     false
                 ],
+                "ik_local_location": false,
                 "tweak_layers": [
                     false,
                     false,
@@ -10640,6 +10667,7 @@
                     false,
                     false
                 ],
+                "ik_local_location": false,
                 "tweak_layers": [
                     false,
                     false,
