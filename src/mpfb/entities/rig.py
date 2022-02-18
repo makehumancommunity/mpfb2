@@ -192,7 +192,10 @@ class Rig:
                 for key in bone_info["rigify_parameters"].keys():
                     value = bone_info["rigify_parameters"][key]
                     _LOG.debug("Will attempt to set bone.parameters.", key)
-                    setattr(bone.rigify_parameters, str(key), value)
+                    try:
+                        setattr(bone.rigify_parameters, str(key), value)
+                    except AttributeError:
+                        _LOG.error("Rigify bone parameter not found.", key)
 
         bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
 
