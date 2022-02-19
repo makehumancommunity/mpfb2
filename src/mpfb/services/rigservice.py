@@ -333,7 +333,7 @@ class RigService:
             _LOG.warn("Was not able to find empty child")
 
     @staticmethod
-    def get_weights(armature_object, basemesh, exclude_weights_below=0.0001):
+    def get_weights(armature_object, basemesh, exclude_weights_below=0.0001, all_bones=False):
         """Create a MHW-compatible weights dict"""
 
         # Eventhough it is unlikely we'll use these keys in MPFB, we'll assign them so that the dict
@@ -350,16 +350,19 @@ class RigService:
         weights["weights"] = dict()
 
         vertex_group_index_to_name = dict()
+        vertex_group_names = set()
 
         for vertex_group in basemesh.vertex_groups:
             index = int(vertex_group.index)
             name = str(vertex_group.name)
             vertex_group_index_to_name[index] = name
+            vertex_group_names.add(name)
 
         _LOG.dump("vertex_group_index_to_name", vertex_group_index_to_name)
 
         for bone in armature_object.data.bones:
-            weights["weights"][str(bone.name)] = []
+            if all_bones or bone.name in vertex_group_names:
+                weights["weights"][str(bone.name)] = []
 
         _LOG.dump("Weights before vertices", weights)
 

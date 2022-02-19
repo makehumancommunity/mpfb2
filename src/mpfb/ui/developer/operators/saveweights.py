@@ -4,7 +4,7 @@ from mpfb.services.objectservice import ObjectService
 from mpfb.services.rigservice import RigService
 from mpfb.entities.rig import Rig
 from mpfb._classmanager import ClassManager
-import bpy, json, math
+import bpy, json, math, re
 from bpy.types import StringProperty
 from bpy_extras.io_utils import ExportHelper
 
@@ -44,6 +44,9 @@ class MPFB_OT_Save_Weights_Operator(bpy.types.Operator, ExportHelper):
         _LOG.debug("absolute_file_path", absolute_file_path)
 
         weights = RigService.get_weights(armature_object, basemesh)
+
+        # Strip the Rigify deform bone prefix for convenience
+        weights["weights"] = {re.sub(r'^DEF-', '', k): v for k,v in weights["weights"].items()}
 
         with open(absolute_file_path, "w") as json_file:
             json.dump(weights, json_file, indent=4, sort_keys=True)
