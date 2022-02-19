@@ -1856,12 +1856,12 @@
     "ear.L": {
         "head": {
             "default_position": [
-                0.07047002017498016,
-                -0.05522354319691658,
-                1.518775224685669
+                0.06923951953649521,
+                -0.05793454498052597,
+                1.5150444507598877
             ],
             "strategy": "VERTEX",
-            "vertex_index": 12064
+            "vertex_index": 12020
         },
         "inherit_scale": "FULL",
         "layers": [
@@ -1903,12 +1903,12 @@
         "roll": -0.03240000084042549,
         "tail": {
             "default_position": [
-                0.07159451395273209,
-                -0.05524054542183876,
-                1.526363730430603
+                0.07043402642011642,
+                -0.05737404525279999,
+                1.540516972541809
             ],
             "strategy": "VERTEX",
-            "vertex_index": 12055
+            "vertex_index": 12165
         },
         "use_connect": false,
         "use_inherit_rotation": true,
@@ -1917,12 +1917,12 @@
     "ear.L.001": {
         "head": {
             "default_position": [
-                0.07159451395273209,
-                -0.05524054542183876,
-                1.526363730430603
+                0.07043402642011642,
+                -0.05737404525279999,
+                1.540516972541809
             ],
             "strategy": "VERTEX",
-            "vertex_index": 12055
+            "vertex_index": 12165
         },
         "inherit_scale": "FULL",
         "layers": [
@@ -1964,12 +1964,15 @@
         "roll": 0.06560000032186508,
         "tail": {
             "default_position": [
-                0.07627902179956436,
-                -0.053055539727211,
-                1.5487819910049438
+                0.07880276441574097,
+                -0.041328296065330505,
+                1.5541069507598877
             ],
-            "strategy": "VERTEX",
-            "vertex_index": 12046
+            "strategy": "MEAN",
+            "vertex_indices": [
+                12015,
+                12056
+            ]
         },
         "use_connect": true,
         "use_inherit_rotation": true,
@@ -1978,12 +1981,15 @@
     "ear.L.002": {
         "head": {
             "default_position": [
-                0.07627902179956436,
-                -0.053055539727211,
-                1.5487819910049438
+                0.07880276441574097,
+                -0.041328296065330505,
+                1.5541069507598877
             ],
-            "strategy": "VERTEX",
-            "vertex_index": 12046
+            "strategy": "MEAN",
+            "vertex_indices": [
+                12015,
+                12056
+            ]
         },
         "inherit_scale": "FULL",
         "layers": [
@@ -2025,12 +2031,15 @@
         "roll": -0.026499999687075615,
         "tail": {
             "default_position": [
-                0.08174502104520798,
-                -0.03944353759288788,
-                1.554787516593933
+                0.07882778346538544,
+                -0.030919291079044342,
+                1.5375101566314697
             ],
-            "strategy": "VERTEX",
-            "vertex_index": 12037
+            "strategy": "MEAN",
+            "vertex_indices": [
+                12018,
+                12256
+            ]
         },
         "use_connect": true,
         "use_inherit_rotation": true,
@@ -2039,12 +2048,15 @@
     "ear.L.003": {
         "head": {
             "default_position": [
-                0.08174502104520798,
-                -0.03944353759288788,
-                1.554787516593933
+                0.07882778346538544,
+                -0.030919291079044342,
+                1.5375101566314697
             ],
-            "strategy": "VERTEX",
-            "vertex_index": 12037
+            "strategy": "MEAN",
+            "vertex_indices": [
+                12018,
+                12256
+            ]
         },
         "inherit_scale": "FULL",
         "layers": [
@@ -2086,12 +2098,15 @@
         "roll": 0.30329999327659607,
         "tail": {
             "default_position": [
-                0.08095753192901611,
-                -0.03159153833985329,
-                1.531583547592163
+                0.07313551008701324,
+                -0.048082541674375534,
+                1.5090603828430176
             ],
-            "strategy": "VERTEX",
-            "vertex_index": 12061
+            "strategy": "MEAN",
+            "vertex_indices": [
+                12041,
+                12330
+            ]
         },
         "use_connect": true,
         "use_inherit_rotation": true,
@@ -2100,12 +2115,15 @@
     "ear.L.004": {
         "head": {
             "default_position": [
-                0.08095753192901611,
-                -0.03159153833985329,
-                1.531583547592163
+                0.07313551008701324,
+                -0.048082541674375534,
+                1.5090603828430176
             ],
-            "strategy": "VERTEX",
-            "vertex_index": 12061
+            "strategy": "MEAN",
+            "vertex_indices": [
+                12041,
+                12330
+            ]
         },
         "inherit_scale": "FULL",
         "layers": [
@@ -2147,12 +2165,12 @@
         "roll": 0.1518000066280365,
         "tail": {
             "default_position": [
-                0.07432102411985397,
-                -0.05227353796362877,
-                1.5076459646224976
+                0.06923951953649521,
+                -0.05793454498052597,
+                1.5150444507598877
             ],
             "strategy": "VERTEX",
-            "vertex_index": 12019
+            "vertex_index": 12020
         },
         "use_connect": true,
         "use_inherit_rotation": true,
@@ -2161,12 +2179,12 @@
     "ear.R": {
         "head": {
             "default_position": [
-                -0.07159451395273209,
-                -0.05524054542183876,
-                1.526363730430603
+                -0.06923951953649521,
+                -0.05793454498052597,
+                1.5150444507598877
             ],
             "strategy": "VERTEX",
-            "vertex_index": 5456
+            "vertex_index": 5421
         },
         "inherit_scale": "FULL",
         "layers": [
@@ -2208,12 +2226,12 @@
         "roll": 0.03240000084042549,
         "tail": {
             "default_position": [
-                -0.07627902179956436,
-                -0.053055539727211,
-                1.5487819910049438
+                -0.07043402642011642,
+                -0.05737404525279999,
+                1.540516972541809
             ],
             "strategy": "VERTEX",
-            "vertex_index": 5447
+            "vertex_index": 5568
         },
         "use_connect": false,
         "use_inherit_rotation": true,
@@ -2222,12 +2240,12 @@
     "ear.R.001": {
         "head": {
             "default_position": [
-                -0.07627902179956436,
-                -0.053055539727211,
-                1.5487819910049438
+                -0.07043402642011642,
+                -0.05737404525279999,
+                1.540516972541809
             ],
             "strategy": "VERTEX",
-            "vertex_index": 5447
+            "vertex_index": 5568
         },
         "inherit_scale": "FULL",
         "layers": [
@@ -2269,12 +2287,15 @@
         "roll": -0.06560000032186508,
         "tail": {
             "default_position": [
-                -0.08174502104520798,
-                -0.03944353759288788,
-                1.554787516593933
+                -0.07880276441574097,
+                -0.041328296065330505,
+                1.5541069507598877
             ],
-            "strategy": "VERTEX",
-            "vertex_index": 5438
+            "strategy": "MEAN",
+            "vertex_indices": [
+                5416,
+                5457
+            ]
         },
         "use_connect": true,
         "use_inherit_rotation": true,
@@ -2283,12 +2304,15 @@
     "ear.R.002": {
         "head": {
             "default_position": [
-                -0.08174502104520798,
-                -0.03944353759288788,
-                1.554787516593933
+                -0.07880276441574097,
+                -0.041328296065330505,
+                1.5541069507598877
             ],
-            "strategy": "VERTEX",
-            "vertex_index": 5438
+            "strategy": "MEAN",
+            "vertex_indices": [
+                5416,
+                5457
+            ]
         },
         "inherit_scale": "FULL",
         "layers": [
@@ -2330,12 +2354,15 @@
         "roll": 0.026499999687075615,
         "tail": {
             "default_position": [
-                -0.08095753192901611,
-                -0.03159153833985329,
-                1.531583547592163
+                -0.07882778346538544,
+                -0.030919291079044342,
+                1.5375101566314697
             ],
-            "strategy": "VERTEX",
-            "vertex_index": 5462
+            "strategy": "MEAN",
+            "vertex_indices": [
+                5419,
+                5659
+            ]
         },
         "use_connect": true,
         "use_inherit_rotation": true,
@@ -2344,12 +2371,15 @@
     "ear.R.003": {
         "head": {
             "default_position": [
-                -0.08095753192901611,
-                -0.03159153833985329,
-                1.531583547592163
+                -0.07882778346538544,
+                -0.030919291079044342,
+                1.5375101566314697
             ],
-            "strategy": "VERTEX",
-            "vertex_index": 5462
+            "strategy": "MEAN",
+            "vertex_indices": [
+                5419,
+                5659
+            ]
         },
         "inherit_scale": "FULL",
         "layers": [
@@ -2391,12 +2421,15 @@
         "roll": -0.30329999327659607,
         "tail": {
             "default_position": [
-                -0.07432102411985397,
-                -0.05227353796362877,
-                1.5076459646224976
+                -0.07313551008701324,
+                -0.048082541674375534,
+                1.5090603828430176
             ],
-            "strategy": "VERTEX",
-            "vertex_index": 5420
+            "strategy": "MEAN",
+            "vertex_indices": [
+                5442,
+                5733
+            ]
         },
         "use_connect": true,
         "use_inherit_rotation": true,
@@ -2405,12 +2438,15 @@
     "ear.R.004": {
         "head": {
             "default_position": [
-                -0.07432102411985397,
-                -0.05227353796362877,
-                1.5076459646224976
+                -0.07313551008701324,
+                -0.048082541674375534,
+                1.5090603828430176
             ],
-            "strategy": "VERTEX",
-            "vertex_index": 5420
+            "strategy": "MEAN",
+            "vertex_indices": [
+                5442,
+                5733
+            ]
         },
         "inherit_scale": "FULL",
         "layers": [
@@ -2452,12 +2488,12 @@
         "roll": -0.1518000066280365,
         "tail": {
             "default_position": [
-                -0.07047002017498016,
-                -0.05522354319691658,
-                1.518775224685669
+                -0.06923951953649521,
+                -0.05793454498052597,
+                1.5150444507598877
             ],
             "strategy": "VERTEX",
-            "vertex_index": 5465
+            "vertex_index": 5421
         },
         "use_connect": true,
         "use_inherit_rotation": true,
