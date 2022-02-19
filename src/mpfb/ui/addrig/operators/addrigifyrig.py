@@ -93,6 +93,9 @@ class MPFB_OT_AddRigifyRigOperator(bpy.types.Operator):
                 weights = json.load(json_file)
             RigService.apply_weights(armature_object, basemesh, weights)
 
+        # Switch to the new face rig
+        bpy.ops.pose.rigify_upgrade_face()
+
         self.report({'INFO'}, "A rig was added")
         return {'FINISHED'}
 
