@@ -2677,6 +2677,7 @@
         "parent": "palm.01.L",
         "rigify": {
             "rigify_parameters": {
+                "primary_rotation_axis": "X",
                 "tweak_layers": [
                     false,
                     false,
@@ -2777,6 +2778,7 @@
         "parent": "palm.01.R",
         "rigify": {
             "rigify_parameters": {
+                "primary_rotation_axis": "X",
                 "tweak_layers": [
                     false,
                     false,
@@ -3125,6 +3127,7 @@
         "parent": "palm.02.L",
         "rigify": {
             "rigify_parameters": {
+                "primary_rotation_axis": "X",
                 "tweak_layers": [
                     false,
                     false,
@@ -3225,6 +3228,7 @@
         "parent": "palm.02.R",
         "rigify": {
             "rigify_parameters": {
+                "primary_rotation_axis": "X",
                 "tweak_layers": [
                     false,
                     false,
@@ -3573,6 +3577,7 @@
         "parent": "palm.04.L",
         "rigify": {
             "rigify_parameters": {
+                "primary_rotation_axis": "X",
                 "tweak_layers": [
                     false,
                     false,
@@ -3673,6 +3678,7 @@
         "parent": "palm.04.R",
         "rigify": {
             "rigify_parameters": {
+                "primary_rotation_axis": "X",
                 "tweak_layers": [
                     false,
                     false,
@@ -4021,6 +4027,7 @@
         "parent": "palm.03.L",
         "rigify": {
             "rigify_parameters": {
+                "primary_rotation_axis": "X",
                 "tweak_layers": [
                     false,
                     false,
@@ -4121,6 +4128,7 @@
         "parent": "palm.03.R",
         "rigify": {
             "rigify_parameters": {
+                "primary_rotation_axis": "X",
                 "tweak_layers": [
                     false,
                     false,
@@ -9778,6 +9786,7 @@
         "parent": "palm.01.L",
         "rigify": {
             "rigify_parameters": {
+                "primary_rotation_axis": "X",
                 "tweak_layers": [
                     false,
                     false,
@@ -9878,6 +9887,7 @@
         "parent": "palm.01.R",
         "rigify": {
             "rigify_parameters": {
+                "primary_rotation_axis": "X",
                 "tweak_layers": [
                     false,
                     false,
