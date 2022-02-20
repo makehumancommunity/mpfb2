@@ -183,6 +183,13 @@ class Rig:
                     bone.layers[i] = layer
                     i = i + 1
 
+            if "bendy_bone" in bone_info:
+                for field, val in bone_info["bendy_bone"].items():
+                    if field in ("custom_handle_start", "custom_handle_end"):
+                        val = RigService.find_edit_bone_by_name(val, self.armature_object)
+
+                    setattr(bone, "bbone_" + field, val)
+
         bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
 
     def rigify_metadata(self):
@@ -396,6 +403,9 @@ class Rig:
             bone_info["use_inherit_rotation"] = bone.use_inherit_rotation
             bone_info["inherit_scale"] = bone.inherit_scale
 
+            if bone.bbone_segments > 1:
+                bone_info["bendy_bone"] = self._encode_bbone_info(bone)
+
             bone_info["layers"] = []
             for layer in bone.layers:
                 bone_info["layers"].append(layer)
@@ -403,6 +413,32 @@ class Rig:
             self.rig_definition[bone.name] = bone_info
 
         _LOG.dump("rig_definition after edit bones", self.rig_definition)
+
+    def _encode_bbone_info(self, bone):
+        defaults = {
+            "segments": 1,
+            "custom_handle_start": None, "custom_handle_end": None,
+            "handle_type_start": "AUTO", "handle_type_end": "AUTO",
+            "handle_use_ease_start": False, "handle_use_ease_end": False,
+            "handle_use_scale_start": [False, False, False],
+            "handle_use_scale_end": [False, False, False],
+            "easein": 1.0, "easeout": 1.0,
+        }
+
+        info = {}
+
+        for field, defval in defaults.items():
+            val = getattr(bone, "bbone_" + field)
+
+            if field in ("custom_handle_start", "custom_handle_end"):
+                val = val.name if val else None
+            elif isinstance(val, bpy.types.bpy_prop_array):
+                val = list(val)
+
+            if val != defval:
+                info[field] = val
+
+        return info
 
     def add_pose_bone_info(self):
         """Extract information from the pose bones."""
