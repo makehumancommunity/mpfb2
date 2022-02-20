@@ -193,6 +193,9 @@ class Rig:
 
             bone.rotation_mode = bone_info.get("rotation_mode", "QUATERNION")
 
+            for con_info in bone_info.get("constraints", []):
+                self._apply_constraint_info(bone, con_info)
+
             rigify = bone_info["rigify"]
 
             if "rigify_type" in rigify and rigify["rigify_type"]:
@@ -208,6 +211,27 @@ class Rig:
                         _LOG.error("Rigify bone parameter not found.", key)
 
         bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
+
+    def _apply_constraint_info(self, bone, info):
+        con = bone.constraints.new(info["type"])
+
+        if con.type == "ARMATURE":
+            for tgt_info in info["targets"]:
+                tgt = con.targets.new()
+                tgt.target = self.armature_object
+                tgt.subtarget = tgt_info["subtarget"]
+                tgt.weight = tgt_info["weight"]
+        elif info.get("target", False):
+            con.target = self.armature_object
+
+        if info.get("space_object", False):
+            con.space_object = self.armature_object
+
+        skip_list = {"type", "targets", "target", "space_object"}
+
+        for field, val in info.items():
+            if field not in skip_list:
+                setattr(con, field, val)
 
     def save_strategies(self):
         """Save strategy data in the pose bones for development."""
@@ -391,6 +415,11 @@ class Rig:
             if bone.rotation_mode != "QUATERNION":
                 bone_info["rotation_mode"] = bone.rotation_mode
 
+            if bone.constraints:
+                bone_info["constraints"] = [
+                    self._encode_constraint_info(con) for con in bone.constraints
+                ]
+
             bone_info["rigify"] = dict()
             rigify = bone_info["rigify"]
 
@@ -412,6 +441,55 @@ class Rig:
 
             if hasattr(bone, "rigify_type") and bone.rigify_type:
                 rigify["rigify_type"] = str(bone.rigify_type)
+
+    def _encode_constraint_info(self, con):
+        info = {
+            "type": con.type,
+            "name": con.name,
+        }
+
+        # Handle targets - only support targeting the armature
+        if con.type == "ARMATURE":
+            info["targets"] = [
+                { "subtarget": tgt.subtarget, "weight": tgt.weight }
+                for tgt in con.targets if tgt.target == self.armature_object
+            ]
+        elif getattr(con, "target", None) == self.armature_object:
+            info["target"] = True
+
+        if getattr(con, "space_object", None) == self.armature_object:
+            info["space_object"] = True
+            info["space_subtarget"] = con.space_subtarget
+
+        # Add other properties
+        defaults = {
+            'owner_space': 'WORLD', 'target_space': 'WORLD',
+            'mute': False, 'influence': 1.0,
+        }
+        block_props = {
+            prop.identifier
+            for prop in bpy.types.Constraint.bl_rna.properties
+            if prop.identifier not in defaults
+        }
+
+        if con.type == "STRETCH_TO":
+            # Don't save Stretch To length so it auto-resets when the skeleton is fitted
+            block_props.add("rest_length")
+
+        for prop in type(con).bl_rna.properties:
+            if prop.identifier not in block_props and not prop.is_readonly:
+                cur_value = getattr(con, prop.identifier, None)
+
+                if isinstance(cur_value, bpy.types.bpy_prop_array):
+                    value = list(cur_value)
+
+                if prop.identifier in defaults and cur_value == defaults[prop.identifier]:
+                    continue
+
+                if not isinstance(cur_value, bpy.types.bpy_struct):
+                    info[prop.identifier] = cur_value
+
+        return info
 
     def match_edit_bones_with_joint_cubes(self):
         """Try to find out bone positions matching joint cubes."""
