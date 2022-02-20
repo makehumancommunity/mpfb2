@@ -108,11 +108,8 @@ class Rig:
             location = self.position_info["vertices"][index]
         if strategy == "MEAN":
             indices = head_or_tail_info["vertex_indices"]
-            vertex1 = self.position_info["vertices"][indices[0]]
-            vertex2 = self.position_info["vertices"][indices[1]]
-            location = [0.0, 0.0, 0.0]
-            for i in range(3):
-                location[i] = (vertex1[i] + vertex2[i]) / 2
+            vertices = [self.position_info["vertices"][i] for i in indices]
+            location = [sum(v[i] for v in vertices)/len(vertices) for i in range(3)]
         if strategy == "XYZ":
             # Special strategy for Rigify heel marker.
             # Uses different vertices for each coordinate channel.
