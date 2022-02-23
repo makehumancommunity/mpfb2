@@ -780,7 +780,8 @@ class TargetService:
                 name = shape_key.name
                 if decode_names:
                     name = TargetService.decode_shapekey_name(name)
-                macro_targets.append(name)
+                if str(shape_key.name).startswith("$md"):
+                    macro_targets.append(name)
         return macro_targets
 
     @staticmethod
@@ -790,6 +791,7 @@ class TargetService:
 
         macro_info = TargetService.get_macro_info_dict_from_basemesh(basemesh)
         for target in TargetService.get_current_macro_targets(basemesh, decode_names=False):
+            _LOG.debug("Setting target to 0", target)
             basemesh.data.shape_keys.key_blocks[target].value = 0.0
         current_macro_targets = TargetService.get_current_macro_targets(basemesh, decode_names=True)
         required_macro_targets = TargetService.calculate_target_stack_from_macro_info_dict(macro_info)
