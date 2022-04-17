@@ -18,12 +18,12 @@
 			"parts": [
 				{
 					"lowest": -0.01,
-					"highest": 0.18749,
+					"highest": 0.1874998,
 					"low": "baby",
 					"high": "child"
 				},
 				{
-					"lowest": 0.18750,
+					"lowest": 0.1874999,
 					"highest": 0.49998,
 					"low": "child",
 					"high": "young"
