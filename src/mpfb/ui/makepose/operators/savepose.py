@@ -8,7 +8,7 @@ import bpy, json, math, os
 from bpy.types import StringProperty
 from bpy_extras.io_utils import ExportHelper
 
-_LOG = LogService.get_logger("developer.operators.savepose")
+_LOG = LogService.get_logger("makepose.operators.savepose")
 
 class MPFB_OT_Save_Pose_Operator(bpy.types.Operator):
     """Save pose as json"""

@@ -819,8 +819,6 @@ class HumanService:
         if len(parts) > 2:
             uuid = parts[2]
 
-        _LOG.set_level(LogService.INFO)
-
         _LOG.debug("found clothes asset", (part, name, uuid))
 
         root_name = part
@@ -851,7 +849,6 @@ class HumanService:
                     _LOG.debug("Matching asset", (asset["full_path"], asset["fragment"]))
                     human_info["clothes"].append(asset["fragment"])
                     profiler.leave("_check_parse_mhm_clothes_line")
-                    _LOG.set_level(LogService.INFO)
                     return True
 
         if not perform_deep_search:
