@@ -594,11 +594,14 @@ class TargetService:
         components = []
         _LOG.debug("target", macrotarget)
         for parts in macrotarget["parts"]:
+            _LOG.dump("Parts", (value, parts))
             highest = parts["highest"]
             lowest = parts["lowest"]
             low = parts["low"]
             high = parts["high"]
             hlrange = highest-lowest
+
+            _LOG.dump("(highest, lowest, high, low)", (highest, lowest, high, low))
 
             if value > lowest and value < highest:
                 position = value-lowest
@@ -610,6 +613,8 @@ class TargetService:
                     components.append([low, round(lowweight, 4)])
                 if high:
                     components.append([high, round(highweight, 4)])
+
+        _LOG.debug("Components after interpolation", components)
 
         profiler.leave("_interpolate_macro_components")
 
@@ -809,7 +814,11 @@ class TargetService:
             requested = str(TargetService.macrodetail_filename_to_shapekey_name(target[0], encode_name=True)).strip()
             _LOG.debug("Will attempt to set target value for", (requested, target[1]))
             TargetService.set_target_value(basemesh, requested, target[1])
-        if remove_zero_weight_targets:
+
+        if not basemesh.data.shape_keys:
+            _LOG.warn("Basemesh has no shape keys at this point. This is somewhat surprising.")
+
+        if remove_zero_weight_targets and basemesh.data.shape_keys:
             _LOG.debug("Checking for targets to remove")
             for shape_key in basemesh.data.shape_keys.key_blocks:
                 _LOG.debug("Checking shape key", (shape_key.name, shape_key.value))
