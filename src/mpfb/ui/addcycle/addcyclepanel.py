@@ -44,9 +44,16 @@ class MPFB_PT_Add_Cycle_Panel(Abstract_Panel):
 
     def _load_cycle(self, scene, layout):
         box = self._create_box(layout, "Load walk cycle", "TOOL_SETTINGS")
-        box.label(text='This is all very experimental.')
+        box.label(text=' ')
+        box.label(text='WARNING: VERY EXPERIMENTAL.')
+        box.label(text=' ')
         box.label(text='The only supported rig is')
-        box.label(text='"default_no_toes".')
+        box.label(text='"default_no_toes" with rig')
+        box.label(text='helpers enabled, and the')
+        box.label(text='character needs to be in')
+        box.label(text='the correct scale (approx')
+        box.label(text='1.6 BU tall)')
+        box.label(text=' ')
         props = ["available_cycles", "iterations"]
         ADD_CYCLE_PROPERTIES.draw_properties(scene, box, props)
         box.operator('mpfb.load_walk_cycle')
