@@ -9,7 +9,7 @@ import bpy, json, math, os
 from bpy.types import StringProperty
 from bpy_extras.io_utils import ExportHelper
 
-_LOG = LogService.get_logger("makepose.operators.loadcycle")
+_LOG = LogService.get_logger("addcycle.operators.loadcycle")
 
 class MPFB_OT_Load_Walk_Cycle_Operator(bpy.types.Operator):
     """Load walk cycle from json"""
@@ -34,20 +34,25 @@ class MPFB_OT_Load_Walk_Cycle_Operator(bpy.types.Operator):
 
         armature_object = context.object
 
-        from mpfb.ui.makepose import MakePoseProperties
+        from mpfb.ui.addcycle.addcyclepanel import ADD_CYCLE_PROPERTIES
 
-        #name = MakePoseProperties.get_value('name', entity_reference=context.scene)
-        iterations = MakePoseProperties.get_value('iterations', entity_reference=context.scene)
-        overwrite = MakePoseProperties.get_value('overwrite', entity_reference=context.scene)
-        roottrans = MakePoseProperties.get_value('roottrans', entity_reference=context.scene)
-        iktrans = MakePoseProperties.get_value('iktrans', entity_reference=context.scene)
-        fktrans = MakePoseProperties.get_value('fktrans', entity_reference=context.scene)
+        iterations = ADD_CYCLE_PROPERTIES.get_value('iterations', entity_reference=context.scene)
+        cycle = ADD_CYCLE_PROPERTIES.get_value('available_cycles', entity_reference=context.scene)
+
+        if not cycle:
+            self.report({'ERROR'}, "Must select a walk cycle")
+            return {'FINISHED'}
 
         bpy.ops.object.mode_set(mode='POSE', toggle=False)
 
         rig_type = RigService.identify_rig(armature_object)
 
-        with open('/tmp/animation.json', 'r') as json_file:
+        wcdir = LocationService.get_mpfb_data("walkcycles")
+        filename = os.path.join(wcdir, cycle)
+
+        _LOG.debug("Filename", filename)
+
+        with open(filename, 'r') as json_file:
             animation = json.load(json_file)
         _LOG.dump("Animation", animation)
 

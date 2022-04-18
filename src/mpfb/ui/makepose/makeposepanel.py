@@ -42,11 +42,7 @@ class MPFB_PT_MakePose_Panel(Abstract_Panel):
         #MakePoseProperties.draw_properties(scene, box, props)
         box.operator('mpfb.load_animation')
 
-    def _load_cycle(self, scene, layout):
-        box = self._create_box(layout, "Load walk cycle", "TOOL_SETTINGS")
-        props = ["iterations"]
-        MakePoseProperties.draw_properties(scene, box, props)
-        box.operator('mpfb.load_walk_cycle')
+
 
 #===============================================================================
 #     def _initialize_pose(self, blender_object, layout):
@@ -85,7 +81,6 @@ class MPFB_PT_MakePose_Panel(Abstract_Panel):
         self._save_pose(scene, layout)
         self._save_animation(scene, layout)
         self._load_animation(scene, layout)
-        self._load_cycle(scene, layout)
 
 
 ClassManager.add_class(MPFB_PT_MakePose_Panel)

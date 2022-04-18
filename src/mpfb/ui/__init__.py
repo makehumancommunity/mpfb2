@@ -29,6 +29,7 @@ from mpfb.ui.addrig import *
 from mpfb.ui.rigify import *
 from mpfb.ui.righelpers import *
 from mpfb.ui.applypose import *
+from mpfb.ui.addcycle import *
 
 # Presets
 from mpfb.ui.humanpresets import *
