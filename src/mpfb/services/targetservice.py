@@ -1,6 +1,6 @@
 """Module for managing targets and shape keys."""
 
-import os, gzip, bpy, json, bmesh
+import os, gzip, bpy, json, bmesh, random
 from pathlib import Path
 from mpfb.services.logservice import LogService
 from mpfb.services.locationservice import LocationService
@@ -68,6 +68,22 @@ class TargetService:
 
     def __init__(self):
         raise RuntimeError("You should not instance TargetService. Use its static methods instead.")
+
+    @staticmethod
+    def bake_targets(basemesh):
+        key_name = "temporary_fitting_key." + str(random.randrange(1000, 9999))
+        basemesh.shape_key_add(name=key_name, from_mix=True)
+        shape_key = basemesh.data.shape_keys.key_blocks[key_name]
+
+        keys = []
+        for key in basemesh.data.shape_keys.key_blocks:
+            if key.name != key_name:
+                keys.append(key)
+
+        for key in keys:
+            basemesh.shape_key_remove(key)
+
+        basemesh.shape_key_remove(shape_key)
 
     @staticmethod
     def translate_mhm_target_line_to_target_fragment(mhm_line):
