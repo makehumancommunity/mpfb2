@@ -1,5 +1,6 @@
 from mpfb.services.logservice import LogService
 from mpfb.services.materialservice import MaterialService
+from mpfb.services.nodeservice import NodeService
 from mpfb.services.objectservice import ObjectService
 from mpfb.services.locationservice import LocationService
 from mpfb.services.targetservice import TargetService
@@ -70,6 +71,7 @@ class MPFB_OT_Setup_Sculpt_Operator(bpy.types.Operator):
         from mpfb.ui.sculpt.sculptpanel import SCULPT_PROPERTIES
         delete_helpers = SCULPT_PROPERTIES.get_value("delete_helpers", entity_reference=context.scene)
         delete_proxies = SCULPT_PROPERTIES.get_value("delete_proxies", entity_reference=context.scene)
+        apply_armature = SCULPT_PROPERTIES.get_value("apply_armature", entity_reference=context.scene)
         enter_sculpt = SCULPT_PROPERTIES.get_value("enter_sculpt", entity_reference=context.scene)
         normal_material = SCULPT_PROPERTIES.get_value("normal_material", entity_reference=context.scene)
         remove_delete = SCULPT_PROPERTIES.get_value("remove_delete", entity_reference=context.scene)
@@ -99,6 +101,34 @@ class MPFB_OT_Setup_Sculpt_Operator(bpy.types.Operator):
             for child in children:
                 if child != basemesh and child.type != "ARMATURE":
                     bpy.data.objects.remove(child, do_unlink=True)
+
+        if apply_armature:
+            for modifier in basemesh.modifiers:
+                if modifier.type == 'ARMATURE':
+                    bpy.ops.object.modifier_apply( modifier = modifier.name )
+            armature = ObjectService.find_object_of_type_amongst_nearest_relatives(basemesh, 'Skeleton')
+            if armature:
+                bpy.data.objects.remove(armature, do_unlink=True)
+
+        if setup_multires:
+            for modifier in basemesh.modifiers:
+                if modifier.type == 'SUBSURF':
+                    basemesh.modifiers.remove(modifier)
+            modifier = basemesh.modifiers.new('Sculpt multires', 'MULTIRES')
+            bpy.ops.object.multires_subdivide(modifier="Sculpt multires")
+            bpy.ops.object.multires_subdivide(modifier="Sculpt multires")
+            modifier.levels = 0
+
+        if normal_material:
+            MaterialService.delete_all_materials(basemesh)
+            material = MaterialService.create_empty_material('Material for baking normal map', basemesh)
+            material.diffuse_color = MaterialService.get_skin_diffuse_color()
+            nodes = material.node_tree
+            principled = NodeService.find_first_node_by_type_name(nodes, 'ShaderNodeBsdfPrincipled')
+            principled.inputs['Base Color'].default_value = MaterialService.get_skin_diffuse_color()
+            imgtex = NodeService.create_image_texture_node(nodes, xpos=-700)
+            bpy.ops.image.new(name='Sculpt normal map', width=8192, height=8192)
+            imgtex.image = bpy.data.images['Sculpt normal map']
 
         if enter_sculpt:
             bpy.ops.object.mode_set(mode='SCULPT', toggle=False)

@@ -3,5 +3,5 @@
     "name": "delete_proxies",
     "description": "Delete all attached proxies (ie clothes, eyes, teeth, proxymeshes...)",
     "label": "Delete proxies",
-    "default": true
+    "default": false
 }
