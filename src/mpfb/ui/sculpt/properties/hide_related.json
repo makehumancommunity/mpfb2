@@ -1,0 +1,7 @@
+{
+    "type": "boolean",
+    "name": "hide_related",
+    "description": "Hide related meshes, such as clothes, hair, teeth and eyes.",
+    "label": "Hide related meshes",
+    "default": true
+}

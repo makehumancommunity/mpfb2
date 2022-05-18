@@ -1,7 +1,7 @@
 {
     "type": "boolean",
     "name": "apply_armature",
-    "description": "This will apply the armature modifier, effectively baking the post",
+    "description": "This will apply the armature modifier on copies, effectively baking the pose.",
     "label": "Apply armature",
     "default": true
 }

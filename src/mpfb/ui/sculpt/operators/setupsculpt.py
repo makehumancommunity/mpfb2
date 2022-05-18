@@ -95,7 +95,7 @@ class MPFB_OT_Setup_Sculpt_Operator(bpy.types.Operator):
         objtype = GeneralObjectProperties.get_value("object_type", entity_reference=context.object)
 
         dest = context.object
-        dest.name = "Bake destination"
+        dest.name = "Object to bake to (select second when baking)"
         dest.parent = None
         _LOG.debug("Dest object", dest)
 
@@ -122,6 +122,9 @@ class MPFB_OT_Setup_Sculpt_Operator(bpy.types.Operator):
         dest.select_set(state=True)
         context.view_layer.objects.active = dest
 
+        if not create_source_copy:
+            return (None, dest)
+
         _LOG.debug("context.object", context.object)
 
         bpy.ops.object.duplicate(linked=False)
@@ -129,7 +132,7 @@ class MPFB_OT_Setup_Sculpt_Operator(bpy.types.Operator):
         _LOG.debug("context.object", context.object)
 
         source = context.object
-        source.name = "Sculpt source"
+        source.name = "Object to sculpt (select first when baking)"
         source.parent = None
         _LOG.debug("Source object", source)
 
@@ -155,6 +158,7 @@ class MPFB_OT_Setup_Sculpt_Operator(bpy.types.Operator):
         obj.select_set(state=True)
         context.view_layer.objects.active = obj
         if setup_multires:
+            self._clear_subdiv(context, obj)
             modifier = obj.modifiers.new('Sculpt multires', 'MULTIRES')
             if multires_first:
                 while obj.modifiers.find(modifier.name) != 0:
@@ -188,6 +192,7 @@ class MPFB_OT_Setup_Sculpt_Operator(bpy.types.Operator):
         apply_armature = SCULPT_PROPERTIES.get_value("apply_armature", entity_reference=context.scene)
         delete_helpers = SCULPT_PROPERTIES.get_value("delete_helpers", entity_reference=context.scene)
         hide_origin = SCULPT_PROPERTIES.get_value("hide_origin", entity_reference=context.scene)
+        hide_related = SCULPT_PROPERTIES.get_value("hide_related", entity_reference=context.scene)
         enter_sculpt = SCULPT_PROPERTIES.get_value("enter_sculpt", entity_reference=context.scene)
         multires_first = SCULPT_PROPERTIES.get_value("multires_first", entity_reference=context.scene)
         normal_material = SCULPT_PROPERTIES.get_value("normal_material", entity_reference=context.scene)
@@ -201,9 +206,11 @@ class MPFB_OT_Setup_Sculpt_Operator(bpy.types.Operator):
 
         _LOG.debug("Selected object", obj)
 
+        dest = None
+        source = None
+
         if sculpt_strategy in ["DESTCOPY", "SOURCEDESTCOPY"]:
-            dest = None
-            source = None
+
             source_copy = sculpt_strategy == "SOURCEDESTCOPY"
             _LOG.debug("source_copy", source_copy)
             (source, dest) = self._create_clean_copies(context, obj, apply_armature, delete_helpers, remove_delete, create_source_copy=source_copy)
@@ -242,7 +249,41 @@ class MPFB_OT_Setup_Sculpt_Operator(bpy.types.Operator):
 
                 parent.hide_viewport = True
 
+            _LOG.debug("source_copy, obj, hide_related", (source_copy, obj, hide_related))
 
+            if not source_copy and hide_related:
+                parent = obj
+                if obj.parent:
+                    parent = obj.parent
+
+                parent.hide_viewport = False
+
+                for child in ObjectService.get_list_of_children(parent):
+                    child.hide_viewport = True
+                    _LOG.debug("Hiding", child)
+
+                source.hide_viewport = False
+                source.select_set(state=True)
+                context.view_layer.objects.active = source
+
+        if sculpt_strategy == "ORIGIN":
+            if hide_related:
+                parent = obj
+                if obj.parent:
+                    parent = obj.parent
+
+                parent.hide_viewport = False
+
+                for child in ObjectService.get_list_of_children(parent):
+                    child.hide_viewport = True
+                    _LOG.debug("Hiding", child)
+
+            obj.hide_viewport = False
+            obj.select_set(state=True)
+            context.view_layer.objects.active = obj
+
+            self._handle_bm(context, obj, delete_helpers)
+            self._setup_multires(context, obj, setup_multires, subdivisions, multires_first)
 
 
 #===============================================================================
@@ -371,7 +412,11 @@ class MPFB_OT_Setup_Sculpt_Operator(bpy.types.Operator):
         if enter_sculpt:
             bpy.ops.object.mode_set(mode='SCULPT', toggle=False)
 
-        self.report({'INFO'}, "Setup finished")
+        if sculpt_strategy == "DESTCOPY" and source and MaterialService.has_materials(source):
+            self.report({'WARNING'}, "Setup has finished, but note that the sculpt object still has materials. This may cause artifacts when baking a normal map.")
+        else:
+            self.report({'INFO'}, "Setup finished")
+
         return {'FINISHED'}
 
 ClassManager.add_class(MPFB_OT_Setup_Sculpt_Operator)

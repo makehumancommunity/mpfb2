@@ -49,6 +49,7 @@ class MPFB_PT_SculptPanel(Abstract_Panel):
         props = []
 
         if multires:
+            props.append("subdivisions")
             props.append("multires_first")
 
         if objtype == "Basemesh":
@@ -57,9 +58,8 @@ class MPFB_PT_SculptPanel(Abstract_Panel):
         if objtype in ["Basemesh", "Proxymeshes"]:
             props.append("remove_delete")
 
-        props.append("apply_armature")
-
         if strategy in ["SOURCEDESTCOPY", "DESTCOPY"]:
+            props.append("apply_armature")
             props.append("normal_material")
             material = SCULPT_PROPERTIES.get_value("normal_material", entity_reference=scene)
             if material:
@@ -68,6 +68,8 @@ class MPFB_PT_SculptPanel(Abstract_Panel):
 
         if strategy == "SOURCEDESTCOPY":
             props.append("hide_origin")
+        else:
+            props.append("hide_related")
 
         props.append("enter_sculpt")
 
