@@ -187,7 +187,7 @@ class MPFB_OT_Setup_Sculpt_Operator(bpy.types.Operator):
         adjust_settings = SCULPT_PROPERTIES.get_value("adjust_settings", entity_reference=context.scene)
         apply_armature = SCULPT_PROPERTIES.get_value("apply_armature", entity_reference=context.scene)
         delete_helpers = SCULPT_PROPERTIES.get_value("delete_helpers", entity_reference=context.scene)
-        delete_origin = SCULPT_PROPERTIES.get_value("delete_origin", entity_reference=context.scene)
+        hide_origin = SCULPT_PROPERTIES.get_value("hide_origin", entity_reference=context.scene)
         enter_sculpt = SCULPT_PROPERTIES.get_value("enter_sculpt", entity_reference=context.scene)
         multires_first = SCULPT_PROPERTIES.get_value("multires_first", entity_reference=context.scene)
         normal_material = SCULPT_PROPERTIES.get_value("normal_material", entity_reference=context.scene)
@@ -225,17 +225,25 @@ class MPFB_OT_Setup_Sculpt_Operator(bpy.types.Operator):
             self._setup_multires(context, source, setup_multires, subdivisions, multires_first)
             self._setup_multires(context, dest, setup_multires, subdivisions, multires_first)
 
+            dest.select_set(state=False)
+            obj.select_set(state=False)
+            source.select_set(state=True)
+            context.view_layer.objects.active = source
+
             dest.hide_viewport = True
 
-            if source_copy and delete_origin:
+            if source_copy and hide_origin:
                 parent = obj
                 if obj.parent:
                     parent = obj.parent
 
                 for child in ObjectService.get_list_of_children(parent):
-                    bpy.data.objects.remove(child, do_unlink=True)
+                    child.hide_viewport = True
 
-                bpy.data.objects.remove(parent, do_unlink=True)
+                parent.hide_viewport = True
+
+
+
 
 #===============================================================================
 #         if sculpt_strategy in ["DESTCOPY", "SOURCEDESTCOPY"]:
@@ -347,9 +355,6 @@ class MPFB_OT_Setup_Sculpt_Operator(bpy.types.Operator):
 #             scene.render.bake.use_selected_to_active = True
 #             scene.render.bake.cage_extrusion = 0.01
 #             scene.render.bake.max_ray_distance = 0.1
-#
-#         if enter_sculpt:
-#             bpy.ops.object.mode_set(mode='SCULPT', toggle=False)
 #===============================================================================
 
         if sculpt_strategy != "ORIGIN" and adjust_settings:
@@ -362,6 +367,9 @@ class MPFB_OT_Setup_Sculpt_Operator(bpy.types.Operator):
             scene.render.bake.use_selected_to_active = True
             scene.render.bake.cage_extrusion = 0.01
             scene.render.bake.max_ray_distance = 0.1
+
+        if enter_sculpt:
+            bpy.ops.object.mode_set(mode='SCULPT', toggle=False)
 
         self.report({'INFO'}, "Setup finished")
         return {'FINISHED'}

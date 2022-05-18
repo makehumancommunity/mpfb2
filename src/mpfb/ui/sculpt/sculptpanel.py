@@ -67,7 +67,7 @@ class MPFB_PT_SculptPanel(Abstract_Panel):
             props.append("adjust_settings")
 
         if strategy == "SOURCEDESTCOPY":
-            props.append("delete_origin")
+            props.append("hide_origin")
 
         props.append("enter_sculpt")
 
