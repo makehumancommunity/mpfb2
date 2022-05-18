@@ -28,20 +28,51 @@ class MPFB_PT_SculptPanel(Abstract_Panel):
         if context.object is None:
             return
 
-        props = [
-            "setup_multires",
-            "delete_helpers",
-            "remove_delete",
-            "normal_material",
-            "apply_armature",
-            "delete_proxies",
-            "enter_sculpt"
-            ]
+        from mpfb.entities.objectproperties import GeneralObjectProperties
+
+        objtype = GeneralObjectProperties.get_value("object_type", entity_reference=context.object)
+
+        if not objtype or objtype == "Skeleton":
+            return
+
+        SCULPT_PROPERTIES.draw_properties(scene, layout, ["sculpt_strategy"])
+
+        strategy = SCULPT_PROPERTIES.get_value("sculpt_strategy", entity_reference=scene)
+
+        if not strategy:
+            return
+
+        SCULPT_PROPERTIES.draw_properties(scene, layout, ["setup_multires"])
+
+        multires = SCULPT_PROPERTIES.get_value("setup_multires", entity_reference=scene)
+
+        props = []
+
+        if multires:
+            props.append("multires_first")
+
+        if objtype == "Basemesh":
+            props.append("delete_helpers")
+
+        if objtype in ["Basemesh", "Proxymeshes"]:
+            props.append("remove_delete")
+
+        props.append("apply_armature")
+
+        if strategy in ["SOURCEDESTCOPY", "DESTCOPY"]:
+            props.append("normal_material")
+            material = SCULPT_PROPERTIES.get_value("normal_material", entity_reference=scene)
+            if material:
+                props.append("resolution")
+            props.append("adjust_settings")
+
+        if strategy == "SOURCEDESTCOPY":
+            props.append("delete_origin")
+
+        props.append("enter_sculpt")
 
         SCULPT_PROPERTIES.draw_properties(scene, layout, props)
         layout.operator("mpfb.setup_sculpt")
-
-        armature_object = context.object
 
 
 ClassManager.add_class(MPFB_PT_SculptPanel)

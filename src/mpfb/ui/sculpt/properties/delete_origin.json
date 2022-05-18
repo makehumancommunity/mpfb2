@@ -1,0 +1,7 @@
+{
+    "type": "boolean",
+    "name": "delete_origin",
+    "description": "Deletet original character, only keeping copy/copies. This also deletes clothes, body parts and armature.",
+    "label": "Delete original character",
+    "default": true
+}

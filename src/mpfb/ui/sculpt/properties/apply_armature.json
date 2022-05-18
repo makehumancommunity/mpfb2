@@ -1,7 +1,7 @@
 {
     "type": "boolean",
     "name": "apply_armature",
-    "description": "This will first apply the armature modifier and then delete the armature itself",
+    "description": "This will apply the armature modifier, effectively baking the post",
     "label": "Apply armature",
-    "default": false
+    "default": true
 }

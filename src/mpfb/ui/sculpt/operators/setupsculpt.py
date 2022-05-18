@@ -4,12 +4,14 @@ from mpfb.services.nodeservice import NodeService
 from mpfb.services.objectservice import ObjectService
 from mpfb.services.locationservice import LocationService
 from mpfb.services.targetservice import TargetService
+from mpfb.entities.objectproperties import GeneralObjectProperties
 from mpfb._classmanager import ClassManager
 import bpy, json, math, os
 from bpy.types import StringProperty
 from bpy_extras.io_utils import ImportHelper
 
 _LOG = LogService.get_logger("sculpt.operators.setupsculpt")
+_LOG.set_level(LogService.DEBUG)
 
 class MPFB_OT_Setup_Sculpt_Operator(bpy.types.Operator):
     """Bake all shape keys into a final mesh and optionally perform other operations suitable for setting up a sculpt project"""
@@ -22,6 +24,12 @@ class MPFB_OT_Setup_Sculpt_Operator(bpy.types.Operator):
         _LOG.enter()
         if context.object is None:
             return False
+
+        objtype = GeneralObjectProperties.get_value("object_type", entity_reference=context.object)
+
+        if not objtype or objtype == "Skeleton":
+            return
+
         return True
 
     def _delete_vertex_group(self, context, blender_object, vgroup_name):
@@ -35,10 +43,10 @@ class MPFB_OT_Setup_Sculpt_Operator(bpy.types.Operator):
 
         group_idx = None
         for group in blender_object.vertex_groups:
-            _LOG.debug("group name", group.name)
+            _LOG.dump("group name", group.name)
             if vgroup_name in group.name:
                 group_idx = group.index
-        _LOG.debug("group index", group_idx)
+        _LOG.dump("group index", group_idx)
 
         for vertex in blender_object.data.vertices:
             vertex.select = False
@@ -52,35 +60,25 @@ class MPFB_OT_Setup_Sculpt_Operator(bpy.types.Operator):
         bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
         blender_object.select_set(False)
 
-    def execute(self, context):
-        _LOG.enter()
+    def _clear_subdiv(self, context, obj):
+        for modifier in obj.modifiers:
+            if modifier.type == 'SUBSURF':
+                obj.modifiers.remove(modifier)
 
-        if context.object is None:
-            self.report({'ERROR'}, "Must have an active object")
-            return {'FINISHED'}
+    def _handle_armature(self, context, obj, apply_armature, delete_if_not_apply=True):
+        if not apply_armature and not delete_if_not_apply:
+            return
+        if apply_armature:
+            for modifier in obj.modifiers:
+                if modifier.type == 'ARMATURE':
+                    bpy.ops.object.modifier_apply( modifier = modifier.name )
+        else:
+            for modifier in obj.modifiers:
+                if modifier.type == 'ARMATURE':
+                    obj.modifiers.remove(modifier)
 
-        basemesh = ObjectService.find_object_of_type_amongst_nearest_relatives(context.object, 'Basemesh')
-
-
-        if basemesh is None:
-            self.report({'ERROR'}, "Could not find base mesh")
-            return {'FINISHED'}
-
-        context.view_layer.objects.active = basemesh
-
-        from mpfb.ui.sculpt.sculptpanel import SCULPT_PROPERTIES
-        delete_helpers = SCULPT_PROPERTIES.get_value("delete_helpers", entity_reference=context.scene)
-        delete_proxies = SCULPT_PROPERTIES.get_value("delete_proxies", entity_reference=context.scene)
-        apply_armature = SCULPT_PROPERTIES.get_value("apply_armature", entity_reference=context.scene)
-        enter_sculpt = SCULPT_PROPERTIES.get_value("enter_sculpt", entity_reference=context.scene)
-        normal_material = SCULPT_PROPERTIES.get_value("normal_material", entity_reference=context.scene)
-        remove_delete = SCULPT_PROPERTIES.get_value("remove_delete", entity_reference=context.scene)
-        setup_multires = SCULPT_PROPERTIES.get_value("setup_multires", entity_reference=context.scene)
-
-        bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
-
+    def _handle_bm(self, context, basemesh, delete_helpers):
         TargetService.bake_targets(basemesh)
-
         if delete_helpers:
             for modifier in basemesh.modifiers:
                 if modifier.type == 'MASK' and modifier.vertex_group == 'body':
@@ -88,52 +86,284 @@ class MPFB_OT_Setup_Sculpt_Operator(bpy.types.Operator):
             self._delete_vertex_group(context, basemesh, "HelperGeometry")
             self._delete_vertex_group(context, basemesh, "JointCubes")
 
+    def _create_clean_copies(self, context, obj, apply_armature, delete_helpers, remove_delete, create_source_copy=False):
+        obj.select_set(state=True)
+        context.view_layer.objects.active = obj
+
+        bpy.ops.object.duplicate(linked=False)
+
+        objtype = GeneralObjectProperties.get_value("object_type", entity_reference=context.object)
+
+        dest = context.object
+        dest.name = "Bake destination"
+        dest.parent = None
+        _LOG.debug("Dest object", dest)
+
+        if objtype == "Basemesh":
+            self._handle_bm(context, dest, delete_helpers)
+
+        self._handle_armature(context, dest, apply_armature)
+
         if remove_delete:
-            for modifier in basemesh.modifiers:
-                if modifier.type == 'MASK':
-                    basemesh.modifiers.remove(modifier)
+            for modifier in dest.modifiers:
+                if modifier.type == 'MASK' and modifier.vertex_group != 'body':
+                    dest.modifiers.remove(modifier)
 
-        if delete_proxies:
-            parent = basemesh
-            if basemesh.parent:
-                parent = basemesh.parent
-            children = ObjectService.get_list_of_children(parent)
-            for child in children:
-                if child != basemesh and child.type != "ARMATURE":
-                    bpy.data.objects.remove(child, do_unlink=True)
+        self._clear_subdiv(context, dest)
 
-        if apply_armature:
-            for modifier in basemesh.modifiers:
-                if modifier.type == 'ARMATURE':
-                    bpy.ops.object.modifier_apply( modifier = modifier.name )
-            armature = ObjectService.find_object_of_type_amongst_nearest_relatives(basemesh, 'Skeleton')
-            if armature:
-                bpy.data.objects.remove(armature, do_unlink=True)
+        MaterialService.delete_all_materials(dest)
 
-        if setup_multires:
-            for modifier in basemesh.modifiers:
-                if modifier.type == 'SUBSURF':
-                    basemesh.modifiers.remove(modifier)
-            modifier = basemesh.modifiers.new('Sculpt multires', 'MULTIRES')
-            bpy.ops.object.multires_subdivide(modifier="Sculpt multires")
-            bpy.ops.object.multires_subdivide(modifier="Sculpt multires")
-            modifier.levels = 0
+        bpy.ops.object.mode_set(mode='EDIT', toggle=False)
+        bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
 
+        _LOG.debug("context.object", context.object)
+
+        obj.select_set(state=False)
+        dest.select_set(state=True)
+        context.view_layer.objects.active = dest
+
+        _LOG.debug("context.object", context.object)
+
+        bpy.ops.object.duplicate(linked=False)
+
+        _LOG.debug("context.object", context.object)
+
+        source = context.object
+        source.name = "Sculpt source"
+        source.parent = None
+        _LOG.debug("Source object", source)
+
+        bpy.ops.object.mode_set(mode='EDIT', toggle=False)
+        bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
+
+        return (source, dest)
+
+    def _setup_materials(self, context, dest, normal_material, resolution):
         if normal_material:
-            MaterialService.delete_all_materials(basemesh)
-            material = MaterialService.create_empty_material('Material for baking normal map', basemesh)
+            MaterialService.delete_all_materials(dest)
+            material = MaterialService.create_empty_material('Material for baking normal map', dest)
             material.diffuse_color = MaterialService.get_skin_diffuse_color()
             nodes = material.node_tree
             principled = NodeService.find_first_node_by_type_name(nodes, 'ShaderNodeBsdfPrincipled')
             principled.inputs['Base Color'].default_value = MaterialService.get_skin_diffuse_color()
             imgtex = NodeService.create_image_texture_node(nodes, xpos=-700)
-            bpy.ops.image.new(name='Sculpt normal map', width=8192, height=8192)
+            side = int(resolution)
+            bpy.ops.image.new(name='Sculpt normal map', width=side, height=side)
             imgtex.image = bpy.data.images['Sculpt normal map']
 
-        if enter_sculpt:
-            bpy.ops.object.mode_set(mode='SCULPT', toggle=False)
+    def _setup_multires(self, context, obj, setup_multires, subdivisions, multires_first):
+        obj.select_set(state=True)
+        context.view_layer.objects.active = obj
+        if setup_multires:
+            modifier = obj.modifiers.new('Sculpt multires', 'MULTIRES')
+            if multires_first:
+                while obj.modifiers.find(modifier.name) != 0:
+                    bpy.ops.object.modifier_move_up({'object': obj}, modifier=modifier.name)
 
-        self.report({'INFO'}, "Baked finished")
+            if subdivisions > 0:
+                for n in range(subdivisions):
+                    bpy.ops.object.multires_subdivide(modifier="Sculpt multires")
+
+    def execute(self, context):
+        _LOG.enter()
+
+        if context.object is None:
+            self.report({'ERROR'}, "Must have an active object")
+            return {'FINISHED'}
+
+        obj = context.object
+
+        objtype = GeneralObjectProperties.get_value("object_type", entity_reference=context.object)
+
+        if not objtype or objtype == "Skeleton":
+            self.report({'ERROR'}, "Can only prepare makehuman type meshes")
+            return {'FINISHED'}
+
+        context.view_layer.objects.active = obj
+        bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
+
+        from mpfb.ui.sculpt.sculptpanel import SCULPT_PROPERTIES
+
+        adjust_settings = SCULPT_PROPERTIES.get_value("adjust_settings", entity_reference=context.scene)
+        apply_armature = SCULPT_PROPERTIES.get_value("apply_armature", entity_reference=context.scene)
+        delete_helpers = SCULPT_PROPERTIES.get_value("delete_helpers", entity_reference=context.scene)
+        delete_origin = SCULPT_PROPERTIES.get_value("delete_origin", entity_reference=context.scene)
+        enter_sculpt = SCULPT_PROPERTIES.get_value("enter_sculpt", entity_reference=context.scene)
+        multires_first = SCULPT_PROPERTIES.get_value("multires_first", entity_reference=context.scene)
+        normal_material = SCULPT_PROPERTIES.get_value("normal_material", entity_reference=context.scene)
+        remove_delete = SCULPT_PROPERTIES.get_value("remove_delete", entity_reference=context.scene)
+        resolution = SCULPT_PROPERTIES.get_value("resolution", entity_reference=context.scene)
+        sculpt_strategy = SCULPT_PROPERTIES.get_value("sculpt_strategy", entity_reference=context.scene)
+        setup_multires = SCULPT_PROPERTIES.get_value("setup_multires", entity_reference=context.scene)
+        subdivisions = SCULPT_PROPERTIES.get_value("subdivisions", entity_reference=context.scene)
+
+        bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
+
+        _LOG.debug("Selected object", obj)
+
+        if sculpt_strategy in ["DESTCOPY", "SOURCEDESTCOPY"]:
+            dest = None
+            source = None
+            source_copy = sculpt_strategy == "SOURCEDESTCOPY"
+            _LOG.debug("source_copy", source_copy)
+            (source, dest) = self._create_clean_copies(context, obj, apply_armature, delete_helpers, remove_delete, create_source_copy=source_copy)
+            self._setup_materials(context, dest, normal_material, resolution)
+
+            if not source:
+                source = obj
+                self._handle_bm(context, source, delete_helpers)
+                self._handle_armature(context, source, apply_armature)
+
+                if remove_delete:
+                    for modifier in source.modifiers:
+                        if modifier.type == 'MASK' and modifier.vertex_group != 'body':
+                            source.modifiers.remove(modifier)
+
+            _LOG.debug("source, dest, obj", (source, dest, obj))
+
+            self._clear_subdiv(context, source)
+            self._setup_multires(context, source, setup_multires, subdivisions, multires_first)
+            self._setup_multires(context, dest, setup_multires, subdivisions, multires_first)
+
+            dest.hide_viewport = True
+
+            if source_copy and delete_origin:
+                parent = obj
+                if obj.parent:
+                    parent = obj.parent
+
+                for child in ObjectService.get_list_of_children(parent):
+                    bpy.data.objects.remove(child, do_unlink=True)
+
+                bpy.data.objects.remove(parent, do_unlink=True)
+
+#===============================================================================
+#         if sculpt_strategy in ["DESTCOPY", "SOURCEDESTCOPY"]:
+#             bpy.ops.object.duplicate(linked=False)
+#             dest = context.object
+#             dest.name = "Bake destination"
+#             dest.parent = None
+#             _LOG.debug("Dest object", dest)
+#
+#             if objtype == "Basemesh":
+#                 self._handle_bm(context, dest, delete_helpers)
+#
+#             self._handle_armature(context, dest, apply_armature)
+#
+#
+#             if remove_delete:
+#                 for modifier in dest.modifiers:
+#                     if modifier.type == 'MASK' and modifier.vertex_group != 'body':
+#                         dest.modifiers.remove(modifier)
+#
+#             self._clear_subdiv(context, dest)
+#
+#             if sculpt_strategy == "SOURCEDESTCOPY":
+#                 bpy.ops.object.duplicate(linked=False)
+#                 source = context.object
+#                 source.name = "Sculpt source"
+#                 source.parent = None
+#                 _LOG.debug("Source object", source)
+#             else:
+#                 source = obj
+#
+#             if normal_material:
+#                 MaterialService.delete_all_materials(dest)
+#                 material = MaterialService.create_empty_material('Material for baking normal map', dest)
+#                 material.diffuse_color = MaterialService.get_skin_diffuse_color()
+#                 nodes = material.node_tree
+#                 principled = NodeService.find_first_node_by_type_name(nodes, 'ShaderNodeBsdfPrincipled')
+#                 principled.inputs['Base Color'].default_value = MaterialService.get_skin_diffuse_color()
+#                 imgtex = NodeService.create_image_texture_node(nodes, xpos=-700)
+#                 side = int(resolution)
+#                 bpy.ops.image.new(name='Sculpt normal map', width=side, height=side)
+#                 imgtex.image = bpy.data.images['Sculpt normal map']
+#
+#             if setup_multires:
+#                 modifier = dest.modifiers.new('Sculpt subdivisions', 'SUBSURF')
+#                 modifier.levels = 0
+#                 modifier.render_levels = subdivisions
+#
+#             dest.select_set(state=False)
+#             dest.hide_viewport = True
+#
+#         obj.select_set(state=True)
+#         context.view_layer.objects.active = obj
+#
+#         _LOG.debug("Selected object", context.object)
+#
+#         if sculpt_strategy == "ORIGIN" and source:
+#             if objtype == "Basemesh":
+#                 self._handle_bm(context, source, delete_helpers)
+#
+#             self._handle_armature(context, source, apply_armature, source != obj)
+#
+#             if remove_delete:
+#                 for modifier in source.modifiers:
+#                     if modifier.type == 'MASK' and modifier.vertex_group != 'body':
+#                         source.modifiers.remove(modifier)
+#
+#             self._clear_subdiv(context, source)
+#
+#             if obj != source:
+#                 obj.select_set(state=False)
+#             source.select_set(state=True)
+#             context.view_layer.objects.active = source
+#
+#         if sculpt_strategy == "SOURCEDESTCOPY":
+#             if delete_origin:
+#                 parent = obj
+#                 if obj.parent:
+#                     parent = obj.parent
+#
+#                 for child in ObjectService.get_list_of_children(parent):
+#                     bpy.data.objects.remove(child, do_unlink=True)
+#
+#                 bpy.data.objects.remove(parent, do_unlink=True)
+#
+#         _LOG.debug("Source object", source)
+#         _LOG.debug("Setup multires", setup_multires)
+#
+#         if setup_multires:
+#             for modifier in source.modifiers:
+#                 if modifier.type == 'SUBSURF':
+#                     source.modifiers.remove(modifier)
+#             modifier = source.modifiers.new('Sculpt multires', 'MULTIRES')
+#             if multires_first:
+#                 while source.modifiers.find(modifier.name) != 0:
+#                     bpy.ops.object.modifier_move_up({'object': source}, modifier=modifier.name)
+#             if subdivisions > 0:
+#                 for n in range(subdivisions):
+#                     bpy.ops.object.multires_subdivide(modifier="Sculpt multires")
+#             #modifier.levels = 0
+#
+#         if sculpt_strategy != "ORIGIN" and adjust_settings:
+#             scene = context.scene
+#             scene.cycles.samples = 8
+#             scene.cycles.adaptive_min_samples = 1
+#             scene.cycles.use_denoising = False
+#             scene.cycles.bake_type = 'NORMAL'
+#             scene.render.use_bake_multires = False
+#             scene.render.bake.use_selected_to_active = True
+#             scene.render.bake.cage_extrusion = 0.01
+#             scene.render.bake.max_ray_distance = 0.1
+#
+#         if enter_sculpt:
+#             bpy.ops.object.mode_set(mode='SCULPT', toggle=False)
+#===============================================================================
+
+        if sculpt_strategy != "ORIGIN" and adjust_settings:
+            scene = context.scene
+            scene.cycles.samples = 8
+            scene.cycles.adaptive_min_samples = 1
+            scene.cycles.use_denoising = False
+            scene.cycles.bake_type = 'NORMAL'
+            scene.render.use_bake_multires = False
+            scene.render.bake.use_selected_to_active = True
+            scene.render.bake.cage_extrusion = 0.01
+            scene.render.bake.max_ray_distance = 0.1
+
+        self.report({'INFO'}, "Setup finished")
         return {'FINISHED'}
 
 ClassManager.add_class(MPFB_OT_Setup_Sculpt_Operator)

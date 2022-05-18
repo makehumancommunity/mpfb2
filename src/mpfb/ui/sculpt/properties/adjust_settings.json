@@ -1,0 +1,7 @@
+{
+    "type": "boolean",
+    "name": "adjust_settings",
+    "description": "Adjust render settings to make them suitable for baking a normal map",
+    "label": "Adjust render settings",
+    "default": true
+}
