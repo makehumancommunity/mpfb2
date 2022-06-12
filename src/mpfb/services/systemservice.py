@@ -1,6 +1,6 @@
 """Various functionality for system and directories"""
 
-import os, sys, subprocess
+import os, sys, subprocess, bpy, addon_utils
 from .logservice import LogService
 _LOG = LogService.get_logger("services.systemservice")
 
@@ -38,4 +38,16 @@ class SystemService:
             os.startfile(path) # pylint: disable=E1101
             return
         raise NotImplementedError("Opening a file browser is not supported for platform " + platform)
+
+    @staticmethod
+    def check_for_obj_importer():
+        if not hasattr(bpy.ops.import_scene, "obj"):
+            return False
+
+        for module in addon_utils.modules():
+            print(module)
+
+        (loaded_default, loaded_state) = addon_utils.check('io_scene_obj')
+        return loaded_state
+
 
