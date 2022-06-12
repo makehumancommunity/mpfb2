@@ -419,15 +419,17 @@ class RigService:
             ["thumb.01_master.L", "rigify_generated"]
             ]
 
+        guessed_rig = "unknown"
+
         for identification in bone_name_to_rig:
             if len(identification) == 3:
                 if identification[0] in armature_object.data.bones and identification[1] in armature_object.data.bones:
-                    return identification[2]
+                    guessed_rig = identification[2]
             else:
                 if identification[0] in armature_object.data.bones:
-                    return identification[1]
+                    guessed_rig = identification[1]
 
-        return "unknown"
+        return guessed_rig
 
     @staticmethod
     def mirror_bone_weights_to_other_side_bone(armature_object, source_bone_name, target_bone_name):
@@ -616,6 +618,7 @@ class RigService:
             raise ValueError("Could not find basemesh amongst rig's relatives")
 
         rig_type = RigService.identify_rig(armature_object)
+        _LOG.debug("Rig type", rig_type)
 
         if not rig_type:
             raise ValueError("Could not identify rig")
@@ -648,3 +651,5 @@ class RigService:
         for bone in armature_object.pose.bones:
             bone.rotation_mode = rotation_mode
         bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
+
+
