@@ -652,4 +652,36 @@ class RigService:
             bone.rotation_mode = rotation_mode
         bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
 
+    @staticmethod
+    def find_leg_length(armature_object):
+        rig_type = RigService.identify_rig(armature_object)
+        if not "default" in rig_type:
+            raise ValueError('find_leg_length is only implemented for the default rig so far')
 
+        right_leg = ["upperleg01.R", "upperleg02.R", "lowerleg01.R", "lowerleg02.R"]
+
+        leg_length = 0.0
+        for bone_name in right_leg:
+            bone = armature_object.data.bones.get(bone_name)
+            if not bone:
+                raise ValueError('Could not find bone ' + bone_name)
+            leg_length = leg_length + bone.length
+
+        return leg_length
+
+    @staticmethod
+    def find_arm_length(armature_object):
+        rig_type = RigService.identify_rig(armature_object)
+        if not "default" in rig_type:
+            raise ValueError('find_arm_length is only implemented for the default rig so far')
+
+        right_arm = ["upperarm01.R", "upperarm02.R", "lowerarm01.R", "lowerarm02.R"]
+
+        arm_length = 0.0
+        for bone_name in right_arm:
+            bone = armature_object.data.bones.get(bone_name)
+            if not bone:
+                raise ValueError('Could not find bone ' + bone_name)
+            arm_length = arm_length + bone.length
+
+        return arm_length
