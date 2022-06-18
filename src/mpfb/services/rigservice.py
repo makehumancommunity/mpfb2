@@ -412,7 +412,7 @@ class RigService:
     def identify_rig(armature_object):
         bone_name_to_rig = [
             ["oculi02.R", "default_no_toes"],
-            ["oculi02.R", "toe1-1.L", "default"],
+            ["oculi02.R", "toe2-1.L", "default"],
             ["thumb_01_l", "game_engine"],
             ["RThumb", "cmu_mb"],
             ["brow.T.R.002", "rigify_meta"],
@@ -422,12 +422,16 @@ class RigService:
         guessed_rig = "unknown"
 
         for identification in bone_name_to_rig:
+            _LOG.debug("Matching identification", identification)
             if len(identification) == 3:
                 if identification[0] in armature_object.data.bones and identification[1] in armature_object.data.bones:
+                    _LOG.debug("Matched two")
                     guessed_rig = identification[2]
             else:
                 if identification[0] in armature_object.data.bones:
+                    _LOG.debug("Matched one")
                     guessed_rig = identification[1]
+            _LOG.debug("Guessed rig is now", guessed_rig)
 
         return guessed_rig
 
