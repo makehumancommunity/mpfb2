@@ -6,6 +6,7 @@ from mpfb.services.objectservice import ObjectService
 from mpfb.services.locationservice import LocationService
 from mpfb.services.rigservice import RigService
 from mpfb.entities.rig import Rig
+from mpfb.services.systemservice import SystemService
 from mpfb import ClassManager
 
 _LOG = LogService.get_logger("addrig.add_rigify_rig")
@@ -24,6 +25,11 @@ class MPFB_OT_AddRigifyRigOperator(bpy.types.Operator):
         return False
 
     def execute(self, context):
+
+        if not SystemService.check_for_rigify():
+            self.report({'ERROR'}, "The rigify addon isn't enabled. You need to enable it under preferences.")
+            return {'FINISHED'}
+
         scene = context.scene
 
         if not ObjectService.object_is_basemesh(context.active_object):

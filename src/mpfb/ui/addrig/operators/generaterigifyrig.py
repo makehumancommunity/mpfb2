@@ -4,6 +4,7 @@ import bpy
 from mpfb.services.logservice import LogService
 from mpfb.services.objectservice import ObjectService
 from mpfb.services.rigservice import RigService
+from mpfb.services.systemservice import SystemService
 from mpfb import ClassManager
 
 _LOG = LogService.get_logger("addrig.generate_rigify_rig")
@@ -22,6 +23,7 @@ class MPFB_OT_GenerateRigifyRigOperator(bpy.types.Operator):
         return False
 
     def _delete_vertex_group(self, context, blender_object, vgroup_name):
+
         bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
         bpy.ops.object.select_all(action='DESELECT')
         context.view_layer.objects.active = blender_object
@@ -54,6 +56,10 @@ class MPFB_OT_GenerateRigifyRigOperator(bpy.types.Operator):
 
         if not ObjectService.object_is_skeleton(context.active_object):
             self.report({'ERROR'}, "Must have armature object selected")
+            return {'FINISHED'}
+
+        if not SystemService.check_for_rigify():
+            self.report({'ERROR'}, "The rigify addon isn't enabled. You need to enable it under preferences.")
             return {'FINISHED'}
 
         from mpfb.ui.addrig.addrigpanel import ADD_RIG_PROPERTIES # pylint: disable=C0415

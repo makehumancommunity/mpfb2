@@ -44,10 +44,14 @@ class SystemService:
         if not hasattr(bpy.ops.import_scene, "obj"):
             return False
 
-        for module in addon_utils.modules():
-            print(module)
-
         (loaded_default, loaded_state) = addon_utils.check('io_scene_obj')
         return loaded_state
 
+    @staticmethod
+    def check_for_rigify():
+        if not hasattr(bpy.ops.pose, "rigify_generate"):
+            return False
+
+        (loaded_default, loaded_state) = addon_utils.check('rigify')
+        return loaded_state
 
