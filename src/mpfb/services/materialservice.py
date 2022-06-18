@@ -38,6 +38,105 @@ class MaterialService():
         return blender_object.material_slots[slot].material
 
     @staticmethod
+    def identify_material(material):
+        """Try to figure out which kind of material we have"""
+        if not material:
+            return "empty"
+        nodes = material.node_tree.nodes
+
+        for node in nodes:
+            node_info = NodeService.get_node_info(node)
+            if node_info and node_info["type"] == "ShaderNodeGroup" and node_info["values"]:
+                # Material is potentially a procedural type material
+                _LOG.debug("node_info", node_info)
+                if "Pore detail" in node_info["values"]:
+                    return "enhanced_skin"
+                if "IrisSection4Color" in node_info["values"]:
+                    return "procedural_eyes"
+
+        # Since we're not enhanced skin nor procedural eyes, next guess is makeskin
+        # This might give a false positive if someone added a material with a principled node
+        # to a MH object
+        if NodeService.find_node_by_name(material.node_tree, "Principled BSDF"):
+            return "makeskin"
+
+        return "unknown"
+
+    @staticmethod
+    def _set_normalmap_in_nodetree(node_tree, filename):
+        _LOG.debug("Will set normalmap", filename)
+
+        links = node_tree.links
+
+        normalmap = NodeService.find_first_node_by_type_name(node_tree, "ShaderNodeNormalMap")
+        _LOG.debug("Normalmap in initial sweep", normalmap)
+
+        image_node = None
+        if normalmap:
+            # There is already a normalmap, no need to create another
+            image_node = NodeService.find_node_linked_to_socket(node_tree, normalmap, "Color")
+            _LOG.debug("Image node in pre-existing setup", image_node)
+        else:
+            # Will need to create setup for normalmap and its texture node
+            principled = NodeService.find_first_node_by_type_name(node_tree, "ShaderNodeBsdfPrincipled")
+            _LOG.debug("Principled", principled)
+
+            normalmap = NodeService.create_normal_map_node(node_tree, xpos=-300)
+            _LOG.debug("Normalmap", normalmap)
+
+            bump = NodeService.find_node_linked_to_socket(node_tree, principled, "Normal")
+            to_socket = None
+            _LOG.debug("Bump", bump)
+            if bump:
+                # There is a bump map, so hook the normalmap to that
+                to_socket = bump.inputs["Normal"]
+            else:
+                to_socket = principled.inputs["Normal"]
+
+            _LOG.debug("to_socket", to_socket)
+
+            from_socket = normalmap.outputs["Normal"]
+            _LOG.debug("from_socket", from_socket)
+
+            links.new(from_socket, to_socket)
+
+        if not image_node:
+            image_node = NodeService.create_image_texture_node(node_tree, xpos=-600)
+            _LOG.debug("Image node, newly created", image_node)
+
+            from_socket = image_node.outputs["Color"]
+            to_socket = normalmap.inputs["Color"]
+
+            links.new(from_socket, to_socket)
+
+        image_file_name = os.path.basename(filename)
+        image = None
+        if image_file_name in bpy.data.images:
+            _LOG.debug("image was previously loaded", filename)
+            image = bpy.data.images[image_file_name]
+        else:
+            image = bpy.data.images.load(filename)
+        image.colorspace_settings.name = "Non-Color"
+
+        image_node.image = image
+
+    @staticmethod
+    def set_normalmap(material, filename):
+        """Try to modify the material so that it uses the normal map"""
+        material_type = MaterialService.identify_material(material)
+
+        if material_type == "enhanced_skin":
+            group = NodeService.find_first_node_by_type_name(material.node_tree, "ShaderNodeGroup")
+            MaterialService._set_normalmap_in_nodetree(group.node_tree, filename)
+            return
+
+        if material_type == "makeskin":
+            MaterialService._set_normalmap_in_nodetree(material.node_tree, filename)
+            return
+
+        raise ValueError('Cannot set normalmap in material of type ' + material_type)
+
+    @staticmethod
     def assign_new_or_existing_material(name, blender_object):
         if name in bpy.data.materials:
             material = bpy.data.materials[name]
