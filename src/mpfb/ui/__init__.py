@@ -43,6 +43,7 @@ from mpfb.ui.loadclothes import *
 
 # Operations
 from mpfb.ui.sculpt import *
+from mpfb.ui.matops import *
 
 # System
 from mpfb.ui.webresources import *
