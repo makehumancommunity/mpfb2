@@ -27,7 +27,7 @@ class MPFB_PT_MakeSkin_Panel(Abstract_Panel):
         props = [
             "overwrite",
             #"create_node_visualization"
-            "create_diffusetexture",
+            "create_diffuse",
             "create_normalmap",
             "create_bumpmap",
             "create_transmissionmap",

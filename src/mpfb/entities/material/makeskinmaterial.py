@@ -180,24 +180,26 @@ class MakeSkinMaterial(MhMaterial):
 
     @staticmethod
     def create_makeskin_template_material(blender_object, scene, name="MakeSkinMaterial"):
+
+        from mpfb.ui.makeskin.makeskinpanel import MAKESKIN_PROPERTIES
+
         if blender_object is None:
             raise ValueError('Must provide an object')
-        if MaterialService.has_materials(blender_object):
+        if MaterialService.has_materials(blender_object) and not MAKESKIN_PROPERTIES.get_value("overwrite", entity_reference=scene):
             raise ValueError('Object already has material')
         if scene is None:
             raise ValueError('Must provide a scene')
 
-        from mpfb.ui.makeskin.makeskinpanel import MAKESKIN_PROPERTIES
-
         template_values = dict()
         for part in _TEXTURE_NAMES:
+            _LOG.debug("part", part)
             if MAKESKIN_PROPERTIES.get_value("create_" + part, entity_reference=scene):
                 template_values["has_" + part] = "true"
             else:
                 template_values["has_" + part] = "false"
             template_values[part + "_filename"] = "\"\""
 
-
+        _LOG.debug("Template values", template_values)
 
         material = MaterialService.create_empty_material(name, blender_object)
         msmat = MakeSkinMaterial()
