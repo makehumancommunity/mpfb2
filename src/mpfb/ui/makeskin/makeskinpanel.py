@@ -66,6 +66,7 @@ class MPFB_PT_MakeSkin_Panel(Abstract_Panel):
             "litsphere"
             ]
         MakeSkinObjectProperties.draw_properties(blender_object, box, props)
+        box.operator('mpfb.write_makeskin_to_library')
         box.operator('mpfb.write_makeskin_material')
 
     def draw(self, context):
