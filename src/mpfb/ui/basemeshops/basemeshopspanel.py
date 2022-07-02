@@ -35,6 +35,7 @@ class MPFB_PT_BasemeshOpsPanel(Abstract_Panel):
             return
 
         layout.operator("mpfb.bake_shapekeys")
+        layout.operator("mpfb.delete_helpers")
 
 
 ClassManager.add_class(MPFB_PT_BasemeshOpsPanel)
