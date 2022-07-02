@@ -42,6 +42,7 @@ from mpfb.ui.assetlibrary import *
 from mpfb.ui.loadclothes import *
 
 # Operations
+from mpfb.ui.basemeshops import *
 from mpfb.ui.sculpt import *
 from mpfb.ui.matops import *
 
