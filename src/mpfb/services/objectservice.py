@@ -18,6 +18,17 @@ class ObjectService:
         raise RuntimeError("You should not instance ObjectService. Use its static methods instead.")
 
     @staticmethod
+    def deselect_and_deactivate_all():
+        if bpy.context.object:
+            bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
+            bpy.context.object.select_set(False)
+        for obj in bpy.context.selected_objects:
+            bpy.context.view_layer.objects.active = obj
+            bpy.context.active_object.select_set(False)
+            obj.select_set(False)
+        bpy.context.view_layer.objects.active = None
+
+    @staticmethod
     def has_vertex_group(blender_object, vertex_group_name):
         if not blender_object or not vertex_group_name:
             return False

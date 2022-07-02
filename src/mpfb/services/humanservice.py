@@ -976,6 +976,8 @@ class HumanService:
                 exclude.append(str(group_name))
             exclude.extend(["Mid", "Right", "Left"])
 
+        ObjectService.deselect_and_deactivate_all()
+
         basemesh = ObjectService.load_base_mesh(context=bpy.context, scale_factor=scale, load_vertex_groups=True, exclude_vertex_groups=exclude)
 
         if macro_detail_dict is None:
