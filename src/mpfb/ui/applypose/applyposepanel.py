@@ -91,6 +91,8 @@ _SETTINGS_PART_PROP = {
 }
 POSES_PROPERTIES.add_property(_SETTINGS_PART_PROP, _populate_partials)
 
+_GLOBAL_POSES_SCANNED = False
+
 class MPFB_PT_ApplyPosePanel(Abstract_Panel):
     bl_label = "Apply pose"
     bl_category = UiService.get_value("RIGCATEGORY")
@@ -99,6 +101,12 @@ class MPFB_PT_ApplyPosePanel(Abstract_Panel):
 
     def draw(self, context):
         _LOG.enter()
+
+        global _GLOBAL_POSES_SCANNED
+        if not _GLOBAL_POSES_SCANNED:
+            _LOG.debug("Will now scan global poses")
+            RigService.ensure_global_poses_are_available()
+            _GLOBAL_POSES_SCANNED = True
 
         layout = self.layout
         scene = context.scene

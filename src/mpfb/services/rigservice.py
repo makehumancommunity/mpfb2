@@ -1,6 +1,6 @@
 """Service for working with rigs, bones and weights."""
 
-import bpy, os
+import bpy, os, fnmatch, shutil
 from mathutils import Matrix, Vector
 from mpfb.services.locationservice import LocationService
 from mpfb.services.logservice import LogService
@@ -20,6 +20,28 @@ class RigService:
     def __init__(self):
         """Do not instance, there are only static methods in the class"""
         raise RuntimeError("You should not instance RigService. Use its static methods instead.")
+
+    @staticmethod
+    def ensure_global_poses_are_available():
+        user_poses = LocationService.get_user_data("poses")
+        mpfb_poses = LocationService.get_mpfb_data("poses")
+        _LOG.debug("user_poses, mpfb_poses", (user_poses, mpfb_poses))
+        for root, dirs, files in os.walk(mpfb_poses):
+            if root != mpfb_poses:
+                subdir = os.path.basename(root)
+                for file in files:
+                    if fnmatch.fnmatch(file, "*.json"):
+                        target_dir = os.path.join(user_poses, subdir)
+                        expected = os.path.join(target_dir, file)
+                        existing = os.path.join(root, file)
+                        if not os.path.exists(expected):
+                            _LOG.debug("Pose does not exist in user dir", expected)
+                            if not os.path.exists(target_dir):
+                                os.makedirs(target_dir)
+                            _LOG.debug("About to copy", (existing, expected))
+                            shutil.copy(existing, expected)
+                        else:
+                            _LOG.debug("Pose already exists in user dir", expected)
 
     @staticmethod
     def find_pose_bone_by_name(name, armature_object):
