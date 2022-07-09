@@ -20,8 +20,11 @@ class ObjectService:
     @staticmethod
     def deselect_and_deactivate_all():
         if bpy.context.object:
-            bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
-            bpy.context.object.select_set(False)
+            try:
+                bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
+                bpy.context.object.select_set(False)
+            except:
+                _LOG.debug("Tried mode_set / unselect on non-existing object")
         for obj in bpy.context.selected_objects:
             bpy.context.view_layer.objects.active = obj
             bpy.context.active_object.select_set(False)
