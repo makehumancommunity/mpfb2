@@ -7,14 +7,14 @@ from mpfb.services.uiservice import UiService
 from mpfb.services.materialservice import MaterialService
 from mpfb.ui.abstractpanel import Abstract_Panel
 
-_LOG = LogService.get_logger("matops.matopspanel")
+_LOG = LogService.get_logger("poseops.poseopspanel")
 
 #_LOC = os.path.dirname(__file__)
 #SCULPT_PROPERTIES_DIR = os.path.join(_LOC, "properties")
 #SCULPT_PROPERTIES = SceneConfigSet.from_definitions_in_json_directory(SCULPT_PROPERTIES_DIR, prefix="SCL_")
 
-class MPFB_PT_MatopsPanel(Abstract_Panel):
-    bl_label = "Material"
+class MPFB_PT_PoseopsPanel(Abstract_Panel):
+    bl_label = "Poses"
     bl_category = UiService.get_value("OPERATIONSCATEGORY")
     bl_options = {'DEFAULT_CLOSED'}
     bl_parent_id = "MPFB_PT_Operations_Panel"
@@ -32,13 +32,9 @@ class MPFB_PT_MatopsPanel(Abstract_Panel):
 
         objtype = GeneralObjectProperties.get_value("object_type", entity_reference=context.object)
 
-        if not objtype or objtype == "Skeleton":
+        if objtype != "Skeleton":
             return
 
-        material = MaterialService.get_material(context.object)
-        #_LOG.dump("Material", (material, MaterialService.identify_material(material)))
+        layout.operator("mpfb.apply_pose")
 
-        layout.operator("mpfb.set_normalmap")
-
-
-ClassManager.add_class(MPFB_PT_MatopsPanel)
+ClassManager.add_class(MPFB_PT_PoseopsPanel)

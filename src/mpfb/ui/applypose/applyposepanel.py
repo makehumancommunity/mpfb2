@@ -94,7 +94,7 @@ POSES_PROPERTIES.add_property(_SETTINGS_PART_PROP, _populate_partials)
 _GLOBAL_POSES_SCANNED = False
 
 class MPFB_PT_ApplyPosePanel(Abstract_Panel):
-    bl_label = "Apply pose"
+    bl_label = "Load pose"
     bl_category = UiService.get_value("RIGCATEGORY")
     bl_options = {'DEFAULT_CLOSED'}
     bl_parent_id = "MPFB_PT_Rig_Panel"

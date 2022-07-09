@@ -1,12 +1,14 @@
 """Service for working with rigs, bones and weights."""
 
 import bpy, os, fnmatch, shutil
+from bpy.types import PoseBone
 from mathutils import Matrix, Vector
+from mathutils import Vector
 from mpfb.services.locationservice import LocationService
 from mpfb.services.logservice import LogService
+from mpfb.services.targetservice import TargetService
 from .objectservice import ObjectService
-from bpy.types import PoseBone
-from mathutils import Vector
+from mpfb.entities.objectproperties import GeneralObjectProperties
 
 _LOG = LogService.get_logger("services.rigservice")
 
@@ -42,6 +44,42 @@ class RigService:
                             shutil.copy(existing, expected)
                         else:
                             _LOG.debug("Pose already exists in user dir", expected)
+
+
+    @staticmethod
+    def apply_pose_as_rest_pose(armature_object):
+        """This will a) apply the pose modifier on each child mesh, b) apply the current pose as rest pose on the armature_object,
+        and c) create a new pose modifier on each child mesh."""
+        for child in ObjectService.get_list_of_children(armature_object):
+            _LOG.debug("Child", child)
+            ObjectService.deselect_and_deactivate_all()
+            ObjectService.activate_blender_object(child)
+            objtype = GeneralObjectProperties.get_value("object_type", entity_reference=child)
+            if objtype == "Basemesh":
+                _LOG.debug("Found basemesh, will now bake its targets")
+                TargetService.bake_targets(child)
+            for modifier in child.modifiers:
+                if modifier.type == 'ARMATURE':
+                    _LOG.debug("Will apply modifier", modifier)
+                    bpy.ops.object.modifier_apply( modifier = modifier.name )
+
+        ObjectService.deselect_and_deactivate_all()
+        ObjectService.activate_blender_object(armature_object)
+        bpy.ops.object.mode_set(mode='POSE', toggle=False)
+        bpy.ops.pose.armature_apply(selected=False)
+        bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
+
+        for child in ObjectService.get_list_of_children(armature_object):
+            _LOG.debug("Child", child)
+            ObjectService.deselect_and_deactivate_all()
+            ObjectService.activate_blender_object(child)
+            modifier = child.modifiers.new("Armature", 'ARMATURE')
+            modifier.object = armature_object
+            while child.modifiers.find(modifier.name) != 0:
+                bpy.ops.object.modifier_move_up({'object': child}, modifier=modifier.name)
+
+        ObjectService.deselect_and_deactivate_all()
+        ObjectService.activate_blender_object(armature_object)
 
     @staticmethod
     def find_pose_bone_by_name(name, armature_object):
