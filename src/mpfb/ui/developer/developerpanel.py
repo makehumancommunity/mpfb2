@@ -35,9 +35,9 @@ _LEVELS_LIST_PROP = {
 }
 
 _LOC = os.path.dirname(__file__)
-LOG_LEVELS_PROPERTIES_DIR = os.path.join(_LOC, "properties")
-LOG_LEVELS_PROPERTIES = SceneConfigSet.from_definitions_in_json_directory(LOG_LEVELS_PROPERTIES_DIR, prefix="DEV_")
-LOG_LEVELS_PROPERTIES.add_property(_LEVELS_LIST_PROP, _populate_list)
+DEVELOPER_PROPERTIES_DIR = os.path.join(_LOC, "properties")
+DEVELOPER_PROPERTIES = SceneConfigSet.from_definitions_in_json_directory(DEVELOPER_PROPERTIES_DIR, prefix="DEV_")
+DEVELOPER_PROPERTIES.add_property(_LEVELS_LIST_PROP, _populate_list)
 
 class MPFB_PT_Developer_Panel(bpy.types.Panel):
     """UI for various developer functions."""
@@ -57,13 +57,13 @@ class MPFB_PT_Developer_Panel(bpy.types.Panel):
         box = self._create_box(layout, "Log levels")
         box.operator("mpfb.list_log_levels")
         box.operator("mpfb.reset_log_levels")
-        LOG_LEVELS_PROPERTIES.draw_properties(scene, box, ["available_loggers", "chosen_level"])
+        DEVELOPER_PROPERTIES.draw_properties(scene, box, ["available_loggers", "chosen_level"])
         box.operator("mpfb.set_log_level")
 
     def _export_log_file(self, scene, layout):
         box = self._create_box(layout, "Export log file")
         box.label(text="Use default for combined log")
-        LOG_LEVELS_PROPERTIES.draw_properties(scene, box, ["available_loggers"])
+        DEVELOPER_PROPERTIES.draw_properties(scene, box, ["available_loggers"])
         box.operator("mpfb.export_log")
 
     def _nodes(self, layout):
@@ -71,8 +71,9 @@ class MPFB_PT_Developer_Panel(bpy.types.Panel):
         box.operator("mpfb.save_nodes")
         box.operator("mpfb.load_nodes")
 
-    def _rig(self, layout):
+    def _rig(self, scene, layout):
         box = self._create_box(layout, "Load/Save rig")
+        DEVELOPER_PROPERTIES.draw_properties(scene, box, ["rig_parent"])
         box.operator("mpfb.load_rig")
         box.operator("mpfb.save_rig")
         box.operator("mpfb.load_rigify_layers")
@@ -80,7 +81,7 @@ class MPFB_PT_Developer_Panel(bpy.types.Panel):
 
     def _weights(self, layout):
         box = self._create_box(layout, "Load/Save weights")
-        #box.operator("mpfb.load_rig")
+        box.operator("mpfb.load_weights")
         box.operator("mpfb.save_weights")
 
     def draw(self, context):
@@ -90,7 +91,7 @@ class MPFB_PT_Developer_Panel(bpy.types.Panel):
         self._log_levels(scene, layout)
         self._export_log_file(scene, layout)
         self._nodes(layout)
-        self._rig(layout)
+        self._rig(scene, layout)
         self._weights(layout)
 
 

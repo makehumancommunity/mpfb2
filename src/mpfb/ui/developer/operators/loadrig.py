@@ -31,6 +31,11 @@ class MPFB_OT_Load_Rig_Operator(bpy.types.Operator, ImportHelper):
             self.report({'ERROR'}, "Must have basemesh as active object")
             return {'FINISHED'}
 
+        scene = context.scene
+        from mpfb.ui.developer.developerpanel import DEVELOPER_PROPERTIES # pylint: disable=C0415
+
+        rig_parent = DEVELOPER_PROPERTIES.get_value("rig_parent", entity_reference=scene)
+
         basemesh = context.object
 
         absolute_file_path = bpy.path.abspath(self.filepath)
@@ -38,6 +43,9 @@ class MPFB_OT_Load_Rig_Operator(bpy.types.Operator, ImportHelper):
 
         rig = Rig.from_json_file_and_basemesh(absolute_file_path, basemesh)
         armature_object = rig.create_armature_and_fit_to_basemesh()
+
+        if rig_parent:
+            basemesh.parent = armature_object
 
         return {'FINISHED'}
 

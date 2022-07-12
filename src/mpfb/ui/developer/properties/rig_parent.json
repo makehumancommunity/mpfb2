@@ -1,0 +1,7 @@
+{
+    "type": "boolean",
+    "name": "rig_parent",
+    "description": "When loading a rig, make the rig a parent of the selected base mesh",
+    "label": "Make parent",
+    "default": true
+}
