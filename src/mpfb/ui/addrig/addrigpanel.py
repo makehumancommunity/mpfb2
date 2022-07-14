@@ -3,6 +3,7 @@
 import os
 from mpfb import ClassManager
 from mpfb.services.logservice import LogService
+from mpfb.services.rigservice import RigService
 from mpfb.services.uiservice import UiService
 from mpfb.services.objectservice import ObjectService
 from mpfb.services.sceneconfigset import SceneConfigSet

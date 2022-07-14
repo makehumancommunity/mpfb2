@@ -17,6 +17,13 @@ class GameEngineRigifyHelpers(RigifyHelpers):
         _LOG.debug("Constructing GameEngineRigifyHelpers object")
         RigifyHelpers.__init__(self, settings)
 
+    def get_foot_name(self, left_side=True):
+        if left_side:
+            side = "_l"
+        else:
+            side = "_r"
+        return "foot" + side
+
     def get_list_of_spine_bones(self):
         _LOG.enter()
         bones = ["pelvis"]
