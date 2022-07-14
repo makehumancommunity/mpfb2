@@ -18,6 +18,20 @@ class ObjectService:
         raise RuntimeError("You should not instance ObjectService. Use its static methods instead.")
 
     @staticmethod
+    def object_name_exists(name):
+        return name in bpy.data.objects
+
+    @staticmethod
+    def ensure_unique_name(desired_name):
+        if not ObjectService.object_name_exists(desired_name):
+            return desired_name
+        for i in range(1, 100):
+            ranged_name = desired_name + "." + str(i).zfill(3)
+            if not ObjectService.object_name_exists(ranged_name):
+                return ranged_name
+        return desired_name + ".999"
+
+    @staticmethod
     def deselect_and_deactivate_all():
         if bpy.context.object:
             try:

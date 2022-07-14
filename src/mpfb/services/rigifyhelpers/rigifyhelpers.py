@@ -47,14 +47,20 @@ class RigifyHelpers():
 
         bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
 
-        name = ""
+        name = armature_object.name
+
         if "name" in self.settings:
             name = str(self.settings["name"]).strip()
-            if name:
-                if hasattr(armature_object.data, 'rigify_rig_basename'):
-                    armature_object.data.rigify_rig_basename = name
-                else:
-                    armature_object.name = name
+
+        if name:
+            target_name = name
+            if ObjectService.object_name_exists("RIG-" + name):
+                target_name = ObjectService.ensure_unique_name("RIG-" + name)
+                target_name = target_name.replace("RIG-", "")
+            if hasattr(armature_object.data, 'rigify_rig_basename'):
+                armature_object.data.rigify_rig_basename = target_name
+            else:
+                armature_object.name = target_name
 
         if self.produce:
             bpy.ops.pose.rigify_generate()

@@ -70,10 +70,30 @@ class MPFB_OT_GenerateRigifyRigOperator(bpy.types.Operator):
         armature_object = context.active_object
         delete_after_generate = ADD_RIG_PROPERTIES.get_value("delete_after_generate", entity_reference=scene)
         teeth = ADD_RIG_PROPERTIES.get_value("teeth", entity_reference=scene)
-        name = str(ADD_RIG_PROPERTIES.get_value("name", entity_reference=scene)).strip()
+
+        explicit_name = str(ADD_RIG_PROPERTIES.get_value("name", entity_reference=scene)).strip()
+
+        name = armature_object.name
+
+        if explicit_name:
+            name = explicit_name
 
         if name:
-            armature_object.data.rigify_rig_basename = name
+            # Yes, the following logic is excessively messy, but rigify handles naming differently if the original
+            # name contains the word "metarig"
+            target_name = name
+            if target_name.endswith(".metarig"):
+                target_name = name.replace(".metarig", ".rig")
+            if ObjectService.object_name_exists(target_name) or ObjectService.object_name_exists("RIG-" + target_name):
+                target_name = ObjectService.ensure_unique_name("RIG-" + name)
+                target_name = target_name.replace("RIG-", "")
+            else:
+                target_name = name
+            _LOG.debug("Setting name", target_name)
+            if hasattr(armature_object.data, 'rigify_rig_basename'):
+                armature_object.data.rigify_rig_basename = target_name
+            else:
+                armature_object.name = target_name
 
         bpy.ops.pose.rigify_generate()
         rigify_object = context.active_object
