@@ -19,7 +19,10 @@ class MPFB_OT_GenerateRigifyRigOperator(bpy.types.Operator):
     @classmethod
     def poll(cls, context):
         if context.active_object is not None:
-            return ObjectService.object_is_skeleton(context.active_object)
+            if not ObjectService.object_is_skeleton(context.active_object):
+                return False
+            rig_type = RigService.identify_rig(context.active_object)
+            return "rigify" in rig_type
         return False
 
     def _delete_vertex_group(self, context, blender_object, vgroup_name):
