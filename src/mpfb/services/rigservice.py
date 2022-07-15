@@ -749,3 +749,35 @@ class RigService:
             arm_length = arm_length + bone.length
 
         return arm_length
+
+    @staticmethod
+    def copy_pose(from_armature, to_armature, only_rotation=True):
+        rotations = dict()
+        translations = dict()
+        scalings = dict()
+
+        bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
+        ObjectService.deselect_and_deactivate_all()
+        ObjectService.activate_blender_object(from_armature)
+        bpy.ops.object.mode_set(mode='POSE', toggle=False)
+
+        for bone in from_armature.pose.bones:
+            rotations[bone.name] = bone.rotation_euler.copy()
+            translations[bone.name] = bone.location.copy()
+            scalings[bone.name] = bone.scale.copy()
+
+        bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
+        ObjectService.deselect_and_deactivate_all()
+        ObjectService.activate_blender_object(to_armature)
+        bpy.ops.object.mode_set(mode='POSE', toggle=False)
+
+        for bone in to_armature.pose.bones:
+            if bone.name in rotations:
+                bone.rotation_euler = rotations[bone.name]
+            if not only_rotation:
+                if bone.name in translations:
+                    bone.location = translations[bone.name]
+                if bone.name in scalings:
+                    bone.scale = scalings[bone.name]
+
+        bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
