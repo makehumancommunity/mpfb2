@@ -108,6 +108,12 @@ class ObjectService:
         return children
 
     @staticmethod
+    def get_object_type(blender_object):
+        if not blender_object:
+            return None
+        return GeneralObjectProperties.get_value("object_type", entity_reference=blender_object)
+
+    @staticmethod
     def object_is(blender_object, mpfb_type_name):
         if not blender_object:
             return False

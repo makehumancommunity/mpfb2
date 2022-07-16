@@ -1059,3 +1059,56 @@ class HumanService:
 
         if rig:
             RigService.refit_existing_armature(rig)
+
+    @staticmethod
+    def get_asset_sources_of_equipped_mesh_assets(basemesh):
+        if not basemesh:
+            return []
+        _LOG.debug("Provided basemesh", basemesh)
+        parent = basemesh
+        if basemesh.parent and ObjectService.object_is_skeleton(basemesh.parent):
+            parent = basemesh.parent
+        _LOG.debug("Actual parent", basemesh)
+
+        sources = []
+        children = ObjectService.get_list_of_children(parent)
+        for child in children:
+            child_type = ObjectService.get_object_type(child)
+            _LOG.debug("Child, type", (child, child_type))
+            if child_type in ["Proxymeshes", "Clothes", "Eyes", "Tongue", "Teeth", "Hair"]:
+                source = GeneralObjectProperties.get_value("asset_source", entity_reference=child)
+                _LOG.debug("Child source", source)
+                sources.append(source)
+        return sources
+
+    @staticmethod
+    def unload_mhclo_asset(basemesh, asset):
+        _LOG.debug("basemesh, asset", (basemesh, asset))
+
+        if not asset:
+            return
+
+        source = GeneralObjectProperties.get_value("asset_source", entity_reference=asset)
+
+        objs_with_delete = []
+
+        proxy = ObjectService.find_object_of_type_amongst_nearest_relatives(asset, "Proxymeshes")
+        if basemesh:
+            objs_with_delete.append(basemesh)
+        if proxy:
+            objs_with_delete.append(proxy)
+
+        delete_name = str(os.path.basename(source)) # pylint: disable=E1101
+        delete_name = delete_name.replace(".mhclo", "")
+        delete_name = delete_name.replace(".MHCLO", "")
+        delete_name = delete_name.replace(" ", "_")
+        delete_name = "Delete." + delete_name
+
+        _LOG.debug("Delete name", delete_name)
+
+        for obj in objs_with_delete:
+            for modifier in obj.modifiers:
+                if modifier.type == 'MASK' and modifier.name == delete_name:
+                    obj.modifiers.remove(modifier)
+
+        bpy.data.objects.remove(asset)
