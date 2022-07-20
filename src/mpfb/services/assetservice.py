@@ -163,6 +163,21 @@ class AssetService:
         return AssetService.find_asset_files_matching_pattern(roots, "*.proxy")
 
     @staticmethod
+    def alternative_materials_for_asset(asset_source, asset_subdir="clothes", exclude_default=True):
+        _LOG.enter()
+        mhclo_path = AssetService.find_asset_absolute_path(asset_source, asset_subdir)
+        _LOG.debug("Mhclo absolute", mhclo_path)
+        roots = AssetService.get_asset_roots(asset_subdir)
+        first_filter = "/" + os.path.dirname(asset_source) + "/"
+        possible_materials = []
+        for mat in AssetService.find_asset_files_matching_pattern(roots, "*.mhmat"):
+            if first_filter in str(mat):
+                possible_materials.append(mat)
+        _LOG.debug("Possible materials", possible_materials)
+        return possible_materials
+
+
+    @staticmethod
     def get_available_data_roots():
         _LOG.enter()
         user_data = LocationService.get_user_data()
@@ -250,3 +265,14 @@ class AssetService:
         if not asset_subdir in _ASSETS:
             AssetService.update_asset_list(asset_subdir, asset_type)
         return _ASSETS[asset_subdir]
+
+    @staticmethod
+    def path_to_fragment(asset_full_path, relative_to_fragment=None, asset_subdir="clothes"):
+        if not relative_to_fragment:
+            return os.path.basename(os.path.dirname(asset_full_path)) + "/" + os.path.basename(asset_full_path)
+        full = str(asset_full_path)
+        relative = AssetService.find_asset_absolute_path(relative_to_fragment, asset_subdir)
+
+        raise ValueError('Not finished')
+
+

@@ -154,6 +154,7 @@ class HumanService:
                 asset_source = GeneralObjectProperties.get_value("asset_source", entity_reference=bodypart_obj)
                 if not asset_source is None:
                     human_info[str(bodypart).lower()] = str(asset_source).strip()
+                    HumanService._populate_alternative_material(human_info, bodypart_obj)
 
     @staticmethod
     def _populate_human_info_with_clothes_info(human_info, basemesh):
@@ -170,6 +171,7 @@ class HumanService:
             asset_source = GeneralObjectProperties.get_value("asset_source", entity_reference=clothes_obj)
             if not asset_source is None:
                 human_info["clothes"].append(str(asset_source).strip())
+                HumanService._populate_alternative_material(human_info, clothes_obj)
 
     @staticmethod
     def _populate_human_info_with_proxy_info(human_info, basemesh):
@@ -179,6 +181,18 @@ class HumanService:
         asset_source = GeneralObjectProperties.get_value("asset_source", entity_reference=proxy)
         if not asset_source is None:
             human_info["proxy"] = str(asset_source).strip()
+
+    @staticmethod
+    def _populate_alternative_material(human_info, obj):
+        if not obj:
+            return
+        alternative_material = GeneralObjectProperties.get_value("alternative_material", entity_reference=obj)
+        uuid = GeneralObjectProperties.get_value("uuid", entity_reference=obj)
+        _LOG.debug("alternative_material, uuid", (alternative_material, uuid))
+        if alternative_material and uuid:
+            if not "alternative_materials" in human_info:
+                human_info["alternative_materials"] = dict()
+            human_info["alternative_materials"][uuid] = alternative_material
 
     @staticmethod
     def _create_default_human_info_dict():
@@ -275,7 +289,7 @@ class HumanService:
             _LOG.debug("There is no corrective information for", uuid)
 
     @staticmethod
-    def add_mhclo_asset(mhclo_file, basemesh, asset_type="Clothes", subdiv_levels=1, material_type="MAKESKIN"):
+    def add_mhclo_asset(mhclo_file, basemesh, asset_type="Clothes", subdiv_levels=1, material_type="MAKESKIN", alternative_materials=None):
         mhclo = Mhclo()
         mhclo.load(mhclo_file) # pylint: disable=E1101
         clothes = mhclo.load_mesh(bpy.context)
@@ -311,6 +325,9 @@ class HumanService:
         if atype in colors:
             color = colors[atype]
 
+        if mhclo.uuid:
+            GeneralObjectProperties.set_value("uuid", mhclo.uuid, entity_reference=clothes)
+
         if not mhclo.material:
             _LOG.debug("Material is not set in mhclo")
 
@@ -318,7 +335,17 @@ class HumanService:
             _LOG.debug("Setting up MAKESKIN material", mhclo.material)
             MaterialService.delete_all_materials(clothes)
             makeskin_material = MakeSkinMaterial()
-            makeskin_material.populate_from_mhmat(mhclo.material)
+            material = mhclo.material
+            _LOG.debug("UUID, alternative_materials", (mhclo.uuid, alternative_materials))
+            if mhclo.uuid and alternative_materials and mhclo.uuid in alternative_materials:
+                material = AssetService.find_asset_absolute_path(alternative_materials[mhclo.uuid], str(asset_type).lower())
+                if not os.path.exists(material):
+                    _LOG.warn("Failed to find full path to alternative material", alternative_materials[mhclo.uuid])
+                    material = mhclo.material
+                else:
+                    GeneralObjectProperties.set_value("alternative_material", alternative_materials[mhclo.uuid], entity_reference=clothes)
+            _LOG.debug("Actual material", material)
+            makeskin_material.populate_from_mhmat(material)
             blender_material = MaterialService.create_empty_material(name, clothes)
             makeskin_material.apply_node_tree(blender_material)
             blender_material.diffuse_color = color
@@ -371,9 +398,6 @@ class HumanService:
             modifier.levels = 0
             modifier.render_levels = subdiv_levels
 
-        if mhclo.uuid:
-            GeneralObjectProperties.set_value("uuid", mhclo.uuid, entity_reference=clothes)
-
         return clothes
 
     @staticmethod
@@ -402,7 +426,7 @@ class HumanService:
                 if bodypart == "eyes" and "eyes_material_type" in human_info and human_info["eyes_material_type"]:
                     material = human_info["eyes_material_type"]
                 if not asset_absolute_path is None:
-                    bodypart_object = HumanService.add_mhclo_asset(asset_absolute_path, basemesh, asset_type=bodypart, subdiv_levels=subdiv_levels, material_type=material)
+                    bodypart_object = HumanService.add_mhclo_asset(asset_absolute_path, basemesh, asset_type=bodypart, subdiv_levels=subdiv_levels, material_type=material, alternative_materials=human_info["alternative_materials"])
                     #if bodypart_object and "name" in human_info and human_info["name"]:
                     #    bodypart_object.name = human_info["name"] + "." + bodypart_object.name
                 else:
@@ -421,9 +445,7 @@ class HumanService:
             _LOG.debug("Asset absolute path", asset_absolute_path)
             material = "MAKESKIN"
             if not asset_absolute_path is None:
-                bodypart_object = HumanService.add_mhclo_asset(asset_absolute_path, basemesh, asset_type="clothes", subdiv_levels=subdiv_levels, material_type=material)
-                #if bodypart_object and "name" in human_info and human_info["name"]:
-                #    bodypart_object.name = human_info["name"] + "." + bodypart_object.name
+                clothes_object = HumanService.add_mhclo_asset(asset_absolute_path, basemesh, asset_type="clothes", subdiv_levels=subdiv_levels, material_type=material, alternative_materials=human_info["alternative_materials"])
             else:
                 _LOG.warn("Could not locate clothes", asset_filename)
         profiler.leave("_check_add_clothes")
@@ -641,6 +663,9 @@ class HumanService:
             raise ValueError('The provided dict does not seem to be a valid human_info')
 
         _LOG.dump("human_info", human_info)
+
+        if not "alternative_materials" in human_info:
+            human_info["alternative_materials"] = dict();
 
         macro_detail_dict = human_info["phenotype"]
         basemesh = HumanService.create_human(mask_helpers, detailed_helpers, extra_vertex_groups, feet_on_ground, scale, macro_detail_dict)

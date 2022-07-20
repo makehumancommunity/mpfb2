@@ -1,0 +1,7 @@
+{
+    "type": "string",
+    "name": "alternative_material",
+    "description": "Reference to material if not default",
+    "label": "Alternative material",
+    "default": ""
+}
