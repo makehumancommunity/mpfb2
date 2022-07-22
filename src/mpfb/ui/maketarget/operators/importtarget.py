@@ -8,6 +8,7 @@ from mpfb.services.logservice import LogService
 from mpfb.services.objectservice import ObjectService
 from mpfb.services.targetservice import TargetService
 from mpfb.ui.maketarget import MakeTargetObjectProperties
+from mpfb.entities.objectproperties import GeneralObjectProperties
 from mpfb import ClassManager
 
 _LOG = LogService.get_logger("maketarget.importtarget")
@@ -22,9 +23,21 @@ class MPFB_OT_ImportTargetOperator(bpy.types.Operator, ImportHelper):
 
     @classmethod
     def poll(cls, context):
-        if not ObjectService.object_is_basemesh(context.active_object):
+        blender_object = context.active_object
+        if blender_object is None:
+            _LOG.trace("Blender object is None")
             return False
-        return not context.active_object.data.shape_keys
+
+        object_type = GeneralObjectProperties.get_value("object_type", entity_reference=blender_object)
+
+        if object_type != "Basemesh":
+            _LOG.trace("Wrong object type", object_type)
+            return False
+
+        if not context.active_object.data.shape_keys:
+            _LOG.trace("No shape keys", object_type)
+
+        return not TargetService.has_target(blender_object, "PrimaryTarget")
 
     def invoke(self, context, event):
         blender_object = context.active_object

@@ -13,7 +13,7 @@ from mpfb import ClassManager
 _LOG = LogService.get_logger("maketarget.writetarget")
 
 class MPFB_OT_WriteTargetOperator(bpy.types.Operator, ExportHelper):
-    """Write target to target file"""
+    """Write target to target file. In order to do this, you must first have created a primary target on the mesh."""
     bl_idname = "mpfb.write_maketarget_target"
     bl_label = "Save target"
     bl_options = {'REGISTER'}
@@ -34,10 +34,10 @@ class MPFB_OT_WriteTargetOperator(bpy.types.Operator, ExportHelper):
         if not object_type or object_type != "Basemesh":
             return False
 
-        if context.active_object.data.shape_keys:
-            return True
+        if not context.active_object.data.shape_keys:
+            return False
 
-        return False
+        return TargetService.has_target(blender_object, "PrimaryTarget")
 
     def invoke(self, context, event):
         blender_object = context.active_object
@@ -47,6 +47,11 @@ class MPFB_OT_WriteTargetOperator(bpy.types.Operator, ExportHelper):
 
     def execute(self, context):
         blender_object = context.active_object
+
+        if not TargetService.has_target(blender_object, "PrimaryTarget"):
+            self.report({'ERROR'}, "Must first create a MakeTarget primary target")
+            return {'FINISHED'}
+
         info = TargetService.get_shape_key_as_dict(blender_object, "PrimaryTarget")
 
         _LOG.dump("Shape key", info)

@@ -34,10 +34,10 @@ class MPFB_OT_WritePtargetOperator(bpy.types.Operator, ExportHelper):
         if not object_type or object_type == "Skeleton" or object_type == "Basemesh":
             return False
 
-        if context.active_object.data.shape_keys:
-            return True
+        if not context.active_object.data.shape_keys:
+            return False
 
-        return False
+        return TargetService.has_target(blender_object, "PrimaryTarget")
 
     def invoke(self, context, event):
         blender_object = context.active_object
