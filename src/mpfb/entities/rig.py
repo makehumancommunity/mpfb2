@@ -58,7 +58,7 @@ class Rig:
 
         return rig
 
-    def create_armature_and_fit_to_basemesh(self, for_developer=False, preserve_volume=False):
+    def create_armature_and_fit_to_basemesh(self, for_developer=False):
         """Use the information in the object to construct an armature and adjust it to fit the base mesh."""
 
         #self.move_basemesh_if_needed()
@@ -91,7 +91,6 @@ class Rig:
 
         modifier = self.basemesh.modifiers.new("Armature", 'ARMATURE')
         modifier.object = self.armature_object
-        modifier.use_deform_preserve_volume = preserve_volume
         while self.basemesh.modifiers.find(modifier.name) != 0:
             bpy.ops.object.modifier_move_up({'object': self.basemesh}, modifier=modifier.name)
 

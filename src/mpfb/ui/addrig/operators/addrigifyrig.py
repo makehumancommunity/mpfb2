@@ -49,7 +49,7 @@ class MPFB_OT_AddRigifyRigOperator(bpy.types.Operator):
         rig_file = os.path.join(rigify_dir, "rig.human.json")
 
         rig = Rig.from_json_file_and_basemesh(rig_file, basemesh)
-        armature_object = rig.create_armature_and_fit_to_basemesh(preserve_volume=True)
+        armature_object = rig.create_armature_and_fit_to_basemesh()
 
         if hasattr(armature_object.data, 'rigify_rig_basename'):
             armature_object.data.rigify_rig_basename = "Human.rigify"
