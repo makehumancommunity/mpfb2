@@ -107,7 +107,7 @@ class MPFB_OT_GenerateRigifyRigOperator(bpy.types.Operator):
 
             for bone in armature_object.data.bones:
                 name = bone.name
-                if name in child.vertex_groups:
+                if not name.startswith("DEF-") and name in child.vertex_groups:
                     vertex_group = child.vertex_groups.get(name)
                     vertex_group.name = "DEF-" + name
 
