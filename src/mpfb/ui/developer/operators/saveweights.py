@@ -61,7 +61,14 @@ class MPFB_OT_Save_Weights_Operator(bpy.types.Operator, ExportHelper):
         weights = RigService.get_weights(armature_object, basemesh)
 
         # Strip the Rigify deform bone prefix for convenience
-        weights["weights"] = {re.sub(r'^DEF-', '', k): v for k,v in weights["weights"].items()}
+        def strip_def(name):
+            if name.startswith('DEF-'):
+                # Only strip if a bone with that name existed in the metarig
+                if ('ORG-'+name[4:]) in armature_object.pose.bones:
+                    return name[4:]
+            return name
+
+        weights["weights"] = {strip_def(k): v for k,v in weights["weights"].items()}
 
         with open(absolute_file_path, "w") as json_file:
             json.dump(weights, json_file, indent=4, sort_keys=True)
