@@ -10,7 +10,6 @@ from mpfb.ui.makeweight.makeweightpanel import MAKEWEIGHT_PROPERTIES
 from mpfb import ClassManager
 
 _LOG = LogService.get_logger("makeweight.truncateweights")
-_LOG.set_level(LogService.DUMP)
 
 class MPFB_OT_TruncateWeightsOperator(bpy.types.Operator):
     """Wipe all weight information from the selected vertex group"""

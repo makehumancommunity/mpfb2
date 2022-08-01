@@ -3,6 +3,7 @@ from mpfb.services.objectservice import ObjectService
 from mpfb.services.rigservice import RigService
 from mpfb._classmanager import ClassManager
 from mpfb.services.rigifyhelpers.rigifyhelpers import RigifyHelpers
+from mpfb.services.systemservice import SystemService
 import bpy, json
 
 _LOG = LogService.get_logger("rigify.operators.converttorigify")
@@ -22,6 +23,10 @@ class MPFB_OT_Convert_To_Rigify_Operator(bpy.types.Operator):
     def execute(self, context):
         _LOG.enter()
         _LOG.debug("click")
+
+        if not SystemService.check_for_rigify():
+            self.report({'ERROR'}, "The rigify addon isn't enabled. You need to enable it under preferences.")
+            return {'FINISHED'}
 
         blender_object = context.active_object
 

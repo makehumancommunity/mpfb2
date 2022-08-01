@@ -3,6 +3,7 @@
 import os
 from mpfb import ClassManager
 from mpfb.services.logservice import LogService
+from mpfb.services.rigservice import RigService
 from mpfb.services.uiservice import UiService
 from mpfb.services.objectservice import ObjectService
 from mpfb.services.sceneconfigset import SceneConfigSet
@@ -64,6 +65,8 @@ class MPFB_PT_Add_Rig_Panel(Abstract_Panel):
             self._standard_rig(scene, layout)
             self._add_rigify_rig(scene, layout)
         else:
-            self._generate_rigify_rig(scene, layout)
+            rig_type = RigService.identify_rig(armature_object)
+            if "rigify" in rig_type:
+                self._generate_rigify_rig(scene, layout)
 
 ClassManager.add_class(MPFB_PT_Add_Rig_Panel)

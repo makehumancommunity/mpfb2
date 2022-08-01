@@ -1,12 +1,14 @@
 """Service for working with rigs, bones and weights."""
 
-import bpy, os
+import bpy, os, fnmatch, shutil
+from bpy.types import PoseBone
 from mathutils import Matrix, Vector
+from mathutils import Vector
 from mpfb.services.locationservice import LocationService
 from mpfb.services.logservice import LogService
+from mpfb.services.targetservice import TargetService
 from .objectservice import ObjectService
-from bpy.types import PoseBone
-from mathutils import Vector
+from mpfb.entities.objectproperties import GeneralObjectProperties
 
 _LOG = LogService.get_logger("services.rigservice")
 
@@ -20,6 +22,64 @@ class RigService:
     def __init__(self):
         """Do not instance, there are only static methods in the class"""
         raise RuntimeError("You should not instance RigService. Use its static methods instead.")
+
+    @staticmethod
+    def ensure_global_poses_are_available():
+        user_poses = LocationService.get_user_data("poses")
+        mpfb_poses = LocationService.get_mpfb_data("poses")
+        _LOG.debug("user_poses, mpfb_poses", (user_poses, mpfb_poses))
+        for root, dirs, files in os.walk(mpfb_poses):
+            if root != mpfb_poses:
+                subdir = os.path.basename(root)
+                for file in files:
+                    if fnmatch.fnmatch(file, "*.json"):
+                        target_dir = os.path.join(user_poses, subdir)
+                        expected = os.path.join(target_dir, file)
+                        existing = os.path.join(root, file)
+                        if not os.path.exists(expected):
+                            _LOG.debug("Pose does not exist in user dir", expected)
+                            if not os.path.exists(target_dir):
+                                os.makedirs(target_dir)
+                            _LOG.debug("About to copy", (existing, expected))
+                            shutil.copy(existing, expected)
+                        else:
+                            _LOG.debug("Pose already exists in user dir", expected)
+
+
+    @staticmethod
+    def apply_pose_as_rest_pose(armature_object):
+        """This will a) apply the pose modifier on each child mesh, b) apply the current pose as rest pose on the armature_object,
+        and c) create a new pose modifier on each child mesh."""
+        for child in ObjectService.get_list_of_children(armature_object):
+            _LOG.debug("Child", child)
+            ObjectService.deselect_and_deactivate_all()
+            ObjectService.activate_blender_object(child)
+            objtype = GeneralObjectProperties.get_value("object_type", entity_reference=child)
+            if objtype == "Basemesh":
+                _LOG.debug("Found basemesh, will now bake its targets")
+                TargetService.bake_targets(child)
+            for modifier in child.modifiers:
+                if modifier.type == 'ARMATURE':
+                    _LOG.debug("Will apply modifier", modifier)
+                    bpy.ops.object.modifier_apply( modifier = modifier.name )
+
+        ObjectService.deselect_and_deactivate_all()
+        ObjectService.activate_blender_object(armature_object)
+        bpy.ops.object.mode_set(mode='POSE', toggle=False)
+        bpy.ops.pose.armature_apply(selected=False)
+        bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
+
+        for child in ObjectService.get_list_of_children(armature_object):
+            _LOG.debug("Child", child)
+            ObjectService.deselect_and_deactivate_all()
+            ObjectService.activate_blender_object(child)
+            modifier = child.modifiers.new("Armature", 'ARMATURE')
+            modifier.object = armature_object
+            while child.modifiers.find(modifier.name) != 0:
+                bpy.ops.object.modifier_move_up({'object': child}, modifier=modifier.name)
+
+        ObjectService.deselect_and_deactivate_all()
+        ObjectService.activate_blender_object(armature_object)
 
     @staticmethod
     def find_pose_bone_by_name(name, armature_object):
@@ -272,13 +332,7 @@ class RigService:
         for bone_info in data["bones"]:
             RigService._add_bone(armature, bone_info, scale=scale)
 
-        bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
-
-        bpy.ops.object.mode_set(mode='POSE', toggle=False)
-        for bone in armature_object.pose.bones:
-            bone.rotation_mode = "XYZ"
-
-        bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
+        RigService.normalize_rotation_mode(armature_object)
 
         return armature_object
 
@@ -421,22 +475,28 @@ class RigService:
     def identify_rig(armature_object):
         bone_name_to_rig = [
             ["oculi02.R", "default_no_toes"],
-            ["oculi02.R", "toe1-1.L", "default"],
+            ["oculi02.R", "toe2-1.L", "default"],
             ["thumb_01_l", "game_engine"],
             ["RThumb", "cmu_mb"],
             ["brow.T.R.002", "rigify_meta"],
             ["thumb.01_master.L", "rigify_generated"]
             ]
 
+        guessed_rig = "unknown"
+
         for identification in bone_name_to_rig:
+            _LOG.debug("Matching identification", identification)
             if len(identification) == 3:
                 if identification[0] in armature_object.data.bones and identification[1] in armature_object.data.bones:
-                    return identification[2]
+                    _LOG.debug("Matched two")
+                    guessed_rig = identification[2]
             else:
                 if identification[0] in armature_object.data.bones:
-                    return identification[1]
+                    _LOG.debug("Matched one")
+                    guessed_rig = identification[1]
+            _LOG.debug("Guessed rig is now", guessed_rig)
 
-        return "unknown"
+        return guessed_rig
 
     @staticmethod
     def mirror_bone_weights_to_other_side_bone(armature_object, source_bone_name, target_bone_name):
@@ -625,6 +685,7 @@ class RigService:
             raise ValueError("Could not find basemesh amongst rig's relatives")
 
         rig_type = RigService.identify_rig(armature_object)
+        _LOG.debug("Rig type", rig_type)
 
         if not rig_type:
             raise ValueError("Could not identify rig")
@@ -649,3 +710,77 @@ class RigService:
 
         bpy.context.view_layer.objects.active = current_active_object
         _LOG.time("Refitting took")
+
+    @staticmethod
+    def normalize_rotation_mode(armature_object, rotation_mode="XYZ"):
+        bpy.context.view_layer.objects.active = armature_object
+        bpy.ops.object.mode_set(mode='POSE', toggle=False)
+        for bone in armature_object.pose.bones:
+            bone.rotation_mode = rotation_mode
+        bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
+
+    @staticmethod
+    def find_leg_length(armature_object):
+        rig_type = RigService.identify_rig(armature_object)
+        if not "default" in rig_type:
+            raise ValueError('find_leg_length is only implemented for the default rig so far')
+
+        right_leg = ["upperleg01.R", "upperleg02.R", "lowerleg01.R", "lowerleg02.R"]
+
+        leg_length = 0.0
+        for bone_name in right_leg:
+            bone = armature_object.data.bones.get(bone_name)
+            if not bone:
+                raise ValueError('Could not find bone ' + bone_name)
+            leg_length = leg_length + bone.length
+
+        return leg_length
+
+    @staticmethod
+    def find_arm_length(armature_object):
+        rig_type = RigService.identify_rig(armature_object)
+        if not "default" in rig_type:
+            raise ValueError('find_arm_length is only implemented for the default rig so far')
+
+        right_arm = ["upperarm01.R", "upperarm02.R", "lowerarm01.R", "lowerarm02.R"]
+
+        arm_length = 0.0
+        for bone_name in right_arm:
+            bone = armature_object.data.bones.get(bone_name)
+            if not bone:
+                raise ValueError('Could not find bone ' + bone_name)
+            arm_length = arm_length + bone.length
+
+        return arm_length
+
+    @staticmethod
+    def copy_pose(from_armature, to_armature, only_rotation=True):
+        rotations = dict()
+        translations = dict()
+        scalings = dict()
+
+        bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
+        ObjectService.deselect_and_deactivate_all()
+        ObjectService.activate_blender_object(from_armature)
+        bpy.ops.object.mode_set(mode='POSE', toggle=False)
+
+        for bone in from_armature.pose.bones:
+            rotations[bone.name] = bone.rotation_euler.copy()
+            translations[bone.name] = bone.location.copy()
+            scalings[bone.name] = bone.scale.copy()
+
+        bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
+        ObjectService.deselect_and_deactivate_all()
+        ObjectService.activate_blender_object(to_armature)
+        bpy.ops.object.mode_set(mode='POSE', toggle=False)
+
+        for bone in to_armature.pose.bones:
+            if bone.name in rotations:
+                bone.rotation_euler = rotations[bone.name]
+            if not only_rotation:
+                if bone.name in translations:
+                    bone.location = translations[bone.name]
+                if bone.name in scalings:
+                    bone.scale = scalings[bone.name]
+
+        bpy.ops.object.mode_set(mode='OBJECT', toggle=False)

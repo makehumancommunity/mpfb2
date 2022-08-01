@@ -1,0 +1,7 @@
+{
+    "type": "boolean",
+    "name": "normal_material",
+    "description": "Create a material with an empty image texture node, suitable for baking a normal map to. This will also remove any existing material from the mesh",
+    "label": "Create bake material",
+    "default": true
+}

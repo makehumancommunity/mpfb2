@@ -27,7 +27,7 @@ class MPFB_PT_MakeSkin_Panel(Abstract_Panel):
         props = [
             "overwrite",
             #"create_node_visualization"
-            "create_diffusetexture",
+            "create_diffuse",
             "create_normalmap",
             "create_bumpmap",
             "create_transmissionmap",
@@ -66,6 +66,7 @@ class MPFB_PT_MakeSkin_Panel(Abstract_Panel):
             "litsphere"
             ]
         MakeSkinObjectProperties.draw_properties(blender_object, box, props)
+        box.operator('mpfb.write_makeskin_to_library')
         box.operator('mpfb.write_makeskin_material')
 
     def draw(self, context):

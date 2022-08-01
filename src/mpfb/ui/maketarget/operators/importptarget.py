@@ -25,14 +25,19 @@ class MPFB_OT_ImportPtargetOperator(bpy.types.Operator, ImportHelper):
     def poll(cls, context):
         blender_object = context.active_object
         if blender_object is None:
+            _LOG.trace("Blender object is None")
             return False
 
         object_type = GeneralObjectProperties.get_value("object_type", entity_reference=blender_object)
 
-        if not object_type or object_type == "Skeleton" or object_type == "Basemesh":
+        if not object_type or object_type == "Skeleton":
+            _LOG.trace("Wrong object type", object_type)
             return False
 
-        return not context.active_object.data.shape_keys
+        if not context.active_object.data.shape_keys:
+            _LOG.trace("No shape keys", object_type)
+
+        return not TargetService.has_target(blender_object, "PrimaryTarget")
 
     def invoke(self, context, event):
         blender_object = context.active_object

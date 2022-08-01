@@ -4,6 +4,7 @@ import bpy
 from mpfb import ClassManager
 from mpfb.services.logservice import LogService
 from mpfb.services.uiservice import UiService
+from mpfb.services.targetservice import TargetService
 from mpfb.entities.objectproperties import GeneralObjectProperties
 from mpfb.ui.abstractpanel import Abstract_Panel
 from mpfb.ui.maketarget import MakeTargetObjectProperties
@@ -52,7 +53,7 @@ class MPFB_PT_MakeTarget_Panel(Abstract_Panel):
         object_type = GeneralObjectProperties.get_value("object_type", entity_reference=blender_object)
 
         if object_type and not object_type == "Skeleton":
-            if not blender_object.data.shape_keys:
+            if not blender_object.data.shape_keys or not TargetService.has_target(blender_object, "PrimaryTarget"):
                 self._initialize_target(blender_object, layout)
             else:
                 self._save_target(scene, layout)

@@ -6,6 +6,7 @@ from bpy_extras.io_utils import ImportHelper
 from mpfb.services.logservice import LogService
 from mpfb.services.humanservice import HumanService
 from mpfb.services.objectservice import ObjectService
+from mpfb.services.systemservice import SystemService
 from mpfb import ClassManager
 
 _LOG = LogService.get_logger("newhuman.humanfrommhm")
@@ -19,6 +20,10 @@ class MPFB_OT_HumanFromMHMOperator(bpy.types.Operator, ImportHelper):
     filter_glob: StringProperty(default='*.mhm', options={'HIDDEN'})
 
     def execute(self, context):
+
+        if not SystemService.check_for_obj_importer():
+            self.report({'ERROR'}, "The \"Import-Export Wavefront OBJ format\" addon seems to be disabled. You need to enable this in the preferences.")
+            return {'FINISHED'}
 
         _LOG.reset_timer()
 

@@ -10,6 +10,7 @@ from mpfb.ui.assetspanel import *
 from mpfb.ui.presetspanel import *
 from mpfb.ui.rigpanel import *
 from mpfb.ui.createpanel import *
+from mpfb.ui.operationspanel import *
 from mpfb.ui.systempanel import *
 
 # New human panels
@@ -29,6 +30,7 @@ from mpfb.ui.addrig import *
 from mpfb.ui.rigify import *
 from mpfb.ui.righelpers import *
 from mpfb.ui.applypose import *
+from mpfb.ui.addcycle import *
 
 # Presets
 from mpfb.ui.humanpresets import *
@@ -38,6 +40,12 @@ from mpfb.ui.eyesettings import *
 # Assets
 from mpfb.ui.assetlibrary import *
 from mpfb.ui.loadclothes import *
+
+# Operations
+from mpfb.ui.basemeshops import *
+from mpfb.ui.poseops import *
+from mpfb.ui.sculpt import *
+from mpfb.ui.matops import *
 
 # System
 from mpfb.ui.webresources import *
@@ -70,5 +78,6 @@ __all__ = [
     "MPFB_PT_MakeTarget_Panel",
     "MPFB_PT_Load_Clothes_Panel",
     "MPFB_PT_MakeClothes_Panel",
+    "MPFB_PT_Operations_Panel",
     "MPFB_PT_Devloper_Panel"
     ]

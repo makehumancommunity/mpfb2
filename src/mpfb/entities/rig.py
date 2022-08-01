@@ -151,8 +151,13 @@ class Rig:
         for bone_name in self.rig_definition.keys():
             bone_info = self.rig_definition[bone_name]
             bone = RigService.find_edit_bone_by_name(bone_name, self.armature_object)
-            bone.head = self._get_best_location_from_strategy(bone_info["head"])
-            bone.tail = self._get_best_location_from_strategy(bone_info["tail"])
+            if bone:
+                bone.head = self._get_best_location_from_strategy(bone_info["head"])
+                bone.tail = self._get_best_location_from_strategy(bone_info["tail"])
+            else:
+                _LOG.warn("Tried to refit bone that did not exist in definition", bone_name)
+                _LOG.debug("Bone info is", bone_info)
+                _LOG.dump("Rig definition is", self.rig_definition)
         bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
 
     def update_edit_bone_metadata(self):

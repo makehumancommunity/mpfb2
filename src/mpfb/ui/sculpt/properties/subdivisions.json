@@ -1,0 +1,9 @@
+{
+    "type": "int",
+    "name": "subdivisions",
+    "description": "When setting up a multires modifier, how many subdivisions should it have? Leave this at 0 if you need to configure multires settings first",
+    "label": "Subdivisions",
+    "default": 3,
+    "min": 0,
+    "max": 5
+}

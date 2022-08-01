@@ -1,5 +1,4 @@
-
-import os, json
+import os, json, shutil
 from pathlib import Path
 from .mhmaterial import MhMaterial
 from .mhmatkeys import MHMAT_KEYS
@@ -102,17 +101,17 @@ class MakeSkinMaterial(MhMaterial):
 
     def _set_texture(self, node_tree, name):
         _LOG.enter()
-        expected_name = name + "Texture"
-        node = NodeService.find_node_by_name(node_tree, expected_name)
-        self._settings[expected_name] = None
+        node = NodeService.find_node_by_name(node_tree, name)
+        _LOG.debug("expected_name, node", (name, node))
+        self._settings[name] = None
         if not node is None:
             node_info = NodeService.get_node_info(node)
             if "filename" in node_info and node_info["filename"]:
-                self._settings[expected_name] = node_info["filename"]
+                self._settings[name] = node_info["filename"]
             else:
-                _LOG.warn("The following texture node did not have an image file, so cannot set a MHMAT key for it", expected_name)
+                _LOG.warn("The following texture node did not have an image file, so cannot set a MHMAT key for it", name)
         else:
-            _LOG.debug("Could not find a node for", expected_name)
+            _LOG.debug("Could not find a node for", name)
 
     def _set_config_value(self, blender_object, expected_name):
         from mpfb.ui.makeskin import MakeSkinObjectProperties
@@ -156,6 +155,8 @@ class MakeSkinMaterial(MhMaterial):
         else:
             self._settings["sssEnabled"] = False
 
+        _LOG.dump("\n\n\nRESULTS, POPULATE FROM OBJECT\n\n\n", self._settings)
+
     def check_that_all_textures_are_saved(self, blender_object):
         material = blender_object.material_slots[0].material
         node_tree = material.node_tree
@@ -163,6 +164,7 @@ class MakeSkinMaterial(MhMaterial):
         for texture_name_base in _TEXTURE_NAMES:
             texture_name = texture_name_base + "Texture"
             node = NodeService.find_node_by_name(node_tree, texture_name)
+            _LOG.debug("texture name, node", (texture_name, node))
             if node:
                 # The material has this kind of texture, check that its image exists
                 node_info = NodeService.get_node_info(node)
@@ -176,28 +178,50 @@ class MakeSkinMaterial(MhMaterial):
 
         return None
 
+    def export_to_disk(self, mhmat_path, normalize_textures=True):
+        if normalize_textures:
+            mhmat_loc = os.path.dirname(mhmat_path)
+            mhmat_base = str(os.path.basename(mhmat_path)).replace(".mhmat", "").replace(" ", "_")
+            for key in self._settings:
+                if key.endswith("Texture") and self._settings[key] and not "litsphere" in key:
+                    textureType = "_" + key.replace("Texture", "")
+                    src = self._settings[key]
+                    fn, ext = os.path.splitext(src)
+                    dest = os.path.join(mhmat_loc, mhmat_base + textureType + ext)
+                    _LOG.debug("src, dest", (src, dest))
+                    shutil.copy(src, dest)
+                    newfn = os.path.basename(dest)
+                    self._settings[key] = newfn
+
+        mhmat_string = self.as_mhmat()
+        _LOG.dump("material", mhmat_string)
+        with open(mhmat_path, "w") as mhmat:
+            mhmat.write(mhmat_string)
+
     # TODO: Method for writing MHMAT attributes as BlenderConfigSet attributes
 
     @staticmethod
     def create_makeskin_template_material(blender_object, scene, name="MakeSkinMaterial"):
+
+        from mpfb.ui.makeskin.makeskinpanel import MAKESKIN_PROPERTIES
+
         if blender_object is None:
             raise ValueError('Must provide an object')
-        if MaterialService.has_materials(blender_object):
+        if MaterialService.has_materials(blender_object) and not MAKESKIN_PROPERTIES.get_value("overwrite", entity_reference=scene):
             raise ValueError('Object already has material')
         if scene is None:
             raise ValueError('Must provide a scene')
 
-        from mpfb.ui.makeskin.makeskinpanel import MAKESKIN_PROPERTIES
-
         template_values = dict()
         for part in _TEXTURE_NAMES:
+            _LOG.debug("part", part)
             if MAKESKIN_PROPERTIES.get_value("create_" + part, entity_reference=scene):
                 template_values["has_" + part] = "true"
             else:
                 template_values["has_" + part] = "false"
             template_values[part + "_filename"] = "\"\""
 
-
+        _LOG.debug("Template values", template_values)
 
         material = MaterialService.create_empty_material(name, blender_object)
         msmat = MakeSkinMaterial()

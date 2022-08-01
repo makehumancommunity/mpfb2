@@ -1,4 +1,3 @@
-
 from .logservice import LogService
 
 _LOG = LogService.get_logger("services.init")

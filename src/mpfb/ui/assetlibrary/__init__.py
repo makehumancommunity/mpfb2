@@ -6,6 +6,7 @@ _LOG.trace("initializing asset library module")
 
 from .operators import *
 from .assetsettingspanel import *
+from .alternativematerialpanel import *
 from .assetlibrarypanel import *
 
 __all__ = [

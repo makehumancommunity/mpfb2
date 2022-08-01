@@ -4,6 +4,7 @@ import bpy
 from mpfb.services.logservice import LogService
 from mpfb.services.targetservice import TargetService
 from mpfb.services.humanservice import HumanService
+from mpfb.services.systemservice import SystemService
 from mpfb import ClassManager
 
 _LOG = LogService.get_logger("newhuman.createhuman")
@@ -15,6 +16,10 @@ class MPFB_OT_CreateHumanOperator(bpy.types.Operator):
     bl_options = {'REGISTER', 'UNDO'}
 
     def execute(self, context):
+
+        if not SystemService.check_for_obj_importer():
+            self.report({'ERROR'}, "The \"Import-Export Wavefront OBJ format\" addon seems to be disabled. You need to enable this in the preferences.")
+            return {'FINISHED'}
 
         from mpfb.ui.newhuman.newhumanpanel import NEW_HUMAN_PROPERTIES  # pylint: disable=C0415
 

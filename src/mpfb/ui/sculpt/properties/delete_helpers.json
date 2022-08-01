@@ -1,0 +1,7 @@
+{
+    "type": "boolean",
+    "name": "delete_helpers",
+    "description": "Delete helper geometry. If not checked, the helper geometry will be kept and mask modifier untouched (if existing)",
+    "label": "Delete helpers",
+    "default": true
+}

@@ -19,17 +19,19 @@ class MPFB_OT_PrintTargetOperator(bpy.types.Operator):
     def poll(cls, context):
         blender_object = context.active_object
         if blender_object is None:
+            _LOG.trace("Blender object is None")
             return False
 
         object_type = GeneralObjectProperties.get_value("object_type", entity_reference=blender_object)
 
         if not object_type or object_type == "Skeleton":
+            _LOG.trace("Wrong object type", object_type)
             return False
 
-        if context.active_object.data.shape_keys:
-            return True
+        if not context.active_object.data.shape_keys:
+            _LOG.trace("No shape keys", object_type)
 
-        return False
+        return TargetService.has_target(blender_object, "PrimaryTarget")
 
     def execute(self, context):
         blender_object = context.active_object

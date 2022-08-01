@@ -4,6 +4,7 @@ import bpy
 from mpfb.services.logservice import LogService
 from mpfb.services.objectservice import ObjectService
 from mpfb.services.rigservice import RigService
+from mpfb.services.systemservice import SystemService
 from mpfb import ClassManager
 
 _LOG = LogService.get_logger("addrig.generate_rigify_rig")
@@ -18,10 +19,14 @@ class MPFB_OT_GenerateRigifyRigOperator(bpy.types.Operator):
     @classmethod
     def poll(cls, context):
         if context.active_object is not None:
-            return ObjectService.object_is_skeleton(context.active_object)
+            if not ObjectService.object_is_skeleton(context.active_object):
+                return False
+            rig_type = RigService.identify_rig(context.active_object)
+            return "rigify" in rig_type
         return False
 
     def _delete_vertex_group(self, context, blender_object, vgroup_name):
+
         bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
         bpy.ops.object.select_all(action='DESELECT')
         context.view_layer.objects.active = blender_object
@@ -56,15 +61,39 @@ class MPFB_OT_GenerateRigifyRigOperator(bpy.types.Operator):
             self.report({'ERROR'}, "Must have armature object selected")
             return {'FINISHED'}
 
+        if not SystemService.check_for_rigify():
+            self.report({'ERROR'}, "The rigify addon isn't enabled. You need to enable it under preferences.")
+            return {'FINISHED'}
+
         from mpfb.ui.addrig.addrigpanel import ADD_RIG_PROPERTIES # pylint: disable=C0415
 
         armature_object = context.active_object
         delete_after_generate = ADD_RIG_PROPERTIES.get_value("delete_after_generate", entity_reference=scene)
         teeth = ADD_RIG_PROPERTIES.get_value("teeth", entity_reference=scene)
-        name = str(ADD_RIG_PROPERTIES.get_value("name", entity_reference=scene)).strip()
+
+        explicit_name = str(ADD_RIG_PROPERTIES.get_value("name", entity_reference=scene)).strip()
+
+        name = armature_object.name
+
+        if explicit_name:
+            name = explicit_name
 
         if name:
-            armature_object.data.rigify_rig_basename = name
+            # Yes, the following logic is excessively messy, but rigify handles naming differently if the original
+            # name contains the word "metarig"
+            target_name = name
+            if target_name.endswith(".metarig"):
+                target_name = name.replace(".metarig", ".rig")
+            if ObjectService.object_name_exists(target_name) or ObjectService.object_name_exists("RIG-" + target_name):
+                target_name = ObjectService.ensure_unique_name("RIG-" + name)
+                target_name = target_name.replace("RIG-", "")
+            else:
+                target_name = name
+            _LOG.debug("Setting name", target_name)
+            if hasattr(armature_object.data, 'rigify_rig_basename'):
+                armature_object.data.rigify_rig_basename = target_name
+            else:
+                armature_object.name = target_name
 
         bpy.ops.pose.rigify_generate()
         rigify_object = context.active_object

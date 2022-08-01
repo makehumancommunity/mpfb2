@@ -18,6 +18,34 @@ class ObjectService:
         raise RuntimeError("You should not instance ObjectService. Use its static methods instead.")
 
     @staticmethod
+    def object_name_exists(name):
+        return name in bpy.data.objects
+
+    @staticmethod
+    def ensure_unique_name(desired_name):
+        if not ObjectService.object_name_exists(desired_name):
+            return desired_name
+        for i in range(1, 100):
+            ranged_name = desired_name + "." + str(i).zfill(3)
+            if not ObjectService.object_name_exists(ranged_name):
+                return ranged_name
+        return desired_name + ".999"
+
+    @staticmethod
+    def deselect_and_deactivate_all():
+        if bpy.context.object:
+            try:
+                bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
+                bpy.context.object.select_set(False)
+            except:
+                _LOG.debug("Tried mode_set / unselect on non-existing object")
+        for obj in bpy.context.selected_objects:
+            bpy.context.view_layer.objects.active = obj
+            bpy.context.active_object.select_set(False)
+            obj.select_set(False)
+        bpy.context.view_layer.objects.active = None
+
+    @staticmethod
     def has_vertex_group(blender_object, vertex_group_name):
         if not blender_object or not vertex_group_name:
             return False
@@ -78,6 +106,12 @@ class ObjectService:
             if potential_child.parent == parent_object:
                 children.append(potential_child)
         return children
+
+    @staticmethod
+    def get_object_type(blender_object):
+        if not blender_object:
+            return None
+        return GeneralObjectProperties.get_value("object_type", entity_reference=blender_object)
 
     @staticmethod
     def object_is(blender_object, mpfb_type_name):

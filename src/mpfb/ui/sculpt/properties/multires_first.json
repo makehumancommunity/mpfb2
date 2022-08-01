@@ -1,0 +1,7 @@
+{
+    "type": "boolean",
+    "name": "multires_first",
+    "description": "Place the multires modifier first in the modifier stack",
+    "label": "Multires first",
+    "default": true
+}

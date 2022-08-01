@@ -21,9 +21,9 @@ class MPFB_OT_Export_Log_Operator(bpy.types.Operator, ExportHelper):
         loggers = LogService.get_loggers()
 
         scene = context.scene
-        from mpfb.ui.developer.developerpanel import LOG_LEVELS_PROPERTIES # pylint: disable=C0415
+        from mpfb.ui.developer.developerpanel import DEVELOPER_PROPERTIES # pylint: disable=C0415
 
-        logger_name = LOG_LEVELS_PROPERTIES.get_value("available_loggers", entity_reference=scene)
+        logger_name = DEVELOPER_PROPERTIES.get_value("available_loggers", entity_reference=scene)
 
         if logger_name == "default":
             input_path = LogService.get_path_to_combined_log_file()

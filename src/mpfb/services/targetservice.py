@@ -1,6 +1,6 @@
 """Module for managing targets and shape keys."""
 
-import os, gzip, bpy, json, bmesh
+import os, gzip, bpy, json, bmesh, random
 from pathlib import Path
 from mpfb.services.logservice import LogService
 from mpfb.services.locationservice import LocationService
@@ -68,6 +68,22 @@ class TargetService:
 
     def __init__(self):
         raise RuntimeError("You should not instance TargetService. Use its static methods instead.")
+
+    @staticmethod
+    def bake_targets(basemesh):
+        key_name = "temporary_fitting_key." + str(random.randrange(1000, 9999))
+        basemesh.shape_key_add(name=key_name, from_mix=True)
+        shape_key = basemesh.data.shape_keys.key_blocks[key_name]
+
+        keys = []
+        for key in basemesh.data.shape_keys.key_blocks:
+            if key.name != key_name:
+                keys.append(key)
+
+        for key in keys:
+            basemesh.shape_key_remove(key)
+
+        basemesh.shape_key_remove(shape_key)
 
     @staticmethod
     def translate_mhm_target_line_to_target_fragment(mhm_line):
@@ -594,11 +610,14 @@ class TargetService:
         components = []
         _LOG.debug("target", macrotarget)
         for parts in macrotarget["parts"]:
+            _LOG.dump("Parts", (value, parts))
             highest = parts["highest"]
             lowest = parts["lowest"]
             low = parts["low"]
             high = parts["high"]
             hlrange = highest-lowest
+
+            _LOG.dump("(highest, lowest, high, low)", (highest, lowest, high, low))
 
             if value > lowest and value < highest:
                 position = value-lowest
@@ -610,6 +629,8 @@ class TargetService:
                     components.append([low, round(lowweight, 4)])
                 if high:
                     components.append([high, round(highweight, 4)])
+
+        _LOG.debug("Components after interpolation", components)
 
         profiler.leave("_interpolate_macro_components")
 
@@ -780,7 +801,8 @@ class TargetService:
                 name = shape_key.name
                 if decode_names:
                     name = TargetService.decode_shapekey_name(name)
-                macro_targets.append(name)
+                if str(shape_key.name).startswith("$md"):
+                    macro_targets.append(name)
         return macro_targets
 
     @staticmethod
@@ -790,6 +812,7 @@ class TargetService:
 
         macro_info = TargetService.get_macro_info_dict_from_basemesh(basemesh)
         for target in TargetService.get_current_macro_targets(basemesh, decode_names=False):
+            _LOG.debug("Setting target to 0", target)
             basemesh.data.shape_keys.key_blocks[target].value = 0.0
         current_macro_targets = TargetService.get_current_macro_targets(basemesh, decode_names=True)
         required_macro_targets = TargetService.calculate_target_stack_from_macro_info_dict(macro_info)
@@ -807,7 +830,11 @@ class TargetService:
             requested = str(TargetService.macrodetail_filename_to_shapekey_name(target[0], encode_name=True)).strip()
             _LOG.debug("Will attempt to set target value for", (requested, target[1]))
             TargetService.set_target_value(basemesh, requested, target[1])
-        if remove_zero_weight_targets:
+
+        if not basemesh.data.shape_keys:
+            _LOG.warn("Basemesh has no shape keys at this point. This is somewhat surprising.")
+
+        if remove_zero_weight_targets and basemesh.data.shape_keys:
             _LOG.debug("Checking for targets to remove")
             for shape_key in basemesh.data.shape_keys.key_blocks:
                 _LOG.debug("Checking shape key", (shape_key.name, shape_key.value))

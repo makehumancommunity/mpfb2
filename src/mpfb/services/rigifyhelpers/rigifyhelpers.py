@@ -47,11 +47,20 @@ class RigifyHelpers():
 
         bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
 
-        name = ""
+        name = armature_object.name
+
         if "name" in self.settings:
             name = str(self.settings["name"]).strip()
-            if name:
-                armature_object.data.rigify_rig_basename = name
+
+        if name:
+            target_name = name
+            if ObjectService.object_name_exists("RIG-" + name):
+                target_name = ObjectService.ensure_unique_name("RIG-" + name)
+                target_name = target_name.replace("RIG-", "")
+            if hasattr(armature_object.data, 'rigify_rig_basename'):
+                armature_object.data.rigify_rig_basename = target_name
+            else:
+                armature_object.name = target_name
 
         if self.produce:
             bpy.ops.pose.rigify_generate()
@@ -133,9 +142,51 @@ class RigifyHelpers():
             _LOG.dump("Leg", leg)
             self._set_use_connect_on_bones(armature_object, leg)
             bpy.ops.object.mode_set(mode='POSE', toggle=False)
+
+            toe_bone_name = leg[-1]
+            toe = RigService.find_pose_bone_by_name(toe_bone_name, armature_object)
+            toe_bone_head = toe.head
+            toe_bone_length = toe.length
+            _LOG.debug("Toe bone", (toe_bone_name, toe_bone_head, toe_bone_length))
+
+            foot_bone_name = self.get_foot_name(side)
+            _LOG.debug("Foot bone name", foot_bone_name)
+            foot = RigService.find_pose_bone_by_name(foot_bone_name, armature_object)
+            foot_bone_head = foot.head
+            foot_bone_length = foot.length
+            _LOG.debug("Foot bone data", (foot_bone_head, foot_bone_length))
+
             first_leg_bone = RigService.find_pose_bone_by_name(leg[0], armature_object)
-            first_leg_bone.rigify_type = 'limbs.paw'
-            #first_arm_bone.rigify_parameters.segments = len(arm)
+            first_leg_bone.rigify_type = 'limbs.leg'
+
+            bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
+            bpy.ops.object.mode_set(mode='EDIT', toggle=False)
+
+            bone_side = 'R'
+            if side:
+                bone_side = 'L'
+
+            bones = armature_object.data.edit_bones
+            bone = bones.new("heel.02." + bone_side)
+
+            head = [toe_bone_head[0], foot_bone_head[1], toe_bone_head[2]]
+            tail = [toe_bone_head[0], foot_bone_head[1], toe_bone_head[2]]
+            if side:
+                head[0] = head[0] - toe_bone_length / 2
+                tail[0] = tail[0] + toe_bone_length / 2
+            else:
+                head[0] = head[0] + toe_bone_length / 2
+                tail[0] = tail[0] - toe_bone_length / 2
+
+            bone.head = head
+            bone.tail = tail
+
+            foot = RigService.find_edit_bone_by_name(foot_bone_name, armature_object)
+            bone.parent = foot
+
+            bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
+            bpy.ops.object.mode_set(mode='POSE', toggle=False)
+
 
     def _setup_shoulders(self, armature_object):
         _LOG.enter()
@@ -166,6 +217,11 @@ class RigifyHelpers():
                 bpy.ops.object.mode_set(mode='POSE', toggle=False)
                 first_finger_bone = RigService.find_pose_bone_by_name(finger[0], armature_object)
                 first_finger_bone.rigify_type = 'limbs.super_finger'
+
+    def get_foot_name(self, left_side=True):
+        """Abstract method for getting the name of a foot bone, must be overriden by rig specific implementation classes."""
+        _LOG.enter()
+        raise NotImplementedError("the get_foot_name() method must be overriden by the rig class")
 
     def get_list_of_spine_bones(self):
         """Abstract method for getting a list of bones in the spine, must be overriden by rig specific implementation classes."""
