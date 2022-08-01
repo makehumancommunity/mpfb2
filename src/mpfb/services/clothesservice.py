@@ -267,6 +267,10 @@ class ClothesService:
         group_name_to_index = dict()
         group_index_to_name = dict()
         for group in basemesh.vertex_groups:
+            # Force interpolation of rigify deform groups even if no bone in metarig
+            if group.name.startswith("DEF-"):
+                clothes_weights[str(group.name)] = []
+
             if str(group.name) in clothes_weights:
                 group_name_to_index[str(group.name)] = group.index
                 group_index_to_name[int(group.index)] = str(group.name)
