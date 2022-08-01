@@ -57,7 +57,7 @@ class MPFB_OT_Load_Weights_Operator(bpy.types.Operator, ImportHelper):
 
         _LOG.dump("Weights", weights)
 
-        RigService.apply_weights(rig, basemesh, weights)
+        RigService.apply_weights(rig, basemesh, weights, all=True)
 
         self.report({'INFO'}, "Weights applied")
         return {'FINISHED'}
