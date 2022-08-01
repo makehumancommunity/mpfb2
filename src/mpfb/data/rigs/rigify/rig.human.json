@@ -1,4 +1,940 @@
 {
+    "DEF-elbow-helper.L": {
+        "constraints": [
+            {
+                "name": "Armature@DEF-upper_arm.L.001@DEF",
+                "targets": [
+                    {
+                        "subtarget": "upper_arm.L",
+                        "weight": 1.0
+                    },
+                    {
+                        "subtarget": "forearm.L",
+                        "weight": 1.0
+                    }
+                ],
+                "type": "ARMATURE",
+                "use_bone_envelopes": false,
+                "use_current_location": false,
+                "use_deform_preserve_volume": true
+            }
+        ],
+        "head": {
+            "cube_name": "joint-l-elbow",
+            "default_position": [
+                0.3311667740345001,
+                -0.020057059824466705,
+                1.1395602226257324
+            ],
+            "strategy": "CUBE"
+        },
+        "inherit_scale": "FULL",
+        "layers": [
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            true,
+            false,
+            false
+        ],
+        "parent": "",
+        "rigify": {
+            "rigify_parameters": {
+                "relink_constraints": true
+            },
+            "rigify_type": "basic.raw_copy"
+        },
+        "roll": 2.3877525329589844,
+        "tail": {
+            "default_position": [
+                0.3434810936450958,
+                0.005540946498513222,
+                1.1254432201385498
+            ],
+            "strategy": "VERTEX",
+            "vertex_index": 10059
+        },
+        "use_connect": false,
+        "use_inherit_rotation": true,
+        "use_local_location": true
+    },
+    "DEF-elbow-helper.R": {
+        "constraints": [
+            {
+                "name": "Armature@DEF-upper_arm.R.001@DEF",
+                "targets": [
+                    {
+                        "subtarget": "upper_arm.R",
+                        "weight": 1.0
+                    },
+                    {
+                        "subtarget": "forearm.R",
+                        "weight": 1.0
+                    }
+                ],
+                "type": "ARMATURE",
+                "use_bone_envelopes": false,
+                "use_current_location": false,
+                "use_deform_preserve_volume": true
+            }
+        ],
+        "head": {
+            "cube_name": "joint-r-elbow",
+            "default_position": [
+                -0.3311667740345001,
+                -0.020057059824466705,
+                1.1395602226257324
+            ],
+            "strategy": "CUBE"
+        },
+        "inherit_scale": "FULL",
+        "layers": [
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            true,
+            false,
+            false
+        ],
+        "parent": "",
+        "rigify": {
+            "rigify_parameters": {
+                "relink_constraints": true
+            },
+            "rigify_type": "basic.raw_copy"
+        },
+        "roll": -2.3877525329589844,
+        "tail": {
+            "default_position": [
+                -0.3434810936450958,
+                0.005540946498513222,
+                1.1254432201385498
+            ],
+            "strategy": "VERTEX",
+            "vertex_index": 3391
+        },
+        "use_connect": false,
+        "use_inherit_rotation": true,
+        "use_local_location": true
+    },
+    "DEF-knee-helper.L": {
+        "constraints": [
+            {
+                "name": "Armature@DEF-thigh.L.001@DEF",
+                "targets": [
+                    {
+                        "subtarget": "thigh.L",
+                        "weight": 1.0
+                    },
+                    {
+                        "subtarget": "shin.L",
+                        "weight": 1.0
+                    }
+                ],
+                "type": "ARMATURE",
+                "use_bone_envelopes": false,
+                "use_current_location": false,
+                "use_deform_preserve_volume": true
+            }
+        ],
+        "head": {
+            "cube_name": "joint-l-knee",
+            "default_position": [
+                0.1426400989294052,
+                -0.03732557222247124,
+                0.4744187891483307
+            ],
+            "strategy": "CUBE"
+        },
+        "inherit_scale": "FULL",
+        "layers": [
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            true,
+            false,
+            false
+        ],
+        "parent": "",
+        "rigify": {
+            "rigify_parameters": {
+                "relink_constraints": true
+            },
+            "rigify_type": "basic.raw_copy"
+        },
+        "roll": -1.6021708250045776,
+        "tail": {
+            "default_position": [
+                0.14338253438472748,
+                -0.0906839594244957,
+                0.4737545847892761
+            ],
+            "strategy": "VERTEX",
+            "vertex_index": 11242
+        },
+        "use_connect": false,
+        "use_inherit_rotation": true,
+        "use_local_location": true
+    },
+    "DEF-knee-helper.R": {
+        "constraints": [
+            {
+                "name": "Armature@DEF-thigh.R.001@DEF",
+                "targets": [
+                    {
+                        "subtarget": "thigh.R",
+                        "weight": 1.0
+                    },
+                    {
+                        "subtarget": "shin.R",
+                        "weight": 1.0
+                    }
+                ],
+                "type": "ARMATURE",
+                "use_bone_envelopes": false,
+                "use_current_location": false,
+                "use_deform_preserve_volume": true
+            }
+        ],
+        "head": {
+            "cube_name": "joint-r-knee",
+            "default_position": [
+                -0.1426400989294052,
+                -0.03732557222247124,
+                0.4744187891483307
+            ],
+            "strategy": "CUBE"
+        },
+        "inherit_scale": "FULL",
+        "layers": [
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            true,
+            false,
+            false
+        ],
+        "parent": "",
+        "rigify": {
+            "rigify_parameters": {
+                "relink_constraints": true
+            },
+            "rigify_type": "basic.raw_copy"
+        },
+        "roll": 1.6021708250045776,
+        "tail": {
+            "default_position": [
+                -0.14338253438472748,
+                -0.0906839594244957,
+                0.4737545847892761
+            ],
+            "strategy": "VERTEX",
+            "vertex_index": 4624
+        },
+        "use_connect": false,
+        "use_inherit_rotation": true,
+        "use_local_location": true
+    },
+    "DEF-pelvis-helper.L": {
+        "constraints": [
+            {
+                "head_tail": 0.0,
+                "influence": 0.5,
+                "mix_mode": "REPLACE",
+                "name": "Copy@DEF",
+                "owner_space": "LOCAL",
+                "remove_target_shear": false,
+                "subtarget": "thigh.L",
+                "target": true,
+                "target_space": "LOCAL_OWNER_ORIENT",
+                "type": "COPY_TRANSFORMS",
+                "use_bbone_shape": false
+            },
+            {
+                "from_max_x": 0.0,
+                "from_max_x_rot": 1.5707963705062866,
+                "from_max_x_scale": 1.0,
+                "from_max_y": 0.0,
+                "from_max_y_rot": 0.0,
+                "from_max_y_scale": 1.0,
+                "from_max_z": 0.0,
+                "from_max_z_rot": 0.0,
+                "from_max_z_scale": 1.0,
+                "from_min_x": 0.0,
+                "from_min_x_rot": 0.0,
+                "from_min_x_scale": 1.0,
+                "from_min_y": 0.0,
+                "from_min_y_rot": 0.0,
+                "from_min_y_scale": 1.0,
+                "from_min_z": 0.0,
+                "from_min_z_rot": 0.0,
+                "from_min_z_scale": 1.0,
+                "from_rotation_mode": "SWING_TWIST_Y",
+                "map_from": "ROTATION",
+                "map_to": "ROTATION",
+                "map_to_x_from": "X",
+                "map_to_y_from": "X",
+                "map_to_z_from": "X",
+                "mix_mode": "ADD",
+                "mix_mode_rot": "ADD",
+                "mix_mode_scale": "REPLACE",
+                "name": "FwdRot@DEF",
+                "owner_space": "LOCAL",
+                "subtarget": "thigh.L",
+                "target": true,
+                "target_space": "LOCAL",
+                "to_euler_order": "ZYX",
+                "to_max_x": 0.0,
+                "to_max_x_rot": 0.0,
+                "to_max_x_scale": 1.0,
+                "to_max_y": 0.0,
+                "to_max_y_rot": -0.04363323003053665,
+                "to_max_y_scale": 1.0,
+                "to_max_z": 0.0,
+                "to_max_z_rot": 0.0872664600610733,
+                "to_max_z_scale": 1.0,
+                "to_min_x": 0.0,
+                "to_min_x_rot": 0.0,
+                "to_min_x_scale": 1.0,
+                "to_min_y": 0.0,
+                "to_min_y_rot": 0.0,
+                "to_min_y_scale": 1.0,
+                "to_min_z": 0.0,
+                "to_min_z_rot": 0.0,
+                "to_min_z_scale": 1.0,
+                "type": "TRANSFORM",
+                "use_motion_extrapolate": true
+            },
+            {
+                "from_max_x": 0.0,
+                "from_max_x_rot": 0.0,
+                "from_max_x_scale": 1.0,
+                "from_max_y": 0.0,
+                "from_max_y_rot": 0.0,
+                "from_max_y_scale": 1.0,
+                "from_max_z": 0.0,
+                "from_max_z_rot": 1.5707963705062866,
+                "from_max_z_scale": 1.0,
+                "from_min_x": 0.0,
+                "from_min_x_rot": 0.0,
+                "from_min_x_scale": 1.0,
+                "from_min_y": 0.0,
+                "from_min_y_rot": 0.0,
+                "from_min_y_scale": 1.0,
+                "from_min_z": 0.0,
+                "from_min_z_rot": 0.0,
+                "from_min_z_scale": 1.0,
+                "from_rotation_mode": "SWING_TWIST_Y",
+                "map_from": "ROTATION",
+                "map_to": "ROTATION",
+                "map_to_x_from": "Z",
+                "map_to_y_from": "Z",
+                "map_to_z_from": "Z",
+                "mix_mode": "ADD",
+                "mix_mode_rot": "ADD",
+                "mix_mode_scale": "REPLACE",
+                "name": "SideRot@DEF",
+                "owner_space": "LOCAL",
+                "subtarget": "thigh.L",
+                "target": true,
+                "target_space": "LOCAL",
+                "to_euler_order": "ZYX",
+                "to_max_x": 0.0,
+                "to_max_x_rot": -0.0872664600610733,
+                "to_max_x_scale": 1.0,
+                "to_max_y": 0.0,
+                "to_max_y_rot": -0.0872664600610733,
+                "to_max_y_scale": 1.0,
+                "to_max_z": 0.0,
+                "to_max_z_rot": -0.3490658402442932,
+                "to_max_z_scale": 1.0,
+                "to_min_x": 0.0,
+                "to_min_x_rot": 0.0,
+                "to_min_x_scale": 1.0,
+                "to_min_y": 0.0,
+                "to_min_y_rot": 0.0,
+                "to_min_y_scale": 1.0,
+                "to_min_z": 0.0,
+                "to_min_z_rot": 0.0,
+                "to_min_z_scale": 1.0,
+                "type": "TRANSFORM",
+                "use_motion_extrapolate": true
+            }
+        ],
+        "head": {
+            "cube_name": "joint-l-upper-leg",
+            "default_position": [
+                0.10147152841091156,
+                -0.005004073027521372,
+                0.8656399846076965
+            ],
+            "strategy": "CUBE"
+        },
+        "inherit_scale": "FULL",
+        "layers": [
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            true,
+            false,
+            false
+        ],
+        "parent": "spine",
+        "rigify": {
+            "rigify_parameters": {
+                "relink_constraints": true
+            },
+            "rigify_type": "basic.raw_copy"
+        },
+        "roll": 2.384185791015625e-07,
+        "tail": {
+            "default_position": [
+                0.11509419977664948,
+                -0.015504281036555767,
+                0.7348060011863708
+            ],
+            "strategy": "MEAN",
+            "vertex_indices": [
+                13846,
+                13847,
+                13848,
+                13849,
+                13846,
+                13847,
+                13848,
+                13849,
+                13842,
+                13843,
+                13844,
+                13845
+            ]
+        },
+        "use_connect": false,
+        "use_inherit_rotation": true,
+        "use_local_location": true
+    },
+    "DEF-pelvis-helper.R": {
+        "constraints": [
+            {
+                "head_tail": 0.0,
+                "influence": 0.5,
+                "mix_mode": "REPLACE",
+                "name": "Copy@DEF",
+                "owner_space": "LOCAL",
+                "remove_target_shear": false,
+                "subtarget": "thigh.R",
+                "target": true,
+                "target_space": "LOCAL_OWNER_ORIENT",
+                "type": "COPY_TRANSFORMS",
+                "use_bbone_shape": false
+            },
+            {
+                "from_max_x": 0.0,
+                "from_max_x_rot": 1.5707963705062866,
+                "from_max_x_scale": 1.0,
+                "from_max_y": 0.0,
+                "from_max_y_rot": 0.0,
+                "from_max_y_scale": 1.0,
+                "from_max_z": 0.0,
+                "from_max_z_rot": 0.0,
+                "from_max_z_scale": 1.0,
+                "from_min_x": 0.0,
+                "from_min_x_rot": 0.0,
+                "from_min_x_scale": 1.0,
+                "from_min_y": 0.0,
+                "from_min_y_rot": 0.0,
+                "from_min_y_scale": 1.0,
+                "from_min_z": 0.0,
+                "from_min_z_rot": 0.0,
+                "from_min_z_scale": 1.0,
+                "from_rotation_mode": "SWING_TWIST_Y",
+                "map_from": "ROTATION",
+                "map_to": "ROTATION",
+                "map_to_x_from": "X",
+                "map_to_y_from": "X",
+                "map_to_z_from": "X",
+                "mix_mode": "ADD",
+                "mix_mode_rot": "ADD",
+                "mix_mode_scale": "REPLACE",
+                "name": "FwdRot@DEF",
+                "owner_space": "LOCAL",
+                "subtarget": "thigh.R",
+                "target": true,
+                "target_space": "LOCAL",
+                "to_euler_order": "ZYX",
+                "to_max_x": 0.0,
+                "to_max_x_rot": 0.0,
+                "to_max_x_scale": 1.0,
+                "to_max_y": 0.0,
+                "to_max_y_rot": 0.04363323003053665,
+                "to_max_y_scale": 1.0,
+                "to_max_z": 0.0,
+                "to_max_z_rot": -0.0872664600610733,
+                "to_max_z_scale": 1.0,
+                "to_min_x": 0.0,
+                "to_min_x_rot": 0.0,
+                "to_min_x_scale": 1.0,
+                "to_min_y": 0.0,
+                "to_min_y_rot": 0.0,
+                "to_min_y_scale": 1.0,
+                "to_min_z": 0.0,
+                "to_min_z_rot": 0.0,
+                "to_min_z_scale": 1.0,
+                "type": "TRANSFORM",
+                "use_motion_extrapolate": true
+            },
+            {
+                "from_max_x": 0.0,
+                "from_max_x_rot": 0.0,
+                "from_max_x_scale": 1.0,
+                "from_max_y": 0.0,
+                "from_max_y_rot": 0.0,
+                "from_max_y_scale": 1.0,
+                "from_max_z": 0.0,
+                "from_max_z_rot": 1.5707963705062866,
+                "from_max_z_scale": 1.0,
+                "from_min_x": 0.0,
+                "from_min_x_rot": 0.0,
+                "from_min_x_scale": 1.0,
+                "from_min_y": 0.0,
+                "from_min_y_rot": 0.0,
+                "from_min_y_scale": 1.0,
+                "from_min_z": 0.0,
+                "from_min_z_rot": 0.0,
+                "from_min_z_scale": 1.0,
+                "from_rotation_mode": "SWING_TWIST_Y",
+                "map_from": "ROTATION",
+                "map_to": "ROTATION",
+                "map_to_x_from": "Z",
+                "map_to_y_from": "Z",
+                "map_to_z_from": "Z",
+                "mix_mode": "ADD",
+                "mix_mode_rot": "ADD",
+                "mix_mode_scale": "REPLACE",
+                "name": "SideRot@DEF",
+                "owner_space": "LOCAL",
+                "subtarget": "thigh.R",
+                "target": true,
+                "target_space": "LOCAL",
+                "to_euler_order": "ZYX",
+                "to_max_x": 0.0,
+                "to_max_x_rot": 0.0872664600610733,
+                "to_max_x_scale": 1.0,
+                "to_max_y": 0.0,
+                "to_max_y_rot": -0.0872664600610733,
+                "to_max_y_scale": 1.0,
+                "to_max_z": 0.0,
+                "to_max_z_rot": -0.3490658402442932,
+                "to_max_z_scale": 1.0,
+                "to_min_x": 0.0,
+                "to_min_x_rot": 0.0,
+                "to_min_x_scale": 1.0,
+                "to_min_y": 0.0,
+                "to_min_y_rot": 0.0,
+                "to_min_y_scale": 1.0,
+                "to_min_z": 0.0,
+                "to_min_z_rot": 0.0,
+                "to_min_z_scale": 1.0,
+                "type": "TRANSFORM",
+                "use_motion_extrapolate": true
+            }
+        ],
+        "head": {
+            "cube_name": "joint-r-upper-leg",
+            "default_position": [
+                -0.10147152841091156,
+                -0.005004073027521372,
+                0.8656399846076965
+            ],
+            "strategy": "CUBE"
+        },
+        "inherit_scale": "FULL",
+        "layers": [
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            true,
+            false,
+            false
+        ],
+        "parent": "spine",
+        "rigify": {
+            "rigify_parameters": {
+                "relink_constraints": true
+            },
+            "rigify_type": "basic.raw_copy"
+        },
+        "roll": -2.384185791015625e-07,
+        "tail": {
+            "default_position": [
+                -0.11509419977664948,
+                -0.015504281036555767,
+                0.7348060011863708
+            ],
+            "strategy": "MEAN",
+            "vertex_indices": [
+                14286,
+                14287,
+                14288,
+                14289,
+                14286,
+                14287,
+                14288,
+                14289,
+                14282,
+                14283,
+                14284,
+                14285
+            ]
+        },
+        "use_connect": false,
+        "use_inherit_rotation": true,
+        "use_local_location": true
+    },
+    "DEF-shoulder-helper.L": {
+        "constraints": [
+            {
+                "head_tail": 0.0,
+                "influence": 0.5,
+                "mix_mode": "REPLACE",
+                "name": "Copy@DEF",
+                "owner_space": "LOCAL",
+                "remove_target_shear": false,
+                "subtarget": "upper_arm.L",
+                "target": true,
+                "target_space": "LOCAL_OWNER_ORIENT",
+                "type": "COPY_TRANSFORMS",
+                "use_bbone_shape": false
+            }
+        ],
+        "head": {
+            "cube_name": "joint-l-shoulder",
+            "default_position": [
+                0.1700163632631302,
+                -0.019264277070760727,
+                1.3201014995574951
+            ],
+            "strategy": "CUBE"
+        },
+        "inherit_scale": "FULL",
+        "layers": [
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            true,
+            false,
+            false
+        ],
+        "parent": "shoulder.L",
+        "rigify": {
+            "rigify_parameters": {
+                "relink_constraints": true
+            },
+            "rigify_type": "basic.raw_copy"
+        },
+        "roll": 2.072399616241455,
+        "tail": {
+            "default_position": [
+                0.2248951941728592,
+                -0.019095996394753456,
+                1.2589291334152222
+            ],
+            "strategy": "MEAN",
+            "vertex_indices": [
+                14048,
+                14049,
+                14052,
+                14053,
+                14048,
+                14049,
+                14052,
+                14053,
+                14038,
+                14039,
+                14042,
+                14043
+            ]
+        },
+        "use_connect": false,
+        "use_inherit_rotation": true,
+        "use_local_location": true
+    },
+    "DEF-shoulder-helper.R": {
+        "constraints": [
+            {
+                "head_tail": 0.0,
+                "influence": 0.5,
+                "mix_mode": "REPLACE",
+                "name": "Copy@DEF",
+                "owner_space": "LOCAL",
+                "remove_target_shear": false,
+                "subtarget": "upper_arm.R",
+                "target": true,
+                "target_space": "LOCAL_OWNER_ORIENT",
+                "type": "COPY_TRANSFORMS",
+                "use_bbone_shape": false
+            }
+        ],
+        "head": {
+            "cube_name": "joint-r-shoulder",
+            "default_position": [
+                -0.1700163632631302,
+                -0.019264277070760727,
+                1.3201014995574951
+            ],
+            "strategy": "CUBE"
+        },
+        "inherit_scale": "FULL",
+        "layers": [
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            true,
+            false,
+            false
+        ],
+        "parent": "shoulder.R",
+        "rigify": {
+            "rigify_parameters": {
+                "relink_constraints": true
+            },
+            "rigify_type": "basic.raw_copy"
+        },
+        "roll": -2.072399616241455,
+        "tail": {
+            "default_position": [
+                -0.2248951941728592,
+                -0.019095996394753456,
+                1.2589291334152222
+            ],
+            "strategy": "MEAN",
+            "vertex_indices": [
+                14488,
+                14489,
+                14492,
+                14493,
+                14488,
+                14489,
+                14492,
+                14493,
+                14478,
+                14479,
+                14482,
+                14483
+            ]
+        },
+        "use_connect": false,
+        "use_inherit_rotation": true,
+        "use_local_location": true
+    },
     "breast.L": {
         "head": {
             "default_position": [
