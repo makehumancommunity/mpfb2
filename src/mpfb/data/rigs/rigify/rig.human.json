@@ -983,7 +983,7 @@
             false,
             false
         ],
-        "parent": "spine.003",
+        "parent": "spine.004",
         "rigify": {
             "rigify_type": "basic.super_copy"
         },
@@ -1050,7 +1050,7 @@
             false,
             false
         ],
-        "parent": "spine.003",
+        "parent": "spine.004",
         "rigify": {
             "rigify_type": "basic.super_copy"
         },
@@ -9516,7 +9516,7 @@
             false,
             false
         ],
-        "parent": "spine.003",
+        "parent": "spine.004",
         "rigify": {
             "rigify_parameters": {
                 "make_widget": true,
@@ -9585,7 +9585,7 @@
             false,
             false
         ],
-        "parent": "spine.003",
+        "parent": "spine.004",
         "rigify": {
             "rigify_parameters": {
                 "make_widget": true,
