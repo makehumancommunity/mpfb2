@@ -2,7 +2,7 @@
 
 Contributions are obviously welcome. The easiest way to contribute is to simply make a pull request.
 
-There is some [basic developer](http://static.makehumancommunity.org/mpfb/developer.html) documentation at the website. 
+There is some [basic developer documentation](http://static.makehumancommunity.org/mpfb/developer.html) at the website. 
 
 ## License
 
