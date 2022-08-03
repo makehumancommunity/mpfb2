@@ -20,7 +20,7 @@ else:
 
 _LOGDIR = os.path.abspath(os.path.join(_MPFBHOME, "logs"))
 _COMBINED = os.path.join(_LOGDIR, "combined.txt")
-_CONFIG_DIR = os.path.join(_BPYHOME, "mpfb", "config")
+_CONFIG_DIR = os.path.join(_MPFBHOME, "config")
 _CONFIG = os.path.join(_CONFIG_DIR, "log_levels.json")
 
 print("\nInitializing MPFB log service. Logs can be found in " + str(_LOGDIR) + "\n")
