@@ -3,12 +3,16 @@
 from mpfb.services.logservice import LogService
 from mpfb.services.rigservice import RigService
 from mpfb.entities.objectproperties import GeneralObjectProperties
+
 import bpy, math, json, random
+
+from mathutils import Vector, Matrix
 
 _LOG = LogService.get_logger("entities.rig")
 
 _MAX_ALLOWED_DIST = 0.01
 _MAX_DIST_TO_CONSIDER_EXACT = 0.001
+_STRATEGY_REPLACE_THRESHOLD = 0.0001
 
 class Rig:
 
@@ -50,10 +54,11 @@ class Rig:
         rig.match_edit_bones_with_joint_cubes()
         rig.match_remaining_edit_bones_with_vertices()
         rig.match_remaining_edit_bones_with_vertex_means()
+        rig.restore_saved_strategies()
 
         return rig
 
-    def create_armature_and_fit_to_basemesh(self):
+    def create_armature_and_fit_to_basemesh(self, for_developer=False):
         """Use the information in the object to construct an armature and adjust it to fit the base mesh."""
 
         #self.move_basemesh_if_needed()
@@ -79,6 +84,9 @@ class Rig:
         self.update_edit_bone_metadata()
         self.rigify_metadata()
 
+        if for_developer:
+            self.save_strategies()
+
         bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
 
         modifier = self.basemesh.modifiers.new("Armature", 'ARMATURE')
@@ -88,7 +96,7 @@ class Rig:
 
         return self.armature_object
 
-    def _get_best_location_from_strategy(self, head_or_tail_info):
+    def _get_best_location_from_strategy(self, head_or_tail_info, use_default=True):
         strategy = head_or_tail_info["strategy"]
         location = None
         if strategy == "CUBE":
@@ -99,14 +107,27 @@ class Rig:
             location = self.position_info["vertices"][index]
         if strategy == "MEAN":
             indices = head_or_tail_info["vertex_indices"]
-            vertex1 = self.position_info["vertices"][indices[0]]
-            vertex2 = self.position_info["vertices"][indices[1]]
-            location = [0.0, 0.0, 0.0]
-            for i in range(3):
-                location[i] = (vertex1[i] + vertex2[i]) / 2
-        if location is None:
+            vertices = [self.position_info["vertices"][i] for i in indices]
+            location = [sum(v[i] for v in vertices)/len(vertices) for i in range(3)]
+        if strategy == "XYZ":
+            # Special strategy for Rigify heel marker.
+            # Uses different vertices for each coordinate channel.
+            indices = head_or_tail_info["vertex_indices"]
+            vertices = [self.position_info["vertices"][i] for i in indices]
+            location = [vertices[i][i] for i in range(3)]
+        if location is None and use_default:
             location = head_or_tail_info["default_position"]
         return location
+
+    def _align_roll_by_strategy(self, bone, bone_info):
+        roll_strategy = bone_info.get("roll_strategy", None)
+        matrix = None
+
+        if roll_strategy == "ALIGN_Z_WORLD_Z":
+            matrix = matrix_from_axis_pair(bone.y_axis, (0,0,1), 'z')
+
+        if matrix:
+            bone.roll = bpy.types.Bone.AxisRollFromMatrix(matrix, axis=bone.y_axis)[1]
 
     def create_bones(self):
         """Create the actual bones in the armature object."""
@@ -118,6 +139,9 @@ class Rig:
             bone.roll = bone_info["roll"]
             bone.head = self._get_best_location_from_strategy(bone_info["head"])
             bone.tail = self._get_best_location_from_strategy(bone_info["tail"])
+
+            self._align_roll_by_strategy(bone, bone_info)
+
         bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
 
     def reposition_edit_bone(self):
@@ -160,25 +184,115 @@ class Rig:
                     bone.layers[i] = layer
                     i = i + 1
 
+            if "bendy_bone" in bone_info:
+                for field, val in bone_info["bendy_bone"].items():
+                    if field in ("custom_handle_start", "custom_handle_end"):
+                        val = RigService.find_edit_bone_by_name(val, self.armature_object)
+
+                    setattr(bone, "bbone_" + field, val)
+
         bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
 
     def rigify_metadata(self):
         """Assign bone meta data fitting for the pose bones."""
         bpy.ops.object.mode_set(mode='POSE', toggle=False)
-        for bone_name in self.rig_definition.keys():
-            bone_info = self.rig_definition[bone_name]["rigify"]
+        for bone_name, bone_info in self.rig_definition.items():
             bone = RigService.find_pose_bone_by_name(bone_name, self.armature_object)
 
-            if "rigify_type" in bone_info and bone_info["rigify_type"]:
-                bone.rigify_type = bone_info["rigify_type"]
+            bone.rotation_mode = bone_info.get("rotation_mode", "QUATERNION")
 
-            if "rigify_parameters" in bone_info:
-                for key in bone_info["rigify_parameters"].keys():
-                    value = bone_info["rigify_parameters"][key]
+            for con_info in bone_info.get("constraints", []):
+                self._apply_constraint_info(bone, con_info)
+
+            rigify = bone_info["rigify"]
+
+            if "rigify_type" in rigify and rigify["rigify_type"]:
+                bone.rigify_type = rigify["rigify_type"]
+
+            if "rigify_parameters" in rigify:
+                for key in rigify["rigify_parameters"].keys():
+                    value = rigify["rigify_parameters"][key]
                     _LOG.debug("Will attempt to set bone.parameters.", key)
-                    setattr(bone.rigify_parameters, str(key), value)
+                    try:
+                        setattr(bone.rigify_parameters, str(key), value)
+                    except AttributeError:
+                        _LOG.error("Rigify bone parameter not found.", key)
 
         bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
+
+    def _apply_constraint_info(self, bone, info):
+        con = bone.constraints.new(info["type"])
+
+        if con.type == "ARMATURE":
+            for tgt_info in info["targets"]:
+                tgt = con.targets.new()
+                tgt.target = self.armature_object
+                tgt.subtarget = tgt_info["subtarget"]
+                tgt.weight = tgt_info["weight"]
+        elif info.get("target", False):
+            con.target = self.armature_object
+
+        if info.get("space_object", False):
+            con.space_object = self.armature_object
+
+        skip_list = {"type", "targets", "target", "space_object"}
+
+        for field, val in info.items():
+            if field not in skip_list:
+                setattr(con, field, val)
+
+    def save_strategies(self):
+        """Save strategy data in the pose bones for development."""
+
+        for bone_name, bone_info in self.rig_definition.items():
+            bone = RigService.find_pose_bone_by_name(bone_name, self.armature_object).bone
+
+            self._save_end_strategy(bone, bone_info["head"], "mpfb_head")
+            self._save_end_strategy(bone, bone_info["tail"], "mpfb_tail")
+
+            roll_strategy = bone_info.get("roll_strategy", None)
+            if roll_strategy:
+                bone["mpfb_roll_strategy"] = roll_strategy
+
+    def _save_end_strategy(self, bone, info, prefix):
+        strategy = info["strategy"]
+
+        if strategy == "CUBE":
+            bone[prefix + "_cube_name"] = info["cube_name"]
+        elif strategy == "VERTEX":
+            bone[prefix + "_vertex_index"] = info["vertex_index"]
+        elif strategy in ("MEAN", "XYZ"):
+            bone[prefix + "_vertex_indices"] = info["vertex_indices"]
+        else:
+            return
+
+        bone[prefix + "_strategy"] = strategy
+
+    def _get_end_strategy(self, bone, prefix):
+        """Retrieve head or tail strategy settings from a bone."""
+        try:
+            force = False
+            strategy = bone[prefix + "_strategy"]
+
+            # Allow using e.g. "!CUBE" to override the distance check
+            if strategy[0] == '!':
+                strategy = strategy[1:]
+                force = True
+
+            info = { "strategy": strategy }
+
+            if strategy == "CUBE":
+                info["cube_name"] = bone[prefix + "_cube_name"]
+            elif strategy == "VERTEX":
+                info["vertex_index"] = bone[prefix + "_vertex_index"]
+            elif strategy in ("MEAN", "XYZ"):
+                info["vertex_indices"] = list(bone[prefix + "_vertex_indices"])
+            else:
+                return None, False
+
+            return info, force
+        except KeyError:
+            return None, False
 
     def list_unmatched_bones(self):
         """List bones which are still marked as using the DEFAULT positioning strategy."""
@@ -290,6 +404,9 @@ class Rig:
             bone_info["use_inherit_rotation"] = bone.use_inherit_rotation
             bone_info["inherit_scale"] = bone.inherit_scale
 
+            if bone.bbone_segments > 1:
+                bone_info["bendy_bone"] = self._encode_bbone_info(bone)
+
             bone_info["layers"] = []
             for layer in bone.layers:
                 bone_info["layers"].append(layer)
@@ -298,6 +415,32 @@ class Rig:
 
         _LOG.dump("rig_definition after edit bones", self.rig_definition)
 
+    def _encode_bbone_info(self, bone):
+        defaults = {
+            "segments": 1,
+            "custom_handle_start": None, "custom_handle_end": None,
+            "handle_type_start": "AUTO", "handle_type_end": "AUTO",
+            "handle_use_ease_start": False, "handle_use_ease_end": False,
+            "handle_use_scale_start": [False, False, False],
+            "handle_use_scale_end": [False, False, False],
+            "easein": 1.0, "easeout": 1.0,
+        }
+
+        info = {}
+
+        for field, defval in defaults.items():
+            val = getattr(bone, "bbone_" + field)
+
+            if field in ("custom_handle_start", "custom_handle_end"):
+                val = val.name if val else None
+            elif isinstance(val, bpy.types.bpy_prop_array):
+                val = list(val)
+
+            if val != defval:
+                info[field] = val
+
+        return info
+
     def add_pose_bone_info(self):
         """Extract information from the pose bones."""
 
@@ -305,6 +448,15 @@ class Rig:
 
         for bone in self.armature_object.pose.bones:
             bone_info = self.rig_definition[bone.name]
+
+            if bone.rotation_mode != "QUATERNION":
+                bone_info["rotation_mode"] = bone.rotation_mode
+
+            if bone.constraints:
+                bone_info["constraints"] = [
+                    self._encode_constraint_info(con) for con in bone.constraints
+                ]
+
             bone_info["rigify"] = dict()
             rigify = bone_info["rigify"]
 
@@ -326,6 +478,55 @@ class Rig:
 
             if hasattr(bone, "rigify_type") and bone.rigify_type:
                 rigify["rigify_type"] = str(bone.rigify_type)
+
+    def _encode_constraint_info(self, con):
+        info = {
+            "type": con.type,
+            "name": con.name,
+        }
+
+        # Handle targets - only support targeting the armature
+        if con.type == "ARMATURE":
+            info["targets"] = [
+                { "subtarget": tgt.subtarget, "weight": tgt.weight }
+                for tgt in con.targets if tgt.target == self.armature_object
+            ]
+        elif getattr(con, "target", None) == self.armature_object:
+            info["target"] = True
+
+        if getattr(con, "space_object", None) == self.armature_object:
+            info["space_object"] = True
+            info["space_subtarget"] = con.space_subtarget
+
+        # Add other properties
+        defaults = {
+            'owner_space': 'WORLD', 'target_space': 'WORLD',
+            'mute': False, 'influence': 1.0,
+        }
+        block_props = {
+            prop.identifier
+            for prop in bpy.types.Constraint.bl_rna.properties
+            if prop.identifier not in defaults
+        }
+
+        if con.type == "STRETCH_TO":
+            # Don't save Stretch To length so it auto-resets when the skeleton is fitted
+            block_props.add("rest_length")
+
+        for prop in type(con).bl_rna.properties:
+            if prop.identifier not in block_props and not prop.is_readonly:
+                cur_value = getattr(con, prop.identifier, None)
+
+                if isinstance(cur_value, bpy.types.bpy_prop_array):
+                    value = list(cur_value)
+
+                if prop.identifier in defaults and cur_value == defaults[prop.identifier]:
+                    continue
+
+                if not isinstance(cur_value, bpy.types.bpy_struct):
+                    info[prop.identifier] = cur_value
+
+        return info
 
     def match_edit_bones_with_joint_cubes(self):
         """Try to find out bone positions matching joint cubes."""
@@ -381,6 +582,48 @@ class Rig:
                 if not tail_vertex_indices is None:
                     bone_info["tail"]["strategy"] = "MEAN"
                     bone_info["tail"]["vertex_indices"] = tail_vertex_indices
+
+    def restore_saved_strategies(self):
+        """Check if the saved strategies are better and apply them."""
+
+        for bone in self.armature_object.data.bones:
+            bone_info = self.rig_definition[bone.name]
+
+            roll_strategy = bone.get("mpfb_roll_strategy", None)
+            if roll_strategy:
+                bone_info["roll_strategy"] = roll_strategy
+
+                # Clear roll if it will be overwritten
+                if roll_strategy in ("ALIGN_Z_WORLD_Z"):
+                    bone_info["roll"] = 0.0
+
+            self._restore_end_strategy(bone, bone_info, "head")
+            self._restore_end_strategy(bone, bone_info, "tail")
+
+    def _restore_end_strategy(self, bone, bone_info, field):
+        saved_head, force = self._get_end_strategy(bone, "mpfb_" + field)
+
+        if saved_head:
+            cur_head = bone_info[field]
+            true_pos = cur_head["default_position"]
+            saved_pos = self._get_best_location_from_strategy(saved_head, use_default=False)
+
+            if not saved_pos:
+                return
+
+            if not force:
+                cur_pos = self._get_best_location_from_strategy(cur_head, use_default=False)
+
+                if cur_pos:
+                    # If the saved strategy is not worse, use it
+                    cur_dist = self._distance(true_pos, cur_pos)
+                    saved_dist = self._distance(true_pos, saved_pos)
+
+                    if saved_dist - cur_dist > _STRATEGY_REPLACE_THRESHOLD:
+                        return
+
+            saved_head["default_position"] = true_pos
+            bone_info[field] = saved_head
 
     def _distance(self, pos1, pos2):
         if pos1 is None:
@@ -540,3 +783,18 @@ class Rig:
                         best_match_idxs = [idx1, idx2]
 
         return best_match_idxs
+
+
+def matrix_from_axis_pair(y_axis, other_axis, axis_name):
+    assert axis_name in 'xz'
+
+    y_axis = Vector(y_axis).normalized()
+
+    if axis_name == 'x':
+        z_axis = Vector(other_axis).cross(y_axis).normalized()
+        x_axis = y_axis.cross(z_axis)
+    else:
+        x_axis = y_axis.cross(other_axis).normalized()
+        z_axis = x_axis.cross(y_axis)
+
+    return Matrix((x_axis, y_axis, z_axis)).transposed()

@@ -387,7 +387,7 @@ class RigService:
             _LOG.warn("Was not able to find empty child")
 
     @staticmethod
-    def get_weights(armature_object, basemesh, exclude_weights_below=0.0001):
+    def get_weights(armature_object, basemesh, exclude_weights_below=0.0001, all_bones=False):
         """Create a MHW-compatible weights dict"""
 
         # Eventhough it is unlikely we'll use these keys in MPFB, we'll assign them so that the dict
@@ -404,16 +404,19 @@ class RigService:
         weights["weights"] = dict()
 
         vertex_group_index_to_name = dict()
+        vertex_group_names = set()
 
         for vertex_group in basemesh.vertex_groups:
             index = int(vertex_group.index)
             name = str(vertex_group.name)
             vertex_group_index_to_name[index] = name
+            vertex_group_names.add(name)
 
         _LOG.dump("vertex_group_index_to_name", vertex_group_index_to_name)
 
         for bone in armature_object.data.bones:
-            weights["weights"][str(bone.name)] = []
+            if all_bones or bone.name in vertex_group_names:
+                weights["weights"][str(bone.name)] = []
 
         _LOG.dump("Weights before vertices", weights)
 
@@ -430,39 +433,44 @@ class RigService:
         return weights
 
     @staticmethod
-    def apply_weights(armature_object, basemesh, mhw_dict):
+    def apply_weights(armature_object, basemesh, mhw_dict, *, all=False):
         weights = mhw_dict["weights"]
 
-        for bone in armature_object.data.bones:
-            if bone.name in weights:
-                # Weights is array of [vertex_index, weight] pairs. Use zip to rotate it
-                # so we can get an array of the values of the first column
-                weight_array = weights[bone.name]
-                if len(weight_array) > 0:
-                    columns = list(zip(*weight_array))
-                    vertex_indices = columns[0]
-                else:
-                    vertex_indices = []
+        names = [bone.name for bone in armature_object.data.bones if bone.name in weights]
 
-                if not bone.name in basemesh.vertex_groups:
-                    basemesh.vertex_groups.new(name=bone.name)
+        if all:
+            # Add all names that weren't matched to any bones to the end of the list.
+            names += [name for name in weights.keys() if name not in names]
 
-                vertex_group = basemesh.vertex_groups.get(bone.name)
-                if len(vertex_indices) > 0:
-                    vertex_group.add(vertex_indices, 1.0, 'ADD')
+        for bone_name in names:
+            # Weights is array of [vertex_index, weight] pairs. Use zip to rotate it
+            # so we can get an array of the values of the first column
+            weight_array = weights[bone_name]
+            if len(weight_array) > 0:
+                columns = list(zip(*weight_array))
+                vertex_indices = columns[0]
+            else:
+                vertex_indices = []
+
+            if not bone_name in basemesh.vertex_groups:
+                basemesh.vertex_groups.new(name=bone_name)
+
+            vertex_group = basemesh.vertex_groups.get(bone_name)
+            if len(vertex_indices) > 0:
+                vertex_group.add(vertex_indices, 1.0, 'ADD')
 
         vertex_group_name_to_index = dict()
 
         for vertex_group in basemesh.vertex_groups:
             vertex_group_name_to_index[vertex_group.name] = vertex_group.index
 
-        for bone in armature_object.data.bones:
-            if bone.name in weights and bone.name in basemesh.vertex_groups:
-                for vertex_weight in weights[bone.name]:
+        for bone_name in names:
+            if bone_name in basemesh.vertex_groups:
+                for vertex_weight in weights[bone_name]:
                     vertex_index = vertex_weight[0]
                     weight = vertex_weight[1]
                     vertex = basemesh.data.vertices[vertex_index]
-                    group_index = vertex_group_name_to_index[bone.name]
+                    group_index = vertex_group_name_to_index[bone_name]
                     for group in vertex.groups:
                         if group.group == group_index:
                             group.weight = weight

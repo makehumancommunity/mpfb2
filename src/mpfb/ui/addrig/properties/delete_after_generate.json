@@ -3,5 +3,5 @@
     "name": "delete_after_generate",
     "description": "After having generated the final rig, delete the meta rig",
     "label": "Delete meta rig",
-    "default": true
+    "default": false
 }
