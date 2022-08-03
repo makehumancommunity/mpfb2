@@ -151,6 +151,9 @@ class MPFB_OT_GenerateRigifyRigOperator(bpy.types.Operator):
         context.view_layer.objects.active = rigify_object
         bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
 
+        from mpfb.entities.objectproperties import GeneralObjectProperties
+        GeneralObjectProperties.set_value("object_type", "Skeleton", entity_reference=rigify_object)
+
         self.report({'INFO'}, "A rig was generated")
         return {'FINISHED'}
 
