@@ -7,6 +7,7 @@ from mpfb.services.logservice import LogService
 from mpfb.services.locationservice import LocationService
 from mpfb.services.objectservice import ObjectService
 from mpfb.services.targetservice import TargetService
+from mpfb.services.uiservice import UiService
 from mpfb.entities.objectproperties import HumanObjectProperties
 
 _LOG = LogService.get_logger("model.macrosubpanel")
@@ -43,6 +44,7 @@ class MPFB_PT_Macro_Sub_Panel(bpy.types.Panel):
     bl_space_type = "VIEW_3D"
     bl_region_type = "UI"
     bl_parent_id = "MPFB_PT_Model_Panel"
+    bl_category = UiService.get_value("MODELCATEGORY")
     bl_options = {'DEFAULT_CLOSED'}
 
     def _draw_category(self, scene, layout, category_name, targets, basemesh):
