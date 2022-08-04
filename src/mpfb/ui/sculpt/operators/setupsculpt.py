@@ -13,7 +13,7 @@ from bpy_extras.io_utils import ImportHelper
 _LOG = LogService.get_logger("sculpt.operators.setupsculpt")
 
 class MPFB_OT_Setup_Sculpt_Operator(bpy.types.Operator):
-    """Bake all shape keys into a final mesh and optionally perform other operations suitable for starting a sculpt project. WARNING: You will no longer be able to adjust targets after doing this."""
+    """Bake all shape keys into a final mesh and optionally perform other operations suitable for starting a sculpt project. WARNING: You will no longer be able to adjust targets after doing this"""
     bl_idname = "mpfb.setup_sculpt"
     bl_label = "Set up mesh for sculpt"
     bl_options = {'REGISTER', 'UNDO'}

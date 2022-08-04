@@ -8,7 +8,7 @@ _LOG = LogService.get_logger("loglevels.operators.resetloglevels")
 
 
 class MPFB_OT_Reset_Log_Levels_Operator(bpy.types.Operator):
-    """Reset log levels to the default. This will remove all log level overrides."""
+    """Reset log levels to the default. This will remove all log level overrides"""
     bl_idname = "mpfb.reset_log_levels"
     bl_label = "Reset log levels"
     bl_options = {'REGISTER'}

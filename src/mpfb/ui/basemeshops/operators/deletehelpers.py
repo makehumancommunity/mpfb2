@@ -13,7 +13,7 @@ from bpy_extras.io_utils import ImportHelper
 _LOG = LogService.get_logger("basemeshops.operators.deletehelpers")
 
 class MPFB_OT_Delete_Helpers_Operator(bpy.types.Operator):
-    """Delete all helper geometry. This will also delete the mask operator for hiding helpers. WARNING: You will not be able to equip many clothes after doing this."""
+    """Delete all helper geometry. This will also delete the mask operator for hiding helpers. WARNING: You will not be able to equip many clothes after doing this"""
     bl_idname = "mpfb.delete_helpers"
     bl_label = "Delete helpers"
     bl_options = {'REGISTER', 'UNDO'}

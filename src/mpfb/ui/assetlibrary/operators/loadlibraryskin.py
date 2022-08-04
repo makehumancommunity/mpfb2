@@ -10,7 +10,7 @@ from mpfb import ClassManager
 _LOG = LogService.get_logger("assetlibrary.loadlibraryskin")
 
 class MPFB_OT_Load_Library_Skin_Operator(bpy.types.Operator):
-    """Load skin MHMAT from asset library."""
+    """Load skin MHMAT from asset library"""
     bl_idname = "mpfb.load_library_skin"
     bl_label = "Load"
     bl_options = {'REGISTER', 'UNDO'}

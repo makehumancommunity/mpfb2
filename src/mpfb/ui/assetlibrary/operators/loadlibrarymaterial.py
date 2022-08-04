@@ -13,7 +13,7 @@ from mpfb import ClassManager
 _LOG = LogService.get_logger("assetlibrary.loadlibraryskin")
 
 class MPFB_OT_Load_Library_Material_Operator(bpy.types.Operator):
-    """Replace the current material with the selected alternative material."""
+    """Replace the current material with the selected alternative material"""
     bl_idname = "mpfb.load_library_material"
     bl_label = "Load"
     bl_options = {'REGISTER', 'UNDO'}

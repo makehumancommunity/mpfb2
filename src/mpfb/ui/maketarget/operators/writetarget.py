@@ -13,7 +13,7 @@ from mpfb import ClassManager
 _LOG = LogService.get_logger("maketarget.writetarget")
 
 class MPFB_OT_WriteTargetOperator(bpy.types.Operator, ExportHelper):
-    """Write target to target file. In order to do this, you must first have created a primary target on the mesh."""
+    """Write target to target file. In order to do this, you must first have created a primary target on the mesh"""
     bl_idname = "mpfb.write_maketarget_target"
     bl_label = "Save target"
     bl_options = {'REGISTER'}
