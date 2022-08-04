@@ -20,7 +20,7 @@ _NOASSETS = [
 
 
 class _Abstract_Asset_Library_Panel(bpy.types.Panel):
-    """Asset library panel."""
+    """Asset library panel"""
 
     bl_label = "SHOULD BE OVERRIDDEN"
     bl_space_type = "VIEW_3D"

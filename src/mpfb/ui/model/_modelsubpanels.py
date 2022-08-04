@@ -20,7 +20,7 @@ _TARGETS_JSON = os.path.join(_TARGETS_DIR, "target.json")
 _LOG.debug("Targets json:", _TARGETS_JSON)
 
 class _Abstract_Model_Panel(bpy.types.Panel):
-    """Human modeling panel."""
+    """Human modeling panel"""
 
     bl_label = "SHOULD BE OVERRIDDEN"
     bl_space_type = "VIEW_3D"
