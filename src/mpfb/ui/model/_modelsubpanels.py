@@ -8,6 +8,7 @@ from mpfb.services.locationservice import LocationService
 from mpfb.services.objectservice import ObjectService
 from mpfb.services.targetservice import TargetService
 from mpfb.services.assetservice import AssetService
+from mpfb.services.uiservice import UiService
 
 from ._modelingicons import MODELING_ICONS
 
@@ -25,6 +26,7 @@ class _Abstract_Model_Panel(bpy.types.Panel):
     bl_space_type = "VIEW_3D"
     bl_region_type = "UI"
     bl_parent_id = "MPFB_PT_Model_Panel"
+    bl_category = UiService.get_value("MODELCATEGORY")
     bl_options = {'DEFAULT_CLOSED'}
 
     section = dict()
