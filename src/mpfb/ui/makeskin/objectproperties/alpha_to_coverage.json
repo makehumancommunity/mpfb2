@@ -1,7 +1,7 @@
 {
     "type": "boolean",
     "name": "alpha_to_coverage",
-    "description": "Use A2C hardware acceleration for rendering transparency in this material. This is only relevant inside MH.",
+    "description": "Use A2C hardware acceleration for rendering transparency in this material. This is only relevant inside MH",
     "label": "A2C acceleration",
     "default": true,
     "aliases": [ "alphaToCoverage", "MhMsAlphaToCoverage" ]

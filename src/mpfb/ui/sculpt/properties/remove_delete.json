@@ -1,7 +1,7 @@
 {
     "type": "boolean",
     "name": "remove_delete",
-    "description": "Remove delete groups. This will both clear the vertex groups and remove the mask modifiers. This will also clear the 'hide base mesh' modifier if present.",
+    "description": "Remove delete groups. This will both clear the vertex groups and remove the mask modifiers. This will also clear the 'hide base mesh' modifier if present",
     "label": "Remove delete groups",
     "default": true
 }

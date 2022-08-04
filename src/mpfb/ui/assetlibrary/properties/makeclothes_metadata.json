@@ -1,7 +1,7 @@
 {
     "type": "boolean",
     "name": "makeclothes_metadata",
-    "description": "Set MakeClothes specific metadata on the object, based on the contents of the MHCLO file. You only need this if you plan to work with the clothes in MakeClothes.",
+    "description": "Set MakeClothes specific metadata on the object, based on the contents of the MHCLO file. You only need this if you plan to work with the clothes in MakeClothes",
     "label": "MakeClothes metadata",
     "default": false
 }

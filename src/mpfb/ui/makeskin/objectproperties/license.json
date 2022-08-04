@@ -1,7 +1,7 @@
 {
     "type": "enum",
     "name": "license",
-    "description": "Set an output license for the material. This will have no practical effect apart from being included in the written MHMAT file.",
+    "description": "Set an output license for the material. This will have no practical effect apart from being included in the written MHMAT file",
     "label": "License",
     "default": "CC0",
     "items": [

@@ -1,12 +1,12 @@
 {
     "type": "enum",
     "name": "litsphere",
-    "description": "A litsphere texture is used for emulate lighting and reflections inside MakeHuman. It thus has no effect outside MakeHuman. For any clothing (not just leather), you will want to use the \"leather\" litsphere.",
+    "description": "A litsphere texture is used for emulate lighting and reflections inside MakeHuman. It thus has no effect outside MakeHuman. For any clothing (not just leather), you will want to use the \"leather\" litsphere",
     "label": "Litsphere",
     "default": "lit_leather",
     "items": [
-		["lit_leather", "leather", "Leather litsphere. This is appropriate for all clothes, not only leather.", 1],
-		["lit_standard_skin", "standard skin", "Standard skin litsphere. This is appropriate for all skins.", 2],
+		["lit_leather", "leather", "Leather litsphere. This is appropriate for all clothes, not only leather", 1],
+		["lit_standard_skin", "standard skin", "Standard skin litsphere. This is appropriate for all skins", 2],
 		["lit_african", "african skin", "African skin litsphere", 3],
 		["lit_asian", "asian skin", "Asian skin litsphere", 4],
 		["lit_caucasian", "caucasian skin", "Caucasian skin litsphere", 5],

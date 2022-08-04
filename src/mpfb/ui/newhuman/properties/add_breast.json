@@ -1,7 +1,7 @@
 {
     "type": "boolean",
     "name": "add_breast",
-    "description": "Add breast macrodetails to the created human. This will be ignored if phenotype is disabled above.",
+    "description": "Add breast macrodetails to the created human. This will be ignored if phenotype is disabled above",
     "label": "Add breast targets",
     "default": true
 }

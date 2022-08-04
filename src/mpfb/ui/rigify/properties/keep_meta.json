@@ -1,7 +1,7 @@
 {
     "type": "boolean",
     "name": "keep_meta",
-    "description": "Do not delete the meta rig after producing.",
+    "description": "Do not delete the meta rig after producing",
     "label": "Keep meta rig",
     "default": false
 }

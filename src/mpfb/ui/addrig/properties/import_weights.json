@@ -1,7 +1,7 @@
 {
     "type": "boolean",
     "name": "import_weights",
-    "description": "Also import weights (if available) and set up the corresponding vertex groups.",
+    "description": "Also import weights (if available) and set up the corresponding vertex groups",
     "label": "Import weights",
     "default": true
 }

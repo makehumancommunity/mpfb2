@@ -1,7 +1,7 @@
 {
     "type": "boolean",
     "name": "add_phenotype",
-    "description": "Add a phenotype to the created human. You can add additional phenotype traits later on.",
+    "description": "Add a phenotype to the created human. You can add additional phenotype traits later on",
     "label": "Add phenotype",
     "default": true
 }

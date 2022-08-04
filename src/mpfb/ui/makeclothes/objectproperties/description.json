@@ -1,7 +1,7 @@
 {
     "type": "string",
     "name": "description",
-    "description": "A description of these clothes. It will have little practical effect apart from being written to the mhclo file.",
+    "description": "A description of these clothes. It will have little practical effect apart from being written to the mhclo file",
     "label": "Description",
     "default": "",
     "aliases": ["MhClothesDesc"]

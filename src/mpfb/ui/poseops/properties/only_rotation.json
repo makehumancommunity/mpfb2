@@ -1,7 +1,7 @@
 {
     "type": "boolean",
     "name": "only_rotation",
-    "description": "Only copy rotations, ie skip translate and scale changes. This is probably what you want for an FK rig.",
+    "description": "Only copy rotations, ie skip translate and scale changes. This is probably what you want for an FK rig",
     "label": "Only rotation",
     "default": true
 }

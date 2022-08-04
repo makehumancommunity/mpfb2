@@ -1,7 +1,7 @@
 {
     "type": "string",
     "name": "name",
-    "description": "The name of this material. This name is used for exports e.g. with mhx2.",
+    "description": "The name of this material. This name is used for exports e.g. with mhx2",
     "label": "Name",
     "default": "new_clothes",
     "aliases": ["MhClothesName"]

@@ -1,7 +1,7 @@
 {
     "type": "string",
     "name": "homepage",
-    "description": "The home page of the material, if any. This will have little practical effect apart from being written to the mhmat file.",
+    "description": "The home page of the material, if any. This will have little practical effect apart from being written to the mhmat file",
     "label": "Homepage",
     "default": "",
     "aliases": ["MhMsHomepage"]

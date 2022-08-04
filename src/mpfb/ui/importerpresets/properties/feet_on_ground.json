@@ -1,7 +1,7 @@
 {
     "type": "boolean",
     "name": "feet_on_ground",
-    "description": "Move the imported character along the z axis so that the lowest vertex of the base mesh is placed on z=0. This will not take clothes such as high heels into account.",
+    "description": "Move the imported character along the z axis so that the lowest vertex of the base mesh is placed on z=0. This will not take clothes such as high heels into account",
     "label": "Place feet on ground",
     "default": true
 }

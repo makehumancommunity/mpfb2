@@ -1,7 +1,7 @@
 {
     "type": "boolean",
     "name": "auto_blend",
-    "description": "Autoadjust lit sphere and diffuse color to match skin tone.",
+    "description": "Autoadjust lit sphere and diffuse color to match skin tone",
     "label": "Adjust lit sphere",
     "default": false,
     "aliases": ["autoBlendSkin", "MhMsAutoBlend"]

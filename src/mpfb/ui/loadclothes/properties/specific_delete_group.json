@@ -1,7 +1,7 @@
 {
     "type": "boolean",
     "name": "specific_delete_group",
-    "description": "Create a specific delete group named after the clothes. If unchecked, the generic \"Delete\" group will be used.",
+    "description": "Create a specific delete group named after the clothes. If unchecked, the generic \"Delete\" group will be used",
     "label": "Specific delete group",
     "default": true
 }

@@ -1,7 +1,7 @@
 {
     "type": "string",
     "name": "author",
-    "description": "The author of this material. This will have little practical effect apart from being written to the mhmat file.",
+    "description": "The author of this material. This will have little practical effect apart from being written to the mhmat file",
     "label": "Author",
     "default": "",
     "aliases": ["MhMsAuthor"]

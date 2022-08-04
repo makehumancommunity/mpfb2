@@ -1,7 +1,7 @@
 {
     "type": "boolean",
     "name": "produce",
-    "description": "After converting the rig to a rigify meta rig, also run the produce step to produce the final rig.",
+    "description": "After converting the rig to a rigify meta rig, also run the produce step to produce the final rig",
     "label": "Produce",
     "default": true
 }
