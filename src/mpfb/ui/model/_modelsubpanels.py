@@ -43,10 +43,10 @@ class _Abstract_Model_Panel(bpy.types.Panel):
             _LOG.debug("No image for ", category["name"])
 
         if category["has_left_and_right"]:
-            box.prop(scene, self.section_name + ".l-" + category["name"], text="Left:")
-            box.prop(scene, self.section_name + ".r-" + category["name"], text="Right:")
+            box.prop(scene, UiService.as_valid_identifier(self.section_name + ".l-" + category["name"]), text="Left:")
+            box.prop(scene, UiService.as_valid_identifier(self.section_name + ".r-" + category["name"]), text="Right:")
         else:
-            box.prop(scene, self.section_name + "." + category["name"], text="Value:")
+            box.prop(scene, UiService.as_valid_identifier(self.section_name + "." + category["name"]), text="Value:")
 
     def draw(self, context):
         _LOG.enter()
@@ -181,9 +181,9 @@ for name in _sections:
     for _category in _section["categories"]:
         _LOG.debug("_category", _category)
 
-        _unsided_name = name + "." + _category["name"]
-        _left_name = name + ".l-" + _category["name"]
-        _right_name = name + ".r-" + _category["name"]
+        _unsided_name = UiService.as_valid_identifier(name + "." + _category["name"])
+        _left_name = UiService.as_valid_identifier(name + ".l-" + _category["name"])
+        _right_name = UiService.as_valid_identifier(name + ".r-" + _category["name"])
 
         _LOG.debug("names", (_unsided_name, _left_name, _right_name))
 

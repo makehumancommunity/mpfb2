@@ -1,5 +1,5 @@
 
-import os, bpy
+import os, bpy, re
 from fnmatch import fnmatch
 from .logservice import LogService
 from .locationservice import LocationService
@@ -159,6 +159,9 @@ class _UiService():
 
     def get_importer_eye_settings_panel_list(self):
         return self.get_value("importer_eye_settings_panel_list")
+
+    def as_valid_identifier(self, raw_string):
+       return re.sub(r'[^a-zA-Z0-9_]', "_", raw_string)
 
 
 UiService = _UiService() # pylint: disable=C0103
