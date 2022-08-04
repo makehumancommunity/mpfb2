@@ -34,11 +34,18 @@ class MpfbPreferences(bpy.types.AddonPreferences):
         default=False
     )
 
+    mpfb_excepthook: bpy.props.BoolProperty(
+        name="Globally log all uncaught exceptions",
+        description="In order to log unhandled exceptions, MPFB can override the global exception handler. This might cause problems when reloading and/or together with other modules. However, if you run into a crash and need a proper log, you can enable this temporarily",
+        default=False
+    )
+
     def draw(self, context):
         layout = self.layout
         layout.label(text='You need to restart blender before changes below come into effect.')
         layout.label(text='Remember to save preferences before restarting.')
 #        layout.prop(self, 'multi_panel')
         layout.prop(self, 'mpfb_user_data')
+        layout.prop(self, 'mpfb_excepthook')
         layout.prop(self, 'mh_user_data')
         layout.prop(self, 'mh_auto_user_data')

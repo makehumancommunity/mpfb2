@@ -81,14 +81,16 @@ def register():
     global _LOG # pylint: disable=W0603
     global _OLD_EXCEPTHOOK # pylint: disable=W0603
 
-    _OLD_EXCEPTHOOK = sys.excepthook
-    sys.excepthook = log_crash
-
     from mpfb.services.logservice import LogService
     _LOG = LogService.get_logger("mpfb.init")
     _LOG.info("Build info", "FROM_SOURCE")
     _LOG.reset_timer()
     _LOG.debug("We're in register() and about to start registering classes.")
+
+    if get_preference("mpfb_excepthook"):
+        _LOG.warn("Overriding the global exception handler. You should probably disable this when not needing it.")
+        _OLD_EXCEPTHOOK = sys.excepthook
+        sys.excepthook = log_crash
 
     # ClassManager is a singleton to which all modules can add their
     # Blender classes, preferably when the module is imported the first
