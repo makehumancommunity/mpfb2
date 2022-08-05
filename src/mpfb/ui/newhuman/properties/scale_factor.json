@@ -1,7 +1,7 @@
 {
     "type": "enum",
     "name": "scale_factor",
-    "description": "The overall scale of the human, calculated as what equals one blender unit.",
+    "description": "The overall scale of the human, calculated as what equals one blender unit",
     "label": "Scale factor",
     "default": "METER",
     "items": [

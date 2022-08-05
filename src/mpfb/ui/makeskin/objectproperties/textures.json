@@ -1,7 +1,7 @@
 {
     "type": "enum",
     "name": "textures",
-    "description": "How do we handle texture file names and paths? Unless you know what you are doing, you will want to use normalize. This will copy all images to an appropriate location with an appropriate filename, valid for uploading to the asset repository.",
+    "description": "How do we handle texture file names and paths? Unless you know what you are doing, you will want to use normalize. This will copy all images to an appropriate location with an appropriate filename, valid for uploading to the asset repository",
     "label": "Textures",
     "default": "NORMALIZE",
     "items": [

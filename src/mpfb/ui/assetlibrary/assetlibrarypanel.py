@@ -7,6 +7,7 @@ from mpfb.services.assetservice import AssetService, ASSET_LIBRARY_SECTIONS
 from mpfb.services.humanservice import HumanService
 from mpfb.services.objectservice import ObjectService
 from mpfb.ui.assetlibrary.assetsettingspanel import ASSET_SETTINGS_PROPERTIES
+from mpfb.services.uiservice import UiService
 from mpfb.ui.assetspanel import FILTER_PROPERTIES
 
 _LOG = LogService.get_logger("assetlibrary.assetlibrarypanel")
@@ -19,12 +20,13 @@ _NOASSETS = [
 
 
 class _Abstract_Asset_Library_Panel(bpy.types.Panel):
-    """Asset library panel."""
+    """Asset library panel"""
 
     bl_label = "SHOULD BE OVERRIDDEN"
     bl_space_type = "VIEW_3D"
     bl_region_type = "UI"
     bl_parent_id = "MPFB_PT_Assets_Panel"
+    bl_category = UiService.get_value("CLOTHESCATEGORY")
     bl_options = {'DEFAULT_CLOSED'}
 
     basemesh = None

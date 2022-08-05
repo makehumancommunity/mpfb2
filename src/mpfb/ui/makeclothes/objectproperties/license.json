@@ -1,7 +1,7 @@
 {
     "type": "enum",
     "name": "license",
-    "description": "Set an output license for the clothes. This will have no practical effect apart from being included in the written MHCLO file.",
+    "description": "Set an output license for the clothes. This will have no practical effect apart from being included in the written MHCLO file",
     "label": "License",
     "default": "CC0",
     "items": [

@@ -8,7 +8,7 @@ _LOG = LogService.get_logger("loglevels.operators.setloglevel")
 
 
 class MPFB_OT_Set_Log_Level_Operator(bpy.types.Operator):
-    """Set a log level override for a channel. If the "default" channel is selected, set the default log level."""
+    """Set a log level override for a channel. If the "default" channel is selected, set the default log level"""
     bl_idname = "mpfb.set_log_level"
     bl_label = "Set log level"
     bl_options = {'REGISTER'}

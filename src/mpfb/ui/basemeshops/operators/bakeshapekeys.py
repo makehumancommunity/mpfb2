@@ -13,7 +13,7 @@ from bpy_extras.io_utils import ImportHelper
 _LOG = LogService.get_logger("basemeshops.operators.bakeshapekeys")
 
 class MPFB_OT_Bake_Shapekeys_Operator(bpy.types.Operator):
-    """Bake all shape keys into a final mesh. WARNING: You will no longer be able to adjust targets after doing this."""
+    """Bake all shape keys into a final mesh. WARNING: You will no longer be able to adjust targets after doing this"""
     bl_idname = "mpfb.bake_shapekeys"
     bl_label = "Bake shapekeys"
     bl_options = {'REGISTER', 'UNDO'}

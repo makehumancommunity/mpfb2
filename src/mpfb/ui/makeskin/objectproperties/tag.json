@@ -1,7 +1,7 @@
 {
     "type": "string",
     "name": "tag",
-    "description": "A category the material fits into, for example \"blond\" or \"female\". This will influence sorting and filtering in MH.",
+    "description": "A category the material fits into, for example \"blond\" or \"female\". This will influence sorting and filtering in MH",
     "label": "Tag",
     "default": "",
     "aliases": ["MhMsTag"]

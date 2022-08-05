@@ -11,7 +11,7 @@ from mpfb import ClassManager
 _LOG = LogService.get_logger("assetlibrary.unloadlibraryclothes")
 
 class MPFB_OT_Unload_Library_Clothes_Operator(bpy.types.Operator):
-    """Unequip mhclo asset that has been previously loaded."""
+    """Unequip mhclo asset that has been previously loaded"""
     bl_idname = "mpfb.unload_library_clothes"
     bl_label = "Unequip"
     bl_options = {'REGISTER', 'UNDO'}

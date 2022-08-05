@@ -9,7 +9,7 @@ from mpfb import ClassManager
 _LOG = LogService.get_logger("model.refithuman")
 
 class MPFB_OT_RefitHumanOperator(bpy.types.Operator):
-    """Refit clothes, bodyparts, proxy and rig to the basemesh. This is needed if you have changed modeling sliders after having added such assets."""
+    """Refit clothes, bodyparts, proxy and rig to the basemesh. This is needed if you have changed modeling sliders after having added such assets"""
     bl_idname = "mpfb.refit_human"
     bl_label = "Refit assets to basemesh"
     bl_options = {'REGISTER', 'UNDO'}

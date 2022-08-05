@@ -15,7 +15,7 @@ from mpfb import ClassManager
 _LOG = LogService.get_logger("loadclothes.loadclothes")
 
 class MPFB_OT_Load_Clothes_Operator(bpy.types.Operator, ImportHelper):
-    """Load clothes from MHCLO file."""
+    """Load clothes from MHCLO file"""
     bl_idname = "mpfb.load_clothes"
     bl_label = "Load clothes from file"
     bl_options = {'REGISTER', 'UNDO'}

@@ -1,7 +1,7 @@
 {
     "type": "boolean",
     "name": "import_rig",
-    "description": "Import the armature/rig. This requires that you have selected one in MakeHuman.",
+    "description": "Import the armature/rig. This requires that you have selected one in MakeHuman",
     "label": "Import rig",
     "default": true
 }

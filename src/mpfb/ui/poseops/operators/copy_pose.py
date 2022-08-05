@@ -12,7 +12,7 @@ from mpfb import ClassManager
 _LOG = LogService.get_logger("poseops.copy_pose")
 
 class MPFB_OT_Copy_Pose_Operator(bpy.types.Operator):
-    """Copy pose from active to selected. Ie, first select all targets, then select the source. You can copy to multiple targets at the same time."""
+    """Copy pose from active to selected. Ie, first select all targets, then select the source. You can copy to multiple targets at the same time"""
     bl_idname = "mpfb.copy_pose"
     bl_label = "Copy pose"
     bl_options = {'REGISTER', 'UNDO'}

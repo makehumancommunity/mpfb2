@@ -10,7 +10,7 @@ from mpfb import ClassManager
 _LOG = LogService.get_logger("assetlibrary.loadlibraryclothes")
 
 class MPFB_OT_Load_Library_Clothes_Operator(bpy.types.Operator):
-    """Load MHCLO from asset library."""
+    """Load MHCLO from asset library"""
     bl_idname = "mpfb.load_library_clothes"
     bl_label = "Load"
     bl_options = {'REGISTER', 'UNDO'}

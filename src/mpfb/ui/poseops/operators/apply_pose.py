@@ -11,7 +11,7 @@ from mpfb import ClassManager
 _LOG = LogService.get_logger("poseops.apply_pose")
 
 class MPFB_OT_Apply_Pose_Operator(bpy.types.Operator):
-    """Apply pose as rest pose. WARNING: This will also bake all shape keys and make it impossible to do further modeling."""
+    """Apply pose as rest pose. WARNING: This will also bake all shape keys and make it impossible to do further modeling"""
     bl_idname = "mpfb.apply_pose"
     bl_label = "Apply as rest pose"
     bl_options = {'REGISTER', 'UNDO'}

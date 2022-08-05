@@ -1,7 +1,7 @@
 {
     "type": "boolean",
     "name": "hide_origin",
-    "description": "Hide original character, only keeping copy/copies. This also hides clothes, body parts and armature.",
+    "description": "Hide original character, only keeping copy/copies. This also hides clothes, body parts and armature",
     "label": "Hide original character",
     "default": true
 }
