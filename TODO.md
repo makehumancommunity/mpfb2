@@ -14,5 +14,6 @@
 
 * Port MakeClothes
 * Copy and refit clothes from one character to another
+* Mirror along x axis
 
 
