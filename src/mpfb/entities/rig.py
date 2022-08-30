@@ -56,6 +56,8 @@ class Rig:
         rig.match_remaining_edit_bones_with_vertex_means()
         rig.restore_saved_strategies()
 
+        rig.cleanup_float_values()
+
         return rig
 
     def create_armature_and_fit_to_basemesh(self, for_developer=False):
@@ -414,6 +416,17 @@ class Rig:
             self.rig_definition[bone.name] = bone_info
 
         _LOG.dump("rig_definition after edit bones", self.rig_definition)
+
+    def cleanup_float_values(self):
+        """Round some float values in definitions to reduce noise on re-save"""
+
+        # Remove extra digits and negative zero
+        clean = lambda val: round(val, 5) + 0
+
+        for name, info in self.rig_definition.items():
+            info["head"]["default_position"] = list(map(clean, info["head"]["default_position"]))
+            info["tail"]["default_position"] = list(map(clean, info["tail"]["default_position"]))
+            info["roll"] = clean(info["roll"])
 
     def _encode_bbone_info(self, bone):
         defaults = {
