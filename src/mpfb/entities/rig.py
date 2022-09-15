@@ -155,11 +155,17 @@ class Rig:
             if bone:
                 bone.head = self._get_best_location_from_strategy(bone_info["head"])
                 bone.tail = self._get_best_location_from_strategy(bone_info["tail"])
+                self._align_roll_by_strategy(bone, bone_info)
             else:
                 _LOG.warn("Tried to refit bone that did not exist in definition", bone_name)
                 _LOG.debug("Bone info is", bone_info)
                 _LOG.dump("Rig definition is", self.rig_definition)
         bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
+        # Reset Stretch To constraints if present
+        for pbone in self.armature_object.pose.bones:
+            for con in pbone.constraints:
+                if con.type == "STRETCH_TO":
+                    con.rest_length = 0
 
     def update_edit_bone_metadata(self):
         """Assign metadata fitting for the edit bones."""
