@@ -4,6 +4,11 @@
 
 * Warn if some assets were not found on character create
 
+## Asset library
+
+* Implement asset downloading
+* Ability to refresh library without restarting blender
+
 ## Materials
 
 * Create/overwrite eye material on eyes which have been loaded as makeskin
