@@ -127,6 +127,8 @@ class Rig:
 
         if roll_strategy == "ALIGN_Z_WORLD_Z":
             matrix = matrix_from_axis_pair(bone.y_axis, (0,0,1), 'z')
+        elif roll_strategy == "ALIGN_X_WORLD_X":
+            matrix = matrix_from_axis_pair(bone.y_axis, (1,0,0), 'x')
 
         if matrix:
             bone.roll = bpy.types.Bone.AxisRollFromMatrix(matrix, axis=bone.y_axis)[1]
@@ -613,7 +615,7 @@ class Rig:
                 bone_info["roll_strategy"] = roll_strategy
 
                 # Clear roll if it will be overwritten
-                if roll_strategy in ("ALIGN_Z_WORLD_Z"):
+                if roll_strategy in ("ALIGN_Z_WORLD_Z", "ALIGN_X_WORLD_X"):
                     bone_info["roll"] = 0.0
 
             self._restore_end_strategy(bone, bone_info, "head")
