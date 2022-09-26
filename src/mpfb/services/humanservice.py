@@ -339,7 +339,7 @@ class HumanService:
             _LOG.debug("UUID, alternative_materials", (mhclo.uuid, alternative_materials))
             if mhclo.uuid and alternative_materials and mhclo.uuid in alternative_materials:
                 material = AssetService.find_asset_absolute_path(alternative_materials[mhclo.uuid], str(asset_type).lower())
-                if not os.path.exists(material):
+                if not material or not os.path.exists(material):
                     _LOG.warn("Failed to find full path to alternative material", alternative_materials[mhclo.uuid])
                     material = mhclo.material
                 else:
