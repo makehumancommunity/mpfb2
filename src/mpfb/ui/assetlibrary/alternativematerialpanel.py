@@ -23,6 +23,7 @@ def _populate_settings(self, context):
     asset_type = ObjectService.get_object_type(context.object)
     source = GeneralObjectProperties.get_value("asset_source", entity_reference=context.object)
     altmats = AssetService.alternative_materials_for_asset(source, str(asset_type).lower())
+    altmats.sort()
     i = 1
     for mat in altmats:
         materials.append((str(mat), str(os.path.basename(mat)).replace(".mhmat", ""), os.path.basename(mat), i))
