@@ -1,6 +1,6 @@
 """This module contains utility functions scanning asset repositories."""
 
-import os, bpy
+import os, bpy, json
 from pathlib import Path
 from mpfb.services.objectservice import ObjectService
 from mpfb.services.logservice import LogService
@@ -11,6 +11,7 @@ _LOG = LogService.get_logger("services.assetservice")
 
 _ASSETS = dict()
 _ASSET_THUMBS = None
+_PACKS = None
 
 ASSET_LIBRARY_SECTIONS = [
         {
@@ -275,4 +276,67 @@ class AssetService:
 
         raise ValueError('Not finished')
 
+    @staticmethod
+    def have_any_pack_meta_data():
+        packs_dir = LocationService.get_user_data("packs")
+        _LOG.debug("Packs dir, exists", (packs_dir, os.path.exists(packs_dir)))
 
+        if not os.path.exists(packs_dir):
+            return False
+
+        for filename in os.listdir(packs_dir):
+            if ".json" in filename:
+                return True
+
+        return False
+
+    @staticmethod
+    def rescan_pack_metadata():
+        global _PACKS
+        _PACKS = dict()
+
+        packs_dir = LocationService.get_user_data("packs")
+        _LOG.debug("Packs dir, exists", (packs_dir, os.path.exists(packs_dir)))
+
+        if not os.path.exists(packs_dir):
+            return
+
+        for filename in os.listdir(packs_dir):
+            if ".json" in filename:
+                packname = filename.replace(".json", "")
+                _LOG.debug("Loading pack metadata", filename)
+                with open(os.path.join(packs_dir, filename), "r") as json_file:
+                    _PACKS[packname] = json.load(json_file)
+
+    @staticmethod
+    def get_pack_names():
+        global _PACKS
+        if not _PACKS:
+            AssetService.rescan_pack_metadata()
+        if not AssetService.have_any_pack_meta_data():
+            return []
+        names = list(_PACKS.keys())
+        names.sort()
+        return names
+
+    @staticmethod
+    def get_asset_names_in_pack(pack_name):
+        global _PACKS
+        if not _PACKS:
+            AssetService.rescan_pack_metadata()
+        if not AssetService.have_any_pack_meta_data():
+            return []
+        pack_data = _PACKS[pack_name]
+        names = list(pack_data.keys())
+        names.sort()
+        return names
+
+    @staticmethod
+    def get_asset_names_in_pack_pattern(pack_pattern):
+        pack_names = AssetService.get_pack_names()
+        asset_names = []
+        for name in pack_names:
+            if str(pack_pattern).lower() in name.lower():
+                asset_names.extend(AssetService.get_asset_names_in_pack(name))
+        asset_names.sort()
+        return asset_names

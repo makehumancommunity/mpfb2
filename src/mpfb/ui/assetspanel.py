@@ -3,18 +3,28 @@
 from mpfb._classmanager import ClassManager
 from mpfb.services.logservice import LogService
 from mpfb.services.uiservice import UiService
+from mpfb.services.assetservice import AssetService
 from mpfb.ui.abstractpanel import Abstract_Panel
 from mpfb.services.sceneconfigset import SceneConfigSet
 
 _LOG = LogService.get_logger("ui.assetspanel")
 
-FILTER_PROPERTIES = SceneConfigSet([{
+FILTER_PROPERTIES = SceneConfigSet([
+    {
     "type": "string",
     "name": "filter",
     "description": "Only list assets with this term in the title",
     "label": "Title must contain",
     "default": ""
-    }], 'APAS_')
+    },
+    {
+    "type": "string",
+    "name": "packname",
+    "description": "Only list assets belonging to an asset pack matching this name",
+    "label": "Pack name must contain",
+    "default": ""
+    }
+    ], 'APAS_')
 
 
 class MPFB_PT_Assets_Panel(Abstract_Panel):
@@ -26,9 +36,13 @@ class MPFB_PT_Assets_Panel(Abstract_Panel):
         layout = self.layout
         box = layout.box()
         box.label(text="Filter")
-        FILTER_PROPERTIES.draw_properties(context.scene, box, [
-            "filter"
-            ])
+        show_props = ["filter"]
+        if AssetService.have_any_pack_meta_data():
+            _LOG.debug("There is pack metadata")
+            show_props.append("packname")
+        else:
+            _LOG.debug("There is no pack metadata")
+        FILTER_PROPERTIES.draw_properties(context.scene, box, show_props)
 
 
 ClassManager.add_class(MPFB_PT_Assets_Panel)

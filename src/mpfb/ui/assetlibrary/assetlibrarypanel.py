@@ -48,14 +48,33 @@ class _Abstract_Asset_Library_Panel(bpy.types.Panel):
         allnames.sort()
 
         filter_term = str(FILTER_PROPERTIES.get_value("filter", entity_reference=scene)).strip().lower()
+        pack_term = str(FILTER_PROPERTIES.get_value("packname", entity_reference=scene)).strip().lower()
+
+        pack_assets = []
+        if pack_term:
+            pack_assets = AssetService.get_asset_names_in_pack_pattern(pack_term)
+            _LOG.debug("pack_assets", pack_assets)
 
         names = []
         for name in allnames:
-            if not filter_term:
+            acceptable = True
+            original_name = items[name]["name_without_ext"]
+            if filter_term:
+                if not filter_term in str(name).lower() and not filter_term in original_name:
+                    _LOG.debug(name + " not acceptable, does not match ", filter_term)
+                    acceptable = False
+            if pack_term:
+                if not original_name in pack_assets:
+                    if "shoe" in name:
+                        _LOG.debug(original_name + " not acceptable, not in any asset pack matching", pack_term)
+                    acceptable = False
+            if acceptable:
                 names.append(name)
-            else:
-                if filter_term in str(name).lower():
-                    names.append(name)
+
+        if len(names) < 1:
+            layout.label(text="No matching assets.")
+            layout.label(text="Maybe change filter?")
+            return
 
         for name in names:
             box = layout.box()
