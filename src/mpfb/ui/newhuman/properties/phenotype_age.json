@@ -5,9 +5,9 @@
     "label": "Age",
     "default": "young",
     "items": [
-    	["old", "Old", "Old", 1],
-    	["young", "Young", "Young", 2],
-    	["child", "Child", "Child", 3],
-    	["baby", "Baby", "Baby", 4]
+        ["old", "Old", "Old", 1],
+        ["young", "Young", "Young", 2],
+        ["child", "Child", "Child", 3],
+        ["baby", "Baby", "Baby", 4]
     ]
 }

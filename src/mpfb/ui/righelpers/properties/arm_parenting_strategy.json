@@ -5,10 +5,10 @@
     "label": "Parenting strategy",
     "default": "SPINE",
     "items": [
-    	["NONE", "None", "Do not set parent", 0],
-    	["ROOT", "Root bone", "Root bone is parent of all helpers", 1],
-    	["SPINE", "Spine", "Last bone in spine is parent of all helpers", 2],
-    	["OUTER", "Outer", "Outer bone is parent of inner bone (for example hand is parent of elbow)", 3],    	
-    	["INNER", "Inner", "Inner bone is parent of outer bone (for example elbow is parent of hand)", 4]
+        ["NONE", "None", "Do not set parent", 0],
+        ["ROOT", "Root bone", "Root bone is parent of all helpers", 1],
+        ["SPINE", "Spine", "Last bone in spine is parent of all helpers", 2],
+        ["OUTER", "Outer", "Outer bone is parent of inner bone (for example hand is parent of elbow)", 3],
+        ["INNER", "Inner", "Inner bone is parent of outer bone (for example elbow is parent of hand)", 4]
     ]
 }

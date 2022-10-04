@@ -5,9 +5,9 @@
     "label": "Parenting strategy",
     "default": "NONE",
     "items": [
-    	["NONE", "None", "Do not set parent", 0],
-    	["ROOT", "Root bone", "Root bone is parent of all helpers", 1],    	
-    	["OUTER", "Outer", "Outer bone is parent of inner bone (for example foot is parent of knee)", 2],    	
-    	["INNER", "Inner", "Inner bone is parent of outer bone (for example knee is parent of foot)", 3]
+        ["NONE", "None", "Do not set parent", 0],
+        ["ROOT", "Root bone", "Root bone is parent of all helpers", 1],
+        ["OUTER", "Outer", "Outer bone is parent of inner bone (for example foot is parent of knee)", 2],
+        ["INNER", "Inner", "Inner bone is parent of outer bone (for example knee is parent of foot)", 3]
     ]
 }

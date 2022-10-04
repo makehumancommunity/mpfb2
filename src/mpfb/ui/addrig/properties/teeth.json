@@ -5,8 +5,8 @@
     "label": "Teeth strategy",
     "default": "KEEP",
     "items": [
-    	["KEEP", "Keep", "Do nothing about the teeth. If your character doesn't have teeth or never opens his mouth, then this is a safe choice", 0],
-    	["RIG", "Change rig", "Adapt the generated rig so that it deforms the teeth object. This is the most MakeHuman way.", 1],
-    	["SPLIT", "Split and parent", "Split the teeth object into two and make the lower object a child of the lower teeth bone. This is the most Rigify way.", 2]    	
+        ["KEEP", "Keep", "Do nothing about the teeth. If your character doesn't have teeth or never opens his mouth, then this is a safe choice", 0],
+        ["RIG", "Change rig", "Adapt the generated rig so that it deforms the teeth object. This is the most MakeHuman way.", 1],
+        ["SPLIT", "Split and parent", "Split the teeth object into two and make the lower object a child of the lower teeth bone. This is the most Rigify way.", 2]
     ]
 }

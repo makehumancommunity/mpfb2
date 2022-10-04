@@ -3956,7 +3956,7 @@
         "use_inherit_rotation": true,
         "use_local_location": true
     },
-	"tongue03": {
+    "tongue03": {
         "head": {
             "cube_name": "joint-tongue-3",
             "default_position": [

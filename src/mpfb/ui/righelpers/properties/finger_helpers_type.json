@@ -5,10 +5,10 @@
     "label": "Helper type",
     "default": "GRIP_AND_MASTER",
     "items": [
-    	["NONE", "None", "Do not add helpers for fingers", 0],
-    	["POINT", "IK point", "One IK target per finger, functioning as a point target", 1],
-    	["GRIP", "Individual grip", "One helper per finger, which bends the finger when rotated", 2],
-    	["MASTER", "Master grip", "One combined helper to bend all fingers at the same time", 3],
-    	["GRIP_AND_MASTER", "Individual and master grip", "Add both individual and master grip helpers", 4]
+        ["NONE", "None", "Do not add helpers for fingers", 0],
+        ["POINT", "IK point", "One IK target per finger, functioning as a point target", 1],
+        ["GRIP", "Individual grip", "One helper per finger, which bends the finger when rotated", 2],
+        ["MASTER", "Master grip", "One combined helper to bend all fingers at the same time", 3],
+        ["GRIP_AND_MASTER", "Individual and master grip", "Add both individual and master grip helpers", 4]
     ]
 }

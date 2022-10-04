@@ -5,8 +5,8 @@
     "label": "Skin material type",
     "default": "ENHANCED",
     "items": [
-    	["ENHANCED", "Enhanced", "Add a more elaborate skin with support for pores and color correction", 1],
-    	["SSS", "Enhanced with SSS", "Add the elaborate skin, and also add support for sub surface scattering", 2],
-    	["PLAIN", "Plain", "Do not create an elaborate skin. Instead use the default material approach", 3]
+        ["ENHANCED", "Enhanced", "Add a more elaborate skin with support for pores and color correction", 1],
+        ["SSS", "Enhanced with SSS", "Add the elaborate skin, and also add support for sub surface scattering", 2],
+        ["PLAIN", "Plain", "Do not create an elaborate skin. Instead use the default material approach", 3]
     ]
 }

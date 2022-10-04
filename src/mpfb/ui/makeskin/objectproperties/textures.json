@@ -5,9 +5,9 @@
     "label": "Textures",
     "default": "NORMALIZE",
     "items": [
-		["NORMALIZE", "Normalize", "Copy to a name based on MHMAT filename", 1],
-		["COPY", "Copy", "Copy without rename", 2],
-		["LINK", "Link", "Link to original location, with absolute pathname", 3]
+        ["NORMALIZE", "Normalize", "Copy to a name based on MHMAT filename", 1],
+        ["COPY", "Copy", "Copy without rename", 2],
+        ["LINK", "Link", "Link to original location, with absolute pathname", 3]
     ]
 }
 

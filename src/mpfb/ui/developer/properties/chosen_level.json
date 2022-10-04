@@ -5,12 +5,12 @@
     "label": "Log level",
     "default": "3",
     "items": [
-    	["0", "CRASH", "Only report unexpected, disastrous and unrecoverable errors", 0],
-		["1", "ERROR", "Only report expected error conditions and worse", 1],
-		["2", "WARN", "Only report potentially bad conditions and worse", 2],
-		["3", "INFO", "Report informative messages, warnings and worse", 3],
-		["4", "DEBUG", "Report very much, including information which is only relevant for coders", 4],
-		["5", "TRACE", "Report almost everything, including the flow through method calls", 5],
-		["6", "DUMP", "Report exactly everything, including dumping large data structures to the log. It is a very bad idea to set this as the default log level", 6]
+        ["0", "CRASH", "Only report unexpected, disastrous and unrecoverable errors", 0],
+        ["1", "ERROR", "Only report expected error conditions and worse", 1],
+        ["2", "WARN", "Only report potentially bad conditions and worse", 2],
+        ["3", "INFO", "Report informative messages, warnings and worse", 3],
+        ["4", "DEBUG", "Report very much, including information which is only relevant for coders", 4],
+        ["5", "TRACE", "Report almost everything, including the flow through method calls", 5],
+        ["6", "DUMP", "Report exactly everything, including dumping large data structures to the log. It is a very bad idea to set this as the default log level", 6]
     ]
 }

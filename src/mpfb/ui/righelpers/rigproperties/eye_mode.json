@@ -3,5 +3,5 @@
     "name": "eye_mode",
     "description": "In what mode (FK/IK) are the eyes",
     "label": "Eye mode",
-    "default": ""    
+    "default": ""
 }

@@ -5,8 +5,8 @@
     "label": "Scale factor",
     "default": "METER",
     "items": [
-    	["METER", "Meter", "1 BU = 1 Meter", 1],
-    	["DECIMETER", "Decimeter", "1 BU = 1 Decimeter", 2],
-    	["CENTIMETER", "Centimeter", "1 BU = 1 Centimeter", 3]
+        ["METER", "Meter", "1 BU = 1 Meter", 1],
+        ["DECIMETER", "Decimeter", "1 BU = 1 Decimeter", 2],
+        ["CENTIMETER", "Centimeter", "1 BU = 1 Centimeter", 3]
     ]
 }

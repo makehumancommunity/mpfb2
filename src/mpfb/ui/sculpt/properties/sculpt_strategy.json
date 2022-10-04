@@ -5,8 +5,8 @@
     "label": "Sculpt strategy",
     "default": "SOURCEDESTCOPY",
     "items": [
-    	["SOURCEDESTCOPY", "Source and destination as copies", "Make two copies of the mesh, where one is where you sculpt and the other is a target for bakes. Leave original mesh untouched. This is suitable for baking normal maps", 1],
-    	["DESTCOPY", "Destination as copy", "Make one copy of the mesh, to use as a target for bakes. Reconfigure the original mesh to serve as sculpt and source. This is suitable for baking normal maps", 2],
-    	["ORIGIN", "Configure origin", "Prepare the origin mesh for sculpting. This is suitable for when you want to add more detail to an existing mesh.", 3]
+        ["SOURCEDESTCOPY", "Source and destination as copies", "Make two copies of the mesh, where one is where you sculpt and the other is a target for bakes. Leave original mesh untouched. This is suitable for baking normal maps", 1],
+        ["DESTCOPY", "Destination as copy", "Make one copy of the mesh, to use as a target for bakes. Reconfigure the original mesh to serve as sculpt and source. This is suitable for baking normal maps", 2],
+        ["ORIGIN", "Configure origin", "Prepare the origin mesh for sculpting. This is suitable for when you want to add more detail to an existing mesh.", 3]
     ]
 }

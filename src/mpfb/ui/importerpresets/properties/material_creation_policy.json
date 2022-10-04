@@ -5,8 +5,8 @@
     "label": "Material creation policy",
     "default": "REUSE",
     "items": [
-    	["REUSE", "Reuse the material", "Use the existing material instead of creating a new one", 1],
-    	["NEWNAME", "Use other name", "Create a new material and give it an incremented name, such as material.001", 2],
-    	["OVERWRITE", "Overwrite existing", "Overwrite the material definition in the existing material", 3]
+        ["REUSE", "Reuse the material", "Use the existing material instead of creating a new one", 1],
+        ["NEWNAME", "Use other name", "Create a new material and give it an incremented name, such as material.001", 2],
+        ["OVERWRITE", "Overwrite existing", "Overwrite the material definition in the existing material", 3]
     ]
 }

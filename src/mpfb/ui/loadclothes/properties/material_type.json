@@ -5,11 +5,11 @@
     "label": "Material type",
     "default": "MAKESKIN",
     "items": [
-    	["NONE", "No material", "Do not assign a material to the imported mesh", 0],
-		["PRINCIPLED", "Principled", "A simple one-color principled material", 1],
-		["MAKESKIN", "Standard material", "Use a standard (makeskin/mhmat) material. This is probably what you want", 2],
-		["ENHANCED", "Enhanced skin material", "Enhanced skin material", 3],
-		["ENHANCED_SSS", "Enhanced skin with SSS", "Enhanced skin material with SSS", 4],
-		["PROCEDURAL_EYES", "Procedural eyes", "Procedural eyes material", 5]
+        ["NONE", "No material", "Do not assign a material to the imported mesh", 0],
+        ["PRINCIPLED", "Principled", "A simple one-color principled material", 1],
+        ["MAKESKIN", "Standard material", "Use a standard (makeskin/mhmat) material. This is probably what you want", 2],
+        ["ENHANCED", "Enhanced skin material", "Enhanced skin material", 3],
+        ["ENHANCED_SSS", "Enhanced skin with SSS", "Enhanced skin material with SSS", 4],
+        ["PROCEDURAL_EYES", "Procedural eyes", "Procedural eyes material", 5]
     ]
 }

@@ -5,10 +5,10 @@
     "label": "Helper type",
     "default": "LOWERUPPER",
     "items": [
-    	["NONE", "None", "Do not add helpers for arms", 0],
-    	["LOWERUPPER", "Lower + upper", "Two IK targets, one for the lower arm and one for the upper arm. Do not add IK to the shoulder", 1],
-    	["LOWERUPPERSHOULDER", "Lower + upper + shoulder", "Three IK targets, one for the lower arm, one for the upper arm and one for the shoulder", 2],    	
-    	["ARMCHAIN", "One chain", "A single IK chain including lower arm and upper arm.", 3],
-    	["SHOULDERCHAIN", "One chain including shoulder", "A single IK chain including lower arm, upper arm and shoulder.", 4]
+        ["NONE", "None", "Do not add helpers for arms", 0],
+        ["LOWERUPPER", "Lower + upper", "Two IK targets, one for the lower arm and one for the upper arm. Do not add IK to the shoulder", 1],
+        ["LOWERUPPERSHOULDER", "Lower + upper + shoulder", "Three IK targets, one for the lower arm, one for the upper arm and one for the shoulder", 2],
+        ["ARMCHAIN", "One chain", "A single IK chain including lower arm and upper arm.", 3],
+        ["SHOULDERCHAIN", "One chain including shoulder", "A single IK chain including lower arm, upper arm and shoulder.", 4]
     ]
 }

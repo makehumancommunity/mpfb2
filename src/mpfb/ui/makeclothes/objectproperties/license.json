@@ -5,9 +5,9 @@
     "label": "License",
     "default": "CC0",
     "items": [
-		["CC0", "CC0", "Creative Commons Zero", 1],
-		["CC-BY", "CC-BY", "Creative Commons Attribution", 2],
-		["AGPL", "AGPL", "Affero Gnu Public License (don't use unless absolutely necessary)", 3]
+        ["CC0", "CC0", "Creative Commons Zero", 1],
+        ["CC-BY", "CC-BY", "Creative Commons Attribution", 2],
+        ["AGPL", "AGPL", "Affero Gnu Public License (don't use unless absolutely necessary)", 3]
     ],
     "aliases": ["MhClothesLicense"]
 }

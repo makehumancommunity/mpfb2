@@ -4,9 +4,9 @@
     "description": "Gender of created human",
     "label": "Gender",
     "default": "neutral",
-    "items": [    	
-    	["neutral", "Neutral", "Neutral", 0],
-    	["male", "Male", "Male", 1],    	
-    	["female", "Female", "Female", 2]    	
+    "items": [
+        ["neutral", "Neutral", "Neutral", 0],
+        ["male", "Male", "Male", 1],
+        ["female", "Female", "Female", 2]
     ]
 }

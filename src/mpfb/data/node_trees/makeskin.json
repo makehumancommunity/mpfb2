@@ -202,7 +202,7 @@
                 -197.28775024414062
             ],
             "name": "displacementmap",
-            "type": "ShaderNodeDisplacement",            
+            "type": "ShaderNodeDisplacement",
             "values": {
                 "Height": 0.0,
                 "Midlevel": 0.5,
@@ -242,7 +242,7 @@
                 -600.0,
                 -315.5165710449219
             ],
-            "name": "normalmap",            
+            "name": "normalmap",
             "type": "ShaderNodeNormalMap",
             "values": {
                 "Color": [

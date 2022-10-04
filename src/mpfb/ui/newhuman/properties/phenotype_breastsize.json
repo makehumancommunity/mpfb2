@@ -4,8 +4,8 @@
     "description": "Size of breasts",
     "label": "Breast size",
     "default": "maxcup",
-    "items": [    	
-    	["mincup", "Smaller", "Smaller", 1],    	
-    	["maxcup", "Larger", "Larger", 2]    	
+    "items": [
+        ["mincup", "Smaller", "Smaller", 1],
+        ["maxcup", "Larger", "Larger", 2]
     ]
 }

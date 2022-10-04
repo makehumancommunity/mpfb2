@@ -5,8 +5,8 @@
     "label": "Weight",
     "default": "averageweight",
     "items": [
-    	["minweight", "Minimum", "Minimum", 1],
-    	["averageweight", "Average", "Average", 2],
-    	["maxweight", "Maximum", "Maximum", 3]    	
+        ["minweight", "Minimum", "Minimum", 1],
+        ["averageweight", "Average", "Average", 2],
+        ["maxweight", "Maximum", "Maximum", 3]
     ]
 }

@@ -5,9 +5,9 @@
     "label": "Rig",
     "default": "default_no_toes",
     "items": [
-    	["default", "Default", "The default makehuman rig", 0],
-    	["default_no_toes", "Default (no toes)", "The default makehuman rig, but without toe bones", 1],
-    	["game_engine", "Game engine", "The game engine rig", 2],
-    	["cmu_mb", "CMU MB", "The CMU MB rig", 3]    	
+        ["default", "Default", "The default makehuman rig", 0],
+        ["default_no_toes", "Default (no toes)", "The default makehuman rig, but without toe bones", 1],
+        ["game_engine", "Game engine", "The game engine rig", 2],
+        ["cmu_mb", "CMU MB", "The CMU MB rig", 3]
     ]
 }

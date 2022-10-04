@@ -5,8 +5,8 @@
     "label": "Parenting strategy",
     "default": "HEAD",
     "items": [
-    	["NONE", "None", "Do not set parent", 0],
-    	["ROOT", "Root bone", "Root bone is parent of central eye bone", 1],    	
-    	["HEAD", "Head bone", "Head bone is parent of central eye bone", 2]
+        ["NONE", "None", "Do not set parent", 0],
+        ["ROOT", "Root bone", "Root bone is parent of central eye bone", 1],
+        ["HEAD", "Head bone", "Head bone is parent of central eye bone", 2]
     ]
 }

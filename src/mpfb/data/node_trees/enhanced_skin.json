@@ -4,79 +4,79 @@
             "groups": {},
             "inputs": {
                 "colorMixIn": {
-		          "type": "NodeSocketColor",
-		          "value": [1.0, 0.2, 0.2, 1.0]
-		        },
-		        "colorMixInStrength": {
-		          "type": "NodeSocketFloat",
-		          "value": 0.05
-		        },
-		        "Roughness": {
-		          "type": "NodeSocketFloat",
-		          "value": "$Roughness"
-		        },
-		        "Brightness": {
-		          "type": "NodeSocketFloat",
-		          "value": 0.0
-		        },
-		        "Contrast": {
-		          "type": "NodeSocketFloat",
-		          "value": 0.0
-		        },
-		        "Clearcoat": {
-		          "type": "NodeSocketFloat",
-		          "value": 0.1
-		        },
-		        "Clearcoat Roughness": {
-		          "type": "NodeSocketFloat",
-		          "value": 0.3
-		        },
-		        "Pore scale": {
-		          "type": "NodeSocketFloat",
-		          "value": 2500.0
-		        },
-		        "Pore detail": {
-		          "type": "NodeSocketFloat",
-		          "value": 2.0
-		        },
-		        "Pore distortion": {
-		          "type": "NodeSocketFloat",
-		          "value": 1.0
-		        },
-		        "Pore strength": {
-		          "type": "NodeSocketFloat",
-		          "value": 0.2
-		        },
-		        "SSS Color": {
-		          "type": "NodeSocketColor",
-		          "create": "$has_sss",
-		          "value": [1.0, 0.4, 0.4, 1.0]
-		        },
-		        "SSS strength": {
-		          "type": "NodeSocketFloat",
-		          "create": "$has_sss",
-		          "value": 0.2
-		        },
-		        "SSS radius scale": {
-		          "type": "NodeSocketFloat",
-		          "create": "$has_sss",
-		          "value": 0.1
-		        },
-		        "SSS radius R": {
-		          "type": "NodeSocketFloat",
-		          "create": "$has_sss",
-		          "value": 1.0
-		        },
-		        "SSS radius G": {
-		          "type": "NodeSocketFloat",
-		          "create": "$has_sss",
-		          "value": 0.2
-		        },
-		        "SSS radius B": {
-		          "type": "NodeSocketFloat",
-		          "create": "$has_sss",
-		          "value": 0.1
-		        }
+                  "type": "NodeSocketColor",
+                  "value": [1.0, 0.2, 0.2, 1.0]
+                },
+                "colorMixInStrength": {
+                  "type": "NodeSocketFloat",
+                  "value": 0.05
+                },
+                "Roughness": {
+                  "type": "NodeSocketFloat",
+                  "value": "$Roughness"
+                },
+                "Brightness": {
+                  "type": "NodeSocketFloat",
+                  "value": 0.0
+                },
+                "Contrast": {
+                  "type": "NodeSocketFloat",
+                  "value": 0.0
+                },
+                "Clearcoat": {
+                  "type": "NodeSocketFloat",
+                  "value": 0.1
+                },
+                "Clearcoat Roughness": {
+                  "type": "NodeSocketFloat",
+                  "value": 0.3
+                },
+                "Pore scale": {
+                  "type": "NodeSocketFloat",
+                  "value": 2500.0
+                },
+                "Pore detail": {
+                  "type": "NodeSocketFloat",
+                  "value": 2.0
+                },
+                "Pore distortion": {
+                  "type": "NodeSocketFloat",
+                  "value": 1.0
+                },
+                "Pore strength": {
+                  "type": "NodeSocketFloat",
+                  "value": 0.2
+                },
+                "SSS Color": {
+                  "type": "NodeSocketColor",
+                  "create": "$has_sss",
+                  "value": [1.0, 0.4, 0.4, 1.0]
+                },
+                "SSS strength": {
+                  "type": "NodeSocketFloat",
+                  "create": "$has_sss",
+                  "value": 0.2
+                },
+                "SSS radius scale": {
+                  "type": "NodeSocketFloat",
+                  "create": "$has_sss",
+                  "value": 0.1
+                },
+                "SSS radius R": {
+                  "type": "NodeSocketFloat",
+                  "create": "$has_sss",
+                  "value": 1.0
+                },
+                "SSS radius G": {
+                  "type": "NodeSocketFloat",
+                  "create": "$has_sss",
+                  "value": 0.2
+                },
+                "SSS radius B": {
+                  "type": "NodeSocketFloat",
+                  "create": "$has_sss",
+                  "value": 0.1
+                }
             },
             "outputs": {
                 "shaderOutput": "NodeSocketShader"
@@ -374,7 +374,7 @@
                     "type": "NodeGroupInput",
                     "values": {},
                     "input_sockets": {
-                    	
+
                     }
                 },
                 "Group Output": {

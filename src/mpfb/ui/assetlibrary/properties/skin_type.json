@@ -5,8 +5,8 @@
     "label": "Skin type",
     "default": "ENHANCED_SSS",
     "items": [
-		["MAKESKIN", "Standard material", "Use a standard (makeskin/mhmat) material. This is usually a plain diffuse texture with no extras", 1],
-		["ENHANCED", "Enhanced skin material", "Enhanced skin material", 2],
-		["ENHANCED_SSS", "Enhanced skin with SSS", "Enhanced skin material with SSS", 3]
+        ["MAKESKIN", "Standard material", "Use a standard (makeskin/mhmat) material. This is usually a plain diffuse texture with no extras", 1],
+        ["ENHANCED", "Enhanced skin material", "Enhanced skin material", 2],
+        ["ENHANCED_SSS", "Enhanced skin with SSS", "Enhanced skin material with SSS", 3]
     ]
 }

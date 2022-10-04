@@ -5,8 +5,8 @@
     "label": "Muscle",
     "default": "averagemuscle",
     "items": [
-    	["minmuscle", "Minimum", "Minimum", 1],
-    	["averagemuscle", "Average", "Average", 2],
-    	["maxmuscle", "Maximum", "Maximum", 3]    	
+        ["minmuscle", "Minimum", "Minimum", 1],
+        ["averagemuscle", "Average", "Average", 2],
+        ["maxmuscle", "Maximum", "Maximum", 3]
     ]
 }

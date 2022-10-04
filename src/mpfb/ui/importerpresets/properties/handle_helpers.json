@@ -5,8 +5,8 @@
     "label": "How to handle helpers",
     "default": "MASK",
     "items": [
-    	["MASK", "Mask", "Mask helper geometry", 1],
-		["NOTHING", "Don't modify", "Leave helper geometry as is", 2],
-		["DELETE", "Delete", "Delete helper geometry", 3]
+        ["MASK", "Mask", "Mask helper geometry", 1],
+        ["NOTHING", "Don't modify", "Leave helper geometry as is", 2],
+        ["DELETE", "Delete", "Delete helper geometry", 3]
     ]
 }

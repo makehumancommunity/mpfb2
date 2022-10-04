@@ -4,8 +4,8 @@
     "description": "Firmness of breasts",
     "label": "Breast firmness",
     "default": "maxfirmness",
-    "items": [    
-    	["minfirmness", "Less firm", "Less firm", 1],    	
-    	["maxfirmness", "More firm", "More firm", 2]    	
+    "items": [
+        ["minfirmness", "Less firm", "Less firm", 1],
+        ["maxfirmness", "More firm", "More firm", 2]
     ]
 }
