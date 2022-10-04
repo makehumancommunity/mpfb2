@@ -8,6 +8,9 @@
 
 * Implement asset downloading
 * Ability to refresh library without restarting blender
+* Store descriptor for asset pack in data directory
+* Ability to filter by asset pack name
+* Ability to filter by asset tag
 
 ## Materials
 
