@@ -1,0 +1,52 @@
+{
+    "attributes": [
+        {
+            "allowed_values": [],
+            "class": "enum",
+            "name": "blend_type",
+            "sample_value": "MIX"
+        },
+        {
+            "allowed_values": [],
+            "class": "bool",
+            "name": "use_alpha",
+            "sample_value": "False"
+        },
+        {
+            "allowed_values": [],
+            "class": "bool",
+            "name": "use_clamp",
+            "sample_value": "False"
+        }
+    ],
+    "class": "ShaderNodeMixRGB",
+    "inputs": [
+        {
+            "class": "NodeSocketFloatFactor",
+            "identifier": "Fac",
+            "index": 0,
+            "name": "Fac"
+        },
+        {
+            "class": "NodeSocketColor",
+            "identifier": "Color1",
+            "index": 1,
+            "name": "Color1"
+        },
+        {
+            "class": "NodeSocketColor",
+            "identifier": "Color2",
+            "index": 2,
+            "name": "Color2"
+        }
+    ],
+    "label": "Mix",
+    "outputs": [
+        {
+            "class": "NodeSocketColor",
+            "identifier": "Color",
+            "index": 0,
+            "name": "Color"
+        }
+    ]
+}

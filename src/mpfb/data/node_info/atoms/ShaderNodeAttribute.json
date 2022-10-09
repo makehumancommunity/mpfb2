@@ -1,0 +1,45 @@
+{
+    "attributes": [
+        {
+            "allowed_values": [],
+            "class": "str",
+            "name": "attribute_name",
+            "sample_value": ""
+        },
+        {
+            "allowed_values": [],
+            "class": "enum",
+            "name": "attribute_type",
+            "sample_value": "GEOMETRY"
+        }
+    ],
+    "class": "ShaderNodeAttribute",
+    "inputs": [],
+    "label": "Attribute",
+    "outputs": [
+        {
+            "class": "NodeSocketColor",
+            "identifier": "Color",
+            "index": 0,
+            "name": "Color"
+        },
+        {
+            "class": "NodeSocketVector",
+            "identifier": "Vector",
+            "index": 1,
+            "name": "Vector"
+        },
+        {
+            "class": "NodeSocketFloat",
+            "identifier": "Fac",
+            "index": 2,
+            "name": "Fac"
+        },
+        {
+            "class": "NodeSocketFloat",
+            "identifier": "Alpha",
+            "index": 3,
+            "name": "Alpha"
+        }
+    ]
+}

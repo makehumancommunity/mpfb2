@@ -1,0 +1,62 @@
+{
+    "attributes": [],
+    "class": "ShaderNodeNewGeometry",
+    "inputs": [],
+    "label": "Geometry",
+    "outputs": [
+        {
+            "class": "NodeSocketVector",
+            "identifier": "Position",
+            "index": 0,
+            "name": "Position"
+        },
+        {
+            "class": "NodeSocketVector",
+            "identifier": "Normal",
+            "index": 1,
+            "name": "Normal"
+        },
+        {
+            "class": "NodeSocketVector",
+            "identifier": "Tangent",
+            "index": 2,
+            "name": "Tangent"
+        },
+        {
+            "class": "NodeSocketVector",
+            "identifier": "True Normal",
+            "index": 3,
+            "name": "True Normal"
+        },
+        {
+            "class": "NodeSocketVector",
+            "identifier": "Incoming",
+            "index": 4,
+            "name": "Incoming"
+        },
+        {
+            "class": "NodeSocketVector",
+            "identifier": "Parametric",
+            "index": 5,
+            "name": "Parametric"
+        },
+        {
+            "class": "NodeSocketFloat",
+            "identifier": "Backfacing",
+            "index": 6,
+            "name": "Backfacing"
+        },
+        {
+            "class": "NodeSocketFloat",
+            "identifier": "Pointiness",
+            "index": 7,
+            "name": "Pointiness"
+        },
+        {
+            "class": "NodeSocketFloat",
+            "identifier": "Random Per Island",
+            "index": 8,
+            "name": "Random Per Island"
+        }
+    ]
+}

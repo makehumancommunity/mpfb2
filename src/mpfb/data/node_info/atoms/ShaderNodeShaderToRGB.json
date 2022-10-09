@@ -1,0 +1,27 @@
+{
+    "attributes": [],
+    "class": "ShaderNodeShaderToRGB",
+    "inputs": [
+        {
+            "class": "NodeSocketShader",
+            "identifier": "Shader",
+            "index": 0,
+            "name": "Shader"
+        }
+    ],
+    "label": "Shader to RGB",
+    "outputs": [
+        {
+            "class": "NodeSocketColor",
+            "identifier": "Color",
+            "index": 0,
+            "name": "Color"
+        },
+        {
+            "class": "NodeSocketFloat",
+            "identifier": "Alpha",
+            "index": 1,
+            "name": "Alpha"
+        }
+    ]
+}

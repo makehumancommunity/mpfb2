@@ -1,0 +1,100 @@
+{
+    "attributes": [
+        {
+            "allowed_values": [],
+            "class": "enum",
+            "name": "bands_direction",
+            "sample_value": "X"
+        },
+        {
+            "allowed_values": [],
+            "class": "unknown",
+            "name": "color_mapping",
+            "sample_value": "<bpy_struct, ColorMapping at 0x7f5659516098>"
+        },
+        {
+            "allowed_values": [],
+            "class": "enum",
+            "name": "rings_direction",
+            "sample_value": "X"
+        },
+        {
+            "allowed_values": [],
+            "class": "unknown",
+            "name": "texture_mapping",
+            "sample_value": "<bpy_struct, TexMapping at 0x7f5659516008>"
+        },
+        {
+            "allowed_values": [],
+            "class": "enum",
+            "name": "wave_profile",
+            "sample_value": "SIN"
+        },
+        {
+            "allowed_values": [],
+            "class": "enum",
+            "name": "wave_type",
+            "sample_value": "BANDS"
+        }
+    ],
+    "class": "ShaderNodeTexWave",
+    "inputs": [
+        {
+            "class": "NodeSocketVector",
+            "identifier": "Vector",
+            "index": 0,
+            "name": "Vector"
+        },
+        {
+            "class": "NodeSocketFloat",
+            "identifier": "Scale",
+            "index": 1,
+            "name": "Scale"
+        },
+        {
+            "class": "NodeSocketFloat",
+            "identifier": "Distortion",
+            "index": 2,
+            "name": "Distortion"
+        },
+        {
+            "class": "NodeSocketFloat",
+            "identifier": "Detail",
+            "index": 3,
+            "name": "Detail"
+        },
+        {
+            "class": "NodeSocketFloat",
+            "identifier": "Detail Scale",
+            "index": 4,
+            "name": "Detail Scale"
+        },
+        {
+            "class": "NodeSocketFloatFactor",
+            "identifier": "Detail Roughness",
+            "index": 5,
+            "name": "Detail Roughness"
+        },
+        {
+            "class": "NodeSocketFloat",
+            "identifier": "Phase Offset",
+            "index": 6,
+            "name": "Phase Offset"
+        }
+    ],
+    "label": "Wave Texture",
+    "outputs": [
+        {
+            "class": "NodeSocketColor",
+            "identifier": "Color",
+            "index": 0,
+            "name": "Color"
+        },
+        {
+            "class": "NodeSocketFloat",
+            "identifier": "Fac",
+            "index": 1,
+            "name": "Fac"
+        }
+    ]
+}

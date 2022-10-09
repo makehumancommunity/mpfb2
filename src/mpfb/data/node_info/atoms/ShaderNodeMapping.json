@@ -1,0 +1,46 @@
+{
+    "attributes": [
+        {
+            "allowed_values": [],
+            "class": "enum",
+            "name": "vector_type",
+            "sample_value": "POINT"
+        }
+    ],
+    "class": "ShaderNodeMapping",
+    "inputs": [
+        {
+            "class": "NodeSocketVector",
+            "identifier": "Vector",
+            "index": 0,
+            "name": "Vector"
+        },
+        {
+            "class": "NodeSocketVectorTranslation",
+            "identifier": "Location",
+            "index": 1,
+            "name": "Location"
+        },
+        {
+            "class": "NodeSocketVectorEuler",
+            "identifier": "Rotation",
+            "index": 2,
+            "name": "Rotation"
+        },
+        {
+            "class": "NodeSocketVectorXYZ",
+            "identifier": "Scale",
+            "index": 3,
+            "name": "Scale"
+        }
+    ],
+    "label": "Mapping",
+    "outputs": [
+        {
+            "class": "NodeSocketVector",
+            "identifier": "Vector",
+            "index": 0,
+            "name": "Vector"
+        }
+    ]
+}

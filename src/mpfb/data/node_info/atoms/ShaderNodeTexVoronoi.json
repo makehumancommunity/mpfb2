@@ -1,0 +1,106 @@
+{
+    "attributes": [
+        {
+            "allowed_values": [],
+            "class": "unknown",
+            "name": "color_mapping",
+            "sample_value": "<bpy_struct, ColorMapping at 0x7f5659516098>"
+        },
+        {
+            "allowed_values": [],
+            "class": "enum",
+            "name": "distance",
+            "sample_value": "EUCLIDEAN"
+        },
+        {
+            "allowed_values": [],
+            "class": "enum",
+            "name": "feature",
+            "sample_value": "F1"
+        },
+        {
+            "allowed_values": [],
+            "class": "unknown",
+            "name": "texture_mapping",
+            "sample_value": "<bpy_struct, TexMapping at 0x7f5659516008>"
+        },
+        {
+            "allowed_values": [],
+            "class": "enum",
+            "name": "voronoi_dimensions",
+            "sample_value": "3D"
+        }
+    ],
+    "class": "ShaderNodeTexVoronoi",
+    "inputs": [
+        {
+            "class": "NodeSocketVector",
+            "identifier": "Vector",
+            "index": 0,
+            "name": "Vector"
+        },
+        {
+            "class": "NodeSocketFloat",
+            "identifier": "W",
+            "index": 1,
+            "name": "W"
+        },
+        {
+            "class": "NodeSocketFloat",
+            "identifier": "Scale",
+            "index": 2,
+            "name": "Scale"
+        },
+        {
+            "class": "NodeSocketFloatFactor",
+            "identifier": "Smoothness",
+            "index": 3,
+            "name": "Smoothness"
+        },
+        {
+            "class": "NodeSocketFloat",
+            "identifier": "Exponent",
+            "index": 4,
+            "name": "Exponent"
+        },
+        {
+            "class": "NodeSocketFloatFactor",
+            "identifier": "Randomness",
+            "index": 5,
+            "name": "Randomness"
+        }
+    ],
+    "label": "Voronoi Texture",
+    "outputs": [
+        {
+            "class": "NodeSocketFloat",
+            "identifier": "Distance",
+            "index": 0,
+            "name": "Distance"
+        },
+        {
+            "class": "NodeSocketColor",
+            "identifier": "Color",
+            "index": 1,
+            "name": "Color"
+        },
+        {
+            "class": "NodeSocketVector",
+            "identifier": "Position",
+            "index": 2,
+            "name": "Position"
+        },
+        {
+            "class": "NodeSocketFloat",
+            "identifier": "W",
+            "index": 3,
+            "name": "W"
+        },
+        {
+            "class": "NodeSocketFloat",
+            "identifier": "Radius",
+            "index": 4,
+            "name": "Radius"
+        }
+    ]
+}

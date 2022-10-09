@@ -1,0 +1,27 @@
+{
+    "attributes": [],
+    "class": "ShaderNodeInvert",
+    "inputs": [
+        {
+            "class": "NodeSocketFloatFactor",
+            "identifier": "Fac",
+            "index": 0,
+            "name": "Fac"
+        },
+        {
+            "class": "NodeSocketColor",
+            "identifier": "Color",
+            "index": 1,
+            "name": "Color"
+        }
+    ],
+    "label": "Invert",
+    "outputs": [
+        {
+            "class": "NodeSocketColor",
+            "identifier": "Color",
+            "index": 0,
+            "name": "Color"
+        }
+    ]
+}

@@ -1,0 +1,40 @@
+{
+    "attributes": [
+        {
+            "allowed_values": [],
+            "class": "enum",
+            "name": "clamp_type",
+            "sample_value": "MINMAX"
+        }
+    ],
+    "class": "ShaderNodeClamp",
+    "inputs": [
+        {
+            "class": "NodeSocketFloat",
+            "identifier": "Value",
+            "index": 0,
+            "name": "Value"
+        },
+        {
+            "class": "NodeSocketFloat",
+            "identifier": "Min",
+            "index": 1,
+            "name": "Min"
+        },
+        {
+            "class": "NodeSocketFloat",
+            "identifier": "Max",
+            "index": 2,
+            "name": "Max"
+        }
+    ],
+    "label": "Clamp",
+    "outputs": [
+        {
+            "class": "NodeSocketFloat",
+            "identifier": "Result",
+            "index": 0,
+            "name": "Result"
+        }
+    ]
+}

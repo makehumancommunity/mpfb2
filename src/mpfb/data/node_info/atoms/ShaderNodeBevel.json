@@ -1,0 +1,34 @@
+{
+    "attributes": [
+        {
+            "allowed_values": [],
+            "class": "unknown",
+            "name": "samples",
+            "sample_value": "4"
+        }
+    ],
+    "class": "ShaderNodeBevel",
+    "inputs": [
+        {
+            "class": "NodeSocketFloat",
+            "identifier": "Radius",
+            "index": 0,
+            "name": "Radius"
+        },
+        {
+            "class": "NodeSocketVector",
+            "identifier": "Normal",
+            "index": 1,
+            "name": "Normal"
+        }
+    ],
+    "label": "Bevel",
+    "outputs": [
+        {
+            "class": "NodeSocketVector",
+            "identifier": "Normal",
+            "index": 0,
+            "name": "Normal"
+        }
+    ]
+}

@@ -1,0 +1,46 @@
+{
+    "attributes": [
+        {
+            "allowed_values": [],
+            "class": "bool",
+            "name": "invert",
+            "sample_value": "False"
+        }
+    ],
+    "class": "ShaderNodeBump",
+    "inputs": [
+        {
+            "class": "NodeSocketFloatFactor",
+            "identifier": "Strength",
+            "index": 0,
+            "name": "Strength"
+        },
+        {
+            "class": "NodeSocketFloat",
+            "identifier": "Distance",
+            "index": 1,
+            "name": "Distance"
+        },
+        {
+            "class": "NodeSocketFloat",
+            "identifier": "Height",
+            "index": 2,
+            "name": "Height"
+        },
+        {
+            "class": "NodeSocketVector",
+            "identifier": "Normal",
+            "index": 3,
+            "name": "Normal"
+        }
+    ],
+    "label": "Bump",
+    "outputs": [
+        {
+            "class": "NodeSocketVector",
+            "identifier": "Normal",
+            "index": 0,
+            "name": "Normal"
+        }
+    ]
+}

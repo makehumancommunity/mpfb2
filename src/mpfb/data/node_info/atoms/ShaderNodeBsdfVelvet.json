@@ -1,0 +1,39 @@
+{
+    "attributes": [],
+    "class": "ShaderNodeBsdfVelvet",
+    "inputs": [
+        {
+            "class": "NodeSocketColor",
+            "identifier": "Color",
+            "index": 0,
+            "name": "Color"
+        },
+        {
+            "class": "NodeSocketFloatFactor",
+            "identifier": "Sigma",
+            "index": 1,
+            "name": "Sigma"
+        },
+        {
+            "class": "NodeSocketVector",
+            "identifier": "Normal",
+            "index": 2,
+            "name": "Normal"
+        },
+        {
+            "class": "NodeSocketFloat",
+            "identifier": "Weight",
+            "index": 3,
+            "name": "Weight"
+        }
+    ],
+    "label": "Velvet BSDF",
+    "outputs": [
+        {
+            "class": "NodeSocketShader",
+            "identifier": "BSDF",
+            "index": 0,
+            "name": "BSDF"
+        }
+    ]
+}

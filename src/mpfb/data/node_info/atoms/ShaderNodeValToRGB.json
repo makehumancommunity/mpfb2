@@ -1,0 +1,34 @@
+{
+    "attributes": [
+        {
+            "allowed_values": [],
+            "class": "unknown",
+            "name": "color_ramp",
+            "sample_value": "<bpy_struct, ColorRamp at 0x7f5659171788>"
+        }
+    ],
+    "class": "ShaderNodeValToRGB",
+    "inputs": [
+        {
+            "class": "NodeSocketFloatFactor",
+            "identifier": "Fac",
+            "index": 0,
+            "name": "Fac"
+        }
+    ],
+    "label": "ColorRamp",
+    "outputs": [
+        {
+            "class": "NodeSocketColor",
+            "identifier": "Color",
+            "index": 0,
+            "name": "Color"
+        },
+        {
+            "class": "NodeSocketFloat",
+            "identifier": "Alpha",
+            "index": 1,
+            "name": "Alpha"
+        }
+    ]
+}

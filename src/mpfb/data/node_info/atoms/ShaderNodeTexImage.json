@@ -1,0 +1,76 @@
+{
+    "attributes": [
+        {
+            "allowed_values": [],
+            "class": "unknown",
+            "name": "color_mapping",
+            "sample_value": "<bpy_struct, ColorMapping at 0x7f565cab5598>"
+        },
+        {
+            "allowed_values": [],
+            "class": "enum",
+            "name": "extension",
+            "sample_value": "REPEAT"
+        },
+        {
+            "allowed_values": [],
+            "class": "unknown",
+            "name": "image",
+            "sample_value": "None"
+        },
+        {
+            "allowed_values": [],
+            "class": "unknown",
+            "name": "image_user",
+            "sample_value": "<bpy_struct, ImageUser at 0x7f565cab58c8>"
+        },
+        {
+            "allowed_values": [],
+            "class": "str",
+            "name": "interpolation",
+            "sample_value": "Linear"
+        },
+        {
+            "allowed_values": [],
+            "class": "enum",
+            "name": "projection",
+            "sample_value": "FLAT"
+        },
+        {
+            "allowed_values": [],
+            "class": "unknown",
+            "name": "projection_blend",
+            "sample_value": "0.0"
+        },
+        {
+            "allowed_values": [],
+            "class": "unknown",
+            "name": "texture_mapping",
+            "sample_value": "<bpy_struct, TexMapping at 0x7f565cab5508>"
+        }
+    ],
+    "class": "ShaderNodeTexImage",
+    "inputs": [
+        {
+            "class": "NodeSocketVector",
+            "identifier": "Vector",
+            "index": 0,
+            "name": "Vector"
+        }
+    ],
+    "label": "Image Texture",
+    "outputs": [
+        {
+            "class": "NodeSocketColor",
+            "identifier": "Color",
+            "index": 0,
+            "name": "Color"
+        },
+        {
+            "class": "NodeSocketFloat",
+            "identifier": "Alpha",
+            "index": 1,
+            "name": "Alpha"
+        }
+    ]
+}

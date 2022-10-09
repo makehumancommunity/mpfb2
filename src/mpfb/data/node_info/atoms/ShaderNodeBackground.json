@@ -1,0 +1,33 @@
+{
+    "attributes": [],
+    "class": "ShaderNodeBackground",
+    "inputs": [
+        {
+            "class": "NodeSocketColor",
+            "identifier": "Color",
+            "index": 0,
+            "name": "Color"
+        },
+        {
+            "class": "NodeSocketFloat",
+            "identifier": "Strength",
+            "index": 1,
+            "name": "Strength"
+        },
+        {
+            "class": "NodeSocketFloat",
+            "identifier": "Weight",
+            "index": 2,
+            "name": "Weight"
+        }
+    ],
+    "label": "Background",
+    "outputs": [
+        {
+            "class": "NodeSocketShader",
+            "identifier": "Background",
+            "index": 0,
+            "name": "Background"
+        }
+    ]
+}

@@ -1,0 +1,39 @@
+{
+    "attributes": [],
+    "class": "ShaderNodeLightFalloff",
+    "inputs": [
+        {
+            "class": "NodeSocketFloat",
+            "identifier": "Strength",
+            "index": 0,
+            "name": "Strength"
+        },
+        {
+            "class": "NodeSocketFloat",
+            "identifier": "Smooth",
+            "index": 1,
+            "name": "Smooth"
+        }
+    ],
+    "label": "Light Falloff",
+    "outputs": [
+        {
+            "class": "NodeSocketFloat",
+            "identifier": "Quadratic",
+            "index": 0,
+            "name": "Quadratic"
+        },
+        {
+            "class": "NodeSocketFloat",
+            "identifier": "Linear",
+            "index": 1,
+            "name": "Linear"
+        },
+        {
+            "class": "NodeSocketFloat",
+            "identifier": "Constant",
+            "index": 2,
+            "name": "Constant"
+        }
+    ]
+}

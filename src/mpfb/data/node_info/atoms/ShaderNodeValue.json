@@ -1,0 +1,14 @@
+{
+    "attributes": [],
+    "class": "ShaderNodeValue",
+    "inputs": [],
+    "label": "Value",
+    "outputs": [
+        {
+            "class": "NodeSocketFloat",
+            "identifier": "Value",
+            "index": 0,
+            "name": "Value"
+        }
+    ]
+}

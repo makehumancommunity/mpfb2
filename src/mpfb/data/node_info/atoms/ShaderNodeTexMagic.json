@@ -1,0 +1,58 @@
+{
+    "attributes": [
+        {
+            "allowed_values": [],
+            "class": "unknown",
+            "name": "color_mapping",
+            "sample_value": "<bpy_struct, ColorMapping at 0x7f5659516098>"
+        },
+        {
+            "allowed_values": [],
+            "class": "unknown",
+            "name": "texture_mapping",
+            "sample_value": "<bpy_struct, TexMapping at 0x7f5659516008>"
+        },
+        {
+            "allowed_values": [],
+            "class": "unknown",
+            "name": "turbulence_depth",
+            "sample_value": "2"
+        }
+    ],
+    "class": "ShaderNodeTexMagic",
+    "inputs": [
+        {
+            "class": "NodeSocketVector",
+            "identifier": "Vector",
+            "index": 0,
+            "name": "Vector"
+        },
+        {
+            "class": "NodeSocketFloat",
+            "identifier": "Scale",
+            "index": 1,
+            "name": "Scale"
+        },
+        {
+            "class": "NodeSocketFloat",
+            "identifier": "Distortion",
+            "index": 2,
+            "name": "Distortion"
+        }
+    ],
+    "label": "Magic Texture",
+    "outputs": [
+        {
+            "class": "NodeSocketColor",
+            "identifier": "Color",
+            "index": 0,
+            "name": "Color"
+        },
+        {
+            "class": "NodeSocketFloat",
+            "identifier": "Fac",
+            "index": 1,
+            "name": "Fac"
+        }
+    ]
+}

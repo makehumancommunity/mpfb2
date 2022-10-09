@@ -1,0 +1,33 @@
+{
+    "attributes": [],
+    "class": "ShaderNodeCombineXYZ",
+    "inputs": [
+        {
+            "class": "NodeSocketFloat",
+            "identifier": "X",
+            "index": 0,
+            "name": "X"
+        },
+        {
+            "class": "NodeSocketFloat",
+            "identifier": "Y",
+            "index": 1,
+            "name": "Y"
+        },
+        {
+            "class": "NodeSocketFloat",
+            "identifier": "Z",
+            "index": 2,
+            "name": "Z"
+        }
+    ],
+    "label": "Combine XYZ",
+    "outputs": [
+        {
+            "class": "NodeSocketVector",
+            "identifier": "Vector",
+            "index": 0,
+            "name": "Vector"
+        }
+    ]
+}

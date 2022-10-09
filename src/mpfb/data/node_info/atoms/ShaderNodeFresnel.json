@@ -1,0 +1,27 @@
+{
+    "attributes": [],
+    "class": "ShaderNodeFresnel",
+    "inputs": [
+        {
+            "class": "NodeSocketFloat",
+            "identifier": "IOR",
+            "index": 0,
+            "name": "IOR"
+        },
+        {
+            "class": "NodeSocketVector",
+            "identifier": "Normal",
+            "index": 1,
+            "name": "Normal"
+        }
+    ],
+    "label": "Fresnel",
+    "outputs": [
+        {
+            "class": "NodeSocketFloat",
+            "identifier": "Fac",
+            "index": 0,
+            "name": "Fac"
+        }
+    ]
+}

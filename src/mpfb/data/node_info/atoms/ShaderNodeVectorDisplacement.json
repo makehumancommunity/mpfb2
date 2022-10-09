@@ -1,0 +1,40 @@
+{
+    "attributes": [
+        {
+            "allowed_values": [],
+            "class": "enum",
+            "name": "space",
+            "sample_value": "TANGENT"
+        }
+    ],
+    "class": "ShaderNodeVectorDisplacement",
+    "inputs": [
+        {
+            "class": "NodeSocketColor",
+            "identifier": "Vector",
+            "index": 0,
+            "name": "Vector"
+        },
+        {
+            "class": "NodeSocketFloat",
+            "identifier": "Midlevel",
+            "index": 1,
+            "name": "Midlevel"
+        },
+        {
+            "class": "NodeSocketFloat",
+            "identifier": "Scale",
+            "index": 2,
+            "name": "Scale"
+        }
+    ],
+    "label": "Vector Displacement",
+    "outputs": [
+        {
+            "class": "NodeSocketVector",
+            "identifier": "Displacement",
+            "index": 0,
+            "name": "Displacement"
+        }
+    ]
+}

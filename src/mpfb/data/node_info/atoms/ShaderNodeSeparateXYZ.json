@@ -1,0 +1,33 @@
+{
+    "attributes": [],
+    "class": "ShaderNodeSeparateXYZ",
+    "inputs": [
+        {
+            "class": "NodeSocketVector",
+            "identifier": "Vector",
+            "index": 0,
+            "name": "Vector"
+        }
+    ],
+    "label": "Separate XYZ",
+    "outputs": [
+        {
+            "class": "NodeSocketFloat",
+            "identifier": "X",
+            "index": 0,
+            "name": "X"
+        },
+        {
+            "class": "NodeSocketFloat",
+            "identifier": "Y",
+            "index": 1,
+            "name": "Y"
+        },
+        {
+            "class": "NodeSocketFloat",
+            "identifier": "Z",
+            "index": 2,
+            "name": "Z"
+        }
+    ]
+}

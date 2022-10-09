@@ -1,0 +1,28 @@
+{
+    "attributes": [
+        {
+            "allowed_values": [],
+            "class": "bool",
+            "name": "use_pixel_size",
+            "sample_value": "False"
+        }
+    ],
+    "class": "ShaderNodeWireframe",
+    "inputs": [
+        {
+            "class": "NodeSocketFloat",
+            "identifier": "Size",
+            "index": 0,
+            "name": "Size"
+        }
+    ],
+    "label": "Wireframe",
+    "outputs": [
+        {
+            "class": "NodeSocketFloat",
+            "identifier": "Fac",
+            "index": 0,
+            "name": "Fac"
+        }
+    ]
+}

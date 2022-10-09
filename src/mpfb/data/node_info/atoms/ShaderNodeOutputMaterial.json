@@ -1,0 +1,45 @@
+{
+    "attributes": [
+        {
+            "allowed_values": [],
+            "class": "bool",
+            "name": "is_active_output",
+            "sample_value": "False"
+        },
+        {
+            "allowed_values": [],
+            "class": "enum",
+            "name": "target",
+            "sample_value": "ALL"
+        }
+    ],
+    "class": "ShaderNodeOutputMaterial",
+    "inputs": [
+        {
+            "class": "NodeSocketShader",
+            "identifier": "Surface",
+            "index": 0,
+            "name": "Surface"
+        },
+        {
+            "class": "NodeSocketShader",
+            "identifier": "Volume",
+            "index": 1,
+            "name": "Volume"
+        },
+        {
+            "class": "NodeSocketVector",
+            "identifier": "Displacement",
+            "index": 2,
+            "name": "Displacement"
+        },
+        {
+            "class": "NodeSocketFloat",
+            "identifier": "Thickness",
+            "index": 3,
+            "name": "Thickness"
+        }
+    ],
+    "label": "Material Output",
+    "outputs": []
+}

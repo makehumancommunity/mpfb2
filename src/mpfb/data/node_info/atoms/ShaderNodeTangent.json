@@ -1,0 +1,33 @@
+{
+    "attributes": [
+        {
+            "allowed_values": [],
+            "class": "enum",
+            "name": "axis",
+            "sample_value": "Z"
+        },
+        {
+            "allowed_values": [],
+            "class": "enum",
+            "name": "direction_type",
+            "sample_value": "RADIAL"
+        },
+        {
+            "allowed_values": [],
+            "class": "str",
+            "name": "uv_map",
+            "sample_value": ""
+        }
+    ],
+    "class": "ShaderNodeTangent",
+    "inputs": [],
+    "label": "Tangent",
+    "outputs": [
+        {
+            "class": "NodeSocketVector",
+            "identifier": "Tangent",
+            "index": 0,
+            "name": "Tangent"
+        }
+    ]
+}

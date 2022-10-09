@@ -1,0 +1,33 @@
+{
+    "attributes": [],
+    "class": "ShaderNodeMixShader",
+    "inputs": [
+        {
+            "class": "NodeSocketFloatFactor",
+            "identifier": "Fac",
+            "index": 0,
+            "name": "Fac"
+        },
+        {
+            "class": "NodeSocketShader",
+            "identifier": "Shader",
+            "index": 1,
+            "name": "Shader"
+        },
+        {
+            "class": "NodeSocketShader",
+            "identifier": "Shader_001",
+            "index": 2,
+            "name": "Shader"
+        }
+    ],
+    "label": "Mix Shader",
+    "outputs": [
+        {
+            "class": "NodeSocketShader",
+            "identifier": "Shader",
+            "index": 0,
+            "name": "Shader"
+        }
+    ]
+}

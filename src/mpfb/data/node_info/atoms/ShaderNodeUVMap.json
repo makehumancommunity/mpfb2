@@ -1,0 +1,27 @@
+{
+    "attributes": [
+        {
+            "allowed_values": [],
+            "class": "bool",
+            "name": "from_instancer",
+            "sample_value": "False"
+        },
+        {
+            "allowed_values": [],
+            "class": "str",
+            "name": "uv_map",
+            "sample_value": ""
+        }
+    ],
+    "class": "ShaderNodeUVMap",
+    "inputs": [],
+    "label": "UV Map",
+    "outputs": [
+        {
+            "class": "NodeSocketVector",
+            "identifier": "UV",
+            "index": 0,
+            "name": "UV"
+        }
+    ]
+}

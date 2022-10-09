@@ -1,0 +1,21 @@
+{
+    "attributes": [],
+    "class": "ShaderNodeWavelength",
+    "inputs": [
+        {
+            "class": "NodeSocketFloat",
+            "identifier": "Wavelength",
+            "index": 0,
+            "name": "Wavelength"
+        }
+    ],
+    "label": "Wavelength",
+    "outputs": [
+        {
+            "class": "NodeSocketColor",
+            "identifier": "Color",
+            "index": 0,
+            "name": "Color"
+        }
+    ]
+}

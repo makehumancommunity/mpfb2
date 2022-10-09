@@ -1,0 +1,21 @@
+{
+    "attributes": [],
+    "class": "ShaderNodeBlackbody",
+    "inputs": [
+        {
+            "class": "NodeSocketFloat",
+            "identifier": "Temperature",
+            "index": 0,
+            "name": "Temperature"
+        }
+    ],
+    "label": "Blackbody",
+    "outputs": [
+        {
+            "class": "NodeSocketColor",
+            "identifier": "Color",
+            "index": 0,
+            "name": "Color"
+        }
+    ]
+}

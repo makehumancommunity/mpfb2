@@ -1,0 +1,33 @@
+{
+    "attributes": [],
+    "class": "ShaderNodeLayerWeight",
+    "inputs": [
+        {
+            "class": "NodeSocketFloat",
+            "identifier": "Blend",
+            "index": 0,
+            "name": "Blend"
+        },
+        {
+            "class": "NodeSocketVector",
+            "identifier": "Normal",
+            "index": 1,
+            "name": "Normal"
+        }
+    ],
+    "label": "Layer Weight",
+    "outputs": [
+        {
+            "class": "NodeSocketFloat",
+            "identifier": "Fresnel",
+            "index": 0,
+            "name": "Fresnel"
+        },
+        {
+            "class": "NodeSocketFloat",
+            "identifier": "Facing",
+            "index": 1,
+            "name": "Facing"
+        }
+    ]
+}

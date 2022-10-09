@@ -1,0 +1,64 @@
+{
+    "attributes": [
+        {
+            "allowed_values": [],
+            "class": "enum",
+            "name": "falloff",
+            "sample_value": "RANDOM_WALK"
+        }
+    ],
+    "class": "ShaderNodeSubsurfaceScattering",
+    "inputs": [
+        {
+            "class": "NodeSocketColor",
+            "identifier": "Color",
+            "index": 0,
+            "name": "Color"
+        },
+        {
+            "class": "NodeSocketFloat",
+            "identifier": "Scale",
+            "index": 1,
+            "name": "Scale"
+        },
+        {
+            "class": "NodeSocketVector",
+            "identifier": "Radius",
+            "index": 2,
+            "name": "Radius"
+        },
+        {
+            "class": "NodeSocketFloatFactor",
+            "identifier": "IOR",
+            "index": 3,
+            "name": "IOR"
+        },
+        {
+            "class": "NodeSocketFloatFactor",
+            "identifier": "Anisotropy",
+            "index": 4,
+            "name": "Anisotropy"
+        },
+        {
+            "class": "NodeSocketVector",
+            "identifier": "Normal",
+            "index": 5,
+            "name": "Normal"
+        },
+        {
+            "class": "NodeSocketFloat",
+            "identifier": "Weight",
+            "index": 6,
+            "name": "Weight"
+        }
+    ],
+    "label": "Subsurface Scattering",
+    "outputs": [
+        {
+            "class": "NodeSocketShader",
+            "identifier": "BSSRDF",
+            "index": 0,
+            "name": "BSSRDF"
+        }
+    ]
+}

@@ -1,0 +1,20 @@
+{
+    "attributes": [],
+    "class": "ShaderNodeOutputAOV",
+    "inputs": [
+        {
+            "class": "NodeSocketColor",
+            "identifier": "Color",
+            "index": 0,
+            "name": "Color"
+        },
+        {
+            "class": "NodeSocketFloat",
+            "identifier": "Value",
+            "index": 1,
+            "name": "Value"
+        }
+    ],
+    "label": "",
+    "outputs": []
+}
