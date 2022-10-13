@@ -147,6 +147,8 @@ class HumanService:
 
     @staticmethod
     def _populate_human_info_with_bodyparts_info(human_info, basemesh):
+        if not "color_adjustments" in human_info:
+            human_info["color_adjustments"] = dict()
         for bodypart in ["Eyes", "Eyelashes", "Eyebrows", "Tongue", "Teeth", "Hair"]:
             bodypart_obj = ObjectService.find_object_of_type_amongst_nearest_relatives(basemesh, bodypart)
             _LOG.debug(bodypart, bodypart_obj)
@@ -155,9 +157,18 @@ class HumanService:
                 if not asset_source is None:
                     human_info[str(bodypart).lower()] = str(asset_source).strip()
                     HumanService._populate_alternative_material(human_info, bodypart_obj)
+                    color_adjust = None
+                    if not bodypart == "Eyes":
+                        color_adjust = MaterialService.find_color_adjustment(bodypart_obj)
+                        uuid = GeneralObjectProperties.get_value("uuid", entity_reference=bodypart_obj)
+                        _LOG.debug("Color adjustment", (bodypart_obj, uuid, color_adjust))
+                        if color_adjust and uuid:
+                            human_info["color_adjustments"][uuid] = color_adjust
 
     @staticmethod
     def _populate_human_info_with_clothes_info(human_info, basemesh):
+        if not "color_adjustments" in human_info:
+            human_info["color_adjustments"] = dict()
         if not "clothes" in human_info:
             human_info["clothes"] = []
 
@@ -172,6 +183,11 @@ class HumanService:
             if not asset_source is None:
                 human_info["clothes"].append(str(asset_source).strip())
                 HumanService._populate_alternative_material(human_info, clothes_obj)
+                color_adjust = MaterialService.find_color_adjustment(clothes_obj)
+                uuid = GeneralObjectProperties.get_value("uuid", entity_reference=clothes_obj)
+                _LOG.debug("Color adjustment", (clothes_obj, uuid, color_adjust))
+                if color_adjust and uuid:
+                    human_info["color_adjustments"][uuid] = color_adjust
 
     @staticmethod
     def _populate_human_info_with_proxy_info(human_info, basemesh):
@@ -289,7 +305,7 @@ class HumanService:
             _LOG.debug("There is no corrective information for", uuid)
 
     @staticmethod
-    def add_mhclo_asset(mhclo_file, basemesh, asset_type="Clothes", subdiv_levels=1, material_type="MAKESKIN", alternative_materials=None):
+    def add_mhclo_asset(mhclo_file, basemesh, asset_type="Clothes", subdiv_levels=1, material_type="MAKESKIN", alternative_materials=None, color_adjustments=None):
         mhclo = Mhclo()
         mhclo.load(mhclo_file) # pylint: disable=E1101
         clothes = mhclo.load_mesh(bpy.context)
@@ -349,6 +365,9 @@ class HumanService:
             blender_material = MaterialService.create_empty_material(name, clothes)
             makeskin_material.apply_node_tree(blender_material)
             blender_material.diffuse_color = color
+
+            if mhclo.uuid and color_adjustments and mhclo.uuid in color_adjustments:
+                MaterialService.apply_color_adjustment(clothes, color_adjustments[mhclo.uuid])
 
         if material_type == "PROCEDURAL_EYES":
             MaterialService.delete_all_materials(clothes)
@@ -426,7 +445,10 @@ class HumanService:
                 if bodypart == "eyes" and "eyes_material_type" in human_info and human_info["eyes_material_type"]:
                     material = human_info["eyes_material_type"]
                 if not asset_absolute_path is None:
-                    bodypart_object = HumanService.add_mhclo_asset(asset_absolute_path, basemesh, asset_type=bodypart, subdiv_levels=subdiv_levels, material_type=material, alternative_materials=human_info["alternative_materials"])
+                    colors = None
+                    if "color_adjustments" in human_info:
+                        colors = human_info["color_adjustments"]
+                    bodypart_object = HumanService.add_mhclo_asset(asset_absolute_path, basemesh, asset_type=bodypart, subdiv_levels=subdiv_levels, material_type=material, alternative_materials=human_info["alternative_materials"], color_adjustments=colors)
                     #if bodypart_object and "name" in human_info and human_info["name"]:
                     #    bodypart_object.name = human_info["name"] + "." + bodypart_object.name
                 else:
@@ -445,7 +467,10 @@ class HumanService:
             _LOG.debug("Asset absolute path", asset_absolute_path)
             material = "MAKESKIN"
             if not asset_absolute_path is None:
-                clothes_object = HumanService.add_mhclo_asset(asset_absolute_path, basemesh, asset_type="clothes", subdiv_levels=subdiv_levels, material_type=material, alternative_materials=human_info["alternative_materials"])
+                colors = None
+                if "color_adjustments" in human_info:
+                    colors = human_info["color_adjustments"]
+                clothes_object = HumanService.add_mhclo_asset(asset_absolute_path, basemesh, asset_type="clothes", subdiv_levels=subdiv_levels, material_type=material, alternative_materials=human_info["alternative_materials"], color_adjustments=colors)
             else:
                 _LOG.warn("Could not locate clothes", asset_filename)
         profiler.leave("_check_add_clothes")

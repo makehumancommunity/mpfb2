@@ -260,6 +260,63 @@ class MaterialService():
                 _LOG.debug("Not adding slot to bodyproxy because it is none or group does not exist", (bodyproxy, group_name))
 
     @staticmethod
+    def find_color_adjustment(blender_object):
+        if not blender_object:
+            _LOG.debug("The blender object was none")
+            return None
+        material = MaterialService.get_material(blender_object)
+        if not material:
+            _LOG.debug("The blender object did not have a material")
+            return None
+
+        if not material.node_tree:
+            raise ValueError('Could not find node tree on material for ' + str(blender_object))
+
+        principled = NodeService.find_first_node_by_type_name(material.node_tree, "ShaderNodeBsdfPrincipled")
+        if not principled:
+            _LOG.debug("The material did not have a principled node, maybe not a makeskin material? ", blender_object)
+            return None
+
+        mix = NodeService.find_node_linked_to_socket(material.node_tree, principled, "Base Color")
+
+        if not mix:
+            _LOG.debug("There was no mix node")
+            return None
+
+        info = NodeService.get_node_info(mix)
+
+        if not info or not "values" in info:
+            raise ValueError('Could not find values:' + str(info))
+
+        return info["values"]
+
+    @staticmethod
+    def apply_color_adjustment(blender_object, color_adjustment):
+        if not blender_object:
+            _LOG.debug("The blender object was none")
+            return
+        if not blender_object:
+            _LOG.debug("The color adjustment was none")
+            return
+
+        material = MaterialService.get_material(blender_object)
+        if not material:
+            _LOG.debug("The blender object did not have a material")
+            return
+
+        if not material.node_tree:
+            raise ValueError('Could not find node tree on material for ' + str(blender_object))
+
+        principled = NodeService.find_first_node_by_type_name(material.node_tree, "ShaderNodeBsdfPrincipled")
+        if not principled:
+            _LOG.debug("The material did not have a principled node, maybe not a makeskin material? ", blender_object)
+            return
+
+        mix = NodeService.find_node_linked_to_socket(material.node_tree, principled, "Base Color")
+
+        NodeService.set_socket_default_values(mix, color_adjustment)
+
+    @staticmethod
     def get_skin_diffuse_color():
         return [0.721, 0.568, 0.431, 1.0]
 
