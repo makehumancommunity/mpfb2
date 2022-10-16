@@ -1,0 +1,7 @@
+{
+    "type": "boolean",
+    "name": "save_evaluated",
+    "description": "When saving weights, use the result of evaluating all modifiers (they must not change topology)",
+    "label": "Save evaluated",
+    "default": false
+}

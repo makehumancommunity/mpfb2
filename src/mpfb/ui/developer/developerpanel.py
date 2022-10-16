@@ -79,8 +79,9 @@ class MPFB_PT_Developer_Panel(bpy.types.Panel):
         box.operator("mpfb.load_rigify_layers")
         box.operator("mpfb.save_rigify_layers")
 
-    def _weights(self, layout):
+    def _weights(self, scene, layout):
         box = self._create_box(layout, "Load/Save weights")
+        DEVELOPER_PROPERTIES.draw_properties(scene, box, ["save_evaluated"])
         box.operator("mpfb.load_weights")
         box.operator("mpfb.save_weights")
 
@@ -92,7 +93,7 @@ class MPFB_PT_Developer_Panel(bpy.types.Panel):
         self._export_log_file(scene, layout)
         self._nodes(layout)
         self._rig(scene, layout)
-        self._weights(layout)
+        self._weights(scene, layout)
 
 
 ClassManager.add_class(MPFB_PT_Developer_Panel)
