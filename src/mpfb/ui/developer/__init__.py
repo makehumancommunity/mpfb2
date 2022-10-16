@@ -5,6 +5,7 @@ _LOG = _LogService.get_logger("developer.init")
 _LOG.trace("initializing developer module")
 
 from .developerpanel import MPFB_PT_Developer_Panel
+from .nodedeveloperpanel import MPFB_PT_Node_Developer_Panel
 from .operators import *
 
 __all__ = [

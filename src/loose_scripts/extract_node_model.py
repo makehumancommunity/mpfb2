@@ -1,4 +1,5 @@
-import bpy, pprint, json
+import bpy, pprint, os, json
+from mpfb.services.locationservice import LocationService
 
 nodeclasses = bpy.types.ShaderNode.__subclasses__()
 
@@ -63,6 +64,8 @@ blacklisted = [
 
 exclude = []    
 
+alltypes = []
+
 for n in nodeclasses:    
     nodeinstance = nodes.new(n.__name__)    
 #    if n.__name__ == "ShaderNodeMath":
@@ -115,8 +118,90 @@ for n in nodeclasses:
             outputdef["class"] = str(output.__class__.__name__)
             shadertype["outputs"].append(outputdef)
             i = i + 1
-            
-    with open("/tmp/nodes/" + n.__name__ + ".json", "w") as json_file:
-        json.dump(shadertype, json_file, indent=4, sort_keys=True)
+                
+    alltypes.append(shadertype)
+    
+
+mpfb_entities = LocationService.get_mpfb_root("entities")
+atoms = os.path.join(mpfb_entities, "nodemodel", "atoms")
+init = os.path.join(atoms, "__init__.py")
+
+with open(init, "w") as initfile:
+    initfile.write("""
+from mpfb.services.logservice import LogService
+from mpfb.entities.nodemodel._internalnodemanager import InternalNodeManager
+_LOG = LogService.get_logger("nodemodel.atoms")
+_LOG.trace("initializing nodemodel atoms module")
+
+class AtomNodeManager(InternalNodeManager):
+    def __init__(self, node_tree):
+        _LOG.trace("Constructing AtomNodeManager with node_tree", node_tree)
+        InternalNodeManager.__init__(self, node_tree)
+    
+""")
+    
+    translations = dict()
+    
+    for shadertype in alltypes:
+        class_name = shadertype["class"]
+        class_lc = class_name.lower()
+        class_filename = os.path.join(atoms, class_lc + ".py")
         
-    nodes.remove(nodeinstance)
+        with open(class_filename, "w") as class_file:
+            class_file.write("\"\"\"\n")
+            class_file.write(json.dumps(shadertype, indent=4, sort_keys=True))
+            class_file.write("\"\"\"\n")
+            class_file.write("def create" + class_name + "(self, name=None, color=None, label=None, x=None, y=None")
+            for attribute in shadertype["attributes"]:
+                name = attribute["name"].replace(".", "_").replace(" ", "_")
+                if name != attribute["name"]:
+                    translations[name] = attribute["name"]                    
+                class_file.write(", " + name + "=None")
+
+            for input in shadertype["inputs"]:
+                name = input["identifier"].replace(".", "_").replace(" ", "_")
+                if name != input["name"]:
+                    translations[name] = input["identifier"]
+                class_file.write(", " + name + "=None")
+                
+            class_file.write("):\n")
+            class_file.write("    node_def = dict()\n")
+            class_file.write("    node_def[\"attributes\"] = dict()\n")            
+            class_file.write("    node_def[\"inputs\"] = dict()\n")                        
+            class_file.write("    node_def[\"class\"] = \"" + class_name + "\"\n")
+            class_file.write("    node_def[\"name\"] = name\n")         
+            class_file.write("    node_def[\"color\"] = color\n")
+            class_file.write("    node_def[\"label\"] = label\n")
+            class_file.write("    node_def[\"x\"] = x\n")            
+            class_file.write("    node_def[\"y\"] = y\n")
+
+            for attribute in shadertype["attributes"]:
+                name = attribute["name"].replace(".", "_").replace(" ", "_")
+                original_name = name
+                if name in translations:
+                    original_name = translations[name]
+                class_file.write("    node_def[\"attributes\"][\"" + original_name + "\"] = " + name + "\n")
+
+            original_name = "MUPP"
+            
+            for input in shadertype["inputs"]:
+                name = input["identifier"].replace(".", "_").replace(" ", "_")
+                original_name = name
+                if name in translations:
+                    original_name = translations[name]
+                class_file.write("    node_def[\"inputs\"][\"" + original_name + "\"] = " + name + "\n")
+                
+            if "Math" in class_name:
+                print(translations)
+                
+            class_file.write("\n")
+            class_file.write("    return self._create_node(node_def)\n")
+                
+        initfile.write("from ." + class_lc + " import create" + class_name + "\n")
+
+    initfile.write("\n")
+    
+    for shadertype in alltypes:
+        class_name = shadertype["class"]
+        initfile.write("setattr(AtomNodeManager, \"create" + class_name + "\", create" + class_name + ")\n")
+    
