@@ -141,7 +141,7 @@ class HumanService:
             rig_type = RigService.identify_rig(armature_object)
             if rig_type is None or rig_type == "unkown":
                 raise ValueError("Could not identify rig type. Custom rigs cannot be serialized.")
-            if rig_type is None or rig_type == "rigify_generated":
+            if rig_type.startswith("rigify_generated"):
                 raise ValueError("Generated rigify rigs cannot be serialized. If you want to serialize the rig you have to do it before generating the final rig.")
             human_info["rig"] = rig_type
 

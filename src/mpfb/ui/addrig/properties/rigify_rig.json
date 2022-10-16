@@ -1,0 +1,11 @@
+{
+    "type": "enum",
+    "name": "rigify_rig",
+    "description": "Which rigify rig should be added?",
+    "label": "Rig",
+    "default": "human",
+    "items": [
+        ["human_toes", "Default", "The default makehuman rigify rig", 0],
+        ["human", "Default (no toes)", "The default makehuman rigify rig, but without toe bones", 1]
+    ]
+}

@@ -483,8 +483,10 @@ class RigService:
             ["oculi02.R", "toe2-1.L", "default"],
             ["thumb_01_l", "game_engine"],
             ["RThumb", "cmu_mb"],
-            ["brow.T.R.002", "rigify_meta"],
-            ["thumb.01_master.L", "rigify_generated"]
+            ["brow.T.R.002", "rigify.human"],
+            ["brow.T.R.002", "toe2-1.L", "rigify.human_toes"],
+            ["ORG-brow.T.R.002", "rigify_generated.human"],
+            ["ORG-brow.T.R.002", "ORG-toe2-1.L", "rigify_generated.human_toes"]
             ]
 
         guessed_rig = "unknown"
@@ -699,9 +701,9 @@ class RigService:
             raise ValueError("Cannot refit a generated rigify rig")
 
         rigdir = LocationService.get_mpfb_data("rigs")
-        if "rigify" in rig_type:
+        if rig_type.startswith("rigify."):
             rigdir = os.path.join(rigdir, "rigify")
-            rig_type = "human"
+            rig_type = rig_type[7:]
         else:
             rigdir = os.path.join(rigdir, "standard")
 
