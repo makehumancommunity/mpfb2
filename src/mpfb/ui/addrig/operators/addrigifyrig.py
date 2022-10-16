@@ -92,9 +92,6 @@ class MPFB_OT_AddRigifyRigOperator(bpy.types.Operator):
 
         basemesh.parent = armature_object
 
-        # Switch to the new face rig
-        bpy.ops.pose.rigify_upgrade_face()
-
         if import_weights:
             weights_file = os.path.join(rigify_dir, "weights.human.json")
             weights = dict()

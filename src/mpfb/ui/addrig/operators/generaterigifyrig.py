@@ -95,6 +95,10 @@ class MPFB_OT_GenerateRigifyRigOperator(bpy.types.Operator):
             else:
                 armature_object.name = target_name
 
+        # Switch to the new face rig
+        if bpy.ops.pose.rigify_upgrade_face.poll():
+            bpy.ops.pose.rigify_upgrade_face()
+
         bpy.ops.pose.rigify_generate()
         rigify_object = context.active_object
         rigify_object.show_in_front = True
