@@ -99,6 +99,7 @@ class MPFB_OT_AddRigifyRigOperator(bpy.types.Operator):
             with open(weights_file, 'r') as json_file:
                 weights = json.load(json_file)
             RigService.apply_weights(armature_object, basemesh, weights, all=True)
+            RigService.ensure_armature_modifier(basemesh, armature_object)
 
         self.report({'INFO'}, "A rig was added")
         return {'FINISHED'}

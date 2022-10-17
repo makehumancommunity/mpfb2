@@ -91,10 +91,7 @@ class Rig:
 
         bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
 
-        modifier = self.basemesh.modifiers.new("Armature", 'ARMATURE')
-        modifier.object = self.armature_object
-        while self.basemesh.modifiers.find(modifier.name) != 0:
-            bpy.ops.object.modifier_move_up({'object': self.basemesh}, modifier=modifier.name)
+        RigService.ensure_armature_modifier(self.basemesh, self.armature_object)
 
         return self.armature_object
 

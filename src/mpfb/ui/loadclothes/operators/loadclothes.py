@@ -7,6 +7,7 @@ from mpfb.services.logservice import LogService
 from mpfb.services.objectservice import ObjectService
 from mpfb.services.materialservice import MaterialService
 from mpfb.services.clothesservice import ClothesService
+from mpfb.services.rigservice import RigService
 from mpfb.entities.clothes.mhclo import Mhclo
 from mpfb.entities.objectproperties import GeneralObjectProperties
 from mpfb.entities.material.makeskinmaterial import MakeSkinMaterial
@@ -104,10 +105,9 @@ class MPFB_OT_Load_Clothes_Operator(bpy.types.Operator, ImportHelper):
         if set_up_rigging:
             clothes.location = (0.0, 0.0, 0.0)
             clothes.parent = rig
-            modifier = clothes.modifiers.new("Armature", 'ARMATURE')
-            modifier.object = rig
             if interpolate_weights:
                 ClothesService.interpolate_weights(basemesh, clothes, rig, mhclo)
+            RigService.ensure_armature_modifier(clothes, rig, move_to_top=False)
 
         if makeclothes_metadata:
             ClothesService.set_makeclothes_object_properties_from_mhclo(clothes, mhclo, delete_group_name=delete_name)

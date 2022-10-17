@@ -385,9 +385,8 @@ class HumanService:
         rig = ObjectService.find_object_of_type_amongst_nearest_relatives(basemesh, "Skeleton")
         if rig:
             clothes.parent = rig
-            modifier = clothes.modifiers.new("Armature", 'ARMATURE')
-            modifier.object = rig
             ClothesService.interpolate_weights(basemesh, clothes, rig, mhclo)
+            RigService.ensure_armature_modifier(clothes, rig, move_to_top=False)
         else:
             clothes.parent = basemesh
 
@@ -1053,6 +1052,7 @@ class HumanService:
             with open(weights_file, 'r') as json_file:
                 weights = json.load(json_file)
             RigService.apply_weights(armature_object, basemesh, weights)
+            RigService.ensure_armature_modifier(basemesh, armature_object)
 
         RigService.normalize_rotation_mode(armature_object)
 
