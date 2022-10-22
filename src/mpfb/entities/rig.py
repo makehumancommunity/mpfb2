@@ -56,6 +56,8 @@ class Rig:
         rig.match_remaining_edit_bones_with_vertex_means()
         rig.restore_saved_strategies()
 
+        rig.cleanup_float_values()
+
         return rig
 
     def create_armature_and_fit_to_basemesh(self, for_developer=False):
@@ -89,10 +91,7 @@ class Rig:
 
         bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
 
-        modifier = self.basemesh.modifiers.new("Armature", 'ARMATURE')
-        modifier.object = self.armature_object
-        while self.basemesh.modifiers.find(modifier.name) != 0:
-            bpy.ops.object.modifier_move_up({'object': self.basemesh}, modifier=modifier.name)
+        RigService.ensure_armature_modifier(self.basemesh, self.armature_object)
 
         return self.armature_object
 
@@ -125,6 +124,8 @@ class Rig:
 
         if roll_strategy == "ALIGN_Z_WORLD_Z":
             matrix = matrix_from_axis_pair(bone.y_axis, (0,0,1), 'z')
+        elif roll_strategy == "ALIGN_X_WORLD_X":
+            matrix = matrix_from_axis_pair(bone.y_axis, (1,0,0), 'x')
 
         if matrix:
             bone.roll = bpy.types.Bone.AxisRollFromMatrix(matrix, axis=bone.y_axis)[1]
@@ -153,11 +154,17 @@ class Rig:
             if bone:
                 bone.head = self._get_best_location_from_strategy(bone_info["head"])
                 bone.tail = self._get_best_location_from_strategy(bone_info["tail"])
+                self._align_roll_by_strategy(bone, bone_info)
             else:
                 _LOG.warn("Tried to refit bone that did not exist in definition", bone_name)
                 _LOG.debug("Bone info is", bone_info)
                 _LOG.dump("Rig definition is", self.rig_definition)
         bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
+        # Reset Stretch To constraints if present
+        for pbone in self.armature_object.pose.bones:
+            for con in pbone.constraints:
+                if con.type == "STRETCH_TO":
+                    con.rest_length = 0
 
     def update_edit_bone_metadata(self):
         """Assign metadata fitting for the edit bones."""
@@ -415,6 +422,17 @@ class Rig:
 
         _LOG.dump("rig_definition after edit bones", self.rig_definition)
 
+    def cleanup_float_values(self):
+        """Round some float values in definitions to reduce noise on re-save"""
+
+        # Remove extra digits and negative zero
+        clean = lambda val: round(val, 5) + 0
+
+        for name, info in self.rig_definition.items():
+            info["head"]["default_position"] = list(map(clean, info["head"]["default_position"]))
+            info["tail"]["default_position"] = list(map(clean, info["tail"]["default_position"]))
+            info["roll"] = clean(info["roll"])
+
     def _encode_bbone_info(self, bone):
         defaults = {
             "segments": 1,
@@ -594,7 +612,7 @@ class Rig:
                 bone_info["roll_strategy"] = roll_strategy
 
                 # Clear roll if it will be overwritten
-                if roll_strategy in ("ALIGN_Z_WORLD_Z"):
+                if roll_strategy in ("ALIGN_Z_WORLD_Z", "ALIGN_X_WORLD_X"):
                     bone_info["roll"] = 0.0
 
             self._restore_end_strategy(bone, bone_info, "head")

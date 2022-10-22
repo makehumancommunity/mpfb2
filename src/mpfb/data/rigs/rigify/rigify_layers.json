@@ -69,7 +69,7 @@
         true,
         false,
         false,
-        false,
+        true,
         false,
         false,
         false,
@@ -200,15 +200,15 @@
             "selset": false
         },
         {
-            "group": 0,
-            "name": "",
-            "row": 1,
+            "group": 6,
+            "name": "Toes",
+            "row": 13,
             "selset": false
         },
         {
-            "group": 0,
-            "name": "",
-            "row": 1,
+            "group": 5,
+            "name": "Toes (Detail)",
+            "row": 14,
             "selset": false
         },
         {

@@ -40,13 +40,14 @@ class MPFB_OT_AddRigifyRigOperator(bpy.types.Operator):
 
         from mpfb.ui.addrig.addrigpanel import ADD_RIG_PROPERTIES # pylint: disable=C0415
 
+        rigify_rig = ADD_RIG_PROPERTIES.get_value("rigify_rig", entity_reference=scene)
         import_weights = ADD_RIG_PROPERTIES.get_value("import_weights_rigify", entity_reference=scene)
         delete_after_generate = ADD_RIG_PROPERTIES.get_value("delete_after_generate", entity_reference=scene)
 
         rigs_dir = LocationService.get_mpfb_data("rigs")
         rigify_dir = os.path.join(rigs_dir, "rigify")
 
-        rig_file = os.path.join(rigify_dir, "rig.human.json")
+        rig_file = os.path.join(rigify_dir, "rig." + rigify_rig + ".json")
 
         rig = Rig.from_json_file_and_basemesh(rig_file, basemesh)
         armature_object = rig.create_armature_and_fit_to_basemesh()
@@ -92,15 +93,13 @@ class MPFB_OT_AddRigifyRigOperator(bpy.types.Operator):
 
         basemesh.parent = armature_object
 
-        # Switch to the new face rig
-        bpy.ops.pose.rigify_upgrade_face()
-
         if import_weights:
-            weights_file = os.path.join(rigify_dir, "weights.human.json")
+            weights_file = os.path.join(rigify_dir, "weights." + rigify_rig + ".json")
             weights = dict()
             with open(weights_file, 'r') as json_file:
                 weights = json.load(json_file)
             RigService.apply_weights(armature_object, basemesh, weights, all=True)
+            RigService.ensure_armature_modifier(basemesh, armature_object)
 
         self.report({'INFO'}, "A rig was added")
         return {'FINISHED'}

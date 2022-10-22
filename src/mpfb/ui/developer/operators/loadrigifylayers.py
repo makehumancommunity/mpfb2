@@ -55,8 +55,13 @@ class MPFB_OT_Load_Rigify_Layers_Operator(bpy.types.Operator, ImportHelper):
             i = i + 1
 
         i = 0
+        for rigify_layer in armature_object.data.layers:
+            armature_object.data.layers[i] = rigify_ui["layers"][i]
+            i = i + 1
+
+        i = 0
         for rigify_layer in armature_object.data.rigify_layers:
-            layer = rigify_ui["layers"][i]
+            layer = rigify_ui["rigify_layers"][i]
             rigify_layer.name = layer["name"]
             rigify_layer.row = layer["row"]
             rigify_layer.selset = layer["selset"]

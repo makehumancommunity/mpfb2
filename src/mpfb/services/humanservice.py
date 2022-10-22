@@ -141,7 +141,7 @@ class HumanService:
             rig_type = RigService.identify_rig(armature_object)
             if rig_type is None or rig_type == "unkown":
                 raise ValueError("Could not identify rig type. Custom rigs cannot be serialized.")
-            if rig_type is None or rig_type == "rigify_generated":
+            if rig_type.startswith("rigify_generated"):
                 raise ValueError("Generated rigify rigs cannot be serialized. If you want to serialize the rig you have to do it before generating the final rig.")
             human_info["rig"] = rig_type
 
@@ -404,9 +404,8 @@ class HumanService:
         rig = ObjectService.find_object_of_type_amongst_nearest_relatives(basemesh, "Skeleton")
         if rig:
             clothes.parent = rig
-            modifier = clothes.modifiers.new("Armature", 'ARMATURE')
-            modifier.object = rig
             ClothesService.interpolate_weights(basemesh, clothes, rig, mhclo)
+            RigService.ensure_armature_modifier(clothes, rig, move_to_top=False)
         else:
             clothes.parent = basemesh
 
@@ -1078,6 +1077,7 @@ class HumanService:
             with open(weights_file, 'r') as json_file:
                 weights = json.load(json_file)
             RigService.apply_weights(armature_object, basemesh, weights)
+            RigService.ensure_armature_modifier(basemesh, armature_object)
 
         RigService.normalize_rotation_mode(armature_object)
 

@@ -55,6 +55,19 @@ class MPFB_OT_Save_Weights_Operator(bpy.types.Operator, ExportHelper):
                 self.report({'ERROR'}, "Could not find related basemesh. It should have been parent or child of armature object.")
                 return {'FINISHED'}
 
+        from mpfb.ui.developer.developerpanel import DEVELOPER_PROPERTIES  # pylint: disable=C0415
+
+        save_evaluated = DEVELOPER_PROPERTIES.get_value("save_evaluated", entity_reference=context.scene)
+
+        if save_evaluated:
+            eval_basemesh = basemesh.evaluated_get(context.view_layer.depsgraph)
+
+            if len(eval_basemesh.data.vertices) != len(basemesh.data.vertices):
+                self.report({'ERROR'}, "The evaluated mesh has a different vertex count")
+                return {'FINISHED'}
+
+            basemesh = eval_basemesh
+
         absolute_file_path = bpy.path.abspath(self.filepath)
         _LOG.debug("absolute_file_path", absolute_file_path)
 
