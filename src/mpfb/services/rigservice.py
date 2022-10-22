@@ -61,7 +61,10 @@ class RigService:
             for modifier in child.modifiers:
                 if modifier.type == 'ARMATURE':
                     _LOG.debug("Will apply modifier", modifier)
-                    bpy.ops.object.modifier_apply( modifier = modifier.name )
+                    if modifier.use_multi_modifier:
+                        child.modifiers.remove(modifier)
+                    else:
+                        bpy.ops.object.modifier_apply( modifier = modifier.name )
 
         ObjectService.deselect_and_deactivate_all()
         ObjectService.activate_blender_object(armature_object)
@@ -73,13 +76,61 @@ class RigService:
             _LOG.debug("Child", child)
             ObjectService.deselect_and_deactivate_all()
             ObjectService.activate_blender_object(child)
-            modifier = child.modifiers.new("Armature", 'ARMATURE')
-            modifier.object = armature_object
-            while child.modifiers.find(modifier.name) != 0:
-                bpy.ops.object.modifier_move_up({'object': child}, modifier=modifier.name)
+            RigService.ensure_armature_modifier(child, armature_object)
 
         ObjectService.deselect_and_deactivate_all()
         ObjectService.activate_blender_object(armature_object)
+
+
+    @staticmethod
+    def ensure_armature_modifier(object, armature_object, *, move_to_top=True):
+        """This creates armature modifier(s) pointing to the armature, or updates existing."""
+
+        vg_name = "mhmask-preserve-volume"
+        index_normal = -1
+        index_pv = -1
+
+        for i, modifier in enumerate(object.modifiers):
+            if modifier.type == 'ARMATURE':
+                modifier.object = armature_object
+
+                if modifier.vertex_group == vg_name:
+                    index_pv = i
+                else:
+                    index_normal = i
+
+        if not armature_object:
+            return
+
+        if index_normal < 0:
+            if index_pv >= 0:
+                # Something weird
+                return
+
+            if move_to_top:
+                index_normal = 0
+            else:
+                index_normal = len(object.modifiers)
+
+            modifier = object.modifiers.new("Armature", 'ARMATURE')
+            modifier.object = armature_object
+
+            while object.modifiers.find(modifier.name) > index_normal:
+                bpy.ops.object.modifier_move_up({'object': object}, modifier=modifier.name)
+
+        if index_pv < 0 and vg_name in object.vertex_groups:
+            index_pv = index_normal + 1
+
+            modifier = object.modifiers.new("Armature PV", 'ARMATURE')
+            modifier.object = armature_object
+            modifier.use_deform_preserve_volume = True
+            modifier.use_multi_modifier = True
+            modifier.vertex_group = vg_name
+            modifier.invert_vertex_group = True
+
+            while object.modifiers.find(modifier.name) > index_pv:
+                bpy.ops.object.modifier_move_up({'object': object}, modifier=modifier.name)
+
 
     @staticmethod
     def find_pose_bone_by_name(name, armature_object):
@@ -412,6 +463,10 @@ class RigService:
             vertex_group_index_to_name[index] = name
             vertex_group_names.add(name)
 
+            # Always include masks
+            if name.startswith("mhmask-"):
+                weights["weights"][name] = []
+
         _LOG.dump("vertex_group_index_to_name", vertex_group_index_to_name)
 
         for bone in armature_object.data.bones:
@@ -441,6 +496,9 @@ class RigService:
         if all:
             # Add all names that weren't matched to any bones to the end of the list.
             names += [name for name in weights.keys() if name not in names]
+        else:
+            # Add masks
+            names += [name for name in weights.keys() if name.startswith("mhmask-") and name not in names]
 
         for bone_name in names:
             # Weights is array of [vertex_index, weight] pairs. Use zip to rotate it
@@ -483,8 +541,10 @@ class RigService:
             ["oculi02.R", "toe2-1.L", "default"],
             ["thumb_01_l", "game_engine"],
             ["RThumb", "cmu_mb"],
-            ["brow.T.R.002", "rigify_meta"],
-            ["thumb.01_master.L", "rigify_generated"]
+            ["brow.T.R.002", "rigify.human"],
+            ["brow.T.R.002", "toe2-1.L", "rigify.human_toes"],
+            ["ORG-brow.T.R.002", "rigify_generated.human"],
+            ["ORG-brow.T.R.002", "ORG-toe2-1.L", "rigify_generated.human_toes"]
             ]
 
         guessed_rig = "unknown"
@@ -699,9 +759,9 @@ class RigService:
             raise ValueError("Cannot refit a generated rigify rig")
 
         rigdir = LocationService.get_mpfb_data("rigs")
-        if "rigify" in rig_type:
+        if rig_type.startswith("rigify."):
             rigdir = os.path.join(rigdir, "rigify")
-            rig_type = "human"
+            rig_type = rig_type[7:]
         else:
             rigdir = os.path.join(rigdir, "standard")
 

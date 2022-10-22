@@ -17,14 +17,69 @@
                 "use_bone_envelopes": false,
                 "use_current_location": false,
                 "use_deform_preserve_volume": true
+            },
+            {
+                "from_max_x": 0.0,
+                "from_max_x_rot": 1.5707963705062866,
+                "from_max_x_scale": 1.0,
+                "from_max_y": 0.0,
+                "from_max_y_rot": 0.0,
+                "from_max_y_scale": 1.0,
+                "from_max_z": 0.0,
+                "from_max_z_rot": 0.0,
+                "from_max_z_scale": 1.0,
+                "from_min_x": 0.0,
+                "from_min_x_rot": 0.0,
+                "from_min_x_scale": 1.0,
+                "from_min_y": 0.0,
+                "from_min_y_rot": 0.0,
+                "from_min_y_scale": 1.0,
+                "from_min_z": 0.0,
+                "from_min_z_rot": 0.0,
+                "from_min_z_scale": 1.0,
+                "from_rotation_mode": "SWING_TWIST_Y",
+                "map_from": "ROTATION",
+                "map_to": "SCALE",
+                "map_to_x_from": "X",
+                "map_to_y_from": "X",
+                "map_to_z_from": "X",
+                "mix_mode": "ADD",
+                "mix_mode_rot": "ADD",
+                "mix_mode_scale": "MULTIPLY",
+                "name": "Scale@DEF",
+                "owner_space": "LOCAL",
+                "subtarget": "forearm.L",
+                "target": true,
+                "target_space": "LOCAL",
+                "to_euler_order": "AUTO",
+                "to_max_x": 0.0,
+                "to_max_x_rot": 0.0,
+                "to_max_x_scale": 1.100000023841858,
+                "to_max_y": 0.0,
+                "to_max_y_rot": 0.0,
+                "to_max_y_scale": 1.100000023841858,
+                "to_max_z": 0.0,
+                "to_max_z_rot": 0.0,
+                "to_max_z_scale": 1.100000023841858,
+                "to_min_x": 0.0,
+                "to_min_x_rot": 0.0,
+                "to_min_x_scale": 1.0,
+                "to_min_y": 0.0,
+                "to_min_y_rot": 0.0,
+                "to_min_y_scale": 1.0,
+                "to_min_z": 0.0,
+                "to_min_z_rot": 0.0,
+                "to_min_z_scale": 1.0,
+                "type": "TRANSFORM",
+                "use_motion_extrapolate": true
             }
         ],
         "head": {
             "cube_name": "joint-l-elbow",
             "default_position": [
-                0.3311667740345001,
-                -0.020057059824466705,
-                1.1395602226257324
+                0.33117,
+                -0.02006,
+                1.13956
             ],
             "strategy": "CUBE"
         },
@@ -70,12 +125,12 @@
             },
             "rigify_type": "basic.raw_copy"
         },
-        "roll": 2.3877525329589844,
+        "roll": 2.38775,
         "tail": {
             "default_position": [
-                0.3434810936450958,
-                0.005540946498513222,
-                1.1254432201385498
+                0.34348,
+                0.00554,
+                1.12544
             ],
             "strategy": "VERTEX",
             "vertex_index": 10059
@@ -102,14 +157,69 @@
                 "use_bone_envelopes": false,
                 "use_current_location": false,
                 "use_deform_preserve_volume": true
+            },
+            {
+                "from_max_x": 0.0,
+                "from_max_x_rot": 1.5707963705062866,
+                "from_max_x_scale": 1.0,
+                "from_max_y": 0.0,
+                "from_max_y_rot": 0.0,
+                "from_max_y_scale": 1.0,
+                "from_max_z": 0.0,
+                "from_max_z_rot": 0.0,
+                "from_max_z_scale": 1.0,
+                "from_min_x": 0.0,
+                "from_min_x_rot": 0.0,
+                "from_min_x_scale": 1.0,
+                "from_min_y": 0.0,
+                "from_min_y_rot": 0.0,
+                "from_min_y_scale": 1.0,
+                "from_min_z": 0.0,
+                "from_min_z_rot": 0.0,
+                "from_min_z_scale": 1.0,
+                "from_rotation_mode": "SWING_TWIST_Y",
+                "map_from": "ROTATION",
+                "map_to": "SCALE",
+                "map_to_x_from": "X",
+                "map_to_y_from": "X",
+                "map_to_z_from": "X",
+                "mix_mode": "ADD",
+                "mix_mode_rot": "ADD",
+                "mix_mode_scale": "MULTIPLY",
+                "name": "Scale@DEF",
+                "owner_space": "LOCAL",
+                "subtarget": "forearm.R",
+                "target": true,
+                "target_space": "LOCAL",
+                "to_euler_order": "AUTO",
+                "to_max_x": 0.0,
+                "to_max_x_rot": 0.0,
+                "to_max_x_scale": 1.100000023841858,
+                "to_max_y": 0.0,
+                "to_max_y_rot": 0.0,
+                "to_max_y_scale": 1.100000023841858,
+                "to_max_z": 0.0,
+                "to_max_z_rot": 0.0,
+                "to_max_z_scale": 1.100000023841858,
+                "to_min_x": 0.0,
+                "to_min_x_rot": 0.0,
+                "to_min_x_scale": 1.0,
+                "to_min_y": 0.0,
+                "to_min_y_rot": 0.0,
+                "to_min_y_scale": 1.0,
+                "to_min_z": 0.0,
+                "to_min_z_rot": 0.0,
+                "to_min_z_scale": 1.0,
+                "type": "TRANSFORM",
+                "use_motion_extrapolate": true
             }
         ],
         "head": {
             "cube_name": "joint-r-elbow",
             "default_position": [
-                -0.3311667740345001,
-                -0.020057059824466705,
-                1.1395602226257324
+                -0.33117,
+                -0.02006,
+                1.13956
             ],
             "strategy": "CUBE"
         },
@@ -155,12 +265,12 @@
             },
             "rigify_type": "basic.raw_copy"
         },
-        "roll": -2.3877525329589844,
+        "roll": -2.38775,
         "tail": {
             "default_position": [
-                -0.3434810936450958,
-                0.005540946498513222,
-                1.1254432201385498
+                -0.34348,
+                0.00554,
+                1.12544
             ],
             "strategy": "VERTEX",
             "vertex_index": 3391
@@ -187,14 +297,69 @@
                 "use_bone_envelopes": false,
                 "use_current_location": false,
                 "use_deform_preserve_volume": true
+            },
+            {
+                "from_max_x": 0.0,
+                "from_max_x_rot": 1.5707963705062866,
+                "from_max_x_scale": 1.0,
+                "from_max_y": 0.0,
+                "from_max_y_rot": 0.0,
+                "from_max_y_scale": 1.0,
+                "from_max_z": 0.0,
+                "from_max_z_rot": 0.0,
+                "from_max_z_scale": 1.0,
+                "from_min_x": 0.0,
+                "from_min_x_rot": 0.0,
+                "from_min_x_scale": 1.0,
+                "from_min_y": 0.0,
+                "from_min_y_rot": 0.0,
+                "from_min_y_scale": 1.0,
+                "from_min_z": 0.0,
+                "from_min_z_rot": 0.0,
+                "from_min_z_scale": 1.0,
+                "from_rotation_mode": "SWING_TWIST_Y",
+                "map_from": "ROTATION",
+                "map_to": "SCALE",
+                "map_to_x_from": "X",
+                "map_to_y_from": "X",
+                "map_to_z_from": "X",
+                "mix_mode": "ADD",
+                "mix_mode_rot": "ADD",
+                "mix_mode_scale": "MULTIPLY",
+                "name": "Scale@DEF",
+                "owner_space": "LOCAL",
+                "subtarget": "shin.L",
+                "target": true,
+                "target_space": "LOCAL",
+                "to_euler_order": "AUTO",
+                "to_max_x": 0.0,
+                "to_max_x_rot": 0.0,
+                "to_max_x_scale": 1.100000023841858,
+                "to_max_y": 0.0,
+                "to_max_y_rot": 0.0,
+                "to_max_y_scale": 1.100000023841858,
+                "to_max_z": 0.0,
+                "to_max_z_rot": 0.0,
+                "to_max_z_scale": 1.100000023841858,
+                "to_min_x": 0.0,
+                "to_min_x_rot": 0.0,
+                "to_min_x_scale": 1.0,
+                "to_min_y": 0.0,
+                "to_min_y_rot": 0.0,
+                "to_min_y_scale": 1.0,
+                "to_min_z": 0.0,
+                "to_min_z_rot": 0.0,
+                "to_min_z_scale": 1.0,
+                "type": "TRANSFORM",
+                "use_motion_extrapolate": true
             }
         ],
         "head": {
             "cube_name": "joint-l-knee",
             "default_position": [
-                0.1426400989294052,
-                -0.03732557222247124,
-                0.4744187891483307
+                0.14264,
+                -0.03733,
+                0.47442
             ],
             "strategy": "CUBE"
         },
@@ -240,12 +405,13 @@
             },
             "rigify_type": "basic.raw_copy"
         },
-        "roll": -1.6021708250045776,
+        "roll": 0.0,
+        "roll_strategy": "ALIGN_X_WORLD_X",
         "tail": {
             "default_position": [
-                0.14338253438472748,
-                -0.0906839594244957,
-                0.4737545847892761
+                0.14338,
+                -0.09068,
+                0.47375
             ],
             "strategy": "VERTEX",
             "vertex_index": 11242
@@ -272,14 +438,69 @@
                 "use_bone_envelopes": false,
                 "use_current_location": false,
                 "use_deform_preserve_volume": true
+            },
+            {
+                "from_max_x": 0.0,
+                "from_max_x_rot": 1.5707963705062866,
+                "from_max_x_scale": 1.0,
+                "from_max_y": 0.0,
+                "from_max_y_rot": 0.0,
+                "from_max_y_scale": 1.0,
+                "from_max_z": 0.0,
+                "from_max_z_rot": 0.0,
+                "from_max_z_scale": 1.0,
+                "from_min_x": 0.0,
+                "from_min_x_rot": 0.0,
+                "from_min_x_scale": 1.0,
+                "from_min_y": 0.0,
+                "from_min_y_rot": 0.0,
+                "from_min_y_scale": 1.0,
+                "from_min_z": 0.0,
+                "from_min_z_rot": 0.0,
+                "from_min_z_scale": 1.0,
+                "from_rotation_mode": "SWING_TWIST_Y",
+                "map_from": "ROTATION",
+                "map_to": "SCALE",
+                "map_to_x_from": "X",
+                "map_to_y_from": "X",
+                "map_to_z_from": "X",
+                "mix_mode": "ADD",
+                "mix_mode_rot": "ADD",
+                "mix_mode_scale": "MULTIPLY",
+                "name": "Scale@DEF",
+                "owner_space": "LOCAL",
+                "subtarget": "shin.R",
+                "target": true,
+                "target_space": "LOCAL",
+                "to_euler_order": "AUTO",
+                "to_max_x": 0.0,
+                "to_max_x_rot": 0.0,
+                "to_max_x_scale": 1.100000023841858,
+                "to_max_y": 0.0,
+                "to_max_y_rot": 0.0,
+                "to_max_y_scale": 1.100000023841858,
+                "to_max_z": 0.0,
+                "to_max_z_rot": 0.0,
+                "to_max_z_scale": 1.100000023841858,
+                "to_min_x": 0.0,
+                "to_min_x_rot": 0.0,
+                "to_min_x_scale": 1.0,
+                "to_min_y": 0.0,
+                "to_min_y_rot": 0.0,
+                "to_min_y_scale": 1.0,
+                "to_min_z": 0.0,
+                "to_min_z_rot": 0.0,
+                "to_min_z_scale": 1.0,
+                "type": "TRANSFORM",
+                "use_motion_extrapolate": true
             }
         ],
         "head": {
             "cube_name": "joint-r-knee",
             "default_position": [
-                -0.1426400989294052,
-                -0.03732557222247124,
-                0.4744187891483307
+                -0.14264,
+                -0.03733,
+                0.47442
             ],
             "strategy": "CUBE"
         },
@@ -325,12 +546,13 @@
             },
             "rigify_type": "basic.raw_copy"
         },
-        "roll": 1.6021708250045776,
+        "roll": 0.0,
+        "roll_strategy": "ALIGN_X_WORLD_X",
         "tail": {
             "default_position": [
-                -0.14338253438472748,
-                -0.0906839594244957,
-                0.4737545847892761
+                -0.14338,
+                -0.09068,
+                0.47375
             ],
             "strategy": "VERTEX",
             "vertex_index": 4624
@@ -386,16 +608,16 @@
                 "owner_space": "LOCAL",
                 "subtarget": "thigh.L",
                 "target": true,
-                "target_space": "LOCAL",
+                "target_space": "LOCAL_OWNER_ORIENT",
                 "to_euler_order": "ZYX",
                 "to_max_x": 0.0,
                 "to_max_x_rot": 0.0,
                 "to_max_x_scale": 1.0,
                 "to_max_y": 0.0,
-                "to_max_y_rot": -0.04363323003053665,
+                "to_max_y_rot": 0.03490658476948738,
                 "to_max_y_scale": 1.0,
                 "to_max_z": 0.0,
-                "to_max_z_rot": 0.0872664600610733,
+                "to_max_z_rot": 0.05235987901687622,
                 "to_max_z_scale": 1.0,
                 "to_min_x": 0.0,
                 "to_min_x_rot": 0.0,
@@ -441,16 +663,16 @@
                 "owner_space": "LOCAL",
                 "subtarget": "thigh.L",
                 "target": true,
-                "target_space": "LOCAL",
+                "target_space": "LOCAL_OWNER_ORIENT",
                 "to_euler_order": "ZYX",
                 "to_max_x": 0.0,
-                "to_max_x_rot": -0.0872664600610733,
+                "to_max_x_rot": 0.3490658402442932,
                 "to_max_x_scale": 1.0,
                 "to_max_y": 0.0,
-                "to_max_y_rot": -0.0872664600610733,
+                "to_max_y_rot": 0.0,
                 "to_max_y_scale": 1.0,
                 "to_max_z": 0.0,
-                "to_max_z_rot": -0.3490658402442932,
+                "to_max_z_rot": -0.5235987901687622,
                 "to_max_z_scale": 1.0,
                 "to_min_x": 0.0,
                 "to_min_x_rot": 0.0,
@@ -468,9 +690,9 @@
         "head": {
             "cube_name": "joint-l-upper-leg",
             "default_position": [
-                0.10147152841091156,
-                -0.005004073027521372,
-                0.8656399846076965
+                0.10147,
+                -0.005,
+                0.86564
             ],
             "strategy": "CUBE"
         },
@@ -516,12 +738,13 @@
             },
             "rigify_type": "basic.raw_copy"
         },
-        "roll": 2.384185791015625e-07,
+        "roll": 0.0,
+        "roll_strategy": "ALIGN_X_WORLD_X",
         "tail": {
             "default_position": [
-                0.11509419977664948,
-                -0.015504281036555767,
-                0.7348060011863708
+                0.11509,
+                -0.0155,
+                0.73481
             ],
             "strategy": "MEAN",
             "vertex_indices": [
@@ -590,16 +813,16 @@
                 "owner_space": "LOCAL",
                 "subtarget": "thigh.R",
                 "target": true,
-                "target_space": "LOCAL",
+                "target_space": "LOCAL_OWNER_ORIENT",
                 "to_euler_order": "ZYX",
                 "to_max_x": 0.0,
                 "to_max_x_rot": 0.0,
                 "to_max_x_scale": 1.0,
                 "to_max_y": 0.0,
-                "to_max_y_rot": 0.04363323003053665,
+                "to_max_y_rot": -0.03490658476948738,
                 "to_max_y_scale": 1.0,
                 "to_max_z": 0.0,
-                "to_max_z_rot": -0.0872664600610733,
+                "to_max_z_rot": -0.05235987901687622,
                 "to_max_z_scale": 1.0,
                 "to_min_x": 0.0,
                 "to_min_x_rot": 0.0,
@@ -645,16 +868,16 @@
                 "owner_space": "LOCAL",
                 "subtarget": "thigh.R",
                 "target": true,
-                "target_space": "LOCAL",
+                "target_space": "LOCAL_OWNER_ORIENT",
                 "to_euler_order": "ZYX",
                 "to_max_x": 0.0,
-                "to_max_x_rot": 0.0872664600610733,
+                "to_max_x_rot": -0.3490658402442932,
                 "to_max_x_scale": 1.0,
                 "to_max_y": 0.0,
-                "to_max_y_rot": -0.0872664600610733,
+                "to_max_y_rot": 0.0,
                 "to_max_y_scale": 1.0,
                 "to_max_z": 0.0,
-                "to_max_z_rot": -0.3490658402442932,
+                "to_max_z_rot": -0.5235987901687622,
                 "to_max_z_scale": 1.0,
                 "to_min_x": 0.0,
                 "to_min_x_rot": 0.0,
@@ -672,9 +895,9 @@
         "head": {
             "cube_name": "joint-r-upper-leg",
             "default_position": [
-                -0.10147152841091156,
-                -0.005004073027521372,
-                0.8656399846076965
+                -0.10147,
+                -0.005,
+                0.86564
             ],
             "strategy": "CUBE"
         },
@@ -720,12 +943,507 @@
             },
             "rigify_type": "basic.raw_copy"
         },
-        "roll": -2.384185791015625e-07,
+        "roll": 0.0,
+        "roll_strategy": "ALIGN_X_WORLD_X",
         "tail": {
             "default_position": [
-                -0.11509419977664948,
-                -0.015504281036555767,
-                0.7348060011863708
+                -0.11509,
+                -0.0155,
+                0.73481
+            ],
+            "strategy": "MEAN",
+            "vertex_indices": [
+                14286,
+                14287,
+                14288,
+                14289,
+                14286,
+                14287,
+                14288,
+                14289,
+                14282,
+                14283,
+                14284,
+                14285
+            ]
+        },
+        "use_connect": false,
+        "use_inherit_rotation": true,
+        "use_local_location": true
+    },
+    "DEF-pelvis-helper.front.L": {
+        "constraints": [
+            {
+                "from_max_x": 0.0,
+                "from_max_x_rot": 0.0,
+                "from_max_x_scale": 1.0,
+                "from_max_y": 0.0,
+                "from_max_y_rot": 0.0,
+                "from_max_y_scale": 1.0,
+                "from_max_z": 0.0,
+                "from_max_z_rot": 0.0,
+                "from_max_z_scale": 1.0,
+                "from_min_x": 0.0,
+                "from_min_x_rot": -1.5707963705062866,
+                "from_min_x_scale": 1.0,
+                "from_min_y": 0.0,
+                "from_min_y_rot": 0.0,
+                "from_min_y_scale": 1.0,
+                "from_min_z": 0.0,
+                "from_min_z_rot": 0.0,
+                "from_min_z_scale": 1.0,
+                "from_rotation_mode": "SWING_TWIST_Y",
+                "map_from": "ROTATION",
+                "map_to": "SCALE",
+                "map_to_x_from": "X",
+                "map_to_y_from": "X",
+                "map_to_z_from": "X",
+                "mix_mode": "ADD",
+                "mix_mode_rot": "ADD",
+                "mix_mode_scale": "MULTIPLY",
+                "name": "FwdScale@DEF",
+                "owner_space": "LOCAL",
+                "subtarget": "thigh.L",
+                "target": true,
+                "target_space": "LOCAL_OWNER_ORIENT",
+                "to_euler_order": "ZYX",
+                "to_max_x": 0.0,
+                "to_max_x_rot": 0.0,
+                "to_max_x_scale": 1.0,
+                "to_max_y": 0.0,
+                "to_max_y_rot": 0.0,
+                "to_max_y_scale": 1.0,
+                "to_max_z": 0.0,
+                "to_max_z_rot": 0.0,
+                "to_max_z_scale": 1.0,
+                "to_min_x": 0.0,
+                "to_min_x_rot": 0.0,
+                "to_min_x_scale": 1.399999976158142,
+                "to_min_y": 0.0,
+                "to_min_y_rot": 0.0,
+                "to_min_y_scale": 1.0,
+                "to_min_z": 0.0,
+                "to_min_z_rot": 0.0,
+                "to_min_z_scale": 1.2000000476837158,
+                "type": "TRANSFORM",
+                "use_motion_extrapolate": true
+            },
+            {
+                "from_max_x": 0.0,
+                "from_max_x_rot": 0.0,
+                "from_max_x_scale": 1.0,
+                "from_max_y": 0.0,
+                "from_max_y_rot": 0.0,
+                "from_max_y_scale": 1.0,
+                "from_max_z": 0.0,
+                "from_max_z_rot": 0.0,
+                "from_max_z_scale": 1.0,
+                "from_min_x": 0.0,
+                "from_min_x_rot": 0.0,
+                "from_min_x_scale": 1.0,
+                "from_min_y": 0.0,
+                "from_min_y_rot": 0.0,
+                "from_min_y_scale": 1.0,
+                "from_min_z": 0.0,
+                "from_min_z_rot": -1.5707963705062866,
+                "from_min_z_scale": 1.0,
+                "from_rotation_mode": "SWING_TWIST_Y",
+                "map_from": "ROTATION",
+                "map_to": "SCALE",
+                "map_to_x_from": "Z",
+                "map_to_y_from": "Z",
+                "map_to_z_from": "Z",
+                "mix_mode": "ADD",
+                "mix_mode_rot": "ADD",
+                "mix_mode_scale": "MULTIPLY",
+                "name": "SideScale@DEF",
+                "owner_space": "LOCAL",
+                "subtarget": "thigh.L",
+                "target": true,
+                "target_space": "LOCAL_OWNER_ORIENT",
+                "to_euler_order": "ZYX",
+                "to_max_x": 0.0,
+                "to_max_x_rot": 0.0,
+                "to_max_x_scale": 1.0,
+                "to_max_y": 0.0,
+                "to_max_y_rot": 0.0,
+                "to_max_y_scale": 1.0,
+                "to_max_z": 0.0,
+                "to_max_z_rot": 0.0,
+                "to_max_z_scale": 1.0,
+                "to_min_x": 0.0,
+                "to_min_x_rot": 0.0,
+                "to_min_x_scale": 1.600000023841858,
+                "to_min_y": 0.0,
+                "to_min_y_rot": 0.0,
+                "to_min_y_scale": 1.0,
+                "to_min_z": 0.0,
+                "to_min_z_rot": 0.0,
+                "to_min_z_scale": 1.100000023841858,
+                "type": "TRANSFORM",
+                "use_motion_extrapolate": true
+            },
+            {
+                "from_max_x": 0.0,
+                "from_max_x_rot": 0.0,
+                "from_max_x_scale": 1.0,
+                "from_max_y": 0.0,
+                "from_max_y_rot": 0.0,
+                "from_max_y_scale": 1.0,
+                "from_max_z": 0.0,
+                "from_max_z_rot": 0.0,
+                "from_max_z_scale": 1.0,
+                "from_min_x": 0.0,
+                "from_min_x_rot": 0.0,
+                "from_min_x_scale": 1.0,
+                "from_min_y": 0.0,
+                "from_min_y_rot": 0.0,
+                "from_min_y_scale": 1.0,
+                "from_min_z": 0.0,
+                "from_min_z_rot": -1.5707963705062866,
+                "from_min_z_scale": 1.0,
+                "from_rotation_mode": "SWING_TWIST_Y",
+                "map_from": "ROTATION",
+                "map_to": "ROTATION",
+                "map_to_x_from": "Z",
+                "map_to_y_from": "Z",
+                "map_to_z_from": "Z",
+                "mix_mode": "ADD",
+                "mix_mode_rot": "ADD",
+                "mix_mode_scale": "REPLACE",
+                "name": "SideRot@DEF",
+                "owner_space": "LOCAL",
+                "subtarget": "thigh.L",
+                "target": true,
+                "target_space": "LOCAL_OWNER_ORIENT",
+                "to_euler_order": "ZYX",
+                "to_max_x": 0.0,
+                "to_max_x_rot": 0.0,
+                "to_max_x_scale": 1.0,
+                "to_max_y": 0.0,
+                "to_max_y_rot": 0.0,
+                "to_max_y_scale": 1.0,
+                "to_max_z": 0.0,
+                "to_max_z_rot": 0.0,
+                "to_max_z_scale": 1.0,
+                "to_min_x": 0.0,
+                "to_min_x_rot": 0.0872664600610733,
+                "to_min_x_scale": 1.2999999523162842,
+                "to_min_y": 0.0,
+                "to_min_y_rot": 0.0,
+                "to_min_y_scale": 1.0,
+                "to_min_z": 0.0,
+                "to_min_z_rot": -0.4363323152065277,
+                "to_min_z_scale": 1.100000023841858,
+                "type": "TRANSFORM",
+                "use_motion_extrapolate": true
+            }
+        ],
+        "head": {
+            "cube_name": "joint-l-upper-leg",
+            "default_position": [
+                0.10147,
+                -0.005,
+                0.86564
+            ],
+            "strategy": "CUBE"
+        },
+        "inherit_scale": "FULL",
+        "layers": [
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            true,
+            false,
+            false
+        ],
+        "parent": "DEF-pelvis-helper.L",
+        "rigify": {
+            "rigify_parameters": {
+                "relink_constraints": true
+            },
+            "rigify_type": "basic.raw_copy"
+        },
+        "roll": 0.0,
+        "roll_strategy": "ALIGN_X_WORLD_X",
+        "tail": {
+            "default_position": [
+                0.11509,
+                -0.0155,
+                0.73481
+            ],
+            "strategy": "MEAN",
+            "vertex_indices": [
+                13846,
+                13847,
+                13848,
+                13849,
+                13846,
+                13847,
+                13848,
+                13849,
+                13842,
+                13843,
+                13844,
+                13845
+            ]
+        },
+        "use_connect": false,
+        "use_inherit_rotation": true,
+        "use_local_location": true
+    },
+    "DEF-pelvis-helper.front.R": {
+        "constraints": [
+            {
+                "from_max_x": 0.0,
+                "from_max_x_rot": 0.0,
+                "from_max_x_scale": 1.0,
+                "from_max_y": 0.0,
+                "from_max_y_rot": 0.0,
+                "from_max_y_scale": 1.0,
+                "from_max_z": 0.0,
+                "from_max_z_rot": 0.0,
+                "from_max_z_scale": 1.0,
+                "from_min_x": 0.0,
+                "from_min_x_rot": -1.5707963705062866,
+                "from_min_x_scale": 1.0,
+                "from_min_y": 0.0,
+                "from_min_y_rot": 0.0,
+                "from_min_y_scale": 1.0,
+                "from_min_z": 0.0,
+                "from_min_z_rot": 0.0,
+                "from_min_z_scale": 1.0,
+                "from_rotation_mode": "SWING_TWIST_Y",
+                "map_from": "ROTATION",
+                "map_to": "SCALE",
+                "map_to_x_from": "X",
+                "map_to_y_from": "X",
+                "map_to_z_from": "X",
+                "mix_mode": "ADD",
+                "mix_mode_rot": "ADD",
+                "mix_mode_scale": "MULTIPLY",
+                "name": "FwdScale@DEF",
+                "owner_space": "LOCAL",
+                "subtarget": "thigh.R",
+                "target": true,
+                "target_space": "LOCAL_OWNER_ORIENT",
+                "to_euler_order": "ZYX",
+                "to_max_x": 0.0,
+                "to_max_x_rot": 0.0,
+                "to_max_x_scale": 1.0,
+                "to_max_y": 0.0,
+                "to_max_y_rot": 0.0,
+                "to_max_y_scale": 1.0,
+                "to_max_z": 0.0,
+                "to_max_z_rot": 0.0,
+                "to_max_z_scale": 1.0,
+                "to_min_x": 0.0,
+                "to_min_x_rot": 0.0,
+                "to_min_x_scale": 1.399999976158142,
+                "to_min_y": 0.0,
+                "to_min_y_rot": 0.0,
+                "to_min_y_scale": 1.0,
+                "to_min_z": 0.0,
+                "to_min_z_rot": 0.0,
+                "to_min_z_scale": 1.2000000476837158,
+                "type": "TRANSFORM",
+                "use_motion_extrapolate": true
+            },
+            {
+                "from_max_x": 0.0,
+                "from_max_x_rot": 0.0,
+                "from_max_x_scale": 1.0,
+                "from_max_y": 0.0,
+                "from_max_y_rot": 0.0,
+                "from_max_y_scale": 1.0,
+                "from_max_z": 0.0,
+                "from_max_z_rot": 1.5707963705062866,
+                "from_max_z_scale": 1.0,
+                "from_min_x": 0.0,
+                "from_min_x_rot": 0.0,
+                "from_min_x_scale": 1.0,
+                "from_min_y": 0.0,
+                "from_min_y_rot": 0.0,
+                "from_min_y_scale": 1.0,
+                "from_min_z": 0.0,
+                "from_min_z_rot": 0.0,
+                "from_min_z_scale": 1.0,
+                "from_rotation_mode": "SWING_TWIST_Y",
+                "map_from": "ROTATION",
+                "map_to": "SCALE",
+                "map_to_x_from": "Z",
+                "map_to_y_from": "Z",
+                "map_to_z_from": "Z",
+                "mix_mode": "ADD",
+                "mix_mode_rot": "ADD",
+                "mix_mode_scale": "MULTIPLY",
+                "name": "SideScale@DEF",
+                "owner_space": "LOCAL",
+                "subtarget": "thigh.R",
+                "target": true,
+                "target_space": "LOCAL_OWNER_ORIENT",
+                "to_euler_order": "ZYX",
+                "to_max_x": 0.0,
+                "to_max_x_rot": 0.0,
+                "to_max_x_scale": 1.600000023841858,
+                "to_max_y": 0.0,
+                "to_max_y_rot": 0.0,
+                "to_max_y_scale": 1.0,
+                "to_max_z": 0.0,
+                "to_max_z_rot": 0.0,
+                "to_max_z_scale": 1.100000023841858,
+                "to_min_x": 0.0,
+                "to_min_x_rot": 0.0,
+                "to_min_x_scale": 1.0,
+                "to_min_y": 0.0,
+                "to_min_y_rot": 0.0,
+                "to_min_y_scale": 1.0,
+                "to_min_z": 0.0,
+                "to_min_z_rot": 0.0,
+                "to_min_z_scale": 1.0,
+                "type": "TRANSFORM",
+                "use_motion_extrapolate": true
+            },
+            {
+                "from_max_x": 0.0,
+                "from_max_x_rot": 0.0,
+                "from_max_x_scale": 1.0,
+                "from_max_y": 0.0,
+                "from_max_y_rot": 0.0,
+                "from_max_y_scale": 1.0,
+                "from_max_z": 0.0,
+                "from_max_z_rot": 1.5707963705062866,
+                "from_max_z_scale": 1.0,
+                "from_min_x": 0.0,
+                "from_min_x_rot": 0.0,
+                "from_min_x_scale": 1.0,
+                "from_min_y": 0.0,
+                "from_min_y_rot": 0.0,
+                "from_min_y_scale": 1.0,
+                "from_min_z": 0.0,
+                "from_min_z_rot": 0.0,
+                "from_min_z_scale": 1.0,
+                "from_rotation_mode": "SWING_TWIST_Y",
+                "map_from": "ROTATION",
+                "map_to": "ROTATION",
+                "map_to_x_from": "Z",
+                "map_to_y_from": "Z",
+                "map_to_z_from": "Z",
+                "mix_mode": "ADD",
+                "mix_mode_rot": "ADD",
+                "mix_mode_scale": "MULTIPLY",
+                "name": "SideRot@DEF",
+                "owner_space": "LOCAL",
+                "subtarget": "thigh.R",
+                "target": true,
+                "target_space": "LOCAL_OWNER_ORIENT",
+                "to_euler_order": "ZYX",
+                "to_max_x": 0.0,
+                "to_max_x_rot": 0.0872664600610733,
+                "to_max_x_scale": 1.2999999523162842,
+                "to_max_y": 0.0,
+                "to_max_y_rot": 0.0,
+                "to_max_y_scale": 1.0,
+                "to_max_z": 0.0,
+                "to_max_z_rot": 0.4363323152065277,
+                "to_max_z_scale": 1.100000023841858,
+                "to_min_x": 0.0,
+                "to_min_x_rot": 0.0,
+                "to_min_x_scale": 1.0,
+                "to_min_y": 0.0,
+                "to_min_y_rot": 0.0,
+                "to_min_y_scale": 1.0,
+                "to_min_z": 0.0,
+                "to_min_z_rot": 0.0,
+                "to_min_z_scale": 1.0,
+                "type": "TRANSFORM",
+                "use_motion_extrapolate": true
+            }
+        ],
+        "head": {
+            "cube_name": "joint-r-upper-leg",
+            "default_position": [
+                -0.10147,
+                -0.005,
+                0.86564
+            ],
+            "strategy": "CUBE"
+        },
+        "inherit_scale": "FULL",
+        "layers": [
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            true,
+            false,
+            false
+        ],
+        "parent": "DEF-pelvis-helper.R",
+        "rigify": {
+            "rigify_parameters": {
+                "relink_constraints": true
+            },
+            "rigify_type": "basic.raw_copy"
+        },
+        "roll": 0.0,
+        "roll_strategy": "ALIGN_X_WORLD_X",
+        "tail": {
+            "default_position": [
+                -0.11509,
+                -0.0155,
+                0.73481
             ],
             "strategy": "MEAN",
             "vertex_indices": [
@@ -761,14 +1479,124 @@
                 "target_space": "LOCAL_OWNER_ORIENT",
                 "type": "COPY_TRANSFORMS",
                 "use_bbone_shape": false
+            },
+            {
+                "from_max_x": 0.0,
+                "from_max_x_rot": 1.7453292608261108,
+                "from_max_x_scale": 1.0,
+                "from_max_y": 0.0,
+                "from_max_y_rot": 0.0,
+                "from_max_y_scale": 1.0,
+                "from_max_z": 0.0,
+                "from_max_z_rot": 0.0,
+                "from_max_z_scale": 1.0,
+                "from_min_x": 0.0,
+                "from_min_x_rot": 0.6981316804885864,
+                "from_min_x_scale": 1.0,
+                "from_min_y": 0.0,
+                "from_min_y_rot": 0.0,
+                "from_min_y_scale": 1.0,
+                "from_min_z": 0.0,
+                "from_min_z_rot": 0.0,
+                "from_min_z_scale": 1.0,
+                "from_rotation_mode": "SWING_TWIST_Y",
+                "map_from": "ROTATION",
+                "map_to": "ROTATION",
+                "map_to_x_from": "X",
+                "map_to_y_from": "X",
+                "map_to_z_from": "X",
+                "mix_mode": "ADD",
+                "mix_mode_rot": "ADD",
+                "mix_mode_scale": "REPLACE",
+                "name": "RotUp@DEF",
+                "owner_space": "LOCAL",
+                "subtarget": "upper_arm.L",
+                "target": true,
+                "target_space": "LOCAL_OWNER_ORIENT",
+                "to_euler_order": "ZYX",
+                "to_max_x": 0.0,
+                "to_max_x_rot": 0.10471975803375244,
+                "to_max_x_scale": 1.0,
+                "to_max_y": 0.0,
+                "to_max_y_rot": -0.41887903213500977,
+                "to_max_y_scale": 1.0,
+                "to_max_z": 0.0,
+                "to_max_z_rot": -0.5235987901687622,
+                "to_max_z_scale": 1.0,
+                "to_min_x": 0.0,
+                "to_min_x_rot": 0.0,
+                "to_min_x_scale": 1.0,
+                "to_min_y": 0.0,
+                "to_min_y_rot": 0.0,
+                "to_min_y_scale": 1.0,
+                "to_min_z": 0.0,
+                "to_min_z_rot": 0.0,
+                "to_min_z_scale": 1.0,
+                "type": "TRANSFORM",
+                "use_motion_extrapolate": false
+            },
+            {
+                "from_max_x": 0.0,
+                "from_max_x_rot": 0.0,
+                "from_max_x_scale": 1.0,
+                "from_max_y": 0.0,
+                "from_max_y_rot": 1.5707963705062866,
+                "from_max_y_scale": 1.0,
+                "from_max_z": 0.0,
+                "from_max_z_rot": 0.0,
+                "from_max_z_scale": 1.0,
+                "from_min_x": 0.0,
+                "from_min_x_rot": 0.0,
+                "from_min_x_scale": 1.0,
+                "from_min_y": 0.0,
+                "from_min_y_rot": 0.0,
+                "from_min_y_scale": 1.0,
+                "from_min_z": 0.0,
+                "from_min_z_rot": 0.0,
+                "from_min_z_scale": 1.0,
+                "from_rotation_mode": "SWING_TWIST_Y",
+                "map_from": "ROTATION",
+                "map_to": "ROTATION",
+                "map_to_x_from": "X",
+                "map_to_y_from": "Y",
+                "map_to_z_from": "Z",
+                "mix_mode": "ADD",
+                "mix_mode_rot": "AFTER",
+                "mix_mode_scale": "REPLACE",
+                "name": "Twist@DEF-upper_arm.L.001",
+                "owner_space": "LOCAL",
+                "subtarget": "upper_arm.L",
+                "target": true,
+                "target_space": "LOCAL",
+                "to_euler_order": "AUTO",
+                "to_max_x": 0.0,
+                "to_max_x_rot": 0.0,
+                "to_max_x_scale": 1.0,
+                "to_max_y": 0.0,
+                "to_max_y_rot": 0.1745329201221466,
+                "to_max_y_scale": 1.0,
+                "to_max_z": 0.0,
+                "to_max_z_rot": 0.0,
+                "to_max_z_scale": 1.0,
+                "to_min_x": 0.0,
+                "to_min_x_rot": 0.0,
+                "to_min_x_scale": 1.0,
+                "to_min_y": 0.0,
+                "to_min_y_rot": 0.0,
+                "to_min_y_scale": 1.0,
+                "to_min_z": 0.0,
+                "to_min_z_rot": 0.0,
+                "to_min_z_scale": 1.0,
+                "type": "TRANSFORM",
+                "use_motion_extrapolate": true
             }
         ],
         "head": {
             "cube_name": "joint-l-shoulder",
             "default_position": [
-                0.1700163632631302,
-                -0.019264277070760727,
-                1.3201014995574951
+                0.17002,
+                -0.01926,
+                1.3201
             ],
             "strategy": "CUBE"
         },
@@ -814,12 +1642,13 @@
             },
             "rigify_type": "basic.raw_copy"
         },
-        "roll": 2.072399616241455,
+        "roll": 0.0,
+        "roll_strategy": "ALIGN_Z_WORLD_Z",
         "tail": {
             "default_position": [
-                0.2248951941728592,
-                -0.019095996394753456,
-                1.2589291334152222
+                0.2249,
+                -0.0191,
+                1.25893
             ],
             "strategy": "MEAN",
             "vertex_indices": [
@@ -855,14 +1684,124 @@
                 "target_space": "LOCAL_OWNER_ORIENT",
                 "type": "COPY_TRANSFORMS",
                 "use_bbone_shape": false
+            },
+            {
+                "from_max_x": 0.0,
+                "from_max_x_rot": 1.7453292608261108,
+                "from_max_x_scale": 1.0,
+                "from_max_y": 0.0,
+                "from_max_y_rot": 0.0,
+                "from_max_y_scale": 1.0,
+                "from_max_z": 0.0,
+                "from_max_z_rot": 0.0,
+                "from_max_z_scale": 1.0,
+                "from_min_x": 0.0,
+                "from_min_x_rot": 0.6981316804885864,
+                "from_min_x_scale": 1.0,
+                "from_min_y": 0.0,
+                "from_min_y_rot": 0.0,
+                "from_min_y_scale": 1.0,
+                "from_min_z": 0.0,
+                "from_min_z_rot": 0.0,
+                "from_min_z_scale": 1.0,
+                "from_rotation_mode": "SWING_TWIST_Y",
+                "map_from": "ROTATION",
+                "map_to": "ROTATION",
+                "map_to_x_from": "X",
+                "map_to_y_from": "X",
+                "map_to_z_from": "X",
+                "mix_mode": "ADD",
+                "mix_mode_rot": "ADD",
+                "mix_mode_scale": "REPLACE",
+                "name": "RotUp@DEF",
+                "owner_space": "LOCAL",
+                "subtarget": "upper_arm.R",
+                "target": true,
+                "target_space": "LOCAL_OWNER_ORIENT",
+                "to_euler_order": "ZYX",
+                "to_max_x": 0.0,
+                "to_max_x_rot": 0.10471975803375244,
+                "to_max_x_scale": 1.0,
+                "to_max_y": 0.0,
+                "to_max_y_rot": 0.41887903213500977,
+                "to_max_y_scale": 1.0,
+                "to_max_z": 0.0,
+                "to_max_z_rot": 0.5235987901687622,
+                "to_max_z_scale": 1.0,
+                "to_min_x": 0.0,
+                "to_min_x_rot": 0.0,
+                "to_min_x_scale": 1.0,
+                "to_min_y": 0.0,
+                "to_min_y_rot": 0.0,
+                "to_min_y_scale": 1.0,
+                "to_min_z": 0.0,
+                "to_min_z_rot": 0.0,
+                "to_min_z_scale": 1.0,
+                "type": "TRANSFORM",
+                "use_motion_extrapolate": false
+            },
+            {
+                "from_max_x": 0.0,
+                "from_max_x_rot": 0.0,
+                "from_max_x_scale": 1.0,
+                "from_max_y": 0.0,
+                "from_max_y_rot": 1.5707963705062866,
+                "from_max_y_scale": 1.0,
+                "from_max_z": 0.0,
+                "from_max_z_rot": 0.0,
+                "from_max_z_scale": 1.0,
+                "from_min_x": 0.0,
+                "from_min_x_rot": 0.0,
+                "from_min_x_scale": 1.0,
+                "from_min_y": 0.0,
+                "from_min_y_rot": 0.0,
+                "from_min_y_scale": 1.0,
+                "from_min_z": 0.0,
+                "from_min_z_rot": 0.0,
+                "from_min_z_scale": 1.0,
+                "from_rotation_mode": "SWING_TWIST_Y",
+                "map_from": "ROTATION",
+                "map_to": "ROTATION",
+                "map_to_x_from": "X",
+                "map_to_y_from": "Y",
+                "map_to_z_from": "Z",
+                "mix_mode": "ADD",
+                "mix_mode_rot": "AFTER",
+                "mix_mode_scale": "REPLACE",
+                "name": "Twist@DEF-upper_arm.R.001",
+                "owner_space": "LOCAL",
+                "subtarget": "upper_arm.R",
+                "target": true,
+                "target_space": "LOCAL",
+                "to_euler_order": "AUTO",
+                "to_max_x": 0.0,
+                "to_max_x_rot": 0.0,
+                "to_max_x_scale": 1.0,
+                "to_max_y": 0.0,
+                "to_max_y_rot": 0.1745329201221466,
+                "to_max_y_scale": 1.0,
+                "to_max_z": 0.0,
+                "to_max_z_rot": 0.0,
+                "to_max_z_scale": 1.0,
+                "to_min_x": 0.0,
+                "to_min_x_rot": 0.0,
+                "to_min_x_scale": 1.0,
+                "to_min_y": 0.0,
+                "to_min_y_rot": 0.0,
+                "to_min_y_scale": 1.0,
+                "to_min_z": 0.0,
+                "to_min_z_rot": 0.0,
+                "to_min_z_scale": 1.0,
+                "type": "TRANSFORM",
+                "use_motion_extrapolate": true
             }
         ],
         "head": {
             "cube_name": "joint-r-shoulder",
             "default_position": [
-                -0.1700163632631302,
-                -0.019264277070760727,
-                1.3201014995574951
+                -0.17002,
+                -0.01926,
+                1.3201
             ],
             "strategy": "CUBE"
         },
@@ -908,12 +1847,13 @@
             },
             "rigify_type": "basic.raw_copy"
         },
-        "roll": -2.072399616241455,
+        "roll": 0.0,
+        "roll_strategy": "ALIGN_Z_WORLD_Z",
         "tail": {
             "default_position": [
-                -0.2248951941728592,
-                -0.019095996394753456,
-                1.2589291334152222
+                -0.2249,
+                -0.0191,
+                1.25893
             ],
             "strategy": "MEAN",
             "vertex_indices": [
@@ -938,9 +1878,9 @@
     "breast.L": {
         "head": {
             "default_position": [
-                0.07856975495815277,
-                -0.04753563553094864,
-                1.1997137069702148
+                0.07857,
+                -0.04754,
+                1.19971
             ],
             "strategy": "MEAN",
             "vertex_indices": [
@@ -991,9 +1931,9 @@
         "roll_strategy": "ALIGN_Z_WORLD_Z",
         "tail": {
             "default_position": [
-                0.09827899187803268,
-                -0.15113072097301483,
-                1.2128926515579224
+                0.09828,
+                -0.15113,
+                1.21289
             ],
             "strategy": "VERTEX",
             "vertex_index": 8436
@@ -1005,9 +1945,9 @@
     "breast.R": {
         "head": {
             "default_position": [
-                -0.07856975495815277,
-                -0.04753563553094864,
-                1.1997137069702148
+                -0.07857,
+                -0.04754,
+                1.19971
             ],
             "strategy": "MEAN",
             "vertex_indices": [
@@ -1058,9 +1998,9 @@
         "roll_strategy": "ALIGN_Z_WORLD_Z",
         "tail": {
             "default_position": [
-                -0.09827899187803268,
-                -0.15113072097301483,
-                1.2128926515579224
+                -0.09828,
+                -0.15113,
+                1.21289
             ],
             "strategy": "VERTEX",
             "vertex_index": 1764
@@ -1072,9 +2012,9 @@
     "brow.B.L": {
         "head": {
             "default_position": [
-                0.051550015807151794,
-                -0.1212136447429657,
-                1.5554113388061523
+                0.05155,
+                -0.12121,
+                1.55541
             ],
             "strategy": "VERTEX",
             "vertex_index": 6964
@@ -1116,12 +2056,12 @@
         ],
         "parent": "face",
         "rigify": {},
-        "roll": 0.7290862202644348,
+        "roll": 0.72909,
         "tail": {
             "default_position": [
-                0.04674500972032547,
-                -0.1274956613779068,
-                1.5583360195159912
+                0.04675,
+                -0.1275,
+                1.55834
             ],
             "strategy": "VERTEX",
             "vertex_index": 6938
@@ -1133,9 +2073,9 @@
     "brow.B.L.001": {
         "head": {
             "default_position": [
-                0.04674500972032547,
-                -0.1274956613779068,
-                1.5583360195159912
+                0.04675,
+                -0.1275,
+                1.55834
             ],
             "strategy": "VERTEX",
             "vertex_index": 6938
@@ -1177,12 +2117,12 @@
         ],
         "parent": "brow.B.L",
         "rigify": {},
-        "roll": 0.6642882227897644,
+        "roll": 0.66429,
         "tail": {
             "default_position": [
-                0.03878100961446762,
-                -0.1352381557226181,
-                1.5623849630355835
+                0.03878,
+                -0.13524,
+                1.56238
             ],
             "strategy": "VERTEX",
             "vertex_index": 6948
@@ -1194,9 +2134,9 @@
     "brow.B.L.002": {
         "head": {
             "default_position": [
-                0.03878100961446762,
-                -0.1352381557226181,
-                1.5623849630355835
+                0.03878,
+                -0.13524,
+                1.56238
             ],
             "strategy": "VERTEX",
             "vertex_index": 6948
@@ -1238,12 +2178,12 @@
         ],
         "parent": "brow.B.L.001",
         "rigify": {},
-        "roll": 0.08470000326633453,
+        "roll": 0.0847,
         "tail": {
             "default_position": [
-                0.021623004227876663,
-                -0.13893817365169525,
-                1.5624138116836548
+                0.02162,
+                -0.13894,
+                1.56241
             ],
             "strategy": "VERTEX",
             "vertex_index": 6950
@@ -1255,9 +2195,9 @@
     "brow.B.L.003": {
         "head": {
             "default_position": [
-                0.021623004227876663,
-                -0.13893817365169525,
-                1.5624138116836548
+                0.02162,
+                -0.13894,
+                1.56241
             ],
             "strategy": "VERTEX",
             "vertex_index": 6950
@@ -1299,12 +2239,12 @@
         ],
         "parent": "brow.B.L.002",
         "rigify": {},
-        "roll": -0.5411243438720703,
+        "roll": -0.54112,
         "tail": {
             "default_position": [
-                0.01123950257897377,
-                -0.1367761641740799,
-                1.5566463470458984
+                0.01124,
+                -0.13678,
+                1.55665
             ],
             "strategy": "VERTEX",
             "vertex_index": 6897
@@ -1316,9 +2256,9 @@
     "brow.B.R": {
         "head": {
             "default_position": [
-                -0.051550015807151794,
-                -0.1212136447429657,
-                1.5554113388061523
+                -0.05155,
+                -0.12121,
+                1.55541
             ],
             "strategy": "VERTEX",
             "vertex_index": 188
@@ -1360,12 +2300,12 @@
         ],
         "parent": "face",
         "rigify": {},
-        "roll": -0.7290862202644348,
+        "roll": -0.72909,
         "tail": {
             "default_position": [
-                -0.04674500972032547,
-                -0.1274956613779068,
-                1.5583360195159912
+                -0.04675,
+                -0.1275,
+                1.55834
             ],
             "strategy": "VERTEX",
             "vertex_index": 160
@@ -1377,9 +2317,9 @@
     "brow.B.R.001": {
         "head": {
             "default_position": [
-                -0.04674500972032547,
-                -0.1274956613779068,
-                1.5583360195159912
+                -0.04675,
+                -0.1275,
+                1.55834
             ],
             "strategy": "VERTEX",
             "vertex_index": 160
@@ -1421,12 +2361,12 @@
         ],
         "parent": "brow.B.R",
         "rigify": {},
-        "roll": -0.6642882227897644,
+        "roll": -0.66429,
         "tail": {
             "default_position": [
-                -0.03878100961446762,
-                -0.1352381557226181,
-                1.5623849630355835
+                -0.03878,
+                -0.13524,
+                1.56238
             ],
             "strategy": "VERTEX",
             "vertex_index": 172
@@ -1438,9 +2378,9 @@
     "brow.B.R.002": {
         "head": {
             "default_position": [
-                -0.03878100961446762,
-                -0.1352381557226181,
-                1.5623849630355835
+                -0.03878,
+                -0.13524,
+                1.56238
             ],
             "strategy": "VERTEX",
             "vertex_index": 172
@@ -1482,12 +2422,12 @@
         ],
         "parent": "brow.B.R.001",
         "rigify": {},
-        "roll": -0.08470000326633453,
+        "roll": -0.0847,
         "tail": {
             "default_position": [
-                -0.021623004227876663,
-                -0.13893817365169525,
-                1.5624138116836548
+                -0.02162,
+                -0.13894,
+                1.56241
             ],
             "strategy": "VERTEX",
             "vertex_index": 174
@@ -1499,9 +2439,9 @@
     "brow.B.R.003": {
         "head": {
             "default_position": [
-                -0.021623004227876663,
-                -0.13893817365169525,
-                1.5624138116836548
+                -0.02162,
+                -0.13894,
+                1.56241
             ],
             "strategy": "VERTEX",
             "vertex_index": 174
@@ -1543,12 +2483,12 @@
         ],
         "parent": "brow.B.R.002",
         "rigify": {},
-        "roll": 0.5411243438720703,
+        "roll": 0.54112,
         "tail": {
             "default_position": [
-                -0.01123950257897377,
-                -0.1367761641740799,
-                1.5566463470458984
+                -0.01124,
+                -0.13678,
+                1.55665
             ],
             "strategy": "VERTEX",
             "vertex_index": 113
@@ -1560,9 +2500,9 @@
     "brow.T.L": {
         "head": {
             "default_position": [
-                0.058561015874147415,
-                -0.11029764264822006,
-                1.553704857826233
+                0.05856,
+                -0.1103,
+                1.5537
             ],
             "strategy": "VERTEX",
             "vertex_index": 7032
@@ -1604,12 +2544,12 @@
         ],
         "parent": "cheek.B.L.001",
         "rigify": {},
-        "roll": 2.0225343704223633,
+        "roll": 2.02253,
         "tail": {
             "default_position": [
-                0.054206013679504395,
-                -0.11864614486694336,
-                1.5619213581085205
+                0.05421,
+                -0.11865,
+                1.56192
             ],
             "strategy": "VERTEX",
             "vertex_index": 7023
@@ -1621,9 +2561,9 @@
     "brow.T.L.001": {
         "head": {
             "default_position": [
-                0.054206013679504395,
-                -0.11864614486694336,
-                1.5619213581085205
+                0.05421,
+                -0.11865,
+                1.56192
             ],
             "strategy": "VERTEX",
             "vertex_index": 7023
@@ -1665,12 +2605,12 @@
         ],
         "parent": "brow.T.L",
         "rigify": {},
-        "roll": 0.8737796545028687,
+        "roll": 0.87378,
         "tail": {
             "default_position": [
-                0.03984001278877258,
-                -0.13611465692520142,
-                1.5686269998550415
+                0.03984,
+                -0.13611,
+                1.56863
             ],
             "strategy": "VERTEX",
             "vertex_index": 6981
@@ -1682,9 +2622,9 @@
     "brow.T.L.002": {
         "head": {
             "default_position": [
-                0.03984001278877258,
-                -0.13611465692520142,
-                1.5686269998550415
+                0.03984,
+                -0.13611,
+                1.56863
             ],
             "strategy": "VERTEX",
             "vertex_index": 6981
@@ -1726,12 +2666,12 @@
         ],
         "parent": "brow.T.L.001",
         "rigify": {},
-        "roll": 0.07240000367164612,
+        "roll": 0.0724,
         "tail": {
             "default_position": [
-                0.015209503471851349,
-                -0.14348165690898895,
-                1.5690069198608398
+                0.01521,
+                -0.14348,
+                1.56901
             ],
             "strategy": "VERTEX",
             "vertex_index": 6983
@@ -1743,9 +2683,9 @@
     "brow.T.L.003": {
         "head": {
             "default_position": [
-                0.015209503471851349,
-                -0.14348165690898895,
-                1.5690069198608398
+                0.01521,
+                -0.14348,
+                1.56901
             ],
             "strategy": "VERTEX",
             "vertex_index": 6983
@@ -1787,12 +2727,12 @@
         ],
         "parent": "brow.T.L.002",
         "rigify": {},
-        "roll": -0.7744950652122498,
+        "roll": -0.7745,
         "tail": {
             "default_position": [
                 0.0,
-                -0.1414126604795456,
-                1.5535837411880493
+                -0.14141,
+                1.55358
             ],
             "strategy": "VERTEX",
             "vertex_index": 132
@@ -1804,9 +2744,9 @@
     "brow.T.R": {
         "head": {
             "default_position": [
-                -0.058561015874147415,
-                -0.11029764264822006,
-                1.553704857826233
+                -0.05856,
+                -0.1103,
+                1.5537
             ],
             "strategy": "VERTEX",
             "vertex_index": 263
@@ -1848,12 +2788,12 @@
         ],
         "parent": "cheek.B.R.001",
         "rigify": {},
-        "roll": -2.0225343704223633,
+        "roll": -2.02253,
         "tail": {
             "default_position": [
-                -0.054206013679504395,
-                -0.11864614486694336,
-                1.5619213581085205
+                -0.05421,
+                -0.11865,
+                1.56192
             ],
             "strategy": "VERTEX",
             "vertex_index": 254
@@ -1865,9 +2805,9 @@
     "brow.T.R.001": {
         "head": {
             "default_position": [
-                -0.054206013679504395,
-                -0.11864614486694336,
-                1.5619213581085205
+                -0.05421,
+                -0.11865,
+                1.56192
             ],
             "strategy": "VERTEX",
             "vertex_index": 254
@@ -1909,12 +2849,12 @@
         ],
         "parent": "brow.T.R",
         "rigify": {},
-        "roll": -0.8737796545028687,
+        "roll": -0.87378,
         "tail": {
             "default_position": [
-                -0.03984001278877258,
-                -0.13611465692520142,
-                1.5686269998550415
+                -0.03984,
+                -0.13611,
+                1.56863
             ],
             "strategy": "VERTEX",
             "vertex_index": 206
@@ -1926,9 +2866,9 @@
     "brow.T.R.002": {
         "head": {
             "default_position": [
-                -0.03984001278877258,
-                -0.13611465692520142,
-                1.5686269998550415
+                -0.03984,
+                -0.13611,
+                1.56863
             ],
             "strategy": "VERTEX",
             "vertex_index": 206
@@ -1970,12 +2910,12 @@
         ],
         "parent": "brow.T.R.001",
         "rigify": {},
-        "roll": -0.07240000367164612,
+        "roll": -0.0724,
         "tail": {
             "default_position": [
-                -0.015209503471851349,
-                -0.14348165690898895,
-                1.5690069198608398
+                -0.01521,
+                -0.14348,
+                1.56901
             ],
             "strategy": "VERTEX",
             "vertex_index": 208
@@ -1987,9 +2927,9 @@
     "brow.T.R.003": {
         "head": {
             "default_position": [
-                -0.015209503471851349,
-                -0.14348165690898895,
-                1.5690069198608398
+                -0.01521,
+                -0.14348,
+                1.56901
             ],
             "strategy": "VERTEX",
             "vertex_index": 208
@@ -2031,12 +2971,12 @@
         ],
         "parent": "brow.T.R.002",
         "rigify": {},
-        "roll": 0.7744950652122498,
+        "roll": 0.7745,
         "tail": {
             "default_position": [
                 0.0,
-                -0.1414126604795456,
-                1.5535837411880493
+                -0.14141,
+                1.55358
             ],
             "strategy": "VERTEX",
             "vertex_index": 132
@@ -2048,9 +2988,9 @@
     "cheek.B.L": {
         "head": {
             "default_position": [
-                0.022822506725788116,
-                -0.13734638690948486,
-                1.4852888584136963
+                0.02282,
+                -0.13735,
+                1.48529
             ],
             "strategy": "MEAN",
             "vertex_indices": [
@@ -2095,12 +3035,12 @@
         ],
         "parent": "chin.L",
         "rigify": {},
-        "roll": -3.356484889984131,
+        "roll": -3.35648,
         "tail": {
             "default_position": [
-                0.050938013941049576,
-                -0.11606013029813766,
-                1.5024160146713257
+                0.05094,
+                -0.11606,
+                1.50242
             ],
             "strategy": "VERTEX",
             "vertex_index": 11767
@@ -2112,9 +3052,9 @@
     "cheek.B.L.001": {
         "head": {
             "default_position": [
-                0.050938013941049576,
-                -0.11606013029813766,
-                1.5024160146713257
+                0.05094,
+                -0.11606,
+                1.50242
             ],
             "strategy": "VERTEX",
             "vertex_index": 11767
@@ -2156,12 +3096,12 @@
         ],
         "parent": "cheek.B.L",
         "rigify": {},
-        "roll": -3.695835828781128,
+        "roll": -3.69584,
         "tail": {
             "default_position": [
-                0.058561015874147415,
-                -0.11029764264822006,
-                1.553704857826233
+                0.05856,
+                -0.1103,
+                1.5537
             ],
             "strategy": "VERTEX",
             "vertex_index": 7032
@@ -2173,9 +3113,9 @@
     "cheek.B.R": {
         "head": {
             "default_position": [
-                -0.022822506725788116,
-                -0.13734638690948486,
-                1.4852888584136963
+                -0.02282,
+                -0.13735,
+                1.48529
             ],
             "strategy": "MEAN",
             "vertex_indices": [
@@ -2220,12 +3160,12 @@
         ],
         "parent": "chin.R",
         "rigify": {},
-        "roll": 3.356484889984131,
+        "roll": 3.35648,
         "tail": {
             "default_position": [
-                -0.050938013941049576,
-                -0.11606013029813766,
-                1.5024160146713257
+                -0.05094,
+                -0.11606,
+                1.50242
             ],
             "strategy": "VERTEX",
             "vertex_index": 5153
@@ -2237,9 +3177,9 @@
     "cheek.B.R.001": {
         "head": {
             "default_position": [
-                -0.050938013941049576,
-                -0.11606013029813766,
-                1.5024160146713257
+                -0.05094,
+                -0.11606,
+                1.50242
             ],
             "strategy": "VERTEX",
             "vertex_index": 5153
@@ -2281,12 +3221,12 @@
         ],
         "parent": "cheek.B.R",
         "rigify": {},
-        "roll": 3.695835828781128,
+        "roll": 3.69584,
         "tail": {
             "default_position": [
-                -0.058561015874147415,
-                -0.11029764264822006,
-                1.553704857826233
+                -0.05856,
+                -0.1103,
+                1.5537
             ],
             "strategy": "VERTEX",
             "vertex_index": 263
@@ -2298,9 +3238,9 @@
     "cheek.T.L": {
         "head": {
             "default_position": [
-                0.058561015874147415,
-                -0.11029764264822006,
-                1.553704857826233
+                0.05856,
+                -0.1103,
+                1.5537
             ],
             "strategy": "VERTEX",
             "vertex_index": 7032
@@ -2342,12 +3282,12 @@
         ],
         "parent": "face",
         "rigify": {},
-        "roll": -1.7441697120666504,
+        "roll": -1.74417,
         "tail": {
             "default_position": [
-                0.04235250875353813,
-                -0.12960517406463623,
-                1.5259863138198853
+                0.04235,
+                -0.12961,
+                1.52599
             ],
             "strategy": "VERTEX",
             "vertex_index": 11748
@@ -2359,9 +3299,9 @@
     "cheek.T.L.001": {
         "head": {
             "default_position": [
-                0.04235250875353813,
-                -0.12960517406463623,
-                1.5259863138198853
+                0.04235,
+                -0.12961,
+                1.52599
             ],
             "strategy": "VERTEX",
             "vertex_index": 11748
@@ -2403,12 +3343,12 @@
         ],
         "parent": "cheek.T.L",
         "rigify": {},
-        "roll": 0.5115631818771362,
+        "roll": 0.51156,
         "tail": {
             "default_position": [
-                0.012116003781557083,
-                -0.1378391534090042,
-                1.5386430025100708
+                0.01212,
+                -0.13784,
+                1.53864
             ],
             "strategy": "VERTEX",
             "vertex_index": 11715
@@ -2420,9 +3360,9 @@
     "cheek.T.R": {
         "head": {
             "default_position": [
-                -0.058561015874147415,
-                -0.11029764264822006,
-                1.553704857826233
+                -0.05856,
+                -0.1103,
+                1.5537
             ],
             "strategy": "VERTEX",
             "vertex_index": 263
@@ -2464,12 +3404,12 @@
         ],
         "parent": "face",
         "rigify": {},
-        "roll": 1.7441697120666504,
+        "roll": 1.74417,
         "tail": {
             "default_position": [
-                -0.04235250875353813,
-                -0.12960517406463623,
-                1.5259863138198853
+                -0.04235,
+                -0.12961,
+                1.52599
             ],
             "strategy": "VERTEX",
             "vertex_index": 5133
@@ -2481,9 +3421,9 @@
     "cheek.T.R.001": {
         "head": {
             "default_position": [
-                -0.04235250875353813,
-                -0.12960517406463623,
-                1.5259863138198853
+                -0.04235,
+                -0.12961,
+                1.52599
             ],
             "strategy": "VERTEX",
             "vertex_index": 5133
@@ -2525,12 +3465,12 @@
         ],
         "parent": "cheek.T.R",
         "rigify": {},
-        "roll": -0.5115631818771362,
+        "roll": -0.51156,
         "tail": {
             "default_position": [
-                -0.012116003781557083,
-                -0.1378391534090042,
-                1.5386430025100708
+                -0.01212,
+                -0.13784,
+                1.53864
             ],
             "strategy": "VERTEX",
             "vertex_index": 5100
@@ -2543,8 +3483,8 @@
         "head": {
             "default_position": [
                 0.0,
-                -0.13424962759017944,
-                1.4474056959152222
+                -0.13425,
+                1.44741
             ],
             "strategy": "VERTEX",
             "vertex_index": 5225
@@ -2590,8 +3530,8 @@
         "tail": {
             "default_position": [
                 0.0,
-                -0.14204613864421844,
-                1.4588873386383057
+                -0.14205,
+                1.45889
             ],
             "strategy": "VERTEX",
             "vertex_index": 5162
@@ -2604,8 +3544,8 @@
         "head": {
             "default_position": [
                 0.0,
-                -0.14204613864421844,
-                1.4588873386383057
+                -0.14205,
+                1.45889
             ],
             "strategy": "VERTEX",
             "vertex_index": 5162
@@ -2651,8 +3591,8 @@
         "tail": {
             "default_position": [
                 0.0,
-                -0.14282913506031036,
-                1.4707337617874146
+                -0.14283,
+                1.47073
             ],
             "strategy": "VERTEX",
             "vertex_index": 491
@@ -2664,9 +3604,9 @@
     "chin.L": {
         "head": {
             "default_position": [
-                0.026256507262587547,
-                -0.12485762685537338,
-                1.455744981765747
+                0.02626,
+                -0.12486,
+                1.45574
             ],
             "strategy": "VERTEX",
             "vertex_index": 11833
@@ -2708,12 +3648,12 @@
         ],
         "parent": "jaw.L.001",
         "rigify": {},
-        "roll": 2.1883082389831543,
+        "roll": 2.18831,
         "tail": {
             "default_position": [
-                0.022822506725788116,
-                -0.13734638690948486,
-                1.4852888584136963
+                0.02282,
+                -0.13735,
+                1.48529
             ],
             "strategy": "MEAN",
             "vertex_indices": [
@@ -2728,9 +3668,9 @@
     "chin.R": {
         "head": {
             "default_position": [
-                -0.026256507262587547,
-                -0.12485762685537338,
-                1.455744981765747
+                -0.02626,
+                -0.12486,
+                1.45574
             ],
             "strategy": "VERTEX",
             "vertex_index": 5223
@@ -2772,12 +3712,12 @@
         ],
         "parent": "jaw.R.001",
         "rigify": {},
-        "roll": -2.1883082389831543,
+        "roll": -2.18831,
         "tail": {
             "default_position": [
-                -0.022822506725788116,
-                -0.13734638690948486,
-                1.4852888584136963
+                -0.02282,
+                -0.13735,
+                1.48529
             ],
             "strategy": "MEAN",
             "vertex_indices": [
@@ -2792,9 +3732,9 @@
     "ear.L": {
         "head": {
             "default_position": [
-                0.06923951953649521,
-                -0.05793462693691254,
-                1.5150444507598877
+                0.06924,
+                -0.05793,
+                1.51504
             ],
             "strategy": "VERTEX",
             "vertex_index": 12020
@@ -2836,12 +3776,12 @@
         ],
         "parent": "face",
         "rigify": {},
-        "roll": -0.03240000084042549,
+        "roll": -0.0324,
         "tail": {
             "default_position": [
-                0.07043402642011642,
-                -0.05737413465976715,
-                1.540516972541809
+                0.07043,
+                -0.05737,
+                1.54052
             ],
             "strategy": "VERTEX",
             "vertex_index": 12165
@@ -2853,9 +3793,9 @@
     "ear.L.001": {
         "head": {
             "default_position": [
-                0.07043402642011642,
-                -0.05737413465976715,
-                1.540516972541809
+                0.07043,
+                -0.05737,
+                1.54052
             ],
             "strategy": "VERTEX",
             "vertex_index": 12165
@@ -2897,12 +3837,12 @@
         ],
         "parent": "ear.L",
         "rigify": {},
-        "roll": 0.06560000032186508,
+        "roll": 0.0656,
         "tail": {
             "default_position": [
-                0.07880276441574097,
-                -0.04132838547229767,
-                1.5541069507598877
+                0.0788,
+                -0.04133,
+                1.55411
             ],
             "strategy": "MEAN",
             "vertex_indices": [
@@ -2917,9 +3857,9 @@
     "ear.L.002": {
         "head": {
             "default_position": [
-                0.07880276441574097,
-                -0.04132838547229767,
-                1.5541069507598877
+                0.0788,
+                -0.04133,
+                1.55411
             ],
             "strategy": "MEAN",
             "vertex_indices": [
@@ -2964,12 +3904,12 @@
         ],
         "parent": "ear.L.001",
         "rigify": {},
-        "roll": -0.026499999687075615,
+        "roll": -0.0265,
         "tail": {
             "default_position": [
-                0.07882778346538544,
-                -0.030919374898076057,
-                1.5375101566314697
+                0.07883,
+                -0.03092,
+                1.53751
             ],
             "strategy": "MEAN",
             "vertex_indices": [
@@ -2984,9 +3924,9 @@
     "ear.L.003": {
         "head": {
             "default_position": [
-                0.07882778346538544,
-                -0.030919374898076057,
-                1.5375101566314697
+                0.07883,
+                -0.03092,
+                1.53751
             ],
             "strategy": "MEAN",
             "vertex_indices": [
@@ -3031,12 +3971,12 @@
         ],
         "parent": "ear.L.002",
         "rigify": {},
-        "roll": 0.30329999327659607,
+        "roll": 0.3033,
         "tail": {
             "default_position": [
-                0.07313551008701324,
-                -0.0480826273560524,
-                1.5090603828430176
+                0.07314,
+                -0.04808,
+                1.50906
             ],
             "strategy": "MEAN",
             "vertex_indices": [
@@ -3051,9 +3991,9 @@
     "ear.L.004": {
         "head": {
             "default_position": [
-                0.07313551008701324,
-                -0.0480826273560524,
-                1.5090603828430176
+                0.07314,
+                -0.04808,
+                1.50906
             ],
             "strategy": "MEAN",
             "vertex_indices": [
@@ -3098,12 +4038,12 @@
         ],
         "parent": "ear.L.003",
         "rigify": {},
-        "roll": 0.1518000066280365,
+        "roll": 0.1518,
         "tail": {
             "default_position": [
-                0.06923951953649521,
-                -0.05793462693691254,
-                1.5150444507598877
+                0.06924,
+                -0.05793,
+                1.51504
             ],
             "strategy": "VERTEX",
             "vertex_index": 12020
@@ -3115,9 +4055,9 @@
     "ear.R": {
         "head": {
             "default_position": [
-                -0.06923951953649521,
-                -0.05793462693691254,
-                1.5150444507598877
+                -0.06924,
+                -0.05793,
+                1.51504
             ],
             "strategy": "VERTEX",
             "vertex_index": 5421
@@ -3159,12 +4099,12 @@
         ],
         "parent": "face",
         "rigify": {},
-        "roll": 0.03240000084042549,
+        "roll": 0.0324,
         "tail": {
             "default_position": [
-                -0.07043402642011642,
-                -0.05737413465976715,
-                1.540516972541809
+                -0.07043,
+                -0.05737,
+                1.54052
             ],
             "strategy": "VERTEX",
             "vertex_index": 5568
@@ -3176,9 +4116,9 @@
     "ear.R.001": {
         "head": {
             "default_position": [
-                -0.07043402642011642,
-                -0.05737413465976715,
-                1.540516972541809
+                -0.07043,
+                -0.05737,
+                1.54052
             ],
             "strategy": "VERTEX",
             "vertex_index": 5568
@@ -3220,12 +4160,12 @@
         ],
         "parent": "ear.R",
         "rigify": {},
-        "roll": -0.06560000032186508,
+        "roll": -0.0656,
         "tail": {
             "default_position": [
-                -0.07880276441574097,
-                -0.04132838547229767,
-                1.5541069507598877
+                -0.0788,
+                -0.04133,
+                1.55411
             ],
             "strategy": "MEAN",
             "vertex_indices": [
@@ -3240,9 +4180,9 @@
     "ear.R.002": {
         "head": {
             "default_position": [
-                -0.07880276441574097,
-                -0.04132838547229767,
-                1.5541069507598877
+                -0.0788,
+                -0.04133,
+                1.55411
             ],
             "strategy": "MEAN",
             "vertex_indices": [
@@ -3287,12 +4227,12 @@
         ],
         "parent": "ear.R.001",
         "rigify": {},
-        "roll": 0.026499999687075615,
+        "roll": 0.0265,
         "tail": {
             "default_position": [
-                -0.07882778346538544,
-                -0.030919374898076057,
-                1.5375101566314697
+                -0.07883,
+                -0.03092,
+                1.53751
             ],
             "strategy": "MEAN",
             "vertex_indices": [
@@ -3307,9 +4247,9 @@
     "ear.R.003": {
         "head": {
             "default_position": [
-                -0.07882778346538544,
-                -0.030919374898076057,
-                1.5375101566314697
+                -0.07883,
+                -0.03092,
+                1.53751
             ],
             "strategy": "MEAN",
             "vertex_indices": [
@@ -3354,12 +4294,12 @@
         ],
         "parent": "ear.R.002",
         "rigify": {},
-        "roll": -0.30329999327659607,
+        "roll": -0.3033,
         "tail": {
             "default_position": [
-                -0.07313551008701324,
-                -0.0480826273560524,
-                1.5090603828430176
+                -0.07314,
+                -0.04808,
+                1.50906
             ],
             "strategy": "MEAN",
             "vertex_indices": [
@@ -3374,9 +4314,9 @@
     "ear.R.004": {
         "head": {
             "default_position": [
-                -0.07313551008701324,
-                -0.0480826273560524,
-                1.5090603828430176
+                -0.07314,
+                -0.04808,
+                1.50906
             ],
             "strategy": "MEAN",
             "vertex_indices": [
@@ -3421,12 +4361,12 @@
         ],
         "parent": "ear.R.003",
         "rigify": {},
-        "roll": -0.1518000066280365,
+        "roll": -0.1518,
         "tail": {
             "default_position": [
-                -0.06923951953649521,
-                -0.05793462693691254,
-                1.5150444507598877
+                -0.06924,
+                -0.05793,
+                1.51504
             ],
             "strategy": "VERTEX",
             "vertex_index": 5421
@@ -3439,9 +4379,9 @@
         "head": {
             "cube_name": "joint-l-eye",
             "default_position": [
-                0.02891257032752037,
-                -0.1181434616446495,
-                1.5531847476959229
+                0.02891,
+                -0.11814,
+                1.55318
             ],
             "strategy": "CUBE"
         },
@@ -3486,9 +4426,9 @@
         "roll_strategy": "ALIGN_Z_WORLD_Z",
         "tail": {
             "default_position": [
-                0.02966950833797455,
-                -0.1332106590270996,
-                1.5525351762771606
+                0.02967,
+                -0.13321,
+                1.55254
             ],
             "strategy": "MEAN",
             "vertex_indices": [
@@ -3504,9 +4444,9 @@
         "head": {
             "cube_name": "joint-r-eye",
             "default_position": [
-                -0.02891257032752037,
-                -0.1181434616446495,
-                1.5531847476959229
+                -0.02891,
+                -0.11814,
+                1.55318
             ],
             "strategy": "CUBE"
         },
@@ -3551,9 +4491,9 @@
         "roll_strategy": "ALIGN_Z_WORLD_Z",
         "tail": {
             "default_position": [
-                -0.02966950833797455,
-                -0.1332106590270996,
-                1.5525351762771606
+                -0.02967,
+                -0.13321,
+                1.55254
             ],
             "strategy": "MEAN",
             "vertex_indices": [
@@ -3569,9 +4509,9 @@
         "head": {
             "cube_name": "joint-l-finger-2-1",
             "default_position": [
-                0.48077186942100525,
-                -0.27754002809524536,
-                0.9749303460121155
+                0.48077,
+                -0.27754,
+                0.97493
             ],
             "strategy": "CUBE"
         },
@@ -3651,14 +4591,14 @@
             },
             "rigify_type": "limbs.super_finger"
         },
-        "roll": -1.2465431690216064,
+        "roll": -1.24654,
         "rotation_mode": "XYZ",
         "tail": {
             "cube_name": "joint-l-finger-2-2",
             "default_position": [
-                0.48412102460861206,
-                -0.2982509136199951,
-                0.9598725438117981
+                0.48412,
+                -0.29825,
+                0.95987
             ],
             "strategy": "CUBE"
         },
@@ -3670,9 +4610,9 @@
         "head": {
             "cube_name": "joint-r-finger-2-1",
             "default_position": [
-                -0.48077186942100525,
-                -0.27754002809524536,
-                0.9749303460121155
+                -0.48077,
+                -0.27754,
+                0.97493
             ],
             "strategy": "CUBE"
         },
@@ -3752,14 +4692,14 @@
             },
             "rigify_type": "limbs.super_finger"
         },
-        "roll": 1.2465431690216064,
+        "roll": 1.24654,
         "rotation_mode": "XYZ",
         "tail": {
             "cube_name": "joint-r-finger-2-2",
             "default_position": [
-                -0.48412102460861206,
-                -0.2982509136199951,
-                0.9598725438117981
+                -0.48412,
+                -0.29825,
+                0.95987
             ],
             "strategy": "CUBE"
         },
@@ -3771,9 +4711,9 @@
         "head": {
             "cube_name": "joint-l-finger-2-2",
             "default_position": [
-                0.48412102460861206,
-                -0.2982509136199951,
-                0.9598725438117981
+                0.48412,
+                -0.29825,
+                0.95987
             ],
             "strategy": "CUBE"
         },
@@ -3814,14 +4754,14 @@
         ],
         "parent": "f_index.01.L",
         "rigify": {},
-        "roll": -0.8115463256835938,
+        "roll": -0.81155,
         "rotation_mode": "XYZ",
         "tail": {
             "cube_name": "joint-l-finger-2-3",
             "default_position": [
-                0.48356521129608154,
-                -0.31459686160087585,
-                0.9435932636260986
+                0.48357,
+                -0.3146,
+                0.94359
             ],
             "strategy": "CUBE"
         },
@@ -3833,9 +4773,9 @@
         "head": {
             "cube_name": "joint-r-finger-2-2",
             "default_position": [
-                -0.48412102460861206,
-                -0.2982509136199951,
-                0.9598725438117981
+                -0.48412,
+                -0.29825,
+                0.95987
             ],
             "strategy": "CUBE"
         },
@@ -3876,14 +4816,14 @@
         ],
         "parent": "f_index.01.R",
         "rigify": {},
-        "roll": 0.8115463256835938,
+        "roll": 0.81155,
         "rotation_mode": "XYZ",
         "tail": {
             "cube_name": "joint-r-finger-2-3",
             "default_position": [
-                -0.48356521129608154,
-                -0.31459686160087585,
-                0.9435932636260986
+                -0.48357,
+                -0.3146,
+                0.94359
             ],
             "strategy": "CUBE"
         },
@@ -3895,9 +4835,9 @@
         "head": {
             "cube_name": "joint-l-finger-2-3",
             "default_position": [
-                0.48356521129608154,
-                -0.31459686160087585,
-                0.9435932636260986
+                0.48357,
+                -0.3146,
+                0.94359
             ],
             "strategy": "CUBE"
         },
@@ -3938,14 +4878,14 @@
         ],
         "parent": "f_index.02.L",
         "rigify": {},
-        "roll": -0.5659769773483276,
+        "roll": -0.56598,
         "rotation_mode": "XYZ",
         "tail": {
             "cube_name": "joint-l-finger-2-4",
             "default_position": [
-                0.47993025183677673,
-                -0.3321652412414551,
-                0.923480212688446
+                0.47993,
+                -0.33217,
+                0.92348
             ],
             "strategy": "CUBE"
         },
@@ -3957,9 +4897,9 @@
         "head": {
             "cube_name": "joint-r-finger-2-3",
             "default_position": [
-                -0.48356521129608154,
-                -0.31459686160087585,
-                0.9435932636260986
+                -0.48357,
+                -0.3146,
+                0.94359
             ],
             "strategy": "CUBE"
         },
@@ -4000,14 +4940,14 @@
         ],
         "parent": "f_index.02.R",
         "rigify": {},
-        "roll": 0.5659769773483276,
+        "roll": 0.56598,
         "rotation_mode": "XYZ",
         "tail": {
             "cube_name": "joint-r-finger-2-4",
             "default_position": [
-                -0.47993025183677673,
-                -0.3321652412414551,
-                0.923480212688446
+                -0.47993,
+                -0.33217,
+                0.92348
             ],
             "strategy": "CUBE"
         },
@@ -4019,9 +4959,9 @@
         "head": {
             "cube_name": "joint-l-finger-3-1",
             "default_position": [
-                0.4969857633113861,
-                -0.25972601771354675,
-                0.9640042781829834
+                0.49699,
+                -0.25973,
+                0.964
             ],
             "strategy": "CUBE"
         },
@@ -4101,14 +5041,14 @@
             },
             "rigify_type": "limbs.super_finger"
         },
-        "roll": -1.4916096925735474,
+        "roll": -1.49161,
         "rotation_mode": "XYZ",
         "tail": {
             "cube_name": "joint-l-finger-3-2",
             "default_position": [
-                0.5042244791984558,
-                -0.28018540143966675,
-                0.9380876421928406
+                0.50422,
+                -0.28019,
+                0.93809
             ],
             "strategy": "CUBE"
         },
@@ -4120,9 +5060,9 @@
         "head": {
             "cube_name": "joint-r-finger-3-1",
             "default_position": [
-                -0.4969857633113861,
-                -0.25972601771354675,
-                0.9640042781829834
+                -0.49699,
+                -0.25973,
+                0.964
             ],
             "strategy": "CUBE"
         },
@@ -4202,14 +5142,14 @@
             },
             "rigify_type": "limbs.super_finger"
         },
-        "roll": 1.4916096925735474,
+        "roll": 1.49161,
         "rotation_mode": "XYZ",
         "tail": {
             "cube_name": "joint-r-finger-3-2",
             "default_position": [
-                -0.5042244791984558,
-                -0.28018540143966675,
-                0.9380876421928406
+                -0.50422,
+                -0.28019,
+                0.93809
             ],
             "strategy": "CUBE"
         },
@@ -4221,9 +5161,9 @@
         "head": {
             "cube_name": "joint-l-finger-3-2",
             "default_position": [
-                0.5042244791984558,
-                -0.28018540143966675,
-                0.9380876421928406
+                0.50422,
+                -0.28019,
+                0.93809
             ],
             "strategy": "CUBE"
         },
@@ -4264,14 +5204,14 @@
         ],
         "parent": "f_middle.01.L",
         "rigify": {},
-        "roll": -1.278769612312317,
+        "roll": -1.27877,
         "rotation_mode": "XYZ",
         "tail": {
             "cube_name": "joint-l-finger-3-3",
             "default_position": [
-                0.506892204284668,
-                -0.2972935438156128,
-                0.9166064858436584
+                0.50689,
+                -0.29729,
+                0.91661
             ],
             "strategy": "CUBE"
         },
@@ -4283,9 +5223,9 @@
         "head": {
             "cube_name": "joint-r-finger-3-2",
             "default_position": [
-                -0.5042244791984558,
-                -0.28018540143966675,
-                0.9380876421928406
+                -0.50422,
+                -0.28019,
+                0.93809
             ],
             "strategy": "CUBE"
         },
@@ -4326,14 +5266,14 @@
         ],
         "parent": "f_middle.01.R",
         "rigify": {},
-        "roll": 1.278769612312317,
+        "roll": 1.27877,
         "rotation_mode": "XYZ",
         "tail": {
             "cube_name": "joint-r-finger-3-3",
             "default_position": [
-                -0.506892204284668,
-                -0.2972935438156128,
-                0.9166064858436584
+                -0.50689,
+                -0.29729,
+                0.91661
             ],
             "strategy": "CUBE"
         },
@@ -4345,9 +5285,9 @@
         "head": {
             "cube_name": "joint-l-finger-3-3",
             "default_position": [
-                0.506892204284668,
-                -0.2972935438156128,
-                0.9166064858436584
+                0.50689,
+                -0.29729,
+                0.91661
             ],
             "strategy": "CUBE"
         },
@@ -4388,14 +5328,14 @@
         ],
         "parent": "f_middle.02.L",
         "rigify": {},
-        "roll": -1.0537185668945312,
+        "roll": -1.05372,
         "rotation_mode": "XYZ",
         "tail": {
             "cube_name": "joint-l-finger-3-4",
             "default_position": [
-                0.5067319869995117,
-                -0.3121422827243805,
-                0.8941105604171753
+                0.50673,
+                -0.31214,
+                0.89411
             ],
             "strategy": "CUBE"
         },
@@ -4407,9 +5347,9 @@
         "head": {
             "cube_name": "joint-r-finger-3-3",
             "default_position": [
-                -0.506892204284668,
-                -0.2972935438156128,
-                0.9166064858436584
+                -0.50689,
+                -0.29729,
+                0.91661
             ],
             "strategy": "CUBE"
         },
@@ -4450,14 +5390,14 @@
         ],
         "parent": "f_middle.02.R",
         "rigify": {},
-        "roll": 1.0537185668945312,
+        "roll": 1.05372,
         "rotation_mode": "XYZ",
         "tail": {
             "cube_name": "joint-r-finger-3-4",
             "default_position": [
-                -0.5067319869995117,
-                -0.3121422827243805,
-                0.8941105604171753
+                -0.50673,
+                -0.31214,
+                0.89411
             ],
             "strategy": "CUBE"
         },
@@ -4469,9 +5409,9 @@
         "head": {
             "cube_name": "joint-l-finger-5-1",
             "default_position": [
-                0.5060592293739319,
-                -0.22328537702560425,
-                0.9477357864379883
+                0.50606,
+                -0.22329,
+                0.94774
             ],
             "strategy": "CUBE"
         },
@@ -4551,14 +5491,14 @@
             },
             "rigify_type": "limbs.super_finger"
         },
-        "roll": -1.6170220375061035,
+        "roll": -1.61702,
         "rotation_mode": "XYZ",
         "tail": {
             "cube_name": "joint-l-finger-5-2",
             "default_position": [
-                0.5119569301605225,
-                -0.23075082898139954,
-                0.9286792874336243
+                0.51196,
+                -0.23075,
+                0.92868
             ],
             "strategy": "CUBE"
         },
@@ -4570,9 +5510,9 @@
         "head": {
             "cube_name": "joint-r-finger-5-1",
             "default_position": [
-                -0.5060592293739319,
-                -0.22328537702560425,
-                0.9477357864379883
+                -0.50606,
+                -0.22329,
+                0.94774
             ],
             "strategy": "CUBE"
         },
@@ -4652,14 +5592,14 @@
             },
             "rigify_type": "limbs.super_finger"
         },
-        "roll": 1.6170220375061035,
+        "roll": 1.61702,
         "rotation_mode": "XYZ",
         "tail": {
             "cube_name": "joint-r-finger-5-2",
             "default_position": [
-                -0.5119569301605225,
-                -0.23075082898139954,
-                0.9286792874336243
+                -0.51196,
+                -0.23075,
+                0.92868
             ],
             "strategy": "CUBE"
         },
@@ -4671,9 +5611,9 @@
         "head": {
             "cube_name": "joint-l-finger-5-2",
             "default_position": [
-                0.5119569301605225,
-                -0.23075082898139954,
-                0.9286792874336243
+                0.51196,
+                -0.23075,
+                0.92868
             ],
             "strategy": "CUBE"
         },
@@ -4714,14 +5654,14 @@
         ],
         "parent": "f_pinky.01.L",
         "rigify": {},
-        "roll": -1.3720757961273193,
+        "roll": -1.37208,
         "rotation_mode": "XYZ",
         "tail": {
             "cube_name": "joint-l-finger-5-3",
             "default_position": [
-                0.5136875510215759,
-                -0.23644238710403442,
-                0.9142624139785767
+                0.51369,
+                -0.23644,
+                0.91426
             ],
             "strategy": "CUBE"
         },
@@ -4733,9 +5673,9 @@
         "head": {
             "cube_name": "joint-r-finger-5-2",
             "default_position": [
-                -0.5119569301605225,
-                -0.23075082898139954,
-                0.9286792874336243
+                -0.51196,
+                -0.23075,
+                0.92868
             ],
             "strategy": "CUBE"
         },
@@ -4776,14 +5716,14 @@
         ],
         "parent": "f_pinky.01.R",
         "rigify": {},
-        "roll": 1.3720757961273193,
+        "roll": 1.37208,
         "rotation_mode": "XYZ",
         "tail": {
             "cube_name": "joint-r-finger-5-3",
             "default_position": [
-                -0.5136875510215759,
-                -0.23644238710403442,
-                0.9142624139785767
+                -0.51369,
+                -0.23644,
+                0.91426
             ],
             "strategy": "CUBE"
         },
@@ -4795,9 +5735,9 @@
         "head": {
             "cube_name": "joint-l-finger-5-3",
             "default_position": [
-                0.5136875510215759,
-                -0.23644238710403442,
-                0.9142624139785767
+                0.51369,
+                -0.23644,
+                0.91426
             ],
             "strategy": "CUBE"
         },
@@ -4838,14 +5778,14 @@
         ],
         "parent": "f_pinky.02.L",
         "rigify": {},
-        "roll": -1.3983116149902344,
+        "roll": -1.39831,
         "rotation_mode": "XYZ",
         "tail": {
             "cube_name": "joint-l-finger-5-4",
             "default_position": [
-                0.5163437128067017,
-                -0.24335181713104248,
-                0.8958464860916138
+                0.51634,
+                -0.24335,
+                0.89585
             ],
             "strategy": "CUBE"
         },
@@ -4857,9 +5797,9 @@
         "head": {
             "cube_name": "joint-r-finger-5-3",
             "default_position": [
-                -0.5136875510215759,
-                -0.23644238710403442,
-                0.9142624139785767
+                -0.51369,
+                -0.23644,
+                0.91426
             ],
             "strategy": "CUBE"
         },
@@ -4900,14 +5840,14 @@
         ],
         "parent": "f_pinky.02.R",
         "rigify": {},
-        "roll": 1.3983116149902344,
+        "roll": 1.39831,
         "rotation_mode": "XYZ",
         "tail": {
             "cube_name": "joint-r-finger-5-4",
             "default_position": [
-                -0.5163437128067017,
-                -0.24335181713104248,
-                0.8958464860916138
+                -0.51634,
+                -0.24335,
+                0.89585
             ],
             "strategy": "CUBE"
         },
@@ -4919,9 +5859,9 @@
         "head": {
             "cube_name": "joint-l-finger-4-1",
             "default_position": [
-                0.5045318007469177,
-                -0.242636576294899,
-                0.9563679099082947
+                0.50453,
+                -0.24264,
+                0.95637
             ],
             "strategy": "CUBE"
         },
@@ -5001,14 +5941,14 @@
             },
             "rigify_type": "limbs.super_finger"
         },
-        "roll": -1.6628540754318237,
+        "roll": -1.66285,
         "rotation_mode": "XYZ",
         "tail": {
             "cube_name": "joint-l-finger-4-2",
             "default_position": [
-                0.5138360261917114,
-                -0.25671470165252686,
-                0.9319338202476501
+                0.51384,
+                -0.25671,
+                0.93193
             ],
             "strategy": "CUBE"
         },
@@ -5020,9 +5960,9 @@
         "head": {
             "cube_name": "joint-r-finger-4-1",
             "default_position": [
-                -0.5045318007469177,
-                -0.242636576294899,
-                0.9563679099082947
+                -0.50453,
+                -0.24264,
+                0.95637
             ],
             "strategy": "CUBE"
         },
@@ -5102,14 +6042,14 @@
             },
             "rigify_type": "limbs.super_finger"
         },
-        "roll": 1.6628540754318237,
+        "roll": 1.66285,
         "rotation_mode": "XYZ",
         "tail": {
             "cube_name": "joint-r-finger-4-2",
             "default_position": [
-                -0.5138360261917114,
-                -0.25671470165252686,
-                0.9319338202476501
+                -0.51384,
+                -0.25671,
+                0.93193
             ],
             "strategy": "CUBE"
         },
@@ -5121,9 +6061,9 @@
         "head": {
             "cube_name": "joint-l-finger-4-2",
             "default_position": [
-                0.5138360261917114,
-                -0.25671470165252686,
-                0.9319338202476501
+                0.51384,
+                -0.25671,
+                0.93193
             ],
             "strategy": "CUBE"
         },
@@ -5164,14 +6104,14 @@
         ],
         "parent": "f_ring.01.L",
         "rigify": {},
-        "roll": -1.442432165145874,
+        "roll": -1.44243,
         "rotation_mode": "XYZ",
         "tail": {
             "cube_name": "joint-l-finger-4-3",
             "default_position": [
-                0.5180871486663818,
-                -0.26924270391464233,
-                0.9109722971916199
+                0.51809,
+                -0.26924,
+                0.91097
             ],
             "strategy": "CUBE"
         },
@@ -5183,9 +6123,9 @@
         "head": {
             "cube_name": "joint-r-finger-4-2",
             "default_position": [
-                -0.5138360261917114,
-                -0.25671470165252686,
-                0.9319338202476501
+                -0.51384,
+                -0.25671,
+                0.93193
             ],
             "strategy": "CUBE"
         },
@@ -5226,14 +6166,14 @@
         ],
         "parent": "f_ring.01.R",
         "rigify": {},
-        "roll": 1.442432165145874,
+        "roll": 1.44243,
         "rotation_mode": "XYZ",
         "tail": {
             "cube_name": "joint-r-finger-4-3",
             "default_position": [
-                -0.5180871486663818,
-                -0.26924270391464233,
-                0.9109722971916199
+                -0.51809,
+                -0.26924,
+                0.91097
             ],
             "strategy": "CUBE"
         },
@@ -5245,9 +6185,9 @@
         "head": {
             "cube_name": "joint-l-finger-4-3",
             "default_position": [
-                0.5180871486663818,
-                -0.26924270391464233,
-                0.9109722971916199
+                0.51809,
+                -0.26924,
+                0.91097
             ],
             "strategy": "CUBE"
         },
@@ -5288,14 +6228,14 @@
         ],
         "parent": "f_ring.02.L",
         "rigify": {},
-        "roll": -1.2809538841247559,
+        "roll": -1.28095,
         "rotation_mode": "XYZ",
         "tail": {
             "cube_name": "joint-l-finger-4-4",
             "default_position": [
-                0.520561933517456,
-                -0.2804645895957947,
-                0.8868926763534546
+                0.52056,
+                -0.28046,
+                0.88689
             ],
             "strategy": "CUBE"
         },
@@ -5307,9 +6247,9 @@
         "head": {
             "cube_name": "joint-r-finger-4-3",
             "default_position": [
-                -0.5180871486663818,
-                -0.26924270391464233,
-                0.9109722971916199
+                -0.51809,
+                -0.26924,
+                0.91097
             ],
             "strategy": "CUBE"
         },
@@ -5350,14 +6290,14 @@
         ],
         "parent": "f_ring.02.R",
         "rigify": {},
-        "roll": 1.2809538841247559,
+        "roll": 1.28095,
         "rotation_mode": "XYZ",
         "tail": {
             "cube_name": "joint-r-finger-4-4",
             "default_position": [
-                -0.520561933517456,
-                -0.2804645895957947,
-                0.8868926763534546
+                -0.52056,
+                -0.28046,
+                0.88689
             ],
             "strategy": "CUBE"
         },
@@ -5370,8 +6310,8 @@
             "cube_name": "joint-head",
             "default_position": [
                 0.0,
-                -0.04400549456477165,
-                1.514577865600586
+                -0.04401,
+                1.51458
             ],
             "strategy": "CUBE"
         },
@@ -5450,12 +6390,12 @@
             },
             "rigify_type": "faces.super_face"
         },
-        "roll": -2.384185791015625e-07,
+        "roll": 0.0,
         "tail": {
             "default_position": [
                 0.0,
-                -0.04046175628900528,
-                1.5886259078979492
+                -0.04046,
+                1.58863
             ],
             "strategy": "MEAN",
             "vertex_indices": [
@@ -5477,9 +6417,9 @@
         "head": {
             "cube_name": "joint-l-ankle",
             "default_position": [
-                0.18097291886806488,
-                -0.022443566471338272,
-                0.06916871666908264
+                0.18097,
+                -0.02244,
+                0.06917
             ],
             "strategy": "CUBE"
         },
@@ -5521,13 +6461,14 @@
         "parent": "shin.L",
         "rigify": {},
         "roll": 0.0,
+        "roll_strategy": "ALIGN_X_WORLD_X",
         "rotation_mode": "XYZ",
         "tail": {
             "cube_name": "joint-l-foot-1",
             "default_position": [
-                0.18638567626476288,
-                -0.1392918974161148,
-                0.008939326740801334
+                0.18639,
+                -0.13929,
+                0.00894
             ],
             "strategy": "CUBE"
         },
@@ -5539,9 +6480,9 @@
         "head": {
             "cube_name": "joint-r-ankle",
             "default_position": [
-                -0.18097291886806488,
-                -0.022443566471338272,
-                0.06916871666908264
+                -0.18097,
+                -0.02244,
+                0.06917
             ],
             "strategy": "CUBE"
         },
@@ -5582,14 +6523,15 @@
         ],
         "parent": "shin.R",
         "rigify": {},
-        "roll": -0.0,
+        "roll": 0.0,
+        "roll_strategy": "ALIGN_X_WORLD_X",
         "rotation_mode": "XYZ",
         "tail": {
             "cube_name": "joint-r-foot-1",
             "default_position": [
-                -0.18638567626476288,
-                -0.1392918974161148,
-                0.008939326740801334
+                -0.18639,
+                -0.13929,
+                0.00894
             ],
             "strategy": "CUBE"
         },
@@ -5601,9 +6543,9 @@
         "head": {
             "cube_name": "joint-l-elbow",
             "default_position": [
-                0.3311667740345001,
-                -0.020057059824466705,
-                1.1395602226257324
+                0.33117,
+                -0.02006,
+                1.13956
             ],
             "strategy": "CUBE"
         },
@@ -5644,14 +6586,14 @@
         ],
         "parent": "upper_arm.L",
         "rigify": {},
-        "roll": 2.1535000801086426,
+        "roll": 2.1535,
         "rotation_mode": "XYZ",
         "tail": {
             "cube_name": "joint-l-hand",
             "default_position": [
-                0.453095018863678,
-                -0.18322858214378357,
-                1.0155318975448608
+                0.4531,
+                -0.18323,
+                1.01553
             ],
             "strategy": "CUBE"
         },
@@ -5663,9 +6605,9 @@
         "head": {
             "cube_name": "joint-r-elbow",
             "default_position": [
-                -0.3311667740345001,
-                -0.020057059824466705,
-                1.1395602226257324
+                -0.33117,
+                -0.02006,
+                1.13956
             ],
             "strategy": "CUBE"
         },
@@ -5706,14 +6648,14 @@
         ],
         "parent": "upper_arm.R",
         "rigify": {},
-        "roll": -2.1535000801086426,
+        "roll": -2.1535,
         "rotation_mode": "XYZ",
         "tail": {
             "cube_name": "joint-r-hand",
             "default_position": [
-                -0.453095018863678,
-                -0.18322858214378357,
-                1.0155318975448608
+                -0.4531,
+                -0.18323,
+                1.01553
             ],
             "strategy": "CUBE"
         },
@@ -5724,9 +6666,9 @@
     "forehead.L": {
         "head": {
             "default_position": [
-                0.008138502016663551,
-                -0.13827566802501678,
-                1.5990233421325684
+                0.00814,
+                -0.13828,
+                1.59902
             ],
             "strategy": "VERTEX",
             "vertex_index": 7015
@@ -5768,12 +6710,12 @@
         ],
         "parent": "face",
         "rigify": {},
-        "roll": 1.195013403892517,
+        "roll": 1.19501,
         "tail": {
             "default_position": [
-                0.015209503471851349,
-                -0.14348165690898895,
-                1.5690069198608398
+                0.01521,
+                -0.14348,
+                1.56901
             ],
             "strategy": "VERTEX",
             "vertex_index": 6983
@@ -5785,9 +6727,9 @@
     "forehead.L.001": {
         "head": {
             "default_position": [
-                0.028200507164001465,
-                -0.13044466078281403,
-                1.6060963869094849
+                0.0282,
+                -0.13044,
+                1.6061
             ],
             "strategy": "VERTEX",
             "vertex_index": 7011
@@ -5829,12 +6771,12 @@
         ],
         "parent": "forehead.L",
         "rigify": {},
-        "roll": 0.7809202075004578,
+        "roll": 0.78092,
         "tail": {
             "default_position": [
-                0.03984001278877258,
-                -0.13611465692520142,
-                1.5686269998550415
+                0.03984,
+                -0.13611,
+                1.56863
             ],
             "strategy": "VERTEX",
             "vertex_index": 6981
@@ -5846,9 +6788,9 @@
     "forehead.L.002": {
         "head": {
             "default_position": [
-                0.04981951043009758,
-                -0.10958616435527802,
-                1.6076059341430664
+                0.04982,
+                -0.10959,
+                1.60761
             ],
             "strategy": "VERTEX",
             "vertex_index": 7018
@@ -5890,12 +6832,12 @@
         ],
         "parent": "forehead.L.001",
         "rigify": {},
-        "roll": 0.45089998841285706,
+        "roll": 0.4509,
         "tail": {
             "default_position": [
-                0.054206013679504395,
-                -0.11864614486694336,
-                1.5619213581085205
+                0.05421,
+                -0.11865,
+                1.56192
             ],
             "strategy": "VERTEX",
             "vertex_index": 7023
@@ -5907,9 +6849,9 @@
     "forehead.R": {
         "head": {
             "default_position": [
-                -0.008138502016663551,
-                -0.13827566802501678,
-                1.5990233421325684
+                -0.00814,
+                -0.13828,
+                1.59902
             ],
             "strategy": "VERTEX",
             "vertex_index": 245
@@ -5951,12 +6893,12 @@
         ],
         "parent": "face",
         "rigify": {},
-        "roll": -1.195013403892517,
+        "roll": -1.19501,
         "tail": {
             "default_position": [
-                -0.015209503471851349,
-                -0.14348165690898895,
-                1.5690069198608398
+                -0.01521,
+                -0.14348,
+                1.56901
             ],
             "strategy": "VERTEX",
             "vertex_index": 208
@@ -5968,9 +6910,9 @@
     "forehead.R.001": {
         "head": {
             "default_position": [
-                -0.028200507164001465,
-                -0.13044466078281403,
-                1.6060963869094849
+                -0.0282,
+                -0.13044,
+                1.6061
             ],
             "strategy": "VERTEX",
             "vertex_index": 240
@@ -6012,12 +6954,12 @@
         ],
         "parent": "forehead.R",
         "rigify": {},
-        "roll": -0.7809202075004578,
+        "roll": -0.78092,
         "tail": {
             "default_position": [
-                -0.03984001278877258,
-                -0.13611465692520142,
-                1.5686269998550415
+                -0.03984,
+                -0.13611,
+                1.56863
             ],
             "strategy": "VERTEX",
             "vertex_index": 206
@@ -6029,9 +6971,9 @@
     "forehead.R.002": {
         "head": {
             "default_position": [
-                -0.04981951043009758,
-                -0.10958616435527802,
-                1.6076059341430664
+                -0.04982,
+                -0.10959,
+                1.60761
             ],
             "strategy": "VERTEX",
             "vertex_index": 248
@@ -6073,12 +7015,12 @@
         ],
         "parent": "forehead.R.001",
         "rigify": {},
-        "roll": -0.45089998841285706,
+        "roll": -0.4509,
         "tail": {
             "default_position": [
-                -0.054206013679504395,
-                -0.11864614486694336,
-                1.5619213581085205
+                -0.05421,
+                -0.11865,
+                1.56192
             ],
             "strategy": "VERTEX",
             "vertex_index": 254
@@ -6091,9 +7033,9 @@
         "head": {
             "cube_name": "joint-l-hand",
             "default_position": [
-                0.453095018863678,
-                -0.18322858214378357,
-                1.0155318975448608
+                0.4531,
+                -0.18323,
+                1.01553
             ],
             "strategy": "CUBE"
         },
@@ -6134,14 +7076,14 @@
         ],
         "parent": "forearm.L",
         "rigify": {},
-        "roll": 2.2102999687194824,
+        "roll": 2.2103,
         "rotation_mode": "ZXY",
         "tail": {
             "cube_name": "joint-l-finger-3-1",
             "default_position": [
-                0.4969857633113861,
-                -0.25972601771354675,
-                0.9640042781829834
+                0.49699,
+                -0.25973,
+                0.964
             ],
             "strategy": "CUBE"
         },
@@ -6153,9 +7095,9 @@
         "head": {
             "cube_name": "joint-r-hand",
             "default_position": [
-                -0.453095018863678,
-                -0.18322858214378357,
-                1.0155318975448608
+                -0.4531,
+                -0.18323,
+                1.01553
             ],
             "strategy": "CUBE"
         },
@@ -6196,14 +7138,14 @@
         ],
         "parent": "forearm.R",
         "rigify": {},
-        "roll": -2.2102999687194824,
+        "roll": -2.2103,
         "rotation_mode": "ZXY",
         "tail": {
             "cube_name": "joint-r-finger-3-1",
             "default_position": [
-                -0.4969857633113861,
-                -0.25972601771354675,
-                0.9640042781829834
+                -0.49699,
+                -0.25973,
+                0.964
             ],
             "strategy": "CUBE"
         },
@@ -6214,9 +7156,9 @@
     "heel.02.L": {
         "head": {
             "default_position": [
-                0.1495850384235382,
-                0.01819813996553421,
-                1.132139004766941e-08
+                0.14959,
+                0.0182,
+                0.0
             ],
             "strategy": "XYZ",
             "vertex_indices": [
@@ -6265,9 +7207,9 @@
         "roll": 0.0,
         "tail": {
             "default_position": [
-                0.22769154608249664,
-                0.01819813996553421,
-                1.132139004766941e-08
+                0.22769,
+                0.0182,
+                0.0
             ],
             "strategy": "XYZ",
             "vertex_indices": [
@@ -6283,9 +7225,9 @@
     "heel.02.R": {
         "head": {
             "default_position": [
-                -0.1495850384235382,
-                0.01819813996553421,
-                1.132139004766941e-08
+                -0.14959,
+                0.0182,
+                0.0
             ],
             "strategy": "XYZ",
             "vertex_indices": [
@@ -6331,12 +7273,12 @@
         ],
         "parent": "foot.R",
         "rigify": {},
-        "roll": -0.0,
+        "roll": 0.0,
         "tail": {
             "default_position": [
-                -0.22769154608249664,
-                0.01819813996553421,
-                1.132139004766941e-08
+                -0.22769,
+                0.0182,
+                0.0
             ],
             "strategy": "XYZ",
             "vertex_indices": [
@@ -6353,8 +7295,8 @@
         "head": {
             "default_position": [
                 0.0,
-                -0.09621362388134003,
-                1.442360281944275
+                -0.09621,
+                1.44236
             ],
             "strategy": "VERTEX",
             "vertex_index": 783
@@ -6400,8 +7342,8 @@
         "tail": {
             "default_position": [
                 0.0,
-                -0.13424962759017944,
-                1.4474056959152222
+                -0.13425,
+                1.44741
             ],
             "strategy": "VERTEX",
             "vertex_index": 5225
@@ -6413,9 +7355,9 @@
     "jaw.L": {
         "head": {
             "default_position": [
-                0.06544501334428787,
-                -0.06550313532352448,
-                1.5153722763061523
+                0.06545,
+                -0.0655,
+                1.51537
             ],
             "strategy": "VERTEX",
             "vertex_index": 11712
@@ -6457,12 +7399,12 @@
         ],
         "parent": "temple.L",
         "rigify": {},
-        "roll": -2.7427802085876465,
+        "roll": -2.74278,
         "tail": {
             "default_position": [
-                0.05626051127910614,
-                -0.07703312486410141,
-                1.4827913045883179
+                0.05626,
+                -0.07703,
+                1.48279
             ],
             "strategy": "VERTEX",
             "vertex_index": 7597
@@ -6474,9 +7416,9 @@
     "jaw.L.001": {
         "head": {
             "default_position": [
-                0.05626051127910614,
-                -0.07703312486410141,
-                1.4827913045883179
+                0.05626,
+                -0.07703,
+                1.48279
             ],
             "strategy": "VERTEX",
             "vertex_index": 7597
@@ -6518,12 +7460,12 @@
         ],
         "parent": "jaw.L",
         "rigify": {},
-        "roll": -1.807252049446106,
+        "roll": -1.80725,
         "tail": {
             "default_position": [
-                0.026256507262587547,
-                -0.12485762685537338,
-                1.455744981765747
+                0.02626,
+                -0.12486,
+                1.45574
             ],
             "strategy": "VERTEX",
             "vertex_index": 11833
@@ -6535,9 +7477,9 @@
     "jaw.R": {
         "head": {
             "default_position": [
-                -0.06544501334428787,
-                -0.06550313532352448,
-                1.5153722763061523
+                -0.06545,
+                -0.0655,
+                1.51537
             ],
             "strategy": "VERTEX",
             "vertex_index": 5097
@@ -6579,12 +7521,12 @@
         ],
         "parent": "temple.R",
         "rigify": {},
-        "roll": 2.7427802085876465,
+        "roll": 2.74278,
         "tail": {
             "default_position": [
-                -0.05626051127910614,
-                -0.07703312486410141,
-                1.4827913045883179
+                -0.05626,
+                -0.07703,
+                1.48279
             ],
             "strategy": "VERTEX",
             "vertex_index": 895
@@ -6596,9 +7538,9 @@
     "jaw.R.001": {
         "head": {
             "default_position": [
-                -0.05626051127910614,
-                -0.07703312486410141,
-                1.4827913045883179
+                -0.05626,
+                -0.07703,
+                1.48279
             ],
             "strategy": "VERTEX",
             "vertex_index": 895
@@ -6640,12 +7582,12 @@
         ],
         "parent": "jaw.R",
         "rigify": {},
-        "roll": 1.807252049446106,
+        "roll": 1.80725,
         "tail": {
             "default_position": [
-                -0.026256507262587547,
-                -0.12485762685537338,
-                1.455744981765747
+                -0.02626,
+                -0.12486,
+                1.45574
             ],
             "strategy": "VERTEX",
             "vertex_index": 5223
@@ -6657,9 +7599,9 @@
     "lid.B.L": {
         "head": {
             "default_position": [
-                0.04324750974774361,
-                -0.12643612921237946,
-                1.5523393154144287
+                0.04325,
+                -0.12644,
+                1.55234
             ],
             "strategy": "VERTEX",
             "vertex_index": 6806
@@ -6701,12 +7643,12 @@
         ],
         "parent": "lid.T.L.003",
         "rigify": {},
-        "roll": -1.7899582386016846,
+        "roll": -1.78996,
         "tail": {
             "default_position": [
-                0.03955551236867905,
-                -0.1294461339712143,
-                1.5473917722702026
+                0.03956,
+                -0.12945,
+                1.54739
             ],
             "strategy": "VERTEX",
             "vertex_index": 6818
@@ -6718,9 +7660,9 @@
     "lid.B.L.001": {
         "head": {
             "default_position": [
-                0.03955551236867905,
-                -0.1294461339712143,
-                1.5473917722702026
+                0.03956,
+                -0.12945,
+                1.54739
             ],
             "strategy": "VERTEX",
             "vertex_index": 6818
@@ -6762,12 +7704,12 @@
         ],
         "parent": "lid.B.L",
         "rigify": {},
-        "roll": -6.721197128295898,
+        "roll": -6.7212,
         "tail": {
             "default_position": [
-                0.029485005885362625,
-                -0.13325965404510498,
-                1.545486330986023
+                0.02949,
+                -0.13326,
+                1.54549
             ],
             "strategy": "VERTEX",
             "vertex_index": 6827
@@ -6779,9 +7721,9 @@
     "lid.B.L.002": {
         "head": {
             "default_position": [
-                0.029485005885362625,
-                -0.13325965404510498,
-                1.545486330986023
+                0.02949,
+                -0.13326,
+                1.54549
             ],
             "strategy": "VERTEX",
             "vertex_index": 6827
@@ -6823,12 +7765,12 @@
         ],
         "parent": "lid.B.L.001",
         "rigify": {},
-        "roll": -6.283714294433594,
+        "roll": -6.28371,
         "tail": {
             "default_position": [
-                0.022198006510734558,
-                -0.1328686624765396,
-                1.546259880065918
+                0.0222,
+                -0.13287,
+                1.54626
             ],
             "strategy": "VERTEX",
             "vertex_index": 6833
@@ -6840,9 +7782,9 @@
     "lid.B.L.003": {
         "head": {
             "default_position": [
-                0.022198006510734558,
-                -0.1328686624765396,
-                1.546259880065918
+                0.0222,
+                -0.13287,
+                1.54626
             ],
             "strategy": "VERTEX",
             "vertex_index": 6833
@@ -6884,12 +7826,12 @@
         ],
         "parent": "lid.B.L.002",
         "rigify": {},
-        "roll": 0.38175246119499207,
+        "roll": 0.38175,
         "tail": {
             "default_position": [
-                0.015555504709482193,
-                -0.1322261542081833,
-                1.5499893426895142
+                0.01556,
+                -0.13223,
+                1.54999
             ],
             "strategy": "VERTEX",
             "vertex_index": 6851
@@ -6901,9 +7843,9 @@
     "lid.B.R": {
         "head": {
             "default_position": [
-                -0.04324750974774361,
-                -0.12643612921237946,
-                1.5523393154144287
+                -0.04325,
+                -0.12644,
+                1.55234
             ],
             "strategy": "VERTEX",
             "vertex_index": 22
@@ -6945,12 +7887,12 @@
         ],
         "parent": "lid.T.R.003",
         "rigify": {},
-        "roll": 1.7899582386016846,
+        "roll": 1.78996,
         "tail": {
             "default_position": [
-                -0.03955551236867905,
-                -0.1294461339712143,
-                1.5473917722702026
+                -0.03956,
+                -0.12945,
+                1.54739
             ],
             "strategy": "VERTEX",
             "vertex_index": 34
@@ -6962,9 +7904,9 @@
     "lid.B.R.001": {
         "head": {
             "default_position": [
-                -0.03955551236867905,
-                -0.1294461339712143,
-                1.5473917722702026
+                -0.03956,
+                -0.12945,
+                1.54739
             ],
             "strategy": "VERTEX",
             "vertex_index": 34
@@ -7006,12 +7948,12 @@
         ],
         "parent": "lid.B.R",
         "rigify": {},
-        "roll": 6.721197128295898,
+        "roll": 6.7212,
         "tail": {
             "default_position": [
-                -0.029485005885362625,
-                -0.13325965404510498,
-                1.545486330986023
+                -0.02949,
+                -0.13326,
+                1.54549
             ],
             "strategy": "VERTEX",
             "vertex_index": 43
@@ -7023,9 +7965,9 @@
     "lid.B.R.002": {
         "head": {
             "default_position": [
-                -0.029485005885362625,
-                -0.13325965404510498,
-                1.545486330986023
+                -0.02949,
+                -0.13326,
+                1.54549
             ],
             "strategy": "VERTEX",
             "vertex_index": 43
@@ -7067,12 +8009,12 @@
         ],
         "parent": "lid.B.R.001",
         "rigify": {},
-        "roll": 6.283714294433594,
+        "roll": 6.28371,
         "tail": {
             "default_position": [
-                -0.022198006510734558,
-                -0.1328686624765396,
-                1.546259880065918
+                -0.0222,
+                -0.13287,
+                1.54626
             ],
             "strategy": "VERTEX",
             "vertex_index": 49
@@ -7084,9 +8026,9 @@
     "lid.B.R.003": {
         "head": {
             "default_position": [
-                -0.022198006510734558,
-                -0.1328686624765396,
-                1.546259880065918
+                -0.0222,
+                -0.13287,
+                1.54626
             ],
             "strategy": "VERTEX",
             "vertex_index": 49
@@ -7128,12 +8070,12 @@
         ],
         "parent": "lid.B.R.002",
         "rigify": {},
-        "roll": -0.38175246119499207,
+        "roll": -0.38175,
         "tail": {
             "default_position": [
-                -0.015555504709482193,
-                -0.1322261542081833,
-                1.5499893426895142
+                -0.01556,
+                -0.13223,
+                1.54999
             ],
             "strategy": "VERTEX",
             "vertex_index": 67
@@ -7145,9 +8087,9 @@
     "lid.T.L": {
         "head": {
             "default_position": [
-                0.015555504709482193,
-                -0.1322261542081833,
-                1.5499893426895142
+                0.01556,
+                -0.13223,
+                1.54999
             ],
             "strategy": "VERTEX",
             "vertex_index": 6851
@@ -7189,12 +8131,12 @@
         ],
         "parent": "face",
         "rigify": {},
-        "roll": -0.2079000025987625,
+        "roll": -0.2079,
         "tail": {
             "default_position": [
-                0.02179250679910183,
-                -0.1344936639070511,
-                1.5554747581481934
+                0.02179,
+                -0.13449,
+                1.55547
             ],
             "strategy": "VERTEX",
             "vertex_index": 6842
@@ -7206,9 +8148,9 @@
     "lid.T.L.001": {
         "head": {
             "default_position": [
-                0.02179250679910183,
-                -0.1344936639070511,
-                1.5554747581481934
+                0.02179,
+                -0.13449,
+                1.55547
             ],
             "strategy": "VERTEX",
             "vertex_index": 6842
@@ -7250,12 +8192,12 @@
         ],
         "parent": "lid.T.L",
         "rigify": {},
-        "roll": 0.18369999527931213,
+        "roll": 0.1837,
         "tail": {
             "default_position": [
-                0.02913500741124153,
-                -0.13593965768814087,
-                1.5573190450668335
+                0.02914,
+                -0.13594,
+                1.55732
             ],
             "strategy": "VERTEX",
             "vertex_index": 6787
@@ -7267,9 +8209,9 @@
     "lid.T.L.002": {
         "head": {
             "default_position": [
-                0.02913500741124153,
-                -0.13593965768814087,
-                1.5573190450668335
+                0.02914,
+                -0.13594,
+                1.55732
             ],
             "strategy": "VERTEX",
             "vertex_index": 6787
@@ -7311,12 +8253,12 @@
         ],
         "parent": "lid.T.L.001",
         "rigify": {},
-        "roll": 0.08583958446979523,
+        "roll": 0.08584,
         "tail": {
             "default_position": [
-                0.03916401043534279,
-                -0.13244464993476868,
-                1.5558093786239624
+                0.03916,
+                -0.13244,
+                1.55581
             ],
             "strategy": "VERTEX",
             "vertex_index": 6794
@@ -7328,9 +8270,9 @@
     "lid.T.L.003": {
         "head": {
             "default_position": [
-                0.03916401043534279,
-                -0.13244464993476868,
-                1.5558093786239624
+                0.03916,
+                -0.13244,
+                1.55581
             ],
             "strategy": "VERTEX",
             "vertex_index": 6794
@@ -7372,12 +8314,12 @@
         ],
         "parent": "lid.T.L.002",
         "rigify": {},
-        "roll": 0.3745877146720886,
+        "roll": 0.37459,
         "tail": {
             "default_position": [
-                0.04324750974774361,
-                -0.12643612921237946,
-                1.5523393154144287
+                0.04325,
+                -0.12644,
+                1.55234
             ],
             "strategy": "VERTEX",
             "vertex_index": 6806
@@ -7389,9 +8331,9 @@
     "lid.T.R": {
         "head": {
             "default_position": [
-                -0.015555504709482193,
-                -0.1322261542081833,
-                1.5499893426895142
+                -0.01556,
+                -0.13223,
+                1.54999
             ],
             "strategy": "VERTEX",
             "vertex_index": 67
@@ -7433,12 +8375,12 @@
         ],
         "parent": "face",
         "rigify": {},
-        "roll": 0.2079000025987625,
+        "roll": 0.2079,
         "tail": {
             "default_position": [
-                -0.02179250679910183,
-                -0.1344936639070511,
-                1.5554747581481934
+                -0.02179,
+                -0.13449,
+                1.55547
             ],
             "strategy": "VERTEX",
             "vertex_index": 58
@@ -7450,9 +8392,9 @@
     "lid.T.R.001": {
         "head": {
             "default_position": [
-                -0.02179250679910183,
-                -0.1344936639070511,
-                1.5554747581481934
+                -0.02179,
+                -0.13449,
+                1.55547
             ],
             "strategy": "VERTEX",
             "vertex_index": 58
@@ -7494,12 +8436,12 @@
         ],
         "parent": "lid.T.R",
         "rigify": {},
-        "roll": -0.18369999527931213,
+        "roll": -0.1837,
         "tail": {
             "default_position": [
-                -0.02913500741124153,
-                -0.13593965768814087,
-                1.5573190450668335
+                -0.02914,
+                -0.13594,
+                1.55732
             ],
             "strategy": "VERTEX",
             "vertex_index": 3
@@ -7511,9 +8453,9 @@
     "lid.T.R.002": {
         "head": {
             "default_position": [
-                -0.02913500741124153,
-                -0.13593965768814087,
-                1.5573190450668335
+                -0.02914,
+                -0.13594,
+                1.55732
             ],
             "strategy": "VERTEX",
             "vertex_index": 3
@@ -7555,12 +8497,12 @@
         ],
         "parent": "lid.T.R.001",
         "rigify": {},
-        "roll": -0.08583958446979523,
+        "roll": -0.08584,
         "tail": {
             "default_position": [
-                -0.03916401043534279,
-                -0.13244464993476868,
-                1.5558093786239624
+                -0.03916,
+                -0.13244,
+                1.55581
             ],
             "strategy": "VERTEX",
             "vertex_index": 10
@@ -7572,9 +8514,9 @@
     "lid.T.R.003": {
         "head": {
             "default_position": [
-                -0.03916401043534279,
-                -0.13244464993476868,
-                1.5558093786239624
+                -0.03916,
+                -0.13244,
+                1.55581
             ],
             "strategy": "VERTEX",
             "vertex_index": 10
@@ -7616,12 +8558,12 @@
         ],
         "parent": "lid.T.R.002",
         "rigify": {},
-        "roll": -0.3745877146720886,
+        "roll": -0.37459,
         "tail": {
             "default_position": [
-                -0.04324750974774361,
-                -0.12643612921237946,
-                1.5523393154144287
+                -0.04325,
+                -0.12644,
+                1.55234
             ],
             "strategy": "VERTEX",
             "vertex_index": 22
@@ -7634,8 +8576,8 @@
         "head": {
             "default_position": [
                 0.0,
-                -0.14609263837337494,
-                1.4814648628234863
+                -0.14609,
+                1.48146
             ],
             "strategy": "MEAN",
             "vertex_indices": [
@@ -7680,12 +8622,12 @@
         ],
         "parent": "face",
         "rigify": {},
-        "roll": -0.07890000194311142,
+        "roll": -0.0789,
         "tail": {
             "default_position": [
-                0.011720502749085426,
-                -0.14307087659835815,
-                1.4829035997390747
+                0.01172,
+                -0.14307,
+                1.4829
             ],
             "strategy": "MEAN",
             "vertex_indices": [
@@ -7700,9 +8642,9 @@
     "lip.B.L.001": {
         "head": {
             "default_position": [
-                0.011720502749085426,
-                -0.14307087659835815,
-                1.4829035997390747
+                0.01172,
+                -0.14307,
+                1.4829
             ],
             "strategy": "MEAN",
             "vertex_indices": [
@@ -7747,12 +8689,12 @@
         ],
         "parent": "lip.B.L",
         "rigify": {},
-        "roll": 0.0731000006198883,
+        "roll": 0.0731,
         "tail": {
             "default_position": [
-                0.022822506725788116,
-                -0.13734638690948486,
-                1.4852888584136963
+                0.02282,
+                -0.13735,
+                1.48529
             ],
             "strategy": "MEAN",
             "vertex_indices": [
@@ -7768,8 +8710,8 @@
         "head": {
             "default_position": [
                 0.0,
-                -0.14609263837337494,
-                1.4814648628234863
+                -0.14609,
+                1.48146
             ],
             "strategy": "MEAN",
             "vertex_indices": [
@@ -7814,12 +8756,12 @@
         ],
         "parent": "face",
         "rigify": {},
-        "roll": 0.07890000194311142,
+        "roll": 0.0789,
         "tail": {
             "default_position": [
-                -0.011720502749085426,
-                -0.14307087659835815,
-                1.4829035997390747
+                -0.01172,
+                -0.14307,
+                1.4829
             ],
             "strategy": "MEAN",
             "vertex_indices": [
@@ -7834,9 +8776,9 @@
     "lip.B.R.001": {
         "head": {
             "default_position": [
-                -0.011720502749085426,
-                -0.14307087659835815,
-                1.4829035997390747
+                -0.01172,
+                -0.14307,
+                1.4829
             ],
             "strategy": "MEAN",
             "vertex_indices": [
@@ -7881,12 +8823,12 @@
         ],
         "parent": "lip.B.R",
         "rigify": {},
-        "roll": -0.0731000006198883,
+        "roll": -0.0731,
         "tail": {
             "default_position": [
-                -0.022822506725788116,
-                -0.13734638690948486,
-                1.4852888584136963
+                -0.02282,
+                -0.13735,
+                1.48529
             ],
             "strategy": "MEAN",
             "vertex_indices": [
@@ -7902,8 +8844,8 @@
         "head": {
             "default_position": [
                 0.0,
-                -0.14649264514446259,
-                1.4925037622451782
+                -0.14649,
+                1.4925
             ],
             "strategy": "MEAN",
             "vertex_indices": [
@@ -7951,9 +8893,9 @@
         "roll": 0.0,
         "tail": {
             "default_position": [
-                0.012185502797365189,
-                -0.1434711515903473,
-                1.491420030593872
+                0.01219,
+                -0.14347,
+                1.49142
             ],
             "strategy": "MEAN",
             "vertex_indices": [
@@ -7968,9 +8910,9 @@
     "lip.T.L.001": {
         "head": {
             "default_position": [
-                0.012185502797365189,
-                -0.1434711515903473,
-                1.491420030593872
+                0.01219,
+                -0.14347,
+                1.49142
             ],
             "strategy": "MEAN",
             "vertex_indices": [
@@ -8015,12 +8957,12 @@
         ],
         "parent": "lip.T.L",
         "rigify": {},
-        "roll": 0.023600000888109207,
+        "roll": 0.0236,
         "tail": {
             "default_position": [
-                0.022822506725788116,
-                -0.13734638690948486,
-                1.4852888584136963
+                0.02282,
+                -0.13735,
+                1.48529
             ],
             "strategy": "MEAN",
             "vertex_indices": [
@@ -8036,8 +8978,8 @@
         "head": {
             "default_position": [
                 0.0,
-                -0.14649264514446259,
-                1.4925037622451782
+                -0.14649,
+                1.4925
             ],
             "strategy": "MEAN",
             "vertex_indices": [
@@ -8082,12 +9024,12 @@
         ],
         "parent": "face",
         "rigify": {},
-        "roll": -0.0,
+        "roll": 0.0,
         "tail": {
             "default_position": [
-                -0.012185502797365189,
-                -0.1434711515903473,
-                1.491420030593872
+                -0.01219,
+                -0.14347,
+                1.49142
             ],
             "strategy": "MEAN",
             "vertex_indices": [
@@ -8102,9 +9044,9 @@
     "lip.T.R.001": {
         "head": {
             "default_position": [
-                -0.012185502797365189,
-                -0.1434711515903473,
-                1.491420030593872
+                -0.01219,
+                -0.14347,
+                1.49142
             ],
             "strategy": "MEAN",
             "vertex_indices": [
@@ -8149,12 +9091,12 @@
         ],
         "parent": "lip.T.R",
         "rigify": {},
-        "roll": -0.023600000888109207,
+        "roll": -0.0236,
         "tail": {
             "default_position": [
-                -0.022822506725788116,
-                -0.13734638690948486,
-                1.4852888584136963
+                -0.02282,
+                -0.13735,
+                1.48529
             ],
             "strategy": "MEAN",
             "vertex_indices": [
@@ -8170,8 +9112,8 @@
         "head": {
             "default_position": [
                 0.0,
-                -0.1414126604795456,
-                1.5535837411880493
+                -0.14141,
+                1.55358
             ],
             "strategy": "VERTEX",
             "vertex_index": 132
@@ -8217,8 +9159,8 @@
         "tail": {
             "default_position": [
                 0.0,
-                -0.15176613628864288,
-                1.5315523147583008
+                -0.15177,
+                1.53155
             ],
             "strategy": "VERTEX",
             "vertex_index": 164
@@ -8231,8 +9173,8 @@
         "head": {
             "default_position": [
                 0.0,
-                -0.15176613628864288,
-                1.5315523147583008
+                -0.15177,
+                1.53155
             ],
             "strategy": "VERTEX",
             "vertex_index": 164
@@ -8278,8 +9220,8 @@
         "tail": {
             "default_position": [
                 0.0,
-                -0.1596716344356537,
-                1.515424370765686
+                -0.15967,
+                1.51542
             ],
             "strategy": "VERTEX",
             "vertex_index": 297
@@ -8292,8 +9234,8 @@
         "head": {
             "default_position": [
                 0.0,
-                -0.1596716344356537,
-                1.515424370765686
+                -0.15967,
+                1.51542
             ],
             "strategy": "VERTEX",
             "vertex_index": 297
@@ -8339,8 +9281,8 @@
         "tail": {
             "default_position": [
                 0.0,
-                -0.1533011496067047,
-                1.508722186088562
+                -0.1533,
+                1.50872
             ],
             "strategy": "VERTEX",
             "vertex_index": 312
@@ -8353,8 +9295,8 @@
         "head": {
             "default_position": [
                 0.0,
-                -0.1533011496067047,
-                1.508722186088562
+                -0.1533,
+                1.50872
             ],
             "strategy": "VERTEX",
             "vertex_index": 312
@@ -8400,8 +9342,8 @@
         "tail": {
             "default_position": [
                 0.0,
-                -0.1493731439113617,
-                1.505015254020691
+                -0.14937,
+                1.50502
             ],
             "strategy": "VERTEX",
             "vertex_index": 343
@@ -8414,8 +9356,8 @@
         "head": {
             "default_position": [
                 0.0,
-                -0.1493731439113617,
-                1.505015254020691
+                -0.14937,
+                1.50502
             ],
             "strategy": "VERTEX",
             "vertex_index": 343
@@ -8461,8 +9403,8 @@
         "tail": {
             "default_position": [
                 0.0,
-                -0.1500636488199234,
-                1.4998908042907715
+                -0.15006,
+                1.49989
             ],
             "strategy": "VERTEX",
             "vertex_index": 5342
@@ -8474,9 +9416,9 @@
     "nose.L": {
         "head": {
             "default_position": [
-                0.012116003781557083,
-                -0.1378391534090042,
-                1.5386430025100708
+                0.01212,
+                -0.13784,
+                1.53864
             ],
             "strategy": "VERTEX",
             "vertex_index": 11715
@@ -8518,12 +9460,12 @@
         ],
         "parent": "cheek.T.L.001",
         "rigify": {},
-        "roll": -2.3615570068359375,
+        "roll": -2.36156,
         "tail": {
             "default_position": [
-                0.017101004719734192,
-                -0.14093565940856934,
-                1.5126408338546753
+                0.0171,
+                -0.14094,
+                1.51264
             ],
             "strategy": "VERTEX",
             "vertex_index": 7099
@@ -8535,9 +9477,9 @@
     "nose.L.001": {
         "head": {
             "default_position": [
-                0.017101004719734192,
-                -0.14093565940856934,
-                1.5126408338546753
+                0.0171,
+                -0.14094,
+                1.51264
             ],
             "strategy": "VERTEX",
             "vertex_index": 7099
@@ -8579,12 +9521,12 @@
         ],
         "parent": "nose.L",
         "rigify": {},
-        "roll": 0.10700000077486038,
+        "roll": 0.107,
         "tail": {
             "default_position": [
                 0.0,
-                -0.1596716344356537,
-                1.515424370765686
+                -0.15967,
+                1.51542
             ],
             "strategy": "VERTEX",
             "vertex_index": 297
@@ -8596,9 +9538,9 @@
     "nose.R": {
         "head": {
             "default_position": [
-                -0.012116003781557083,
-                -0.1378391534090042,
-                1.5386430025100708
+                -0.01212,
+                -0.13784,
+                1.53864
             ],
             "strategy": "VERTEX",
             "vertex_index": 5100
@@ -8640,12 +9582,12 @@
         ],
         "parent": "cheek.T.R.001",
         "rigify": {},
-        "roll": 2.3615570068359375,
+        "roll": 2.36156,
         "tail": {
             "default_position": [
-                -0.017101004719734192,
-                -0.14093565940856934,
-                1.5126408338546753
+                -0.0171,
+                -0.14094,
+                1.51264
             ],
             "strategy": "VERTEX",
             "vertex_index": 337
@@ -8657,9 +9599,9 @@
     "nose.R.001": {
         "head": {
             "default_position": [
-                -0.017101004719734192,
-                -0.14093565940856934,
-                1.5126408338546753
+                -0.0171,
+                -0.14094,
+                1.51264
             ],
             "strategy": "VERTEX",
             "vertex_index": 337
@@ -8701,12 +9643,12 @@
         ],
         "parent": "nose.R",
         "rigify": {},
-        "roll": -0.10700000077486038,
+        "roll": -0.107,
         "tail": {
             "default_position": [
                 0.0,
-                -0.1596716344356537,
-                1.515424370765686
+                -0.15967,
+                1.51542
             ],
             "strategy": "VERTEX",
             "vertex_index": 297
@@ -8719,9 +9661,9 @@
         "head": {
             "cube_name": "joint-l-finger-1-1",
             "default_position": [
-                0.4540647864341736,
-                -0.22703278064727783,
-                1.007927417755127
+                0.45406,
+                -0.22703,
+                1.00793
             ],
             "strategy": "CUBE"
         },
@@ -8764,13 +9706,13 @@
         "rigify": {
             "rigify_type": "limbs.super_palm"
         },
-        "roll": -2.1502792835235596,
+        "roll": -2.15028,
         "tail": {
             "cube_name": "joint-l-finger-2-1",
             "default_position": [
-                0.48077186942100525,
-                -0.27754002809524536,
-                0.9749303460121155
+                0.48077,
+                -0.27754,
+                0.97493
             ],
             "strategy": "CUBE"
         },
@@ -8782,9 +9724,9 @@
         "head": {
             "cube_name": "joint-r-finger-1-1",
             "default_position": [
-                -0.4540647864341736,
-                -0.22703278064727783,
-                1.007927417755127
+                -0.45406,
+                -0.22703,
+                1.00793
             ],
             "strategy": "CUBE"
         },
@@ -8827,13 +9769,13 @@
         "rigify": {
             "rigify_type": "limbs.super_palm"
         },
-        "roll": 2.1502792835235596,
+        "roll": 2.15028,
         "tail": {
             "cube_name": "joint-r-finger-2-1",
             "default_position": [
-                -0.48077186942100525,
-                -0.27754002809524536,
-                0.9749303460121155
+                -0.48077,
+                -0.27754,
+                0.97493
             ],
             "strategy": "CUBE"
         },
@@ -8845,9 +9787,9 @@
         "head": {
             "cube_name": "joint-l-hand-3",
             "default_position": [
-                0.4636784791946411,
-                -0.20924541354179382,
-                0.9997921586036682
+                0.46368,
+                -0.20925,
+                0.99979
             ],
             "strategy": "CUBE"
         },
@@ -8888,13 +9830,13 @@
         ],
         "parent": "hand.L",
         "rigify": {},
-        "roll": -2.2922286987304688,
+        "roll": -2.29223,
         "tail": {
             "cube_name": "joint-l-finger-3-1",
             "default_position": [
-                0.4969857633113861,
-                -0.25972601771354675,
-                0.9640042781829834
+                0.49699,
+                -0.25973,
+                0.964
             ],
             "strategy": "CUBE"
         },
@@ -8906,9 +9848,9 @@
         "head": {
             "cube_name": "joint-r-hand-3",
             "default_position": [
-                -0.4636784791946411,
-                -0.20924541354179382,
-                0.9997921586036682
+                -0.46368,
+                -0.20925,
+                0.99979
             ],
             "strategy": "CUBE"
         },
@@ -8949,13 +9891,13 @@
         ],
         "parent": "hand.R",
         "rigify": {},
-        "roll": 2.2922286987304688,
+        "roll": 2.29223,
         "tail": {
             "cube_name": "joint-r-finger-3-1",
             "default_position": [
-                -0.4969857633113861,
-                -0.25972601771354675,
-                0.9640042781829834
+                -0.49699,
+                -0.25973,
+                0.964
             ],
             "strategy": "CUBE"
         },
@@ -8966,9 +9908,9 @@
     "palm.03.L": {
         "head": {
             "default_position": [
-                0.4730563163757324,
-                -0.19941532611846924,
-                0.9896397590637207
+                0.47306,
+                -0.19942,
+                0.98964
             ],
             "strategy": "MEAN",
             "vertex_indices": [
@@ -9013,13 +9955,13 @@
         ],
         "parent": "hand.L",
         "rigify": {},
-        "roll": -2.367171287536621,
+        "roll": -2.36717,
         "tail": {
             "cube_name": "joint-l-finger-4-1",
             "default_position": [
-                0.5045318007469177,
-                -0.242636576294899,
-                0.9563679099082947
+                0.50453,
+                -0.24264,
+                0.95637
             ],
             "strategy": "CUBE"
         },
@@ -9030,9 +9972,9 @@
     "palm.03.R": {
         "head": {
             "default_position": [
-                -0.4730563163757324,
-                -0.19941532611846924,
-                0.9896397590637207
+                -0.47306,
+                -0.19942,
+                0.98964
             ],
             "strategy": "MEAN",
             "vertex_indices": [
@@ -9077,13 +10019,13 @@
         ],
         "parent": "hand.R",
         "rigify": {},
-        "roll": 2.367171287536621,
+        "roll": 2.36717,
         "tail": {
             "cube_name": "joint-r-finger-4-1",
             "default_position": [
-                -0.5045318007469177,
-                -0.242636576294899,
-                0.9563679099082947
+                -0.50453,
+                -0.24264,
+                0.95637
             ],
             "strategy": "CUBE"
         },
@@ -9094,9 +10036,9 @@
     "palm.04.L": {
         "head": {
             "default_position": [
-                0.47700411081314087,
-                -0.1936718225479126,
-                0.9859180450439453
+                0.477,
+                -0.19367,
+                0.98592
             ],
             "strategy": "MEAN",
             "vertex_indices": [
@@ -9141,13 +10083,13 @@
         ],
         "parent": "hand.L",
         "rigify": {},
-        "roll": -2.246424913406372,
+        "roll": -2.24642,
         "tail": {
             "cube_name": "joint-l-finger-5-1",
             "default_position": [
-                0.5060592293739319,
-                -0.22328537702560425,
-                0.9477357864379883
+                0.50606,
+                -0.22329,
+                0.94774
             ],
             "strategy": "CUBE"
         },
@@ -9158,9 +10100,9 @@
     "palm.04.R": {
         "head": {
             "default_position": [
-                -0.47700411081314087,
-                -0.1936718225479126,
-                0.9859180450439453
+                -0.477,
+                -0.19367,
+                0.98592
             ],
             "strategy": "MEAN",
             "vertex_indices": [
@@ -9205,13 +10147,13 @@
         ],
         "parent": "hand.R",
         "rigify": {},
-        "roll": 2.246424913406372,
+        "roll": 2.24642,
         "tail": {
             "cube_name": "joint-r-finger-5-1",
             "default_position": [
-                -0.5060592293739319,
-                -0.22328537702560425,
-                0.9477357864379883
+                -0.50606,
+                -0.22329,
+                0.94774
             ],
             "strategy": "CUBE"
         },
@@ -9224,8 +10166,8 @@
             "cube_name": "joint-pelvis",
             "default_position": [
                 0.0,
-                -0.013216640800237656,
-                0.8738864064216614
+                -0.01322,
+                0.87389
             ],
             "strategy": "CUBE"
         },
@@ -9275,9 +10217,9 @@
         "roll_strategy": "ALIGN_Z_WORLD_Z",
         "tail": {
             "default_position": [
-                0.1542595773935318,
-                -0.02473151683807373,
-                0.9012652039527893
+                0.15426,
+                -0.02473,
+                0.90127
             ],
             "strategy": "VERTEX",
             "vertex_index": 10914
@@ -9291,8 +10233,8 @@
             "cube_name": "joint-pelvis",
             "default_position": [
                 0.0,
-                -0.013216640800237656,
-                0.8738864064216614
+                -0.01322,
+                0.87389
             ],
             "strategy": "CUBE"
         },
@@ -9342,9 +10284,9 @@
         "roll_strategy": "ALIGN_Z_WORLD_Z",
         "tail": {
             "default_position": [
-                -0.1542595773935318,
-                -0.02473151683807373,
-                0.9012652039527893
+                -0.15426,
+                -0.02473,
+                0.90127
             ],
             "strategy": "VERTEX",
             "vertex_index": 4284
@@ -9357,9 +10299,9 @@
         "head": {
             "cube_name": "joint-l-knee",
             "default_position": [
-                0.1426400989294052,
-                -0.03732557222247124,
-                0.4744187891483307
+                0.14264,
+                -0.03733,
+                0.47442
             ],
             "strategy": "CUBE"
         },
@@ -9401,13 +10343,14 @@
         "parent": "thigh.L",
         "rigify": {},
         "roll": 0.0,
+        "roll_strategy": "ALIGN_X_WORLD_X",
         "rotation_mode": "XYZ",
         "tail": {
             "cube_name": "joint-l-ankle",
             "default_position": [
-                0.18097291886806488,
-                -0.022443566471338272,
-                0.06916871666908264
+                0.18097,
+                -0.02244,
+                0.06917
             ],
             "strategy": "CUBE"
         },
@@ -9419,9 +10362,9 @@
         "head": {
             "cube_name": "joint-r-knee",
             "default_position": [
-                -0.1426400989294052,
-                -0.03732557222247124,
-                0.4744187891483307
+                -0.14264,
+                -0.03733,
+                0.47442
             ],
             "strategy": "CUBE"
         },
@@ -9463,13 +10406,14 @@
         "parent": "thigh.R",
         "rigify": {},
         "roll": 0.0,
+        "roll_strategy": "ALIGN_X_WORLD_X",
         "rotation_mode": "XYZ",
         "tail": {
             "cube_name": "joint-r-ankle",
             "default_position": [
-                -0.18097291886806488,
-                -0.022443566471338272,
-                0.06916871666908264
+                -0.18097,
+                -0.02244,
+                0.06917
             ],
             "strategy": "CUBE"
         },
@@ -9481,9 +10425,9 @@
         "head": {
             "cube_name": "joint-l-clavicle",
             "default_position": [
-                0.02277444303035736,
-                -0.022098973393440247,
-                1.3424878120422363
+                0.02277,
+                -0.0221,
+                1.34249
             ],
             "strategy": "CUBE"
         },
@@ -9536,9 +10480,9 @@
         "tail": {
             "cube_name": "joint-l-shoulder",
             "default_position": [
-                0.1700163632631302,
-                -0.019264277070760727,
-                1.3201014995574951
+                0.17002,
+                -0.01926,
+                1.3201
             ],
             "strategy": "CUBE"
         },
@@ -9550,9 +10494,9 @@
         "head": {
             "cube_name": "joint-r-clavicle",
             "default_position": [
-                -0.02277444303035736,
-                -0.022098973393440247,
-                1.3424878120422363
+                -0.02277,
+                -0.0221,
+                1.34249
             ],
             "strategy": "CUBE"
         },
@@ -9605,9 +10549,9 @@
         "tail": {
             "cube_name": "joint-r-shoulder",
             "default_position": [
-                -0.1700163632631302,
-                -0.019264277070760727,
-                1.3201014995574951
+                -0.17002,
+                -0.01926,
+                1.3201
             ],
             "strategy": "CUBE"
         },
@@ -9619,8 +10563,8 @@
         "head": {
             "default_position": [
                 0.0,
-                -0.007973495870828629,
-                0.7844451665878296
+                -0.00797,
+                0.78445
             ],
             "strategy": "VERTEX",
             "vertex_index": 4374
@@ -9740,8 +10684,8 @@
             "cube_name": "joint-spine-4",
             "default_position": [
                 0.0,
-                0.02537010982632637,
-                0.9533196091651917
+                0.02537,
+                0.95332
             ],
             "strategy": "CUBE"
         },
@@ -9754,8 +10698,8 @@
             "cube_name": "joint-spine-4",
             "default_position": [
                 0.0,
-                0.02537010982632637,
-                0.9533196091651917
+                0.02537,
+                0.95332
             ],
             "strategy": "CUBE"
         },
@@ -9802,8 +10746,8 @@
             "cube_name": "joint-spine-3",
             "default_position": [
                 0.0,
-                0.009861966595053673,
-                1.019595980644226
+                0.00986,
+                1.0196
             ],
             "strategy": "CUBE"
         },
@@ -9816,8 +10760,8 @@
             "cube_name": "joint-spine-3",
             "default_position": [
                 0.0,
-                0.009861966595053673,
-                1.019595980644226
+                0.00986,
+                1.0196
             ],
             "strategy": "CUBE"
         },
@@ -9864,8 +10808,8 @@
             "cube_name": "joint-spine-2",
             "default_position": [
                 0.0,
-                0.008036700077354908,
-                1.0948296785354614
+                0.00804,
+                1.09483
             ],
             "strategy": "CUBE"
         },
@@ -9878,8 +10822,8 @@
             "cube_name": "joint-spine-2",
             "default_position": [
                 0.0,
-                0.008036700077354908,
-                1.0948296785354614
+                0.00804,
+                1.09483
             ],
             "strategy": "CUBE"
         },
@@ -9926,8 +10870,8 @@
             "cube_name": "joint-spine-1",
             "default_position": [
                 0.0,
-                0.018584182485938072,
-                1.2388414144515991
+                0.01858,
+                1.23884
             ],
             "strategy": "CUBE"
         },
@@ -9940,8 +10884,8 @@
             "cube_name": "joint-spine-1",
             "default_position": [
                 0.0,
-                0.018584182485938072,
-                1.2388414144515991
+                0.01858,
+                1.23884
             ],
             "strategy": "CUBE"
         },
@@ -9988,8 +10932,8 @@
             "cube_name": "joint-neck",
             "default_position": [
                 0.0,
-                -0.005130347795784473,
-                1.413631796836853
+                -0.00513,
+                1.41363
             ],
             "strategy": "CUBE"
         },
@@ -10002,8 +10946,8 @@
             "cube_name": "joint-neck",
             "default_position": [
                 0.0,
-                -0.005130347795784473,
-                1.413631796836853
+                -0.00513,
+                1.41363
             ],
             "strategy": "CUBE"
         },
@@ -10088,8 +11032,8 @@
             "cube_name": "joint-head",
             "default_position": [
                 0.0,
-                -0.04400549456477165,
-                1.514577865600586
+                -0.04401,
+                1.51458
             ],
             "strategy": "CUBE"
         },
@@ -10102,8 +11046,8 @@
             "cube_name": "joint-head",
             "default_position": [
                 0.0,
-                -0.04400549456477165,
-                1.514577865600586
+                -0.04401,
+                1.51458
             ],
             "strategy": "CUBE"
         },
@@ -10149,8 +11093,8 @@
             "cube_name": "joint-head-2",
             "default_position": [
                 0.0,
-                -0.0370623916387558,
-                1.6625131368637085
+                -0.03706,
+                1.66251
             ],
             "strategy": "CUBE"
         },
@@ -10162,8 +11106,8 @@
         "head": {
             "default_position": [
                 0.0,
-                -0.13529914617538452,
-                1.4795163869857788
+                -0.1353,
+                1.47952
             ],
             "strategy": "VERTEX",
             "vertex_index": 15012
@@ -10209,8 +11153,8 @@
         "tail": {
             "default_position": [
                 0.0,
-                -0.09104462713003159,
-                1.4863569736480713
+                -0.09104,
+                1.48636
             ],
             "strategy": "MEAN",
             "vertex_indices": [
@@ -10226,8 +11170,8 @@
         "head": {
             "default_position": [
                 0.0,
-                -0.1371496468782425,
-                1.4953378438949585
+                -0.13715,
+                1.49534
             ],
             "strategy": "VERTEX",
             "vertex_index": 15079
@@ -10273,8 +11217,8 @@
         "tail": {
             "default_position": [
                 0.0,
-                -0.091400645673275,
-                1.4972540140151978
+                -0.0914,
+                1.49725
             ],
             "strategy": "MEAN",
             "vertex_indices": [
@@ -10289,9 +11233,9 @@
     "temple.L": {
         "head": {
             "default_position": [
-                0.06533702462911606,
-                -0.07325014472007751,
-                1.5826084613800049
+                0.06534,
+                -0.07325,
+                1.58261
             ],
             "strategy": "VERTEX",
             "vertex_index": 12159
@@ -10333,12 +11277,12 @@
         ],
         "parent": "forehead.L.002",
         "rigify": {},
-        "roll": -2.9314465522766113,
+        "roll": -2.93145,
         "tail": {
             "default_position": [
-                0.06544501334428787,
-                -0.06550313532352448,
-                1.5153722763061523
+                0.06545,
+                -0.0655,
+                1.51537
             ],
             "strategy": "VERTEX",
             "vertex_index": 11712
@@ -10350,9 +11294,9 @@
     "temple.R": {
         "head": {
             "default_position": [
-                -0.06533702462911606,
-                -0.07325014472007751,
-                1.5826084613800049
+                -0.06534,
+                -0.07325,
+                1.58261
             ],
             "strategy": "VERTEX",
             "vertex_index": 5562
@@ -10394,12 +11338,12 @@
         ],
         "parent": "forehead.R.002",
         "rigify": {},
-        "roll": 2.9314465522766113,
+        "roll": 2.93145,
         "tail": {
             "default_position": [
-                -0.06544501334428787,
-                -0.06550313532352448,
-                1.5153722763061523
+                -0.06545,
+                -0.0655,
+                1.51537
             ],
             "strategy": "VERTEX",
             "vertex_index": 5097
@@ -10412,9 +11356,9 @@
         "head": {
             "cube_name": "joint-l-upper-leg",
             "default_position": [
-                0.10147152841091156,
-                -0.005004073027521372,
-                0.8656399846076965
+                0.10147,
+                -0.005,
+                0.86564
             ],
             "strategy": "CUBE"
         },
@@ -10456,6 +11400,7 @@
         "parent": "spine",
         "rigify": {
             "rigify_parameters": {
+                "auto_align_extremity": true,
                 "extra_ik_toe": true,
                 "fk_layers": [
                     false,
@@ -10493,6 +11438,7 @@
                 ],
                 "ik_local_location": false,
                 "limb_type": "leg",
+                "rotation_axis": "x",
                 "tweak_layers": [
                     false,
                     false,
@@ -10531,12 +11477,13 @@
             "rigify_type": "limbs.super_limb"
         },
         "roll": 0.0,
+        "roll_strategy": "ALIGN_X_WORLD_X",
         "tail": {
             "cube_name": "joint-l-knee",
             "default_position": [
-                0.1426400989294052,
-                -0.03732557222247124,
-                0.4744187891483307
+                0.14264,
+                -0.03733,
+                0.47442
             ],
             "strategy": "CUBE"
         },
@@ -10548,9 +11495,9 @@
         "head": {
             "cube_name": "joint-r-upper-leg",
             "default_position": [
-                -0.10147152841091156,
-                -0.005004073027521372,
-                0.8656399846076965
+                -0.10147,
+                -0.005,
+                0.86564
             ],
             "strategy": "CUBE"
         },
@@ -10592,6 +11539,7 @@
         "parent": "spine",
         "rigify": {
             "rigify_parameters": {
+                "auto_align_extremity": true,
                 "extra_ik_toe": true,
                 "fk_layers": [
                     false,
@@ -10629,6 +11577,7 @@
                 ],
                 "ik_local_location": false,
                 "limb_type": "leg",
+                "rotation_axis": "x",
                 "tweak_layers": [
                     false,
                     false,
@@ -10667,12 +11616,13 @@
             "rigify_type": "limbs.super_limb"
         },
         "roll": 0.0,
+        "roll_strategy": "ALIGN_X_WORLD_X",
         "tail": {
             "cube_name": "joint-r-knee",
             "default_position": [
-                -0.1426400989294052,
-                -0.03732557222247124,
-                0.4744187891483307
+                -0.14264,
+                -0.03733,
+                0.47442
             ],
             "strategy": "CUBE"
         },
@@ -10684,9 +11634,9 @@
         "head": {
             "cube_name": "joint-l-finger-1-1",
             "default_position": [
-                0.4540647864341736,
-                -0.22703278064727783,
-                1.007927417755127
+                0.45406,
+                -0.22703,
+                1.00793
             ],
             "strategy": "CUBE"
         },
@@ -10766,14 +11716,14 @@
             },
             "rigify_type": "limbs.super_finger"
         },
-        "roll": 2.7460577487945557,
+        "roll": 2.74606,
         "rotation_mode": "XYZ",
         "tail": {
             "cube_name": "joint-l-finger-1-2",
             "default_position": [
-                0.43327146768569946,
-                -0.24803698062896729,
-                0.9992833137512207
+                0.43327,
+                -0.24804,
+                0.99928
             ],
             "strategy": "CUBE"
         },
@@ -10785,9 +11735,9 @@
         "head": {
             "cube_name": "joint-r-finger-1-1",
             "default_position": [
-                -0.4540647864341736,
-                -0.22703278064727783,
-                1.007927417755127
+                -0.45406,
+                -0.22703,
+                1.00793
             ],
             "strategy": "CUBE"
         },
@@ -10867,14 +11817,14 @@
             },
             "rigify_type": "limbs.super_finger"
         },
-        "roll": -2.7460577487945557,
+        "roll": -2.74606,
         "rotation_mode": "XYZ",
         "tail": {
             "cube_name": "joint-r-finger-1-2",
             "default_position": [
-                -0.43327146768569946,
-                -0.24803698062896729,
-                0.9992833137512207
+                -0.43327,
+                -0.24804,
+                0.99928
             ],
             "strategy": "CUBE"
         },
@@ -10886,9 +11836,9 @@
         "head": {
             "cube_name": "joint-l-finger-1-2",
             "default_position": [
-                0.43327146768569946,
-                -0.24803698062896729,
-                0.9992833137512207
+                0.43327,
+                -0.24804,
+                0.99928
             ],
             "strategy": "CUBE"
         },
@@ -10929,14 +11879,14 @@
         ],
         "parent": "thumb.01.L",
         "rigify": {},
-        "roll": 1.8846209049224854,
+        "roll": 1.88462,
         "rotation_mode": "XYZ",
         "tail": {
             "cube_name": "joint-l-finger-1-3",
             "default_position": [
-                0.42089810967445374,
-                -0.2790721654891968,
-                0.9853271245956421
+                0.4209,
+                -0.27907,
+                0.98533
             ],
             "strategy": "CUBE"
         },
@@ -10948,9 +11898,9 @@
         "head": {
             "cube_name": "joint-r-finger-1-2",
             "default_position": [
-                -0.43327146768569946,
-                -0.24803698062896729,
-                0.9992833137512207
+                -0.43327,
+                -0.24804,
+                0.99928
             ],
             "strategy": "CUBE"
         },
@@ -10991,14 +11941,14 @@
         ],
         "parent": "thumb.01.R",
         "rigify": {},
-        "roll": -1.8846209049224854,
+        "roll": -1.88462,
         "rotation_mode": "XYZ",
         "tail": {
             "cube_name": "joint-r-finger-1-3",
             "default_position": [
-                -0.42089810967445374,
-                -0.2790721654891968,
-                0.9853271245956421
+                -0.4209,
+                -0.27907,
+                0.98533
             ],
             "strategy": "CUBE"
         },
@@ -11010,9 +11960,9 @@
         "head": {
             "cube_name": "joint-l-finger-1-3",
             "default_position": [
-                0.42089810967445374,
-                -0.2790721654891968,
-                0.9853271245956421
+                0.4209,
+                -0.27907,
+                0.98533
             ],
             "strategy": "CUBE"
         },
@@ -11053,14 +12003,14 @@
         ],
         "parent": "thumb.02.L",
         "rigify": {},
-        "roll": 1.1503196954727173,
+        "roll": 1.15032,
         "rotation_mode": "XYZ",
         "tail": {
             "cube_name": "joint-l-finger-1-4",
             "default_position": [
-                0.41538602113723755,
-                -0.300350546836853,
-                0.9679940938949585
+                0.41539,
+                -0.30035,
+                0.96799
             ],
             "strategy": "CUBE"
         },
@@ -11072,9 +12022,9 @@
         "head": {
             "cube_name": "joint-r-finger-1-3",
             "default_position": [
-                -0.42089810967445374,
-                -0.2790721654891968,
-                0.9853271245956421
+                -0.4209,
+                -0.27907,
+                0.98533
             ],
             "strategy": "CUBE"
         },
@@ -11115,14 +12065,14 @@
         ],
         "parent": "thumb.02.R",
         "rigify": {},
-        "roll": -1.1503196954727173,
+        "roll": -1.15032,
         "rotation_mode": "XYZ",
         "tail": {
             "cube_name": "joint-r-finger-1-4",
             "default_position": [
-                -0.41538602113723755,
-                -0.300350546836853,
-                0.9679940938949585
+                -0.41539,
+                -0.30035,
+                0.96799
             ],
             "strategy": "CUBE"
         },
@@ -11134,9 +12084,9 @@
         "head": {
             "cube_name": "joint-l-foot-1",
             "default_position": [
-                0.18638567626476288,
-                -0.1392918974161148,
-                0.008939326740801334
+                0.18639,
+                -0.13929,
+                0.00894
             ],
             "strategy": "CUBE"
         },
@@ -11183,9 +12133,9 @@
         "tail": {
             "cube_name": "joint-l-foot-2",
             "default_position": [
-                0.1886046826839447,
-                -0.2162124216556549,
-                0.0164524856954813
+                0.1886,
+                -0.21621,
+                0.01645
             ],
             "strategy": "CUBE"
         },
@@ -11197,9 +12147,9 @@
         "head": {
             "cube_name": "joint-r-foot-1",
             "default_position": [
-                -0.18638567626476288,
-                -0.1392918974161148,
-                0.008939326740801334
+                -0.18639,
+                -0.13929,
+                0.00894
             ],
             "strategy": "CUBE"
         },
@@ -11246,9 +12196,9 @@
         "tail": {
             "cube_name": "joint-r-foot-2",
             "default_position": [
-                -0.1886046826839447,
-                -0.2162124216556549,
-                0.0164524856954813
+                -0.1886,
+                -0.21621,
+                0.01645
             ],
             "strategy": "CUBE"
         },
@@ -11261,8 +12211,8 @@
             "cube_name": "joint-tongue-4",
             "default_position": [
                 0.0,
-                -0.13439664244651794,
-                1.481359601020813
+                -0.1344,
+                1.48136
             ],
             "strategy": "CUBE"
         },
@@ -11308,8 +12258,8 @@
             "cube_name": "joint-tongue-3",
             "default_position": [
                 0.0,
-                -0.1180575042963028,
-                1.4903417825698853
+                -0.11806,
+                1.49034
             ],
             "strategy": "CUBE"
         },
@@ -11322,8 +12272,8 @@
             "cube_name": "joint-tongue-3",
             "default_position": [
                 0.0,
-                -0.1180575042963028,
-                1.4903417825698853
+                -0.11806,
+                1.49034
             ],
             "strategy": "CUBE"
         },
@@ -11369,8 +12319,8 @@
             "cube_name": "joint-tongue-2",
             "default_position": [
                 0.0,
-                -0.0978148803114891,
-                1.4905234575271606
+                -0.09781,
+                1.49052
             ],
             "strategy": "CUBE"
         },
@@ -11383,8 +12333,8 @@
             "cube_name": "joint-tongue-2",
             "default_position": [
                 0.0,
-                -0.0978148803114891,
-                1.4905234575271606
+                -0.09781,
+                1.49052
             ],
             "strategy": "CUBE"
         },
@@ -11430,8 +12380,8 @@
             "cube_name": "joint-tongue-1",
             "default_position": [
                 0.0,
-                -0.06894812732934952,
-                1.486832618713379
+                -0.06895,
+                1.48683
             ],
             "strategy": "CUBE"
         },
@@ -11443,9 +12393,9 @@
         "head": {
             "cube_name": "joint-l-shoulder",
             "default_position": [
-                0.1700163632631302,
-                -0.019264277070760727,
-                1.3201014995574951
+                0.17002,
+                -0.01926,
+                1.3201
             ],
             "strategy": "CUBE"
         },
@@ -11559,13 +12509,13 @@
             },
             "rigify_type": "limbs.super_limb"
         },
-        "roll": 2.0724000930786133,
+        "roll": 2.0724,
         "tail": {
             "cube_name": "joint-l-elbow",
             "default_position": [
-                0.3311667740345001,
-                -0.020057059824466705,
-                1.1395602226257324
+                0.33117,
+                -0.02006,
+                1.13956
             ],
             "strategy": "CUBE"
         },
@@ -11577,9 +12527,9 @@
         "head": {
             "cube_name": "joint-r-shoulder",
             "default_position": [
-                -0.1700163632631302,
-                -0.019264277070760727,
-                1.3201014995574951
+                -0.17002,
+                -0.01926,
+                1.3201
             ],
             "strategy": "CUBE"
         },
@@ -11693,13 +12643,13 @@
             },
             "rigify_type": "limbs.super_limb"
         },
-        "roll": -2.0724000930786133,
+        "roll": -2.0724,
         "tail": {
             "cube_name": "joint-r-elbow",
             "default_position": [
-                -0.3311667740345001,
-                -0.020057059824466705,
-                1.1395602226257324
+                -0.33117,
+                -0.02006,
+                1.13956
             ],
             "strategy": "CUBE"
         },

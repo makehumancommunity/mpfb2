@@ -34,6 +34,7 @@ class MPFB_PT_Add_Rig_Panel(Abstract_Panel):
     def _add_rigify_rig(self, scene, layout):
         box = self.create_box(layout, "Add rigify rig")
         props = [
+            "rigify_rig",
             "import_weights_rigify"
             ]
         ADD_RIG_PROPERTIES.draw_properties(scene, box, props)
@@ -66,7 +67,7 @@ class MPFB_PT_Add_Rig_Panel(Abstract_Panel):
             self._add_rigify_rig(scene, layout)
         else:
             rig_type = RigService.identify_rig(armature_object)
-            if "rigify_meta" in rig_type:
+            if rig_type.startswith("rigify."):
                 self._generate_rigify_rig(scene, layout)
 
 ClassManager.add_class(MPFB_PT_Add_Rig_Panel)

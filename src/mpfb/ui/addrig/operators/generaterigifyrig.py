@@ -22,7 +22,7 @@ class MPFB_OT_GenerateRigifyRigOperator(bpy.types.Operator):
             if not ObjectService.object_is_skeleton(context.active_object):
                 return False
             rig_type = RigService.identify_rig(context.active_object)
-            return "rigify_meta" in rig_type
+            return rig_type.startswith("rigify.")
         return False
 
     def _delete_vertex_group(self, context, blender_object, vgroup_name):
@@ -94,6 +94,10 @@ class MPFB_OT_GenerateRigifyRigOperator(bpy.types.Operator):
                 armature_object.data.rigify_rig_basename = target_name
             else:
                 armature_object.name = target_name
+
+        # Switch to the new face rig
+        if bpy.ops.pose.rigify_upgrade_face.poll():
+            bpy.ops.pose.rigify_upgrade_face()
 
         bpy.ops.pose.rigify_generate()
         rigify_object = context.active_object

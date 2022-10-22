@@ -267,8 +267,8 @@ class ClothesService:
         group_name_to_index = dict()
         group_index_to_name = dict()
         for group in basemesh.vertex_groups:
-            # Force interpolation of rigify deform groups even if no bone in metarig
-            if group.name.startswith("DEF-"):
+            # Force interpolation of rigify deform groups or masks even if no bone in metarig
+            if group.name.startswith("DEF-") or group.name.startswith("mhmask-"):
                 clothes_weights[str(group.name)] = []
 
             if str(group.name) in clothes_weights:
@@ -300,16 +300,16 @@ class ClothesService:
                     idx = group.group
                     if idx in group_index_to_name:
                         if not idx in groups:
-                            groups[idx] = []
+                            groups[idx] = 0
                         # Add the calculated weight to the list of found weights
                         #
                         # Human vertex group weight * Human vertex weight
-                        groups[idx].append(group.weight * assigned_weight)
+                        groups[idx] += group.weight * assigned_weight
 
             # Iterate over all found vertex groups for the current clothes vertex
             # and calculcate the average weight for each group
             for idx in groups.keys():
-                average_weight = sum(groups[idx]) / len(groups[idx])
+                average_weight = groups[idx] / sum(clothes_vert["weights"])
                 # If the caculated average weight is below 0.001 we will ignore it. This
                 # makes the interpolation much faster later on
                 if average_weight > 0.001:

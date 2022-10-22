@@ -53,6 +53,7 @@ class MPFB_OT_AddStandardRigOperator(bpy.types.Operator):
             with open(weights_file, 'r') as json_file:
                 weights = json.load(json_file)
             RigService.apply_weights(armature_object, basemesh, weights)
+            RigService.ensure_armature_modifier(basemesh, armature_object)
 
         RigService.normalize_rotation_mode(armature_object)
 

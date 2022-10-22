@@ -6,6 +6,7 @@ from mpfb.services.logservice import LogService
 from mpfb.services.objectservice import ObjectService
 from mpfb.services.materialservice import MaterialService
 from mpfb.services.clothesservice import ClothesService
+from mpfb.services.rigservice import RigService
 from mpfb.entities.clothes.mhclo import Mhclo
 from mpfb.entities.socketobject import ALL_EXTRA_GROUPS
 from mpfb.entities.objectproperties import GeneralObjectProperties
@@ -105,10 +106,9 @@ class MPFB_OT_Load_Library_Proxy_Operator(bpy.types.Operator):
         if set_up_rigging:
             clothes.location = (0.0, 0.0, 0.0)
             clothes.parent = rig
-            modifier = clothes.modifiers.new("Armature", 'ARMATURE')
-            modifier.object = rig
             if interpolate_weights:
                 ClothesService.interpolate_weights(basemesh, clothes, rig, mhclo)
+            RigService.ensure_armature_modifier(clothes, rig, move_to_top=False)
 
         if add_subdiv_modifier:
             modifier = clothes.modifiers.new("Subdivision", 'SUBSURF')
