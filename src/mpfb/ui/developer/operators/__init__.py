@@ -17,6 +17,7 @@ from .loadweights import MPFB_OT_Load_Weights_Operator
 from .saverigifylayers import MPFB_OT_Save_Rigify_Layers_Operator
 from .loadrigifylayers import MPFB_OT_Load_Rigify_Layers_Operator
 from .printnodegroup import MPFB_OT_Print_Node_Group_Operator
+from .create_molecules import MPFB_OT_Create_Molecules_Operator
 
 __all__ = [
     "MPFB_OT_List_Log_Levels_Operator",
@@ -30,5 +31,6 @@ __all__ = [
     "MPFB_OT_Load_Weights_Operator",
     "MPFB_OT_Load_Rigify_Layers_Operator",
     "MPFB_OT_Save_Rigify_Layers_Operator",
-    "MPFB_OT_Print_Node_Group_Operator"
+    "MPFB_OT_Print_Node_Group_Operator",
+    "MPFB_OT_Create_Molecules_Operator"
     ]

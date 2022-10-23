@@ -1,0 +1,7 @@
+{
+    "type": "string",
+    "name": "output_class_name",
+    "description": "What should the generated class be called?",
+    "label": "Class name",
+    "default": "MpfbNewMolecule"
+}

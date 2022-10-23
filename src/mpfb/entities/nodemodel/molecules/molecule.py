@@ -4,6 +4,7 @@ from mpfb.entities.nodemodel.atoms import AtomNodeManager
 import bpy
 
 _LOG = LogService.get_logger("nodemodel.molecule")
+_LOG.set_level(LogService.DEBUG)
 
 _SOCKET_TYPES=[
     "NodeSocketBool",
@@ -83,6 +84,8 @@ class Molecule(AtomNodeManager):
         if not socket_type in _SOCKET_TYPES:
             raise ValueError("Illegal socket type")
         socket = self.node_tree.outputs.new(name=name, type=socket_type)
+        if not default_value is None:
+            socket.default_value=default_value
         return socket
 
     def add_link(self, output_node, output_socket_name, input_node, input_socket_name):
@@ -91,20 +94,36 @@ class Molecule(AtomNodeManager):
         input_socket = None
 
         for socket in output_node.outputs:
-            print("OUTPUT " + output_socket_name + " " + socket.identifier)
-            if socket.identifier == output_socket_name or socket.name == output_socket_name:
+            #print("OUTPUT " + output_socket_name + " " + socket.identifier)
+            if socket.identifier == output_socket_name:
                 output_socket = socket
                 break
 
+        if not output_socket:
+            for socket in output_node.outputs:
+                #print("OUTPUT " + output_socket_name + " " + socket.identifier)
+                if socket.name == output_socket_name:
+                    output_socket = socket
+                    break
+
         for socket in input_node.inputs:
-            print("INPUT '" + str(input_socket_name) + "' '" + str(socket.identifier) + "'")
-            if socket.identifier == input_socket_name or socket.name == input_socket_name:
+            #print("INPUT '" + str(input_socket_name) + "' '" + str(socket.identifier) + "'")
+            if socket.identifier == input_socket_name:
                 input_socket = socket
                 break
+
+        if not input_socket:
+            for socket in input_node.inputs:
+                #print("INPUT '" + str(input_socket_name) + "' '" + str(socket.identifier) + "'")
+                if socket.name == input_socket_name:
+                    input_socket = socket
+                    break
 
         if not output_socket:
             raise ValueError("Output socket " + output_socket_name + " does not exist on " + str(output_node))
         if not input_socket:
             raise ValueError("Input socket " + input_socket_name + " does not exist on " + str(input_node))
+
+        _LOG.debug("will create new link", (output_socket, input_socket))
 
         self.node_tree.links.new(output_socket, input_socket)
