@@ -5,7 +5,7 @@
             "allowed_values": [],
             "class": "unknown",
             "name": "color_mapping",
-            "sample_value": "<bpy_struct, ColorMapping at 0x7f64191b9c98>"
+            "sample_value": "<bpy_struct, ColorMapping at 0x7ff28809d098>"
         },
         {
             "allowed_values": [],
@@ -17,7 +17,7 @@
             "allowed_values": [],
             "class": "unknown",
             "name": "texture_mapping",
-            "sample_value": "<bpy_struct, TexMapping at 0x7f64191b9c08>"
+            "sample_value": "<bpy_struct, TexMapping at 0x7ff28809d008>"
         }
     ],
     "class": "ShaderNodeTexGradient",
@@ -35,12 +35,14 @@
             "class": "NodeSocketColor",
             "identifier": "Color",
             "index": 0,
+            "list_as_argument": false,
             "name": "Color"
         },
         {
             "class": "NodeSocketFloat",
             "identifier": "Fac",
             "index": 1,
+            "list_as_argument": false,
             "name": "Fac"
         }
     ]
@@ -49,6 +51,7 @@ def createShaderNodeTexGradient(self, name=None, color=None, label=None, x=None,
     node_def = dict()
     node_def["attributes"] = dict()
     node_def["inputs"] = dict()
+    node_def["outputs"] = dict()
     node_def["class"] = "ShaderNodeTexGradient"
     node_def["name"] = name
     node_def["color"] = color

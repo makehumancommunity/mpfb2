@@ -28,6 +28,7 @@
             "class": "NodeSocketShader",
             "identifier": "BSDF",
             "index": 0,
+            "list_as_argument": false,
             "name": "BSDF"
         }
     ]
@@ -36,6 +37,7 @@ def createShaderNodeBsdfTranslucent(self, name=None, color=None, label=None, x=N
     node_def = dict()
     node_def["attributes"] = dict()
     node_def["inputs"] = dict()
+    node_def["outputs"] = dict()
     node_def["class"] = "ShaderNodeBsdfTranslucent"
     node_def["name"] = name
     node_def["color"] = color

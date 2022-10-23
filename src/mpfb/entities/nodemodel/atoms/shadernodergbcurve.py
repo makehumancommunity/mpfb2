@@ -5,7 +5,7 @@
             "allowed_values": [],
             "class": "unknown",
             "name": "mapping",
-            "sample_value": "<bpy_struct, CurveMapping at 0x7f6416b93988>"
+            "sample_value": "<bpy_struct, CurveMapping at 0x7ff288186788>"
         }
     ],
     "class": "ShaderNodeRGBCurve",
@@ -29,6 +29,7 @@
             "class": "NodeSocketColor",
             "identifier": "Color",
             "index": 0,
+            "list_as_argument": false,
             "name": "Color"
         }
     ]
@@ -37,6 +38,7 @@ def createShaderNodeRGBCurve(self, name=None, color=None, label=None, x=None, y=
     node_def = dict()
     node_def["attributes"] = dict()
     node_def["inputs"] = dict()
+    node_def["outputs"] = dict()
     node_def["class"] = "ShaderNodeRGBCurve"
     node_def["name"] = name
     node_def["color"] = color

@@ -47,12 +47,14 @@
             "class": "NodeSocketColor",
             "identifier": "Color",
             "index": 0,
+            "list_as_argument": false,
             "name": "Color"
         },
         {
             "class": "NodeSocketFloat",
             "identifier": "AO",
             "index": 1,
+            "list_as_argument": false,
             "name": "AO"
         }
     ]
@@ -61,6 +63,7 @@ def createShaderNodeAmbientOcclusion(self, name=None, color=None, label=None, x=
     node_def = dict()
     node_def["attributes"] = dict()
     node_def["inputs"] = dict()
+    node_def["outputs"] = dict()
     node_def["class"] = "ShaderNodeAmbientOcclusion"
     node_def["name"] = name
     node_def["color"] = color

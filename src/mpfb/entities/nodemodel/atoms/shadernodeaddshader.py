@@ -22,6 +22,7 @@
             "class": "NodeSocketShader",
             "identifier": "Shader",
             "index": 0,
+            "list_as_argument": false,
             "name": "Shader"
         }
     ]
@@ -30,6 +31,7 @@ def createShaderNodeAddShader(self, name=None, color=None, label=None, x=None, y
     node_def = dict()
     node_def["attributes"] = dict()
     node_def["inputs"] = dict()
+    node_def["outputs"] = dict()
     node_def["class"] = "ShaderNodeAddShader"
     node_def["name"] = name
     node_def["color"] = color

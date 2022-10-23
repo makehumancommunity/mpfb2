@@ -5,7 +5,7 @@
             "allowed_values": [],
             "class": "unknown",
             "name": "color_mapping",
-            "sample_value": "<bpy_struct, ColorMapping at 0x7f6457e74998>"
+            "sample_value": "<bpy_struct, ColorMapping at 0x7ff2954e8598>"
         },
         {
             "allowed_values": [],
@@ -23,7 +23,7 @@
             "allowed_values": [],
             "class": "unknown",
             "name": "image_user",
-            "sample_value": "<bpy_struct, ImageUser at 0x7f6457e74cc8>"
+            "sample_value": "<bpy_struct, ImageUser at 0x7ff2954e88c8>"
         },
         {
             "allowed_values": [],
@@ -47,7 +47,7 @@
             "allowed_values": [],
             "class": "unknown",
             "name": "texture_mapping",
-            "sample_value": "<bpy_struct, TexMapping at 0x7f6457e74908>"
+            "sample_value": "<bpy_struct, TexMapping at 0x7ff2954e8508>"
         }
     ],
     "class": "ShaderNodeTexImage",
@@ -65,12 +65,14 @@
             "class": "NodeSocketColor",
             "identifier": "Color",
             "index": 0,
+            "list_as_argument": false,
             "name": "Color"
         },
         {
             "class": "NodeSocketFloat",
             "identifier": "Alpha",
             "index": 1,
+            "list_as_argument": false,
             "name": "Alpha"
         }
     ]
@@ -79,6 +81,7 @@ def createShaderNodeTexImage(self, name=None, color=None, label=None, x=None, y=
     node_def = dict()
     node_def["attributes"] = dict()
     node_def["inputs"] = dict()
+    node_def["outputs"] = dict()
     node_def["class"] = "ShaderNodeTexImage"
     node_def["name"] = name
     node_def["color"] = color

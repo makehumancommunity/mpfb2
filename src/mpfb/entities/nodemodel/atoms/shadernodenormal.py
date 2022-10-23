@@ -16,12 +16,14 @@
             "class": "NodeSocketVectorDirection",
             "identifier": "Normal",
             "index": 0,
+            "list_as_argument": false,
             "name": "Normal"
         },
         {
             "class": "NodeSocketFloat",
             "identifier": "Dot",
             "index": 1,
+            "list_as_argument": false,
             "name": "Dot"
         }
     ]
@@ -30,6 +32,7 @@ def createShaderNodeNormal(self, name=None, color=None, label=None, x=None, y=No
     node_def = dict()
     node_def["attributes"] = dict()
     node_def["inputs"] = dict()
+    node_def["outputs"] = dict()
     node_def["class"] = "ShaderNodeNormal"
     node_def["name"] = name
     node_def["color"] = color

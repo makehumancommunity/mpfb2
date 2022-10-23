@@ -5,7 +5,7 @@
             "allowed_values": [],
             "class": "unknown",
             "name": "color_ramp",
-            "sample_value": "<bpy_struct, ColorRamp at 0x7f6419411188>"
+            "sample_value": "<bpy_struct, ColorRamp at 0x7ff2a7d38a08>"
         }
     ],
     "class": "ShaderNodeValToRGB",
@@ -23,12 +23,14 @@
             "class": "NodeSocketColor",
             "identifier": "Color",
             "index": 0,
+            "list_as_argument": false,
             "name": "Color"
         },
         {
             "class": "NodeSocketFloat",
             "identifier": "Alpha",
             "index": 1,
+            "list_as_argument": false,
             "name": "Alpha"
         }
     ]
@@ -37,6 +39,7 @@ def createShaderNodeValToRGB(self, name=None, color=None, label=None, x=None, y=
     node_def = dict()
     node_def["attributes"] = dict()
     node_def["inputs"] = dict()
+    node_def["outputs"] = dict()
     node_def["class"] = "ShaderNodeValToRGB"
     node_def["name"] = name
     node_def["color"] = color

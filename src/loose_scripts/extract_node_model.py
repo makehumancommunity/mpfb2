@@ -62,6 +62,10 @@ blacklisted = [
     'width_hidden'
     ]
 
+types_with_output_default_values = [
+    "ShaderNodeValue"
+    ]
+
 exclude = []    
 
 alltypes = []
@@ -116,6 +120,7 @@ for n in nodeclasses:
             outputdef["index"] = i
             outputdef["identifier"] = output.identifier
             outputdef["class"] = str(output.__class__.__name__)
+            outputdef["list_as_argument"] = shadertype["class"] in types_with_output_default_values
             shadertype["outputs"].append(outputdef)
             i = i + 1
                 
@@ -163,11 +168,19 @@ class AtomNodeManager(InternalNodeManager):
                 if name != input["name"]:
                     translations[name] = input["identifier"]
                 class_file.write(", " + name + "=None")
+
+            for output in shadertype["outputs"]:
+                if output["list_as_argument"]:
+                    name = output["identifier"].replace(".", "_").replace(" ", "_")
+                    if name != output["name"]:
+                        translations[name] = output["identifier"]
+                    class_file.write(", " + name + "=None")
                 
             class_file.write("):\n")
             class_file.write("    node_def = dict()\n")
             class_file.write("    node_def[\"attributes\"] = dict()\n")            
-            class_file.write("    node_def[\"inputs\"] = dict()\n")                        
+            class_file.write("    node_def[\"inputs\"] = dict()\n")
+            class_file.write("    node_def[\"outputs\"] = dict()\n")                          
             class_file.write("    node_def[\"class\"] = \"" + class_name + "\"\n")
             class_file.write("    node_def[\"name\"] = name\n")         
             class_file.write("    node_def[\"color\"] = color\n")
@@ -189,10 +202,15 @@ class AtomNodeManager(InternalNodeManager):
                 original_name = name
                 if name in translations:
                     original_name = translations[name]
-                class_file.write("    node_def[\"inputs\"][\"" + original_name + "\"] = " + name + "\n")
-                
-            if "Math" in class_name:
-                print(translations)
+                class_file.write("    node_def[\"inputs\"][\"" + original_name + "\"] = " + name + "\n")                
+
+            for output in shadertype["outputs"]:
+                if output["list_as_argument"]:
+                    name = output["identifier"].replace(".", "_").replace(" ", "_")
+                    original_name = name
+                    if name in translations:
+                        original_name = translations[name]
+                    class_file.write("    node_def[\"outputs\"][\"" + original_name + "\"] = " + name + "\n")                
                 
             class_file.write("\n")
             class_file.write("    return self._create_node(node_def)\n")

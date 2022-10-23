@@ -9,18 +9,21 @@
             "class": "NodeSocketVector",
             "identifier": "View Vector",
             "index": 0,
+            "list_as_argument": false,
             "name": "View Vector"
         },
         {
             "class": "NodeSocketFloat",
             "identifier": "View Z Depth",
             "index": 1,
+            "list_as_argument": false,
             "name": "View Z Depth"
         },
         {
             "class": "NodeSocketFloat",
             "identifier": "View Distance",
             "index": 2,
+            "list_as_argument": false,
             "name": "View Distance"
         }
     ]
@@ -29,6 +32,7 @@ def createShaderNodeCameraData(self, name=None, color=None, label=None, x=None, 
     node_def = dict()
     node_def["attributes"] = dict()
     node_def["inputs"] = dict()
+    node_def["outputs"] = dict()
     node_def["class"] = "ShaderNodeCameraData"
     node_def["name"] = name
     node_def["color"] = color

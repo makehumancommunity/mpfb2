@@ -5,13 +5,13 @@
             "allowed_values": [],
             "class": "unknown",
             "name": "color_mapping",
-            "sample_value": "<bpy_struct, ColorMapping at 0x7f64191bd098>"
+            "sample_value": "<bpy_struct, ColorMapping at 0x7ff28809d498>"
         },
         {
             "allowed_values": [],
             "class": "unknown",
             "name": "texture_mapping",
-            "sample_value": "<bpy_struct, TexMapping at 0x7f64191bd008>"
+            "sample_value": "<bpy_struct, TexMapping at 0x7ff28809d408>"
         },
         {
             "allowed_values": [],
@@ -47,12 +47,14 @@
             "class": "NodeSocketColor",
             "identifier": "Color",
             "index": 0,
+            "list_as_argument": false,
             "name": "Color"
         },
         {
             "class": "NodeSocketFloat",
             "identifier": "Fac",
             "index": 1,
+            "list_as_argument": false,
             "name": "Fac"
         }
     ]
@@ -61,6 +63,7 @@ def createShaderNodeTexMagic(self, name=None, color=None, label=None, x=None, y=
     node_def = dict()
     node_def["attributes"] = dict()
     node_def["inputs"] = dict()
+    node_def["outputs"] = dict()
     node_def["class"] = "ShaderNodeTexMagic"
     node_def["name"] = name
     node_def["color"] = color

@@ -8,7 +8,7 @@ class AtomNodeManager(InternalNodeManager):
     def __init__(self, node_tree):
         _LOG.trace("Constructing AtomNodeManager with node_tree", node_tree)
         InternalNodeManager.__init__(self, node_tree)
-
+    
 from .shadernodetexcoord import createShaderNodeTexCoord
 from .shadernodeattribute import createShaderNodeAttribute
 from .shadernodelightpath import createShaderNodeLightPath

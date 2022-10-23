@@ -22,24 +22,28 @@
             "class": "NodeSocketColor",
             "identifier": "Color",
             "index": 0,
+            "list_as_argument": false,
             "name": "Color"
         },
         {
             "class": "NodeSocketVector",
             "identifier": "Vector",
             "index": 1,
+            "list_as_argument": false,
             "name": "Vector"
         },
         {
             "class": "NodeSocketFloat",
             "identifier": "Fac",
             "index": 2,
+            "list_as_argument": false,
             "name": "Fac"
         },
         {
             "class": "NodeSocketFloat",
             "identifier": "Alpha",
             "index": 3,
+            "list_as_argument": false,
             "name": "Alpha"
         }
     ]
@@ -48,6 +52,7 @@ def createShaderNodeAttribute(self, name=None, color=None, label=None, x=None, y
     node_def = dict()
     node_def["attributes"] = dict()
     node_def["inputs"] = dict()
+    node_def["outputs"] = dict()
     node_def["class"] = "ShaderNodeAttribute"
     node_def["name"] = name
     node_def["color"] = color

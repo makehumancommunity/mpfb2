@@ -22,6 +22,7 @@
             "class": "NodeSocketColor",
             "identifier": "Color",
             "index": 0,
+            "list_as_argument": false,
             "name": "Color"
         }
     ]
@@ -30,6 +31,7 @@ def createShaderNodeGamma(self, name=None, color=None, label=None, x=None, y=Non
     node_def = dict()
     node_def["attributes"] = dict()
     node_def["inputs"] = dict()
+    node_def["outputs"] = dict()
     node_def["class"] = "ShaderNodeGamma"
     node_def["name"] = name
     node_def["color"] = color

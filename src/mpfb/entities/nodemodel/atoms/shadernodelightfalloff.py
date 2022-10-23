@@ -22,18 +22,21 @@
             "class": "NodeSocketFloat",
             "identifier": "Quadratic",
             "index": 0,
+            "list_as_argument": false,
             "name": "Quadratic"
         },
         {
             "class": "NodeSocketFloat",
             "identifier": "Linear",
             "index": 1,
+            "list_as_argument": false,
             "name": "Linear"
         },
         {
             "class": "NodeSocketFloat",
             "identifier": "Constant",
             "index": 2,
+            "list_as_argument": false,
             "name": "Constant"
         }
     ]
@@ -42,6 +45,7 @@ def createShaderNodeLightFalloff(self, name=None, color=None, label=None, x=None
     node_def = dict()
     node_def["attributes"] = dict()
     node_def["inputs"] = dict()
+    node_def["outputs"] = dict()
     node_def["class"] = "ShaderNodeLightFalloff"
     node_def["name"] = name
     node_def["color"] = color

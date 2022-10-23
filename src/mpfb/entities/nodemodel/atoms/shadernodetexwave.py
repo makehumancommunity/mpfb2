@@ -11,7 +11,7 @@
             "allowed_values": [],
             "class": "unknown",
             "name": "color_mapping",
-            "sample_value": "<bpy_struct, ColorMapping at 0x7f64191b9098>"
+            "sample_value": "<bpy_struct, ColorMapping at 0x7ff288097498>"
         },
         {
             "allowed_values": [],
@@ -23,7 +23,7 @@
             "allowed_values": [],
             "class": "unknown",
             "name": "texture_mapping",
-            "sample_value": "<bpy_struct, TexMapping at 0x7f64191b9008>"
+            "sample_value": "<bpy_struct, TexMapping at 0x7ff288097408>"
         },
         {
             "allowed_values": [],
@@ -89,12 +89,14 @@
             "class": "NodeSocketColor",
             "identifier": "Color",
             "index": 0,
+            "list_as_argument": false,
             "name": "Color"
         },
         {
             "class": "NodeSocketFloat",
             "identifier": "Fac",
             "index": 1,
+            "list_as_argument": false,
             "name": "Fac"
         }
     ]
@@ -103,6 +105,7 @@ def createShaderNodeTexWave(self, name=None, color=None, label=None, x=None, y=N
     node_def = dict()
     node_def["attributes"] = dict()
     node_def["inputs"] = dict()
+    node_def["outputs"] = dict()
     node_def["class"] = "ShaderNodeTexWave"
     node_def["name"] = name
     node_def["color"] = color

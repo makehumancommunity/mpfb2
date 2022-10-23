@@ -16,18 +16,21 @@
             "class": "NodeSocketFloat",
             "identifier": "X",
             "index": 0,
+            "list_as_argument": false,
             "name": "X"
         },
         {
             "class": "NodeSocketFloat",
             "identifier": "Y",
             "index": 1,
+            "list_as_argument": false,
             "name": "Y"
         },
         {
             "class": "NodeSocketFloat",
             "identifier": "Z",
             "index": 2,
+            "list_as_argument": false,
             "name": "Z"
         }
     ]
@@ -36,6 +39,7 @@ def createShaderNodeSeparateXYZ(self, name=None, color=None, label=None, x=None,
     node_def = dict()
     node_def["attributes"] = dict()
     node_def["inputs"] = dict()
+    node_def["outputs"] = dict()
     node_def["class"] = "ShaderNodeSeparateXYZ"
     node_def["name"] = name
     node_def["color"] = color

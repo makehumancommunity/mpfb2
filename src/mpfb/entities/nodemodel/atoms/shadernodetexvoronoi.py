@@ -5,7 +5,7 @@
             "allowed_values": [],
             "class": "unknown",
             "name": "color_mapping",
-            "sample_value": "<bpy_struct, ColorMapping at 0x7f64191b9498>"
+            "sample_value": "<bpy_struct, ColorMapping at 0x7ff288097898>"
         },
         {
             "allowed_values": [],
@@ -23,7 +23,7 @@
             "allowed_values": [],
             "class": "unknown",
             "name": "texture_mapping",
-            "sample_value": "<bpy_struct, TexMapping at 0x7f64191b9408>"
+            "sample_value": "<bpy_struct, TexMapping at 0x7ff288097808>"
         },
         {
             "allowed_values": [],
@@ -77,30 +77,35 @@
             "class": "NodeSocketFloat",
             "identifier": "Distance",
             "index": 0,
+            "list_as_argument": false,
             "name": "Distance"
         },
         {
             "class": "NodeSocketColor",
             "identifier": "Color",
             "index": 1,
+            "list_as_argument": false,
             "name": "Color"
         },
         {
             "class": "NodeSocketVector",
             "identifier": "Position",
             "index": 2,
+            "list_as_argument": false,
             "name": "Position"
         },
         {
             "class": "NodeSocketFloat",
             "identifier": "W",
             "index": 3,
+            "list_as_argument": false,
             "name": "W"
         },
         {
             "class": "NodeSocketFloat",
             "identifier": "Radius",
             "index": 4,
+            "list_as_argument": false,
             "name": "Radius"
         }
     ]
@@ -109,6 +114,7 @@ def createShaderNodeTexVoronoi(self, name=None, color=None, label=None, x=None, 
     node_def = dict()
     node_def["attributes"] = dict()
     node_def["inputs"] = dict()
+    node_def["outputs"] = dict()
     node_def["class"] = "ShaderNodeTexVoronoi"
     node_def["name"] = name
     node_def["color"] = color

@@ -5,7 +5,7 @@
             "allowed_values": [],
             "class": "unknown",
             "name": "mapping",
-            "sample_value": "<bpy_struct, CurveMapping at 0x7f6416b94408>"
+            "sample_value": "<bpy_struct, CurveMapping at 0x7ff288187208>"
         }
     ],
     "class": "ShaderNodeVectorCurve",
@@ -29,6 +29,7 @@
             "class": "NodeSocketVector",
             "identifier": "Vector",
             "index": 0,
+            "list_as_argument": false,
             "name": "Vector"
         }
     ]
@@ -37,6 +38,7 @@ def createShaderNodeVectorCurve(self, name=None, color=None, label=None, x=None,
     node_def = dict()
     node_def["attributes"] = dict()
     node_def["inputs"] = dict()
+    node_def["outputs"] = dict()
     node_def["class"] = "ShaderNodeVectorCurve"
     node_def["name"] = name
     node_def["color"] = color

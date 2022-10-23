@@ -41,6 +41,7 @@
             "class": "NodeSocketVector",
             "identifier": "Vector",
             "index": 0,
+            "list_as_argument": false,
             "name": "Vector"
         }
     ]
@@ -49,6 +50,7 @@ def createShaderNodeMapping(self, name=None, color=None, label=None, x=None, y=N
     node_def = dict()
     node_def["attributes"] = dict()
     node_def["inputs"] = dict()
+    node_def["outputs"] = dict()
     node_def["class"] = "ShaderNodeMapping"
     node_def["name"] = name
     node_def["color"] = color

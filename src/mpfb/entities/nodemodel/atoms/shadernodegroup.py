@@ -5,7 +5,7 @@
             "allowed_values": [],
             "class": "unknown",
             "name": "interface",
-            "sample_value": "<bpy_struct, PropertyGroup(\"\") at 0x7f6417b157c8>"
+            "sample_value": "<bpy_struct, PropertyGroup(\"\") at 0x7ff288124008>"
         },
         {
             "allowed_values": [],
@@ -23,6 +23,7 @@ def createShaderNodeGroup(self, name=None, color=None, label=None, x=None, y=Non
     node_def = dict()
     node_def["attributes"] = dict()
     node_def["inputs"] = dict()
+    node_def["outputs"] = dict()
     node_def["class"] = "ShaderNodeGroup"
     node_def["name"] = name
     node_def["color"] = color

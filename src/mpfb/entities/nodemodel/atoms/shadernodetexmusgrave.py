@@ -5,7 +5,7 @@
             "allowed_values": [],
             "class": "unknown",
             "name": "color_mapping",
-            "sample_value": "<bpy_struct, ColorMapping at 0x7f64191b9898>"
+            "sample_value": "<bpy_struct, ColorMapping at 0x7ff288097c98>"
         },
         {
             "allowed_values": [],
@@ -23,7 +23,7 @@
             "allowed_values": [],
             "class": "unknown",
             "name": "texture_mapping",
-            "sample_value": "<bpy_struct, TexMapping at 0x7f64191b9808>"
+            "sample_value": "<bpy_struct, TexMapping at 0x7ff288097c08>"
         }
     ],
     "class": "ShaderNodeTexMusgrave",
@@ -83,6 +83,7 @@
             "class": "NodeSocketFloat",
             "identifier": "Fac",
             "index": 0,
+            "list_as_argument": false,
             "name": "Fac"
         }
     ]
@@ -91,6 +92,7 @@ def createShaderNodeTexMusgrave(self, name=None, color=None, label=None, x=None,
     node_def = dict()
     node_def["attributes"] = dict()
     node_def["inputs"] = dict()
+    node_def["outputs"] = dict()
     node_def["class"] = "ShaderNodeTexMusgrave"
     node_def["name"] = name
     node_def["color"] = color

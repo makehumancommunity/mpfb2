@@ -17,7 +17,7 @@
             "allowed_values": [],
             "class": "unknown",
             "name": "color_mapping",
-            "sample_value": "<bpy_struct, ColorMapping at 0x7f64543a2b98>"
+            "sample_value": "<bpy_struct, ColorMapping at 0x7ff2c4323398>"
         },
         {
             "allowed_values": [],
@@ -83,7 +83,7 @@
             "allowed_values": [],
             "class": "unknown",
             "name": "texture_mapping",
-            "sample_value": "<bpy_struct, TexMapping at 0x7f64543a2b08>"
+            "sample_value": "<bpy_struct, TexMapping at 0x7ff2c4323308>"
         },
         {
             "allowed_values": [],
@@ -107,6 +107,7 @@
             "class": "NodeSocketColor",
             "identifier": "Color",
             "index": 0,
+            "list_as_argument": false,
             "name": "Color"
         }
     ]
@@ -115,6 +116,7 @@ def createShaderNodeTexSky(self, name=None, color=None, label=None, x=None, y=No
     node_def = dict()
     node_def["attributes"] = dict()
     node_def["inputs"] = dict()
+    node_def["outputs"] = dict()
     node_def["class"] = "ShaderNodeTexSky"
     node_def["name"] = name
     node_def["color"] = color
