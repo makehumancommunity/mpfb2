@@ -183,40 +183,39 @@ class ${output_name}(Molecule):
         print(ind + "nodes = dict()\n")
         print(ind + "(nodes[\"Group Input\"], nodes[\"Group Output\"]) = self.create_input_and_output()")
         for node in node_tree.nodes:
-            if node.__class__.__name__ in ["NodeGroupOutput", "NodeGroupInput"]:
-                print(ind + "nodes[\"Group Input\"].location = [" + str(node.location.x) + ", " + str(node.location.y) + "]")
-
-        print("")
-
-        for node in node_tree.nodes:
             if node.__class__.__name__ == "NodeGroupInput":
-                for input in node.outputs:
-                    name = input.name
-                    socket_type = input.__class__.__name__
-                    if socket_type != "NodeSocketVirtual":
-                        line = ind + "self.add_input_socket(\"" + name + "\", socket_type=\"" + socket_type + "\""
-                        if hasattr(input, "default_value"):
-                            value = str(input.default_value)
-                            if type(input.default_value).__name__ == "bpy_prop_array":
-                                value = str(list(input.default_value))
-                            line = line + ", default_value=" + value
-                        line = line + ")"
-                        print(line)
+                print(ind + "nodes[\"Group Input\"].location = [" + str(node.location.x) + ", " + str(node.location.y) + "]")
+            if node.__class__.__name__ == "NodeGroupOutput":
+                print(ind + "nodes[\"Group Output\"].location = [" + str(node.location.x) + ", " + str(node.location.y) + "]")
+
         print("")
 
-        for node in node_tree.nodes:
-            if node.__class__.__name__ == "NodeGroupOutput":
-                for input in node.inputs:
-                    name = input.name
-                    socket_type = input.__class__.__name__
-                    if socket_type != "NodeSocketVirtual":
-                        line = ind + "self.add_output_socket(\"" + name + "\", socket_type=\"" + socket_type + "\""
-                        if hasattr(input, "default_value"):
-                            value = str(input.default_value)
-                            if type(input.default_value).__name__ == "bpy_prop_array":
-                                value = str(list(input.default_value))
-                            line = line + ", default_value=" + value
-                        print(line + ")")
+        for input in group.inputs:
+            name = input.name
+            socket_type = input.__class__.__name__
+            if socket_type != "NodeSocketVirtual":
+                line = ind + "self.add_input_socket(\"" + name + "\", socket_type=\"" + socket_type + "\""
+                if hasattr(input, "default_value"):
+                    value = str(input.default_value)
+                    if type(input.default_value).__name__ == "bpy_prop_array":
+                        value = str(list(input.default_value))
+                    line = line + ", default_value=" + value
+                line = line + ")"
+                print(line)
+
+        print("")
+
+        for input in group.outputs:
+            name = input.name
+            socket_type = input.__class__.__name__
+            if socket_type != "NodeSocketVirtual":
+                line = ind + "self.add_output_socket(\"" + name + "\", socket_type=\"" + socket_type + "\""
+                if hasattr(input, "default_value"):
+                    value = str(input.default_value)
+                    if type(input.default_value).__name__ == "bpy_prop_array":
+                        value = str(list(input.default_value))
+                    line = line + ", default_value=" + value
+                print(line + ")")
 
         print("")
 
@@ -282,11 +281,11 @@ class ${output_name}(Molecule):
             to_socket = link.to_socket
 
             from_name = from_socket.name
-            if hasattr(from_socket, "identifier"):
+            if hasattr(from_socket, "identifier") and not from_node.name == "Group Input":
                 from_name = from_socket.identifier
 
             to_name = to_socket.name
-            if hasattr(to_socket, "identifier"):
+            if hasattr(to_socket, "identifier") and not to_node.name == "Group Output":
                 to_name = to_socket.identifier
 
             line = ind + "self.add_link(nodes[\"" + from_node.name + "\"], \"" + from_name + "\", "

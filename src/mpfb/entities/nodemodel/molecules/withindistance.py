@@ -17,15 +17,18 @@ class MpfbWithinDistance(Molecule):
         nodes = dict()
 
         (nodes["Group Input"], nodes["Group Output"]) = self.create_input_and_output()
+        nodes["Group Output"].location = [392.9463806152344, 41.3276252746582]
+        nodes["Group Input"].location = [-397.9847106933594, 96.76712799072266]
+
         self.add_input_socket("Coordinate1", socket_type="NodeSocketVector", default_value=[0.0, 0.0, 0.0])
         self.add_input_socket("Coordinate2", socket_type="NodeSocketVector", default_value=[0.0, 0.0, 0.0])
         self.add_input_socket("MaxDist", socket_type="NodeSocketFloat", default_value=0.5)
 
-        self.add_output_socket("WithinDistance", socket_type="NodeSocketFloat")
-        self.add_output_socket("ActualDistance", socket_type="NodeSocketFloat")
+        self.add_output_socket("WithinDistance", socket_type="NodeSocketFloat", default_value=0.0)
+        self.add_output_socket("ActualDistance", socket_type="NodeSocketFloat", default_value=0.0)
 
-        nodes["Math"] = self.createShaderNodeMath(name="Math", x=81.0936508178711, y=170.7898406982422, operation='LESS_THAN')
-        nodes["Vector Math"] = self.createShaderNodeVectorMath(name="Vector Math", x=-119.4195785522461, y=-94.73934173583984, operation='DISTANCE')
+        nodes["Vector Math"] = self.createShaderNodeVectorMath(name="Vector Math", x=-157.7106170654297, y=193.54603576660156, Vector=[0.0, 0.0, 0.0], Vector_001=[0.0, 0.0, 0.0], Vector_002=[0.0, 0.0, 0.0], Scale=1.0, operation='DISTANCE')
+        nodes["Math"] = self.createShaderNodeMath(name="Math", x=64.97110748291016, y=30.67911720275879, Value=0.5, Value_001=0.5, Value_002=0.5, operation='LESS_THAN', use_clamp=False)
 
         self.add_link(nodes["Group Input"], "Coordinate1", nodes["Vector Math"], "Vector")
         self.add_link(nodes["Group Input"], "Coordinate2", nodes["Vector Math"], "Vector_001")
