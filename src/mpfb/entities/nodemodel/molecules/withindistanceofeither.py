@@ -20,9 +20,9 @@ class MpfbWithinDistanceOfEither(Molecule):
         nodes["Group Output"].location = [767.79541015625, 159.26255798339844]
         nodes["Group Input"].location = [-826.2396850585938, 74.59132385253906]
 
-        self.add_input_socket("Coordinate1", socket_type="NodeSocketVector", default_value=[0.0, 0.0, 0.0])
-        self.add_input_socket("Coordinate2", socket_type="NodeSocketVector", default_value=[0.0, 0.0, 0.0])
-        self.add_input_socket("TestCoordinate", socket_type="NodeSocketVector", default_value=[0.0, 0.0, 0.0])
+        self.add_input_socket("Position", socket_type="NodeSocketVector", default_value=[0.5, 0.5, 0.0])
+        self.add_input_socket("Coordinate1", socket_type="NodeSocketVector", default_value=[0.25, 0.25, 0.0])
+        self.add_input_socket("Coordinate2", socket_type="NodeSocketVector", default_value=[0.75, 0.75, 0.0])
         self.add_input_socket("MaxDist", socket_type="NodeSocketFloat", default_value=0.1)
 
         self.add_output_socket("WithinDistance", socket_type="NodeSocketFloat", default_value=0.0)
@@ -42,8 +42,8 @@ class MpfbWithinDistanceOfEither(Molecule):
         self.add_link(nodes["DistanceMultInRange1"], "Value", nodes["LeastDistance"], "Value")
         self.add_link(nodes["WithinRange1"], "Value", nodes["InRangeOfEither"], "Value")
         self.add_link(nodes["Distance1"], "Value", nodes["DistanceMultInRange1"], "Value")
-        self.add_link(nodes["Group Input"], "TestCoordinate", nodes["Distance1"], "Vector")
-        self.add_link(nodes["Group Input"], "TestCoordinate", nodes["Distance2"], "Vector")
+        self.add_link(nodes["Group Input"], "Position", nodes["Distance1"], "Vector")
+        self.add_link(nodes["Group Input"], "Position", nodes["Distance2"], "Vector")
         self.add_link(nodes["LeastDistance"], "Value", nodes["Group Output"], "ActualLeastDistance")
         self.add_link(nodes["Group Input"], "Coordinate1", nodes["Distance1"], "Vector_001")
         self.add_link(nodes["Group Input"], "Coordinate2", nodes["Distance2"], "Vector_001")
@@ -55,4 +55,3 @@ class MpfbWithinDistanceOfEither(Molecule):
         self.add_link(nodes["WithinRange2"], "Value", nodes["DistanceMultInRange2"], "Value_001")
         self.add_link(nodes["WithinRange2"], "Value", nodes["InRangeOfEither"], "Value_001")
         self.add_link(nodes["DistanceMultInRange2"], "Value", nodes["LeastDistance"], "Value_001")
-

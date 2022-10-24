@@ -49,6 +49,8 @@ class Molecule(AtomNodeManager):
         AtomNodeManager.__init__(self, self.group)
         if self.need_to_create:
             self.create_group()
+        else:
+            self.update_group()
 
     def _get_or_create_node_tree(self):
         if not self.group_name in bpy.data.node_groups:
@@ -59,6 +61,32 @@ class Molecule(AtomNodeManager):
 
     def create_group(self):
         raise NotImplemented("This method should be overriden by children")
+
+    def update_group(self):
+        _LOG.trace("Update group not overridden")
+
+    def create_instance(self, target_node_tree, **kwargs):
+        _LOG.debug("About to create instance of", self.group.name)
+        _LOG.debug("Kwargs", kwargs)
+        self._get_or_create_node_tree()
+        node = target_node_tree.nodes.new("ShaderNodeGroup")
+        node.node_tree = self.group
+
+        if "x" in kwargs:
+            node.location.x = kwargs["x"]
+        if "y" in kwargs:
+            node.location.x = kwargs["x"]
+        if "name" in kwargs and kwargs["name"]:
+            node.name = kwargs["name"]
+        if "label" in kwargs and kwargs["label"]:
+            node.label = kwargs["label"]
+
+        for input in node.inputs:
+            _LOG.debug("input", input)
+            if input.name in kwargs and not kwargs[input.name] is None:
+                input.default_value = kwargs[input.name]
+
+        return node
 
     def create_input_and_output(self, input_x=-400, input_y=0, output_x=400, output_y=0):
         nodes = self.node_tree.nodes
