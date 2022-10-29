@@ -15,6 +15,7 @@ from .shaderrouter2 import MpfbShaderRouter2
 from .shaderrouter3 import MpfbShaderRouter3
 from .shaderrouter4 import MpfbShaderRouter4
 from .shaderrouter5 import MpfbShaderRouter5
+from .systemvaluetexturesss import MpfbSystemValueTextureSSS
 from .withindistance import MpfbWithinDistance
 from .withindistanceofeither import MpfbWithinDistanceOfEither
 
@@ -35,6 +36,7 @@ class MoleculeNodeManager(AtomNodeManager):
         self._molecule_singletons["MpfbShaderRouter3"] = MpfbShaderRouter3()
         self._molecule_singletons["MpfbShaderRouter4"] = MpfbShaderRouter4()
         self._molecule_singletons["MpfbShaderRouter5"] = MpfbShaderRouter5()
+        self._molecule_singletons["MpfbSystemValueTextureSSS"] = MpfbSystemValueTextureSSS()
         self._molecule_singletons["MpfbWithinDistance"] = MpfbWithinDistance()
         self._molecule_singletons["MpfbWithinDistanceOfEither"] = MpfbWithinDistanceOfEither()
 
