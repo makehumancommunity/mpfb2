@@ -196,7 +196,11 @@ class ${output_name}(Molecule):
             if socket_type != "NodeSocketVirtual":
                 line = ind + "self.add_input_socket(\"" + name + "\", socket_type=\"" + socket_type + "\""
                 if hasattr(input, "default_value"):
-                    value = str(input.default_value)
+                    value = None
+                    if socket_type == "NodeSocketFloat":
+                        value = "{:.3f}".format(input.default_value)
+                    if value is None:
+                        value = str(input.default_value)
                     if type(input.default_value).__name__ == "bpy_prop_array":
                         value = str(list(input.default_value))
                     line = line + ", default_value=" + value
@@ -225,8 +229,8 @@ class ${output_name}(Molecule):
                 line = line + "name=\"" + node.name + "\""
                 if (node.label):
                     line = line + ", label=\"" + node.label + "\""
-                line = line + ", x=" + str(node.location.x)
-                line = line + ", y=" + str(node.location.y)
+                line = line + ", x=" + "{:.3f}".format(node.location.x)
+                line = line + ", y=" + "{:.3f}".format(node.location.y)
 
                 for input in node.inputs:
                     if not hasattr(input, "identifier"):
@@ -237,7 +241,11 @@ class ${output_name}(Molecule):
                     value = None
                     if socket_type != "NodeSocketVirtual":
                         if hasattr(input, "default_value"):
-                            value = str(input.default_value)
+                            value = None
+                            if socket_type == "NodeSocketFloat":
+                                value = "{:.3f}".format(input.default_value)
+                            if value is None:
+                                value = str(input.default_value)
                             if type(input.default_value).__name__ == "bpy_prop_array":
                                 value = str(list(input.default_value))
 
