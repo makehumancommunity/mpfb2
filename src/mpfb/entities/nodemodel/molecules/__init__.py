@@ -15,7 +15,12 @@ from .shaderrouter2 import MpfbShaderRouter2
 from .shaderrouter3 import MpfbShaderRouter3
 from .shaderrouter4 import MpfbShaderRouter4
 from .shaderrouter5 import MpfbShaderRouter5
+from .systemvaluetextureaureolae import MpfbSystemValueTextureAureolae
+from .systemvaluetextureface import MpfbSystemValueTextureFace
+from .systemvaluetexturefingernails import MpfbSystemValueTextureFingernails
+from .systemvaluetexturelips import MpfbSystemValueTextureLips
 from .systemvaluetexturesss import MpfbSystemValueTextureSSS
+from .systemvaluetexturetoenails import MpfbSystemValueTextureToenails
 from .withindistance import MpfbWithinDistance
 from .withindistanceofeither import MpfbWithinDistanceOfEither
 
@@ -36,7 +41,12 @@ class MoleculeNodeManager(AtomNodeManager):
         self._molecule_singletons["MpfbShaderRouter3"] = MpfbShaderRouter3()
         self._molecule_singletons["MpfbShaderRouter4"] = MpfbShaderRouter4()
         self._molecule_singletons["MpfbShaderRouter5"] = MpfbShaderRouter5()
+        self._molecule_singletons["MpfbSystemValueTextureAureolae"] = MpfbSystemValueTextureAureolae()
+        self._molecule_singletons["MpfbSystemValueTextureFace"] = MpfbSystemValueTextureFace()
+        self._molecule_singletons["MpfbSystemValueTextureFingernails"] = MpfbSystemValueTextureFingernails()
+        self._molecule_singletons["MpfbSystemValueTextureLips"] = MpfbSystemValueTextureLips()
         self._molecule_singletons["MpfbSystemValueTextureSSS"] = MpfbSystemValueTextureSSS()
+        self._molecule_singletons["MpfbSystemValueTextureToenails"] = MpfbSystemValueTextureToenails()
         self._molecule_singletons["MpfbWithinDistance"] = MpfbWithinDistance()
         self._molecule_singletons["MpfbWithinDistanceOfEither"] = MpfbWithinDistanceOfEither()
 

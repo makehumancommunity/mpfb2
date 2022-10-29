@@ -36,6 +36,9 @@ class MpfbAbstractSystemValueTexture(Molecule):
         textures_dir = LocationService.get_mpfb_data("textures")
         image_path_absolute = os.path.abspath(os.path.join(textures_dir, self.image_file_name))
             
+        if not os.path.exists(image_path_absolute):
+            raise IOError(image_path_absolute + " does not exist")
+        
         if self.image_file_name in bpy.data.images:
             _LOG.debug("image was previously loaded", image_path_absolute)
             image = bpy.data.images[self.image_file_name]
