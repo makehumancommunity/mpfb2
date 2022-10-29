@@ -23,19 +23,19 @@ class MpfbWithinDistanceOfEither(Molecule):
         self.add_input_socket("Position", socket_type="NodeSocketVector", default_value=[0.5, 0.5, 0.0])
         self.add_input_socket("Coordinate1", socket_type="NodeSocketVector", default_value=[0.25, 0.25, 0.0])
         self.add_input_socket("Coordinate2", socket_type="NodeSocketVector", default_value=[0.75, 0.75, 0.0])
-        self.add_input_socket("MaxDist", socket_type="NodeSocketFloat", default_value=0.1)
+        self.add_input_socket("MaxDist", socket_type="NodeSocketFloat", default_value=0.100)
 
         self.add_output_socket("WithinDistance", socket_type="NodeSocketFloat", default_value=0.0)
         self.add_output_socket("ActualLeastDistance", socket_type="NodeSocketFloat", default_value=0.0)
 
-        nodes["WithinRange2"] = self.createShaderNodeMath(name="WithinRange2", label="WithinRange2", x=-150.68775939941406, y=-6.3030829429626465, Value=0.5, Value_001=0.5, Value_002=0.5, operation='LESS_THAN', use_clamp=False)
-        nodes["DistanceMultInRange1"] = self.createShaderNodeMath(name="DistanceMultInRange1", label="DistanceMultInRange1", x=101.51324462890625, y=336.2605895996094, Value=0.5, Value_001=0.5, Value_002=0.5, operation='MULTIPLY', use_clamp=False)
-        nodes["InRangeOfEither"] = self.createShaderNodeMath(name="InRangeOfEither", label="InRangeOfEither", x=346.876953125, y=275.2886962890625, Value=0.5, Value_001=0.5, Value_002=0.5, operation='ADD', use_clamp=True)
-        nodes["LeastDistance"] = self.createShaderNodeMath(name="LeastDistance", label="LeastDistance", x=345.329345703125, y=84.9836196899414, Value=0.5, Value_001=0.5, Value_002=0.5, operation='ADD', use_clamp=False)
-        nodes["Distance2"] = self.createShaderNodeVectorMath(name="Distance2", label="Distance2", x=-415.4476013183594, y=-144.81179809570312, Vector=[0.0, 0.0, 0.0], Vector_001=[0.0, 0.0, 0.0], Vector_002=[0.0, 0.0, 0.0], Scale=1.0, operation='DISTANCE')
-        nodes["Distance1"] = self.createShaderNodeVectorMath(name="Distance1", label="Distance1", x=-435.5565490722656, y=199.1465301513672, Vector=[0.0, 0.0, 0.0], Vector_001=[0.0, 0.0, 0.0], Vector_002=[0.0, 0.0, 0.0], Scale=1.0, operation='DISTANCE')
-        nodes["WithinRange1"] = self.createShaderNodeMath(name="WithinRange1", label="WithinRange1", x=-153.9088134765625, y=160.16123962402344, Value=0.5, Value_001=0.5, Value_002=0.5, operation='LESS_THAN', use_clamp=False)
-        nodes["DistanceMultInRange2"] = self.createShaderNodeMath(name="DistanceMultInRange2", label="DistanceMultInRange2", x=110.73868560791016, y=-83.38033294677734, Value=0.5, Value_001=0.5, Value_002=0.5, operation='MULTIPLY', use_clamp=False)
+        nodes["WithinRange2"] = self.createShaderNodeMath(name="WithinRange2", label="WithinRange2", x=-150.688, y=-6.303, Value=0.500, Value_001=0.500, Value_002=0.500, operation='LESS_THAN', use_clamp=False)
+        nodes["DistanceMultInRange1"] = self.createShaderNodeMath(name="DistanceMultInRange1", label="DistanceMultInRange1", x=101.513, y=336.261, Value=0.500, Value_001=0.500, Value_002=0.500, operation='MULTIPLY', use_clamp=False)
+        nodes["InRangeOfEither"] = self.createShaderNodeMath(name="InRangeOfEither", label="InRangeOfEither", x=346.877, y=275.289, Value=0.500, Value_001=0.500, Value_002=0.500, operation='ADD', use_clamp=True)
+        nodes["LeastDistance"] = self.createShaderNodeMath(name="LeastDistance", label="LeastDistance", x=345.329, y=84.984, Value=0.500, Value_001=0.500, Value_002=0.500, operation='ADD', use_clamp=False)
+        nodes["Distance2"] = self.createShaderNodeVectorMath(name="Distance2", label="Distance2", x=-415.448, y=-144.812, Vector=[0.0, 0.0, 0.0], Vector_001=[0.0, 0.0, 0.0], Vector_002=[0.0, 0.0, 0.0], Scale=1.000, operation='DISTANCE')
+        nodes["Distance1"] = self.createShaderNodeVectorMath(name="Distance1", label="Distance1", x=-435.557, y=199.147, Vector=[0.0, 0.0, 0.0], Vector_001=[0.0, 0.0, 0.0], Vector_002=[0.0, 0.0, 0.0], Scale=1.000, operation='DISTANCE')
+        nodes["WithinRange1"] = self.createShaderNodeMath(name="WithinRange1", label="WithinRange1", x=-153.909, y=160.161, Value=0.500, Value_001=0.500, Value_002=0.500, operation='LESS_THAN', use_clamp=False)
+        nodes["DistanceMultInRange2"] = self.createShaderNodeMath(name="DistanceMultInRange2", label="DistanceMultInRange2", x=110.739, y=-83.380, Value=0.500, Value_001=0.500, Value_002=0.500, operation='MULTIPLY', use_clamp=False)
 
         self.add_link(nodes["InRangeOfEither"], "Value", nodes["Group Output"], "WithinDistance")
         self.add_link(nodes["Distance2"], "Value", nodes["DistanceMultInRange2"], "Value")
@@ -55,3 +55,10 @@ class MpfbWithinDistanceOfEither(Molecule):
         self.add_link(nodes["WithinRange2"], "Value", nodes["DistanceMultInRange2"], "Value_001")
         self.add_link(nodes["WithinRange2"], "Value", nodes["InRangeOfEither"], "Value_001")
         self.add_link(nodes["DistanceMultInRange2"], "Value", nodes["LeastDistance"], "Value_001")
+
+
+
+# --- paste this in the MoleculeNodeManager class def
+#
+#     def createMpfbWithinDistanceOfEither(self, x=0.0, y=0.0, name=None, label=None, Position=None, Coordinate1=None, Coordinate2=None, MaxDist=None):
+#         return self._molecule_singletons["MpfbWithinDistanceOfEither"].create_instance(self.node_tree, x=x, y=y, name=name, label=label, Position=Position, Coordinate1=Coordinate1, Coordinate2=Coordinate2, MaxDist=MaxDist)

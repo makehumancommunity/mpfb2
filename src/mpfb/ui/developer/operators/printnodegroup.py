@@ -302,6 +302,18 @@ class ${output_name}(Molecule):
 
         print("\n\n")
 
+        print("# --- paste this in the MoleculeNodeManager class def\n#")
+        ind = "    "
+        line = "# " + ind + "def create" + output_name + "(self, x=0.0, y=0.0, name=None, label=None"
+        for input in group.inputs:
+            line = line + ", " + input.name + "=None"
+        line = line + "):\n# " + ind + ind
+        line = line + "return self._molecule_singletons[\"" + output_name + "\"].create_instance(self.node_tree, x=x, y=y, name=name, label=label"
+        for input in group.inputs:
+            line = line + ", " + input.name + "=" + input.name
+        line = line + ")\n\n"
+        print(line)
+
         return {'FINISHED'}
 
 ClassManager.add_class(MPFB_OT_Print_Node_Group_Operator)

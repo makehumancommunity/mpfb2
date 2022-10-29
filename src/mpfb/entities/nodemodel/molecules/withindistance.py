@@ -22,13 +22,13 @@ class MpfbWithinDistance(Molecule):
 
         self.add_input_socket("Coordinate1", socket_type="NodeSocketVector", default_value=[0.0, 0.0, 0.0])
         self.add_input_socket("Coordinate2", socket_type="NodeSocketVector", default_value=[0.0, 0.0, 0.0])
-        self.add_input_socket("MaxDist", socket_type="NodeSocketFloat", default_value=0.5)
+        self.add_input_socket("MaxDist", socket_type="NodeSocketFloat", default_value=0.500)
 
         self.add_output_socket("WithinDistance", socket_type="NodeSocketFloat", default_value=0.0)
         self.add_output_socket("ActualDistance", socket_type="NodeSocketFloat", default_value=0.0)
 
-        nodes["Vector Math"] = self.createShaderNodeVectorMath(name="Vector Math", x=-157.7106170654297, y=193.54603576660156, Vector=[0.0, 0.0, 0.0], Vector_001=[0.0, 0.0, 0.0], Vector_002=[0.0, 0.0, 0.0], Scale=1.0, operation='DISTANCE')
-        nodes["Math"] = self.createShaderNodeMath(name="Math", x=64.97110748291016, y=30.67911720275879, Value=0.5, Value_001=0.5, Value_002=0.5, operation='LESS_THAN', use_clamp=False)
+        nodes["Vector Math"] = self.createShaderNodeVectorMath(name="Vector Math", x=-157.711, y=193.546, Vector=[0.0, 0.0, 0.0], Vector_001=[0.0, 0.0, 0.0], Vector_002=[0.0, 0.0, 0.0], Scale=1.000, operation='DISTANCE')
+        nodes["Math"] = self.createShaderNodeMath(name="Math", x=64.971, y=30.679, Value=0.500, Value_001=0.500, Value_002=0.500, operation='LESS_THAN', use_clamp=False)
 
         self.add_link(nodes["Group Input"], "Coordinate1", nodes["Vector Math"], "Vector")
         self.add_link(nodes["Group Input"], "Coordinate2", nodes["Vector Math"], "Vector_001")
@@ -36,3 +36,12 @@ class MpfbWithinDistance(Molecule):
         self.add_link(nodes["Math"], "Value", nodes["Group Output"], "WithinDistance")
         self.add_link(nodes["Vector Math"], "Value", nodes["Group Output"], "ActualDistance")
         self.add_link(nodes["Vector Math"], "Value", nodes["Math"], "Value")
+
+
+
+# --- paste this in the MoleculeNodeManager class def
+#
+#     def createMpfbWithinDistance(self, x=0.0, y=0.0, name=None, label=None, Coordinate1=None, Coordinate2=None, MaxDist=None):
+#         return self._molecule_singletons["MpfbWithinDistance"].create_instance(self.node_tree, x=x, y=y, name=name, label=label, Coordinate1=Coordinate1, Coordinate2=Coordinate2, MaxDist=MaxDist)
+
+

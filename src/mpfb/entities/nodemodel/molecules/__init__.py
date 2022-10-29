@@ -50,6 +50,56 @@ class MoleculeNodeManager(AtomNodeManager):
         self._molecule_singletons["MpfbWithinDistance"] = MpfbWithinDistance()
         self._molecule_singletons["MpfbWithinDistanceOfEither"] = MpfbWithinDistanceOfEither()
 
-    def createMpfbColorRouter2(self, x=0.0, y=0.0, name=None, label=None, Threshold=None, Section1Color=None, Section2Color=None):
-        return self._molecule_singletons["MpfbColorRouter2"].create_instance(self.node_tree, x=x, y=y, name=name, label=label, Threshold=Threshold, Section1Color=Section1Color, Section2Color=Section2Color)
+    def createMpfbColorRouter2(self, x=0.0, y=0.0, name=None, label=None, Value=None, Threshold=None, Section1Color=None, Section2Color=None):
+        return self._molecule_singletons["MpfbColorRouter2"].create_instance(self.node_tree, x=x, y=y, name=name, label=label, Value=Value, Threshold=Threshold, Section1Color=Section1Color, Section2Color=Section2Color)
 
+    def createMpfbColorRouter3(self, x=0.0, y=0.0, name=None, label=None, Value=None, Threshold1=None, Threshold2=None, Section1Color=None, Section2Color=None, Section3Color=None):
+        return self._molecule_singletons["MpfbColorRouter3"].create_instance(self.node_tree, x=x, y=y, name=name, label=label, Value=Value, Threshold1=Threshold1, Threshold2=Threshold2, Section1Color=Section1Color, Section2Color=Section2Color, Section3Color=Section3Color)
+
+    def createMpfbColorRouter4(self, x=0.0, y=0.0, name=None, label=None, Value=None, Threshold1=None, Threshold2=None, Threshold3=None, Section1Color=None, Section2Color=None, Section3Color=None, Section4Color=None):
+        return self._molecule_singletons["MpfbColorRouter4"].create_instance(self.node_tree, x=x, y=y, name=name, label=label, Value=Value, Threshold1=Threshold1, Threshold2=Threshold2, Threshold3=Threshold3, Section1Color=Section1Color, Section2Color=Section2Color, Section3Color=Section3Color, Section4Color=Section4Color)
+
+    def createMpfbColorRouter5(self, x=0.0, y=0.0, name=None, label=None, Value=None, Threshold1=None, Threshold2=None, Threshold3=None, Threshold4=None, Section1Color=None, Section2Color=None, Section3Color=None, Section4Color=None, Section5Color=None):
+        return self._molecule_singletons["MpfbColorRouter5"].create_instance(self.node_tree, x=x, y=y, name=name, label=label, Value=Value, Threshold1=Threshold1, Threshold2=Threshold2, Threshold3=Threshold3, Threshold4=Threshold4, Section1Color=Section1Color, Section2Color=Section2Color, Section3Color=Section3Color, Section4Color=Section4Color, Section5Color=Section5Color)
+
+    def createMpfbEyeConstants(self, x=0.0, y=0.0, name=None, label=None):
+        return self._molecule_singletons["MpfbEyeConstants"].create_instance(self.node_tree, x=x, y=y, name=name, label=label)
+
+    def createMpfbMassAdd(self, x=0.0, y=0.0, name=None, label=None, Value1=None, Value2=None, Value3=None, Value4=None, Value5=None, Value6=None, Value7=None):
+        return self._molecule_singletons["MpfbMassAdd"].create_instance(self.node_tree, x=x, y=y, name=name, label=label, Value1=Value1, Value2=Value2, Value3=Value3, Value4=Value4, Value5=Value5, Value6=Value6, Value7=Value7)
+
+    def createMpfbShaderRouter2(self, x=0.0, y=0.0, name=None, label=None, Value=None, Threshold=None, Section1Shader=None, Section2Shader=None):
+        return self._molecule_singletons["MpfbShaderRouter2"].create_instance(self.node_tree, x=x, y=y, name=name, label=label, Value=Value, Threshold=Threshold, Section1Shader=Section1Shader, Section2Shader=Section2Shader)
+
+    def createMpfbShaderRouter3(self, x=0.0, y=0.0, name=None, label=None, Value=None, Threshold1=None, Threshold2=None, Section1Shader=None, Section2Shader=None, Section3Shader=None):
+        return self._molecule_singletons["MpfbShaderRouter3"].create_instance(self.node_tree, x=x, y=y, name=name, label=label, Value=Value, Threshold1=Threshold1, Threshold2=Threshold2, Section1Shader=Section1Shader, Section2Shader=Section2Shader, Section3Shader=Section3Shader)
+
+    def createMpfbShaderRouter4(self, x=0.0, y=0.0, name=None, label=None, Value=None, Threshold1=None, Threshold2=None, Threshold3=None, Section1Shader=None, Section2Shader=None, Section3Shader=None, Section4Shader=None):
+        return self._molecule_singletons["MpfbShaderRouter4"].create_instance(self.node_tree, x=x, y=y, name=name, label=label, Value=Value, Threshold1=Threshold1, Threshold2=Threshold2, Threshold3=Threshold3, Section1Shader=Section1Shader, Section2Shader=Section2Shader, Section3Shader=Section3Shader, Section4Shader=Section4Shader)
+
+    def createMpfbShaderRouter5(self, x=0.0, y=0.0, name=None, label=None, Value=None, Threshold1=None, Threshold2=None, Threshold3=None, Threshold4=None, Section1Shader=None, Section2Shader=None, Section3Shader=None, Section4Shader=None, Section5Shader=None):
+        return self._molecule_singletons["MpfbShaderRouter5"].create_instance(self.node_tree, x=x, y=y, name=name, label=label, Value=Value, Threshold1=Threshold1, Threshold2=Threshold2, Threshold3=Threshold3, Threshold4=Threshold4, Section1Shader=Section1Shader, Section2Shader=Section2Shader, Section3Shader=Section3Shader, Section4Shader=Section4Shader, Section5Shader=Section5Shader)
+
+    def createMpfbSystemValueTextureAureolae(self, x=0.0, y=0.0, name=None, label=None):
+        return self._molecule_singletons["SystemValueTextureAureolae"].create_instance(self.node_tree, x=x, y=y, name=name, label=label)
+
+    def createMpfbSystemValueTextureFace(self, x=0.0, y=0.0, name=None, label=None):
+        return self._molecule_singletons["SystemValueTextureFace"].create_instance(self.node_tree, x=x, y=y, name=name, label=label)
+
+    def createMpfbSystemValueTextureFingernails(self, x=0.0, y=0.0, name=None, label=None):
+        return self._molecule_singletons["SystemValueTextureFingernails"].create_instance(self.node_tree, x=x, y=y, name=name, label=label)
+
+    def createMpfbSystemValueTextureLips(self, x=0.0, y=0.0, name=None, label=None):
+        return self._molecule_singletons["SystemValueTextureLips"].create_instance(self.node_tree, x=x, y=y, name=name, label=label)
+
+    def createMpfbSystemValueTextureSSS(self, x=0.0, y=0.0, name=None, label=None):
+        return self._molecule_singletons["SystemValueTextureSSS"].create_instance(self.node_tree, x=x, y=y, name=name, label=label)
+
+    def createMpfbSystemValueTextureToenails(self, x=0.0, y=0.0, name=None, label=None):
+        return self._molecule_singletons["SystemValueTextureToenails"].create_instance(self.node_tree, x=x, y=y, name=name, label=label)
+
+    def createMpfbWithinDistance(self, x=0.0, y=0.0, name=None, label=None, Coordinate1=None, Coordinate2=None, MaxDist=None):
+        return self._molecule_singletons["MpfbWithinDistance"].create_instance(self.node_tree, x=x, y=y, name=name, label=label, Coordinate1=Coordinate1, Coordinate2=Coordinate2, MaxDist=MaxDist)
+
+    def createMpfbWithinDistanceOfEither(self, x=0.0, y=0.0, name=None, label=None, Position=None, Coordinate1=None, Coordinate2=None, MaxDist=None):
+        return self._molecule_singletons["MpfbWithinDistanceOfEither"].create_instance(self.node_tree, x=x, y=y, name=name, label=label, Position=Position, Coordinate1=Coordinate1, Coordinate2=Coordinate2, MaxDist=MaxDist)
