@@ -20,6 +20,7 @@
 
 ## Clothes
 
+* Implement z-index to hide clothes parts that are beneath other clothes
 * Port MakeClothes
 * Copy and refit clothes from one character to another
 * Mirror along x axis
