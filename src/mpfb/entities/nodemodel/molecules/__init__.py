@@ -81,22 +81,22 @@ class MoleculeNodeManager(AtomNodeManager):
         return self._molecule_singletons["MpfbShaderRouter5"].create_instance(self.node_tree, x=x, y=y, name=name, label=label, Value=Value, Threshold1=Threshold1, Threshold2=Threshold2, Threshold3=Threshold3, Threshold4=Threshold4, Section1Shader=Section1Shader, Section2Shader=Section2Shader, Section3Shader=Section3Shader, Section4Shader=Section4Shader, Section5Shader=Section5Shader)
 
     def createMpfbSystemValueTextureAureolae(self, x=0.0, y=0.0, name=None, label=None):
-        return self._molecule_singletons["SystemValueTextureAureolae"].create_instance(self.node_tree, x=x, y=y, name=name, label=label)
+        return self._molecule_singletons["MpfbSystemValueTextureAureolae"].create_instance(self.node_tree, x=x, y=y, name=name, label=label)
 
     def createMpfbSystemValueTextureFace(self, x=0.0, y=0.0, name=None, label=None):
-        return self._molecule_singletons["SystemValueTextureFace"].create_instance(self.node_tree, x=x, y=y, name=name, label=label)
+        return self._molecule_singletons["MpfbSystemValueTextureFace"].create_instance(self.node_tree, x=x, y=y, name=name, label=label)
 
     def createMpfbSystemValueTextureFingernails(self, x=0.0, y=0.0, name=None, label=None):
-        return self._molecule_singletons["SystemValueTextureFingernails"].create_instance(self.node_tree, x=x, y=y, name=name, label=label)
+        return self._molecule_singletons["MpfbSystemValueTextureFingernails"].create_instance(self.node_tree, x=x, y=y, name=name, label=label)
 
     def createMpfbSystemValueTextureLips(self, x=0.0, y=0.0, name=None, label=None):
-        return self._molecule_singletons["SystemValueTextureLips"].create_instance(self.node_tree, x=x, y=y, name=name, label=label)
+        return self._molecule_singletons["MpfbSystemValueTextureLips"].create_instance(self.node_tree, x=x, y=y, name=name, label=label)
 
     def createMpfbSystemValueTextureSSS(self, x=0.0, y=0.0, name=None, label=None):
-        return self._molecule_singletons["SystemValueTextureSSS"].create_instance(self.node_tree, x=x, y=y, name=name, label=label)
+        return self._molecule_singletons["MpfbSystemValueTextureSSS"].create_instance(self.node_tree, x=x, y=y, name=name, label=label)
 
     def createMpfbSystemValueTextureToenails(self, x=0.0, y=0.0, name=None, label=None):
-        return self._molecule_singletons["SystemValueTextureToenails"].create_instance(self.node_tree, x=x, y=y, name=name, label=label)
+        return self._molecule_singletons["MpfbSystemValueTextureToenails"].create_instance(self.node_tree, x=x, y=y, name=name, label=label)
 
     def createMpfbWithinDistance(self, x=0.0, y=0.0, name=None, label=None, Coordinate1=None, Coordinate2=None, MaxDist=None):
         return self._molecule_singletons["MpfbWithinDistance"].create_instance(self.node_tree, x=x, y=y, name=name, label=label, Coordinate1=Coordinate1, Coordinate2=Coordinate2, MaxDist=MaxDist)

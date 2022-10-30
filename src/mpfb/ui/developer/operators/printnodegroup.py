@@ -45,7 +45,6 @@ _TEST_ATTRIBUTES=[
     "image",
     "image_user",
     "inside",
-    "interface",
     "interpolation",
     "interpolation_type",
     "invert",
@@ -55,7 +54,6 @@ _TEST_ATTRIBUTES=[
     "mode",
     "musgrave_dimensions",
     "musgrave_type",
-    "node_tree",
     "noise_dimensions",
     "object",
     "offset",
@@ -161,23 +159,31 @@ class MPFB_OT_Print_Node_Group_Operator(bpy.types.Operator):
 
         _LOG.debug("Group", group)
 
+        group_type = "Molecule"
+        group_type_lower = "molecule"
+
+        for node in node_tree.nodes:
+            if node.__class__.__name__ == "ShaderNodeGroup":
+                group_type = "Cell"
+                group_type_lower = "cell"
+
         output_lower = str(output_name).lower().replace("mpfb", "")
         print(Template("""
 from mpfb.services.logservice import LogService
-from .molecule import Molecule
+from .${group_type_lower} import ${group_type}
 
 import bpy
 
 _LOG = LogService.get_logger("nodemodel.${output_lower}")
 _GROUP_NAME = "${output_name}"
 
-class ${output_name}(Molecule):
+class ${output_name}(${group_type}):
     def __init__(self):
-        _LOG.trace("Constructing Molecule for", _GROUP_NAME)
-        Molecule.__init__(self, _GROUP_NAME)
+        _LOG.trace("Constructing ${group_type} for", _GROUP_NAME)
+        ${group_type}.__init__(self, _GROUP_NAME)
 
     def create_group(self):
-        _LOG.debug("Create group in " + _GROUP_NAME)""").substitute(output_name=output_name, output_lower=output_lower))
+        _LOG.debug("Create group in " + _GROUP_NAME)""").substitute(output_name=output_name, output_lower=output_lower, group_type=group_type, group_type_lower=group_type_lower))
         print("")
         ind = "        "
         print(ind + "nodes = dict()\n")
@@ -225,7 +231,10 @@ class ${output_name}(Molecule):
 
         for node in node_tree.nodes:
             if node.__class__.__name__ not in ["NodeGroupOutput", "NodeGroupInput"]:
-                line = ind + "nodes[\"" + node.name + "\"] = self.create" + node.__class__.__name__ + "("
+                node_class = node.__class__.__name__
+                if node_class == "ShaderNodeGroup":
+                    node_class = node.node_tree.name
+                line = ind + "nodes[\"" + node.name + "\"] = self.create" + node_class + "("
                 line = line + "name=\"" + node.name + "\""
                 if (node.label):
                     line = line + ", label=\"" + node.label + "\""
@@ -302,13 +311,13 @@ class ${output_name}(Molecule):
 
         print("\n\n")
 
-        print("# --- paste this in the MoleculeNodeManager class def\n#")
+        print("# --- paste this in the " + group_type + "NodeManager class def\n#")
         ind = "    "
         line = "# " + ind + "def create" + output_name + "(self, x=0.0, y=0.0, name=None, label=None"
         for input in group.inputs:
             line = line + ", " + input.name + "=None"
         line = line + "):\n# " + ind + ind
-        line = line + "return self._molecule_singletons[\"" + output_name + "\"].create_instance(self.node_tree, x=x, y=y, name=name, label=label"
+        line = line + "return self._" + group_type_lower + "_singletons[\"" + output_name + "\"].create_instance(self.node_tree, x=x, y=y, name=name, label=label"
         for input in group.inputs:
             line = line + ", " + input.name + "=" + input.name
         line = line + ")\n\n"
