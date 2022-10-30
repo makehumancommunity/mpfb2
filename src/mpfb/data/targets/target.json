@@ -2919,6 +2919,14 @@
                 "has_left_and_right": false,
                 "label": "nose-curve-concave-convex",
                 "name": "nose-curve-concave-convex",
+                "opposites": {
+                    "negative-left": "",
+                    "negative-right": "",
+                    "negative-unsided": "nose-curve-concave",
+                    "positive-left": "",
+                    "positive-right": "",
+                    "positive-unsided": "nose-curve-convex"
+                },
                 "targets": [
                     "nose-curve-convex",
                     "nose-curve-concave"
@@ -3200,6 +3208,14 @@
                 "has_left_and_right": false,
                 "label": "nose-compression-compress-uncompress",
                 "name": "nose-compression-compress-uncompress",
+                "opposites": {
+                    "negative-left": "",
+                    "negative-right": "",
+                    "negative-unsided": "nose-compression-compress",
+                    "positive-left": "",
+                    "positive-right": "",
+                    "positive-unsided": "nose-compression-uncompress"
+                },
                 "targets": [
                     "nose-compression-compress",
                     "nose-compression-uncompress"
