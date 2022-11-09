@@ -7,6 +7,7 @@ _LOG.trace("initializing nodemodel molecule module")
 
 from .additiverange2 import MpfbAdditiveRange2
 from .additiverange3 import MpfbAdditiveRange3
+from .bodyconstants import MpfbBodyConstants
 from .characterinfo import MpfbCharacterInfo
 from .colorramp2 import MpfbColorRamp2
 from .colorramp3 import MpfbColorRamp3
@@ -44,6 +45,7 @@ class MoleculeNodeManager(AtomNodeManager):
 
         self._molecule_singletons["MpfbAdditiveRange2"] = MpfbAdditiveRange2()
         self._molecule_singletons["MpfbAdditiveRange3"] = MpfbAdditiveRange3()
+        self._molecule_singletons["MpfbBodyConstants"] = MpfbBodyConstants()
         self._molecule_singletons["MpfbCharacterInfo"] = MpfbCharacterInfo()
         self._molecule_singletons["MpfbColorRamp2"] = MpfbColorRamp2()
         self._molecule_singletons["MpfbColorRamp3"] = MpfbColorRamp3()
@@ -77,6 +79,9 @@ class MoleculeNodeManager(AtomNodeManager):
 
     def createMpfbAdditiveRange3(self, x=0.0, y=0.0, name=None, label=None, Value=None, Section1Size=None, Section2Size=None, Section3Size=None):
         return self._molecule_singletons["MpfbAdditiveRange3"].create_instance(self.node_tree, x=x, y=y, name=name, label=label, Value=Value, Section1Size=Section1Size, Section2Size=Section2Size, Section3Size=Section3Size)
+
+    def createMpfbBodyConstants(self, x=0.0, y=0.0, name=None, label=None):
+        return self._molecule_singletons["MpfbBodyConstants"].create_instance(self.node_tree, x=x, y=y, name=name, label=label)
 
     def createMpfbCharacterInfo(self, x=0.0, y=0.0, name=None, label=None):
         return self._molecule_singletons["MpfbCharacterInfo"].create_instance(self.node_tree, x=x, y=y, name=name, label=label)
