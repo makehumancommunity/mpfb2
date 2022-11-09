@@ -190,9 +190,9 @@ class ${output_name}(${group_type}):
         print(ind + "(nodes[\"Group Input\"], nodes[\"Group Output\"]) = self.create_input_and_output()")
         for node in node_tree.nodes:
             if node.__class__.__name__ == "NodeGroupInput":
-                print(ind + "nodes[\"Group Input\"].location = [" + str(node.location.x) + ", " + str(node.location.y) + "]")
+                print(ind + "nodes[\"Group Input\"].location = [" + "{:.4f}".format(node.location.x) + ", " + "{:.4f}".format(node.location.y) + "]")
             if node.__class__.__name__ == "NodeGroupOutput":
-                print(ind + "nodes[\"Group Output\"].location = [" + str(node.location.x) + ", " + str(node.location.y) + "]")
+                print(ind + "nodes[\"Group Output\"].location = [" + "{:.4f}".format(node.location.x) + ", " + "{:.4f}".format(node.location.y) + "]")
 
         print("")
 
@@ -204,7 +204,7 @@ class ${output_name}(${group_type}):
                 if hasattr(input, "default_value"):
                     value = None
                     if socket_type == "NodeSocketFloat":
-                        value = "{:.3f}".format(input.default_value)
+                        value = "{:.4f}".format(input.default_value)
                     if value is None:
                         value = str(input.default_value)
                     if type(input.default_value).__name__ == "bpy_prop_array":
@@ -238,8 +238,8 @@ class ${output_name}(${group_type}):
                 line = line + "name=\"" + node.name + "\""
                 if (node.label):
                     line = line + ", label=\"" + node.label + "\""
-                line = line + ", x=" + "{:.3f}".format(node.location.x)
-                line = line + ", y=" + "{:.3f}".format(node.location.y)
+                line = line + ", x=" + "{:.4f}".format(node.location.x)
+                line = line + ", y=" + "{:.4f}".format(node.location.y)
 
                 for input in node.inputs:
                     if not hasattr(input, "identifier"):
@@ -252,7 +252,7 @@ class ${output_name}(${group_type}):
                         if hasattr(input, "default_value"):
                             value = None
                             if socket_type == "NodeSocketFloat":
-                                value = "{:.3f}".format(input.default_value)
+                                value = "{:.4f}".format(input.default_value)
                             if value is None:
                                 value = str(input.default_value)
                             if type(input.default_value).__name__ == "bpy_prop_array":
