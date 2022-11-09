@@ -22,7 +22,7 @@ class MPFB_PT_MakePose_Panel(Abstract_Panel):
         box = self._create_box(layout, "General settings", "TOOL_SETTINGS")
         props = ["roottrans", "iktrans", "fktrans", "overwrite"]
         MakePoseProperties.draw_properties(scene, box, props)
-        box.operator('mpfb.save_pose')
+        #box.operator('mpfb.save_pose')
 
     def _save_pose(self, scene, layout):
         box = self._create_box(layout, "Save pose", "TOOL_SETTINGS")

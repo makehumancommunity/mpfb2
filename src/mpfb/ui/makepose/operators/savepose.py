@@ -48,11 +48,20 @@ class MPFB_OT_Save_Pose_Operator(bpy.types.Operator):
             self.report({'ERROR'}, "Must give a valid name")
             return {'FINISHED'}
 
+        if "/" in name or "\\" in name:
+            self.report({'ERROR'}, "Name must be given without path")
+            return {'FINISHED'}
+
+        if name == "." or name == "..":
+            self.report({'ERROR'}, "Name is invalid, must include alphanumeric characters")
+            return {'FINISHED'}
+
         bpy.ops.object.mode_set(mode='POSE', toggle=False)
 
         rig_type = RigService.identify_rig(armature_object)
         if "default" in rig_type:
             rig_type = "default"
+
 
         save_pose_as = "fk"
 
@@ -90,6 +99,9 @@ class MPFB_OT_Save_Pose_Operator(bpy.types.Operator):
             self.report({'INFO'}, "JSON file written to " + absolute_file_path)
 
         bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
+
+        if "rigify" in rig_type and not "generated" in rig_type:
+            self.report({'WARNING'}, "Posing ungenerated rigify rigs is probably a very bad idea. Better to generate first and pose later.")
 
         return {'FINISHED'}
 
