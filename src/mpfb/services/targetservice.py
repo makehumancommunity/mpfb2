@@ -10,6 +10,8 @@ from mpfb.entities.primitiveprofiler import PrimitiveProfiler
 
 _LOG = LogService.get_logger("services.targetservice")
 
+_MACLOG = LogService.get_logger("macrotargets")
+
 _HEADER = """# This is a target file for MakeHuman
 #
 # It was written by the MakeTarget submodule of MPFB
@@ -652,6 +654,7 @@ class TargetService:
             components[macro_name] = TargetService._interpolate_macro_components(macro_name, value)
 
         _LOG.dump("components", components)
+        _MACLOG.dump("Current macrotarget components", components)
 
         targets = []
 
@@ -752,10 +755,13 @@ class TargetService:
                                     weight = weight * weight_component[1]
                                     weight = weight * cup_component[1]
                                     weight = weight * firmness_component[1]
+                                    _MACLOG.debug("Breast target", complete_name)
                                     if weight > cutoff:
-                                        if "averagecup-averagefirmness" in complete_name:
+                                        if "averagecup-averagefirmness" in complete_name or "_baby_" in complete_name or "-baby-" in complete_name:
+                                            _MACLOG.debug("Excluding forbidden breast modifier combination", complete_name)
                                             _LOG.debug("Excluding forbidden breast modifier combination", complete_name)
                                         else:
+                                            _MACLOG.debug("Appending gender-age-muscle-weight-cupsize-firmness target", [complete_name, weight])
                                             _LOG.debug("Appending gender-age-muscle-weight-cupsize-firmness target", [complete_name, weight])
                                             targets.append([complete_name, weight])
                                     else:
@@ -789,6 +795,8 @@ class TargetService:
                             else:
                                 _LOG.debug("Not appending gender-age-muscle-weight-proportions target", [complete_name, weight])
 
+        _MACLOG.dump("Macro targets after recalculation", targets)
+
         _LOG.dump("targets", targets)
         profiler.leave("calculate_target_stack_from_macro_info_dict")
         return targets
@@ -803,6 +811,7 @@ class TargetService:
                     name = TargetService.decode_shapekey_name(name)
                 if str(shape_key.name).startswith("$md"):
                     macro_targets.append(name)
+        _MACLOG.dump("get_current_macro_targets", macro_targets)
         return macro_targets
 
     @staticmethod
