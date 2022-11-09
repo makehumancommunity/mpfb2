@@ -37,6 +37,10 @@ class MPFB_OT_Load_Partial_Operator(bpy.types.Operator):
         from mpfb.ui.applypose.applyposepanel import POSES_PROPERTIES
         name = POSES_PROPERTIES.get_value("available_partials", entity_reference=context.scene)
 
+        if not name:
+            self.report({'ERROR'}, "Must select a valid pose name")
+            return {'FINISHED'}
+
         rig_type = RigService.identify_rig(armature_object)
         if "default" in rig_type:
             rig_type = "default"
@@ -47,6 +51,10 @@ class MPFB_OT_Load_Partial_Operator(bpy.types.Operator):
 
         absolute_file_path = bpy.path.abspath(os.path.join(pose_root, name + ".json"))
         _LOG.debug("absolute_file_path", absolute_file_path)
+
+        if not os.path.exists(absolute_file_path):
+            self.report({'ERROR'}, "The selected pose '" + name + "' for rig type '" + rigtype + mode + "' does not exist as file. You should probably report this as a bug.")
+            return {'FINISHED'}
 
         pose = dict()
 
