@@ -84,8 +84,11 @@ class MPFB_OT_Load_Library_Proxy_Operator(bpy.types.Operator):
         asset_dir = os.path.basename(os.path.dirname(os.path.realpath(self.filepath)))
         asset_source = asset_dir + "/" + os.path.basename(self.filepath)
 
+        scale_factor = GeneralObjectProperties.get_value("scale_factor", entity_reference=basemesh)
+
         GeneralObjectProperties.set_value("object_type", "Proxymeshes", entity_reference=clothes)
         GeneralObjectProperties.set_value("asset_source", asset_source, entity_reference=clothes)
+        GeneralObjectProperties.set_value("scale_factor", scale_factor, entity_reference=clothes)
 
         bpy.ops.object.shade_smooth()
 

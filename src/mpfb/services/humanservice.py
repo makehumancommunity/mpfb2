@@ -495,6 +495,9 @@ class HumanService:
             modifier.vertex_group = "body"
             modifier.invert_vertex_group = True
 
+            scale_factor = GeneralObjectProperties.get_value("scale_factor", entity_reference=basemesh)
+            GeneralObjectProperties.set_value("scale_factor", scale_factor, entity_reference=proxy_object)
+
             uuid = GeneralObjectProperties.get_value("uuid", entity_reference=proxy_object)
             if uuid and uuid in ALL_EXTRA_GROUPS:
                 for vgroup_name in ALL_EXTRA_GROUPS[uuid].keys():
