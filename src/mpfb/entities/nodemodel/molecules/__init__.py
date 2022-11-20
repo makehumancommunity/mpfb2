@@ -24,8 +24,11 @@ from .shaderrouter3 import MpfbShaderRouter3
 from .shaderrouter4 import MpfbShaderRouter4
 from .shaderrouter5 import MpfbShaderRouter5
 from .systemvaluetextureaureolae import MpfbSystemValueTextureAureolae
+from .systemvaluetexturecrotch import MpfbSystemValueTextureCrotch
+from .systemvaluetextureeyelids import MpfbSystemValueTextureEyelids
 from .systemvaluetextureface import MpfbSystemValueTextureFace
 from .systemvaluetexturefingernails import MpfbSystemValueTextureFingernails
+from .systemvaluetexturegenitals import MpfbSystemValueTextureGenitals
 from .systemvaluetexturelips import MpfbSystemValueTextureLips
 from .systemvaluetexturesss import MpfbSystemValueTextureSSS
 from .systemvaluetexturetoenails import MpfbSystemValueTextureToenails
@@ -62,8 +65,11 @@ class MoleculeNodeManager(AtomNodeManager):
         self._molecule_singletons["MpfbShaderRouter4"] = MpfbShaderRouter4()
         self._molecule_singletons["MpfbShaderRouter5"] = MpfbShaderRouter5()
         self._molecule_singletons["MpfbSystemValueTextureAureolae"] = MpfbSystemValueTextureAureolae()
+        self._molecule_singletons["MpfbSystemValueTextureCrotch"] = MpfbSystemValueTextureCrotch()
+        self._molecule_singletons["MpfbSystemValueTextureEyelids"] = MpfbSystemValueTextureEyelids()
         self._molecule_singletons["MpfbSystemValueTextureFace"] = MpfbSystemValueTextureFace()
         self._molecule_singletons["MpfbSystemValueTextureFingernails"] = MpfbSystemValueTextureFingernails()
+        self._molecule_singletons["MpfbSystemValueTextureGenitals"] = MpfbSystemValueTextureGenitals()
         self._molecule_singletons["MpfbSystemValueTextureLips"] = MpfbSystemValueTextureLips()
         self._molecule_singletons["MpfbSystemValueTextureSSS"] = MpfbSystemValueTextureSSS()
         self._molecule_singletons["MpfbSystemValueTextureToenails"] = MpfbSystemValueTextureToenails()
@@ -131,11 +137,20 @@ class MoleculeNodeManager(AtomNodeManager):
     def createMpfbSystemValueTextureAureolae(self, x=0.0, y=0.0, name=None, label=None):
         return self._molecule_singletons["MpfbSystemValueTextureAureolae"].create_instance(self.node_tree, x=x, y=y, name=name, label=label)
 
+    def createMpfbSystemValueTextureCrotch(self, x=0.0, y=0.0, name=None, label=None):
+        return self._molecule_singletons["MpfbSystemValueTextureCrotch"].create_instance(self.node_tree, x=x, y=y, name=name, label=label)
+
+    def createMpfbSystemValueTextureEyelids(self, x=0.0, y=0.0, name=None, label=None):
+        return self._molecule_singletons["MpfbSystemValueTextureEyelids"].create_instance(self.node_tree, x=x, y=y, name=name, label=label)
+
     def createMpfbSystemValueTextureFace(self, x=0.0, y=0.0, name=None, label=None):
         return self._molecule_singletons["MpfbSystemValueTextureFace"].create_instance(self.node_tree, x=x, y=y, name=name, label=label)
 
     def createMpfbSystemValueTextureFingernails(self, x=0.0, y=0.0, name=None, label=None):
         return self._molecule_singletons["MpfbSystemValueTextureFingernails"].create_instance(self.node_tree, x=x, y=y, name=name, label=label)
+
+    def createMpfbSystemValueTextureGenitals(self, x=0.0, y=0.0, name=None, label=None):
+        return self._molecule_singletons["MpfbSystemValueTextureGenitals"].create_instance(self.node_tree, x=x, y=y, name=name, label=label)
 
     def createMpfbSystemValueTextureLips(self, x=0.0, y=0.0, name=None, label=None):
         return self._molecule_singletons["MpfbSystemValueTextureLips"].create_instance(self.node_tree, x=x, y=y, name=name, label=label)
