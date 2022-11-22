@@ -22,11 +22,12 @@ class MPFB_PT_Web_Resources_Panel(Abstract_Panel):
         _LOG.enter()
         layout = self.layout
 
-        self._url(layout, "Project home", "https://github.com/makehumancommunity/mpfb2")
-        self._url(layout, "Documentation", "https://github.com/makehumancommunity/mpfb2/blob/master/docs/README.md")
+        self._url(layout, "Project homepage", "http://static.makehumancommunity.org/mpfb.html")
+        self._url(layout, "Source code", "https://github.com/makehumancommunity/mpfb2")
+        self._url(layout, "Documentation", "http://static.makehumancommunity.org/mpfb/docs.html")
         self._url(layout, "Get support", "http://www.makehumancommunity.org/forum/")
         self._url(layout, "Report a bug", "https://github.com/makehumancommunity/mpfb2/issues")
-        self._url(layout, "Asset packs", "http://download.tuxfamily.org/makehuman/asset_packs/index.html")
+        self._url(layout, "Asset packs", "http://static.makehumancommunity.org/assets/assetpacks.html")
 
 
 ClassManager.add_class(MPFB_PT_Web_Resources_Panel)
