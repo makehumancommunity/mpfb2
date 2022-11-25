@@ -252,7 +252,7 @@ class NodeService:
             else:
                 _LOG.error("File does not exist:", node_info["filename"])
                 return
-        if "colorspace" in node_info:
+        if "colorspace" in node_info and node_info["colorspace"] != "Non-Color":
             image.colorspace_settings.name = node_info["colorspace"]
         else:
             image.colorspace_settings.name = "sRGB"
