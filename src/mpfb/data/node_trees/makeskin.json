@@ -144,8 +144,6 @@
             "values": {
                 "Distance": 1.0,
                 "Height": 1.0,
-                "Height_dx": 1.0,
-                "Height_dy": 1.0,
                 "Strength": 1.0
             }
         },
