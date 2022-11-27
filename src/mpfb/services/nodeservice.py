@@ -253,7 +253,14 @@ class NodeService:
                 _LOG.error("File does not exist:", node_info["filename"])
                 return
         if "colorspace" in node_info:
-            image.colorspace_settings.name = node_info["colorspace"]
+            try:
+                image.colorspace_settings.name = node_info["colorspace"]
+            except TypeError as e:
+                _LOG.error("Tried to set color space \"" + node_info["colorspace"] + "\" but blender says", e)
+                if image.colorspace_settings:
+                    _LOG.error("Image colorspace defaults to", image.colorspace_settings.name)
+                else:
+                    _LOG.error("Image does not have any colorspace settings")
         else:
             image.colorspace_settings.name = "sRGB"
         node.image = image
