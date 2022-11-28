@@ -31,11 +31,12 @@ class MPFB_PT_BasemeshOpsPanel(Abstract_Panel):
 
         objtype = GeneralObjectProperties.get_value("object_type", entity_reference=context.object)
 
-        if objtype != "Basemesh":
-            return
+        if objtype == "Basemesh":
+            layout.operator("mpfb.bake_shapekeys")
+            layout.operator("mpfb.delete_helpers")
 
-        layout.operator("mpfb.bake_shapekeys")
-        layout.operator("mpfb.delete_helpers")
+        if objtype and context.object.type == "MESH":
+            layout.operator("mpfb.add_corrective_smooth")
 
 
 ClassManager.add_class(MPFB_PT_BasemeshOpsPanel)
