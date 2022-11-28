@@ -23,17 +23,18 @@ class MPFB_OT_Load_Weights_Operator(bpy.types.Operator, ImportHelper):
         _LOG.enter()
         if context.object is None:
             return False
-        return ObjectService.object_is_basemesh(context.object) or ObjectService.object_is_skeleton(context.object)
+        return ObjectService.object_is_any_mesh(context.object) or ObjectService.object_is_skeleton(context.object)
 
     def execute(self, context):
         _LOG.enter()
 
-        if context.object is None or not (ObjectService.object_is_basemesh(context.object) or ObjectService.object_is_skeleton(context.object)):
+        if context.object is None or not (ObjectService.object_is_any_mesh(context.object) or
+                                          ObjectService.object_is_skeleton(context.object)):
             self.report({'ERROR'}, "Must have basemesh or rig as active object")
             return {'FINISHED'}
 
         obj = context.object
-        if ObjectService.object_is_basemesh(context.object):
+        if ObjectService.object_is_any_mesh(context.object):
             basemesh = obj
             rig = ObjectService.find_object_of_type_amongst_nearest_relatives(obj, "Skeleton")
         else:
@@ -51,13 +52,7 @@ class MPFB_OT_Load_Weights_Operator(bpy.types.Operator, ImportHelper):
         absolute_file_path = bpy.path.abspath(self.filepath)
         _LOG.debug("absolute_file_path", absolute_file_path)
 
-        weights = dict()
-        with open(absolute_file_path, 'r') as json_file:
-            weights = json.load(json_file)
-
-        _LOG.dump("Weights", weights)
-
-        RigService.apply_weights(rig, basemesh, weights, all=True)
+        RigService.load_weights(rig, basemesh, absolute_file_path, all=True)
 
         self.report({'INFO'}, "Weights applied")
         return {'FINISHED'}

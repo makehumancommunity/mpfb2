@@ -21,7 +21,7 @@ class MPFB_OT_Save_Weights_Operator(bpy.types.Operator, ExportHelper):
     @classmethod
     def poll(cls, context):
         _LOG.enter()
-        if ObjectService.object_is_basemesh(context.object):
+        if ObjectService.object_is_any_mesh(context.object):
             return True
         if context.object is None or context.object.type != 'ARMATURE':
             return False
@@ -30,7 +30,7 @@ class MPFB_OT_Save_Weights_Operator(bpy.types.Operator, ExportHelper):
     def execute(self, context):
         _LOG.enter()
 
-        if ObjectService.object_is_basemesh(context.object):
+        if ObjectService.object_is_any_mesh(context.object):
             basemesh = context.object
             armature_object = None
 
@@ -58,6 +58,7 @@ class MPFB_OT_Save_Weights_Operator(bpy.types.Operator, ExportHelper):
         from mpfb.ui.developer.developerpanel import DEVELOPER_PROPERTIES  # pylint: disable=C0415
 
         save_evaluated = DEVELOPER_PROPERTIES.get_value("save_evaluated", entity_reference=context.scene)
+        save_masks = DEVELOPER_PROPERTIES.get_value("save_masks", entity_reference=context.scene)
 
         if save_evaluated:
             eval_basemesh = basemesh.evaluated_get(context.view_layer.depsgraph)
@@ -71,7 +72,7 @@ class MPFB_OT_Save_Weights_Operator(bpy.types.Operator, ExportHelper):
         absolute_file_path = bpy.path.abspath(self.filepath)
         _LOG.debug("absolute_file_path", absolute_file_path)
 
-        weights = RigService.get_weights(armature_object, basemesh)
+        weights = RigService.get_weights(armature_object, basemesh, all_masks=save_masks)
 
         # Strip the Rigify deform bone prefix for convenience
         def strip_def(name):

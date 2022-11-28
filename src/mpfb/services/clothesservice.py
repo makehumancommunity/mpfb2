@@ -7,6 +7,7 @@ from mpfb.services.logservice import LogService
 from mpfb.services.assetservice import AssetService
 from mpfb.entities.objectproperties import GeneralObjectProperties
 from mpfb.entities.clothes.mhclo import Mhclo
+from mpfb.services.rigservice import RigService
 
 _LOG = LogService.get_logger("services.clothesservice")
 
@@ -348,6 +349,24 @@ class ClothesService:
                         if int(group.group) == group_index:
                             group.weight = weight
 
+    @staticmethod
+    def load_custom_weights(clothes, armature_object, mhclo):
+        """Try to load custom weights for the given clothes and rig."""
+
+        # Load only groups matching bones from the common file.
+        file_name = os.path.join(mhclo.folder, "weights.json")
+
+        if os.path.isfile(file_name):
+            RigService.load_weights(armature_object, clothes, file_name, replace=True)
+
+        # Load all groups with force replace from the rig-specific file if exists
+        rig_type = RigService.identify_rig(armature_object)
+        rig_type = rig_type.replace("rigify_generated", "rigify")
+
+        file_name = os.path.join(mhclo.folder, "weights." + rig_type + ".json")
+
+        if os.path.isfile(file_name):
+            RigService.load_weights(armature_object, clothes, file_name, replace=True)
 
     @staticmethod
     def set_makeclothes_object_properties_from_mhclo(clothes_object, mhclo, delete_group_name=None):

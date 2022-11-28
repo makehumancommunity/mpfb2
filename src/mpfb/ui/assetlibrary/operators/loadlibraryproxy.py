@@ -39,6 +39,7 @@ class MPFB_OT_Load_Library_Proxy_Operator(bpy.types.Operator):
         specific_delete_group = ASSET_SETTINGS_PROPERTIES.get_value("specific_delete_group", entity_reference=scene)
         set_up_rigging = ASSET_SETTINGS_PROPERTIES.get_value("set_up_rigging", entity_reference=scene)
         interpolate_weights = ASSET_SETTINGS_PROPERTIES.get_value("interpolate_weights", entity_reference=scene)
+        import_weights = ASSET_SETTINGS_PROPERTIES.get_value("import_weights", entity_reference=scene)
         makeclothes_metadata = ASSET_SETTINGS_PROPERTIES.get_value("makeclothes_metadata", entity_reference=scene)
         add_subdiv_modifier = ASSET_SETTINGS_PROPERTIES.get_value("add_subdiv_modifier", entity_reference=scene)
         subdiv_levels = ASSET_SETTINGS_PROPERTIES.get_value("subdiv_levels", entity_reference=scene)
@@ -111,6 +112,8 @@ class MPFB_OT_Load_Library_Proxy_Operator(bpy.types.Operator):
             clothes.parent = rig
             if interpolate_weights:
                 ClothesService.interpolate_weights(basemesh, clothes, rig, mhclo)
+            if import_weights:
+                ClothesService.load_custom_weights(clothes, rig, mhclo)
             RigService.ensure_armature_modifier(clothes, rig, move_to_top=False)
 
         if add_subdiv_modifier:

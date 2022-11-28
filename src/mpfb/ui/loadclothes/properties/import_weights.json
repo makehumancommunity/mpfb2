@@ -1,0 +1,7 @@
+{
+    "type": "boolean",
+    "name": "import_weights",
+    "description": "Try to import weight files provided with the clothing object, if any (replaces interpolated groups)",
+    "label": "Import weights",
+    "default": true
+}

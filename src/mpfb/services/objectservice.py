@@ -148,6 +148,15 @@ class ObjectService:
         return ObjectService.object_is(blender_object, "Basemesh") or ObjectService.object_is(blender_object, "Proxymesh")
 
     @staticmethod
+    def object_is_any_mesh(blender_object):
+        return blender_object and blender_object.type == "MESH"
+
+    @staticmethod
+    def object_is_any_makehuman_mesh(blender_object):
+        return blender_object and blender_object.type == "MESH" and\
+               GeneralObjectProperties.get_value("object_type", entity_reference=blender_object)
+
+    @staticmethod
     def find_object_of_type_amongst_nearest_relatives(blender_object, mpfb_type_name="Basemesh"):
 
         if not blender_object or not mpfb_type_name:

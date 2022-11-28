@@ -305,7 +305,9 @@ class HumanService:
             _LOG.debug("There is no corrective information for", uuid)
 
     @staticmethod
-    def add_mhclo_asset(mhclo_file, basemesh, asset_type="Clothes", subdiv_levels=1, material_type="MAKESKIN", alternative_materials=None, color_adjustments=None):
+    def add_mhclo_asset(mhclo_file, basemesh, asset_type="Clothes", subdiv_levels=1, material_type="MAKESKIN",
+                        alternative_materials=None, color_adjustments=None,
+                        set_up_rigging=True, interpolate_weights=True, import_weights=True):
         mhclo = Mhclo()
         mhclo.load(mhclo_file) # pylint: disable=E1101
         clothes = mhclo.load_mesh(bpy.context)
@@ -402,9 +404,12 @@ class HumanService:
                 modifier.invert_vertex_group = True
 
         rig = ObjectService.find_object_of_type_amongst_nearest_relatives(basemesh, "Skeleton")
-        if rig:
+        if rig and set_up_rigging:
             clothes.parent = rig
-            ClothesService.interpolate_weights(basemesh, clothes, rig, mhclo)
+            if interpolate_weights:
+                ClothesService.interpolate_weights(basemesh, clothes, rig, mhclo)
+            if import_weights:
+                ClothesService.load_custom_weights(clothes, rig, mhclo)
             RigService.ensure_armature_modifier(clothes, rig, move_to_top=False)
         else:
             clothes.parent = basemesh
@@ -1076,10 +1081,7 @@ class HumanService:
 
         if import_weights:
             weights_file = os.path.join(standard_dir, "weights." + rig_name + ".json")
-            weights = dict()
-            with open(weights_file, 'r') as json_file:
-                weights = json.load(json_file)
-            RigService.apply_weights(armature_object, basemesh, weights)
+            RigService.load_weights(armature_object, basemesh, weights_file)
             RigService.ensure_armature_modifier(basemesh, armature_object)
 
         RigService.normalize_rotation_mode(armature_object)

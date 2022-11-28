@@ -81,7 +81,7 @@ class MPFB_PT_Developer_Panel(bpy.types.Panel):
 
     def _weights(self, scene, layout):
         box = self._create_box(layout, "Load/Save weights")
-        DEVELOPER_PROPERTIES.draw_properties(scene, box, ["save_evaluated"])
+        DEVELOPER_PROPERTIES.draw_properties(scene, box, ["save_masks", "save_evaluated"])
         box.operator("mpfb.load_weights")
         box.operator("mpfb.save_weights")
 

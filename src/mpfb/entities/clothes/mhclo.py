@@ -23,6 +23,7 @@ class Mhclo:
         self.license = "CC0"
         self.name = "imported_cloth"
         self.description = "no description"
+        self.folder = None
         self.material = None
         self.tags = ""
         self.zdepth = 50
@@ -47,7 +48,7 @@ class Mhclo:
 
         #realpath = os.path.realpath(os.path.expanduser(mhclo_filename))
         realpath = os.path.realpath(mhclo_filename)
-        folder = os.path.dirname(realpath)
+        folder = self.folder = os.path.dirname(realpath)
 
         try:
             fp = open(mhclo_filename, "r", encoding="utf8", errors="surrogateescape")
