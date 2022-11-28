@@ -478,11 +478,11 @@ class RigService:
         for vertex in basemesh.data.vertices:
             for group in vertex.groups:
                 group_index = int(group.group)
-                weight = group.weight
+                weight = max(0, min(1, round(group.weight, 5) + 0))
                 if group_index in vertex_group_index_to_name:
                     name = vertex_group_index_to_name[group_index]
                     if name in weights["weights"]:
-                        if weight > exclude_weights_below:
+                        if weight >= exclude_weights_below:
                             weights["weights"][name].append([vertex.index, weight])
 
         return weights

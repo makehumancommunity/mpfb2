@@ -95,7 +95,7 @@ if command == "unepsilon":
 
         for weight_spec in vg_data:
             source_value = source_table.get(weight_spec[0], weight_spec[1])
-            if abs(source_value - weight_spec[1]) < 1e-5:
+            if abs(source_value - weight_spec[1]) < 1.1e-5:
                 weight_spec[1] = source_value
 
 with open("result.json", "w") as json_file:
