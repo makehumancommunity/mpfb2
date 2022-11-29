@@ -105,7 +105,7 @@ class MPFB_OT_GenerateRigifyRigOperator(bpy.types.Operator):
 
         _LOG.debug("rigify", rigify_object)
 
-        for child in ObjectService.get_list_of_children(armature_object):
+        for child in ObjectService.find_related_mesh_base_or_assets(armature_object, only_children=True):
 
             child.parent = rigify_object
 

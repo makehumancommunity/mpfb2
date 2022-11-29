@@ -172,12 +172,7 @@ class HumanService:
         if not "clothes" in human_info:
             human_info["clothes"] = []
 
-        parent = basemesh
-        if basemesh.parent:
-            parent = basemesh.parent
-
-        clothes = ObjectService.get_list_of_children(parent)
-        for clothes_obj in clothes:
+        for clothes_obj in ObjectService.find_all_objects_of_type_amongst_nearest_relatives(basemesh, "Clothes"):
             _LOG.debug("Found clothes", clothes_obj)
             asset_source = GeneralObjectProperties.get_value("asset_source", entity_reference=clothes_obj)
             if not asset_source is None:
@@ -1103,14 +1098,9 @@ class HumanService:
 
         _LOG.dump("basemesh, rig, parent_object", (basemesh, rig, parent_object))
 
-        children = ObjectService.get_list_of_children(parent_object)
-        _LOG.dump("children", children)
-
-        for child in children:
-            object_type = GeneralObjectProperties.get_value("object_type", entity_reference=child)
-            if object_type and not object_type in ["Basemesh", "Skeleton"]:
-                _LOG.debug("Will try to refit child proxy", (object_type, child))
-                ClothesService.fit_clothes_to_human(child, basemesh)
+        for child in ObjectService.find_related_mesh_assets(parent_object, only_children=True):
+            _LOG.debug("Will try to refit child proxy", child)
+            ClothesService.fit_clothes_to_human(child, basemesh)
 
         if rig:
             RigService.refit_existing_armature(rig)
@@ -1120,20 +1110,12 @@ class HumanService:
         if not basemesh:
             return []
         _LOG.debug("Provided basemesh", basemesh)
-        parent = basemesh
-        if basemesh.parent and ObjectService.object_is_skeleton(basemesh.parent):
-            parent = basemesh.parent
-        _LOG.debug("Actual parent", basemesh)
 
         sources = []
-        children = ObjectService.get_list_of_children(parent)
-        for child in children:
-            child_type = ObjectService.get_object_type(child)
-            _LOG.debug("Child, type", (child, child_type))
-            if child_type in ["Proxymeshes", "Clothes", "Eyes", "Tongue", "Teeth", "Hair"]:
-                source = GeneralObjectProperties.get_value("asset_source", entity_reference=child)
-                _LOG.debug("Child source", source)
-                sources.append(source)
+        for child in ObjectService.find_related_mesh_assets(basemesh, strict_parent=True):
+            source = GeneralObjectProperties.get_value("asset_source", entity_reference=child)
+            _LOG.debug("Child source", source)
+            sources.append(source)
         return sources
 
     @staticmethod

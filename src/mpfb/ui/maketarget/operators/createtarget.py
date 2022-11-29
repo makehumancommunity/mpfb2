@@ -5,7 +5,6 @@ from mpfb.services.logservice import LogService
 from mpfb.services.objectservice import ObjectService
 from mpfb.services.targetservice import TargetService
 from mpfb.ui.maketarget import MakeTargetObjectProperties
-from mpfb.entities.objectproperties import GeneralObjectProperties
 from mpfb import ClassManager
 
 _LOG = LogService.get_logger("maketarget.createtarget")
@@ -24,7 +23,7 @@ class MPFB_OT_CreateTargetOperator(bpy.types.Operator):
             _LOG.trace("Blender object is None")
             return False
 
-        object_type = GeneralObjectProperties.get_value("object_type", entity_reference=blender_object)
+        object_type = ObjectService.get_object_type(blender_object)
 
         if not object_type or object_type == "Skeleton":
             _LOG.trace("Wrong object type", object_type)

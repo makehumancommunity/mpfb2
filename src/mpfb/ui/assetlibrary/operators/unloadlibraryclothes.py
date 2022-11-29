@@ -44,7 +44,7 @@ class MPFB_OT_Unload_Library_Clothes_Operator(bpy.types.Operator):
             parent = basemesh
 
         asset = None
-        for child in ObjectService.get_list_of_children(parent):
+        for child in ObjectService.find_related_mesh_assets(parent, only_children=True):
             source = GeneralObjectProperties.get_value("asset_source", entity_reference=child)
             if source == self.filepath:
                 asset = child

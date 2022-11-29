@@ -68,7 +68,7 @@ class RigifyHelpers():
             rigify_object = bpy.context.active_object
             rigify_object.show_in_front = True
 
-            child_meshes = ObjectService.get_list_of_children(armature_object)
+            child_meshes = ObjectService.find_related_mesh_base_or_assets(armature_object, only_children=True)
             for child_mesh in child_meshes:
                 self._adjust_mesh_for_rigify(child_mesh, rigify_object)
 

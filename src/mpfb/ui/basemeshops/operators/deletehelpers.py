@@ -4,7 +4,6 @@ from mpfb.services.nodeservice import NodeService
 from mpfb.services.objectservice import ObjectService
 from mpfb.services.locationservice import LocationService
 from mpfb.services.targetservice import TargetService
-from mpfb.entities.objectproperties import GeneralObjectProperties
 from mpfb._classmanager import ClassManager
 import bpy, json, math, os
 from bpy.types import StringProperty
@@ -24,7 +23,7 @@ class MPFB_OT_Delete_Helpers_Operator(bpy.types.Operator):
         if context.object is None:
             return False
 
-        objtype = GeneralObjectProperties.get_value("object_type", entity_reference=context.object)
+        objtype = ObjectService.get_object_type(context.object)
 
         if objtype != "Basemesh":
             return
@@ -68,7 +67,7 @@ class MPFB_OT_Delete_Helpers_Operator(bpy.types.Operator):
 
         obj = context.object
 
-        objtype = GeneralObjectProperties.get_value("object_type", entity_reference=context.object)
+        objtype = ObjectService.get_object_type(context.object)
 
         if objtype != "Basemesh":
             self.report({'ERROR'}, "Can only delete helpers on basemesh")

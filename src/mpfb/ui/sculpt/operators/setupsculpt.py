@@ -4,7 +4,6 @@ from mpfb.services.nodeservice import NodeService
 from mpfb.services.objectservice import ObjectService
 from mpfb.services.locationservice import LocationService
 from mpfb.services.targetservice import TargetService
-from mpfb.entities.objectproperties import GeneralObjectProperties
 from mpfb._classmanager import ClassManager
 import bpy, json, math, os
 from bpy.types import StringProperty
@@ -24,7 +23,7 @@ class MPFB_OT_Setup_Sculpt_Operator(bpy.types.Operator):
         if context.object is None:
             return False
 
-        objtype = GeneralObjectProperties.get_value("object_type", entity_reference=context.object)
+        objtype = ObjectService.get_object_type(context.object)
 
         if not objtype or objtype == "Skeleton":
             return
@@ -91,7 +90,7 @@ class MPFB_OT_Setup_Sculpt_Operator(bpy.types.Operator):
 
         bpy.ops.object.duplicate(linked=False)
 
-        objtype = GeneralObjectProperties.get_value("object_type", entity_reference=context.object)
+        objtype = ObjectService.get_object_type(context.object)
 
         dest = context.object
         dest.name = "Object to bake to (select second when baking)"
@@ -176,7 +175,7 @@ class MPFB_OT_Setup_Sculpt_Operator(bpy.types.Operator):
 
         obj = context.object
 
-        objtype = GeneralObjectProperties.get_value("object_type", entity_reference=context.object)
+        objtype = ObjectService.get_object_type(context.object)
 
         if not objtype or objtype == "Skeleton":
             self.report({'ERROR'}, "Can only prepare makehuman type meshes")
@@ -243,7 +242,7 @@ class MPFB_OT_Setup_Sculpt_Operator(bpy.types.Operator):
                 if obj.parent:
                     parent = obj.parent
 
-                for child in ObjectService.get_list_of_children(parent):
+                for child in ObjectService.find_related_objects(parent, only_children=True):
                     child.hide_viewport = True
 
                 parent.hide_viewport = True
@@ -257,7 +256,7 @@ class MPFB_OT_Setup_Sculpt_Operator(bpy.types.Operator):
 
                 parent.hide_viewport = False
 
-                for child in ObjectService.get_list_of_children(parent):
+                for child in ObjectService.find_related_objects(parent, only_children=True):
                     child.hide_viewport = True
                     _LOG.debug("Hiding", child)
 
@@ -273,7 +272,7 @@ class MPFB_OT_Setup_Sculpt_Operator(bpy.types.Operator):
 
                 parent.hide_viewport = False
 
-                for child in ObjectService.get_list_of_children(parent):
+                for child in ObjectService.find_related_objects(parent, only_children=True):
                     child.hide_viewport = True
                     _LOG.debug("Hiding", child)
 

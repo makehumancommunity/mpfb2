@@ -1,4 +1,5 @@
-import bpy, os, json, random, gzip
+
+import bpy, os, json, random, gzip, typing
 from mpfb.services.logservice import LogService
 from mpfb.services.locationservice import LocationService
 from mpfb.entities.objectproperties import GeneralObjectProperties
@@ -11,6 +12,12 @@ _BASEMESH_VERTEX_GROUPS_EXPANDED = None
 
 _BASEMESH_FACE_TO_VERTEX_TABLE = None
 _BASEMESH_VERTEX_TO_FACE_TABLE = None
+
+_BODY_PART_TYPES = ("Eyes", "Eyelashes", "Eyebrows", "Tongue", "Teeth", "Hair")
+_MESH_ASSET_TYPES = ("Proxymeshes", "Clothes") + _BODY_PART_TYPES
+_MESH_TYPES = ("Basemesh",) + _MESH_ASSET_TYPES
+_ARMATURE_TYPES = ("Skeleton",)
+_ALL_TYPES = _ARMATURE_TYPES + _MESH_TYPES
 
 class ObjectService:
 
@@ -108,24 +115,47 @@ class ObjectService:
         return children
 
     @staticmethod
-    def get_object_type(blender_object):
+    def get_object_type(blender_object) -> str:
         if not blender_object:
-            return None
-        return GeneralObjectProperties.get_value("object_type", entity_reference=blender_object)
+            return ""
+
+        object_type = GeneralObjectProperties.get_value("object_type", entity_reference=blender_object)
+
+        return str(object_type or "").strip()
 
     @staticmethod
-    def object_is(blender_object, mpfb_type_name):
-        if not blender_object:
-            return False
-        if not mpfb_type_name or not str(mpfb_type_name).strip():
+    def object_is(blender_object, mpfb_type_name: str | typing.Sequence[str]):
+        """
+        Check if the given object is of the correct type(s).
+
+        Args:
+            blender_object: Object to test
+            mpfb_type_name: Type name, or list/tuple of acceptable type names.
+        """
+
+        if not mpfb_type_name:
             return False
 
-        mpfb_type = GeneralObjectProperties.get_value("object_type", entity_reference=blender_object)
+        mpfb_type = ObjectService.get_object_type(blender_object)
 
         if not mpfb_type:
             return False
 
-        return str(mpfb_type_name).lower().strip() in str(mpfb_type).lower().strip()
+        mpfb_type = mpfb_type.lower()
+
+        if isinstance(mpfb_type_name, str):
+            mpfb_type_name = [mpfb_type_name]
+
+        for item in mpfb_type_name:
+            stripped = str(item).lower().strip()
+            if stripped and stripped in mpfb_type:
+                return True
+
+        if mpfb_type_name is _ALL_TYPES:
+            # This is supposed to handle all possible types.
+            _LOG.debug("Unexpected object type: " + mpfb_type)
+
+        return False
 
     @staticmethod
     def object_is_basemesh(blender_object):
@@ -153,33 +183,109 @@ class ObjectService:
 
     @staticmethod
     def object_is_any_makehuman_mesh(blender_object):
-        return blender_object and blender_object.type == "MESH" and\
-               GeneralObjectProperties.get_value("object_type", entity_reference=blender_object)
+        return blender_object and blender_object.type == "MESH" and ObjectService.get_object_type(blender_object)
 
     @staticmethod
-    def find_object_of_type_amongst_nearest_relatives(blender_object, mpfb_type_name="Basemesh"):
+    def object_is_any_mesh_asset(blender_object):
+        return blender_object and blender_object.type == "MESH" and\
+            ObjectService.object_is(blender_object, _MESH_ASSET_TYPES)
+
+    @staticmethod
+    def object_is_any_makehuman_object(blender_object):
+        return blender_object and ObjectService.get_object_type(blender_object)
+
+    @staticmethod
+    def find_object_of_type_amongst_nearest_relatives(
+            blender_object: bpy.types.Object,
+            mpfb_type_name: str | typing.Sequence[str] = "Basemesh", *,
+            only_parents=False, strict_parent=False, only_children=False,
+            ) -> typing.Optional[bpy.types.Object]:
+        """
+        Find one object of the given type(s) among the children, parents and siblings of the object.
+        """
+        relatives = ObjectService.find_all_objects_of_type_amongst_nearest_relatives(
+            blender_object, mpfb_type_name,
+            only_parents=only_parents, strict_parent=strict_parent, only_children=only_children)
+
+        return next(relatives, None)
+
+    @staticmethod
+    def find_all_objects_of_type_amongst_nearest_relatives(
+            blender_object: bpy.types.Object,
+            mpfb_type_name: str | typing.Sequence[str] = "Basemesh", *,
+            only_parents=False, strict_parent=False, only_children=False,
+            ) -> typing.Generator[bpy.types.Object, None, None]:
+        """
+        Find all objects of the given type(s) among the children, parents and siblings of the object.
+
+        Args:
+            blender_object: Object to start search from.
+            mpfb_type_name: String or sequence of strings denoting valid types.
+            only_parents: Only search among the object and its parents.
+            strict_parent: Don't search immediate siblings if the parent isn't a MakeHuman object.
+            only_children: Only search among the object and its children.
+        """
 
         if not blender_object or not mpfb_type_name:
-            return None
+            return
 
-        type_name = str(mpfb_type_name).strip()
+        def rec_children(rec_parent, exclude=None):
+            if only_parents:
+                return
 
-        if ObjectService.object_is(blender_object, type_name):
-            return blender_object
+            for parents_child in ObjectService.get_list_of_children(rec_parent):
+                if parents_child == exclude:
+                    continue
 
+                if ObjectService.object_is(parents_child, mpfb_type_name):
+                    yield parents_child
+                elif parents_child.type == "ARMATURE":
+                    yield from rec_children(parents_child)
+
+        if ObjectService.object_is(blender_object, mpfb_type_name):
+            yield blender_object
+
+        yield from rec_children(blender_object)
+
+        if only_children:
+            return
+
+        parent_from = blender_object
         parent = blender_object.parent
-        if parent:
-            if ObjectService.object_is(parent, type_name):
-                return parent
-            for parents_child in ObjectService.get_list_of_children(parent):
-                if ObjectService.object_is(parents_child, type_name):
-                    return parents_child
 
-        for objects_child in ObjectService.get_list_of_children(blender_object):
-            if ObjectService.object_is(objects_child, type_name):
-                return objects_child
+        while parent:
+            if strict_parent:
+                if parent.type != 'ARMATURE' and not ObjectService.object_is_any_makehuman_object(parent):
+                    break
 
-        return None
+            if ObjectService.object_is(parent, mpfb_type_name):
+                yield parent
+
+            yield from rec_children(parent, parent_from)
+
+            parent_from = parent
+            parent = parent.parent
+            strict_parent = True
+
+    @staticmethod
+    def find_related_objects(blender_object, **kwargs):
+        yield from ObjectService.find_all_objects_of_type_amongst_nearest_relatives(
+            blender_object, _ALL_TYPES, **kwargs)
+
+    @staticmethod
+    def find_related_mesh_base_or_assets(blender_object, **kwargs):
+        yield from ObjectService.find_all_objects_of_type_amongst_nearest_relatives(
+            blender_object, _MESH_TYPES, **kwargs)
+
+    @staticmethod
+    def find_related_mesh_assets(blender_object, **kwargs):
+        yield from ObjectService.find_all_objects_of_type_amongst_nearest_relatives(
+            blender_object, _MESH_ASSET_TYPES, **kwargs)
+
+    @staticmethod
+    def find_related_body_part_assets(blender_object, **kwargs):
+        yield from ObjectService.find_all_objects_of_type_amongst_nearest_relatives(
+            blender_object, _BODY_PART_TYPES, **kwargs)
 
     @staticmethod
     def load_wavefront_file(filepath, context=None):

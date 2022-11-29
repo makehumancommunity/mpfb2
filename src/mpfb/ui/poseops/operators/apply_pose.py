@@ -5,6 +5,7 @@ from bpy_extras.io_utils import ImportHelper
 from bpy.props import StringProperty
 from mpfb.entities.material.makeskinmaterial import MakeSkinMaterial
 from mpfb.services.logservice import LogService
+from mpfb.services.objectservice import ObjectService
 from mpfb.services.rigservice import RigService
 from mpfb import ClassManager
 
@@ -19,8 +20,7 @@ class MPFB_OT_Apply_Pose_Operator(bpy.types.Operator):
     @classmethod
     def poll(cls, context):
         if context.active_object is not None:
-            from mpfb.entities.objectproperties import GeneralObjectProperties
-            objtype = GeneralObjectProperties.get_value("object_type", entity_reference=context.active_object)
+            objtype = ObjectService.get_object_type(context.active_object)
             return objtype == "Skeleton"
         return False
 

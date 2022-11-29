@@ -35,7 +35,7 @@ class ClothesService:
 
         if mhclo is None:
             mhclo_fragment = GeneralObjectProperties.get_value("asset_source", entity_reference=clothes)
-            object_type = GeneralObjectProperties.get_value("object_type", entity_reference=clothes)
+            object_type = ObjectService.get_object_type(clothes)
 
             if mhclo_fragment and object_type:
                 mhclo_path = AssetService.find_asset_absolute_path(mhclo_fragment, str(object_type).lower())
@@ -221,7 +221,7 @@ class ClothesService:
         _LOG.debug("clothes_object", clothes_object)
         if not mhclo_full_path:
             asset_source = GeneralObjectProperties.get_value("asset_source", entity_reference=clothes_object)
-            object_type = str(GeneralObjectProperties.get_value("object_type", entity_reference=clothes_object)).lower()
+            object_type = ObjectService.get_object_type(clothes_object).lower()
             _LOG.debug("asset source, object type", (asset_source, object_type))
             mhclo_full_path = AssetService.find_asset_absolute_path(asset_source, object_type)
         _LOG.debug("final mhclo full path", mhclo_full_path)

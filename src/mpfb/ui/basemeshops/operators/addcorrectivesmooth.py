@@ -1,5 +1,5 @@
 from mpfb.services.logservice import LogService
-from mpfb.entities.objectproperties import GeneralObjectProperties
+from mpfb.services.objectservice import ObjectService
 from mpfb._classmanager import ClassManager
 import bpy
 
@@ -19,7 +19,7 @@ class MPFB_OT_Add_Corrective_Smooth_Operator(bpy.types.Operator):
         if context.object is None:
             return False
 
-        objtype = GeneralObjectProperties.get_value("object_type", entity_reference=context.object)
+        objtype = ObjectService.get_object_type(context.object)
 
         if not objtype or context.object.type != "MESH":
             return False
@@ -38,7 +38,7 @@ class MPFB_OT_Add_Corrective_Smooth_Operator(bpy.types.Operator):
             return {'CANCELLED'}
 
         obj = context.object
-        objtype = GeneralObjectProperties.get_value("object_type", entity_reference=obj)
+        objtype = ObjectService.get_object_type(obj)
 
         if not objtype or obj.type != "MESH":
             self.report({'ERROR'}, "Can only add Corrective Smooth to MakeHuman meshes")

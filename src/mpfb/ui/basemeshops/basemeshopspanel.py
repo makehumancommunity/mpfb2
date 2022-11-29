@@ -2,6 +2,7 @@ import os, bpy
 from mpfb._classmanager import ClassManager
 from mpfb.services.logservice import LogService
 from mpfb.services.locationservice import LocationService
+from mpfb.services.objectservice import ObjectService
 from mpfb.services.sceneconfigset import SceneConfigSet
 from mpfb.services.uiservice import UiService
 from mpfb.ui.abstractpanel import Abstract_Panel
@@ -27,9 +28,7 @@ class MPFB_PT_BasemeshOpsPanel(Abstract_Panel):
         if context.object is None:
             return
 
-        from mpfb.entities.objectproperties import GeneralObjectProperties
-
-        objtype = GeneralObjectProperties.get_value("object_type", entity_reference=context.object)
+        objtype = ObjectService.get_object_type(context.object)
 
         if objtype == "Basemesh":
             layout.operator("mpfb.bake_shapekeys")

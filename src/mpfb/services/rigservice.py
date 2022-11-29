@@ -8,7 +8,7 @@ from mpfb.services.locationservice import LocationService
 from mpfb.services.logservice import LogService
 from mpfb.services.targetservice import TargetService
 from .objectservice import ObjectService
-from mpfb.entities.objectproperties import GeneralObjectProperties
+
 
 _LOG = LogService.get_logger("services.rigservice")
 
@@ -50,20 +50,18 @@ class RigService:
     def apply_pose_as_rest_pose(armature_object):
         """This will a) apply the pose modifier on each child mesh, b) apply the current pose as rest pose on the armature_object,
         and c) create a new pose modifier on each child mesh."""
-        for child in ObjectService.get_list_of_children(armature_object):
+        for child in ObjectService.find_related_mesh_base_or_assets(armature_object, only_children=True):
             _LOG.debug("Child", child)
             ObjectService.deselect_and_deactivate_all()
             ObjectService.activate_blender_object(child)
-            objtype = GeneralObjectProperties.get_value("object_type", entity_reference=child)
+            objtype = ObjectService.get_object_type(child)
             if objtype == "Basemesh":
                 _LOG.debug("Found basemesh, will now bake its targets")
                 TargetService.bake_targets(child)
             for modifier in child.modifiers:
                 if modifier.type == 'ARMATURE':
                     _LOG.debug("Will apply modifier", modifier)
-                    if modifier.use_multi_modifier:
-                        child.modifiers.remove(modifier)
-                    else:
+                    if not modifier.use_multi_modifier and modifier.object == armature_object:
                         bpy.ops.object.modifier_apply( modifier = modifier.name )
 
         ObjectService.deselect_and_deactivate_all()
@@ -72,7 +70,7 @@ class RigService:
         bpy.ops.pose.armature_apply(selected=False)
         bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
 
-        for child in ObjectService.get_list_of_children(armature_object):
+        for child in ObjectService.find_related_mesh_base_or_assets(armature_object, only_children=True):
             _LOG.debug("Child", child)
             ObjectService.deselect_and_deactivate_all()
             ObjectService.activate_blender_object(child)
@@ -104,10 +102,8 @@ class RigService:
 
         if index_normal < 0:
             if index_pv >= 0:
-                # Something weird
-                return
-
-            if move_to_top:
+                index_normal = index_pv
+            elif move_to_top:
                 index_normal = 0
             else:
                 index_normal = len(object.modifiers)
