@@ -40,7 +40,7 @@ class MPFB_OT_Save_Rig_Operator(bpy.types.Operator, ExportHelper):
             self.report({'ERROR'}, "Could not find related base mesh. It should have been parent or child of armature object.")
             return {'FINISHED'}
 
-        rig = Rig.from_given_basemesh_and_armature_as_active_object(basemesh)
+        rig = Rig.from_given_basemesh_and_armature(basemesh, armature_object)
 
         _LOG.dump("final rig_definition", rig.rig_definition)
 

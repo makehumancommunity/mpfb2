@@ -7,21 +7,24 @@ from mpfb.entities.objectproperties import GeneralObjectProperties
 import bpy, math, json, random
 
 from mathutils import Vector, Matrix
+from mathutils.kdtree import KDTree
 
 _LOG = LogService.get_logger("entities.rig")
 
 _MAX_ALLOWED_DIST = 0.01
 _MAX_DIST_TO_CONSIDER_EXACT = 0.001
 _STRATEGY_REPLACE_THRESHOLD = 0.0001
+_MEAN_LENGTH_PENALTY = 1.0  # Higher penalizes distant vertex pairs more
+
 
 class Rig:
 
     """Entity class representing an armature."""
 
-    def __init__(self):
+    def __init__(self, basemesh, armature=None):
         """You might want to use one of the static methods rather than calling init directly."""
-        self.basemesh = None
-        self.armature_object = None
+        self.basemesh = basemesh
+        self.armature_object = armature
         self.position_info = dict()
         self.rig_definition = dict()
         self.lowest_point = 1000.0
@@ -29,34 +32,38 @@ class Rig:
     @staticmethod
     def from_json_file_and_basemesh(filename, basemesh):
         """Create an instance of Rig and populate it with information from the json file and from the base mesh."""
-        rig = Rig()
+        rig = Rig(basemesh)
         with open(filename, "r") as json_file:
             rig.rig_definition = json.load(json_file)
-        rig.basemesh = basemesh
         rig.build_basemesh_position_info()
         return rig
 
     @staticmethod
-    def from_given_basemesh_and_armature_as_active_object(basemesh):
+    def from_given_basemesh_and_armature(basemesh, armature, *, fast_positions=False):
         """Create an instance of Rig and populate it with information from the base mesh
         and from the armature which is expected to be the currently active object."""
 
-        rig = Rig()
+        rig = Rig(basemesh, armature)
 
-        rig.armature_object = bpy.context.object
-        rig.basemesh = basemesh
         rig.build_basemesh_position_info()
-        rig.add_edit_bone_info()
-        rig.add_pose_bone_info()
+        rig.add_data_bone_info()
 
-        bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
+        if fast_positions:
+            rig.match_bone_positions_with_strategies(fast=True)
 
-        rig.match_edit_bones_with_joint_cubes()
-        rig.match_remaining_edit_bones_with_vertices()
-        rig.match_remaining_edit_bones_with_vertex_means()
-        rig.restore_saved_strategies()
+        else:
+            assert bpy.context.active_object == armature
 
-        rig.cleanup_float_values()
+            bpy.ops.object.mode_set(mode='EDIT', toggle=False)
+            rig.add_edit_bone_info()
+            bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
+
+            rig.add_pose_bone_info()
+
+            rig.match_bone_positions_with_strategies()
+            rig.restore_saved_strategies()
+
+            rig.cleanup_float_values()
 
         return rig
 
@@ -386,26 +393,26 @@ class Rig:
                 sum_pos[n] = sum_pos[n] / float(len(group))
             cubes[name] = sum_pos
 
-    def add_edit_bone_info(self):
-        """Extract bone information from the edit bones."""
 
-        bpy.ops.object.mode_set(mode='EDIT', toggle=False)
+    def add_data_bone_info(self):
+        """Extract bone information from the bone data."""
 
-        for bone in self.armature_object.data.edit_bones:
+        assert self.armature_object.mode != 'EDIT'
+
+        for bone in self.armature_object.data.bones:
             bone_info = dict()
             bone_info["parent"] = ""
             if bone.parent:
                 bone_info["parent"] = bone.parent.name
 
             bone_info["head"] = dict()
-            bone_info["head"]["default_position"] = list(bone.head)
+            bone_info["head"]["default_position"] = list(bone.head_local)
             bone_info["head"]["strategy"] = "DEFAULT"
 
             bone_info["tail"] = dict()
-            bone_info["tail"]["default_position"] = list(bone.tail)
+            bone_info["tail"]["default_position"] = list(bone.tail_local)
             bone_info["tail"]["strategy"] = "DEFAULT"
 
-            bone_info["roll"] = bone.roll
             bone_info["use_connect"] = bone.use_connect
             bone_info["use_local_location"] = bone.use_local_location
             bone_info["use_inherit_rotation"] = bone.use_inherit_rotation
@@ -419,6 +426,17 @@ class Rig:
                 bone_info["layers"].append(layer)
 
             self.rig_definition[bone.name] = bone_info
+
+    def add_edit_bone_info(self):
+        """Extract bone information from the edit bones."""
+
+        assert self.armature_object.mode == 'EDIT'
+
+        for bone in self.armature_object.data.edit_bones:
+            bone_info = self.rig_definition[bone.name]
+
+            # Info that must be accessed in Edit mode
+            bone_info["roll"] = bone.roll
 
         _LOG.dump("rig_definition after edit bones", self.rig_definition)
 
@@ -462,7 +480,7 @@ class Rig:
     def add_pose_bone_info(self):
         """Extract information from the pose bones."""
 
-        bpy.ops.object.mode_set(mode='POSE', toggle=False)
+        assert self.armature_object.mode != 'EDIT'
 
         for bone in self.armature_object.pose.bones:
             bone_info = self.rig_definition[bone.name]
@@ -546,60 +564,53 @@ class Rig:
 
         return info
 
-    def match_edit_bones_with_joint_cubes(self):
+    def match_bone_positions_with_strategies(self, fast=False):
         """Try to find out bone positions matching joint cubes."""
 
         for bone_name in self.rig_definition.keys():
             bone_info = self.rig_definition[bone_name]
 
-            head_cube_name = self._find_closest_cube(bone_info["head"]["default_position"])
-            tail_cube_name = self._find_closest_cube(bone_info["tail"]["default_position"])
+            self._match_position_to_strategy(bone_info["head"], fast)
+            self._match_position_to_strategy(bone_info["tail"], fast)
 
-            if head_cube_name and not head_cube_name is None:
-                bone_info["head"]["strategy"] = "CUBE"
-                bone_info["head"]["cube_name"] = head_cube_name
+    def _match_position_to_strategy(self, position_info, fast):
+        pos = position_info["default_position"]
 
-            if tail_cube_name and not tail_cube_name is None:
-                bone_info["tail"]["strategy"] = "CUBE"
-                bone_info["tail"]["cube_name"] = tail_cube_name
+        best_dist = 100.0
+        exact_threshold = _MAX_DIST_TO_CONSIDER_EXACT
+        strategy = None
 
-    def match_remaining_edit_bones_with_vertices(self):
-        """Go through all bones and try to match the one with DEFAULT strategy against vertex positions."""
+        cube_name, cube_dist = self._find_closest_cube(pos)
+        vertex_idx, vertex_dist = self._find_closest_vertex(pos)
 
-        for bone_name in self.rig_definition.keys():
-            bone_info = self.rig_definition[bone_name]
+        if cube_name is not None:
+            strategy = "CUBE"
+            best_dist = cube_dist
 
-            if bone_info["head"]["strategy"] != "CUBE":
-                head_vertex_index = self._find_closest_vertex(bone_info["head"]["default_position"])
-                if not head_vertex_index is None:
-                    bone_info["head"]["strategy"] = "VERTEX"
-                    bone_info["head"]["vertex_index"] = head_vertex_index
+        if vertex_idx is not None:
+            # Prefer exact vertex to a non-exact cube
+            if not strategy or vertex_dist < exact_threshold < cube_dist:
+                strategy = "VERTEX"
+                best_dist = vertex_dist
 
-            if bone_info["tail"]["strategy"] != "CUBE":
-                tail_vertex_index = self._find_closest_vertex(bone_info["tail"]["default_position"])
-                if not tail_vertex_index is None:
-                    bone_info["tail"]["strategy"] = "VERTEX"
-                    bone_info["tail"]["vertex_index"] = tail_vertex_index
+        # Use mean to replace non-exact vertices if better
+        if strategy != "CUBE" and best_dist > exact_threshold and not fast:
+            # If already near a vertex, only search for a better mean nearby.
+            search_radius = _MAX_ALLOWED_DIST * 2 if strategy else None
 
-    def match_remaining_edit_bones_with_vertex_means(self):
-        """Go through all bones and try to match the one with DEFAULT strategy against geometric means between vertex positions."""
+            mean_idxs, mean_dist = self._find_closest_vertex_mean(pos, search_radius=search_radius)
 
-        for bone_name in self.rig_definition.keys():
-            bone_info = self.rig_definition[bone_name]
+            if mean_idxs is not None and mean_dist < best_dist:
+                strategy = "MEAN"
+                position_info["vertex_indices"] = mean_idxs
 
-            if bone_info["head"]["strategy"] == "DEFAULT":
-                _LOG.debug("Starting to look for mean for head", (bone_name, bone_info["head"]["default_position"]))
-                head_vertex_indices = self._find_closest_vertex_mean(bone_info["head"]["default_position"])
-                if not head_vertex_indices is None:
-                    bone_info["head"]["strategy"] = "MEAN"
-                    bone_info["head"]["vertex_indices"] = head_vertex_indices
+        if strategy:
+            position_info["strategy"] = strategy
 
-            if bone_info["tail"]["strategy"] == "DEFAULT":
-                _LOG.debug("Starting to look for mean for tail", (bone_name, bone_info["tail"]["default_position"]))
-                tail_vertex_indices = self._find_closest_vertex_mean(bone_info["tail"]["default_position"])
-                if not tail_vertex_indices is None:
-                    bone_info["tail"]["strategy"] = "MEAN"
-                    bone_info["tail"]["vertex_indices"] = tail_vertex_indices
+            if strategy == "CUBE":
+                position_info["cube_name"] = cube_name
+            elif strategy == "VERTEX":
+                position_info["vertex_index"] = vertex_idx
 
     def restore_saved_strategies(self):
         """Check if the saved strategies are better and apply them."""
@@ -664,82 +675,77 @@ class Rig:
             sqr_pos[i] = abs(pos1[i]-pos2[i]) * abs(pos1[i]-pos2[i])
         return math.sqrt(sqr_pos[0] + sqr_pos[1] + sqr_pos[2])
 
-    def _find_closest_cube(self, pos, max_allowed_dist=_MAX_ALLOWED_DIST, max_dist_to_consider_exact=_MAX_DIST_TO_CONSIDER_EXACT):
+    def _get_cube_tree(self):
+        if "cubes_tree" in self.position_info:
+            return self.position_info["cubes_tree"], self.position_info["cubes_list"]
+
         cubes = self.position_info["cubes"]
 
-        best_match_name = None
-        best_match_dist = 1000.0
+        if not cubes:
+            return None, None
 
-        for name in cubes.keys():
-            cube_pos = cubes[name]
-            dist = self._distance(pos, cube_pos)
-            if dist < max_dist_to_consider_exact:
-                # This position is so close to the center of the cube that we consider it an exact match
-                return str(name)
-            if dist < best_match_dist:
-                best_match_name = str(name)
-                best_match_dist = dist
+        cube_list = self.position_info["cubes_list"] = list(cubes.keys())
+        cube_tree = self.position_info["cubes_tree"] = KDTree(len(cube_list))
 
-        if best_match_dist < max_allowed_dist:
-            return best_match_name
+        for i, name in enumerate(cube_list):
+            cube_tree.insert(cubes[name], i)
 
-        return None
+        cube_tree.balance()
 
-    def _find_closest_vertex(self, pos, max_allowed_dist=_MAX_ALLOWED_DIST, max_dist_to_consider_exact=_MAX_DIST_TO_CONSIDER_EXACT):
+        return cube_tree, cube_list
 
-        best_match_index = None
-        best_match_dist = 1000.0
+    def _find_closest_cube(self, pos, max_allowed_dist=_MAX_ALLOWED_DIST) -> tuple[str, float] | tuple[None, None]:
+        cube_tree, cube_list = self._get_cube_tree()
 
-        # There's no point in calculating exact distances to vertices which are rougly, more than 0.1 points
-        # away from the desired position
-        reasonably_close_vertices = []
-        max_allowed_distsum = max_allowed_dist * 10
+        if not cube_tree:
+            return None, None
 
-        # Make a first sweep to see if we can find an exact match. Three subtractions is a lot faster
-        # than calculating a distance with square roots and whatnot.
-        for idx in range(len(self.position_info["vertices"])):
-            vertex = self.position_info["vertices"][idx]
-            is_close = True
-            distsum = 0.0
-            for i in range(3):
-                dist = abs(vertex[i] - pos[i])
-                if dist > max_dist_to_consider_exact:
-                    is_close = False
-                distsum = distsum + dist
-            if is_close:
-                # We found a vertex which is close enough to be considered an exact match
-                return idx
-            if distsum < max_allowed_distsum:
-                # The vertext is close enough to be relevant to consider when calculating
-                # exact distances
-                reasonably_close_vertices.append(idx)
+        # Find the closest point
+        _cube_pos, index, dist = cube_tree.find(pos)
 
-        # We did not have an exact match. Make secondary sweep
+        if dist < max_allowed_dist:
+            return cube_list[index], dist
 
-        for idx in reasonably_close_vertices:
-            vertex = self.position_info["vertices"][idx]
-            dist = self._distance(pos, vertex)
-            if dist < best_match_dist:
-                best_match_dist = dist
-                best_match_index = idx
+        return None, None
 
-        if best_match_dist < max_allowed_dist:
-            return best_match_index
+    def _get_vertex_tree(self):
+        if "vertices_tree" in self.position_info:
+            return self.position_info["vertices_tree"]
 
-        return None
+        vertices = self.position_info["vertices"]
 
-    def _find_closest_vertex_mean(self, pos, max_allowed_dist=_MAX_ALLOWED_DIST*2, max_dist_to_consider_exact=_MAX_DIST_TO_CONSIDER_EXACT*2):
+        assert len(vertices) > 0
 
-        within_range_idxs = []
+        vertex_tree = self.position_info["vertices_tree"] = KDTree(len(vertices))
 
-        # First we'll only include verts which are less than 15% of the total height
-        # away from the position along any axis
+        for i, vert in enumerate(vertices):
+            vertex_tree.insert(vert, i)
+
+        vertex_tree.balance()
+
+        return vertex_tree
+
+    def _find_closest_vertex(self, pos, max_allowed_dist=_MAX_ALLOWED_DIST) -> tuple[int, float] | tuple[None, None]:
+        vertex_tree = self._get_vertex_tree()
+
+        # Find the closest point
+        _vertex, idx, dist = vertex_tree.find(pos)
+
+        if dist < max_allowed_dist:
+            return idx, dist
+
+        return None, None
+
+    def _get_vertex_total_height(self):
+        if "vertices_mean_scale" in self.position_info:
+            return self.position_info["vertices_mean_scale"]
+
+        vertices = self.position_info["vertices"]
 
         highest_z = -1000.0
         lowest_z = 1000.0
 
-        for idx in range(len(self.position_info["vertices"])):
-            vertex = self.position_info["vertices"][idx]
+        for vertex in vertices:
             if vertex[2] > highest_z:
                 highest_z = vertex[2]
             if vertex[2] < lowest_z:
@@ -748,59 +754,59 @@ class Rig:
         total_height = abs(highest_z - lowest_z)
         _LOG.debug("total height", total_height)
 
-        max_axis_distance = 0.15 * total_height
+        self.position_info["vertices_mean_scale"] = total_height
 
-        for idx in range(len(self.position_info["vertices"])):
-            vertex = self.position_info["vertices"][idx]
-            is_close = True
-            for i in range(3):
-                if abs(pos[i] - vertex[i]) > max_axis_distance:
-                    is_close = False
-            if is_close:
-                # This vertex is close enough to be considered at all
-                within_range_idxs.append(idx)
+        return total_height
 
-        geometric_means_table = dict()
+    def _find_closest_vertex_mean(self, pos, max_allowed_dist=_MAX_ALLOWED_DIST*2, search_radius=None):
+        vertex_tree = self._get_vertex_tree()
 
-        # The geometric mean should be even closer
-        max_allowed_distsum = max_axis_distance / 5
+        # Only include verts which are less than 15% of the total height
+        # away from the position along any axis.
+        max_axis_distance = 0.15 * self._get_vertex_total_height()
 
-        for idx1 in within_range_idxs:
-            geometric_means_table[idx1] = dict()
-            vertex1 = self.position_info["vertices"][idx1]
-            for idx2 in within_range_idxs:
-                vertex2 = self.position_info["vertices"][idx2]
-                distsum = 0.0
-                vertex_mean = [0.0, 0.0, 0.0]
-                for i in range(3):
-                    vertex_mean[i] = (vertex1[i] + vertex2[i]) / 2.0
-                    distsum = distsum + abs(pos[i] - vertex_mean[i])
-                if distsum < (max_dist_to_consider_exact * 3):
-                    # This is a candidate to check early
-                    actual_dist = self._distance(pos, vertex_mean)
-                    if actual_dist < max_dist_to_consider_exact:
-                        return [idx1, idx2]
-                if distsum < max_allowed_distsum:
-                    geometric_means_table[idx1][idx2] = vertex_mean
+        if search_radius is None:
+            search_radius = max_axis_distance
 
-        # Within all reason we should already have found a match. But if we haven't, there's no recourse
-        # short of brute forcing the entire table
+        # Factor used to penalize longer matches without much precision benefit.
+        # At _MEAN_LENGTH_PENALTY an exact vertex pair at max_axis_distance is the
+        # same weight as a zero distance pair with mean at max_allowed_dist.
+        length_penalty = _MEAN_LENGTH_PENALTY * max_allowed_dist / (max_axis_distance * 2)
 
+        pos = Vector(pos)
+
+        best_match_weight = max_allowed_dist + length_penalty * max_axis_distance * 2
         best_match_idxs = None
-        best_match_dist = 1000.0
+        best_match_dist = max_allowed_dist
 
-        for idx1 in within_range_idxs:
-            for idx2 in within_range_idxs:
-                if idx1 in geometric_means_table and idx2 in geometric_means_table[idx1]:
-                    vertex_mean = geometric_means_table[idx1][idx2]
-                    dist = self._distance(pos, vertex_mean)
-                    if dist < max_dist_to_consider_exact:
-                        return [idx1, idx2]
-                    if dist < best_match_dist and dist < max_allowed_dist:
-                        best_match_dist = dist
-                        best_match_idxs = [idx1, idx2]
+        # Loop over vertices anywhere within max_axis_distance along any axis.
+        for vertex1, idx1, dist1 in vertex_tree.find_range(pos, search_radius * math.sqrt(3)):
+            # Check against the cube for better backward compatibility.
+            if max(map(abs, vertex1 - pos)) >= search_radius:
+                continue
 
-        return best_match_idxs
+            # Finding a vertex pair with mean closest to the center is mathematically the same as
+            # finding a second vertex closest to the location of the first one mirrored against center.
+            vertex2, idx2, dist2 = vertex_tree.find(pos * 2 - vertex1)
+
+            # Only check one symmetry order, since [idx1, idx2] and [idx2, idx1] are equivalent.
+            if idx2 <= idx1:
+                continue
+
+            # Compute and check the mean.
+            mean = (vertex1 + vertex2) / 2
+            dist = (mean - pos).magnitude
+
+            if dist < max_allowed_dist:
+                # Compute an abstract weight to penalize more distant pairs.
+                weight = dist + (vertex2 - vertex1).magnitude * length_penalty
+
+                if weight < best_match_weight:
+                    best_match_weight = weight
+                    best_match_idxs = [idx1, idx2]
+                    best_match_dist = dist
+
+        return best_match_idxs, best_match_dist
 
 
 def matrix_from_axis_pair(y_axis, other_axis, axis_name):
