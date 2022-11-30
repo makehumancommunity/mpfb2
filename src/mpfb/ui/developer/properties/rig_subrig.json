@@ -1,0 +1,7 @@
+{
+    "type": "boolean",
+    "name": "rig_subrig",
+    "description": "Load or save a sub-rig for a clothing item or proxy",
+    "label": "Make sub-rig",
+    "default": false
+}

@@ -23,7 +23,7 @@ class Mhclo:
         self.license = "CC0"
         self.name = "imported_cloth"
         self.description = "no description"
-        self.folder = None
+        self.basename = None  # Filename minus extension
         self.material = None
         self.tags = ""
         self.zdepth = 50
@@ -34,7 +34,7 @@ class Mhclo:
         self.delete_group = "Delete"
         self.uuid = None
 
-    def load(self, mhclo_filename):
+    def load(self, mhclo_filename, *, only_metadata=False):
         """Populate settings from contents of a MHCLO file. This will not automatically load the
         mesh or the materials."""
 
@@ -48,7 +48,9 @@ class Mhclo:
 
         #realpath = os.path.realpath(os.path.expanduser(mhclo_filename))
         realpath = os.path.realpath(mhclo_filename)
-        folder = self.folder = os.path.dirname(realpath)
+        folder = os.path.dirname(realpath)
+
+        self.basename = os.path.splitext(realpath)[0]
 
         try:
             fp = open(mhclo_filename, "r", encoding="utf8", errors="surrogateescape")
@@ -91,6 +93,9 @@ class Mhclo:
 
             if str(words[0]).startswith("vertexboneweights"):
                 # Workaround for fixing ancient system assets
+                continue
+
+            if status and only_metadata:
                 continue
 
             # read vertices lines
@@ -167,7 +172,7 @@ class Mhclo:
         if not self.obj_file:
             _LOG.warn("Reaching end of mhclo parsing without finding obj file")
 
-        fp.close
+        fp.close()
 
     def load_mesh(self, context):
 

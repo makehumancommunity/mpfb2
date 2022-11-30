@@ -2,6 +2,7 @@
 
 from mpfb._classmanager import ClassManager
 from mpfb.services.logservice import LogService
+from mpfb.services.objectservice import ObjectService
 from mpfb.services.uiservice import UiService
 from mpfb.services.sceneconfigset import SceneConfigSet
 from mpfb.ui.abstractpanel import Abstract_Panel
@@ -24,8 +25,9 @@ class MPFB_PT_Rigify_Panel(Abstract_Panel):
     def draw(self, context):
         _LOG.enter()
         layout = self.layout
-        scene = context.scene
-        RIGIFY_PROPERTIES.draw_properties(scene, layout, ["name", "produce", "keep_meta"])
-        layout.operator("mpfb.convert_to_rigify")
+        if ObjectService.object_is_skeleton(context.active_object):
+            scene = context.scene
+            RIGIFY_PROPERTIES.draw_properties(scene, layout, ["name", "produce", "keep_meta"])
+            layout.operator("mpfb.convert_to_rigify")
 
 ClassManager.add_class(MPFB_PT_Rigify_Panel)

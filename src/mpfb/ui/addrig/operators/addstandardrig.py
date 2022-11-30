@@ -45,6 +45,8 @@ class MPFB_OT_AddStandardRigOperator(bpy.types.Operator):
         rig = Rig.from_json_file_and_basemesh(rig_file, basemesh)
         armature_object = rig.create_armature_and_fit_to_basemesh()
 
+        armature_object.name = armature_object.data.name = basemesh.name + ".rig"
+
         basemesh.parent = armature_object
 
         if import_weights:

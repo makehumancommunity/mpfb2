@@ -302,7 +302,7 @@ class HumanService:
     @staticmethod
     def add_mhclo_asset(mhclo_file, basemesh, asset_type="Clothes", subdiv_levels=1, material_type="MAKESKIN",
                         alternative_materials=None, color_adjustments=None,
-                        set_up_rigging=True, interpolate_weights=True, import_weights=True):
+                        set_up_rigging=True, interpolate_weights=True, import_subrig=True, import_weights=True):
         mhclo = Mhclo()
         mhclo.load(mhclo_file) # pylint: disable=E1101
         clothes = mhclo.load_mesh(bpy.context)
@@ -399,13 +399,11 @@ class HumanService:
                 modifier.invert_vertex_group = True
 
         rig = ObjectService.find_object_of_type_amongst_nearest_relatives(basemesh, "Skeleton")
+
         if rig and set_up_rigging:
-            clothes.parent = rig
-            if interpolate_weights:
-                ClothesService.interpolate_weights(basemesh, clothes, rig, mhclo)
-            if import_weights:
-                ClothesService.load_custom_weights(clothes, rig, mhclo)
-            RigService.ensure_armature_modifier(clothes, rig, move_to_top=False)
+            ClothesService.set_up_rigging(
+                basemesh, clothes, rig, mhclo, interpolate_weights=interpolate_weights,
+                import_subrig=import_subrig, import_weights=import_weights)
         else:
             clothes.parent = basemesh
 
@@ -1100,10 +1098,33 @@ class HumanService:
 
         for child in ObjectService.find_related_mesh_assets(parent_object, only_children=True):
             _LOG.debug("Will try to refit child proxy", child)
-            ClothesService.fit_clothes_to_human(child, basemesh)
+            ClothesService.fit_clothes_to_human(child, basemesh, set_parent=False)
 
         if rig:
-            RigService.refit_existing_armature(rig)
+            RigService.refit_existing_armature(rig, basemesh)
+
+            subrigs = []
+
+            for child in ObjectService.find_all_objects_of_type_amongst_nearest_relatives(
+                    parent_object, "Subrig", only_children=True):
+                # Refit metarigs instead of generated rigs
+                if ObjectService.object_is_generated_rigify_rig(child):
+                    child = ObjectService.find_rigify_metarig_by_rig(child)
+
+                if child and child not in subrigs:
+                    subrigs.append(child)
+
+            if subrigs:
+                rig.data.pose_position = "REST"
+
+                try:
+                    parent_rig = Rig.from_given_basemesh_and_armature(basemesh, rig, fast_positions=True)
+
+                    for child in subrigs:
+                        _LOG.debug("Will try to refit subrig", child)
+                        RigService.refit_existing_subrig(child, parent_rig)
+                finally:
+                    rig.data.pose_position = "POSE"
 
     @staticmethod
     def get_asset_sources_of_equipped_mesh_assets(basemesh):
@@ -1147,5 +1168,10 @@ class HumanService:
             for modifier in obj.modifiers:
                 if modifier.type == 'MASK' and modifier.name == delete_name:
                     obj.modifiers.remove(modifier)
+
+        subrig = ObjectService.find_object_of_type_amongst_nearest_relatives(asset, "Subrig", only_parents=True)
+
+        if subrig and asset in ObjectService.find_deformed_child_meshes(subrig):
+            bpy.data.objects.remove(subrig)
 
         bpy.data.objects.remove(asset)

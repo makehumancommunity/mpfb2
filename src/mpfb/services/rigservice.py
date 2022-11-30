@@ -6,8 +6,9 @@ from mathutils import Matrix, Vector
 from mathutils import Vector
 from mpfb.services.locationservice import LocationService
 from mpfb.services.logservice import LogService
+from mpfb.services.systemservice import SystemService
 from mpfb.services.targetservice import TargetService
-from .objectservice import ObjectService
+from mpfb.services.objectservice import ObjectService
 
 
 _LOG = LogService.get_logger("services.rigservice")
@@ -81,21 +82,31 @@ class RigService:
 
 
     @staticmethod
-    def ensure_armature_modifier(object, armature_object, *, move_to_top=True):
+    def ensure_armature_modifier(object, armature_object, *, move_to_top=True, subrig=None):
         """This creates armature modifier(s) pointing to the armature, or updates existing."""
 
         vg_name = "mhmask-preserve-volume"
+        sub_vg_name = "mhmask-subrig"
         index_normal = -1
         index_pv = -1
+        index_sub = -1
 
         for i, modifier in enumerate(object.modifiers):
             if modifier.type == 'ARMATURE':
-                modifier.object = armature_object
+                is_subrig = modifier.vertex_group == sub_vg_name
 
-                if modifier.vertex_group == vg_name:
+                if is_subrig:
+                    index_sub = i
+                elif modifier.vertex_group == vg_name:
                     index_pv = i
                 else:
                     index_normal = i
+
+                if is_subrig:
+                    if subrig is not None:
+                        modifier.object = subrig
+                else:
+                    modifier.object = armature_object
 
         if not armature_object:
             return
@@ -103,6 +114,8 @@ class RigService:
         if index_normal < 0:
             if index_pv >= 0:
                 index_normal = index_pv
+            elif index_sub >= 0:
+                index_normal = index_sub
             elif move_to_top:
                 index_normal = 0
             else:
@@ -127,6 +140,20 @@ class RigService:
             while object.modifiers.find(modifier.name) > index_pv:
                 bpy.ops.object.modifier_move_up({'object': object}, modifier=modifier.name)
 
+        if index_sub < 0 and subrig is not None:
+            if sub_vg_name not in object.vertex_groups:
+                object.vertex_groups.new(sub_vg_name)
+
+            index_sub = max(index_normal, index_pv) + 1
+
+            modifier = object.modifiers.new("Armature Subrig", 'ARMATURE')
+            modifier.object = subrig
+            modifier.use_multi_modifier = True
+            modifier.vertex_group = sub_vg_name
+            modifier.invert_vertex_group = True
+
+            while object.modifiers.find(modifier.name) > index_sub:
+                bpy.ops.object.modifier_move_up({'object': object}, modifier=modifier.name)
 
     @staticmethod
     def find_pose_bone_by_name(name, armature_object):
@@ -434,7 +461,7 @@ class RigService:
             _LOG.warn("Was not able to find empty child")
 
     @staticmethod
-    def get_weights(armature_object, basemesh, exclude_weights_below=0.0001, all_bones=False, all_masks=True):
+    def get_weights(armature_objects, basemesh, exclude_weights_below=0.0001, all_bones=False, all_masks=True):
         """Create a MHW-compatible weights dict"""
 
         # Eventhough it is unlikely we'll use these keys in MPFB, we'll assign them so that the dict
@@ -465,9 +492,13 @@ class RigService:
 
         _LOG.dump("vertex_group_index_to_name", vertex_group_index_to_name)
 
-        for bone in armature_object.data.bones:
-            if all_bones or bone.name in vertex_group_names:
-                weights["weights"][str(bone.name)] = []
+        if not isinstance(armature_objects, list):
+            armature_objects = [armature_objects]
+
+        for armature_object in armature_objects:
+            for bone in armature_object.data.bones:
+                if all_bones or bone.name in vertex_group_names:
+                    weights["weights"][str(bone.name)] = []
 
         _LOG.dump("Weights before vertices", weights)
 
@@ -597,7 +628,7 @@ class RigService:
             ["ORG-brow.T.R.002", "ORG-toe2-1.L", "rigify_generated.human_toes"]
             ]
 
-        guessed_rig = "unknown"
+        guessed_rig = None
 
         for identification in bone_name_to_rig:
             _LOG.debug("Matching identification", identification)
@@ -610,6 +641,14 @@ class RigService:
                     _LOG.debug("Matched one")
                     guessed_rig = identification[1]
             _LOG.debug("Guessed rig is now", guessed_rig)
+
+        if guessed_rig is None:
+            if ObjectService.object_is_generated_rigify_rig(armature_object):
+                guessed_rig = "rigify_generated.unknown"
+            elif ObjectService.object_is_rigify_metarig(armature_object, check_bones=True):
+                guessed_rig = "rigify.unknown"
+            else:
+                guessed_rig = "unknown"
 
         return guessed_rig
 
@@ -786,20 +825,16 @@ class RigService:
         return pose
 
     @staticmethod
-    def refit_existing_armature(armature_object):
-
-        from mpfb.entities.rig import Rig
-        _LOG.reset_timer()
-
-        current_active_object = bpy.context.view_layer.objects.active
-        bpy.context.view_layer.objects.active = armature_object
-
+    def refit_existing_armature(armature_object, basemesh):
         _LOG.debug("Armature object", armature_object)
-        basemesh = ObjectService.find_object_of_type_amongst_nearest_relatives(armature_object, "Basemesh")
-        if not basemesh:
-            raise ValueError("Could not find basemesh amongst rig's relatives")
+
+        # Try to refit Rigify metarig instead and re-generate
+        if metarig := ObjectService.find_rigify_metarig_by_rig(armature_object):
+            RigService.refit_existing_armature(metarig, basemesh)
+            return
 
         rig_type = RigService.identify_rig(armature_object)
+
         _LOG.debug("Rig type", rig_type)
 
         if not rig_type:
@@ -809,19 +844,73 @@ class RigService:
             raise ValueError("Cannot refit a generated rigify rig")
 
         rigdir = LocationService.get_mpfb_data("rigs")
+
         if rig_type.startswith("rigify."):
             rigdir = os.path.join(rigdir, "rigify")
             rig_type = rig_type[7:]
         else:
             rigdir = os.path.join(rigdir, "standard")
 
-        rigfile = os.path.join(rigdir, "rig." + rig_type + ".json")
-        _LOG.debug("Rig file", rigfile)
+        rig_file = os.path.join(rigdir, "rig." + rig_type + ".json")
 
-        rig = Rig.from_json_file_and_basemesh(rigfile, basemesh)
+        RigService._do_refit_existing_armature(armature_object, basemesh, rig_file)
+
+    @staticmethod
+    def refit_existing_subrig(armature_object, parent_rig):
+        from mpfb.entities.objectproperties import GeneralObjectProperties
+
+        assert not ObjectService.object_is_generated_rigify_rig(armature_object)
+
+        children = list(ObjectService.find_deformed_child_meshes(armature_object))
+
+        if generated := ObjectService.find_rigify_rig_by_metarig(armature_object):
+            children += list(ObjectService.find_deformed_child_meshes(generated))
+
+        uuid = GeneralObjectProperties.get_value("uuid", entity_reference=armature_object)
+        asset_mesh = None
+
+        for child in children:
+            if not ObjectService.object_is_any_mesh_asset(child):
+                continue
+
+            if uuid and uuid != GeneralObjectProperties.get_value("uuid", entity_reference=child):
+                continue
+
+            asset_mesh = child
+            break
+        else:
+            raise ValueError("Could not find subrig asset mesh")
+
+        from mpfb.services.clothesservice import ClothesService
+
+        asset_file = ClothesService.find_clothes_absolute_path(asset_mesh)
+
+        if not asset_file:
+            raise ValueError("Could not find subrig asset file")
+
+        rig_file = os.path.splitext(asset_file)[0] + ".rig.json"
+
+        RigService._do_refit_existing_armature(armature_object, asset_mesh, rig_file, parent_rig)
+
+    @staticmethod
+    def _do_refit_existing_armature(armature_object, basemesh, rig_file, parent_rig=None):
+        from mpfb.entities.rig import Rig
+        _LOG.reset_timer()
+
+        current_active_object = bpy.context.view_layer.objects.active
+        bpy.context.view_layer.objects.active = armature_object
+
+        _LOG.debug("Rig file", rig_file)
+
+        rig = Rig.from_json_file_and_basemesh(rig_file, basemesh, parent=parent_rig)
         rig.armature_object = armature_object
 
         rig.reposition_edit_bone()
+
+        # Automatically re-generate Rigify metarigs
+        if ObjectService.find_rigify_rig_by_metarig(armature_object):
+            if SystemService.check_for_rigify():
+                bpy.ops.pose.rigify_generate()
 
         bpy.context.view_layer.objects.active = current_active_object
         _LOG.time("Refitting took")

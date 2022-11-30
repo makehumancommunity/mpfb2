@@ -32,6 +32,7 @@ class MPFB_PT_Load_Clothes_Panel(Abstract_Panel):
             "specific_delete_group",
             "set_up_rigging",
             "interpolate_weights",
+            "import_subrig",
             "import_weights",
             "makeclothes_metadata"
             ])

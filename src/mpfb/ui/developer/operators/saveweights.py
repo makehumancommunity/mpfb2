@@ -30,17 +30,22 @@ class MPFB_OT_Save_Weights_Operator(bpy.types.Operator, ExportHelper):
     def execute(self, context):
         _LOG.enter()
 
+        subrig_object = None
+
         if ObjectService.object_is_any_mesh(context.object):
             basemesh = context.object
             armature_object = None
 
             for mod in basemesh.modifiers:
                 if mod.type == 'ARMATURE':
-                    armature_object = mod.object
-                    break
+                    if mod.vertex_group == "mhmask-subrig":
+                        subrig_object = mod.object
+                    elif not mod.vertex_group:
+                        armature_object = mod.object
 
             if armature_object is None:
-                self.report({'ERROR'}, "Could not find the related armature. The active mesh must have an Armature modifier that references it.")
+                self.report({'ERROR'}, "Could not find the related armature. The active mesh must have an Armature "
+                                       "modifier that references it.")
                 return {'FINISHED'}
 
         else:
@@ -57,6 +62,7 @@ class MPFB_OT_Save_Weights_Operator(bpy.types.Operator, ExportHelper):
 
         from mpfb.ui.developer.developerpanel import DEVELOPER_PROPERTIES  # pylint: disable=C0415
 
+        weights_mask = DEVELOPER_PROPERTIES.get_value("weights_mask", entity_reference=context.scene)
         save_evaluated = DEVELOPER_PROPERTIES.get_value("save_evaluated", entity_reference=context.scene)
         save_masks = DEVELOPER_PROPERTIES.get_value("save_masks", entity_reference=context.scene)
 
@@ -72,13 +78,26 @@ class MPFB_OT_Save_Weights_Operator(bpy.types.Operator, ExportHelper):
         absolute_file_path = bpy.path.abspath(self.filepath)
         _LOG.debug("absolute_file_path", absolute_file_path)
 
-        weights = RigService.get_weights(armature_object, basemesh, all_masks=save_masks)
+        armatures = []
+
+        if weights_mask in ("SKELETON", "BOTH"):
+            armatures.append(armature_object)
+
+        if weights_mask in ("SUBRIG", "BOTH"):
+            if not subrig_object:
+                self.report({'ERROR'}, "Could not find the related sub-rig. The active mesh must have an Armature "
+                                       "modifier with the 'mhmask-subrig' vertex group that references it.")
+                return {'FINISHED'}
+
+            armatures.append(subrig_object)
+
+        weights = RigService.get_weights(armatures, basemesh, all_masks=save_masks)
 
         # Strip the Rigify deform bone prefix for convenience
         def strip_def(name):
             if name.startswith('DEF-'):
                 # Only strip if a bone with that name existed in the metarig
-                if ('ORG-'+name[4:]) in armature_object.pose.bones:
+                if any(('ORG-'+name[4:]) in arm.pose.bones for arm in armatures):
                     return name[4:]
             return name
 

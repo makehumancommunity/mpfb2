@@ -2,11 +2,14 @@
 
 import random, os
 from mathutils import Vector
+
+from mpfb.entities.rig import Rig
 from mpfb.services.objectservice import ObjectService
 from mpfb.services.logservice import LogService
 from mpfb.services.assetservice import AssetService
 from mpfb.entities.objectproperties import GeneralObjectProperties
 from mpfb.entities.clothes.mhclo import Mhclo
+from mpfb.services.rigifyhelpers.rigifyhelpers import RigifyHelpers
 from mpfb.services.rigservice import RigService
 
 _LOG = LogService.get_logger("services.clothesservice")
@@ -19,7 +22,7 @@ class ClothesService:
         raise RuntimeError("You should not instance ClothesService. Use its static methods instead.")
 
     @staticmethod
-    def fit_clothes_to_human(clothes, basemesh, mhclo=None):
+    def fit_clothes_to_human(clothes, basemesh, mhclo=None, set_parent=True):
         """Move clothes vertices so they fit the current shape of the base mesh."""
 
         _LOG.dump("Given MHCLO object", mhclo)
@@ -110,11 +113,12 @@ class ClothesService:
 
         # We need to take into account that the base mesh might be rigged. If it is, we'll want the rig position
         # rather than the basemesh position
-        if basemesh.parent:
-            clothes.location = (0.0, 0.0, 0.0)
-            clothes.parent = basemesh.parent
-        else:
-            clothes.location = basemesh.location
+        if set_parent:
+            if basemesh.parent:
+                clothes.location = (0.0, 0.0, 0.0)
+                clothes.parent = basemesh.parent
+            else:
+                clothes.location = basemesh.location
 
         # As we are finished with the combined shape key we can now remove it
         basemesh.shape_key_remove(shape_key)
@@ -212,6 +216,15 @@ class ClothesService:
             modifier.invert_vertex_group = True
 
     @staticmethod
+    def find_clothes_absolute_path(clothes_object):
+        asset_source = GeneralObjectProperties.get_value("asset_source", entity_reference=clothes_object)
+        object_type = ObjectService.get_object_type(clothes_object).lower()
+        _LOG.debug("asset source, object type", (asset_source, object_type))
+
+        if asset_source and object_type:
+            return AssetService.find_asset_absolute_path(asset_source, object_type)
+
+    @staticmethod
     def interpolate_vertex_group_from_basemesh_to_clothes(basemesh, clothes_object, vertex_group_name, match_cutoff=0.3, mhclo_full_path=None):
         _LOG.enter()
         relevant_basemesh_vert_idxs = ObjectService.get_vertex_indexes_for_vertex_group(basemesh, vertex_group_name)
@@ -220,10 +233,7 @@ class ClothesService:
         _LOG.debug("Supplied mhclo_full_path", mhclo_full_path)
         _LOG.debug("clothes_object", clothes_object)
         if not mhclo_full_path:
-            asset_source = GeneralObjectProperties.get_value("asset_source", entity_reference=clothes_object)
-            object_type = ObjectService.get_object_type(clothes_object).lower()
-            _LOG.debug("asset source, object type", (asset_source, object_type))
-            mhclo_full_path = AssetService.find_asset_absolute_path(asset_source, object_type)
+            mhclo_full_path = ClothesService.find_clothes_absolute_path(clothes_object)
         _LOG.debug("final mhclo full path", mhclo_full_path)
 
         new_vert_group = clothes_object.vertex_groups.new(name=vertex_group_name)
@@ -350,23 +360,74 @@ class ClothesService:
                             group.weight = weight
 
     @staticmethod
-    def load_custom_weights(clothes, armature_object, mhclo):
+    def set_up_rigging(basemesh, clothes, rig, mhclo, *,
+                       interpolate_weights=True, import_subrig=True, import_weights=True):
+        """Set up weights and a custom sub-rig for the given clothes object."""
+
+        subrig = None
+
+        if import_subrig:
+            file_name = mhclo.basename + ".rig.json"
+
+            if os.path.isfile(file_name):
+                parent_rig = Rig.from_given_basemesh_and_armature(basemesh, rig, fast_positions=True)
+                subrig_data = Rig.from_json_file_and_basemesh(file_name, clothes, parent=parent_rig)
+                subrig = subrig_data.create_armature_and_fit_to_basemesh(add_modifier=False)
+
+                subrig.name = subrig.data.name = clothes.name + ".rig"
+
+                if mhclo.uuid:
+                    GeneralObjectProperties.set_value("uuid", mhclo.uuid, entity_reference=subrig)
+
+                file_name = mhclo.basename + ".rigify_layers.json"
+
+                if os.path.isfile(file_name):
+                    RigifyHelpers.load_rigify_ui(subrig, file_name)
+
+                ObjectService.activate_blender_object(clothes, deselect_all=True)
+
+        if subrig:
+            clothes.parent = subrig
+            subrig.parent = rig
+        else:
+            clothes.parent = rig
+
+        if interpolate_weights:
+            ClothesService.interpolate_weights(basemesh, clothes, rig, mhclo)
+
+        if import_weights:
+            ClothesService.load_custom_weights(clothes, rig, subrig, mhclo)
+
+        RigService.ensure_armature_modifier(clothes, rig, subrig=subrig)
+
+    @staticmethod
+    def load_custom_weights(clothes, armature_object, subrig, mhclo):
         """Try to load custom weights for the given clothes and rig."""
 
-        # Load only groups matching bones from the common file.
-        file_name = os.path.join(mhclo.folder, "weights.json")
+        armatures = [armature_object]
+        if subrig:
+            armatures.append(subrig)
+
+        # Load groups matching bones from the common file.
+        file_name = mhclo.basename + ".weights.json"
 
         if os.path.isfile(file_name):
-            RigService.load_weights(armature_object, clothes, file_name, replace=True)
+            RigService.load_weights(armatures, clothes, file_name, replace=True)
 
-        # Load all groups with force replace from the rig-specific file if exists
+        # Load all groups - use for masks not matching the mhmask pattern.
+        file_name = mhclo.basename + ".weights_force.json"
+
+        if os.path.isfile(file_name):
+            RigService.load_weights(armatures, clothes, file_name, all=True, replace=True)
+
+        # Load groups matching bones from the rig-specific file.
         rig_type = RigService.identify_rig(armature_object)
         rig_type = rig_type.replace("rigify_generated", "rigify")
 
-        file_name = os.path.join(mhclo.folder, "weights." + rig_type + ".json")
+        file_name = mhclo.basename + ".weights." + rig_type + ".json"
 
         if os.path.isfile(file_name):
-            RigService.load_weights(armature_object, clothes, file_name, replace=True)
+            RigService.load_weights(armatures, clothes, file_name, replace=True)
 
     @staticmethod
     def set_makeclothes_object_properties_from_mhclo(clothes_object, mhclo, delete_group_name=None):

@@ -16,8 +16,8 @@ _BASEMESH_VERTEX_TO_FACE_TABLE = None
 _BODY_PART_TYPES = ("Eyes", "Eyelashes", "Eyebrows", "Tongue", "Teeth", "Hair")
 _MESH_ASSET_TYPES = ("Proxymeshes", "Clothes") + _BODY_PART_TYPES
 _MESH_TYPES = ("Basemesh",) + _MESH_ASSET_TYPES
-_ARMATURE_TYPES = ("Skeleton",)
-_ALL_TYPES = _ARMATURE_TYPES + _MESH_TYPES
+_SKELETON_TYPES = ("Skeleton", "Subrig")
+_ALL_TYPES = _SKELETON_TYPES + _MESH_TYPES
 
 class ObjectService:
 
@@ -103,7 +103,10 @@ class ObjectService:
             object_to_link.parent = parent
 
     @staticmethod
-    def activate_blender_object(object_to_make_active):
+    def activate_blender_object(object_to_make_active, *, deselect_all=False):
+        if deselect_all:
+            ObjectService.deselect_and_deactivate_all()
+
         bpy.context.view_layer.objects.active = object_to_make_active
 
     @staticmethod
@@ -166,6 +169,14 @@ class ObjectService:
         return ObjectService.object_is(blender_object, "Skeleton")
 
     @staticmethod
+    def object_is_subrig(blender_object):
+        return ObjectService.object_is(blender_object, "Subrig")
+
+    @staticmethod
+    def object_is_any_skeleton(blender_object):
+        return ObjectService.object_is(blender_object, _SKELETON_TYPES)
+
+    @staticmethod
     def object_is_body_proxy(blender_object):
         return ObjectService.object_is(blender_object, "Proxymesh")
 
@@ -175,7 +186,7 @@ class ObjectService:
 
     @staticmethod
     def object_is_basemesh_or_body_proxy(blender_object):
-        return ObjectService.object_is(blender_object, "Basemesh") or ObjectService.object_is(blender_object, "Proxymesh")
+        return ObjectService.object_is(blender_object, ("Basemesh", "Proxymesh"))
 
     @staticmethod
     def object_is_any_mesh(blender_object):
@@ -273,6 +284,11 @@ class ObjectService:
             blender_object, _ALL_TYPES, **kwargs)
 
     @staticmethod
+    def find_related_skeletons(blender_object, **kwargs):
+        yield from ObjectService.find_all_objects_of_type_amongst_nearest_relatives(
+            blender_object, _SKELETON_TYPES, **kwargs)
+
+    @staticmethod
     def find_related_mesh_base_or_assets(blender_object, **kwargs):
         yield from ObjectService.find_all_objects_of_type_amongst_nearest_relatives(
             blender_object, _MESH_TYPES, **kwargs)
@@ -286,6 +302,53 @@ class ObjectService:
     def find_related_body_part_assets(blender_object, **kwargs):
         yield from ObjectService.find_all_objects_of_type_amongst_nearest_relatives(
             blender_object, _BODY_PART_TYPES, **kwargs)
+
+    @staticmethod
+    def find_deformed_child_meshes(armature_object) -> typing.Generator[bpy.types.Object, None, None]:
+        assert armature_object.type == 'ARMATURE'
+
+        for child in ObjectService.get_list_of_children(armature_object):
+            if child.type == 'MESH':
+                for mod in child.modifiers:
+                    if mod.type == 'ARMATURE' and mod.object == armature_object:
+                        yield child
+
+    @staticmethod
+    def object_is_generated_rigify_rig(blender_object):
+        return blender_object and blender_object.type == "ARMATURE" and blender_object.data.get("rig_id")
+
+    @staticmethod
+    def object_is_rigify_metarig(blender_object, *, check_bones=False):
+        if not blender_object or blender_object.type != "ARMATURE" or blender_object.data.get("rig_id"):
+            return False
+
+        if blender_object.data.get("rigify_layers") or blender_object.data.get("rigify_target_rig"):
+            return True
+
+        if check_bones:
+            for bone in blender_object.pose.bones:
+                if bone.get("rigify_type"):
+                    return True
+
+        return False
+
+    @staticmethod
+    def find_rigify_metarig_by_rig(blender_object):
+        if not ObjectService.object_is_generated_rigify_rig(blender_object):
+            return None
+
+        for obj in bpy.data.objects:
+            if obj.type == "ARMATURE" and obj.data.get("rigify_target_rig") == blender_object:
+                return obj
+        else:
+            return None
+
+    @staticmethod
+    def find_rigify_rig_by_metarig(blender_object):
+        if not blender_object or blender_object.type != "ARMATURE" or blender_object.data.get("rig_id"):
+            return None
+
+        return blender_object.data.get("rigify_target_rig", None)
 
     @staticmethod
     def load_wavefront_file(filepath, context=None):

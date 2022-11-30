@@ -1,0 +1,7 @@
+{
+    "type": "boolean",
+    "name": "import_subrig",
+    "description": "Try to import the sub-rig armature provided with the clothing object, if any",
+    "label": "Import sub-rig",
+    "default": true
+}

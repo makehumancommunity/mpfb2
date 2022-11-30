@@ -4,9 +4,9 @@ from mpfb.services.logservice import LogService
 from mpfb.services.rigservice import RigService
 from mpfb.entities.objectproperties import GeneralObjectProperties
 
-import bpy, math, json, random
+import bpy, math, json, random, typing
 
-from mathutils import Vector, Matrix
+from mathutils import Vector, Matrix, Euler, Quaternion
 from mathutils.kdtree import KDTree
 
 _LOG = LogService.get_logger("entities.rig")
@@ -21,29 +21,31 @@ class Rig:
 
     """Entity class representing an armature."""
 
-    def __init__(self, basemesh, armature=None):
+    def __init__(self, basemesh, armature=None, *, parent: typing.Optional['Rig'] = None):
         """You might want to use one of the static methods rather than calling init directly."""
         self.basemesh = basemesh
         self.armature_object = armature
+        self.parent = parent
         self.position_info = dict()
         self.rig_definition = dict()
         self.lowest_point = 1000.0
+        self.bad_constraint_targets = set()
 
     @staticmethod
-    def from_json_file_and_basemesh(filename, basemesh):
+    def from_json_file_and_basemesh(filename, basemesh, *, parent=None):
         """Create an instance of Rig and populate it with information from the json file and from the base mesh."""
-        rig = Rig(basemesh)
+        rig = Rig(basemesh, parent=parent)
         with open(filename, "r") as json_file:
             rig.rig_definition = json.load(json_file)
         rig.build_basemesh_position_info()
         return rig
 
     @staticmethod
-    def from_given_basemesh_and_armature(basemesh, armature, *, fast_positions=False):
+    def from_given_basemesh_and_armature(basemesh, armature, *, fast_positions=False, parent=None):
         """Create an instance of Rig and populate it with information from the base mesh
         and from the armature which is expected to be the currently active object."""
 
-        rig = Rig(basemesh, armature)
+        rig = Rig(basemesh, armature, parent=parent)
 
         rig.build_basemesh_position_info()
         rig.add_data_bone_info()
@@ -67,17 +69,22 @@ class Rig:
 
         return rig
 
-    def create_armature_and_fit_to_basemesh(self, for_developer=False):
+    def create_armature_and_fit_to_basemesh(self, for_developer=False, add_modifier=True):
         """Use the information in the object to construct an armature and adjust it to fit the base mesh."""
 
-        #self.move_basemesh_if_needed()
+        if self.parent:
+            # Disable pose evaluation for parent so that any child-of constraints bind to rest pose.
+            self.parent.armature_object.data.pose_position = "REST"
 
         bpy.ops.object.armature_add(location=self.basemesh.location)
         self.armature_object = bpy.context.object
 
         scale_factor = GeneralObjectProperties.get_value("scale_factor", entity_reference=self.basemesh)
         GeneralObjectProperties.set_value("scale_factor", scale_factor, entity_reference=self.armature_object)
-        GeneralObjectProperties.set_value("object_type", "Skeleton", entity_reference=self.armature_object)
+
+        object_type = "Subrig" if self.parent else "Skeleton"
+
+        GeneralObjectProperties.set_value("object_type", object_type, entity_reference=self.armature_object)
 
         self.armature_object.show_in_front = True
         self.armature_object.data.display_type = 'WIRE'
@@ -98,7 +105,15 @@ class Rig:
 
         bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
 
-        RigService.ensure_armature_modifier(self.basemesh, self.armature_object)
+        if self.parent:
+            self.parent.armature_object.data.pose_position = "POSE"
+
+        if add_modifier:
+            if self.parent:
+                RigService.ensure_armature_modifier(
+                    self.basemesh, self.parent.armature_object, subrig=self.armature_object)
+            else:
+                RigService.ensure_armature_modifier(self.basemesh, self.armature_object)
 
         return self.armature_object
 
@@ -166,12 +181,23 @@ class Rig:
                 _LOG.warn("Tried to refit bone that did not exist in definition", bone_name)
                 _LOG.debug("Bone info is", bone_info)
                 _LOG.dump("Rig definition is", self.rig_definition)
+
         bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
-        # Reset Stretch To constraints if present
+
+        # Reset constraints if present
+        updated = False
+
         for pbone in self.armature_object.pose.bones:
             for con in pbone.constraints:
                 if con.type == "STRETCH_TO":
                     con.rest_length = 0
+                    updated = True
+                elif con.type == "CHILD_OF":
+                    con.set_inverse_pending = True
+                    updated = True
+
+        if updated:
+            bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
 
     def update_edit_bone_metadata(self):
         """Assign metadata fitting for the edit bones."""
@@ -240,11 +266,23 @@ class Rig:
         if con.type == "ARMATURE":
             for tgt_info in info["targets"]:
                 tgt = con.targets.new()
-                tgt.target = self.armature_object
+
+                if "target" in tgt_info:
+                    tgt.target = self._restore_parent_ref(tgt_info["target"], tgt_info)
+                else:
+                    tgt.target = self.armature_object
+
                 tgt.subtarget = tgt_info["subtarget"]
                 tgt.weight = tgt_info["weight"]
-        elif info.get("target", False):
-            con.target = self.armature_object
+        else:
+            target = info.get("target", False)
+
+            if target is True:
+                con.target = self.armature_object
+            elif isinstance(target, list):
+                con.target = self._restore_parent_ref(target, info)
+            else:
+                assert not target
 
         if info.get("space_object", False):
             con.space_object = self.armature_object
@@ -254,6 +292,40 @@ class Rig:
         for field, val in info.items():
             if field not in skip_list:
                 setattr(con, field, val)
+
+        if con.type == "CHILD_OF":
+            con.set_inverse_pending = True
+
+    def _restore_parent_ref(self, bone_ref, info):
+        assert self.parent
+
+        arm = self.parent.armature_object
+        joint_head, joint_tail = bone_ref
+
+        if joint_head and joint_tail and "subtarget" in info:
+            bones = []
+
+            for name, bone_info in self.parent.rig_definition.items():
+                if (bone_info["head"]["strategy"] == "CUBE" and
+                        bone_info["head"]["cube_name"] == joint_head and
+                        bone_info["tail"]["strategy"] == "CUBE" and
+                        bone_info["tail"]["cube_name"] == joint_tail):
+                    bones.append(name)
+
+            if len(bones) > 1:
+                org_bones = [name for name in bones if name.startswith("ORG-")]
+                if org_bones:
+                    bones = org_bones
+
+            if len(bones) > 1:
+                def_bones = [name for name in bones if arm.pose.bones[name].bone.use_deform]
+                if def_bones:
+                    bones = def_bones
+
+            if bones:
+                info["subtarget"] = sorted(bones)[0]
+
+        return arm
 
     def save_strategies(self):
         """Save strategy data in the pose bones for development."""
@@ -353,12 +425,17 @@ class Rig:
 
         basemesh = self.basemesh
 
-        for group in basemesh.vertex_groups:
-            idx = int(group.index)
-            name = str(group.name)
-            if "joint" in name:
-                cube_groups[name] = []
-                group_index_to_name[idx] = name
+        if self.parent:
+            # Copy cube data from the parent rig if present
+            cubes.update(self.parent.position_info["cubes"])
+        else:
+            # Start computing our own cube data
+            for group in basemesh.vertex_groups:
+                idx = int(group.index)
+                name = str(group.name)
+                if "joint" in name:
+                    cube_groups[name] = []
+                    group_index_to_name[idx] = name
 
         coords = basemesh.data.vertices
         shape_key = None
@@ -490,7 +567,7 @@ class Rig:
 
             if bone.constraints:
                 bone_info["constraints"] = [
-                    self._encode_constraint_info(con) for con in bone.constraints
+                    self._encode_constraint_info(bone, con) for con in bone.constraints
                 ]
 
             bone_info["rigify"] = dict()
@@ -515,7 +592,7 @@ class Rig:
             if hasattr(bone, "rigify_type") and bone.rigify_type:
                 rigify["rigify_type"] = str(bone.rigify_type)
 
-    def _encode_constraint_info(self, con):
+    def _encode_constraint_info(self, bone, con):
         info = {
             "type": con.type,
             "name": con.name,
@@ -523,12 +600,27 @@ class Rig:
 
         # Handle targets - only support targeting the armature
         if con.type == "ARMATURE":
-            info["targets"] = [
-                { "subtarget": tgt.subtarget, "weight": tgt.weight }
-                for tgt in con.targets if tgt.target == self.armature_object
-            ]
-        elif getattr(con, "target", None) == self.armature_object:
-            info["target"] = True
+            targets = info["targets"] = []
+
+            for tgt in con.targets:
+                tgt_info = {"subtarget": tgt.subtarget, "weight": tgt.weight}
+
+                if self.parent and tgt.target == self.parent.armature_object:
+                    tgt_info["target"] = self._encode_constraint_parent_ref(bone, tgt.subtarget)
+                elif tgt.target != self.armature_object:
+                    self.bad_constraint_targets.add(bone.name)
+                    continue
+
+                targets.append(tgt_info)
+        else:
+            target = getattr(con, "target", None)
+
+            if target == self.armature_object:
+                info["target"] = True
+            elif self.parent and target == self.parent.armature_object:
+                info["target"] = self._encode_constraint_parent_ref(bone, getattr(con, "subtarget", None))
+            else:
+                self.bad_constraint_targets.add(bone.name)
 
         if getattr(con, "space_object", None) == self.armature_object:
             info["space_object"] = True
@@ -549,20 +641,41 @@ class Rig:
             # Don't save Stretch To length so it auto-resets when the skeleton is fitted
             block_props.add("rest_length")
 
+        array_types = (bpy.types.bpy_prop_array, Vector, Euler, Quaternion)
+        bad_types = (bpy.types.bpy_struct, Matrix)
+
         for prop in type(con).bl_rna.properties:
             if prop.identifier not in block_props and not prop.is_readonly:
                 cur_value = getattr(con, prop.identifier, None)
 
-                if isinstance(cur_value, bpy.types.bpy_prop_array):
+                if isinstance(cur_value, array_types):
                     value = list(cur_value)
 
                 if prop.identifier in defaults and cur_value == defaults[prop.identifier]:
                     continue
 
-                if not isinstance(cur_value, bpy.types.bpy_struct):
+                if not isinstance(cur_value, bad_types):
                     info[prop.identifier] = cur_value
 
         return info
+
+    def _encode_constraint_parent_ref(self, bone, subtarget):
+        if not subtarget:
+            return None, None
+
+        bone_info = self.parent.rig_definition.get(subtarget, None)
+
+        if not bone_info:
+            self.bad_constraint_targets.add(bone.name)
+            return None, None
+
+        head_joint = bone_info["head"]["cube_name"] if bone_info["head"]["strategy"] == "CUBE" else None
+        tail_joint = bone_info["tail"]["cube_name"] if bone_info["tail"]["strategy"] == "CUBE" else None
+
+        if not head_joint or not tail_joint:
+            self.bad_constraint_targets.add(bone.name)
+
+        return head_joint, tail_joint
 
     def match_bone_positions_with_strategies(self, fast=False):
         """Try to find out bone positions matching joint cubes."""

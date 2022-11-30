@@ -66,7 +66,7 @@ class MPFB_PT_Add_Rig_Panel(Abstract_Panel):
             self._standard_rig(scene, layout)
             self._add_rigify_rig(scene, layout)
         else:
-            rig_type = RigService.identify_rig(armature_object)
+            rig_type = RigService.identify_rig(context.active_object)
             if rig_type.startswith("rigify."):
                 self._generate_rigify_rig(scene, layout)
 

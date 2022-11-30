@@ -24,7 +24,7 @@ class MPFB_PT_Rig_Panel(Abstract_Panel):
         if ObjectService.object_is_basemesh_or_body_proxy(obj):
             return True
 
-        if ObjectService.object_is_skeleton(obj):
+        if ObjectService.object_is_any_skeleton(obj):
             return True
 
         return False
