@@ -65,7 +65,16 @@ class MPFB_OT_AddRigifyRigOperator(bpy.types.Operator):
         basemesh.parent = armature_object
 
         if import_weights:
-            weights_file = os.path.join(rigify_dir, "weights." + rigify_rig + ".json")
+            for try_rig in RigService.get_rig_weight_fallbacks("rigify." + rigify_rig):
+                try_rig = try_rig.replace("rigify.", "")
+                weights_file = os.path.join(rigify_dir, "weights." + try_rig + ".json")
+
+                if os.path.isfile(weights_file):
+                    break
+            else:
+                self.report({'ERROR'}, "Could not find the weights file")
+                return {'FINISHED'}
+
             RigService.load_weights(armature_object, basemesh, weights_file, all=True)
             RigService.ensure_armature_modifier(basemesh, armature_object)
 

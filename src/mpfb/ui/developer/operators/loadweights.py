@@ -16,7 +16,7 @@ class MPFB_OT_Load_Weights_Operator(bpy.types.Operator, ImportHelper):
     bl_label = "Load weights"
     bl_options = {'REGISTER', 'UNDO'}
 
-    filename_ext = '.json'
+    filename_ext = '.mhw'
 
     @classmethod
     def poll(cls, context):

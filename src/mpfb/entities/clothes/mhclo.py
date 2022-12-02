@@ -24,6 +24,7 @@ class Mhclo:
         self.name = "imported_cloth"
         self.description = "no description"
         self.basename = None  # Filename minus extension
+        self.weights_file = None
         self.material = None
         self.tags = ""
         self.zdepth = 50
@@ -92,7 +93,7 @@ class Mhclo:
                 continue
 
             if str(words[0]).startswith("vertexboneweights"):
-                # Workaround for fixing ancient system assets
+                self.weights_file = os.path.join(folder, words[1])
                 continue
 
             if status and only_metadata:
@@ -187,6 +188,16 @@ class Mhclo:
         else:
             raise IOError("Failed to load clothes mesh")
         return obj
+
+    def get_weights_filename(self, suffix=None):
+        if self.weights_file:
+            base, ext = os.path.splitext(self.weights_file)
+            ext = ext or ".jsonw"
+        else:
+            base = self.basename
+            ext = ".mhw"
+
+        return base + ("." + suffix if suffix else "") + ext
 
     def _get_config_file(self):
         global _CONFIG_FILE

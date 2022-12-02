@@ -408,26 +408,27 @@ class ClothesService:
         if subrig:
             armatures.append(subrig)
 
-        # Load groups matching bones from the common file.
-        file_name = mhclo.basename + ".weights.json"
+        def try_load_weights(suffix, all=False):
+            file_name = mhclo.get_weights_filename(suffix)
 
-        if os.path.isfile(file_name):
-            RigService.load_weights(armatures, clothes, file_name, replace=True)
+            if os.path.isfile(file_name):
+                RigService.load_weights(armatures, clothes, file_name, all=all, replace=True)
+                return True
+
+        # Load groups matching bones from the common file.
+        try_load_weights(None)
 
         # Load all groups - use for masks not matching the mhmask pattern.
-        file_name = mhclo.basename + ".weights_force.json"
-
-        if os.path.isfile(file_name):
-            RigService.load_weights(armatures, clothes, file_name, all=True, replace=True)
+        try_load_weights("force", all=True)
 
         # Load groups matching bones from the rig-specific file.
         rig_type = RigService.identify_rig(armature_object)
         rig_type = rig_type.replace("rigify_generated", "rigify")
 
-        file_name = mhclo.basename + ".weights." + rig_type + ".json"
-
-        if os.path.isfile(file_name):
-            RigService.load_weights(armatures, clothes, file_name, replace=True)
+        if "unknown" not in rig_type:
+            for try_type in RigService.get_rig_weight_fallbacks(rig_type):
+                if try_load_weights(try_type):
+                    break
 
     @staticmethod
     def set_makeclothes_object_properties_from_mhclo(clothes_object, mhclo, delete_group_name=None):

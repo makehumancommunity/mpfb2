@@ -1,7 +1,8 @@
 """Service for working with rigs, bones and weights."""
 
-import bpy, os, fnmatch, shutil, json
+import bpy, os, fnmatch, shutil, json, re, typing
 from bpy.types import PoseBone
+from collections import defaultdict
 from mathutils import Matrix, Vector
 from mathutils import Vector
 from mpfb.services.locationservice import LocationService
@@ -461,10 +462,11 @@ class RigService:
             _LOG.warn("Was not able to find empty child")
 
     @staticmethod
-    def get_weights(armature_objects, basemesh, exclude_weights_below=0.0001, all_bones=False, all_masks=True):
+    def get_weights(armature_objects, basemesh, exclude_weights_below=0.0001,
+                    all_groups=False, all_bones=False, all_masks=True):
         """Create a MHW-compatible weights dict"""
 
-        # Eventhough it is unlikely we'll use these keys in MPFB, we'll assign them so that the dict
+        # Even though it is unlikely we'll use these keys in MPFB, we'll assign them so that the dict
         # is compatible with the MHW format
 
         weights = {
@@ -472,10 +474,9 @@ class RigService:
             "description": "Weights for a rig",
             "license": "CC0",
             "name": "MakeHuman weights",
-            "version": 110
+            "version": 110,
+            "weights": dict(),
         }
-
-        weights["weights"] = dict()
 
         vertex_group_index_to_name = dict()
         vertex_group_names = set()
@@ -486,8 +487,8 @@ class RigService:
             vertex_group_index_to_name[index] = name
             vertex_group_names.add(name)
 
-            # Always include masks
-            if all_masks and name.startswith("mhmask-"):
+            # Include all groups and/or masks, depending on parameters
+            if all_masks if name.startswith("mhmask-") else all_groups:
                 weights["weights"][name] = []
 
         _LOG.dump("vertex_group_index_to_name", vertex_group_index_to_name)
@@ -497,7 +498,7 @@ class RigService:
 
         for armature_object in armature_objects:
             for bone in armature_object.data.bones:
-                if all_bones or bone.name in vertex_group_names:
+                if all_bones and bone.use_deform or bone.name in vertex_group_names:
                     weights["weights"][str(bone.name)] = []
 
         _LOG.dump("Weights before vertices", weights)
@@ -535,6 +536,36 @@ class RigService:
         RigService.apply_weights(armature_objects, basemesh, weights, all=all, replace=replace)
 
     @staticmethod
+    def _map_weight_groups_to_bones(armature_objects: list, group_names: typing.Iterable[str]
+                                    ) -> dict[str, bpy.types.PoseBone | None]:
+        """Find matching bones for the given set of weight group names, with appropriate fallbacks."""
+
+        def find_bone(lookup_name) -> typing.Optional[bpy.types.PoseBone]:
+            # Use pose bones because they are indexed via hash table
+            for obj in armature_objects:
+                result_bone = obj.pose.bones.get(lookup_name, None)
+                if result_bone and result_bone.bone.use_deform:
+                    return result_bone
+
+        def find_common_toe(lookup_name):
+            # If trying to match a toe group, try falling back to the no-toes common toe
+            if match := re.fullmatch(r'^(?:DEF-)?toe\d-\d.([LR])$', lookup_name):
+                lr = match[1]
+
+                # Try rigify and basic versions of common toe
+                result_bone = find_bone(f"toe.{lr}") or find_bone(f"DEF-toe.{lr}") or find_bone(f"toe1-1.{lr}")
+
+                # Just in case verify it has no toe children, i.e. this is truly a no-toes rig
+                if result_bone and not any("toe" in child.name for child in result_bone.bone.children):
+                    return result_bone
+
+        return {
+            # Automatically switch to DEF bones when applicable.
+            name: find_bone(name) or find_bone("DEF-" + name) or find_common_toe(name)
+            for name in group_names
+        }
+
+    @staticmethod
     def apply_weights(armature_objects, basemesh, mhw_dict, *, all=False, replace=False):
         weights = mhw_dict["weights"]
 
@@ -542,27 +573,16 @@ class RigService:
         if not isinstance(armature_objects, list):
             armature_objects = [armature_objects]
 
-        def find_bone(lookup_name):
-            # Use pose bones because they are indexed via hash table
-            for obj in armature_objects:
-                result_bone = obj.pose.bones.get(lookup_name, None)
-                if result_bone and result_bone.bone.use_deform:
-                    return result_bone
+        group_to_pose_bone = RigService._map_weight_groups_to_bones(armature_objects, weights.keys())
+        group_to_bone = {name: pose_bone.name for name, pose_bone in group_to_pose_bone.items() if pose_bone}
 
-        group_to_bone = {}
-        bone_to_group = {}
-
-        for name in weights.keys():
-            # Automatically switch to DEF groups when applicable.
-            pose_bone = find_bone(name) or find_bone("DEF-" + name)
-
-            if pose_bone:
-                group_to_bone[name] = pose_bone.name
-                bone_to_group[pose_bone.name] = name
+        bone_to_groups = defaultdict(list)
+        for name, bone_name in group_to_bone.items():
+            bone_to_groups[bone_name].append(name)
 
         # Compute list and order of groups to import, using topology order of bones
         bone_names = [bone.name for arm in armature_objects for bone in arm.data.bones if bone.use_deform]
-        names = [bone_to_group[bone] for bone in dict.fromkeys(bone_names) if bone in bone_to_group]
+        names = [name for bone in dict.fromkeys(bone_names) for name in bone_to_groups[bone]]
 
         assert len(names) == len(group_to_bone)
 
@@ -571,49 +591,36 @@ class RigService:
                   if name not in group_to_bone
                   and (all or name.startswith("mhmask-") or name.startswith("DEF-"))]
 
-        # Create vertex groups
+        # Clear vertex groups
         remove_indices = list(range(len(basemesh.data.vertices))) if replace else []
 
         for group_name in names:
-            # Weights is array of [vertex_index, weight] pairs. Use zip to rotate it
-            # so we can get an array of the values of the first column
             bone_name = group_to_bone.get(group_name, group_name)
-            weight_array = weights[group_name]
-            if len(weight_array) > 0:
-                columns = list(zip(*weight_array))
-                vertex_indices = columns[0]
-            else:
-                vertex_indices = []
-
-            if not bone_name in basemesh.vertex_groups:
-                basemesh.vertex_groups.new(name=bone_name)
-
             vertex_group = basemesh.vertex_groups.get(bone_name)
 
-            if len(remove_indices) > 0:
-                vertex_group.remove(remove_indices)
+            if vertex_group:
+                if replace:
+                    # Remove all vertices
+                    vertex_group.remove(remove_indices)
 
-            if len(vertex_indices) > 0:
-                vertex_group.add(vertex_indices, 1.0, 'ADD')
+                elif weight_array := weights[group_name]:
+                    # Clear specific vertices
+                    vertex_indices, vertex_weights = zip(*weight_array)
+                    vertex_group.add(vertex_indices, 0.0, 'REPLACE')
 
-        # Assign group weights
-        vertex_group_name_to_index = dict()
-
-        for vertex_group in basemesh.vertex_groups:
-            vertex_group_name_to_index[vertex_group.name] = vertex_group.index
-
+        # Assign group weights: allows combining groups by adding duplicate vertex entries together
         for group_name in names:
-            bone_name = group_to_bone.get(group_name, group_name)
-            if bone_name in basemesh.vertex_groups:
-                for vertex_weight in weights[group_name]:
-                    vertex_index = vertex_weight[0]
-                    weight = vertex_weight[1]
-                    vertex = basemesh.data.vertices[vertex_index]
-                    group_index = vertex_group_name_to_index[bone_name]
-                    for group in vertex.groups:
-                        if group.group == group_index:
-                            group.weight = weight
-                            break
+            weight_array = weights[group_name]
+
+            if all or weight_array:
+                bone_name = group_to_bone.get(group_name, group_name)
+                vertex_group = basemesh.vertex_groups.get(bone_name)
+
+                if not vertex_group:
+                    vertex_group = basemesh.vertex_groups.new(name=bone_name)
+
+                for vertex_index, weight in weight_array:
+                    vertex_group.add([vertex_index], weight, 'ADD')
 
     @staticmethod
     def identify_rig(armature_object):
@@ -651,6 +658,20 @@ class RigService:
                 guessed_rig = "unknown"
 
         return guessed_rig
+
+    @staticmethod
+    def get_rig_weight_fallbacks(rig_type):
+        """Returns a list of rig types to try loading weights for in order."""
+
+        fallback_table = {
+            # Estimate no-toes from the toes version
+            "default_no_toes": ["default"],
+            # Rigify toes version retains the common toe control, so go both ways
+            "rigify.human": ["rigify.human_toes"],
+            "rigify.human_toes": ["rigify.human"],
+        }
+
+        return [rig_type, *fallback_table.get(rig_type, [])]
 
     @staticmethod
     def mirror_bone_weights_to_other_side_bone(armature_object, source_bone_name, target_bone_name):

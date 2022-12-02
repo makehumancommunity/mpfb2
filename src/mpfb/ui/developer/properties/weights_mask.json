@@ -7,6 +7,8 @@
     "items": [
         ["SKELETON", "Skeleton", "Only save weights for the main skeleton bones", 0],
         ["SUBRIG", "Sub-rig", "Only save weights for the asset sub-rig bones", 1],
-        ["BOTH", "Both", "Save weights for any of the available rigs", 2]
+        ["BOTH", "Both", "Save weights for any of the available rigs", 2],
+        ["NONE", "None", "Don't save weights for any bones", 3],
+        ["ALL_GROUPS", "All Groups", "Save all existing non-mhmask vertex groups", 4]
     ]
 }

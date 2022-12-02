@@ -16,7 +16,8 @@ class MPFB_OT_Save_Weights_Operator(bpy.types.Operator, ExportHelper):
     bl_label = "Save weights"
     bl_options = {'REGISTER'}
 
-    filename_ext = '.json'
+    filename_ext = '.mhw'
+    check_extension = False
 
     @classmethod
     def poll(cls, context):
@@ -91,7 +92,8 @@ class MPFB_OT_Save_Weights_Operator(bpy.types.Operator, ExportHelper):
 
             armatures.append(subrig_object)
 
-        weights = RigService.get_weights(armatures, basemesh, all_masks=save_masks)
+        weights = RigService.get_weights(
+            armatures, basemesh, all_groups=(weights_mask == "ALL_GROUPS"), all_masks=save_masks)
 
         # Strip the Rigify deform bone prefix for convenience
         def strip_def(name):
