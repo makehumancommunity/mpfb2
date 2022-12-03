@@ -18,7 +18,7 @@ class MPFB_OT_Load_Rig_Operator(bpy.types.Operator, ImportHelper):
     bl_label = "Load rig"
     bl_options = {'REGISTER', 'UNDO'}
 
-    filename_ext = '.json'
+    filename_ext = '.mpfbskel'
 
     @classmethod
     def poll(cls, context):

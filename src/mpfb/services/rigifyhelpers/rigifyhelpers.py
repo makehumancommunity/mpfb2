@@ -7,6 +7,8 @@ import bpy, json
 
 from mpfb.services.logservice import LogService
 from mpfb.services.objectservice import ObjectService
+from mpfb.services.systemservice import SystemService
+
 _LOG = LogService.get_logger("rigifyhelpers.rigifyhelpers")
 
 from mpfb.services.rigservice import RigService
@@ -126,11 +128,11 @@ class RigifyHelpers():
             child_mesh.parent = rigify_object
 
     @staticmethod
-    def load_rigify_ui(armature_object, absolute_file_path):
+    def load_rigify_ui(armature_object, rigify_ui):
         assert armature_object == bpy.context.active_object
 
-        with open(absolute_file_path, "r") as json_file:
-            rigify_ui = json.load(json_file)
+        if not rigify_ui or not SystemService.check_for_rigify():
+            return
 
         bpy.ops.armature.rigify_add_bone_groups()
         bpy.ops.pose.rigify_layer_init()
@@ -139,15 +141,16 @@ class RigifyHelpers():
         armature_object.data.rigify_selection_colors.select = rigify_ui["selection_colors"]["select"]
         armature_object.data.rigify_selection_colors.active = rigify_ui["selection_colors"]["active"]
 
-        for i, color in enumerate(armature_object.data.rigify_colors):
-            col = rigify_ui["colors"][i]
+        for _ in range(len(rigify_ui["colors"]) - len(armature_object.data.rigify_colors)):
+            armature_object.data.rigify_colors.add()
+
+        for color, col in zip(armature_object.data.rigify_colors, rigify_ui["colors"]):
             color.name = col["name"]
             color.normal = col["normal"]
 
         armature_object.data.layers = rigify_ui["layers"]
 
-        for i, rigify_layer in enumerate(armature_object.data.rigify_layers):
-            layer = rigify_ui["rigify_layers"][i]
+        for rigify_layer, layer in zip(armature_object.data.rigify_layers, rigify_ui["rigify_layers"]):
             rigify_layer.name = layer["name"]
             rigify_layer.row = layer["row"]
             rigify_layer.selset = layer["selset"]
@@ -155,6 +158,12 @@ class RigifyHelpers():
 
     @staticmethod
     def get_rigify_ui(armature_object):
+        if not SystemService.check_for_rigify():
+            return None
+
+        if len(armature_object.data.rigify_layers) == 0:
+            return None
+
         rigify_ui = dict()
         rigify_ui["selection_colors"] = dict()
 

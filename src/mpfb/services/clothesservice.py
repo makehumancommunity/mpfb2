@@ -9,7 +9,6 @@ from mpfb.services.logservice import LogService
 from mpfb.services.assetservice import AssetService
 from mpfb.entities.objectproperties import GeneralObjectProperties
 from mpfb.entities.clothes.mhclo import Mhclo
-from mpfb.services.rigifyhelpers.rigifyhelpers import RigifyHelpers
 from mpfb.services.rigservice import RigService
 
 _LOG = LogService.get_logger("services.clothesservice")
@@ -367,7 +366,7 @@ class ClothesService:
         subrig = None
 
         if import_subrig:
-            file_name = mhclo.basename + ".rig.json"
+            file_name = mhclo.basename + ".mpfbskel"
 
             if os.path.isfile(file_name):
                 parent_rig = Rig.from_given_basemesh_and_armature(basemesh, rig, fast_positions=True)
@@ -378,11 +377,6 @@ class ClothesService:
 
                 if mhclo.uuid:
                     GeneralObjectProperties.set_value("uuid", mhclo.uuid, entity_reference=subrig)
-
-                file_name = mhclo.basename + ".rigify_layers.json"
-
-                if os.path.isfile(file_name):
-                    RigifyHelpers.load_rigify_ui(subrig, file_name)
 
                 ObjectService.activate_blender_object(clothes, deselect_all=True)
 

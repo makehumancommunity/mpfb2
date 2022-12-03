@@ -28,6 +28,11 @@ class Rig:
         self.parent = parent
         self.position_info = dict()
         self.rig_definition = dict()
+        self.rig_header = {
+            "bones": self.rig_definition,
+            "is_subrig": bool(parent),
+            "version": 100,
+        }
         self.lowest_point = 1000.0
         self.bad_constraint_targets = set()
 
@@ -35,13 +40,31 @@ class Rig:
     def from_json_file_and_basemesh(filename, basemesh, *, parent=None):
         """Create an instance of Rig and populate it with information from the json file and from the base mesh."""
         rig = Rig(basemesh, parent=parent)
+
         with open(filename, "r") as json_file:
-            rig.rig_definition = json.load(json_file)
+            json_data = json.load(json_file)
+
+            if "bones" in json_data:
+                if "version" not in json_data:
+                    raise ValueError("Invalid rig file format")
+
+                if "joints" in json_data:
+                    raise ValueError("MPFB is not compatible with mhskel files")
+
+                if json_data.get("is_subrig", False) and not parent:
+                    raise ValueError("Attempting to load a sub-rig without a parent")
+
+                rig.rig_header = json_data
+                rig.rig_definition = json_data["bones"]
+
+            else:
+                rig.rig_definition.update(json_data)
+
         rig.build_basemesh_position_info()
         return rig
 
     @staticmethod
-    def from_given_basemesh_and_armature(basemesh, armature, *, fast_positions=False, parent=None):
+    def from_given_basemesh_and_armature(basemesh, armature, *, fast_positions=False, parent=None, rigify_ui=False):
         """Create an instance of Rig and populate it with information from the base mesh
         and from the armature which is expected to be the currently active object."""
 
@@ -66,6 +89,10 @@ class Rig:
             rig.restore_saved_strategies()
 
             rig.cleanup_float_values()
+
+        if rigify_ui:
+            from mpfb.services.rigifyhelpers.rigifyhelpers import RigifyHelpers
+            rig.rig_header["rigify_ui"] = RigifyHelpers.get_rigify_ui(armature)
 
         return rig
 
@@ -102,6 +129,10 @@ class Rig:
 
         if for_developer:
             self.save_strategies()
+
+        if self.rig_header.get("rigify_ui"):
+            from mpfb.services.rigifyhelpers.rigifyhelpers import RigifyHelpers
+            RigifyHelpers.load_rigify_ui(self.armature_object, self.rig_header["rigify_ui"])
 
         bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
 
@@ -327,7 +358,7 @@ class Rig:
 
         return arm
 
-    def save_strategies(self):
+    def save_strategies(self, refit=False):
         """Save strategy data in the pose bones for development."""
 
         for bone_name, bone_info in self.rig_definition.items():
@@ -336,12 +367,18 @@ class Rig:
             self._save_end_strategy(bone, bone_info["head"], "mpfb_head")
             self._save_end_strategy(bone, bone_info["tail"], "mpfb_tail")
 
-            roll_strategy = bone_info.get("roll_strategy", None)
-            if roll_strategy:
-                bone["mpfb_roll_strategy"] = roll_strategy
+            if not refit:
+                roll_strategy = bone_info.get("roll_strategy", None)
+                if roll_strategy:
+                    bone["mpfb_roll_strategy"] = roll_strategy
 
     def _save_end_strategy(self, bone, info, prefix):
         strategy = info["strategy"]
+
+        if bone.get(prefix + "_strategy", "").startswith("!"):
+            return
+
+        bone[prefix + "_strategy"] = strategy
 
         if strategy == "CUBE":
             bone[prefix + "_cube_name"] = info["cube_name"]
@@ -349,19 +386,15 @@ class Rig:
             bone[prefix + "_vertex_index"] = info["vertex_index"]
         elif strategy in ("MEAN", "XYZ"):
             bone[prefix + "_vertex_indices"] = info["vertex_indices"]
-        else:
-            return
-
-        bone[prefix + "_strategy"] = strategy
 
     def _get_end_strategy(self, bone, prefix):
         """Retrieve head or tail strategy settings from a bone."""
         try:
             force = False
-            strategy = bone[prefix + "_strategy"]
+            strategy = bone.get(prefix + "_strategy", "")
 
             # Allow using e.g. "!CUBE" to override the distance check
-            if strategy[0] == '!':
+            if strategy.startswith('!'):
                 strategy = strategy[1:]
                 force = True
 

@@ -1,3 +1,4 @@
+from mpfb.entities.objectproperties import GeneralObjectProperties
 from mpfb.services.logservice import LogService
 from mpfb.services.materialservice import MaterialService
 from mpfb.services.objectservice import ObjectService
@@ -18,7 +19,8 @@ class MPFB_OT_Save_Rig_Operator(bpy.types.Operator, ExportHelper):
     bl_label = "Save rig"
     bl_options = {'REGISTER'}
 
-    filename_ext = '.json'
+    filename_ext = '.mpfbskel'
+    check_extension = False
 
     @classmethod
     def poll(cls, context):
@@ -46,6 +48,10 @@ class MPFB_OT_Save_Rig_Operator(bpy.types.Operator, ExportHelper):
             return {'FINISHED'}
 
         rig_subrig = DEVELOPER_PROPERTIES.get_value("rig_subrig", entity_reference=context.scene)
+        rig_save_rigify = DEVELOPER_PROPERTIES.get_value("rig_save_rigify", entity_reference=context.scene)
+        rig_refit = DEVELOPER_PROPERTIES.get_value("rig_refit", entity_reference=context.scene)
+
+        bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
 
         if rig_subrig:
             base_rig = ObjectService.find_object_of_type_amongst_nearest_relatives(
@@ -65,10 +71,18 @@ class MPFB_OT_Save_Rig_Operator(bpy.types.Operator, ExportHelper):
 
             parent_rig = Rig.from_given_basemesh_and_armature(basemesh, base_rig, fast_positions=True)
 
-            rig = Rig.from_given_basemesh_and_armature(child_meshes[0], armature_object, parent=parent_rig)
+            rig = Rig.from_given_basemesh_and_armature(child_meshes[0], armature_object,
+                                                       parent=parent_rig, rigify_ui=rig_save_rigify)
 
         else:
-            rig = Rig.from_given_basemesh_and_armature(basemesh, armature_object)
+            rig = Rig.from_given_basemesh_and_armature(basemesh, armature_object, rigify_ui=rig_save_rigify)
+
+        if rig_refit:
+            rig.save_strategies(refit=True)
+            rig.reposition_edit_bone()
+
+            object_type = "Subrig" if rig_subrig else "Skeleton"
+            GeneralObjectProperties.set_value("object_type", object_type, entity_reference=armature_object)
 
         _LOG.dump("final rig_definition", rig.rig_definition)
 
@@ -76,7 +90,7 @@ class MPFB_OT_Save_Rig_Operator(bpy.types.Operator, ExportHelper):
         _LOG.debug("absolute_file_path", absolute_file_path)
 
         with open(absolute_file_path, "w") as json_file:
-            json.dump(rig.rig_definition, json_file, indent=4, sort_keys=True)
+            json.dump(rig.rig_header, json_file, indent=4, sort_keys=True)
             self.report({'INFO'}, "JSON file written to " + absolute_file_path)
 
         unmatched_bone_names = rig.list_unmatched_bones()

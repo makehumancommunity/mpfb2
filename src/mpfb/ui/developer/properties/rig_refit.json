@@ -1,0 +1,7 @@
+{
+    "type": "boolean",
+    "name": "rig_refit",
+    "description": "After save update the rig metadata and bone positions to simulate re-loading the saved data",
+    "label": "Refit after save",
+    "default": false
+}
