@@ -103,11 +103,14 @@ class ObjectService:
             object_to_link.parent = parent
 
     @staticmethod
-    def activate_blender_object(object_to_make_active, *, deselect_all=False):
+    def activate_blender_object(object_to_make_active, *, context=None, deselect_all=False):
         if deselect_all:
             ObjectService.deselect_and_deactivate_all()
 
-        bpy.context.view_layer.objects.active = object_to_make_active
+        object_to_make_active.select_set(True)
+
+        context = context or bpy.context
+        context.view_layer.objects.active = object_to_make_active
 
     @staticmethod
     def get_list_of_children(parent_object):
@@ -116,6 +119,12 @@ class ObjectService:
             if potential_child.parent == parent_object:
                 children.append(potential_child)
         return children
+
+    @staticmethod
+    def find_by_data(id_data):
+        for obj in bpy.data.objects:
+            if obj.data == id_data:
+                return obj
 
     @staticmethod
     def get_object_type(blender_object) -> str:
@@ -305,6 +314,9 @@ class ObjectService:
 
     @staticmethod
     def find_deformed_child_meshes(armature_object) -> typing.Generator[bpy.types.Object, None, None]:
+        if not armature_object:
+            return
+
         assert armature_object.type == 'ARMATURE'
 
         for child in ObjectService.get_list_of_children(armature_object):
@@ -350,6 +362,87 @@ class ObjectService:
             return None
 
         return blender_object.data.get("rigify_target_rig", None)
+
+    @staticmethod
+    def find_armature_context_objects(
+            armature_object: bpy.types.Object | None, *, operator=None,
+            is_subrig: bool | None = None, only_basemesh=False,
+            ) -> tuple[bpy.types.Object | None, bpy.types.Object | None, bpy.types.Object | None]:
+        """
+        Find base rig, basemesh, and directly controlled mesh (same as basemesh unless subrig) for the given rig.
+        When searching for meshes, automatically jumps from rigify metarigs to the generated rig when necessary.
+        To determine success, check direct_mesh for None.
+        """
+
+        if not armature_object:
+            if operator:
+                operator.report({'ERROR'}, "Could not find the armature object.")
+            return None, None, None
+
+        assert isinstance(armature_object, bpy.types.Object) and armature_object.type == 'ARMATURE'
+
+        if is_subrig is False:
+            # When explicitly defining the rig status as non-subrig, use it as the skeleton
+            base_rig = armature_object
+        else:
+            base_rig = ObjectService.find_object_of_type_amongst_nearest_relatives(
+                armature_object, mpfb_type_name="Skeleton", only_parents=True)
+
+        if base_rig is None:
+            if operator:
+                operator.report(
+                    {'ERROR'}, "Could not find related main skeleton. It should have been a parent of the armature.")
+
+            return None, None, None
+
+        else:
+            basemesh = ObjectService.find_object_of_type_amongst_nearest_relatives(
+                base_rig, mpfb_type_name="Basemesh", only_children=True)
+
+            if not basemesh:
+                basemesh = ObjectService.find_object_of_type_amongst_nearest_relatives(
+                    ObjectService.find_rigify_rig_by_metarig(base_rig),
+                    mpfb_type_name="Basemesh", only_children=True)
+
+            if only_basemesh:
+                direct_mesh = None
+
+            elif basemesh is None:
+                if operator:
+                    operator.report({'ERROR'},
+                                    "Could not find related base mesh. "
+                                    "It should have been a sibling or child of the armature.")
+
+                direct_mesh = None
+
+            else:
+                if is_subrig is None:
+                    is_subrig = ObjectService.object_is_subrig(armature_object)
+
+                if is_subrig:
+                    child_meshes = list(ObjectService.find_deformed_child_meshes(armature_object))
+
+                    if not child_meshes:
+                        child_meshes = list(ObjectService.find_deformed_child_meshes(
+                            ObjectService.find_rigify_rig_by_metarig(armature_object)))
+
+                    if len(child_meshes) != 1:
+                        if operator:
+                            operator.report({'ERROR'},
+                                            "Could not find a unique deformed clothing mesh. "
+                                            "It should be a child of the armature.")
+                        direct_mesh = None
+                    else:
+                        direct_mesh = child_meshes[0]
+                else:
+                    if base_rig != armature_object:
+                        if operator:
+                            operator.report({'ERROR'}, "The armature is neither a sub-rig nor main skeleton.")
+                        direct_mesh = None
+                    else:
+                        direct_mesh = basemesh
+
+            return base_rig, basemesh, direct_mesh
 
     @staticmethod
     def load_wavefront_file(filepath, context=None):
@@ -417,6 +510,7 @@ class ObjectService:
         vertex_data = basemesh.data.vertices
         shape_key = None
         key_name = None
+
         if take_shape_keys_into_account and basemesh.data.shape_keys and basemesh.data.shape_keys.key_blocks and len(basemesh.data.shape_keys.key_blocks) > 0:
             from .targetservice import TargetService
             key_name = "temporary_lowest_point_key." + str(random.randrange(1000, 9999))

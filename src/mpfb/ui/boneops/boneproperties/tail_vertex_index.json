@@ -1,0 +1,7 @@
+{
+    "type": "int",
+    "name": "tail_vertex_index",
+    "description": "Index of the tail vertex",
+    "label": "Tail Vertex",
+    "default": -1
+}

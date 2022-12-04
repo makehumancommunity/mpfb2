@@ -1,0 +1,7 @@
+{
+    "type": "boolean",
+    "name": "head_strategy_lock",
+    "description": "Lock the strategy used to position the bone head from being recomputed if the bone is moved",
+    "label": "Head Strategy Lock",
+    "default": false
+}

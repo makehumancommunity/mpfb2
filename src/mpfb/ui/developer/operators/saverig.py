@@ -17,7 +17,7 @@ class MPFB_OT_Save_Rig_Operator(bpy.types.Operator, ExportHelper):
     """Save rig definition as json"""
     bl_idname = "mpfb.save_rig"
     bl_label = "Save rig"
-    bl_options = {'REGISTER'}
+    bl_options = {'REGISTER', 'UNDO'}
 
     filename_ext = '.mpfbskel'
     check_extension = False
@@ -39,43 +39,17 @@ class MPFB_OT_Save_Rig_Operator(bpy.types.Operator, ExportHelper):
 
         armature_object = context.object
 
-        basemesh = ObjectService.find_object_of_type_amongst_nearest_relatives(
-            armature_object, mpfb_type_name="Basemesh")
-
-        if basemesh is None:
-            self.report({'ERROR'},
-                        "Could not find related base mesh. It should have been parent or child of armature object.")
-            return {'FINISHED'}
-
         rig_subrig = DEVELOPER_PROPERTIES.get_value("rig_subrig", entity_reference=context.scene)
         rig_save_rigify = DEVELOPER_PROPERTIES.get_value("rig_save_rigify", entity_reference=context.scene)
         rig_refit = DEVELOPER_PROPERTIES.get_value("rig_refit", entity_reference=context.scene)
 
         bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
 
-        if rig_subrig:
-            base_rig = ObjectService.find_object_of_type_amongst_nearest_relatives(
-                armature_object, mpfb_type_name="Skeleton", only_parents=True)
+        rig = Rig.from_given_armature_context(
+            armature_object, operator=self, is_subrig=bool(rig_subrig), rigify_ui=rig_save_rigify)
 
-            if base_rig is None:
-                self.report({'ERROR'},
-                            "Could not find related main skeleton. It should have been a parent of the armature.")
-                return {'FINISHED'}
-
-            child_meshes = list(ObjectService.find_deformed_child_meshes(armature_object))
-
-            if len(child_meshes) != 1:
-                self.report({'ERROR'},
-                            "Could not find a unique deformed clothing mesh. It should be a child of the armature.")
-                return {'FINISHED'}
-
-            parent_rig = Rig.from_given_basemesh_and_armature(basemesh, base_rig, fast_positions=True)
-
-            rig = Rig.from_given_basemesh_and_armature(child_meshes[0], armature_object,
-                                                       parent=parent_rig, rigify_ui=rig_save_rigify)
-
-        else:
-            rig = Rig.from_given_basemesh_and_armature(basemesh, armature_object, rigify_ui=rig_save_rigify)
+        if not rig:
+            return {'FINISHED'}
 
         if rig_refit:
             rig.save_strategies(refit=True)

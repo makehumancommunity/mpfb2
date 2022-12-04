@@ -1,0 +1,7 @@
+{
+    "type": "boolean",
+    "name": "keep_linked",
+    "description": "When changing a strategy, keep bone ends in sync if connected via location and/or previous strategy",
+    "label": "Keep Connected",
+    "default": true
+}

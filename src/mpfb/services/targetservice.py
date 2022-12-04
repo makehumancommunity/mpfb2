@@ -133,6 +133,9 @@ class TargetService:
         _LOG.enter()
         profiler = PrimitiveProfiler("TargetService")
         profiler.enter("create_shape_key")
+
+        assert blender_object.mode == "OBJECT"
+
         if also_create_basis:
             if not blender_object.data.shape_keys or not "Basis" in blender_object.data.shape_keys.key_blocks:
                 blender_object.shape_key_add(name="Basis", from_mix=False)

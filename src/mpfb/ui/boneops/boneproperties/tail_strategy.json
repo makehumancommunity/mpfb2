@@ -1,0 +1,7 @@
+{
+    "type": "string",
+    "name": "tail_strategy",
+    "description": "Strategy used to position the bone tail",
+    "label": "Tail Strategy",
+    "default": ""
+}

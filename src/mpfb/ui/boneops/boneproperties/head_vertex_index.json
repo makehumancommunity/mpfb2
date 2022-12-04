@@ -1,0 +1,7 @@
+{
+    "type": "int",
+    "name": "head_vertex_index",
+    "description": "Index of the head vertex",
+    "label": "Head Vertex",
+    "default": -1
+}

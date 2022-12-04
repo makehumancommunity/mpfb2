@@ -1,6 +1,8 @@
 """This module contains functionality for serializing/deserializing rigs via JSON."""
+import bmesh
 
 from mpfb.services.logservice import LogService
+from mpfb.services.objectservice import ObjectService
 from mpfb.services.rigservice import RigService
 from mpfb.entities.objectproperties import GeneralObjectProperties
 
@@ -16,10 +18,14 @@ _MAX_DIST_TO_CONSIDER_EXACT = 0.001
 _STRATEGY_REPLACE_THRESHOLD = 0.0001
 _MEAN_LENGTH_PENALTY = 1.0  # Higher penalizes distant vertex pairs more
 
+CLOSE_MEAN_SEARCH_RADIUS = _MAX_ALLOWED_DIST * 2
+
 
 class Rig:
 
     """Entity class representing an armature."""
+
+    armature_object: bpy.types.Object
 
     def __init__(self, basemesh, armature=None, *, parent: typing.Optional['Rig'] = None):
         """You might want to use one of the static methods rather than calling init directly."""
@@ -64,13 +70,43 @@ class Rig:
         return rig
 
     @staticmethod
-    def from_given_basemesh_and_armature(basemesh, armature, *, fast_positions=False, parent=None, rigify_ui=False):
+    def from_given_armature_context(armature_object: bpy.types.Object | None, *,
+                                    is_subrig: bool | None = None, operator=None,
+                                    empty=False, fast_positions=False, rigify_ui=False):
+        """Create an instance of Rig and populate it with information from the armature and related meshes."""
+
+        base_rig, basemesh, direct_mesh = ObjectService.find_armature_context_objects(
+            armature_object, operator=operator, is_subrig=is_subrig)
+
+        if not direct_mesh:
+            return None
+
+        if direct_mesh != basemesh:
+            parent_rig = Rig.from_given_basemesh_and_armature(basemesh, base_rig, fast_positions=True)
+
+            return Rig.from_given_basemesh_and_armature(
+                direct_mesh, armature_object, parent=parent_rig,
+                empty=empty, fast_positions=fast_positions, rigify_ui=rigify_ui
+            )
+        else:
+            return Rig.from_given_basemesh_and_armature(
+                basemesh, base_rig,
+                empty=empty, fast_positions=fast_positions, rigify_ui=rigify_ui
+            )
+
+    @staticmethod
+    def from_given_basemesh_and_armature(basemesh, armature, *, parent=None, empty=False, fast_positions=False,
+                                         rigify_ui=False):
         """Create an instance of Rig and populate it with information from the base mesh
         and from the armature which is expected to be the currently active object."""
 
         rig = Rig(basemesh, armature, parent=parent)
 
         rig.build_basemesh_position_info()
+
+        if empty:
+            return rig
+
         rig.add_data_bone_info()
 
         if fast_positions:
@@ -148,31 +184,39 @@ class Rig:
 
         return self.armature_object
 
-    def _get_best_location_from_strategy(self, head_or_tail_info, use_default=True):
+    def get_best_location_from_strategy(self, head_or_tail_info, use_default=True):
         strategy = head_or_tail_info["strategy"]
         location = None
-        if strategy == "CUBE":
-            name = head_or_tail_info["cube_name"]
-            location = self.position_info["cubes"][name]
-        if strategy == "VERTEX":
-            index = head_or_tail_info["vertex_index"]
-            location = self.position_info["vertices"][index]
-        if strategy == "MEAN":
-            indices = head_or_tail_info["vertex_indices"]
-            vertices = [self.position_info["vertices"][i] for i in indices]
-            location = [sum(v[i] for v in vertices)/len(vertices) for i in range(3)]
-        if strategy == "XYZ":
-            # Special strategy for Rigify heel marker.
-            # Uses different vertices for each coordinate channel.
-            indices = head_or_tail_info["vertex_indices"]
-            vertices = [self.position_info["vertices"][i] for i in indices]
-            location = [vertices[i][i] for i in range(3)]
+        try:
+            if strategy == "CUBE":
+                name = head_or_tail_info["cube_name"]
+                location = self.position_info["cubes"].get(name, None)
+            elif strategy == "VERTEX":
+                index = head_or_tail_info["vertex_index"]
+                location = self.position_info["vertices"][index]
+            elif strategy == "MEAN":
+                indices = head_or_tail_info["vertex_indices"]
+                if len(indices) > 0:
+                    vertices = [self.position_info["vertices"][i] for i in indices]
+                    location = [sum(v[i] for v in vertices)/len(vertices) for i in range(3)]
+            elif strategy == "XYZ":
+                # Special strategy for Rigify heel marker.
+                # Uses different vertices for each coordinate channel.
+                indices = head_or_tail_info["vertex_indices"]
+                if len(indices) >= 3:
+                    vertices = [self.position_info["vertices"][i] for i in indices]
+                    location = [vertices[i][i] for i in range(3)]
+        except IndexError:
+            pass
         if location is None and use_default:
             location = head_or_tail_info["default_position"]
         return location
 
     def _align_roll_by_strategy(self, bone, bone_info):
-        roll_strategy = bone_info.get("roll_strategy", None)
+        self.apply_bone_roll_strategy(bone, bone_info.get("roll_strategy", None))
+
+    @staticmethod
+    def apply_bone_roll_strategy(bone, roll_strategy):
         matrix = None
 
         if roll_strategy == "ALIGN_Z_WORLD_Z":
@@ -191,8 +235,8 @@ class Rig:
             bone_info = self.rig_definition[bone_name]
             bone = bones.new(bone_name)
             bone.roll = bone_info["roll"]
-            bone.head = self._get_best_location_from_strategy(bone_info["head"])
-            bone.tail = self._get_best_location_from_strategy(bone_info["tail"])
+            bone.head = self.get_best_location_from_strategy(bone_info["head"])
+            bone.tail = self.get_best_location_from_strategy(bone_info["tail"])
 
             self._align_roll_by_strategy(bone, bone_info)
 
@@ -205,8 +249,8 @@ class Rig:
             bone_info = self.rig_definition[bone_name]
             bone = RigService.find_edit_bone_by_name(bone_name, self.armature_object)
             if bone:
-                bone.head = self._get_best_location_from_strategy(bone_info["head"])
-                bone.tail = self._get_best_location_from_strategy(bone_info["tail"])
+                bone.head = self.get_best_location_from_strategy(bone_info["head"])
+                bone.tail = self.get_best_location_from_strategy(bone_info["tail"])
                 self._align_roll_by_strategy(bone, bone_info)
             else:
                 _LOG.warn("Tried to refit bone that did not exist in definition", bone_name)
@@ -361,51 +405,69 @@ class Rig:
     def save_strategies(self, refit=False):
         """Save strategy data in the pose bones for development."""
 
+        from mpfb.ui.boneops import BoneOpsArmatureProperties, BoneOpsBoneProperties
+        BoneOpsArmatureProperties.set_value("developer_mode", True, entity_reference=self.armature_object.data)
+
         for bone_name, bone_info in self.rig_definition.items():
             bone = RigService.find_pose_bone_by_name(bone_name, self.armature_object).bone
 
-            self._save_end_strategy(bone, bone_info["head"], "mpfb_head")
-            self._save_end_strategy(bone, bone_info["tail"], "mpfb_tail")
+            self.assign_bone_end_strategy(bone, bone_info["head"], False)
+            self.assign_bone_end_strategy(bone, bone_info["tail"], True)
 
             if not refit:
                 roll_strategy = bone_info.get("roll_strategy", None)
                 if roll_strategy:
-                    bone["mpfb_roll_strategy"] = roll_strategy
+                    BoneOpsBoneProperties.set_value("roll_strategy", roll_strategy, entity_reference=bone)
 
-    def _save_end_strategy(self, bone, info, prefix):
-        strategy = info["strategy"]
+    @staticmethod
+    def assign_bone_end_strategy(bone, info, is_tail: bool, *, force=False, lock: bool | None = None):
+        from mpfb.ui.boneops import BoneOpsBoneProperties, BoneOpsEditBoneProperties
 
-        if bone.get(prefix + "_strategy", "").startswith("!"):
+        properties = BoneOpsEditBoneProperties if isinstance(bone, bpy.types.EditBone) else BoneOpsBoneProperties
+        prefix = "tail" if is_tail else "head"
+
+        if not force and properties.get_value(prefix + "_strategy_lock", entity_reference=bone):
             return
 
-        bone[prefix + "_strategy"] = strategy
+        if lock is not None:
+            properties.set_value(prefix + "_strategy_lock", lock, entity_reference=bone)
+
+        strategy = info["strategy"]
+
+        properties.set_value(prefix + "_strategy", strategy, entity_reference=bone)
 
         if strategy == "CUBE":
-            bone[prefix + "_cube_name"] = info["cube_name"]
+            properties.set_value(prefix + "_cube_name", info["cube_name"], entity_reference=bone)
         elif strategy == "VERTEX":
-            bone[prefix + "_vertex_index"] = info["vertex_index"]
+            properties.set_value(prefix + "_vertex_index", info["vertex_index"], entity_reference=bone)
         elif strategy in ("MEAN", "XYZ"):
-            bone[prefix + "_vertex_indices"] = info["vertex_indices"]
+            name = properties.get_fullname_key_from_shortname_key(prefix + "_vertex_indices")
+            bone[name] = info["vertex_indices"]
 
-    def _get_end_strategy(self, bone, prefix):
+    @staticmethod
+    def get_bone_end_strategy(bone, is_tail):
         """Retrieve head or tail strategy settings from a bone."""
+        from mpfb.ui.boneops import BoneOpsBoneProperties, BoneOpsEditBoneProperties
+
+        properties = BoneOpsEditBoneProperties if isinstance(bone, bpy.types.EditBone) else BoneOpsBoneProperties
+        prefix = "tail" if is_tail else "head"
+
         try:
             force = False
-            strategy = bone.get(prefix + "_strategy", "")
+            strategy = properties.get_value(prefix + "_strategy", entity_reference=bone)
 
-            # Allow using e.g. "!CUBE" to override the distance check
-            if strategy.startswith('!'):
-                strategy = strategy[1:]
+            if properties.get_value(prefix + "_strategy_lock", entity_reference=bone):
                 force = True
 
-            info = { "strategy": strategy }
+            info = {"strategy": strategy}
 
             if strategy == "CUBE":
-                info["cube_name"] = bone[prefix + "_cube_name"]
+                info["cube_name"] = properties.get_value(prefix + "_cube_name", entity_reference=bone)
             elif strategy == "VERTEX":
-                info["vertex_index"] = bone[prefix + "_vertex_index"]
+                info["vertex_index"] = properties.get_value(prefix + "_vertex_index", entity_reference=bone)
             elif strategy in ("MEAN", "XYZ"):
-                info["vertex_indices"] = list(bone[prefix + "_vertex_indices"])
+                name = properties.get_fullname_key_from_shortname_key(prefix + "_vertex_indices")
+                info["vertex_indices"] = list(bone.get(name, []))
             else:
                 return None, False
 
@@ -456,7 +518,9 @@ class Rig:
         cube_groups = dict()
         group_index_to_name = dict()
 
-        basemesh = self.basemesh
+        basemesh: bpy.types.Object = self.basemesh
+
+        assert isinstance(basemesh.data, bpy.types.Mesh)
 
         if self.parent:
             # Copy cube data from the parent rig if present
@@ -473,11 +537,21 @@ class Rig:
         coords = basemesh.data.vertices
         shape_key = None
         key_name = None
+
         if take_shape_keys_into_account and basemesh.data.shape_keys and basemesh.data.shape_keys.key_blocks and len(basemesh.data.shape_keys.key_blocks) > 0:
-            from mpfb.services.targetservice import TargetService
-            key_name = "temporary_fit_rig_key." + str(random.randrange(1000, 9999))
-            shape_key = TargetService.create_shape_key(basemesh, key_name, also_create_basis=True, create_from_mix=True)
-            coords = shape_key.data
+            if basemesh.mode == "EDIT":
+                if not basemesh.use_shape_key_edit_mode or basemesh.show_only_shape_key:
+                    basemesh.use_shape_key_edit_mode = True
+                    basemesh.show_only_shape_key = False
+                    bpy.context.view_layer.update()
+
+                bm = bmesh.from_edit_mesh(basemesh.data)
+                coords = bm.verts
+            else:
+                from mpfb.services.targetservice import TargetService
+                key_name = "temporary_fit_rig_key." + str(random.randrange(1000, 9999))
+                shape_key = TargetService.create_shape_key(basemesh, key_name, also_create_basis=True, create_from_mix=True)
+                coords = shape_key.data
 
         for vertex in basemesh.data.vertices:
             vertex_coords = list(coords[vertex.index].co) # Either actual vertex or the corresponding shape key point
@@ -726,8 +800,8 @@ class Rig:
         exact_threshold = _MAX_DIST_TO_CONSIDER_EXACT
         strategy = None
 
-        cube_name, cube_dist = self._find_closest_cube(pos)
-        vertex_idx, vertex_dist = self._find_closest_vertex(pos)
+        cube_name, cube_dist = self.find_closest_cube(pos)
+        vertex_idx, vertex_dist = self.find_closest_vertex(pos)
 
         if cube_name is not None:
             strategy = "CUBE"
@@ -742,9 +816,9 @@ class Rig:
         # Use mean to replace non-exact vertices if better
         if strategy != "CUBE" and best_dist > exact_threshold and not fast:
             # If already near a vertex, only search for a better mean nearby.
-            search_radius = _MAX_ALLOWED_DIST * 2 if strategy else None
+            search_radius = CLOSE_MEAN_SEARCH_RADIUS if strategy else None
 
-            mean_idxs, mean_dist = self._find_closest_vertex_mean(pos, search_radius=search_radius)
+            mean_idxs, mean_dist = self.find_closest_vertex_mean(pos, search_radius=search_radius)
 
             if mean_idxs is not None and mean_dist < best_dist:
                 strategy = "MEAN"
@@ -772,22 +846,32 @@ class Rig:
                 if roll_strategy in ("ALIGN_Z_WORLD_Z", "ALIGN_X_WORLD_X"):
                     bone_info["roll"] = 0.0
 
-            self._restore_end_strategy(bone, bone_info, "head")
-            self._restore_end_strategy(bone, bone_info, "tail")
+            self._restore_end_strategy(bone, bone_info, False)
+            self._restore_end_strategy(bone, bone_info, True)
 
-    def _restore_end_strategy(self, bone, bone_info, field):
-        saved_head, force = self._get_end_strategy(bone, "mpfb_" + field)
+    def get_bone_strategy_and_location(self, bone, is_tail):
+        info, _force = self.get_bone_end_strategy(bone, is_tail)
+        pos = None
+
+        if info:
+            pos = self.get_best_location_from_strategy(info, use_default=False)
+
+        return info, pos
+
+    def _restore_end_strategy(self, bone, bone_info, is_tail):
+        field = "tail" if is_tail else "head"
+        saved_head, force = self.get_bone_end_strategy(bone, is_tail)
 
         if saved_head:
             cur_head = bone_info[field]
             true_pos = cur_head["default_position"]
-            saved_pos = self._get_best_location_from_strategy(saved_head, use_default=False)
+            saved_pos = self.get_best_location_from_strategy(saved_head, use_default=False)
 
             if not saved_pos:
                 return
 
             if not force:
-                cur_pos = self._get_best_location_from_strategy(cur_head, use_default=False)
+                cur_pos = self.get_best_location_from_strategy(cur_head, use_default=False)
 
                 if cur_pos:
                     # If the saved strategy is not worse, use it
@@ -840,7 +924,8 @@ class Rig:
 
         return cube_tree, cube_list
 
-    def _find_closest_cube(self, pos, max_allowed_dist=_MAX_ALLOWED_DIST) -> tuple[str, float] | tuple[None, None]:
+    def find_closest_cube(self, pos, max_allowed_dist: float | None = _MAX_ALLOWED_DIST
+                          ) -> tuple[str, float] | tuple[None, None]:
         cube_tree, cube_list = self._get_cube_tree()
 
         if not cube_tree:
@@ -849,7 +934,7 @@ class Rig:
         # Find the closest point
         _cube_pos, index, dist = cube_tree.find(pos)
 
-        if dist < max_allowed_dist:
+        if max_allowed_dist is None or dist < max_allowed_dist:
             return cube_list[index], dist
 
         return None, None
@@ -871,13 +956,14 @@ class Rig:
 
         return vertex_tree
 
-    def _find_closest_vertex(self, pos, max_allowed_dist=_MAX_ALLOWED_DIST) -> tuple[int, float] | tuple[None, None]:
+    def find_closest_vertex(self, pos, max_allowed_dist: float | None = _MAX_ALLOWED_DIST
+                            ) -> tuple[int, float] | tuple[None, None]:
         vertex_tree = self._get_vertex_tree()
 
         # Find the closest point
         _vertex, idx, dist = vertex_tree.find(pos)
 
-        if dist < max_allowed_dist:
+        if max_allowed_dist is None or dist < max_allowed_dist:
             return idx, dist
 
         return None, None
@@ -904,7 +990,7 @@ class Rig:
 
         return total_height
 
-    def _find_closest_vertex_mean(self, pos, max_allowed_dist=_MAX_ALLOWED_DIST*2, search_radius=None):
+    def find_closest_vertex_mean(self, pos, max_allowed_dist=_MAX_ALLOWED_DIST * 2, search_radius=None):
         vertex_tree = self._get_vertex_tree()
 
         # Only include verts which are less than 15% of the total height
