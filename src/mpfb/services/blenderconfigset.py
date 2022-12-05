@@ -1,7 +1,8 @@
 
 import bpy, os, json
 from fnmatch import fnmatch
-from bpy.props import BoolProperty, StringProperty, EnumProperty, IntProperty, CollectionProperty, FloatProperty
+from bpy.props import BoolProperty, StringProperty, EnumProperty, IntProperty, CollectionProperty, FloatProperty, \
+    FloatVectorProperty
 from .logservice import LogService
 _LOG = LogService.get_logger("configuration.blenderconfigset")
 
@@ -132,6 +133,9 @@ class BlenderConfigSet(ConfigurationSet):
                 entity_property = FloatProperty(name=name, description=description, default=default) # pylint: disable=E1111
             else:
                 entity_property = FloatProperty(name=name, description=description, default=default, min=min, max=max) # pylint: disable=E1111
+        if proptype == "vector_location":
+            entity_property = FloatVectorProperty(name=name, description=description, default=default,
+                                                  size=3, subtype='XYZ', unit='LENGTH')
         if proptype == "enum":
             enumitems = []
             if items:

@@ -10,7 +10,8 @@ from mpfb.ui.abstractpanel import Abstract_Panel
 from . import BOP_PROPERTIES, BoneOpsEditBoneProperties, BoneOpsBoneProperties, BoneOpsArmatureProperties
 from .operators import MPFB_OT_Reapply_Bone_Strategy_Operator, MPFB_OT_Set_Roll_Strategy_Operator,\
     MPFB_OT_Set_Bone_End_Strategy_Operator, MPFB_OT_Show_Strategy_Vertices_Operator,\
-    MPFB_OT_Save_Strategy_Vertices_Operator, MPFB_OT_Copy_Connected_Strategy_Operator
+    MPFB_OT_Save_Strategy_Vertices_Operator, MPFB_OT_Copy_Connected_Strategy_Operator,\
+    MPFB_OT_Set_Bone_End_Offset_Operator
 
 _LOG = LogService.get_logger("poseops.bonestratpanel")
 
@@ -50,17 +51,19 @@ class MPFB_PT_BonestratPanel(Abstract_Panel):
         id_strategy = end + "_strategy"
         strategy = properties.get_value(id_strategy, entity_reference=bone)
         has_vertices = False
+        is_valid = False
 
         if "CUBE" == strategy:
             row.label(text="Joint", icon="BONE_DATA")
+            is_valid = True
         elif "VERTEX" == strategy:
-            has_vertices = True
+            is_valid = has_vertices = True
             row.label(text="Vertex", icon="VERTEXSEL")
         elif "MEAN" == strategy:
-            has_vertices = True
+            is_valid = has_vertices = True
             row.label(text="Mean", icon="PIVOT_MEDIAN")
         elif "XYZ" == strategy:
-            has_vertices = True
+            is_valid = has_vertices = True
             row.label(text="XYZ", icon="EMPTY_AXIS")
         elif "DEFAULT" == strategy:
             row.label(text="No match", icon="CANCEL")
@@ -175,6 +178,14 @@ class MPFB_PT_BonestratPanel(Abstract_Panel):
             props = op_row.operator(op.bl_idname, text=strategy_info[0])
             props.is_tail = is_tail
             props.strategy = strategy_id
+
+        # Arbitrary offset
+        if is_valid:
+            box.label(text="Offset:")
+            row = box.row()
+            properties.draw_properties(bone, row.row(align=True), [end + "_offset"], text="")
+            props = row.operator(MPFB_OT_Set_Bone_End_Offset_Operator.bl_idname, text="", icon="GREASEPENCIL")
+            props.is_tail = is_tail
 
     def _draw_roll_strategy(self, properties, _armature, bone):
         box = self._create_box(self.layout, "Roll Strategy:")

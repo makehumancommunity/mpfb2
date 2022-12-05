@@ -213,6 +213,8 @@ class Rig:
                     location = [vertices[i][i] for i in range(3)]
         except IndexError:
             pass
+        if location is not None and "offset" in head_or_tail_info:
+            location = [a + b for a, b in zip(location, head_or_tail_info["offset"])]
         if location is None and use_default:
             location = head_or_tail_info["default_position"]
         return location
@@ -449,6 +451,9 @@ class Rig:
             name = properties.get_fullname_key_from_shortname_key(prefix + "_vertex_indices")
             bone[name] = info["vertex_indices"]
 
+        offset = info.get("offset", (0, 0, 0))
+        properties.set_value(prefix + "_offset", offset, entity_reference=bone)
+
     @staticmethod
     def get_bone_end_strategy(bone, is_tail):
         """Retrieve head or tail strategy settings from a bone."""
@@ -475,6 +480,10 @@ class Rig:
                 info["vertex_indices"] = list(bone.get(name, []))
             else:
                 return None, False
+
+            offset = properties.get_value(prefix + "_offset", entity_reference=bone)
+            if offset and any(x != 0 for x in offset):
+                info["offset"] = list(offset)
 
             return info, force
         except KeyError:
@@ -638,6 +647,10 @@ class Rig:
         for name, info in self.rig_definition.items():
             info["head"]["default_position"] = list(map(clean, info["head"]["default_position"]))
             info["tail"]["default_position"] = list(map(clean, info["tail"]["default_position"]))
+            if "offset" in info["head"]:
+                info["head"]["offset"] = list(map(clean, info["head"]["offset"]))
+            if "offset" in info["tail"]:
+                info["tail"]["offset"] = list(map(clean, info["tail"]["offset"]))
             info["roll"] = clean(info["roll"])
 
     def _encode_bbone_info(self, bone):
