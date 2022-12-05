@@ -12659,6 +12659,23 @@
             "use_local_location": true
         }
     },
+    "extra_bones": [
+        "DEF-brow.B.L.004",
+        "DEF-brow.B.R.004",
+        "DEF-eye_iris.L",
+        "DEF-eye_iris.R",
+        "DEF-eye_master.L",
+        "DEF-eye_master.R",
+        "DEF-forearm.L.001",
+        "DEF-forearm.R.001",
+        "DEF-jaw_master",
+        "DEF-shin.L.001",
+        "DEF-shin.R.001",
+        "DEF-thigh.L.001",
+        "DEF-thigh.R.001",
+        "DEF-upper_arm.L.001",
+        "DEF-upper_arm.R.001"
+    ],
     "is_subrig": false,
     "rigify_ui": {
         "colors": [

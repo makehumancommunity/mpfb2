@@ -73,7 +73,7 @@ class MPFB_OT_AddRigifyRigOperator(bpy.types.Operator):
                 self.report({'ERROR'}, "Could not find the weights file")
                 return {'FINISHED'}
 
-            RigService.load_weights(armature_object, basemesh, weights_file, all=True)
+            RigService.load_weights(armature_object, basemesh, weights_file)
             RigService.ensure_armature_modifier(basemesh, armature_object)
 
         self.report({'INFO'}, "A rig was added")

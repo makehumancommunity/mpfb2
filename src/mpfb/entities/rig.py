@@ -126,6 +126,9 @@ class Rig:
 
             rig.cleanup_float_values()
 
+        if extra_bones := RigService.find_extra_bones(rig.armature_object):
+            rig.rig_header["extra_bones"] = extra_bones
+
         if rigify_ui:
             from mpfb.services.rigifyhelpers.rigifyhelpers import RigifyHelpers
             rig.rig_header["rigify_ui"] = RigifyHelpers.get_rigify_ui(armature)
@@ -165,6 +168,8 @@ class Rig:
 
         if for_developer:
             self.save_strategies()
+
+        RigService.set_extra_bones(self.armature_object, self.rig_header.get("extra_bones"))
 
         if self.rig_header.get("rigify_ui"):
             from mpfb.services.rigifyhelpers.rigifyhelpers import RigifyHelpers

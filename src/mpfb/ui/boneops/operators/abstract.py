@@ -95,11 +95,9 @@ class AbstractBoneOperator(bpy.types.Operator):
 
         return armature_object
 
-    def get_relevant_objects(self, armature_object):
-        return ObjectService.find_armature_context_objects(self.unwrap_armature_object(armature_object), operator=self)
-
     def get_vertex_mesh(self, armature_object):
-        _base_rig, _basemesh, direct_mesh = self.get_relevant_objects(armature_object)
+        _base_rig, _basemesh, direct_mesh = ObjectService.find_armature_context_objects(
+            self.unwrap_armature_object(armature_object), operator=self)
 
         return direct_mesh
 
