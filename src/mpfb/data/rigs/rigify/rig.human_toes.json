@@ -2022,9 +2022,9 @@
             },
             "inherit_scale": "FULL",
             "layers": [
+                false,
+                false,
                 true,
-                false,
-                false,
                 false,
                 false,
                 false,
@@ -2056,8 +2056,19 @@
                 false
             ],
             "parent": "face",
-            "rigify": {},
-            "roll": 0.72909,
+            "rigify": {
+                "rigify_parameters": {
+                    "skin_chain_connect_ends": [
+                        false,
+                        true
+                    ],
+                    "skin_chain_pivot_pos": 2,
+                    "skin_control_orientation_bone": "face"
+                },
+                "rigify_type": "skin.stretchy_chain"
+            },
+            "roll": 0.0,
+            "roll_strategy": "ALIGN_Z_WORLD_Z",
             "tail": {
                 "default_position": [
                     0.04675,
@@ -2083,9 +2094,9 @@
             },
             "inherit_scale": "FULL",
             "layers": [
+                false,
+                false,
                 true,
-                false,
-                false,
                 false,
                 false,
                 false,
@@ -2118,7 +2129,8 @@
             ],
             "parent": "brow.B.L",
             "rigify": {},
-            "roll": 0.66429,
+            "roll": 0.0,
+            "roll_strategy": "ALIGN_Z_WORLD_Z",
             "tail": {
                 "default_position": [
                     0.03878,
@@ -2144,9 +2156,9 @@
             },
             "inherit_scale": "FULL",
             "layers": [
+                false,
+                false,
                 true,
-                false,
-                false,
                 false,
                 false,
                 false,
@@ -2179,7 +2191,8 @@
             ],
             "parent": "brow.B.L.001",
             "rigify": {},
-            "roll": 0.0847,
+            "roll": 0.0,
+            "roll_strategy": "ALIGN_Z_WORLD_Z",
             "tail": {
                 "default_position": [
                     0.02162,
@@ -2205,9 +2218,9 @@
             },
             "inherit_scale": "FULL",
             "layers": [
+                false,
+                false,
                 true,
-                false,
-                false,
                 false,
                 false,
                 false,
@@ -2240,7 +2253,8 @@
             ],
             "parent": "brow.B.L.002",
             "rigify": {},
-            "roll": -0.54112,
+            "roll": 0.0,
+            "roll_strategy": "ALIGN_Z_WORLD_Z",
             "tail": {
                 "default_position": [
                     0.01124,
@@ -2254,21 +2268,21 @@
             "use_inherit_rotation": true,
             "use_local_location": true
         },
-        "brow.B.R": {
+        "brow.B.L.004": {
             "head": {
                 "default_position": [
-                    -0.05155,
-                    -0.12121,
-                    1.55541
+                    0.01124,
+                    -0.13678,
+                    1.55665
                 ],
                 "strategy": "VERTEX",
-                "vertex_index": 188
+                "vertex_index": 6897
             },
             "inherit_scale": "FULL",
             "layers": [
+                false,
+                false,
                 true,
-                false,
-                false,
                 false,
                 false,
                 false,
@@ -2300,8 +2314,94 @@
                 false
             ],
             "parent": "face",
-            "rigify": {},
-            "roll": -0.72909,
+            "rigify": {
+                "rigify_parameters": {
+                    "skin_chain_connect_ends": [
+                        true,
+                        false
+                    ],
+                    "skin_chain_falloff": [
+                        -10.0,
+                        1.0,
+                        0.0
+                    ],
+                    "skin_control_orientation_bone": "face"
+                },
+                "rigify_type": "skin.stretchy_chain"
+            },
+            "roll": -1.5708,
+            "tail": {
+                "default_position": [
+                    0.01212,
+                    -0.13784,
+                    1.53864
+                ],
+                "strategy": "VERTEX",
+                "vertex_index": 11715
+            },
+            "use_connect": false,
+            "use_inherit_rotation": true,
+            "use_local_location": true
+        },
+        "brow.B.R": {
+            "head": {
+                "default_position": [
+                    -0.05155,
+                    -0.12121,
+                    1.55541
+                ],
+                "strategy": "VERTEX",
+                "vertex_index": 188
+            },
+            "inherit_scale": "FULL",
+            "layers": [
+                false,
+                false,
+                true,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false
+            ],
+            "parent": "face",
+            "rigify": {
+                "rigify_parameters": {
+                    "skin_chain_connect_ends": [
+                        false,
+                        true
+                    ],
+                    "skin_chain_pivot_pos": 2,
+                    "skin_control_orientation_bone": "face"
+                },
+                "rigify_type": "skin.stretchy_chain"
+            },
+            "roll": 0.0,
+            "roll_strategy": "ALIGN_Z_WORLD_Z",
             "tail": {
                 "default_position": [
                     -0.04675,
@@ -2327,9 +2427,9 @@
             },
             "inherit_scale": "FULL",
             "layers": [
+                false,
+                false,
                 true,
-                false,
-                false,
                 false,
                 false,
                 false,
@@ -2362,7 +2462,8 @@
             ],
             "parent": "brow.B.R",
             "rigify": {},
-            "roll": -0.66429,
+            "roll": 0.0,
+            "roll_strategy": "ALIGN_Z_WORLD_Z",
             "tail": {
                 "default_position": [
                     -0.03878,
@@ -2388,9 +2489,9 @@
             },
             "inherit_scale": "FULL",
             "layers": [
+                false,
+                false,
                 true,
-                false,
-                false,
                 false,
                 false,
                 false,
@@ -2423,7 +2524,8 @@
             ],
             "parent": "brow.B.R.001",
             "rigify": {},
-            "roll": -0.0847,
+            "roll": 0.0,
+            "roll_strategy": "ALIGN_Z_WORLD_Z",
             "tail": {
                 "default_position": [
                     -0.02162,
@@ -2449,9 +2551,9 @@
             },
             "inherit_scale": "FULL",
             "layers": [
+                false,
+                false,
                 true,
-                false,
-                false,
                 false,
                 false,
                 false,
@@ -2484,7 +2586,8 @@
             ],
             "parent": "brow.B.R.002",
             "rigify": {},
-            "roll": 0.54112,
+            "roll": 0.0,
+            "roll_strategy": "ALIGN_Z_WORLD_Z",
             "tail": {
                 "default_position": [
                     -0.01124,
@@ -2495,6 +2598,81 @@
                 "vertex_index": 113
             },
             "use_connect": true,
+            "use_inherit_rotation": true,
+            "use_local_location": true
+        },
+        "brow.B.R.004": {
+            "head": {
+                "default_position": [
+                    -0.01124,
+                    -0.13678,
+                    1.55665
+                ],
+                "strategy": "VERTEX",
+                "vertex_index": 113
+            },
+            "inherit_scale": "FULL",
+            "layers": [
+                false,
+                false,
+                true,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false
+            ],
+            "parent": "face",
+            "rigify": {
+                "rigify_parameters": {
+                    "skin_chain_connect_ends": [
+                        true,
+                        false
+                    ],
+                    "skin_chain_falloff": [
+                        -10.0,
+                        1.0,
+                        0.0
+                    ],
+                    "skin_control_orientation_bone": "face"
+                },
+                "rigify_type": "skin.stretchy_chain"
+            },
+            "roll": 1.5708,
+            "tail": {
+                "default_position": [
+                    -0.01212,
+                    -0.13784,
+                    1.53864
+                ],
+                "strategy": "VERTEX",
+                "vertex_index": 5100
+            },
+            "use_connect": false,
             "use_inherit_rotation": true,
             "use_local_location": true
         },
@@ -2510,9 +2688,9 @@
             },
             "inherit_scale": "FULL",
             "layers": [
+                false,
+                false,
                 true,
-                false,
-                false,
                 false,
                 false,
                 false,
@@ -2543,9 +2721,19 @@
                 false,
                 false
             ],
-            "parent": "cheek.B.L.001",
-            "rigify": {},
-            "roll": 2.02253,
+            "parent": "face",
+            "rigify": {
+                "rigify_parameters": {
+                    "skin_chain_connect_ends": [
+                        true,
+                        true
+                    ],
+                    "skin_control_orientation_bone": "face"
+                },
+                "rigify_type": "skin.basic_chain"
+            },
+            "roll": 0.0,
+            "roll_strategy": "ALIGN_Z_WORLD_Z",
             "tail": {
                 "default_position": [
                     0.05421,
@@ -2555,7 +2743,7 @@
                 "strategy": "VERTEX",
                 "vertex_index": 7023
             },
-            "use_connect": true,
+            "use_connect": false,
             "use_inherit_rotation": true,
             "use_local_location": true
         },
@@ -2571,8 +2759,8 @@
             },
             "inherit_scale": "FULL",
             "layers": [
-                true,
                 false,
+                true,
                 false,
                 false,
                 false,
@@ -2604,9 +2792,19 @@
                 false,
                 false
             ],
-            "parent": "brow.T.L",
-            "rigify": {},
-            "roll": 0.87378,
+            "parent": "face",
+            "rigify": {
+                "rigify_parameters": {
+                    "skin_chain_connect_ends": [
+                        true,
+                        true
+                    ],
+                    "skin_control_orientation_bone": "face"
+                },
+                "rigify_type": "skin.stretchy_chain"
+            },
+            "roll": 0.0,
+            "roll_strategy": "ALIGN_Z_WORLD_Z",
             "tail": {
                 "default_position": [
                     0.03984,
@@ -2616,7 +2814,7 @@
                 "strategy": "VERTEX",
                 "vertex_index": 6981
             },
-            "use_connect": true,
+            "use_connect": false,
             "use_inherit_rotation": true,
             "use_local_location": true
         },
@@ -2632,9 +2830,9 @@
             },
             "inherit_scale": "FULL",
             "layers": [
+                false,
+                false,
                 true,
-                false,
-                false,
                 false,
                 false,
                 false,
@@ -2667,7 +2865,8 @@
             ],
             "parent": "brow.T.L.001",
             "rigify": {},
-            "roll": 0.0724,
+            "roll": 0.0,
+            "roll_strategy": "ALIGN_Z_WORLD_Z",
             "tail": {
                 "default_position": [
                     0.01521,
@@ -2693,9 +2892,9 @@
             },
             "inherit_scale": "FULL",
             "layers": [
+                false,
+                false,
                 true,
-                false,
-                false,
                 false,
                 false,
                 false,
@@ -2726,9 +2925,19 @@
                 false,
                 false
             ],
-            "parent": "brow.T.L.002",
-            "rigify": {},
-            "roll": -0.7745,
+            "parent": "face",
+            "rigify": {
+                "rigify_parameters": {
+                    "skin_chain_connect_ends": [
+                        true,
+                        false
+                    ],
+                    "skin_control_orientation_bone": "face"
+                },
+                "rigify_type": "skin.basic_chain"
+            },
+            "roll": 0.0,
+            "roll_strategy": "ALIGN_Z_WORLD_Z",
             "tail": {
                 "default_position": [
                     0.0,
@@ -2738,7 +2947,7 @@
                 "strategy": "VERTEX",
                 "vertex_index": 132
             },
-            "use_connect": true,
+            "use_connect": false,
             "use_inherit_rotation": true,
             "use_local_location": true
         },
@@ -2754,9 +2963,9 @@
             },
             "inherit_scale": "FULL",
             "layers": [
+                false,
+                false,
                 true,
-                false,
-                false,
                 false,
                 false,
                 false,
@@ -2787,9 +2996,19 @@
                 false,
                 false
             ],
-            "parent": "cheek.B.R.001",
-            "rigify": {},
-            "roll": -2.02253,
+            "parent": "face",
+            "rigify": {
+                "rigify_parameters": {
+                    "skin_chain_connect_ends": [
+                        true,
+                        true
+                    ],
+                    "skin_control_orientation_bone": "face"
+                },
+                "rigify_type": "skin.basic_chain"
+            },
+            "roll": 0.0,
+            "roll_strategy": "ALIGN_Z_WORLD_Z",
             "tail": {
                 "default_position": [
                     -0.05421,
@@ -2799,7 +3018,7 @@
                 "strategy": "VERTEX",
                 "vertex_index": 254
             },
-            "use_connect": true,
+            "use_connect": false,
             "use_inherit_rotation": true,
             "use_local_location": true
         },
@@ -2815,8 +3034,8 @@
             },
             "inherit_scale": "FULL",
             "layers": [
-                true,
                 false,
+                true,
                 false,
                 false,
                 false,
@@ -2848,9 +3067,19 @@
                 false,
                 false
             ],
-            "parent": "brow.T.R",
-            "rigify": {},
-            "roll": -0.87378,
+            "parent": "face",
+            "rigify": {
+                "rigify_parameters": {
+                    "skin_chain_connect_ends": [
+                        true,
+                        true
+                    ],
+                    "skin_control_orientation_bone": "face"
+                },
+                "rigify_type": "skin.stretchy_chain"
+            },
+            "roll": 0.0,
+            "roll_strategy": "ALIGN_Z_WORLD_Z",
             "tail": {
                 "default_position": [
                     -0.03984,
@@ -2860,7 +3089,7 @@
                 "strategy": "VERTEX",
                 "vertex_index": 206
             },
-            "use_connect": true,
+            "use_connect": false,
             "use_inherit_rotation": true,
             "use_local_location": true
         },
@@ -2876,9 +3105,9 @@
             },
             "inherit_scale": "FULL",
             "layers": [
+                false,
+                false,
                 true,
-                false,
-                false,
                 false,
                 false,
                 false,
@@ -2911,7 +3140,8 @@
             ],
             "parent": "brow.T.R.001",
             "rigify": {},
-            "roll": -0.0724,
+            "roll": 0.0,
+            "roll_strategy": "ALIGN_Z_WORLD_Z",
             "tail": {
                 "default_position": [
                     -0.01521,
@@ -2937,9 +3167,9 @@
             },
             "inherit_scale": "FULL",
             "layers": [
+                false,
+                false,
                 true,
-                false,
-                false,
                 false,
                 false,
                 false,
@@ -2970,9 +3200,19 @@
                 false,
                 false
             ],
-            "parent": "brow.T.R.002",
-            "rigify": {},
-            "roll": 0.7745,
+            "parent": "face",
+            "rigify": {
+                "rigify_parameters": {
+                    "skin_chain_connect_ends": [
+                        true,
+                        false
+                    ],
+                    "skin_control_orientation_bone": "face"
+                },
+                "rigify_type": "skin.basic_chain"
+            },
+            "roll": 0.0,
+            "roll_strategy": "ALIGN_Z_WORLD_Z",
             "tail": {
                 "default_position": [
                     0.0,
@@ -2982,7 +3222,147 @@
                 "strategy": "VERTEX",
                 "vertex_index": 132
             },
-            "use_connect": true,
+            "use_connect": false,
+            "use_inherit_rotation": true,
+            "use_local_location": true
+        },
+        "brow_glue.B.L.002": {
+            "head": {
+                "default_position": [
+                    0.03878,
+                    -0.13524,
+                    1.56238
+                ],
+                "strategy": "VERTEX",
+                "vertex_index": 6948
+            },
+            "inherit_scale": "FULL",
+            "layers": [
+                false,
+                false,
+                true,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false
+            ],
+            "parent": "face",
+            "rigify": {
+                "rigify_parameters": {
+                    "relink_constraints": true,
+                    "skin_glue_add_constraint": "COPY_LOCATION_OWNER",
+                    "skin_glue_add_constraint_influence": 0.25,
+                    "skin_glue_tail_reparent": true,
+                    "skin_glue_use_tail": true
+                },
+                "rigify_type": "skin.glue"
+            },
+            "roll": 0.7854,
+            "tail": {
+                "default_position": [
+                    0.03984,
+                    -0.13611,
+                    1.56863
+                ],
+                "strategy": "VERTEX",
+                "vertex_index": 6981
+            },
+            "use_connect": false,
+            "use_inherit_rotation": true,
+            "use_local_location": true
+        },
+        "brow_glue.B.R.002": {
+            "head": {
+                "default_position": [
+                    -0.03878,
+                    -0.13524,
+                    1.56238
+                ],
+                "strategy": "VERTEX",
+                "vertex_index": 172
+            },
+            "inherit_scale": "FULL",
+            "layers": [
+                false,
+                false,
+                true,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false
+            ],
+            "parent": "face",
+            "rigify": {
+                "rigify_parameters": {
+                    "relink_constraints": true,
+                    "skin_glue_add_constraint": "COPY_LOCATION_OWNER",
+                    "skin_glue_add_constraint_influence": 0.25,
+                    "skin_glue_tail_reparent": true,
+                    "skin_glue_use_tail": true
+                },
+                "rigify_type": "skin.glue"
+            },
+            "roll": -0.7854,
+            "tail": {
+                "default_position": [
+                    -0.03984,
+                    -0.13611,
+                    1.56863
+                ],
+                "strategy": "VERTEX",
+                "vertex_index": 206
+            },
+            "use_connect": false,
             "use_inherit_rotation": true,
             "use_local_location": true
         },
@@ -3001,8 +3381,8 @@
             },
             "inherit_scale": "FULL",
             "layers": [
-                true,
                 false,
+                true,
                 false,
                 false,
                 false,
@@ -3034,8 +3414,17 @@
                 false,
                 false
             ],
-            "parent": "chin.L",
-            "rigify": {},
+            "parent": "face",
+            "rigify": {
+                "rigify_parameters": {
+                    "skin_chain_connect_ends": [
+                        false,
+                        true
+                    ],
+                    "skin_control_orientation_bone": "face"
+                },
+                "rigify_type": "skin.stretchy_chain"
+            },
             "roll": -3.35648,
             "tail": {
                 "default_position": [
@@ -3046,7 +3435,7 @@
                 "strategy": "VERTEX",
                 "vertex_index": 11767
             },
-            "use_connect": true,
+            "use_connect": false,
             "use_inherit_rotation": true,
             "use_local_location": true
         },
@@ -3062,9 +3451,9 @@
             },
             "inherit_scale": "FULL",
             "layers": [
+                false,
+                false,
                 true,
-                false,
-                false,
                 false,
                 false,
                 false,
@@ -3097,7 +3486,7 @@
             ],
             "parent": "cheek.B.L",
             "rigify": {},
-            "roll": -3.69584,
+            "roll": -3.91226,
             "tail": {
                 "default_position": [
                     0.05856,
@@ -3126,8 +3515,8 @@
             },
             "inherit_scale": "FULL",
             "layers": [
-                true,
                 false,
+                true,
                 false,
                 false,
                 false,
@@ -3159,8 +3548,17 @@
                 false,
                 false
             ],
-            "parent": "chin.R",
-            "rigify": {},
+            "parent": "face",
+            "rigify": {
+                "rigify_parameters": {
+                    "skin_chain_connect_ends": [
+                        false,
+                        true
+                    ],
+                    "skin_control_orientation_bone": "face"
+                },
+                "rigify_type": "skin.stretchy_chain"
+            },
             "roll": 3.35648,
             "tail": {
                 "default_position": [
@@ -3171,7 +3569,7 @@
                 "strategy": "VERTEX",
                 "vertex_index": 5153
             },
-            "use_connect": true,
+            "use_connect": false,
             "use_inherit_rotation": true,
             "use_local_location": true
         },
@@ -3187,9 +3585,9 @@
             },
             "inherit_scale": "FULL",
             "layers": [
+                false,
+                false,
                 true,
-                false,
-                false,
                 false,
                 false,
                 false,
@@ -3222,7 +3620,7 @@
             ],
             "parent": "cheek.B.R",
             "rigify": {},
-            "roll": 3.69584,
+            "roll": 3.91226,
             "tail": {
                 "default_position": [
                     -0.05856,
@@ -3248,9 +3646,9 @@
             },
             "inherit_scale": "FULL",
             "layers": [
+                false,
+                false,
                 true,
-                false,
-                false,
                 false,
                 false,
                 false,
@@ -3282,8 +3680,14 @@
                 false
             ],
             "parent": "face",
-            "rigify": {},
-            "roll": -1.74417,
+            "rigify": {
+                "rigify_parameters": {
+                    "skin_control_orientation_bone": "face"
+                },
+                "rigify_type": "skin.basic_chain"
+            },
+            "roll": 0.0,
+            "roll_strategy": "ALIGN_Z_WORLD_Z",
             "tail": {
                 "default_position": [
                     0.04235,
@@ -3309,9 +3713,9 @@
             },
             "inherit_scale": "FULL",
             "layers": [
+                false,
+                false,
                 true,
-                false,
-                false,
                 false,
                 false,
                 false,
@@ -3344,7 +3748,8 @@
             ],
             "parent": "cheek.T.L",
             "rigify": {},
-            "roll": 0.51156,
+            "roll": 0.0,
+            "roll_strategy": "ALIGN_Z_WORLD_Z",
             "tail": {
                 "default_position": [
                     0.01212,
@@ -3370,9 +3775,9 @@
             },
             "inherit_scale": "FULL",
             "layers": [
+                false,
+                false,
                 true,
-                false,
-                false,
                 false,
                 false,
                 false,
@@ -3404,8 +3809,14 @@
                 false
             ],
             "parent": "face",
-            "rigify": {},
-            "roll": 1.74417,
+            "rigify": {
+                "rigify_parameters": {
+                    "skin_control_orientation_bone": "face"
+                },
+                "rigify_type": "skin.basic_chain"
+            },
+            "roll": 0.0,
+            "roll_strategy": "ALIGN_Z_WORLD_Z",
             "tail": {
                 "default_position": [
                     -0.04235,
@@ -3431,9 +3842,9 @@
             },
             "inherit_scale": "FULL",
             "layers": [
+                false,
+                false,
                 true,
-                false,
-                false,
                 false,
                 false,
                 false,
@@ -3466,7 +3877,8 @@
             ],
             "parent": "cheek.T.R",
             "rigify": {},
-            "roll": -0.51156,
+            "roll": 0.0,
+            "roll_strategy": "ALIGN_Z_WORLD_Z",
             "tail": {
                 "default_position": [
                     -0.01212,
@@ -3480,21 +3892,21 @@
             "use_inherit_rotation": true,
             "use_local_location": true
         },
-        "chin": {
+        "cheek_glue.T.L.001": {
             "head": {
                 "default_position": [
-                    0.0,
-                    -0.13425,
-                    1.44741
+                    0.04235,
+                    -0.12961,
+                    1.52599
                 ],
                 "strategy": "VERTEX",
-                "vertex_index": 5225
+                "vertex_index": 11748
             },
             "inherit_scale": "FULL",
             "layers": [
+                false,
+                false,
                 true,
-                false,
-                false,
                 false,
                 false,
                 false,
@@ -3525,8 +3937,157 @@
                 false,
                 false
             ],
-            "parent": "jaw",
-            "rigify": {},
+            "parent": "face",
+            "rigify": {
+                "rigify_parameters": {
+                    "relink_constraints": true,
+                    "skin_glue_add_constraint": "COPY_LOCATION_OWNER",
+                    "skin_glue_add_constraint_influence": 0.5,
+                    "skin_glue_tail_reparent": true,
+                    "skin_glue_use_tail": true
+                },
+                "rigify_type": "skin.glue"
+            },
+            "roll": 0.7854,
+            "tail": {
+                "default_position": [
+                    0.05094,
+                    -0.11606,
+                    1.50242
+                ],
+                "strategy": "VERTEX",
+                "vertex_index": 11767
+            },
+            "use_connect": false,
+            "use_inherit_rotation": true,
+            "use_local_location": true
+        },
+        "cheek_glue.T.R.001": {
+            "head": {
+                "default_position": [
+                    -0.04235,
+                    -0.12961,
+                    1.52599
+                ],
+                "strategy": "VERTEX",
+                "vertex_index": 5133
+            },
+            "inherit_scale": "FULL",
+            "layers": [
+                false,
+                false,
+                true,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false
+            ],
+            "parent": "face",
+            "rigify": {
+                "rigify_parameters": {
+                    "relink_constraints": true,
+                    "skin_glue_add_constraint": "COPY_LOCATION_OWNER",
+                    "skin_glue_add_constraint_influence": 0.5,
+                    "skin_glue_tail_reparent": true,
+                    "skin_glue_use_tail": true
+                },
+                "rigify_type": "skin.glue"
+            },
+            "roll": -0.7854,
+            "tail": {
+                "default_position": [
+                    -0.05094,
+                    -0.11606,
+                    1.50242
+                ],
+                "strategy": "VERTEX",
+                "vertex_index": 5153
+            },
+            "use_connect": false,
+            "use_inherit_rotation": true,
+            "use_local_location": true
+        },
+        "chin": {
+            "head": {
+                "default_position": [
+                    0.0,
+                    -0.13425,
+                    1.44741
+                ],
+                "strategy": "VERTEX",
+                "vertex_index": 5225
+            },
+            "inherit_scale": "FULL",
+            "layers": [
+                false,
+                false,
+                true,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false
+            ],
+            "parent": "jaw_master",
+            "rigify": {
+                "rigify_parameters": {
+                    "skin_chain_connect_ends": [
+                        true,
+                        false
+                    ],
+                    "skin_control_orientation_bone": "face"
+                },
+                "rigify_type": "skin.stretchy_chain"
+            },
             "roll": 0.0,
             "tail": {
                 "default_position": [
@@ -3537,7 +4098,7 @@
                 "strategy": "VERTEX",
                 "vertex_index": 5162
             },
-            "use_connect": true,
+            "use_connect": false,
             "use_inherit_rotation": true,
             "use_local_location": true
         },
@@ -3553,9 +4114,9 @@
             },
             "inherit_scale": "FULL",
             "layers": [
+                false,
+                false,
                 true,
-                false,
-                false,
                 false,
                 false,
                 false,
@@ -3614,9 +4175,9 @@
             },
             "inherit_scale": "FULL",
             "layers": [
+                false,
+                false,
                 true,
-                false,
-                false,
                 false,
                 false,
                 false,
@@ -3649,7 +4210,7 @@
             ],
             "parent": "jaw.L.001",
             "rigify": {},
-            "roll": 2.18831,
+            "roll": 2.19646,
             "tail": {
                 "default_position": [
                     0.02282,
@@ -3678,9 +4239,9 @@
             },
             "inherit_scale": "FULL",
             "layers": [
+                false,
+                false,
                 true,
-                false,
-                false,
                 false,
                 false,
                 false,
@@ -3713,7 +4274,7 @@
             ],
             "parent": "jaw.R.001",
             "rigify": {},
-            "roll": -2.18831,
+            "roll": -2.19646,
             "tail": {
                 "default_position": [
                     -0.02282,
@@ -3727,6 +4288,79 @@
                 ]
             },
             "use_connect": true,
+            "use_inherit_rotation": true,
+            "use_local_location": true
+        },
+        "chin_end_glue.001": {
+            "head": {
+                "default_position": [
+                    0.0,
+                    -0.14283,
+                    1.47073
+                ],
+                "strategy": "VERTEX",
+                "vertex_index": 491
+            },
+            "inherit_scale": "FULL",
+            "layers": [
+                false,
+                false,
+                true,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false
+            ],
+            "parent": "jaw_master",
+            "rigify": {
+                "rigify_parameters": {
+                    "relink_constraints": true,
+                    "skin_glue_add_constraint": "COPY_LOCATION_OWNER",
+                    "skin_glue_add_constraint_influence": 0.5,
+                    "skin_glue_tail_reparent": true,
+                    "skin_glue_use_tail": true
+                },
+                "rigify_type": "skin.glue"
+            },
+            "roll": 0.7854,
+            "tail": {
+                "default_position": [
+                    0.0,
+                    -0.14609,
+                    1.48146
+                ],
+                "strategy": "MEAN",
+                "vertex_indices": [
+                    495,
+                    557
+                ]
+            },
+            "use_connect": false,
             "use_inherit_rotation": true,
             "use_local_location": true
         },
@@ -3776,7 +4410,12 @@
                 false
             ],
             "parent": "face",
-            "rigify": {},
+            "rigify": {
+                "rigify_parameters": {
+                    "super_copy_widget_type": "sphere"
+                },
+                "rigify_type": "basic.super_copy"
+            },
             "roll": -0.0324,
             "tail": {
                 "default_position": [
@@ -3803,9 +4442,9 @@
             },
             "inherit_scale": "FULL",
             "layers": [
+                false,
+                false,
                 true,
-                false,
-                false,
                 false,
                 false,
                 false,
@@ -3837,8 +4476,17 @@
                 false
             ],
             "parent": "ear.L",
-            "rigify": {},
-            "roll": 0.0656,
+            "rigify": {
+                "rigify_parameters": {
+                    "skin_chain_connect_ends": [
+                        true,
+                        true
+                    ],
+                    "skin_control_orientation_bone": "face"
+                },
+                "rigify_type": "skin.basic_chain"
+            },
+            "roll": 0.25431,
             "tail": {
                 "default_position": [
                     0.0788,
@@ -3851,7 +4499,7 @@
                     12056
                 ]
             },
-            "use_connect": true,
+            "use_connect": false,
             "use_inherit_rotation": true,
             "use_local_location": true
         },
@@ -3870,9 +4518,9 @@
             },
             "inherit_scale": "FULL",
             "layers": [
+                false,
+                false,
                 true,
-                false,
-                false,
                 false,
                 false,
                 false,
@@ -3903,9 +4551,18 @@
                 false,
                 false
             ],
-            "parent": "ear.L.001",
-            "rigify": {},
-            "roll": -0.0265,
+            "parent": "ear.L",
+            "rigify": {
+                "rigify_parameters": {
+                    "skin_chain_connect_ends": [
+                        true,
+                        true
+                    ],
+                    "skin_control_orientation_bone": "face"
+                },
+                "rigify_type": "skin.stretchy_chain"
+            },
+            "roll": 0.54997,
             "tail": {
                 "default_position": [
                     0.07883,
@@ -3918,7 +4575,7 @@
                     12256
                 ]
             },
-            "use_connect": true,
+            "use_connect": false,
             "use_inherit_rotation": true,
             "use_local_location": true
         },
@@ -3937,9 +4594,9 @@
             },
             "inherit_scale": "FULL",
             "layers": [
+                false,
+                false,
                 true,
-                false,
-                false,
                 false,
                 false,
                 false,
@@ -3972,7 +4629,7 @@
             ],
             "parent": "ear.L.002",
             "rigify": {},
-            "roll": 0.3033,
+            "roll": 0.74592,
             "tail": {
                 "default_position": [
                     0.07314,
@@ -4004,9 +4661,9 @@
             },
             "inherit_scale": "FULL",
             "layers": [
+                false,
+                false,
                 true,
-                false,
-                false,
                 false,
                 false,
                 false,
@@ -4037,9 +4694,18 @@
                 false,
                 false
             ],
-            "parent": "ear.L.003",
-            "rigify": {},
-            "roll": 0.1518,
+            "parent": "ear.L",
+            "rigify": {
+                "rigify_parameters": {
+                    "skin_chain_connect_ends": [
+                        true,
+                        true
+                    ],
+                    "skin_control_orientation_bone": "face"
+                },
+                "rigify_type": "skin.basic_chain"
+            },
+            "roll": -1.09921,
             "tail": {
                 "default_position": [
                     0.06924,
@@ -4049,7 +4715,7 @@
                 "strategy": "VERTEX",
                 "vertex_index": 12020
             },
-            "use_connect": true,
+            "use_connect": false,
             "use_inherit_rotation": true,
             "use_local_location": true
         },
@@ -4099,7 +4765,12 @@
                 false
             ],
             "parent": "face",
-            "rigify": {},
+            "rigify": {
+                "rigify_parameters": {
+                    "super_copy_widget_type": "sphere"
+                },
+                "rigify_type": "basic.super_copy"
+            },
             "roll": 0.0324,
             "tail": {
                 "default_position": [
@@ -4126,9 +4797,9 @@
             },
             "inherit_scale": "FULL",
             "layers": [
+                false,
+                false,
                 true,
-                false,
-                false,
                 false,
                 false,
                 false,
@@ -4160,8 +4831,17 @@
                 false
             ],
             "parent": "ear.R",
-            "rigify": {},
-            "roll": -0.0656,
+            "rigify": {
+                "rigify_parameters": {
+                    "skin_chain_connect_ends": [
+                        true,
+                        true
+                    ],
+                    "skin_control_orientation_bone": "face"
+                },
+                "rigify_type": "skin.basic_chain"
+            },
+            "roll": -0.25431,
             "tail": {
                 "default_position": [
                     -0.0788,
@@ -4174,7 +4854,7 @@
                     5457
                 ]
             },
-            "use_connect": true,
+            "use_connect": false,
             "use_inherit_rotation": true,
             "use_local_location": true
         },
@@ -4193,9 +4873,9 @@
             },
             "inherit_scale": "FULL",
             "layers": [
+                false,
+                false,
                 true,
-                false,
-                false,
                 false,
                 false,
                 false,
@@ -4226,9 +4906,18 @@
                 false,
                 false
             ],
-            "parent": "ear.R.001",
-            "rigify": {},
-            "roll": 0.0265,
+            "parent": "ear.R",
+            "rigify": {
+                "rigify_parameters": {
+                    "skin_chain_connect_ends": [
+                        true,
+                        true
+                    ],
+                    "skin_control_orientation_bone": "face"
+                },
+                "rigify_type": "skin.stretchy_chain"
+            },
+            "roll": -0.54997,
             "tail": {
                 "default_position": [
                     -0.07883,
@@ -4241,7 +4930,7 @@
                     5659
                 ]
             },
-            "use_connect": true,
+            "use_connect": false,
             "use_inherit_rotation": true,
             "use_local_location": true
         },
@@ -4260,9 +4949,9 @@
             },
             "inherit_scale": "FULL",
             "layers": [
+                false,
+                false,
                 true,
-                false,
-                false,
                 false,
                 false,
                 false,
@@ -4295,7 +4984,7 @@
             ],
             "parent": "ear.R.002",
             "rigify": {},
-            "roll": -0.3033,
+            "roll": -0.74592,
             "tail": {
                 "default_position": [
                     -0.07314,
@@ -4327,9 +5016,9 @@
             },
             "inherit_scale": "FULL",
             "layers": [
+                false,
+                false,
                 true,
-                false,
-                false,
                 false,
                 false,
                 false,
@@ -4360,9 +5049,18 @@
                 false,
                 false
             ],
-            "parent": "ear.R.003",
-            "rigify": {},
-            "roll": -0.1518,
+            "parent": "ear.R",
+            "rigify": {
+                "rigify_parameters": {
+                    "skin_chain_connect_ends": [
+                        true,
+                        true
+                    ],
+                    "skin_control_orientation_bone": "face"
+                },
+                "rigify_type": "skin.basic_chain"
+            },
+            "roll": 1.09921,
             "tail": {
                 "default_position": [
                     -0.06924,
@@ -4372,7 +5070,7 @@
                 "strategy": "VERTEX",
                 "vertex_index": 5421
             },
-            "use_connect": true,
+            "use_connect": false,
             "use_inherit_rotation": true,
             "use_local_location": true
         },
@@ -4422,7 +5120,9 @@
                 false
             ],
             "parent": "face",
-            "rigify": {},
+            "rigify": {
+                "rigify_type": "face.skin_eye"
+            },
             "roll": 0.0,
             "roll_strategy": "ALIGN_Z_WORLD_Z",
             "tail": {
@@ -4487,7 +5187,9 @@
                 false
             ],
             "parent": "face",
-            "rigify": {},
+            "rigify": {
+                "rigify_type": "face.skin_eye"
+            },
             "roll": 0.0,
             "roll_strategy": "ALIGN_Z_WORLD_Z",
             "tail": {
@@ -6319,8 +7021,8 @@
             "inherit_scale": "FULL",
             "layers": [
                 true,
-                false,
-                false,
+                true,
+                true,
                 false,
                 false,
                 false,
@@ -6388,27 +7090,22 @@
                         false,
                         false
                     ]
-                },
-                "rigify_type": "faces.super_face"
+                }
             },
             "roll": 0.0,
             "tail": {
+                "cube_name": "joint-head",
                 "default_position": [
                     0.0,
-                    -0.04046,
-                    1.58863
+                    -0.04401,
+                    1.59458
                 ],
-                "strategy": "MEAN",
-                "vertex_indices": [
-                    14071,
-                    14072,
-                    14074,
-                    14077,
-                    14566,
-                    14569,
-                    14571,
-                    14572
-                ]
+                "offset": [
+                    0.0,
+                    0.0,
+                    0.08
+                ],
+                "strategy": "CUBE"
             },
             "use_connect": false,
             "use_inherit_rotation": true,
@@ -6676,9 +7373,9 @@
             },
             "inherit_scale": "FULL",
             "layers": [
+                false,
+                false,
                 true,
-                false,
-                false,
                 false,
                 false,
                 false,
@@ -6710,7 +7407,12 @@
                 false
             ],
             "parent": "face",
-            "rigify": {},
+            "rigify": {
+                "rigify_parameters": {
+                    "skin_control_orientation_bone": "face"
+                },
+                "rigify_type": "skin.basic_chain"
+            },
             "roll": 1.19501,
             "tail": {
                 "default_position": [
@@ -6737,131 +7439,9 @@
             },
             "inherit_scale": "FULL",
             "layers": [
+                false,
+                false,
                 true,
-                false,
-                false,
-                false,
-                false,
-                false,
-                false,
-                false,
-                false,
-                false,
-                false,
-                false,
-                false,
-                false,
-                false,
-                false,
-                false,
-                false,
-                false,
-                false,
-                false,
-                false,
-                false,
-                false,
-                false,
-                false,
-                false,
-                false,
-                false,
-                false,
-                false,
-                false
-            ],
-            "parent": "forehead.L",
-            "rigify": {},
-            "roll": 0.78092,
-            "tail": {
-                "default_position": [
-                    0.03984,
-                    -0.13611,
-                    1.56863
-                ],
-                "strategy": "VERTEX",
-                "vertex_index": 6981
-            },
-            "use_connect": false,
-            "use_inherit_rotation": true,
-            "use_local_location": true
-        },
-        "forehead.L.002": {
-            "head": {
-                "default_position": [
-                    0.04982,
-                    -0.10959,
-                    1.60761
-                ],
-                "strategy": "VERTEX",
-                "vertex_index": 7018
-            },
-            "inherit_scale": "FULL",
-            "layers": [
-                true,
-                false,
-                false,
-                false,
-                false,
-                false,
-                false,
-                false,
-                false,
-                false,
-                false,
-                false,
-                false,
-                false,
-                false,
-                false,
-                false,
-                false,
-                false,
-                false,
-                false,
-                false,
-                false,
-                false,
-                false,
-                false,
-                false,
-                false,
-                false,
-                false,
-                false,
-                false
-            ],
-            "parent": "forehead.L.001",
-            "rigify": {},
-            "roll": 0.4509,
-            "tail": {
-                "default_position": [
-                    0.05421,
-                    -0.11865,
-                    1.56192
-                ],
-                "strategy": "VERTEX",
-                "vertex_index": 7023
-            },
-            "use_connect": false,
-            "use_inherit_rotation": true,
-            "use_local_location": true
-        },
-        "forehead.R": {
-            "head": {
-                "default_position": [
-                    -0.00814,
-                    -0.13828,
-                    1.59902
-                ],
-                "strategy": "VERTEX",
-                "vertex_index": 245
-            },
-            "inherit_scale": "FULL",
-            "layers": [
-                true,
-                false,
-                false,
                 false,
                 false,
                 false,
@@ -6893,7 +7473,144 @@
                 false
             ],
             "parent": "face",
-            "rigify": {},
+            "rigify": {
+                "rigify_parameters": {
+                    "skin_control_orientation_bone": "face"
+                },
+                "rigify_type": "skin.basic_chain"
+            },
+            "roll": 0.78092,
+            "tail": {
+                "default_position": [
+                    0.03984,
+                    -0.13611,
+                    1.56863
+                ],
+                "strategy": "VERTEX",
+                "vertex_index": 6981
+            },
+            "use_connect": false,
+            "use_inherit_rotation": true,
+            "use_local_location": true
+        },
+        "forehead.L.002": {
+            "head": {
+                "default_position": [
+                    0.04982,
+                    -0.10959,
+                    1.60761
+                ],
+                "strategy": "VERTEX",
+                "vertex_index": 7018
+            },
+            "inherit_scale": "FULL",
+            "layers": [
+                false,
+                false,
+                true,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false
+            ],
+            "parent": "face",
+            "rigify": {
+                "rigify_parameters": {
+                    "skin_control_orientation_bone": "face"
+                },
+                "rigify_type": "skin.basic_chain"
+            },
+            "roll": 0.4509,
+            "tail": {
+                "default_position": [
+                    0.05421,
+                    -0.11865,
+                    1.56192
+                ],
+                "strategy": "VERTEX",
+                "vertex_index": 7023
+            },
+            "use_connect": false,
+            "use_inherit_rotation": true,
+            "use_local_location": true
+        },
+        "forehead.R": {
+            "head": {
+                "default_position": [
+                    -0.00814,
+                    -0.13828,
+                    1.59902
+                ],
+                "strategy": "VERTEX",
+                "vertex_index": 245
+            },
+            "inherit_scale": "FULL",
+            "layers": [
+                false,
+                false,
+                true,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false
+            ],
+            "parent": "face",
+            "rigify": {
+                "rigify_parameters": {
+                    "skin_control_orientation_bone": "face"
+                },
+                "rigify_type": "skin.basic_chain"
+            },
             "roll": -1.19501,
             "tail": {
                 "default_position": [
@@ -6920,9 +7637,9 @@
             },
             "inherit_scale": "FULL",
             "layers": [
+                false,
+                false,
                 true,
-                false,
-                false,
                 false,
                 false,
                 false,
@@ -6953,8 +7670,13 @@
                 false,
                 false
             ],
-            "parent": "forehead.R",
-            "rigify": {},
+            "parent": "face",
+            "rigify": {
+                "rigify_parameters": {
+                    "skin_control_orientation_bone": "face"
+                },
+                "rigify_type": "skin.basic_chain"
+            },
             "roll": -0.78092,
             "tail": {
                 "default_position": [
@@ -6981,9 +7703,9 @@
             },
             "inherit_scale": "FULL",
             "layers": [
+                false,
+                false,
                 true,
-                false,
-                false,
                 false,
                 false,
                 false,
@@ -7014,8 +7736,13 @@
                 false,
                 false
             ],
-            "parent": "forehead.R.001",
-            "rigify": {},
+            "parent": "face",
+            "rigify": {
+                "rigify_parameters": {
+                    "skin_control_orientation_bone": "face"
+                },
+                "rigify_type": "skin.basic_chain"
+            },
             "roll": -0.4509,
             "tail": {
                 "default_position": [
@@ -7304,8 +8031,8 @@
             },
             "inherit_scale": "FULL",
             "layers": [
-                true,
                 false,
+                true,
                 false,
                 false,
                 false,
@@ -7337,8 +8064,17 @@
                 false,
                 false
             ],
-            "parent": "face",
-            "rigify": {},
+            "parent": "jaw_master",
+            "rigify": {
+                "rigify_parameters": {
+                    "skin_chain_connect_ends": [
+                        false,
+                        true
+                    ],
+                    "skin_control_orientation_bone": "face"
+                },
+                "rigify_type": "skin.basic_chain"
+            },
             "roll": 0.0,
             "tail": {
                 "default_position": [
@@ -7365,9 +8101,9 @@
             },
             "inherit_scale": "FULL",
             "layers": [
+                false,
+                false,
                 true,
-                false,
-                false,
                 false,
                 false,
                 false,
@@ -7398,9 +8134,18 @@
                 false,
                 false
             ],
-            "parent": "temple.L",
-            "rigify": {},
-            "roll": -2.74278,
+            "parent": "jaw_master",
+            "rigify": {
+                "rigify_parameters": {
+                    "skin_chain_connect_ends": [
+                        true,
+                        false
+                    ],
+                    "skin_control_orientation_bone": "face"
+                },
+                "rigify_type": "skin.basic_chain"
+            },
+            "roll": -2.62469,
             "tail": {
                 "default_position": [
                     0.05626,
@@ -7410,7 +8155,7 @@
                 "strategy": "VERTEX",
                 "vertex_index": 7597
             },
-            "use_connect": true,
+            "use_connect": false,
             "use_inherit_rotation": true,
             "use_local_location": true
         },
@@ -7426,9 +8171,9 @@
             },
             "inherit_scale": "FULL",
             "layers": [
+                false,
+                false,
                 true,
-                false,
-                false,
                 false,
                 false,
                 false,
@@ -7461,7 +8206,7 @@
             ],
             "parent": "jaw.L",
             "rigify": {},
-            "roll": -1.80725,
+            "roll": -1.72746,
             "tail": {
                 "default_position": [
                     0.02626,
@@ -7487,9 +8232,9 @@
             },
             "inherit_scale": "FULL",
             "layers": [
+                false,
+                false,
                 true,
-                false,
-                false,
                 false,
                 false,
                 false,
@@ -7520,9 +8265,18 @@
                 false,
                 false
             ],
-            "parent": "temple.R",
-            "rigify": {},
-            "roll": 2.74278,
+            "parent": "jaw_master",
+            "rigify": {
+                "rigify_parameters": {
+                    "skin_chain_connect_ends": [
+                        true,
+                        false
+                    ],
+                    "skin_control_orientation_bone": "face"
+                },
+                "rigify_type": "skin.basic_chain"
+            },
+            "roll": 2.62469,
             "tail": {
                 "default_position": [
                     -0.05626,
@@ -7532,7 +8286,7 @@
                 "strategy": "VERTEX",
                 "vertex_index": 895
             },
-            "use_connect": true,
+            "use_connect": false,
             "use_inherit_rotation": true,
             "use_local_location": true
         },
@@ -7548,9 +8302,9 @@
             },
             "inherit_scale": "FULL",
             "layers": [
+                false,
+                false,
                 true,
-                false,
-                false,
                 false,
                 false,
                 false,
@@ -7583,7 +8337,7 @@
             ],
             "parent": "jaw.R",
             "rigify": {},
-            "roll": 1.80725,
+            "roll": 1.72746,
             "tail": {
                 "default_position": [
                     -0.02626,
@@ -7597,15 +8351,18 @@
             "use_inherit_rotation": true,
             "use_local_location": true
         },
-        "lid.B.L": {
+        "jaw_master": {
             "head": {
                 "default_position": [
-                    0.04325,
-                    -0.12644,
-                    1.55234
+                    0.0,
+                    -0.0655,
+                    1.51537
                 ],
-                "strategy": "VERTEX",
-                "vertex_index": 6806
+                "strategy": "MEAN",
+                "vertex_indices": [
+                    5097,
+                    11712
+                ]
             },
             "inherit_scale": "FULL",
             "layers": [
@@ -7642,9 +8399,117 @@
                 false,
                 false
             ],
-            "parent": "lid.T.L.003",
-            "rigify": {},
-            "roll": -1.78996,
+            "parent": "face",
+            "rigify": {
+                "rigify_parameters": {
+                    "jaw_mouth_influence": 1.0
+                },
+                "rigify_type": "face.skin_jaw"
+            },
+            "roll": 0.0,
+            "tail": {
+                "default_position": [
+                    0.0,
+                    -0.13425,
+                    1.44741
+                ],
+                "strategy": "VERTEX",
+                "vertex_index": 5225
+            },
+            "use_connect": false,
+            "use_inherit_rotation": true,
+            "use_local_location": true
+        },
+        "lid.B.L": {
+            "head": {
+                "default_position": [
+                    0.04325,
+                    -0.12644,
+                    1.55234
+                ],
+                "strategy": "VERTEX",
+                "vertex_index": 6806
+            },
+            "inherit_scale": "FULL",
+            "layers": [
+                false,
+                false,
+                true,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false
+            ],
+            "parent": "eye.L",
+            "rigify": {
+                "rigify_parameters": {
+                    "skin_chain_pivot_pos": 2,
+                    "skin_control_orientation_bone": "face",
+                    "skin_secondary_layers": [
+                        false,
+                        true,
+                        false,
+                        false,
+                        false,
+                        false,
+                        false,
+                        false,
+                        false,
+                        false,
+                        false,
+                        false,
+                        false,
+                        false,
+                        false,
+                        false,
+                        false,
+                        false,
+                        false,
+                        false,
+                        false,
+                        false,
+                        false,
+                        false,
+                        false,
+                        false,
+                        false,
+                        false,
+                        false,
+                        false,
+                        false,
+                        false
+                    ],
+                    "skin_secondary_layers_extra": true
+                },
+                "rigify_type": "skin.stretchy_chain"
+            },
+            "roll": 0.0,
+            "roll_strategy": "ALIGN_Z_WORLD_Z",
             "tail": {
                 "default_position": [
                     0.03956,
@@ -7654,7 +8519,7 @@
                 "strategy": "VERTEX",
                 "vertex_index": 6818
             },
-            "use_connect": true,
+            "use_connect": false,
             "use_inherit_rotation": true,
             "use_local_location": true
         },
@@ -7670,9 +8535,9 @@
             },
             "inherit_scale": "FULL",
             "layers": [
+                false,
+                false,
                 true,
-                false,
-                false,
                 false,
                 false,
                 false,
@@ -7705,7 +8570,8 @@
             ],
             "parent": "lid.B.L",
             "rigify": {},
-            "roll": -6.7212,
+            "roll": 0.0,
+            "roll_strategy": "ALIGN_Z_WORLD_Z",
             "tail": {
                 "default_position": [
                     0.02949,
@@ -7731,9 +8597,9 @@
             },
             "inherit_scale": "FULL",
             "layers": [
+                false,
+                false,
                 true,
-                false,
-                false,
                 false,
                 false,
                 false,
@@ -7766,7 +8632,8 @@
             ],
             "parent": "lid.B.L.001",
             "rigify": {},
-            "roll": -6.28371,
+            "roll": 0.0,
+            "roll_strategy": "ALIGN_Z_WORLD_Z",
             "tail": {
                 "default_position": [
                     0.0222,
@@ -7792,9 +8659,9 @@
             },
             "inherit_scale": "FULL",
             "layers": [
+                false,
+                false,
                 true,
-                false,
-                false,
                 false,
                 false,
                 false,
@@ -7827,7 +8694,8 @@
             ],
             "parent": "lid.B.L.002",
             "rigify": {},
-            "roll": 0.38175,
+            "roll": 0.0,
+            "roll_strategy": "ALIGN_Z_WORLD_Z",
             "tail": {
                 "default_position": [
                     0.01556,
@@ -7853,9 +8721,9 @@
             },
             "inherit_scale": "FULL",
             "layers": [
+                false,
+                false,
                 true,
-                false,
-                false,
                 false,
                 false,
                 false,
@@ -7886,9 +8754,51 @@
                 false,
                 false
             ],
-            "parent": "lid.T.R.003",
-            "rigify": {},
-            "roll": 1.78996,
+            "parent": "eye.R",
+            "rigify": {
+                "rigify_parameters": {
+                    "skin_chain_pivot_pos": 2,
+                    "skin_control_orientation_bone": "face",
+                    "skin_secondary_layers": [
+                        false,
+                        true,
+                        false,
+                        false,
+                        false,
+                        false,
+                        false,
+                        false,
+                        false,
+                        false,
+                        false,
+                        false,
+                        false,
+                        false,
+                        false,
+                        false,
+                        false,
+                        false,
+                        false,
+                        false,
+                        false,
+                        false,
+                        false,
+                        false,
+                        false,
+                        false,
+                        false,
+                        false,
+                        false,
+                        false,
+                        false,
+                        false
+                    ],
+                    "skin_secondary_layers_extra": true
+                },
+                "rigify_type": "skin.stretchy_chain"
+            },
+            "roll": 0.0,
+            "roll_strategy": "ALIGN_Z_WORLD_Z",
             "tail": {
                 "default_position": [
                     -0.03956,
@@ -7898,7 +8808,7 @@
                 "strategy": "VERTEX",
                 "vertex_index": 34
             },
-            "use_connect": true,
+            "use_connect": false,
             "use_inherit_rotation": true,
             "use_local_location": true
         },
@@ -7914,9 +8824,9 @@
             },
             "inherit_scale": "FULL",
             "layers": [
+                false,
+                false,
                 true,
-                false,
-                false,
                 false,
                 false,
                 false,
@@ -7949,7 +8859,8 @@
             ],
             "parent": "lid.B.R",
             "rigify": {},
-            "roll": 6.7212,
+            "roll": 0.0,
+            "roll_strategy": "ALIGN_Z_WORLD_Z",
             "tail": {
                 "default_position": [
                     -0.02949,
@@ -7975,9 +8886,9 @@
             },
             "inherit_scale": "FULL",
             "layers": [
+                false,
+                false,
                 true,
-                false,
-                false,
                 false,
                 false,
                 false,
@@ -8010,7 +8921,8 @@
             ],
             "parent": "lid.B.R.001",
             "rigify": {},
-            "roll": 6.28371,
+            "roll": 0.0,
+            "roll_strategy": "ALIGN_Z_WORLD_Z",
             "tail": {
                 "default_position": [
                     -0.0222,
@@ -8036,9 +8948,9 @@
             },
             "inherit_scale": "FULL",
             "layers": [
+                false,
+                false,
                 true,
-                false,
-                false,
                 false,
                 false,
                 false,
@@ -8071,7 +8983,8 @@
             ],
             "parent": "lid.B.R.002",
             "rigify": {},
-            "roll": -0.38175,
+            "roll": 0.0,
+            "roll_strategy": "ALIGN_Z_WORLD_Z",
             "tail": {
                 "default_position": [
                     -0.01556,
@@ -8097,9 +9010,9 @@
             },
             "inherit_scale": "FULL",
             "layers": [
+                false,
+                false,
                 true,
-                false,
-                false,
                 false,
                 false,
                 false,
@@ -8130,9 +9043,56 @@
                 false,
                 false
             ],
-            "parent": "face",
-            "rigify": {},
-            "roll": -0.2079,
+            "parent": "eye.L",
+            "rigify": {
+                "rigify_parameters": {
+                    "skin_chain_falloff_spherical": [
+                        false,
+                        true,
+                        false
+                    ],
+                    "skin_chain_pivot_pos": 2,
+                    "skin_control_orientation_bone": "face",
+                    "skin_secondary_layers": [
+                        false,
+                        true,
+                        false,
+                        false,
+                        false,
+                        false,
+                        false,
+                        false,
+                        false,
+                        false,
+                        false,
+                        false,
+                        false,
+                        false,
+                        false,
+                        false,
+                        false,
+                        false,
+                        false,
+                        false,
+                        false,
+                        false,
+                        false,
+                        false,
+                        false,
+                        false,
+                        false,
+                        false,
+                        false,
+                        false,
+                        false,
+                        false
+                    ],
+                    "skin_secondary_layers_extra": true
+                },
+                "rigify_type": "skin.stretchy_chain"
+            },
+            "roll": 0.0,
+            "roll_strategy": "ALIGN_Z_WORLD_Z",
             "tail": {
                 "default_position": [
                     0.02179,
@@ -8158,9 +9118,9 @@
             },
             "inherit_scale": "FULL",
             "layers": [
+                false,
+                false,
                 true,
-                false,
-                false,
                 false,
                 false,
                 false,
@@ -8193,7 +9153,8 @@
             ],
             "parent": "lid.T.L",
             "rigify": {},
-            "roll": 0.1837,
+            "roll": 0.0,
+            "roll_strategy": "ALIGN_Z_WORLD_Z",
             "tail": {
                 "default_position": [
                     0.02914,
@@ -8219,9 +9180,9 @@
             },
             "inherit_scale": "FULL",
             "layers": [
+                false,
+                false,
                 true,
-                false,
-                false,
                 false,
                 false,
                 false,
@@ -8254,7 +9215,8 @@
             ],
             "parent": "lid.T.L.001",
             "rigify": {},
-            "roll": 0.08584,
+            "roll": 0.0,
+            "roll_strategy": "ALIGN_Z_WORLD_Z",
             "tail": {
                 "default_position": [
                     0.03916,
@@ -8280,9 +9242,9 @@
             },
             "inherit_scale": "FULL",
             "layers": [
+                false,
+                false,
                 true,
-                false,
-                false,
                 false,
                 false,
                 false,
@@ -8315,7 +9277,8 @@
             ],
             "parent": "lid.T.L.002",
             "rigify": {},
-            "roll": 0.37459,
+            "roll": 0.0,
+            "roll_strategy": "ALIGN_Z_WORLD_Z",
             "tail": {
                 "default_position": [
                     0.04325,
@@ -8341,9 +9304,9 @@
             },
             "inherit_scale": "FULL",
             "layers": [
+                false,
+                false,
                 true,
-                false,
-                false,
                 false,
                 false,
                 false,
@@ -8374,9 +9337,56 @@
                 false,
                 false
             ],
-            "parent": "face",
-            "rigify": {},
-            "roll": 0.2079,
+            "parent": "eye.R",
+            "rigify": {
+                "rigify_parameters": {
+                    "skin_chain_falloff_spherical": [
+                        false,
+                        true,
+                        false
+                    ],
+                    "skin_chain_pivot_pos": 2,
+                    "skin_control_orientation_bone": "face",
+                    "skin_secondary_layers": [
+                        false,
+                        true,
+                        false,
+                        false,
+                        false,
+                        false,
+                        false,
+                        false,
+                        false,
+                        false,
+                        false,
+                        false,
+                        false,
+                        false,
+                        false,
+                        false,
+                        false,
+                        false,
+                        false,
+                        false,
+                        false,
+                        false,
+                        false,
+                        false,
+                        false,
+                        false,
+                        false,
+                        false,
+                        false,
+                        false,
+                        false,
+                        false
+                    ],
+                    "skin_secondary_layers_extra": true
+                },
+                "rigify_type": "skin.stretchy_chain"
+            },
+            "roll": 0.0,
+            "roll_strategy": "ALIGN_Z_WORLD_Z",
             "tail": {
                 "default_position": [
                     -0.02179,
@@ -8402,9 +9412,9 @@
             },
             "inherit_scale": "FULL",
             "layers": [
+                false,
+                false,
                 true,
-                false,
-                false,
                 false,
                 false,
                 false,
@@ -8437,7 +9447,8 @@
             ],
             "parent": "lid.T.R",
             "rigify": {},
-            "roll": -0.1837,
+            "roll": 0.0,
+            "roll_strategy": "ALIGN_Z_WORLD_Z",
             "tail": {
                 "default_position": [
                     -0.02914,
@@ -8463,9 +9474,9 @@
             },
             "inherit_scale": "FULL",
             "layers": [
+                false,
+                false,
                 true,
-                false,
-                false,
                 false,
                 false,
                 false,
@@ -8498,7 +9509,8 @@
             ],
             "parent": "lid.T.R.001",
             "rigify": {},
-            "roll": -0.08584,
+            "roll": 0.0,
+            "roll_strategy": "ALIGN_Z_WORLD_Z",
             "tail": {
                 "default_position": [
                     -0.03916,
@@ -8524,9 +9536,9 @@
             },
             "inherit_scale": "FULL",
             "layers": [
+                false,
+                false,
                 true,
-                false,
-                false,
                 false,
                 false,
                 false,
@@ -8559,7 +9571,8 @@
             ],
             "parent": "lid.T.R.002",
             "rigify": {},
-            "roll": -0.37459,
+            "roll": 0.0,
+            "roll_strategy": "ALIGN_Z_WORLD_Z",
             "tail": {
                 "default_position": [
                     -0.04325,
@@ -8573,24 +9586,21 @@
             "use_inherit_rotation": true,
             "use_local_location": true
         },
-        "lip.B.L": {
+        "lid_glue.B.L.002": {
             "head": {
                 "default_position": [
-                    0.0,
-                    -0.14609,
-                    1.48146
+                    0.02949,
+                    -0.13326,
+                    1.54549
                 ],
-                "strategy": "MEAN",
-                "vertex_indices": [
-                    495,
-                    557
-                ]
+                "strategy": "VERTEX",
+                "vertex_index": 6827
             },
             "inherit_scale": "FULL",
             "layers": [
+                false,
+                false,
                 true,
-                false,
-                false,
                 false,
                 false,
                 false,
@@ -8622,8 +9632,178 @@
                 false
             ],
             "parent": "face",
-            "rigify": {},
-            "roll": -0.0789,
+            "rigify": {
+                "rigify_parameters": {
+                    "relink_constraints": true,
+                    "skin_glue_add_constraint": "COPY_LOCATION_OWNER",
+                    "skin_glue_add_constraint_influence": 0.10000000149011612,
+                    "skin_glue_tail_reparent": false,
+                    "skin_glue_use_tail": true
+                },
+                "rigify_type": "skin.glue"
+            },
+            "roll": 0.7854,
+            "tail": {
+                "default_position": [
+                    0.04235,
+                    -0.12961,
+                    1.52599
+                ],
+                "strategy": "VERTEX",
+                "vertex_index": 11748
+            },
+            "use_connect": false,
+            "use_inherit_rotation": true,
+            "use_local_location": true
+        },
+        "lid_glue.B.R.002": {
+            "head": {
+                "default_position": [
+                    -0.02949,
+                    -0.13326,
+                    1.54549
+                ],
+                "strategy": "VERTEX",
+                "vertex_index": 43
+            },
+            "inherit_scale": "FULL",
+            "layers": [
+                false,
+                false,
+                true,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false
+            ],
+            "parent": "face",
+            "rigify": {
+                "rigify_parameters": {
+                    "relink_constraints": true,
+                    "skin_glue_add_constraint": "COPY_LOCATION_OWNER",
+                    "skin_glue_add_constraint_influence": 0.10000000149011612,
+                    "skin_glue_tail_reparent": false,
+                    "skin_glue_use_tail": true
+                },
+                "rigify_type": "skin.glue"
+            },
+            "roll": -0.7854,
+            "tail": {
+                "default_position": [
+                    -0.04235,
+                    -0.12961,
+                    1.52599
+                ],
+                "strategy": "VERTEX",
+                "vertex_index": 5133
+            },
+            "use_connect": false,
+            "use_inherit_rotation": true,
+            "use_local_location": true
+        },
+        "lip.B.L": {
+            "head": {
+                "default_position": [
+                    0.0,
+                    -0.14609,
+                    1.48146
+                ],
+                "strategy": "MEAN",
+                "vertex_indices": [
+                    495,
+                    557
+                ]
+            },
+            "inherit_scale": "FULL",
+            "layers": [
+                false,
+                true,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false
+            ],
+            "parent": "jaw_master",
+            "rigify": {
+                "rigify_parameters": {
+                    "skin_chain_connect_sharp_angle": [
+                        0.0,
+                        1.5707963705062866
+                    ],
+                    "skin_chain_falloff": [
+                        0.699999988079071,
+                        1.0,
+                        0.10000000149011612
+                    ],
+                    "skin_chain_falloff_scale": true,
+                    "skin_chain_falloff_spherical": [
+                        true,
+                        false,
+                        true
+                    ],
+                    "skin_chain_use_scale": [
+                        true,
+                        true,
+                        true,
+                        true
+                    ],
+                    "skin_control_orientation_bone": "face"
+                },
+                "rigify_type": "skin.stretchy_chain"
+            },
+            "roll": 0.0,
+            "roll_strategy": "ALIGN_Z_WORLD_Z",
             "tail": {
                 "default_position": [
                     0.01172,
@@ -8655,9 +9835,9 @@
             },
             "inherit_scale": "FULL",
             "layers": [
+                false,
+                false,
                 true,
-                false,
-                false,
                 false,
                 false,
                 false,
@@ -8690,7 +9870,8 @@
             ],
             "parent": "lip.B.L",
             "rigify": {},
-            "roll": 0.0731,
+            "roll": 0.0,
+            "roll_strategy": "ALIGN_Z_WORLD_Z",
             "tail": {
                 "default_position": [
                     0.02282,
@@ -8722,8 +9903,8 @@
             },
             "inherit_scale": "FULL",
             "layers": [
-                true,
                 false,
+                true,
                 false,
                 false,
                 false,
@@ -8755,9 +9936,36 @@
                 false,
                 false
             ],
-            "parent": "face",
-            "rigify": {},
-            "roll": 0.0789,
+            "parent": "jaw_master",
+            "rigify": {
+                "rigify_parameters": {
+                    "skin_chain_connect_sharp_angle": [
+                        0.0,
+                        1.5707963705062866
+                    ],
+                    "skin_chain_falloff": [
+                        0.699999988079071,
+                        1.0,
+                        0.10000000149011612
+                    ],
+                    "skin_chain_falloff_scale": true,
+                    "skin_chain_falloff_spherical": [
+                        true,
+                        false,
+                        true
+                    ],
+                    "skin_chain_use_scale": [
+                        true,
+                        true,
+                        true,
+                        true
+                    ],
+                    "skin_control_orientation_bone": "face"
+                },
+                "rigify_type": "skin.stretchy_chain"
+            },
+            "roll": 0.0,
+            "roll_strategy": "ALIGN_Z_WORLD_Z",
             "tail": {
                 "default_position": [
                     -0.01172,
@@ -8789,9 +9997,9 @@
             },
             "inherit_scale": "FULL",
             "layers": [
+                false,
+                false,
                 true,
-                false,
-                false,
                 false,
                 false,
                 false,
@@ -8824,7 +10032,8 @@
             ],
             "parent": "lip.B.R",
             "rigify": {},
-            "roll": -0.0731,
+            "roll": 0.0,
+            "roll_strategy": "ALIGN_Z_WORLD_Z",
             "tail": {
                 "default_position": [
                     -0.02282,
@@ -8856,8 +10065,8 @@
             },
             "inherit_scale": "FULL",
             "layers": [
-                true,
                 false,
+                true,
                 false,
                 false,
                 false,
@@ -8889,9 +10098,36 @@
                 false,
                 false
             ],
-            "parent": "face",
-            "rigify": {},
+            "parent": "jaw_master",
+            "rigify": {
+                "rigify_parameters": {
+                    "skin_chain_connect_sharp_angle": [
+                        0.0,
+                        1.5707963705062866
+                    ],
+                    "skin_chain_falloff": [
+                        0.699999988079071,
+                        1.0,
+                        0.10000000149011612
+                    ],
+                    "skin_chain_falloff_scale": true,
+                    "skin_chain_falloff_spherical": [
+                        true,
+                        false,
+                        true
+                    ],
+                    "skin_chain_use_scale": [
+                        true,
+                        true,
+                        true,
+                        true
+                    ],
+                    "skin_control_orientation_bone": "face"
+                },
+                "rigify_type": "skin.stretchy_chain"
+            },
             "roll": 0.0,
+            "roll_strategy": "ALIGN_Z_WORLD_Z",
             "tail": {
                 "default_position": [
                     0.01219,
@@ -8923,9 +10159,9 @@
             },
             "inherit_scale": "FULL",
             "layers": [
+                false,
+                false,
                 true,
-                false,
-                false,
                 false,
                 false,
                 false,
@@ -8958,7 +10194,8 @@
             ],
             "parent": "lip.T.L",
             "rigify": {},
-            "roll": 0.0236,
+            "roll": 0.0,
+            "roll_strategy": "ALIGN_Z_WORLD_Z",
             "tail": {
                 "default_position": [
                     0.02282,
@@ -8990,8 +10227,8 @@
             },
             "inherit_scale": "FULL",
             "layers": [
-                true,
                 false,
+                true,
                 false,
                 false,
                 false,
@@ -9023,9 +10260,36 @@
                 false,
                 false
             ],
-            "parent": "face",
-            "rigify": {},
+            "parent": "jaw_master",
+            "rigify": {
+                "rigify_parameters": {
+                    "skin_chain_connect_sharp_angle": [
+                        0.0,
+                        1.5707963705062866
+                    ],
+                    "skin_chain_falloff": [
+                        0.699999988079071,
+                        1.0,
+                        0.10000000149011612
+                    ],
+                    "skin_chain_falloff_scale": true,
+                    "skin_chain_falloff_spherical": [
+                        true,
+                        false,
+                        true
+                    ],
+                    "skin_chain_use_scale": [
+                        true,
+                        true,
+                        true,
+                        true
+                    ],
+                    "skin_control_orientation_bone": "face"
+                },
+                "rigify_type": "skin.stretchy_chain"
+            },
             "roll": 0.0,
+            "roll_strategy": "ALIGN_Z_WORLD_Z",
             "tail": {
                 "default_position": [
                     -0.01219,
@@ -9057,9 +10321,9 @@
             },
             "inherit_scale": "FULL",
             "layers": [
+                false,
+                false,
                 true,
-                false,
-                false,
                 false,
                 false,
                 false,
@@ -9092,7 +10356,8 @@
             ],
             "parent": "lip.T.R",
             "rigify": {},
-            "roll": -0.0236,
+            "roll": 0.0,
+            "roll_strategy": "ALIGN_Z_WORLD_Z",
             "tail": {
                 "default_position": [
                     -0.02282,
@@ -9121,9 +10386,9 @@
             },
             "inherit_scale": "FULL",
             "layers": [
+                false,
+                false,
                 true,
-                false,
-                false,
                 false,
                 false,
                 false,
@@ -9155,7 +10420,17 @@
                 false
             ],
             "parent": "face",
-            "rigify": {},
+            "rigify": {
+                "rigify_parameters": {
+                    "skin_chain_connect_ends": [
+                        false,
+                        true
+                    ],
+                    "skin_chain_priority": 1,
+                    "skin_control_orientation_bone": "face"
+                },
+                "rigify_type": "skin.stretchy_chain"
+            },
             "roll": 0.0,
             "tail": {
                 "default_position": [
@@ -9182,9 +10457,9 @@
             },
             "inherit_scale": "FULL",
             "layers": [
+                false,
+                false,
                 true,
-                false,
-                false,
                 false,
                 false,
                 false,
@@ -9243,9 +10518,9 @@
             },
             "inherit_scale": "FULL",
             "layers": [
+                false,
+                false,
                 true,
-                false,
-                false,
                 false,
                 false,
                 false,
@@ -9276,8 +10551,18 @@
                 false,
                 false
             ],
-            "parent": "nose.001",
-            "rigify": {},
+            "parent": "nose_master",
+            "rigify": {
+                "rigify_parameters": {
+                    "skin_chain_connect_ends": [
+                        true,
+                        true
+                    ],
+                    "skin_chain_priority": 1,
+                    "skin_control_orientation_bone": "face"
+                },
+                "rigify_type": "skin.stretchy_chain"
+            },
             "roll": 0.0,
             "tail": {
                 "default_position": [
@@ -9288,7 +10573,7 @@
                 "strategy": "VERTEX",
                 "vertex_index": 312
             },
-            "use_connect": true,
+            "use_connect": false,
             "use_inherit_rotation": true,
             "use_local_location": true
         },
@@ -9304,9 +10589,9 @@
             },
             "inherit_scale": "FULL",
             "layers": [
+                false,
+                false,
                 true,
-                false,
-                false,
                 false,
                 false,
                 false,
@@ -9365,9 +10650,9 @@
             },
             "inherit_scale": "FULL",
             "layers": [
+                false,
+                false,
                 true,
-                false,
-                false,
                 false,
                 false,
                 false,
@@ -9398,8 +10683,17 @@
                 false,
                 false
             ],
-            "parent": "nose.003",
-            "rigify": {},
+            "parent": "face",
+            "rigify": {
+                "rigify_parameters": {
+                    "skin_chain_connect_ends": [
+                        true,
+                        false
+                    ],
+                    "skin_control_orientation_bone": "face"
+                },
+                "rigify_type": "skin.basic_chain"
+            },
             "roll": 0.0,
             "tail": {
                 "default_position": [
@@ -9410,7 +10704,7 @@
                 "strategy": "VERTEX",
                 "vertex_index": 5342
             },
-            "use_connect": true,
+            "use_connect": false,
             "use_inherit_rotation": true,
             "use_local_location": true
         },
@@ -9426,9 +10720,9 @@
             },
             "inherit_scale": "FULL",
             "layers": [
+                false,
+                false,
                 true,
-                false,
-                false,
                 false,
                 false,
                 false,
@@ -9459,9 +10753,9 @@
                 false,
                 false
             ],
-            "parent": "cheek.T.L.001",
+            "parent": "brow.B.L.004",
             "rigify": {},
-            "roll": -2.36156,
+            "roll": -1.81298,
             "tail": {
                 "default_position": [
                     0.0171,
@@ -9487,8 +10781,8 @@
             },
             "inherit_scale": "FULL",
             "layers": [
-                true,
                 false,
+                true,
                 false,
                 false,
                 false,
@@ -9520,9 +10814,15 @@
                 false,
                 false
             ],
-            "parent": "nose.L",
-            "rigify": {},
-            "roll": 0.107,
+            "parent": "nose_master",
+            "rigify": {
+                "rigify_parameters": {
+                    "skin_control_orientation_bone": "face"
+                },
+                "rigify_type": "skin.basic_chain"
+            },
+            "roll": 0.0,
+            "roll_strategy": "ALIGN_Z_WORLD_Z",
             "tail": {
                 "default_position": [
                     0.0,
@@ -9532,7 +10832,7 @@
                 "strategy": "VERTEX",
                 "vertex_index": 297
             },
-            "use_connect": true,
+            "use_connect": false,
             "use_inherit_rotation": true,
             "use_local_location": true
         },
@@ -9548,9 +10848,9 @@
             },
             "inherit_scale": "FULL",
             "layers": [
+                false,
+                false,
                 true,
-                false,
-                false,
                 false,
                 false,
                 false,
@@ -9581,9 +10881,9 @@
                 false,
                 false
             ],
-            "parent": "cheek.T.R.001",
+            "parent": "brow.B.R.004",
             "rigify": {},
-            "roll": 2.36156,
+            "roll": 1.81298,
             "tail": {
                 "default_position": [
                     -0.0171,
@@ -9609,6 +10909,368 @@
             },
             "inherit_scale": "FULL",
             "layers": [
+                false,
+                true,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false
+            ],
+            "parent": "nose_master",
+            "rigify": {
+                "rigify_parameters": {
+                    "skin_control_orientation_bone": "face"
+                },
+                "rigify_type": "skin.basic_chain"
+            },
+            "roll": 0.0,
+            "roll_strategy": "ALIGN_Z_WORLD_Z",
+            "tail": {
+                "default_position": [
+                    0.0,
+                    -0.15967,
+                    1.51542
+                ],
+                "strategy": "VERTEX",
+                "vertex_index": 297
+            },
+            "use_connect": false,
+            "use_inherit_rotation": true,
+            "use_local_location": true
+        },
+        "nose_end_glue.004": {
+            "head": {
+                "default_position": [
+                    0.0,
+                    -0.15006,
+                    1.49989
+                ],
+                "strategy": "VERTEX",
+                "vertex_index": 5342
+            },
+            "inherit_scale": "FULL",
+            "layers": [
+                false,
+                false,
+                true,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false
+            ],
+            "parent": "face",
+            "rigify": {
+                "rigify_parameters": {
+                    "relink_constraints": true,
+                    "skin_glue_add_constraint": "COPY_LOCATION_OWNER",
+                    "skin_glue_add_constraint_influence": 0.5,
+                    "skin_glue_tail_reparent": true,
+                    "skin_glue_use_tail": true
+                },
+                "rigify_type": "skin.glue"
+            },
+            "roll": 0.7854,
+            "tail": {
+                "default_position": [
+                    0.0,
+                    -0.14649,
+                    1.4925
+                ],
+                "strategy": "MEAN",
+                "vertex_indices": [
+                    509,
+                    571
+                ]
+            },
+            "use_connect": false,
+            "use_inherit_rotation": true,
+            "use_local_location": true
+        },
+        "nose_glue.004": {
+            "head": {
+                "default_position": [
+                    0.0,
+                    -0.14937,
+                    1.50502
+                ],
+                "strategy": "VERTEX",
+                "vertex_index": 343
+            },
+            "inherit_scale": "FULL",
+            "layers": [
+                false,
+                false,
+                true,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false
+            ],
+            "parent": "face",
+            "rigify": {
+                "rigify_parameters": {
+                    "relink_constraints": true,
+                    "skin_glue_add_constraint": "COPY_LOCATION_OWNER",
+                    "skin_glue_add_constraint_influence": 0.20000000298023224,
+                    "skin_glue_tail_reparent": true,
+                    "skin_glue_use_tail": true
+                },
+                "rigify_type": "skin.glue"
+            },
+            "roll": 0.7854,
+            "tail": {
+                "default_position": [
+                    0.0,
+                    -0.14649,
+                    1.4925
+                ],
+                "strategy": "MEAN",
+                "vertex_indices": [
+                    509,
+                    571
+                ]
+            },
+            "use_connect": false,
+            "use_inherit_rotation": true,
+            "use_local_location": true
+        },
+        "nose_glue.L.001": {
+            "head": {
+                "default_position": [
+                    0.0171,
+                    -0.14094,
+                    1.51264
+                ],
+                "strategy": "VERTEX",
+                "vertex_index": 7099
+            },
+            "inherit_scale": "FULL",
+            "layers": [
+                false,
+                false,
+                true,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false
+            ],
+            "parent": "face",
+            "rigify": {
+                "rigify_parameters": {
+                    "relink_constraints": true,
+                    "skin_glue_add_constraint": "COPY_LOCATION_OWNER",
+                    "skin_glue_add_constraint_influence": 0.20000000298023224,
+                    "skin_glue_tail_reparent": true,
+                    "skin_glue_use_tail": true
+                },
+                "rigify_type": "skin.glue"
+            },
+            "roll": 0.7854,
+            "tail": {
+                "default_position": [
+                    0.01219,
+                    -0.14347,
+                    1.49142
+                ],
+                "strategy": "MEAN",
+                "vertex_indices": [
+                    7212,
+                    7293
+                ]
+            },
+            "use_connect": false,
+            "use_inherit_rotation": true,
+            "use_local_location": true
+        },
+        "nose_glue.R.001": {
+            "head": {
+                "default_position": [
+                    -0.0171,
+                    -0.14094,
+                    1.51264
+                ],
+                "strategy": "VERTEX",
+                "vertex_index": 337
+            },
+            "inherit_scale": "FULL",
+            "layers": [
+                false,
+                false,
+                true,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false
+            ],
+            "parent": "face",
+            "rigify": {
+                "rigify_parameters": {
+                    "relink_constraints": true,
+                    "skin_glue_add_constraint": "COPY_LOCATION_OWNER",
+                    "skin_glue_add_constraint_influence": 0.20000000298023224,
+                    "skin_glue_tail_reparent": true,
+                    "skin_glue_use_tail": true
+                },
+                "rigify_type": "skin.glue"
+            },
+            "roll": -0.7854,
+            "tail": {
+                "default_position": [
+                    -0.01219,
+                    -0.14347,
+                    1.49142
+                ],
+                "strategy": "MEAN",
+                "vertex_indices": [
+                    452,
+                    550
+                ]
+            },
+            "use_connect": false,
+            "use_inherit_rotation": true,
+            "use_local_location": true
+        },
+        "nose_master": {
+            "head": {
+                "default_position": [
+                    0.0,
+                    -0.14094,
+                    1.51264
+                ],
+                "strategy": "MEAN",
+                "vertex_indices": [
+                    337,
+                    7099
+                ]
+            },
+            "inherit_scale": "FULL",
+            "layers": [
                 true,
                 false,
                 false,
@@ -9642,19 +11304,33 @@
                 false,
                 false
             ],
-            "parent": "nose.R",
-            "rigify": {},
-            "roll": -0.107,
+            "parent": "face",
+            "rigify": {
+                "rigify_parameters": {
+                    "make_deform": false,
+                    "super_copy_widget_type": "diamond"
+                },
+                "rigify_type": "basic.super_copy"
+            },
+            "roll": 0.0,
             "tail": {
                 "default_position": [
                     0.0,
-                    -0.15967,
-                    1.51542
+                    -0.19224,
+                    1.51264
                 ],
-                "strategy": "VERTEX",
-                "vertex_index": 297
+                "offset": [
+                    0.0,
+                    -0.05,
+                    0.0
+                ],
+                "strategy": "MEAN",
+                "vertex_indices": [
+                    337,
+                    7099
+                ]
             },
-            "use_connect": true,
+            "use_connect": false,
             "use_inherit_rotation": true,
             "use_local_location": true
         },
@@ -11148,8 +12824,13 @@
                 false,
                 false
             ],
-            "parent": "face",
-            "rigify": {},
+            "parent": "jaw_master",
+            "rigify": {
+                "rigify_parameters": {
+                    "super_copy_widget_type": "teeth"
+                },
+                "rigify_type": "basic.super_copy"
+            },
             "roll": 0.0,
             "tail": {
                 "default_position": [
@@ -11213,7 +12894,12 @@
                 false
             ],
             "parent": "face",
-            "rigify": {},
+            "rigify": {
+                "rigify_parameters": {
+                    "super_copy_widget_type": "teeth"
+                },
+                "rigify_type": "basic.super_copy"
+            },
             "roll": 0.0,
             "tail": {
                 "default_position": [
@@ -11243,9 +12929,9 @@
             },
             "inherit_scale": "FULL",
             "layers": [
+                false,
+                false,
                 true,
-                false,
-                false,
                 false,
                 false,
                 false,
@@ -11276,8 +12962,14 @@
                 false,
                 false
             ],
-            "parent": "forehead.L.002",
-            "rigify": {},
+            "parent": "face",
+            "rigify": {
+                "rigify_parameters": {
+                    "skin_chain_priority": 1,
+                    "skin_control_orientation_bone": "face"
+                },
+                "rigify_type": "skin.basic_chain"
+            },
             "roll": -2.93145,
             "tail": {
                 "default_position": [
@@ -11304,9 +12996,9 @@
             },
             "inherit_scale": "FULL",
             "layers": [
+                false,
+                false,
                 true,
-                false,
-                false,
                 false,
                 false,
                 false,
@@ -11337,8 +13029,14 @@
                 false,
                 false
             ],
-            "parent": "forehead.R.002",
-            "rigify": {},
+            "parent": "face",
+            "rigify": {
+                "rigify_parameters": {
+                    "skin_chain_priority": 1,
+                    "skin_control_orientation_bone": "face"
+                },
+                "rigify_type": "skin.basic_chain"
+            },
             "roll": 2.93145,
             "tail": {
                 "default_position": [
@@ -14383,9 +16081,9 @@
             },
             "inherit_scale": "FULL",
             "layers": [
+                false,
+                false,
                 true,
-                false,
-                false,
                 false,
                 false,
                 false,
@@ -14416,8 +16114,10 @@
                 false,
                 false
             ],
-            "parent": "face",
-            "rigify": {},
+            "parent": "jaw_master",
+            "rigify": {
+                "rigify_type": "face.basic_tongue"
+            },
             "roll": 0.0,
             "tail": {
                 "cube_name": "joint-tongue-3",
@@ -14444,9 +16144,9 @@
             },
             "inherit_scale": "FULL",
             "layers": [
+                false,
+                false,
                 true,
-                false,
-                false,
                 false,
                 false,
                 false,
@@ -14505,9 +16205,9 @@
             },
             "inherit_scale": "FULL",
             "layers": [
+                false,
+                false,
                 true,
-                false,
-                false,
                 false,
                 false,
                 false,
@@ -14824,15 +16524,12 @@
         }
     },
     "extra_bones": [
-        "DEF-brow.B.L.004",
-        "DEF-brow.B.R.004",
         "DEF-eye_iris.L",
         "DEF-eye_iris.R",
         "DEF-eye_master.L",
         "DEF-eye_master.R",
         "DEF-forearm.L.001",
         "DEF-forearm.R.001",
-        "DEF-jaw_master",
         "DEF-shin.L.001",
         "DEF-shin.R.001",
         "DEF-thigh.L.001",
@@ -14894,8 +16591,8 @@
         ],
         "layers": [
             true,
-            false,
-            false,
+            true,
+            true,
             true,
             false,
             true,
