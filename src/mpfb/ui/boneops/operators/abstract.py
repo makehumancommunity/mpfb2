@@ -17,13 +17,17 @@ TBone = typing.TypeVar("TBone", bound=bpy.types.EditBone | bpy.types.Bone)
 
 class AbstractBoneOperator(bpy.types.Operator):
     @staticmethod
+    def get_bone(context: bpy.types.Context) -> bpy.types.Bone | bpy.types.EditBone | None:
+        return getattr(context, "edit_bone", None) or getattr(context, "bone", None)
+
+    @staticmethod
     def is_developer_bone(context: bpy.types.Context):
-        bone = context.edit_bone or context.bone
+        bone = AbstractBoneOperator.get_bone(context)
         return bone and BoneOpsArmatureProperties.get_value("developer_mode", entity_reference=bone.id_data)
 
     @staticmethod
     def is_developer_bone_edit(context: bpy.types.Context):
-        return context.edit_bone and \
+        return getattr(context, "edit_bone", None) and \
                context.active_object and \
                context.active_object.data == context.edit_bone.id_data and \
                AbstractBoneOperator.is_developer_bone(context)

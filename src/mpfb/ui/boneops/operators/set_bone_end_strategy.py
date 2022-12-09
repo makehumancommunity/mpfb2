@@ -82,7 +82,7 @@ class MPFB_OT_Set_Bone_End_Strategy_Operator(AbstractBoneOperator):
     def execute(self, context):
         assert self.strategy in self.known_strategies
 
-        bone = context.edit_bone or context.bone
+        bone = self.get_bone(context)
 
         rig_entity = self.get_rig_entity(bone)
 

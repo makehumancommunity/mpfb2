@@ -25,7 +25,7 @@ class MPFB_OT_Set_Bone_End_Offset_Operator(AbstractBoneOperator):
         return cls.is_developer_bone_edit(context)
 
     def execute(self, context):
-        bone = context.edit_bone or context.bone
+        bone = self.get_bone(context)
 
         # Check the strategy is valid
         info, _lock = Rig.get_bone_end_strategy(bone, self.is_tail)

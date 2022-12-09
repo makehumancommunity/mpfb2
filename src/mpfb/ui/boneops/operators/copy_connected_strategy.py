@@ -39,7 +39,7 @@ class MPFB_OT_Copy_Connected_Strategy_Operator(AbstractBoneOperator):
             return True
 
     def execute(self, context):
-        bone = context.edit_bone or context.bone
+        bone = self.get_bone(context)
 
         names = []
 
