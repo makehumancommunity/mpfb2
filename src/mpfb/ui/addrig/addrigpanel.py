@@ -45,7 +45,6 @@ class MPFB_PT_Add_Rig_Panel(Abstract_Panel):
         props = [
             "name",
             "delete_after_generate",
-            "teeth"
             ]
         ADD_RIG_PROPERTIES.draw_properties(scene, box, props)
         box.operator('mpfb.generate_rigify_rig')
