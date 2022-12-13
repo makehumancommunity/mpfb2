@@ -190,12 +190,8 @@ class Mhclo:
         return obj
 
     def get_weights_filename(self, suffix=None):
-        if self.weights_file:
-            base, ext = os.path.splitext(self.weights_file)
-            ext = ext or ".jsonw"
-        else:
-            base = self.basename
-            ext = ".mhw"
+        base = self.basename
+        ext = ".mhw"
 
         return base + ("." + suffix if suffix else "") + ext
 
