@@ -954,7 +954,7 @@ class RigService:
         if not asset_file:
             raise ValueError("Could not find subrig asset file")
 
-        rig_file = os.path.splitext(asset_file)[0] + ".rig.json"
+        rig_file = os.path.splitext(asset_file)[0] + ".mpfbskel"
 
         RigService._do_refit_existing_armature(armature_object, asset_mesh, rig_file, parent_rig)
 

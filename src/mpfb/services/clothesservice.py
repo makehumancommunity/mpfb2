@@ -1,6 +1,8 @@
 """This module contains utility functions for clothes."""
 
-import random, os
+import random, os, bpy
+
+import bmesh
 from mathutils import Vector
 
 from mpfb.entities.rig import Rig
@@ -88,12 +90,38 @@ class ClothesService:
         _LOG.debug("x_scale, y_scale, z_scale", (mhclo.x_scale, mhclo.y_scale, mhclo.z_scale))
         _LOG.debug("x_size, y_size, z_size", (x_size, y_size, z_size))
 
-        clothes_vertices = mhclo.clothes.data.vertices
+        mesh = mhclo.clothes.data
+        assert isinstance(mesh, bpy.types.Mesh)
+
+        edit_bmesh = None
+        current_shape_settings = None
+        current_active_object = bpy.context.view_layer.objects.active
+
+        # If the mesh has shape keys, switch to edit mode to update.
+        if mesh.shape_keys and len(mesh.shape_keys.key_blocks) > 0:
+            bpy.context.view_layer.objects.active = mhclo.clothes
+
+            current_shape_settings = (mhclo.clothes.active_shape_key_index,
+                                      mhclo.clothes.use_shape_key_edit_mode,
+                                      mhclo.clothes.show_only_shape_key)
+
+            mhclo.clothes.active_shape_key_index = 0
+            mhclo.clothes.use_shape_key_edit_mode = True
+            mhclo.clothes.show_only_shape_key = True
+
+            bpy.ops.object.mode_set(mode='EDIT', toggle=False)
+            assert mhclo.clothes.mode == 'EDIT'
+
+            edit_bmesh = bmesh.from_edit_mesh(mesh)
+            clothes_vertices = edit_bmesh.verts
+
+        else:
+            clothes_vertices = mesh.vertices
 
         _LOG.debug("About to try to match vertices: ", len(clothes_vertices))
         _LOG.dump("Verts", mhclo.verts)
 
-        for clothes_vertex_number in range(len(clothes_vertices)):
+        for clothes_vertex_number, clothes_vertex in enumerate(clothes_vertices):
             vertex_match_info = mhclo.verts[clothes_vertex_number]
             _LOG.dump("Vertex match info", (clothes_vertex_number, vertex_match_info))
             (human_vertex1, human_vertex2, human_vertex3) = vertex_match_info["verts"]
@@ -104,11 +132,22 @@ class ClothesService:
                 continue
 
             offset = [vertex_match_info["offsets"][0]*x_size, vertex_match_info["offsets"][1]*z_size, vertex_match_info["offsets"][2]*y_size]
-            clothes_vertices[clothes_vertex_number].co = \
+            clothes_vertex.co = \
                 vertex_match_info["weights"][0] * human_vertices[human_vertex1].co + \
                 vertex_match_info["weights"][1] * human_vertices[human_vertex2].co + \
                 vertex_match_info["weights"][2] * human_vertices[human_vertex3].co + \
                 Vector(offset)
+
+        if edit_bmesh:
+            bmesh.update_edit_mesh(mesh, destructive=False)
+
+            bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
+
+            (mhclo.clothes.active_shape_key_index,
+             mhclo.clothes.use_shape_key_edit_mode,
+             mhclo.clothes.show_only_shape_key) = current_shape_settings
+
+            bpy.context.view_layer.objects.active = current_active_object
 
         # We need to take into account that the base mesh might be rigged. If it is, we'll want the rig position
         # rather than the basemesh position
