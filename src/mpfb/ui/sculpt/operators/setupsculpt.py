@@ -271,7 +271,7 @@ class MPFB_OT_Setup_Sculpt_Operator(bpy.types.Operator):
                 if obj.parent:
                     parent = obj.parent
 
-                parent.hide_viewport = False
+                parent.hide_viewport = True
 
                 for child in ObjectService.get_list_of_children(parent):
                     child.hide_viewport = True
@@ -282,7 +282,18 @@ class MPFB_OT_Setup_Sculpt_Operator(bpy.types.Operator):
             context.view_layer.objects.active = obj
 
             self._handle_bm(context, obj, delete_helpers)
+            self._handle_armature(context, obj, apply_armature)
+
+            if remove_delete:
+                for modifier in obj.modifiers:
+                    if modifier.type == 'MASK' and modifier.vertex_group != 'body':
+                        obj.modifiers.remove(modifier)
+
             self._setup_multires(context, obj, setup_multires, subdivisions, multires_first)
+
+            if obj.parent:
+                obj.location = parent.location.copy()
+                obj.parent = None
 
         if sculpt_strategy != "ORIGIN" and adjust_settings:
             scene = context.scene
