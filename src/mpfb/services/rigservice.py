@@ -145,7 +145,7 @@ class RigService:
 
         if index_sub < 0 and subrig is not None:
             if sub_vg_name not in object.vertex_groups:
-                object.vertex_groups.new(sub_vg_name)
+                object.vertex_groups.new(name=sub_vg_name)
 
             index_sub = max(index_normal, index_pv) + 1
 

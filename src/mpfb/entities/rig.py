@@ -1,4 +1,5 @@
 """This module contains functionality for serializing/deserializing rigs via JSON."""
+
 import bmesh
 
 from mpfb.services.logservice import LogService
@@ -8,6 +9,8 @@ from mpfb.entities.objectproperties import GeneralObjectProperties
 
 import bpy, math, json, random, typing
 
+from bl_math import lerp
+from itertools import accumulate
 from mathutils import Vector, Matrix, Euler, Quaternion
 from mathutils.kdtree import KDTree
 
@@ -342,7 +345,7 @@ class Rig:
 
         bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
 
-    def _apply_constraint_info(self, bone, info):
+    def _apply_constraint_info(self, bone: bpy.types.PoseBone, info):
         con = bone.constraints.new(info["type"])
 
         if con.type == "ARMATURE":
@@ -350,7 +353,7 @@ class Rig:
                 tgt = con.targets.new()
 
                 if "target" in tgt_info:
-                    tgt.target = self._restore_parent_ref(tgt_info["target"], tgt_info)
+                    tgt.target = self._restore_parent_ref(bone, tgt_info["target"], tgt_info)
                 else:
                     tgt.target = self.armature_object
 
@@ -361,8 +364,8 @@ class Rig:
 
             if target is True:
                 con.target = self.armature_object
-            elif isinstance(target, list):
-                con.target = self._restore_parent_ref(target, info)
+            elif isinstance(target, dict):
+                con.target = self._restore_parent_ref(bone, target, info)
             else:
                 assert not target
 
@@ -378,36 +381,164 @@ class Rig:
         if con.type == "CHILD_OF":
             con.set_inverse_pending = True
 
-    def _restore_parent_ref(self, bone_ref, info):
+    def _restore_parent_ref(self, bone: bpy.types.PoseBone, bone_ref: dict, info: dict):
         assert self.parent
+        assert isinstance(bone_ref, dict)
 
         arm = self.parent.armature_object
-        joint_head, joint_tail = bone_ref
+        strategy = bone_ref["strategy"]
+
+        if strategy is None:
+            return arm
+
+        assert strategy == "JOINTS"
+
+        joint_head = bone_ref["joint_head"]
+        joint_tail = bone_ref["joint_tail"]
 
         if joint_head and joint_tail and "subtarget" in info:
-            bones = []
+            head_tail = info.get("head_tail")
 
-            for name, bone_info in self.parent.rig_definition.items():
-                if (bone_info["head"]["strategy"] == "CUBE" and
-                        bone_info["head"]["cube_name"] == joint_head and
-                        bone_info["tail"]["strategy"] == "CUBE" and
-                        bone_info["tail"]["cube_name"] == joint_tail):
-                    bones.append(name)
+            chains, head_tail = self._find_parent_joint_chains_split(joint_head, joint_tail, head_tail)
+
+            bones = self._select_parent_chain_bones(chains, bone.bone.head_local, head_tail)
 
             if len(bones) > 1:
-                org_bones = [name for name in bones if name.startswith("ORG-")]
+                org_bones = [item for item in bones if item[0].startswith("ORG-")]
                 if org_bones:
                     bones = org_bones
 
             if len(bones) > 1:
-                def_bones = [name for name in bones if arm.pose.bones[name].bone.use_deform]
+                def_bones = [item for item in bones if arm.pose.bones[item[0]].bone.use_deform]
                 if def_bones:
                     bones = def_bones
 
             if bones:
-                info["subtarget"] = sorted(bones)[0]
+                bones.sort(key=lambda item: (len(item[2]), item[0]))
+
+                name, head_tail, chain = bones[0]
+
+                info["subtarget"] = name
+
+                if head_tail is not None:
+                    info["head_tail"] = head_tail
 
         return arm
+
+    def _select_parent_chain_bones(self, chains, pos, head_tail):
+        """Select the best bone from each chain connecting two joints."""
+
+        single = [(chain[0], head_tail, chain) for chain in chains if len(chain) == 1]
+
+        if single:
+            return single
+
+        return [self._select_parent_chain_bone(chain, pos, head_tail) for chain in chains]
+
+    def _select_parent_chain_bone(self, chain, pos, head_tail):
+        """Select the best bone from a chain connecting two joints."""
+
+        pose_bones = self.parent.armature_object.pose.bones
+
+        if head_tail is not None:
+            # Select bone based on head_tail
+            lens = [0, *accumulate(pose_bones[name].bone.length for name in chain)]
+            factors = [f / lens[-1] for f in lens]
+
+            for name, fac_cur, fac_next in zip(chain, factors, factors[1:]):
+                if fac_cur <= head_tail < fac_next or head_tail == 1 == fac_next:
+                    return name, (head_tail - fac_cur) / (fac_next - fac_cur), chain
+        else:
+            # Select bone based on distance from point
+            distances = [(name, self._distance_point_bone(pos, pose_bones[name].bone)) for name in chain]
+            distances.sort(key=lambda p: p[1])
+
+            return distances[0][0], None, chain
+
+    @staticmethod
+    def _distance_point_bone(point: Vector, bone: bpy.types.Bone):
+        """Calculates the distance from a point to a Bone."""
+        from mathutils.geometry import intersect_point_line
+
+        closest, fac = intersect_point_line(point, bone.head_local, bone.tail_local)
+
+        if fac < 0:
+            closest = bone.head_local
+        elif fac > 1:
+            closest = bone.tail_local
+
+        return (point - closest).length
+
+    def _find_parent_joint_chains_split(self, joint_head, joint_tail, head_tail):
+        """Find chains of bones connecting two joint cubes, with automatic joint unsplitting."""
+        def adjust_head_tail(cur_head_tail, head, mid, tail, replace_head):
+            if cur_head_tail is not None:
+                head_pos = Vector(self.parent.position_info["cubes"][head])
+                mid_pos = Vector(self.parent.position_info["cubes"][mid])
+                tail_pos = Vector(self.parent.position_info["cubes"][tail])
+
+                len_a = (head_pos - mid_pos).length
+                len_b = (tail_pos - mid_pos).length
+
+                if replace_head:
+                    return (len_a + cur_head_tail * len_b) / (len_a + len_b)
+                else:
+                    return cur_head_tail * len_a / (len_a + len_b)
+
+        joint_splits = [
+            # The Rigify and Game Engine rigs have only one shoulder bone
+            ('joint-l-clavicle', 'joint-l-scapula', 'joint-l-shoulder'),
+            ('joint-r-clavicle', 'joint-r-scapula', 'joint-r-shoulder'),
+            # The CMU rig doesn't use spine-3
+            ('joint-spine-4', 'joint-spine-3', 'joint-spine-2'),
+        ]
+
+        chains = self._find_parent_joint_chains(joint_head, joint_tail)
+
+        while not chains:
+            for to_head, joint, to_tail in joint_splits:
+                if joint == joint_head:
+                    head_tail = adjust_head_tail(head_tail, to_head, joint_head, joint_tail, True)
+                    joint_head = to_head
+                    break
+                elif joint == joint_tail:
+                    head_tail = adjust_head_tail(head_tail, joint_head, joint_tail, to_tail, False)
+                    joint_tail = to_tail
+                    break
+            else:
+                break
+
+            chains = self._find_parent_joint_chains(joint_head, joint_tail)
+
+        return chains, head_tail
+
+    def _find_parent_joint_chains(self, joint_head: str, joint_tail: str):
+        """Find chains of bones connecting two joint cubes."""
+        chains = []
+
+        for name, bone_info in self.parent.rig_definition.items():
+            if bone_info["tail"]["strategy"] == "CUBE" and bone_info["tail"]["cube_name"] == joint_tail:
+                chain = []
+
+                cur_bone = self.parent.armature_object.pose.bones[name].bone
+
+                while bone_info := self.parent.rig_definition.get(name):
+                    chain.append(name)
+
+                    if bone_info["head"]["strategy"] == "CUBE" and bone_info["head"]["cube_name"] == joint_head:
+                        chain.reverse()
+                        chains.append(chain)
+                        break
+
+                    parent = cur_bone.parent
+
+                    if not parent or (parent.tail_local - cur_bone.head_local).length > _MAX_DIST_TO_CONSIDER_EXACT:
+                        break
+
+                    name = parent.name
+                    cur_bone = parent
+
+        return chains
 
     def save_strategies(self, refit=False):
         """Save strategy data in the pose bones for development."""
@@ -723,6 +854,9 @@ class Rig:
             "name": con.name,
         }
 
+        # Add generic properties
+        self._add_constraint_properties(con, info)
+
         # Handle targets - only support targeting the armature
         if con.type == "ARMATURE":
             targets = info["targets"] = []
@@ -743,7 +877,7 @@ class Rig:
             if target == self.armature_object:
                 info["target"] = True
             elif self.parent and target == self.parent.armature_object:
-                info["target"] = self._encode_constraint_parent_ref(bone, getattr(con, "subtarget", None))
+                info["target"] = self._encode_constraint_parent_ref(bone, getattr(con, "subtarget", None), info)
             else:
                 self.bad_constraint_targets.add(bone.name)
 
@@ -751,7 +885,10 @@ class Rig:
             info["space_object"] = True
             info["space_subtarget"] = con.space_subtarget
 
-        # Add other properties
+        return info
+
+    @staticmethod
+    def _add_constraint_properties(con, info):
         defaults = {
             'owner_space': 'WORLD', 'target_space': 'WORLD',
             'mute': False, 'influence': 1.0,
@@ -782,25 +919,73 @@ class Rig:
                 if not isinstance(cur_value, bad_types):
                     info[prop.identifier] = cur_value
 
-        return info
-
-    def _encode_constraint_parent_ref(self, bone, subtarget):
+    def _encode_constraint_parent_ref(self, bone, subtarget, info=None):
         if not subtarget:
-            return None, None
+            return {"strategy": None}
 
-        bone_info = self.parent.rig_definition.get(subtarget, None)
-
-        if not bone_info:
-            self.bad_constraint_targets.add(bone.name)
-            return None, None
-
-        head_joint = bone_info["head"]["cube_name"] if bone_info["head"]["strategy"] == "CUBE" else None
-        tail_joint = bone_info["tail"]["cube_name"] if bone_info["tail"]["strategy"] == "CUBE" else None
+        head_joint, prefix = self.parent._list_parents_until_joint(subtarget)
+        tail_joint, suffix = self.parent._list_children_until_joint(subtarget)
 
         if not head_joint or not tail_joint:
             self.bad_constraint_targets.add(bone.name)
+            return {"strategy": None}
 
-        return head_joint, tail_joint
+        bone_chain = [*prefix, subtarget, *suffix]
+
+        # Recalculate head-tail slider according to the position in the chain
+        if len(bone_chain) > 1 and "head_tail" in info:
+            pose_bones = self.parent.armature_object.pose.bones
+
+            lens = [0, *accumulate(pose_bones[name].bone.length for name in bone_chain)]
+            index = len(prefix)
+
+            info["head_tail"] = lerp(lens[index], lens[index + 1], info["head_tail"]) / lens[-1]
+
+        return {"strategy": "JOINTS", "joint_head": head_joint, "joint_tail": tail_joint}
+
+    def _list_parents_until_joint(self, cur_name):
+        bone_info = self.rig_definition.get(cur_name, None)
+
+        if not bone_info:
+            return None, []
+
+        if bone_info["head"]["strategy"] == "CUBE":
+            return bone_info["head"]["cube_name"], []
+
+        cur_bone = self.armature_object.pose.bones[cur_name]
+        parent = cur_bone.parent
+
+        if not parent or (parent.bone.tail_local - cur_bone.bone.head_local).length > _MAX_DIST_TO_CONSIDER_EXACT:
+            return None, []
+
+        joint, prefix = self._list_parents_until_joint(parent.name)
+
+        return joint, prefix + [parent.name]
+
+    def _list_children_until_joint(self, cur_name):
+        bone_info = self.rig_definition.get(cur_name, None)
+
+        if not bone_info:
+            return None, []
+
+        if bone_info["tail"]["strategy"] == "CUBE":
+            return bone_info["tail"]["cube_name"], []
+
+        cur_bone = self.armature_object.pose.bones[cur_name].bone
+        children = cur_bone.children
+        candidates = []
+
+        for child in children:
+            if (child.head_local - cur_bone.tail_local).length < _MAX_DIST_TO_CONSIDER_EXACT:
+                joint, suffix = self._list_children_until_joint(child.name)
+                if joint:
+                    candidates.append((joint, [child.name] + suffix))
+
+        if not candidates:
+            return None, []
+
+        joint, suffix = sorted(candidates, key=lambda x: len(x[1]))[0]
+        return joint, suffix
 
     def match_bone_positions_with_strategies(self, fast=False):
         """Try to find out bone positions matching joint cubes."""

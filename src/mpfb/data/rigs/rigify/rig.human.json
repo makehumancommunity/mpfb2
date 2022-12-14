@@ -11316,7 +11316,7 @@
             "tail": {
                 "default_position": [
                     0.0,
-                    -0.19224,
+                    -0.19094,
                     1.51264
                 ],
                 "offset": [
@@ -11893,13 +11893,13 @@
             "roll": 0.0,
             "roll_strategy": "ALIGN_Z_WORLD_Z",
             "tail": {
+                "cube_name": "joint-l-upper-leg",
                 "default_position": [
-                    0.15426,
-                    -0.02473,
-                    0.90127
+                    0.10147,
+                    -0.005,
+                    0.86564
                 ],
-                "strategy": "VERTEX",
-                "vertex_index": 10914
+                "strategy": "CUBE"
             },
             "use_connect": false,
             "use_inherit_rotation": true,
@@ -11960,13 +11960,13 @@
             "roll": 0.0,
             "roll_strategy": "ALIGN_Z_WORLD_Z",
             "tail": {
+                "cube_name": "joint-r-upper-leg",
                 "default_position": [
-                    -0.15426,
-                    -0.02473,
-                    0.90127
+                    -0.10147,
+                    -0.005,
+                    0.86564
                 ],
-                "strategy": "VERTEX",
-                "vertex_index": 4284
+                "strategy": "CUBE"
             },
             "use_connect": false,
             "use_inherit_rotation": true,

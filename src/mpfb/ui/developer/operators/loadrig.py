@@ -85,7 +85,7 @@ class MPFB_OT_Load_Rig_Operator(bpy.types.Operator, ImportHelper):
         _LOG.debug("absolute_file_path", absolute_file_path)
 
         if rig_subrig:
-            parent_rig = Rig.from_given_basemesh_and_armature(basemesh, skeleton)
+            parent_rig = Rig.from_given_basemesh_and_armature(basemesh, skeleton, fast_positions=True)
 
             rig = Rig.from_json_file_and_basemesh(absolute_file_path, mesh, parent=parent_rig)
         else:
