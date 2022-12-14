@@ -92,31 +92,38 @@ class RigifyHelpers():
         if child_rig == rigify_object or child_rig == old_armature:
             return
 
+        from mpfb.entities.rig import Rig
+
         for bone in child_rig.pose.bones:
             for con in bone.constraints:
                 if con.type == "ARMATURE":
+                    # As a special case, convert armature constraints bound to a vertex to deform bones
+                    if ObjectService.object_is_subrig(child_rig) and \
+                            Rig.get_armature_constraint_vertex_index(con) is not None:
+                        convert = RigifyHelpers._to_def_bone
+                    else:
+                        convert = RigifyHelpers._to_org_bone
+
                     for tgt in con.targets:
                         if tgt.target == old_armature:
                             tgt.target = rigify_object
-                            tgt.subtarget = "ORG-" + tgt.subtarget
+                            tgt.subtarget = convert(tgt.subtarget, rigify_object)
                 else:
                     if getattr(con, "target", None) == old_armature:
                         con.target = rigify_object
 
                         if hasattr(con, "subtarget"):
-                            con.subtarget = "ORG-" + con.subtarget
+                            con.subtarget = RigifyHelpers._to_org_bone(con.subtarget, rigify_object)
 
         if child_rig.parent == old_armature:
             child_rig.parent = rigify_object
 
     @staticmethod
     def adjust_mesh_for_rigify(child_mesh, rigify_object, old_armature):
-        pb = rigify_object.pose.bones
-
         for vertex_group in child_mesh.vertex_groups:
-            org_name = "ORG-" + vertex_group.name
-            def_name = "DEF-" + vertex_group.name
-            if org_name in pb and def_name in pb:
+            def_name = RigifyHelpers._to_def_bone(vertex_group.name, rigify_object)
+
+            if def_name != vertex_group.name:
                 _LOG.debug("Renaming vertex group", (child_mesh.name, vertex_group.name, def_name))
                 vertex_group.name = def_name
 
@@ -126,6 +133,25 @@ class RigifyHelpers():
 
         if child_mesh.parent == old_armature:
             child_mesh.parent = rigify_object
+
+    @staticmethod
+    def _to_org_bone(name, rigify_object):
+        org_name = "ORG-" + name
+
+        if org_name in rigify_object.pose.bones:
+            return org_name
+        else:
+            return name
+
+    @staticmethod
+    def _to_def_bone(name, rigify_object):
+        org_name = "ORG-" + name
+        def_name = "DEF-" + name
+
+        if org_name in rigify_object.pose.bones and def_name in rigify_object.pose.bones:
+            return def_name
+        else:
+            return name
 
     @staticmethod
     def load_rigify_ui(armature_object, rigify_ui):

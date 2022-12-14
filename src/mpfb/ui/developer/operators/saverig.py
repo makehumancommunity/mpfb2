@@ -53,7 +53,7 @@ class MPFB_OT_Save_Rig_Operator(bpy.types.Operator, ExportHelper):
 
         if rig_refit:
             rig.save_strategies(refit=True)
-            rig.reposition_edit_bone()
+            rig.reposition_edit_bone(developer=True)
 
             object_type = "Subrig" if rig_subrig else "Skeleton"
             GeneralObjectProperties.set_value("object_type", object_type, entity_reference=armature_object)

@@ -7,7 +7,7 @@ from mpfb.services.objectservice import ObjectService
 from mpfb.services.rigservice import RigService
 from mpfb.entities.objectproperties import GeneralObjectProperties
 
-import bpy, math, json, random, typing
+import bpy, math, json, random, typing, re
 
 from bl_math import lerp
 from itertools import accumulate
@@ -252,7 +252,7 @@ class Rig:
 
         bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
 
-    def reposition_edit_bone(self):
+    def reposition_edit_bone(self, *, developer=False):
         """Reposition bones to fit the current state of the basemesh."""
         bpy.ops.object.mode_set(mode='EDIT', toggle=False)
         for bone_name in self.rig_definition.keys():
@@ -280,9 +280,50 @@ class Rig:
                 elif con.type == "CHILD_OF":
                     con.set_inverse_pending = True
                     updated = True
+                elif con.type == "ARMATURE":
+                    # When refitting in Developer -> Save Rig, update bones and weights in
+                    # Armature constraints referencing a vertex
+                    if self.parent and developer:
+                        if self._rebuild_armature_con_vertex_targets(con):
+                            updated = True
 
         if updated:
             bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
+
+    @staticmethod
+    def get_armature_constraint_vertex_index(con: bpy.types.ArmatureConstraint) -> int | None:
+        if match := re.fullmatch(r'^VERTEX:\s*(\d+)(\D.*|)$', con.name):
+            return int(match.group(1))
+        else:
+            return None
+
+    @staticmethod
+    def ensure_armature_constraint_vertex_index(con: bpy.types.ArmatureConstraint, vertex: int):
+        if match := re.fullmatch(r'^VERTEX:\s*(\d+)(\D.*|)$', con.name):
+            con.name = f"VERTEX:{vertex}{match.group(2)}"
+        else:
+            con.name = f"VERTEX:{vertex} {con.name}"
+
+    def _rebuild_armature_con_vertex_targets(self, con: bpy.types.ArmatureConstraint):
+        vertex = self.get_armature_constraint_vertex_index(con)
+
+        if vertex is not None:
+            weights = self.parent._find_vertex_weights(vertex)
+
+            if weights:
+                for tgt in list(con.targets):
+                    if tgt.target == self.parent.armature_object:
+                        con.targets.remove(tgt)
+
+                for name, weight in weights.items():
+                    tgt = con.targets.new()
+                    tgt.target = self.parent.armature_object
+                    tgt.subtarget = name
+                    tgt.weight = weight
+
+                return True
+
+        return False
 
     def update_edit_bone_metadata(self):
         """Assign metadata fitting for the edit bones."""
@@ -347,8 +388,9 @@ class Rig:
 
     def _apply_constraint_info(self, bone: bpy.types.PoseBone, info):
         con = bone.constraints.new(info["type"])
+        con.name = info["name"]
 
-        if con.type == "ARMATURE":
+        if isinstance(con, bpy.types.ArmatureConstraint):
             for tgt_info in info["targets"]:
                 tgt = con.targets.new()
 
@@ -359,6 +401,21 @@ class Rig:
 
                 tgt.subtarget = tgt_info["subtarget"]
                 tgt.weight = tgt_info["weight"]
+
+            if parent_ref := info.get("target"):
+                assert parent_ref["strategy"] == "VERTEX"
+
+                vertex = parent_ref["vertex_index"]
+
+                # Just in case ensure the name reflects the result
+                self.ensure_armature_constraint_vertex_index(con, vertex)
+
+                for name, weight in self.parent._find_vertex_weights(vertex).items():
+                    tgt = con.targets.new()
+                    tgt.target = self.parent.armature_object
+                    tgt.subtarget = name
+                    tgt.weight = weight
+
         else:
             target = info.get("target", False)
 
@@ -372,7 +429,7 @@ class Rig:
         if info.get("space_object", False):
             con.space_object = self.armature_object
 
-        skip_list = {"type", "targets", "target", "space_object"}
+        skip_list = {"type", "name", "targets", "target", "space_object"}
 
         for field, val in info.items():
             if field not in skip_list:
@@ -849,7 +906,7 @@ class Rig:
                 rigify["rigify_type"] = str(bone.rigify_type)
 
     def _encode_constraint_info(self, bone, con):
-        info = {
+        info: dict[str, typing.Any] = {
             "type": con.type,
             "name": con.name,
         }
@@ -860,8 +917,21 @@ class Rig:
         # Handle targets - only support targeting the armature
         if con.type == "ARMATURE":
             targets = info["targets"] = []
+            weights = {}
+
+            if self.parent:
+                vertex = self.get_armature_constraint_vertex_index(con)
+                if vertex is not None:
+                    weights = self.parent._find_vertex_weights(vertex)
+                    if not weights:
+                        self.bad_constraint_targets.add(bone.name)
+                    else:
+                        info["target"] = {"strategy": "VERTEX", "vertex_index": vertex}
 
             for tgt in con.targets:
+                if weights and tgt.target == self.parent.armature_object:
+                    continue
+
                 tgt_info = {"subtarget": tgt.subtarget, "weight": tgt.weight}
 
                 if self.parent and tgt.target == self.parent.armature_object:
@@ -986,6 +1056,27 @@ class Rig:
 
         joint, suffix = sorted(candidates, key=lambda x: len(x[1]))[0]
         return joint, suffix
+
+    def _find_vertex_weights(self, vertex):
+        """Retrieve deform weights associated with the given mesh vertex."""
+
+        mesh_obj: bpy.types.Object = self.basemesh
+        mesh = mesh_obj.data
+        assert isinstance(mesh, bpy.types.Mesh)
+
+        def_bones = set(RigService.get_deform_group_bones(self.armature_object))
+        weights = {}
+
+        if 0 <= vertex < len(mesh.vertices):
+            vertex_groups = mesh_obj.vertex_groups
+
+            for group in mesh.vertices[vertex].groups:
+                if 0 <= group.group < len(vertex_groups):
+                    name = vertex_groups[group.group].name
+                    if name in def_bones:
+                        weights[name] = group.weight
+
+        return weights
 
     def match_bone_positions_with_strategies(self, fast=False):
         """Try to find out bone positions matching joint cubes."""
