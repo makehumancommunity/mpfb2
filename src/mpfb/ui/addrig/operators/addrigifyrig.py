@@ -1,12 +1,10 @@
 """Operator for adding a rigify rig."""
 
-import bpy, os, json
+import bpy
+
+from mpfb.services.humanservice import HumanService
 from mpfb.services.logservice import LogService
 from mpfb.services.objectservice import ObjectService
-from mpfb.services.locationservice import LocationService
-from mpfb.services.rigifyhelpers.rigifyhelpers import RigifyHelpers
-from mpfb.services.rigservice import RigService
-from mpfb.entities.rig import Rig
 from mpfb.services.systemservice import SystemService
 from mpfb import ClassManager
 
@@ -43,38 +41,8 @@ class MPFB_OT_AddRigifyRigOperator(bpy.types.Operator):
 
         rigify_rig = ADD_RIG_PROPERTIES.get_value("rigify_rig", entity_reference=scene)
         import_weights = ADD_RIG_PROPERTIES.get_value("import_weights_rigify", entity_reference=scene)
-        delete_after_generate = ADD_RIG_PROPERTIES.get_value("delete_after_generate", entity_reference=scene)
 
-        rigs_dir = LocationService.get_mpfb_data("rigs")
-        rigify_dir = os.path.join(rigs_dir, "rigify")
-
-        rig_file = os.path.join(rigify_dir, "rig." + rigify_rig + ".json")
-
-        rig = Rig.from_json_file_and_basemesh(rig_file, basemesh)
-        armature_object = rig.create_armature_and_fit_to_basemesh()
-
-        assert len(armature_object.data.rigify_layers) > 0
-
-        armature_object.name = armature_object.data.name = basemesh.name + ".metarig"
-
-        if hasattr(armature_object.data, 'rigify_rig_basename'):
-            armature_object.data.rigify_rig_basename = "Human.rigify"
-
-        basemesh.parent = armature_object
-
-        if import_weights:
-            for try_rig in RigService.get_rig_weight_fallbacks("rigify." + rigify_rig):
-                try_rig = try_rig.replace("rigify.", "")
-                weights_file = os.path.join(rigify_dir, "weights." + try_rig + ".json")
-
-                if os.path.isfile(weights_file):
-                    break
-            else:
-                self.report({'ERROR'}, "Could not find the weights file")
-                return {'FINISHED'}
-
-            RigService.load_weights(armature_object, basemesh, weights_file)
-            RigService.ensure_armature_modifier(basemesh, armature_object)
+        HumanService.add_builtin_rig(basemesh, "rigify." + rigify_rig, import_weights=import_weights, operator=self)
 
         self.report({'INFO'}, "A rig was added")
         return {'FINISHED'}

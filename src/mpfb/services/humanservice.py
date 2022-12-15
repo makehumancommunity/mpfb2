@@ -421,9 +421,8 @@ class HumanService:
         rig = None
         if "rig" in human_info and not human_info["rig"] is None and not str(human_info["rig"]).strip() == "":
             rig_name = human_info["rig"]
-            if not "rigify" in rig_name:
-                _LOG.debug("Adding a standard rig:", rig_name)
-                rig = HumanService.add_standard_rig(basemesh, rig_name, import_weights=True)
+            _LOG.debug("Adding a standard rig:", rig_name)
+            rig = HumanService.add_builtin_rig(basemesh, rig_name, import_weights=True)
         else:
             _LOG.debug("Not adding a rig, since rig setting is empty")
 
@@ -1061,23 +1060,61 @@ class HumanService:
         return basemesh
 
     @staticmethod
-    def add_standard_rig(basemesh, rig_name, import_weights=True):
+    def add_builtin_rig(basemesh, rig_name, *, import_weights=True, operator=None):
+        is_rigify = rig_name.startswith("rigify.")
+        rig_name_base = rig_name[7:] if is_rigify else rig_name
+
+        # Determine the rig file name
         rigs_dir = LocationService.get_mpfb_data("rigs")
-        standard_dir = os.path.join(rigs_dir, "standard")
-        rig_file = os.path.join(standard_dir, "rig." + rig_name + ".json")
+        rigs_subdir = os.path.join(rigs_dir, "rigify" if is_rigify else "standard")
+
+        rig_file = os.path.join(rigs_subdir, "rig." + rig_name_base + ".json")
+
+        if not os.path.isfile(rig_file):
+            if operator is not None:
+                operator.report({'ERROR'}, "Could not find the rig file: " + rig_file)
+            return None
+
+        # Load the rig from file
         rig = Rig.from_json_file_and_basemesh(rig_file, basemesh)
         armature_object = rig.create_armature_and_fit_to_basemesh()
+
+        # Assign a name to the armature
+        name = basemesh.name + (".metarig" if is_rigify else ".rig")
+        armature_object.name = armature_object.data.name = name
+
+        # Type-specific handling
+        if is_rigify:
+            assert len(armature_object.data.rigify_layers) > 0
+
+            if hasattr(armature_object.data, 'rigify_rig_basename'):
+                armature_object.data.rigify_rig_basename = "Human.rigify"
+
+        else:
+            RigService.normalize_rotation_mode(armature_object)
+
+        # Parent the mesh to the rig
         basemesh.parent = armature_object
 
         armature_object.location = basemesh.location
         basemesh.location = (0.0, 0.0, 0.0)
 
+        # Load weights and create the armature modifier
         if import_weights:
-            weights_file = os.path.join(standard_dir, "weights." + rig_name + ".json")
-            RigService.load_weights(armature_object, basemesh, weights_file)
-            RigService.ensure_armature_modifier(basemesh, armature_object)
+            for try_rig in RigService.get_rig_weight_fallbacks(rig_name):
+                if try_rig.startswith("rigify."):
+                    try_rig = try_rig[7:]
 
-        RigService.normalize_rotation_mode(armature_object)
+                weights_file = os.path.join(rigs_subdir, "weights." + try_rig + ".json")
+
+                if os.path.isfile(weights_file):
+                    RigService.load_weights(armature_object, basemesh, weights_file)
+                    break
+            else:
+                if operator is not None:
+                    operator.report({'ERROR'}, "Could not find the weights file")
+
+            RigService.ensure_armature_modifier(basemesh, armature_object)
 
         return armature_object
 
