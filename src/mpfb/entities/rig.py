@@ -44,6 +44,7 @@ class Rig:
         }
         self.lowest_point = 1000.0
         self.bad_constraint_targets = set()
+        self.relative_scale = 1.0
 
     @staticmethod
     def from_json_file_and_basemesh(filename, basemesh, *, parent=None):
@@ -68,6 +69,11 @@ class Rig:
 
             else:
                 rig.rig_definition.update(json_data)
+
+        if rig.rig_header.get("scale_factor"):
+            scale_factor = GeneralObjectProperties.get_value("scale_factor", entity_reference=basemesh)
+            if scale_factor:
+                rig.relative_scale = scale_factor / rig.rig_header["scale_factor"]
 
         rig.build_basemesh_position_info()
         return rig
@@ -104,6 +110,12 @@ class Rig:
         and from the armature which is expected to be the currently active object."""
 
         rig = Rig(basemesh, armature, parent=parent)
+
+        if scale_factor := (
+                GeneralObjectProperties.get_value("scale_factor", entity_reference=armature) or
+                GeneralObjectProperties.get_value("scale_factor", entity_reference=basemesh)
+                ):
+            rig.rig_header["scale_factor"] = scale_factor
 
         rig.build_basemesh_position_info()
 
@@ -217,7 +229,7 @@ class Rig:
         except IndexError:
             pass
         if location is not None and "offset" in head_or_tail_info:
-            location = [a + b for a, b in zip(location, head_or_tail_info["offset"])]
+            location = [a + b * self.relative_scale for a, b in zip(location, head_or_tail_info["offset"])]
         if location is None and use_default:
             location = head_or_tail_info["default_position"]
         return location
