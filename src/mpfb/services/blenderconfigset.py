@@ -1,7 +1,8 @@
 
 import bpy, os, json
 from fnmatch import fnmatch
-from bpy.props import BoolProperty, StringProperty, EnumProperty, IntProperty, CollectionProperty, FloatProperty
+from bpy.props import BoolProperty, StringProperty, EnumProperty, IntProperty, CollectionProperty, FloatProperty, \
+    FloatVectorProperty
 from .logservice import LogService
 _LOG = LogService.get_logger("configuration.blenderconfigset")
 
@@ -13,13 +14,13 @@ _PREFIX = "MPFB_"
 class BlenderConfigSet(ConfigurationSet):
 
 
-    def __init__(self, properties, bpy_type, prefix=""):
+    def __init__(self, properties, bpy_type, prefix="", *, lowercase_prefix=False):
         _LOG.debug("Constructing new blender config set with prefix", prefix)
         self._properties_by_short_name = dict()
         self._properties_by_full_name = dict()
         self._prop_to_aliases = dict()
         self._alias_to_prop = dict()
-        self._prefix = _PREFIX + prefix
+        self._prefix = (_PREFIX.lower() if lowercase_prefix else _PREFIX) + prefix
         self._bpytype = bpy_type
         _LOG.debug("Full prefix is", self._prefix)
         for prop in properties:
@@ -132,6 +133,9 @@ class BlenderConfigSet(ConfigurationSet):
                 entity_property = FloatProperty(name=name, description=description, default=default) # pylint: disable=E1111
             else:
                 entity_property = FloatProperty(name=name, description=description, default=default, min=min, max=max) # pylint: disable=E1111
+        if proptype == "vector_location":
+            entity_property = FloatVectorProperty(name=name, description=description, default=default,
+                                                  size=3, subtype='XYZ', unit='LENGTH')
         if proptype == "enum":
             enumitems = []
             if items:
@@ -184,7 +188,15 @@ class BlenderConfigSet(ConfigurationSet):
                 _LOG.dump("Adding alias property", (str(alias), alias_property))
                 setattr(self._bpytype, str(alias).strip(), alias_property)
 
-    def draw_properties(self, entity_reference, component_to_draw_on, property_names):
+    def _find_property(self, name):
+        prop = None
+        if name in self._properties_by_short_name:
+            prop = self._properties_by_short_name[name]
+        if name in self._properties_by_full_name:
+            prop = self._properties_by_full_name[name]
+        return prop
+
+    def draw_properties(self, entity_reference, component_to_draw_on, property_names, *, text=None, **kwargs):
         _LOG.enter()
         if entity_reference is None:
             raise ValueError('Must provide a valid blender entity reference in order to draw properties')
@@ -194,16 +206,19 @@ class BlenderConfigSet(ConfigurationSet):
             return
 
         for name in property_names:
-            prop = None
-            if name in self._properties_by_short_name:
-                prop = self._properties_by_short_name[name]
-            if name in self._properties_by_full_name:
-                prop = self._properties_by_full_name[name]
+            prop = self._find_property(name)
+
             if prop is None:
                 _LOG.warn("Tried to draw a non-existing property", name)
             else:
-                label = ""
-                if "label" in prop:
-                    label = prop["label"]
-                component_to_draw_on.prop(entity_reference, prop["full_name"], text=label)
+                label = prop.get("label", "") if text is None else text
+                component_to_draw_on.prop(entity_reference, prop["full_name"], text=label, **kwargs)
 
+    def get_property_id_for_draw(self, name):
+        prop = self._find_property(name)
+
+        if prop is None:
+            _LOG.warn("Tried to draw a non-existing property", name)
+            return None
+
+        return prop["full_name"]

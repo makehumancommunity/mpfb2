@@ -20,8 +20,7 @@ class MPFB_OT_Copy_Pose_Operator(bpy.types.Operator):
     @classmethod
     def poll(cls, context):
         if context.active_object is not None:
-            from mpfb.entities.objectproperties import GeneralObjectProperties
-            objtype = GeneralObjectProperties.get_value("object_type", entity_reference=context.active_object)
+            objtype = ObjectService.get_object_type(context.active_object)
             return objtype == "Skeleton"
         return False
 

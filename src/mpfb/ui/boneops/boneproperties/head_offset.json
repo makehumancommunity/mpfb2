@@ -1,0 +1,7 @@
+{
+    "type": "vector_location",
+    "name": "head_offset",
+    "description": "Arbitrary offset of the head",
+    "label": "Head Offset",
+    "default": [0.0, 0.0, 0.0]
+}

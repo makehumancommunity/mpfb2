@@ -73,15 +73,13 @@ class MPFB_PT_Developer_Panel(bpy.types.Panel):
 
     def _rig(self, scene, layout):
         box = self._create_box(layout, "Load/Save rig")
-        DEVELOPER_PROPERTIES.draw_properties(scene, box, ["rig_parent"])
+        DEVELOPER_PROPERTIES.draw_properties(scene, box, ["rig_parent", "rig_subrig", "rig_save_rigify", "rig_refit"])
         box.operator("mpfb.load_rig")
         box.operator("mpfb.save_rig")
-        box.operator("mpfb.load_rigify_layers")
-        box.operator("mpfb.save_rigify_layers")
 
     def _weights(self, scene, layout):
         box = self._create_box(layout, "Load/Save weights")
-        DEVELOPER_PROPERTIES.draw_properties(scene, box, ["save_evaluated"])
+        DEVELOPER_PROPERTIES.draw_properties(scene, box, ["weights_mask", "save_masks", "save_evaluated"])
         box.operator("mpfb.load_weights")
         box.operator("mpfb.save_weights")
 

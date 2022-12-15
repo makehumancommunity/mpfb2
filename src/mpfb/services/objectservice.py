@@ -1,4 +1,5 @@
-import bpy, os, json, random, gzip
+
+import bpy, os, json, random, gzip, typing
 from mpfb.services.logservice import LogService
 from mpfb.services.locationservice import LocationService
 from mpfb.entities.objectproperties import GeneralObjectProperties
@@ -11,6 +12,12 @@ _BASEMESH_VERTEX_GROUPS_EXPANDED = None
 
 _BASEMESH_FACE_TO_VERTEX_TABLE = None
 _BASEMESH_VERTEX_TO_FACE_TABLE = None
+
+_BODY_PART_TYPES = ("Eyes", "Eyelashes", "Eyebrows", "Tongue", "Teeth", "Hair")
+_MESH_ASSET_TYPES = ("Proxymeshes", "Clothes") + _BODY_PART_TYPES
+_MESH_TYPES = ("Basemesh",) + _MESH_ASSET_TYPES
+_SKELETON_TYPES = ("Skeleton", "Subrig")
+_ALL_TYPES = _SKELETON_TYPES + _MESH_TYPES
 
 class ObjectService:
 
@@ -96,8 +103,14 @@ class ObjectService:
             object_to_link.parent = parent
 
     @staticmethod
-    def activate_blender_object(object_to_make_active):
-        bpy.context.view_layer.objects.active = object_to_make_active
+    def activate_blender_object(object_to_make_active, *, context=None, deselect_all=False):
+        if deselect_all:
+            ObjectService.deselect_and_deactivate_all()
+
+        object_to_make_active.select_set(True)
+
+        context = context or bpy.context
+        context.view_layer.objects.active = object_to_make_active
 
     @staticmethod
     def get_list_of_children(parent_object):
@@ -108,24 +121,53 @@ class ObjectService:
         return children
 
     @staticmethod
-    def get_object_type(blender_object):
-        if not blender_object:
-            return None
-        return GeneralObjectProperties.get_value("object_type", entity_reference=blender_object)
+    def find_by_data(id_data):
+        for obj in bpy.data.objects:
+            if obj.data == id_data:
+                return obj
 
     @staticmethod
-    def object_is(blender_object, mpfb_type_name):
+    def get_object_type(blender_object) -> str:
         if not blender_object:
-            return False
-        if not mpfb_type_name or not str(mpfb_type_name).strip():
+            return ""
+
+        object_type = GeneralObjectProperties.get_value("object_type", entity_reference=blender_object)
+
+        return str(object_type or "").strip()
+
+    @staticmethod
+    def object_is(blender_object, mpfb_type_name: str | typing.Sequence[str]):
+        """
+        Check if the given object is of the correct type(s).
+
+        Args:
+            blender_object: Object to test
+            mpfb_type_name: Type name, or list/tuple of acceptable type names.
+        """
+
+        if not mpfb_type_name:
             return False
 
-        mpfb_type = GeneralObjectProperties.get_value("object_type", entity_reference=blender_object)
+        mpfb_type = ObjectService.get_object_type(blender_object)
 
         if not mpfb_type:
             return False
 
-        return str(mpfb_type_name).lower().strip() in str(mpfb_type).lower().strip()
+        mpfb_type = mpfb_type.lower()
+
+        if isinstance(mpfb_type_name, str):
+            mpfb_type_name = [mpfb_type_name]
+
+        for item in mpfb_type_name:
+            stripped = str(item).lower().strip()
+            if stripped and stripped in mpfb_type:
+                return True
+
+        if mpfb_type_name is _ALL_TYPES:
+            # This is supposed to handle all possible types.
+            _LOG.debug("Unexpected object type: " + mpfb_type)
+
+        return False
 
     @staticmethod
     def object_is_basemesh(blender_object):
@@ -134,6 +176,14 @@ class ObjectService:
     @staticmethod
     def object_is_skeleton(blender_object):
         return ObjectService.object_is(blender_object, "Skeleton")
+
+    @staticmethod
+    def object_is_subrig(blender_object):
+        return ObjectService.object_is(blender_object, "Subrig")
+
+    @staticmethod
+    def object_is_any_skeleton(blender_object):
+        return ObjectService.object_is(blender_object, _SKELETON_TYPES)
 
     @staticmethod
     def object_is_body_proxy(blender_object):
@@ -145,32 +195,254 @@ class ObjectService:
 
     @staticmethod
     def object_is_basemesh_or_body_proxy(blender_object):
-        return ObjectService.object_is(blender_object, "Basemesh") or ObjectService.object_is(blender_object, "Proxymesh")
+        return ObjectService.object_is(blender_object, ("Basemesh", "Proxymesh"))
 
     @staticmethod
-    def find_object_of_type_amongst_nearest_relatives(blender_object, mpfb_type_name="Basemesh"):
+    def object_is_any_mesh(blender_object):
+        return blender_object and blender_object.type == "MESH"
+
+    @staticmethod
+    def object_is_any_makehuman_mesh(blender_object):
+        return blender_object and blender_object.type == "MESH" and ObjectService.get_object_type(blender_object)
+
+    @staticmethod
+    def object_is_any_mesh_asset(blender_object):
+        return blender_object and blender_object.type == "MESH" and\
+            ObjectService.object_is(blender_object, _MESH_ASSET_TYPES)
+
+    @staticmethod
+    def object_is_any_makehuman_object(blender_object):
+        return blender_object and ObjectService.get_object_type(blender_object)
+
+    @staticmethod
+    def find_object_of_type_amongst_nearest_relatives(
+            blender_object: bpy.types.Object,
+            mpfb_type_name: str | typing.Sequence[str] = "Basemesh", *,
+            only_parents=False, strict_parent=False, only_children=False,
+            ) -> typing.Optional[bpy.types.Object]:
+        """
+        Find one object of the given type(s) among the children, parents and siblings of the object.
+        """
+        relatives = ObjectService.find_all_objects_of_type_amongst_nearest_relatives(
+            blender_object, mpfb_type_name,
+            only_parents=only_parents, strict_parent=strict_parent, only_children=only_children)
+
+        return next(relatives, None)
+
+    @staticmethod
+    def find_all_objects_of_type_amongst_nearest_relatives(
+            blender_object: bpy.types.Object,
+            mpfb_type_name: str | typing.Sequence[str] = "Basemesh", *,
+            only_parents=False, strict_parent=False, only_children=False,
+            ) -> typing.Generator[bpy.types.Object, None, None]:
+        """
+        Find all objects of the given type(s) among the children, parents and siblings of the object.
+
+        Args:
+            blender_object: Object to start search from.
+            mpfb_type_name: String or sequence of strings denoting valid types.
+            only_parents: Only search among the object and its parents.
+            strict_parent: Don't search immediate siblings if the parent isn't a MakeHuman object.
+            only_children: Only search among the object and its children.
+        """
 
         if not blender_object or not mpfb_type_name:
+            return
+
+        def rec_children(rec_parent, exclude=None):
+            if only_parents:
+                return
+
+            for parents_child in ObjectService.get_list_of_children(rec_parent):
+                if parents_child == exclude:
+                    continue
+
+                if ObjectService.object_is(parents_child, mpfb_type_name):
+                    yield parents_child
+                elif parents_child.type == "ARMATURE":
+                    yield from rec_children(parents_child)
+
+        if ObjectService.object_is(blender_object, mpfb_type_name):
+            yield blender_object
+
+        yield from rec_children(blender_object)
+
+        if only_children:
+            return
+
+        parent_from = blender_object
+        parent = blender_object.parent
+
+        while parent:
+            if strict_parent:
+                if parent.type != 'ARMATURE' and not ObjectService.object_is_any_makehuman_object(parent):
+                    break
+
+            if ObjectService.object_is(parent, mpfb_type_name):
+                yield parent
+
+            yield from rec_children(parent, parent_from)
+
+            parent_from = parent
+            parent = parent.parent
+            strict_parent = True
+
+    @staticmethod
+    def find_related_objects(blender_object, **kwargs):
+        yield from ObjectService.find_all_objects_of_type_amongst_nearest_relatives(
+            blender_object, _ALL_TYPES, **kwargs)
+
+    @staticmethod
+    def find_related_skeletons(blender_object, **kwargs):
+        yield from ObjectService.find_all_objects_of_type_amongst_nearest_relatives(
+            blender_object, _SKELETON_TYPES, **kwargs)
+
+    @staticmethod
+    def find_related_mesh_base_or_assets(blender_object, **kwargs):
+        yield from ObjectService.find_all_objects_of_type_amongst_nearest_relatives(
+            blender_object, _MESH_TYPES, **kwargs)
+
+    @staticmethod
+    def find_related_mesh_assets(blender_object, **kwargs):
+        yield from ObjectService.find_all_objects_of_type_amongst_nearest_relatives(
+            blender_object, _MESH_ASSET_TYPES, **kwargs)
+
+    @staticmethod
+    def find_related_body_part_assets(blender_object, **kwargs):
+        yield from ObjectService.find_all_objects_of_type_amongst_nearest_relatives(
+            blender_object, _BODY_PART_TYPES, **kwargs)
+
+    @staticmethod
+    def find_deformed_child_meshes(armature_object) -> typing.Generator[bpy.types.Object, None, None]:
+        if not armature_object:
+            return
+
+        assert armature_object.type == 'ARMATURE'
+
+        for child in ObjectService.get_list_of_children(armature_object):
+            if child.type == 'MESH':
+                for mod in child.modifiers:
+                    if mod.type == 'ARMATURE' and mod.object == armature_object:
+                        yield child
+
+    @staticmethod
+    def object_is_generated_rigify_rig(blender_object):
+        return blender_object and blender_object.type == "ARMATURE" and blender_object.data.get("rig_id")
+
+    @staticmethod
+    def object_is_rigify_metarig(blender_object, *, check_bones=False):
+        if not blender_object or blender_object.type != "ARMATURE" or blender_object.data.get("rig_id"):
+            return False
+
+        if blender_object.data.get("rigify_layers") and len(blender_object.data.rigify_layers) > 0\
+                or blender_object.data.get("rigify_target_rig"):
+            return True
+
+        if check_bones:
+            for bone in blender_object.pose.bones:
+                if bone.get("rigify_type"):
+                    return True
+
+        return False
+
+    @staticmethod
+    def find_rigify_metarig_by_rig(blender_object):
+        if not ObjectService.object_is_generated_rigify_rig(blender_object):
             return None
 
-        type_name = str(mpfb_type_name).strip()
+        for obj in bpy.data.objects:
+            if obj.type == "ARMATURE" and obj.data.get("rigify_target_rig") == blender_object:
+                return obj
+        else:
+            return None
 
-        if ObjectService.object_is(blender_object, type_name):
-            return blender_object
+    @staticmethod
+    def find_rigify_rig_by_metarig(blender_object):
+        if not blender_object or blender_object.type != "ARMATURE" or blender_object.data.get("rig_id"):
+            return None
 
-        parent = blender_object.parent
-        if parent:
-            if ObjectService.object_is(parent, type_name):
-                return parent
-            for parents_child in ObjectService.get_list_of_children(parent):
-                if ObjectService.object_is(parents_child, type_name):
-                    return parents_child
+        return blender_object.data.get("rigify_target_rig", None)
 
-        for objects_child in ObjectService.get_list_of_children(blender_object):
-            if ObjectService.object_is(objects_child, type_name):
-                return objects_child
+    @staticmethod
+    def find_armature_context_objects(
+            armature_object: bpy.types.Object | None, *, operator=None,
+            is_subrig: bool | None = None, only_basemesh=False,
+            ) -> tuple[bpy.types.Object | None, bpy.types.Object | None, bpy.types.Object | None]:
+        """
+        Find base rig, basemesh, and directly controlled mesh (same as basemesh unless subrig) for the given rig.
+        When searching for meshes, automatically jumps from rigify metarigs to the generated rig when necessary.
+        To determine success, check direct_mesh for None.
+        """
 
-        return None
+        if not armature_object:
+            if operator:
+                operator.report({'ERROR'}, "Could not find the armature object.")
+            return None, None, None
+
+        assert isinstance(armature_object, bpy.types.Object) and armature_object.type == 'ARMATURE'
+
+        if is_subrig is False:
+            # When explicitly defining the rig status as non-subrig, use it as the skeleton
+            base_rig = armature_object
+        else:
+            base_rig = ObjectService.find_object_of_type_amongst_nearest_relatives(
+                armature_object, mpfb_type_name="Skeleton", only_parents=True)
+
+        if base_rig is None:
+            if operator:
+                operator.report(
+                    {'ERROR'}, "Could not find related main skeleton. It should have been a parent of the armature.")
+
+            return None, None, None
+
+        else:
+            basemesh = ObjectService.find_object_of_type_amongst_nearest_relatives(
+                base_rig, mpfb_type_name="Basemesh", only_children=True)
+
+            if not basemesh:
+                basemesh = ObjectService.find_object_of_type_amongst_nearest_relatives(
+                    ObjectService.find_rigify_rig_by_metarig(base_rig),
+                    mpfb_type_name="Basemesh", only_children=True)
+
+            if only_basemesh:
+                direct_mesh = None
+
+            elif basemesh is None:
+                if operator:
+                    operator.report({'ERROR'},
+                                    "Could not find related base mesh. "
+                                    "It should have been a sibling or child of the armature.")
+
+                direct_mesh = None
+
+            else:
+                if is_subrig is None:
+                    is_subrig = ObjectService.object_is_subrig(armature_object)
+
+                if is_subrig:
+                    child_meshes = list(ObjectService.find_deformed_child_meshes(armature_object))
+
+                    if not child_meshes:
+                        child_meshes = list(ObjectService.find_deformed_child_meshes(
+                            ObjectService.find_rigify_rig_by_metarig(armature_object)))
+
+                    if len(child_meshes) != 1:
+                        if operator:
+                            operator.report({'ERROR'},
+                                            "Could not find a unique deformed clothing mesh. "
+                                            "It should be a child of the armature.")
+                        direct_mesh = None
+                    else:
+                        direct_mesh = child_meshes[0]
+                else:
+                    if base_rig != armature_object:
+                        if operator:
+                            operator.report({'ERROR'}, "The armature is neither a sub-rig nor main skeleton.")
+                        direct_mesh = None
+                    else:
+                        direct_mesh = basemesh
+
+            return base_rig, basemesh, direct_mesh
 
     @staticmethod
     def load_wavefront_file(filepath, context=None):
@@ -238,6 +510,7 @@ class ObjectService:
         vertex_data = basemesh.data.vertices
         shape_key = None
         key_name = None
+
         if take_shape_keys_into_account and basemesh.data.shape_keys and basemesh.data.shape_keys.key_blocks and len(basemesh.data.shape_keys.key_blocks) > 0:
             from .targetservice import TargetService
             key_name = "temporary_lowest_point_key." + str(random.randrange(1000, 9999))

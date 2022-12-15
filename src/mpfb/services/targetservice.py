@@ -7,6 +7,7 @@ from mpfb.services.locationservice import LocationService
 from mpfb.entities.objectproperties import GeneralObjectProperties
 from mpfb.entities.objectproperties import HumanObjectProperties
 from mpfb.entities.primitiveprofiler import PrimitiveProfiler
+from mpfb.services.objectservice import ObjectService
 
 _LOG = LogService.get_logger("services.targetservice")
 
@@ -132,6 +133,9 @@ class TargetService:
         _LOG.enter()
         profiler = PrimitiveProfiler("TargetService")
         profiler.enter("create_shape_key")
+
+        assert blender_object.mode == "OBJECT"
+
         if also_create_basis:
             if not blender_object.data.shape_keys or not "Basis" in blender_object.data.shape_keys.key_blocks:
                 blender_object.shape_key_add(name="Basis", from_mix=False)
@@ -356,7 +360,7 @@ class TargetService:
         global _MIRROR_LEFT
         global _MIRROR_RIGHT
 
-        object_type = GeneralObjectProperties.get_value("object_type", entity_reference=blender_object)
+        object_type = ObjectService.get_object_type(blender_object)
         if object_type != "Basemesh":
             raise ValueError("Don't know how to symmetrize this kind of object")
         TargetService._load_mirror_table()

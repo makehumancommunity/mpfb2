@@ -1,0 +1,7 @@
+{
+    "type": "string",
+    "name": "head_cube_name",
+    "description": "Name of the head joint",
+    "label": "Head Joint",
+    "default": ""
+}

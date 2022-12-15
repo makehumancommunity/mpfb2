@@ -1,0 +1,7 @@
+{
+    "type": "boolean",
+    "name": "save_masks",
+    "description": "When saving weights, save all groups starting with 'mhmask-'",
+    "label": "Save masks",
+    "default": true
+}

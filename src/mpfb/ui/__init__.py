@@ -46,6 +46,7 @@ from mpfb.ui.basemeshops import *
 from mpfb.ui.poseops import *
 from mpfb.ui.sculpt import *
 from mpfb.ui.matops import *
+from mpfb.ui.boneops import *
 
 # System
 from mpfb.ui.webresources import *

@@ -1,0 +1,7 @@
+{
+    "type": "string",
+    "name": "head_strategy",
+    "description": "Strategy used to position the bone head",
+    "label": "Head Strategy",
+    "default": ""
+}

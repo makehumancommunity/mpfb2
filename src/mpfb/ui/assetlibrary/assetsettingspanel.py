@@ -31,6 +31,8 @@ class MPFB_PT_Asset_Settings_Panel(Abstract_Panel):
             "specific_delete_group",
             "set_up_rigging",
             "interpolate_weights",
+            "import_subrig",
+            "import_weights",
             "add_subdiv_modifier",
             "subdiv_levels",
             "makeclothes_metadata"

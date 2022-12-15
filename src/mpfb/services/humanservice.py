@@ -172,12 +172,7 @@ class HumanService:
         if not "clothes" in human_info:
             human_info["clothes"] = []
 
-        parent = basemesh
-        if basemesh.parent:
-            parent = basemesh.parent
-
-        clothes = ObjectService.get_list_of_children(parent)
-        for clothes_obj in clothes:
+        for clothes_obj in ObjectService.find_all_objects_of_type_amongst_nearest_relatives(basemesh, "Clothes"):
             _LOG.debug("Found clothes", clothes_obj)
             asset_source = GeneralObjectProperties.get_value("asset_source", entity_reference=clothes_obj)
             if not asset_source is None:
@@ -305,7 +300,9 @@ class HumanService:
             _LOG.debug("There is no corrective information for", uuid)
 
     @staticmethod
-    def add_mhclo_asset(mhclo_file, basemesh, asset_type="Clothes", subdiv_levels=1, material_type="MAKESKIN", alternative_materials=None, color_adjustments=None):
+    def add_mhclo_asset(mhclo_file, basemesh, asset_type="Clothes", subdiv_levels=1, material_type="MAKESKIN",
+                        alternative_materials=None, color_adjustments=None,
+                        set_up_rigging=True, interpolate_weights=True, import_subrig=True, import_weights=True):
         mhclo = Mhclo()
         mhclo.load(mhclo_file) # pylint: disable=E1101
         clothes = mhclo.load_mesh(bpy.context)
@@ -402,10 +399,11 @@ class HumanService:
                 modifier.invert_vertex_group = True
 
         rig = ObjectService.find_object_of_type_amongst_nearest_relatives(basemesh, "Skeleton")
-        if rig:
-            clothes.parent = rig
-            ClothesService.interpolate_weights(basemesh, clothes, rig, mhclo)
-            RigService.ensure_armature_modifier(clothes, rig, move_to_top=False)
+
+        if rig and set_up_rigging:
+            ClothesService.set_up_rigging(
+                basemesh, clothes, rig, mhclo, interpolate_weights=interpolate_weights,
+                import_subrig=import_subrig, import_weights=import_weights)
         else:
             clothes.parent = basemesh
 
@@ -423,9 +421,8 @@ class HumanService:
         rig = None
         if "rig" in human_info and not human_info["rig"] is None and not str(human_info["rig"]).strip() == "":
             rig_name = human_info["rig"]
-            if not "rigify" in rig_name:
-                _LOG.debug("Adding a standard rig:", rig_name)
-                rig = HumanService.add_standard_rig(basemesh, rig_name, import_weights=True)
+            _LOG.debug("Adding a standard rig:", rig_name)
+            rig = HumanService.add_builtin_rig(basemesh, rig_name, import_weights=True)
         else:
             _LOG.debug("Not adding a rig, since rig setting is empty")
 
@@ -1063,26 +1060,61 @@ class HumanService:
         return basemesh
 
     @staticmethod
-    def add_standard_rig(basemesh, rig_name, import_weights=True):
+    def add_builtin_rig(basemesh, rig_name, *, import_weights=True, operator=None):
+        is_rigify = rig_name.startswith("rigify.")
+        rig_name_base = rig_name[7:] if is_rigify else rig_name
+
+        # Determine the rig file name
         rigs_dir = LocationService.get_mpfb_data("rigs")
-        standard_dir = os.path.join(rigs_dir, "standard")
-        rig_file = os.path.join(standard_dir, "rig." + rig_name + ".json")
+        rigs_subdir = os.path.join(rigs_dir, "rigify" if is_rigify else "standard")
+
+        rig_file = os.path.join(rigs_subdir, "rig." + rig_name_base + ".json")
+
+        if not os.path.isfile(rig_file):
+            if operator is not None:
+                operator.report({'ERROR'}, "Could not find the rig file: " + rig_file)
+            return None
+
+        # Load the rig from file
         rig = Rig.from_json_file_and_basemesh(rig_file, basemesh)
         armature_object = rig.create_armature_and_fit_to_basemesh()
+
+        # Assign a name to the armature
+        name = basemesh.name + (".metarig" if is_rigify else ".rig")
+        armature_object.name = armature_object.data.name = name
+
+        # Type-specific handling
+        if is_rigify:
+            assert len(armature_object.data.rigify_layers) > 0
+
+            if hasattr(armature_object.data, 'rigify_rig_basename'):
+                armature_object.data.rigify_rig_basename = "Human.rigify"
+
+        else:
+            RigService.normalize_rotation_mode(armature_object)
+
+        # Parent the mesh to the rig
         basemesh.parent = armature_object
 
         armature_object.location = basemesh.location
         basemesh.location = (0.0, 0.0, 0.0)
 
+        # Load weights and create the armature modifier
         if import_weights:
-            weights_file = os.path.join(standard_dir, "weights." + rig_name + ".json")
-            weights = dict()
-            with open(weights_file, 'r') as json_file:
-                weights = json.load(json_file)
-            RigService.apply_weights(armature_object, basemesh, weights)
-            RigService.ensure_armature_modifier(basemesh, armature_object)
+            for try_rig in RigService.get_rig_weight_fallbacks(rig_name):
+                if try_rig.startswith("rigify."):
+                    try_rig = try_rig[7:]
 
-        RigService.normalize_rotation_mode(armature_object)
+                weights_file = os.path.join(rigs_subdir, "weights." + try_rig + ".json")
+
+                if os.path.isfile(weights_file):
+                    RigService.load_weights(armature_object, basemesh, weights_file)
+                    break
+            else:
+                if operator is not None:
+                    operator.report({'ERROR'}, "Could not find the weights file")
+
+            RigService.ensure_armature_modifier(basemesh, armature_object)
 
         return armature_object
 
@@ -1101,37 +1133,47 @@ class HumanService:
 
         _LOG.dump("basemesh, rig, parent_object", (basemesh, rig, parent_object))
 
-        children = ObjectService.get_list_of_children(parent_object)
-        _LOG.dump("children", children)
-
-        for child in children:
-            object_type = GeneralObjectProperties.get_value("object_type", entity_reference=child)
-            if object_type and not object_type in ["Basemesh", "Skeleton"]:
-                _LOG.debug("Will try to refit child proxy", (object_type, child))
-                ClothesService.fit_clothes_to_human(child, basemesh)
+        for child in ObjectService.find_related_mesh_assets(parent_object, only_children=True):
+            _LOG.debug("Will try to refit child proxy", child)
+            ClothesService.fit_clothes_to_human(child, basemesh, set_parent=False)
 
         if rig:
-            RigService.refit_existing_armature(rig)
+            RigService.refit_existing_armature(rig, basemesh)
+
+            subrigs = []
+
+            for child in ObjectService.find_all_objects_of_type_amongst_nearest_relatives(
+                    parent_object, "Subrig", only_children=True):
+                # Refit metarigs instead of generated rigs
+                if ObjectService.object_is_generated_rigify_rig(child):
+                    child = ObjectService.find_rigify_metarig_by_rig(child)
+
+                if child and child not in subrigs:
+                    subrigs.append(child)
+
+            if subrigs:
+                rig.data.pose_position = "REST"
+
+                try:
+                    parent_rig = Rig.from_given_basemesh_and_armature(basemesh, rig, fast_positions=True)
+
+                    for child in subrigs:
+                        _LOG.debug("Will try to refit subrig", child)
+                        RigService.refit_existing_subrig(child, parent_rig)
+                finally:
+                    rig.data.pose_position = "POSE"
 
     @staticmethod
     def get_asset_sources_of_equipped_mesh_assets(basemesh):
         if not basemesh:
             return []
         _LOG.debug("Provided basemesh", basemesh)
-        parent = basemesh
-        if basemesh.parent and ObjectService.object_is_skeleton(basemesh.parent):
-            parent = basemesh.parent
-        _LOG.debug("Actual parent", basemesh)
 
         sources = []
-        children = ObjectService.get_list_of_children(parent)
-        for child in children:
-            child_type = ObjectService.get_object_type(child)
-            _LOG.debug("Child, type", (child, child_type))
-            if child_type in ["Proxymeshes", "Clothes", "Eyes", "Tongue", "Teeth", "Hair"]:
-                source = GeneralObjectProperties.get_value("asset_source", entity_reference=child)
-                _LOG.debug("Child source", source)
-                sources.append(source)
+        for child in ObjectService.find_related_mesh_assets(basemesh, strict_parent=True):
+            source = GeneralObjectProperties.get_value("asset_source", entity_reference=child)
+            _LOG.debug("Child source", source)
+            sources.append(source)
         return sources
 
     @staticmethod
@@ -1163,5 +1205,10 @@ class HumanService:
             for modifier in obj.modifiers:
                 if modifier.type == 'MASK' and modifier.name == delete_name:
                     obj.modifiers.remove(modifier)
+
+        subrig = ObjectService.find_object_of_type_amongst_nearest_relatives(asset, "Subrig", only_parents=True)
+
+        if subrig and asset in ObjectService.find_deformed_child_meshes(subrig):
+            bpy.data.objects.remove(subrig)
 
         bpy.data.objects.remove(asset)

@@ -1,3 +1,4 @@
+from mpfb.entities.objectproperties import GeneralObjectProperties
 from mpfb.services.logservice import LogService
 from mpfb.services.materialservice import MaterialService
 from mpfb.services.objectservice import ObjectService
@@ -7,15 +8,19 @@ import bpy, json, math
 from bpy.types import StringProperty
 from bpy_extras.io_utils import ExportHelper
 
+from mpfb.ui.developer.developerpanel import DEVELOPER_PROPERTIES
+
 _LOG = LogService.get_logger("developer.operators.saverig")
+
 
 class MPFB_OT_Save_Rig_Operator(bpy.types.Operator, ExportHelper):
     """Save rig definition as json"""
     bl_idname = "mpfb.save_rig"
     bl_label = "Save rig"
-    bl_options = {'REGISTER'}
+    bl_options = {'REGISTER', 'UNDO'}
 
-    filename_ext = '.json'
+    filename_ext = '.mpfbskel'
+    check_extension = False
 
     @classmethod
     def poll(cls, context):
@@ -34,29 +39,46 @@ class MPFB_OT_Save_Rig_Operator(bpy.types.Operator, ExportHelper):
 
         armature_object = context.object
 
-        basemesh = ObjectService.find_object_of_type_amongst_nearest_relatives(armature_object, mpfb_type_name="Basemesh")
+        rig_subrig = DEVELOPER_PROPERTIES.get_value("rig_subrig", entity_reference=context.scene)
+        rig_save_rigify = DEVELOPER_PROPERTIES.get_value("rig_save_rigify", entity_reference=context.scene)
+        rig_refit = DEVELOPER_PROPERTIES.get_value("rig_refit", entity_reference=context.scene)
 
-        if basemesh is None:
-            self.report({'ERROR'}, "Could not find related base mesh. It should have been parent or child of armature object.")
+        bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
+
+        rig = Rig.from_given_armature_context(
+            armature_object, operator=self, is_subrig=bool(rig_subrig), rigify_ui=rig_save_rigify)
+
+        if not rig:
             return {'FINISHED'}
 
-        rig = Rig.from_given_basemesh_and_armature_as_active_object(basemesh)
+        if rig_refit:
+            rig.save_strategies(refit=True)
+            rig.reposition_edit_bone(developer=True)
+
+            object_type = "Subrig" if rig_subrig else "Skeleton"
+            GeneralObjectProperties.set_value("object_type", object_type, entity_reference=armature_object)
 
         _LOG.dump("final rig_definition", rig.rig_definition)
-
-        unmatched_bone_names = rig.list_unmatched_bones()
-        unmatched = len(unmatched_bone_names)
-
-        if unmatched > 0:
-            self.report({'WARNING'}, "There were " + str(unmatched) + " bones that could not be matched to cube or vertex")
-            _LOG.warn("Unmatched bone names:", unmatched_bone_names)
 
         absolute_file_path = bpy.path.abspath(self.filepath)
         _LOG.debug("absolute_file_path", absolute_file_path)
 
         with open(absolute_file_path, "w") as json_file:
-            json.dump(rig.rig_definition, json_file, indent=4, sort_keys=True)
+            json.dump(rig.rig_header, json_file, indent=4, sort_keys=True)
             self.report({'INFO'}, "JSON file written to " + absolute_file_path)
+
+        unmatched_bone_names = rig.list_unmatched_bones()
+        unmatched = len(unmatched_bone_names)
+
+        if unmatched > 0:
+            self.report({'WARNING'},
+                        "There were " + str(unmatched) + " bones that could not be matched to cube or vertex")
+            _LOG.warn("Unmatched bone names:", unmatched_bone_names)
+
+        if rig.bad_constraint_targets:
+            self.report({'WARNING'},
+                        "There were " + str(len(rig.bad_constraint_targets)) + " bones with bad constraint targets")
+            _LOG.warn("Bad target bone names:", list(rig.bad_constraint_targets))
 
         return {'FINISHED'}
 

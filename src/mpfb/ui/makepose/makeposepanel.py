@@ -3,8 +3,8 @@
 import bpy
 from mpfb import ClassManager
 from mpfb.services.logservice import LogService
+from mpfb.services.objectservice import ObjectService
 from mpfb.services.uiservice import UiService
-from mpfb.entities.objectproperties import GeneralObjectProperties
 from mpfb.ui.abstractpanel import Abstract_Panel
 from mpfb.ui.makepose import MakePoseProperties
 
@@ -72,7 +72,7 @@ class MPFB_PT_MakePose_Panel(Abstract_Panel):
         if blender_object is None:
             return
 
-        object_type = GeneralObjectProperties.get_value("object_type", entity_reference=blender_object)
+        object_type = ObjectService.get_object_type(blender_object)
 
         if object_type != "Skeleton":
             return

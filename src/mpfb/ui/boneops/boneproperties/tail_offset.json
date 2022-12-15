@@ -1,0 +1,7 @@
+{
+    "type": "vector_location",
+    "name": "tail_offset",
+    "description": "Arbitrary offset of the tail",
+    "label": "Tail Offset",
+    "default": [0.0, 0.0, 0.0]
+}

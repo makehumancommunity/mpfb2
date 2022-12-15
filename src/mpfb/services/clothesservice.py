@@ -1,12 +1,17 @@
 """This module contains utility functions for clothes."""
 
-import random, os
+import random, os, bpy
+
+import bmesh
 from mathutils import Vector
+
+from mpfb.entities.rig import Rig
 from mpfb.services.objectservice import ObjectService
 from mpfb.services.logservice import LogService
 from mpfb.services.assetservice import AssetService
 from mpfb.entities.objectproperties import GeneralObjectProperties
 from mpfb.entities.clothes.mhclo import Mhclo
+from mpfb.services.rigservice import RigService
 
 _LOG = LogService.get_logger("services.clothesservice")
 
@@ -18,7 +23,7 @@ class ClothesService:
         raise RuntimeError("You should not instance ClothesService. Use its static methods instead.")
 
     @staticmethod
-    def fit_clothes_to_human(clothes, basemesh, mhclo=None):
+    def fit_clothes_to_human(clothes, basemesh, mhclo=None, set_parent=True):
         """Move clothes vertices so they fit the current shape of the base mesh."""
 
         _LOG.dump("Given MHCLO object", mhclo)
@@ -34,7 +39,7 @@ class ClothesService:
 
         if mhclo is None:
             mhclo_fragment = GeneralObjectProperties.get_value("asset_source", entity_reference=clothes)
-            object_type = GeneralObjectProperties.get_value("object_type", entity_reference=clothes)
+            object_type = ObjectService.get_object_type(clothes)
 
             if mhclo_fragment and object_type:
                 mhclo_path = AssetService.find_asset_absolute_path(mhclo_fragment, str(object_type).lower())
@@ -85,12 +90,38 @@ class ClothesService:
         _LOG.debug("x_scale, y_scale, z_scale", (mhclo.x_scale, mhclo.y_scale, mhclo.z_scale))
         _LOG.debug("x_size, y_size, z_size", (x_size, y_size, z_size))
 
-        clothes_vertices = mhclo.clothes.data.vertices
+        mesh = mhclo.clothes.data
+        assert isinstance(mesh, bpy.types.Mesh)
+
+        edit_bmesh = None
+        current_shape_settings = None
+        current_active_object = bpy.context.view_layer.objects.active
+
+        # If the mesh has shape keys, switch to edit mode to update.
+        if mesh.shape_keys and len(mesh.shape_keys.key_blocks) > 0:
+            bpy.context.view_layer.objects.active = mhclo.clothes
+
+            current_shape_settings = (mhclo.clothes.active_shape_key_index,
+                                      mhclo.clothes.use_shape_key_edit_mode,
+                                      mhclo.clothes.show_only_shape_key)
+
+            mhclo.clothes.active_shape_key_index = 0
+            mhclo.clothes.use_shape_key_edit_mode = True
+            mhclo.clothes.show_only_shape_key = True
+
+            bpy.ops.object.mode_set(mode='EDIT', toggle=False)
+            assert mhclo.clothes.mode == 'EDIT'
+
+            edit_bmesh = bmesh.from_edit_mesh(mesh)
+            clothes_vertices = edit_bmesh.verts
+
+        else:
+            clothes_vertices = mesh.vertices
 
         _LOG.debug("About to try to match vertices: ", len(clothes_vertices))
         _LOG.dump("Verts", mhclo.verts)
 
-        for clothes_vertex_number in range(len(clothes_vertices)):
+        for clothes_vertex_number, clothes_vertex in enumerate(clothes_vertices):
             vertex_match_info = mhclo.verts[clothes_vertex_number]
             _LOG.dump("Vertex match info", (clothes_vertex_number, vertex_match_info))
             (human_vertex1, human_vertex2, human_vertex3) = vertex_match_info["verts"]
@@ -101,19 +132,31 @@ class ClothesService:
                 continue
 
             offset = [vertex_match_info["offsets"][0]*x_size, vertex_match_info["offsets"][1]*z_size, vertex_match_info["offsets"][2]*y_size]
-            clothes_vertices[clothes_vertex_number].co = \
+            clothes_vertex.co = \
                 vertex_match_info["weights"][0] * human_vertices[human_vertex1].co + \
                 vertex_match_info["weights"][1] * human_vertices[human_vertex2].co + \
                 vertex_match_info["weights"][2] * human_vertices[human_vertex3].co + \
                 Vector(offset)
 
+        if edit_bmesh:
+            bmesh.update_edit_mesh(mesh, destructive=False)
+
+            bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
+
+            (mhclo.clothes.active_shape_key_index,
+             mhclo.clothes.use_shape_key_edit_mode,
+             mhclo.clothes.show_only_shape_key) = current_shape_settings
+
+            bpy.context.view_layer.objects.active = current_active_object
+
         # We need to take into account that the base mesh might be rigged. If it is, we'll want the rig position
         # rather than the basemesh position
-        if basemesh.parent:
-            clothes.location = (0.0, 0.0, 0.0)
-            clothes.parent = basemesh.parent
-        else:
-            clothes.location = basemesh.location
+        if set_parent:
+            if basemesh.parent:
+                clothes.location = (0.0, 0.0, 0.0)
+                clothes.parent = basemesh.parent
+            else:
+                clothes.location = basemesh.location
 
         # As we are finished with the combined shape key we can now remove it
         basemesh.shape_key_remove(shape_key)
@@ -211,6 +254,15 @@ class ClothesService:
             modifier.invert_vertex_group = True
 
     @staticmethod
+    def find_clothes_absolute_path(clothes_object):
+        asset_source = GeneralObjectProperties.get_value("asset_source", entity_reference=clothes_object)
+        object_type = ObjectService.get_object_type(clothes_object).lower()
+        _LOG.debug("asset source, object type", (asset_source, object_type))
+
+        if asset_source and object_type:
+            return AssetService.find_asset_absolute_path(asset_source, object_type)
+
+    @staticmethod
     def interpolate_vertex_group_from_basemesh_to_clothes(basemesh, clothes_object, vertex_group_name, match_cutoff=0.3, mhclo_full_path=None):
         _LOG.enter()
         relevant_basemesh_vert_idxs = ObjectService.get_vertex_indexes_for_vertex_group(basemesh, vertex_group_name)
@@ -219,10 +271,7 @@ class ClothesService:
         _LOG.debug("Supplied mhclo_full_path", mhclo_full_path)
         _LOG.debug("clothes_object", clothes_object)
         if not mhclo_full_path:
-            asset_source = GeneralObjectProperties.get_value("asset_source", entity_reference=clothes_object)
-            object_type = str(GeneralObjectProperties.get_value("object_type", entity_reference=clothes_object)).lower()
-            _LOG.debug("asset source, object type", (asset_source, object_type))
-            mhclo_full_path = AssetService.find_asset_absolute_path(asset_source, object_type)
+            mhclo_full_path = ClothesService.find_clothes_absolute_path(clothes_object)
         _LOG.debug("final mhclo full path", mhclo_full_path)
 
         new_vert_group = clothes_object.vertex_groups.new(name=vertex_group_name)
@@ -348,6 +397,71 @@ class ClothesService:
                         if int(group.group) == group_index:
                             group.weight = weight
 
+    @staticmethod
+    def set_up_rigging(basemesh, clothes, rig, mhclo, *,
+                       interpolate_weights=True, import_subrig=True, import_weights=True):
+        """Set up weights and a custom sub-rig for the given clothes object."""
+
+        subrig = None
+
+        if import_subrig:
+            file_name = mhclo.basename + ".mpfbskel"
+
+            if os.path.isfile(file_name):
+                parent_rig = Rig.from_given_basemesh_and_armature(basemesh, rig, fast_positions=True)
+                subrig_data = Rig.from_json_file_and_basemesh(file_name, clothes, parent=parent_rig)
+                subrig = subrig_data.create_armature_and_fit_to_basemesh(add_modifier=False)
+
+                subrig.name = subrig.data.name = clothes.name + ".rig"
+
+                if mhclo.uuid:
+                    GeneralObjectProperties.set_value("uuid", mhclo.uuid, entity_reference=subrig)
+
+                ObjectService.activate_blender_object(clothes, deselect_all=True)
+
+        if subrig:
+            clothes.parent = subrig
+            subrig.parent = rig
+        else:
+            clothes.parent = rig
+
+        if interpolate_weights:
+            ClothesService.interpolate_weights(basemesh, clothes, rig, mhclo)
+
+        if import_weights:
+            ClothesService.load_custom_weights(clothes, rig, subrig, mhclo)
+
+        RigService.ensure_armature_modifier(clothes, rig, subrig=subrig)
+
+    @staticmethod
+    def load_custom_weights(clothes, armature_object, subrig, mhclo):
+        """Try to load custom weights for the given clothes and rig."""
+
+        armatures = [armature_object]
+        if subrig:
+            armatures.append(subrig)
+
+        def try_load_weights(suffix, all=False):
+            file_name = mhclo.get_weights_filename(suffix)
+
+            if os.path.isfile(file_name):
+                RigService.load_weights(armatures, clothes, file_name, all=all, replace=True)
+                return True
+
+        # Load groups matching bones from the common file.
+        try_load_weights(None)
+
+        # Load all groups - use for masks not matching the mhmask pattern.
+        try_load_weights("force", all=True)
+
+        # Load groups matching bones from the rig-specific file.
+        rig_type = RigService.identify_rig(armature_object)
+        rig_type = rig_type.replace("rigify_generated", "rigify")
+
+        if "unknown" not in rig_type:
+            for try_type in RigService.get_rig_weight_fallbacks(rig_type):
+                if try_load_weights(try_type):
+                    break
 
     @staticmethod
     def set_makeclothes_object_properties_from_mhclo(clothes_object, mhclo, delete_group_name=None):

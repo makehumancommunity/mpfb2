@@ -34,6 +34,8 @@ class MPFB_OT_Load_Library_Clothes_Operator(bpy.types.Operator):
         # TODO: specific_delete_group = ASSET_SETTINGS_PROPERTIES.get_value("specific_delete_group", entity_reference=scene)
         set_up_rigging = ASSET_SETTINGS_PROPERTIES.get_value("set_up_rigging", entity_reference=scene)
         interpolate_weights = ASSET_SETTINGS_PROPERTIES.get_value("interpolate_weights", entity_reference=scene)
+        import_subrig = ASSET_SETTINGS_PROPERTIES.get_value("import_subrig", entity_reference=scene)
+        import_weights = ASSET_SETTINGS_PROPERTIES.get_value("import_weights", entity_reference=scene)
         # TODO: makeclothes_metadata = ASSET_SETTINGS_PROPERTIES.get_value("makeclothes_metadata", entity_reference=scene)
         add_subdiv_modifier = ASSET_SETTINGS_PROPERTIES.get_value("add_subdiv_modifier", entity_reference=scene)
         subdiv_levels = ASSET_SETTINGS_PROPERTIES.get_value("subdiv_levels", entity_reference=scene)
@@ -73,7 +75,10 @@ class MPFB_OT_Load_Library_Clothes_Operator(bpy.types.Operator):
         bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
 
         _LOG.debug("Will call add_mhclo_asset: (asset_type, material_type)", (self.object_type, self.material_type))
-        HumanService.add_mhclo_asset(self.filepath, basemesh, asset_type=self.object_type, subdiv_levels=subdiv_levels, material_type=self.material_type)
+        HumanService.add_mhclo_asset(
+            self.filepath, basemesh, asset_type=self.object_type, subdiv_levels=subdiv_levels,
+            material_type=self.material_type, set_up_rigging=set_up_rigging,
+            interpolate_weights=interpolate_weights, import_subrig=import_subrig, import_weights=import_weights)
 
         self.report({'INFO'}, "Clothes were loaded")
         return {'FINISHED'}

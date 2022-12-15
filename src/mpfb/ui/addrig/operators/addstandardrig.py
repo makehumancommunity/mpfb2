@@ -1,11 +1,10 @@
 """Operator for adding a standard rig."""
 
-import bpy, os, json
+import bpy
+
+from mpfb.services.humanservice import HumanService
 from mpfb.services.logservice import LogService
 from mpfb.services.objectservice import ObjectService
-from mpfb.services.locationservice import LocationService
-from mpfb.services.rigservice import RigService
-from mpfb.entities.rig import Rig
 from mpfb import ClassManager
 
 _LOG = LogService.get_logger("addrig.add_standard_rig")
@@ -37,25 +36,7 @@ class MPFB_OT_AddStandardRigOperator(bpy.types.Operator):
         import_weights = ADD_RIG_PROPERTIES.get_value("import_weights", entity_reference=scene)
         standard_rig = ADD_RIG_PROPERTIES.get_value("standard_rig", entity_reference=scene)
 
-        rigs_dir = LocationService.get_mpfb_data("rigs")
-        standard_dir = os.path.join(rigs_dir, "standard")
-
-        rig_file = os.path.join(standard_dir, "rig." + standard_rig + ".json")
-
-        rig = Rig.from_json_file_and_basemesh(rig_file, basemesh)
-        armature_object = rig.create_armature_and_fit_to_basemesh()
-
-        basemesh.parent = armature_object
-
-        if import_weights:
-            weights_file = os.path.join(standard_dir, "weights." + standard_rig + ".json")
-            weights = dict()
-            with open(weights_file, 'r') as json_file:
-                weights = json.load(json_file)
-            RigService.apply_weights(armature_object, basemesh, weights)
-            RigService.ensure_armature_modifier(basemesh, armature_object)
-
-        RigService.normalize_rotation_mode(armature_object)
+        HumanService.add_builtin_rig(basemesh, standard_rig, import_weights=import_weights, operator=self)
 
         self.report({'INFO'}, "A rig was added")
         return {'FINISHED'}

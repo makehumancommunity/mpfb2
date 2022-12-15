@@ -1,0 +1,7 @@
+{
+    "type": "boolean",
+    "name": "developer_mode",
+    "description": "This rig is initialized for MPFB rig development",
+    "label": "Developer Mode",
+    "default": false
+}

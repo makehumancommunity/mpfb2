@@ -1,0 +1,7 @@
+{
+    "type": "string",
+    "name": "roll_strategy",
+    "description": "Strategy used to set the bone roll",
+    "label": "Roll Strategy",
+    "default": ""
+}

@@ -45,7 +45,6 @@ class MPFB_PT_Add_Rig_Panel(Abstract_Panel):
         props = [
             "name",
             "delete_after_generate",
-            "teeth"
             ]
         ADD_RIG_PROPERTIES.draw_properties(scene, box, props)
         box.operator('mpfb.generate_rigify_rig')
@@ -65,8 +64,8 @@ class MPFB_PT_Add_Rig_Panel(Abstract_Panel):
         if not armature_object:
             self._standard_rig(scene, layout)
             self._add_rigify_rig(scene, layout)
-        else:
-            rig_type = RigService.identify_rig(armature_object)
+        elif ObjectService.object_is_any_skeleton(context.active_object):
+            rig_type = RigService.identify_rig(context.active_object)
             if rig_type.startswith("rigify."):
                 self._generate_rigify_rig(scene, layout)
 

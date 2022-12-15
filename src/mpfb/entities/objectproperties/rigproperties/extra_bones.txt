@@ -1,0 +1,1 @@
+This property is a string list of bone names known to be generated later, used to ensure the necessary weights are loaded.

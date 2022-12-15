@@ -3,10 +3,12 @@
 The code is based on an approach suggested by Andrea Rossato in https://www.youtube.com/watch?v=zmsuLD7hAUA
 """
 
-import bpy
+import bpy, json
 
 from mpfb.services.logservice import LogService
 from mpfb.services.objectservice import ObjectService
+from mpfb.services.systemservice import SystemService
+
 _LOG = LogService.get_logger("rigifyhelpers.rigifyhelpers")
 
 from mpfb.services.rigservice import RigService
@@ -68,35 +70,157 @@ class RigifyHelpers():
             rigify_object = bpy.context.active_object
             rigify_object.show_in_front = True
 
-            child_meshes = ObjectService.get_list_of_children(armature_object)
-            for child_mesh in child_meshes:
-                self._adjust_mesh_for_rigify(child_mesh, rigify_object)
+            self.adjust_children_for_rigify(rigify_object, armature_object)
 
             if not self.keep_meta:
                 bpy.data.objects.remove(armature_object, do_unlink=True)
 
-    def _adjust_mesh_for_rigify(self, child_mesh, rigify_object):
-        all_relevant_bones = []
-        all_relevant_bones.extend(self.get_list_of_spine_bones())
-        all_relevant_bones.extend(self.get_list_of_head_bones())
-        for side in [True, False]:
-            all_relevant_bones.extend(self.get_list_of_leg_bones(side))
-            all_relevant_bones.extend(self.get_list_of_arm_bones(side))
-            all_relevant_bones.extend(self.get_list_of_shoulder_bones(side))
-            for i in range(5):
-                all_relevant_bones.extend(self.get_list_of_finger_bones(i, side))
+    @staticmethod
+    def adjust_children_for_rigify(rigify_object, armature_object):
+        # Build lists first, because adjusting changes parents
+        child_rigs = list(ObjectService.find_related_skeletons(armature_object, only_children=True))
+        child_meshes = list(ObjectService.find_related_mesh_base_or_assets(armature_object, only_children=True))
 
-        for bone_name in all_relevant_bones:
-            if bone_name in child_mesh.vertex_groups:
-                vertex_group = child_mesh.vertex_groups.get(bone_name)
-                _LOG.debug("Renaming vertex group", (child_mesh.name, vertex_group.name, "DEF-" + vertex_group.name))
-                vertex_group.name = "DEF-" + vertex_group.name
+        for child_rig in child_rigs:
+            RigifyHelpers.adjust_skeleton_for_rigify(child_rig, rigify_object, armature_object)
+
+        for child_mesh in child_meshes:
+            RigifyHelpers.adjust_mesh_for_rigify(child_mesh, rigify_object, armature_object)
+
+    @staticmethod
+    def adjust_skeleton_for_rigify(child_rig, rigify_object, old_armature):
+        if child_rig == rigify_object or child_rig == old_armature:
+            return
+
+        from mpfb.entities.rig import Rig
+
+        for bone in child_rig.pose.bones:
+            for con in bone.constraints:
+                if con.type == "ARMATURE":
+                    # As a special case, convert armature constraints bound to a vertex to deform bones
+                    if ObjectService.object_is_subrig(child_rig) and \
+                            Rig.get_armature_constraint_vertex_index(con) is not None:
+                        convert = RigifyHelpers._to_def_bone
+                    else:
+                        convert = RigifyHelpers._to_org_bone
+
+                    for tgt in con.targets:
+                        if tgt.target == old_armature:
+                            tgt.target = rigify_object
+                            tgt.subtarget = convert(tgt.subtarget, rigify_object)
+                else:
+                    if getattr(con, "target", None) == old_armature:
+                        con.target = rigify_object
+
+                        if hasattr(con, "subtarget"):
+                            con.subtarget = RigifyHelpers._to_org_bone(con.subtarget, rigify_object)
+
+        if child_rig.parent == old_armature:
+            child_rig.parent = rigify_object
+
+    @staticmethod
+    def adjust_mesh_for_rigify(child_mesh, rigify_object, old_armature):
+        for vertex_group in child_mesh.vertex_groups:
+            def_name = RigifyHelpers._to_def_bone(vertex_group.name, rigify_object)
+
+            if def_name != vertex_group.name:
+                _LOG.debug("Renaming vertex group", (child_mesh.name, vertex_group.name, def_name))
+                vertex_group.name = def_name
 
         for modifier in child_mesh.modifiers:
-            if isinstance(modifier, bpy.types.ArmatureModifier):
+            if isinstance(modifier, bpy.types.ArmatureModifier) and modifier.object == old_armature:
                 modifier.object = rigify_object
 
-        child_mesh.parent = rigify_object
+        if child_mesh.parent == old_armature:
+            child_mesh.parent = rigify_object
+
+    @staticmethod
+    def _to_org_bone(name, rigify_object):
+        org_name = "ORG-" + name
+
+        if org_name in rigify_object.pose.bones:
+            return org_name
+        else:
+            return name
+
+    @staticmethod
+    def _to_def_bone(name, rigify_object):
+        org_name = "ORG-" + name
+        def_name = "DEF-" + name
+
+        if org_name in rigify_object.pose.bones and def_name in rigify_object.pose.bones:
+            return def_name
+        else:
+            return name
+
+    @staticmethod
+    def load_rigify_ui(armature_object, rigify_ui):
+        assert armature_object == bpy.context.active_object
+
+        if not rigify_ui or not SystemService.check_for_rigify():
+            return
+
+        bpy.ops.armature.rigify_add_bone_groups()
+        bpy.ops.pose.rigify_layer_init()
+
+        armature_object.data.rigify_colors_lock = rigify_ui["rigify_colors_lock"]
+        armature_object.data.rigify_selection_colors.select = rigify_ui["selection_colors"]["select"]
+        armature_object.data.rigify_selection_colors.active = rigify_ui["selection_colors"]["active"]
+
+        for _ in range(len(rigify_ui["colors"]) - len(armature_object.data.rigify_colors)):
+            armature_object.data.rigify_colors.add()
+
+        for color, col in zip(armature_object.data.rigify_colors, rigify_ui["colors"]):
+            color.name = col["name"]
+            color.normal = col["normal"]
+
+        armature_object.data.layers = rigify_ui["layers"]
+
+        for rigify_layer, layer in zip(armature_object.data.rigify_layers, rigify_ui["rigify_layers"]):
+            rigify_layer.name = layer["name"]
+            rigify_layer.row = layer["row"]
+            rigify_layer.selset = layer["selset"]
+            rigify_layer.group = layer["group"]
+
+    @staticmethod
+    def get_rigify_ui(armature_object):
+        if not SystemService.check_for_rigify():
+            return None
+
+        if len(armature_object.data.rigify_layers) == 0:
+            return None
+
+        rigify_ui = dict()
+        rigify_ui["selection_colors"] = dict()
+
+        rigify_ui["rigify_colors_lock"] = armature_object.data.rigify_colors_lock
+        rigify_ui["selection_colors"]["select"] = list(armature_object.data.rigify_selection_colors.select)
+        rigify_ui["selection_colors"]["active"] = list(armature_object.data.rigify_selection_colors.active)
+
+        rigify_ui["colors"] = []
+
+        for color in armature_object.data.rigify_colors:
+            col = dict()
+            col["name"] = str(color.name)
+            col["normal"] = color["normal"].to_list()
+            rigify_ui["colors"].append(col)
+
+        rigify_ui["layers"] = []
+        for layer in armature_object.data.layers:
+            rigify_ui["layers"].append(layer)
+
+        rigify_ui["rigify_layers"] = []
+
+        for rigify_layer in armature_object.data.rigify_layers:
+            layer = dict()
+            layer["name"] = rigify_layer.name
+            layer["row"] = rigify_layer.row
+            layer["selset"] = rigify_layer.selset
+            layer["group"] = rigify_layer.group
+
+            rigify_ui["rigify_layers"].append(layer)
+
+        return rigify_ui
 
     def _set_use_connect_on_bones(self, armature_object, bone_names, exclude_first=True):
         _LOG.enter()
