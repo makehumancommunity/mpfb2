@@ -1,0 +1,78 @@
+# This is a material file for MakeHuman, produced by MakeSkin
+
+// Metadata
+
+name clothes
+license CC0
+
+// Color
+
+diffuseColor 0.5000 0.5000 0.5000
+specularColor 0.3000 0.3000 0.3000
+viewPortColor 0.8000 0.8000 0.8000
+
+// Texture
+
+
+// Intensity
+
+
+// SSS
+
+
+// Various
+
+litsphereTexture lit_leather
+metallic 0.0000
+ior 1.4500
+roughness 0.7000
+shininess 0.3000
+opacity 1.0000
+shadeless False
+wireframe False
+transparent False
+alphaToCoverage True
+backfaceCull True
+depthless False
+castShadows True
+receiveShadows True
+autoBlendSkin False
+
+// Shader properties (only affects how things look in MakeHuman)
+
+shader shaders/glsl/litsphere
+shaderParam litsphereTexture litspheres/lit_leather.png
+
+// The following settings would also have been valid, but do currently not have a value
+//
+// tag
+// description
+// uuid
+// homepage
+// author
+// shaderParam
+// emissiveColor
+// ambientColor
+// diffuseTexture
+// bumpmapTexture
+// normalmapTexture
+// displacementmapTexture
+// specularmapTexture
+// transmissionmapTexture
+// transparencymapTexture
+// roughnessmapTexture
+// metallicmapTexture
+// aomapTexture
+// diffuseIntensity
+// bumpmapIntensity
+// normalmapIntensity
+// displacementMapIntensity
+// specularmapIntensity
+// transparencymapIntensity
+// aomapIntensity
+// sssEnabled
+// sssRScale
+// sssGScale
+// sssBScale
+// blendMaterial
+// translucency

@@ -32,6 +32,9 @@ class _LocationService():
         script_location = os.path.dirname(__file__)
 
         self._mpfb_root = os.path.abspath(os.path.join(script_location, ".."))
+        self._repo_src = os.path.abspath(os.path.realpath(os.path.join(self._mpfb_root, '..')))
+        self._repo_root = os.path.abspath(os.path.join(self._repo_src, '..'))
+        self._test_root = os.path.abspath(os.path.join(self._repo_root, 'test'))
 
         self._mpfb_data = os.path.join(self._mpfb_root, "data")
 
@@ -143,6 +146,13 @@ class _LocationService():
         if not self.is_mh_user_data_enabled():
             return None
         return self._return_path(self._mh_user_data, sub_path)
+
+    def get_mpfb_test(self, sub_path=None):
+        _LOG.enter()
+        return self._return_path(self._test_root, sub_path)
+
+    def is_source_dist(self):
+        return os.path.exists(self._test_root)
 
     def is_mh_user_data_enabled(self):
         return self._mh_user_data is not None
