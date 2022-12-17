@@ -12,6 +12,9 @@ dir to run tests without opening the blender GUI. For this to work, you need to 
 the path to the blender executable in the BLENDER\_EXE environment variable and 
 be able to excute using linux-style path references.
 
+Code coverage is only produced when running headless. A report is then written to
+the tests/coverage directory.
+
 ## Prerequisites
 
 Unit tests will only work if you run MPFB from source. Ie. realpath() of the mpfb addon 

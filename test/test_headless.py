@@ -2,7 +2,7 @@ import pytest
 from mpfb.services.locationservice import LocationService
 
 tests = LocationService.get_mpfb_test("tests")
-retcode = pytest.main(["-x", tests])
+retcode = pytest.main(["--cov-report", "html:coverage", "--cov", "-x", tests])
 if retcode:
     print("Unit tests have finished with error code " + str(retcode) + ". See console output for results.")
 else:

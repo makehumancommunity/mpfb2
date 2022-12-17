@@ -25,7 +25,8 @@ print("Python executable: " + python_exe)
 
 subprocess.call([python_exe, '-m', 'ensurepip'])
 subprocess.call([python_exe, '-m', 'pip', 'install', '--upgrade', 'pip'])
-subprocess.call([python_exe, '-m', 'pip', 'install', '--upgrade', 'pytest', '-t', target])
+subprocess.call([python_exe, '-m', 'pip', 'install', '--upgrade', 'pytest'])
+subprocess.call([python_exe, '-m', 'pip', 'install', '--upgrade', 'pytest-cov'])
 
 print("\nPytest should now be available")
 

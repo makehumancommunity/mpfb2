@@ -1,0 +1,6 @@
+[run]
+omit =
+    */addons/*
+    */modules/*
+    tests/*
+
