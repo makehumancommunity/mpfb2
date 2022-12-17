@@ -1,4 +1,4 @@
-"""Functionality for exporting log files"""
+"""Functionality for running unit tests. See README in the test directory before using this."""
 
 from mpfb.services.logservice import LogService
 from mpfb.services.locationservice import LocationService
