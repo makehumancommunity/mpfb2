@@ -71,7 +71,8 @@ class Rig:
                 rig.rig_definition.update(json_data)
 
         if rig.rig_header.get("scale_factor"):
-            scale_factor = GeneralObjectProperties.get_value("scale_factor", entity_reference=basemesh)
+            scale_factor = GeneralObjectProperties.get_value(
+                "scale_factor", entity_reference=parent.basemesh if parent else basemesh)
             if scale_factor:
                 rig.relative_scale = scale_factor / rig.rig_header["scale_factor"]
 
@@ -111,10 +112,8 @@ class Rig:
 
         rig = Rig(basemesh, armature, parent=parent)
 
-        if scale_factor := (
-                GeneralObjectProperties.get_value("scale_factor", entity_reference=armature) or
-                GeneralObjectProperties.get_value("scale_factor", entity_reference=basemesh)
-                ):
+        if scale_factor := GeneralObjectProperties.get_value(
+                "scale_factor", entity_reference=parent.basemesh if parent else basemesh):
             rig.rig_header["scale_factor"] = scale_factor
 
         rig.build_basemesh_position_info()
