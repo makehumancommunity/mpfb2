@@ -1,5 +1,6 @@
+"""This module contains utility functions for working with objects."""
 
-import bpy, os, json, random, gzip, typing
+import bpy, os, json, random, gzip, typing, string
 from mpfb.services.logservice import LogService
 from mpfb.services.locationservice import LocationService
 from mpfb.entities.objectproperties import GeneralObjectProperties
@@ -20,16 +21,44 @@ _SKELETON_TYPES = ("Skeleton", "Subrig")
 _ALL_TYPES = _SKELETON_TYPES + _MESH_TYPES
 
 class ObjectService:
+    """ObjectService contains various functions for working with objects, such as creating a new object,
+    identifying an object, finding an object an so forth."""
 
     def __init__(self):
         raise RuntimeError("You should not instance ObjectService. Use its static methods instead.")
 
     @staticmethod
+    def random_name():
+        """Generate a random string containing 15 lowercase ascii characters."""
+        letters = string.ascii_lowercase
+        return ''.join(random.choice(letters) for i in range(15))
+
+    @staticmethod
+    def delete_object_by_name(name):
+        """Safely delete an object with a given name. Will gracefully skip doing anything if the object does not exist."""
+        if not name in bpy.data.objects:
+            return
+        object_to_delete = bpy.data.objects[name]
+        if not object_to_delete:
+            return
+        ObjectService.delete_object(object_to_delete)
+
+    @staticmethod
+    def delete_object(object_to_delete):
+        """Safely delete an object with a given name. Will gracefully skip doing anything if the object is None."""
+        if not object_to_delete:
+            return
+        bpy.data.objects.remove(object_to_delete, do_unlink=True)
+
+    @staticmethod
     def object_name_exists(name):
+        """Check if there's an existing object with the given name."""
         return name in bpy.data.objects
 
     @staticmethod
     def ensure_unique_name(desired_name):
+        """Make sure that the name is unique. If no object with the given name exists, return the name unchanged.
+        Otherwise add an incrementing number to the name until there's no name clash."""
         if not ObjectService.object_name_exists(desired_name):
             return desired_name
         for i in range(1, 100):
