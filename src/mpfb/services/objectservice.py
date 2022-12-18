@@ -38,10 +38,7 @@ class ObjectService:
         """Safely delete an object with a given name. Will gracefully skip doing anything if the object does not exist."""
         if not name in bpy.data.objects:
             return
-        object_to_delete = bpy.data.objects[name]
-        if not object_to_delete:
-            return
-        ObjectService.delete_object(object_to_delete)
+        ObjectService.delete_object(bpy.data.objects[name])
 
     @staticmethod
     def delete_object(object_to_delete):
@@ -68,7 +65,19 @@ class ObjectService:
         return desired_name + ".999"
 
     @staticmethod
+    def activate_blender_object(object_to_make_active, *, context=None, deselect_all=False):
+        """Make given object selected and active. Optionally also deselect all other objects."""
+        if deselect_all:
+            ObjectService.deselect_and_deactivate_all()
+
+        object_to_make_active.select_set(True)
+
+        context = context or bpy.context
+        context.view_layer.objects.active = object_to_make_active
+
+    @staticmethod
     def deselect_and_deactivate_all():
+        """Make sure no object is selected nor active."""
         if bpy.context.object:
             try:
                 bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
@@ -110,12 +119,14 @@ class ObjectService:
 
     @staticmethod
     def create_blender_object_with_mesh(name="NewObject"):
+        """Create a new mesh object with a mesh data block."""
         mesh = bpy.data.meshes.new(name + "Mesh")
         obj = bpy.data.objects.new(name, mesh)
         return obj
 
     @staticmethod
     def create_empty(name, empty_type="SPHERE", parent=None):
+        """Create a new empty object, optionally specifying its draw type and parent."""
         empty = bpy.data.objects.new(name=name, object_data=None)
         ObjectService.link_blender_object(empty, parent=parent)
         empty.empty_display_type = empty_type
@@ -132,16 +143,6 @@ class ObjectService:
             object_to_link.parent = parent
 
     @staticmethod
-    def activate_blender_object(object_to_make_active, *, context=None, deselect_all=False):
-        if deselect_all:
-            ObjectService.deselect_and_deactivate_all()
-
-        object_to_make_active.select_set(True)
-
-        context = context or bpy.context
-        context.view_layer.objects.active = object_to_make_active
-
-    @staticmethod
     def get_list_of_children(parent_object):
         children = []
         for potential_child in bpy.data.objects:
@@ -154,6 +155,7 @@ class ObjectService:
         for obj in bpy.data.objects:
             if obj.data == id_data:
                 return obj
+        return None
 
     @staticmethod
     def get_object_type(blender_object) -> str:
@@ -382,8 +384,7 @@ class ObjectService:
         for obj in bpy.data.objects:
             if obj.type == "ARMATURE" and obj.data.get("rigify_target_rig") == blender_object:
                 return obj
-        else:
-            return None
+        return None
 
     @staticmethod
     def find_rigify_rig_by_metarig(blender_object):
