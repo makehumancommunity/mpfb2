@@ -10,11 +10,11 @@ python_exe = None
 
 for root, dirs, files in os.walk(sys.prefix):
     for basename in files:
-        if str(basename).startswith("python"):            
+        if str(basename).startswith("python"):
             if basename == "python" or basename == "python.exe":
                 python_exe = os.path.join(root, basename)
                 break
-            if str(basename).startswith("python") and "bin" in root:               
+            if str(basename).startswith("python") and "bin" in root:
                 python_exe = os.path.join(root, basename)
                 break
 

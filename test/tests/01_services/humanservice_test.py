@@ -15,7 +15,7 @@ def test_create_human_defaults():
     assert getattr(obj, 'MPFB_GEN_object_type') == "Basemesh"
     assert getattr(obj, 'MPFB_GEN_scale_factor') == approx(0.1)
     ObjectService.delete_object(obj)
-    
+
 def test_add_mhclo_asset_without_rig():
     """HumanService.add_mhclo_asset() -- without rig"""
     testdata = LocationService.get_mpfb_test("testdata")
@@ -44,7 +44,7 @@ def test_add_mhclo_asset_with_rig():
     ObjectService.delete_object(clothes)
     ObjectService.delete_object(basemesh)
     ObjectService.delete_object(rig)
-    
+
 def test_add_builtin_rig_standard():
     """HumanService.add_builtin_rig() -- standard rig"""
     basemesh = HumanService.create_human()
