@@ -134,6 +134,7 @@ class ObjectService:
 
     @staticmethod
     def link_blender_object(object_to_link, collection=None, parent=None):
+        """Link a blender object to a collection, optionally also assigning a parent object"""
         if collection is None:
             collection = bpy.context.collection
         collection.objects.link(object_to_link)
@@ -144,6 +145,7 @@ class ObjectService:
 
     @staticmethod
     def get_list_of_children(parent_object):
+        """Return list with objects whose parent property is set to parent_object."""
         children = []
         for potential_child in bpy.data.objects:
             if potential_child.parent == parent_object:
@@ -159,6 +161,8 @@ class ObjectService:
 
     @staticmethod
     def get_object_type(blender_object) -> str:
+        """Return the value of the object_type custom property. This is a string which can be, for example,
+        "Basemesh" for a human object."""
         if not blender_object:
             return ""
 
@@ -202,6 +206,7 @@ class ObjectService:
 
     @staticmethod
     def object_is_basemesh(blender_object):
+        """Object has object_type == Basemesh"""
         return ObjectService.object_is(blender_object, "Basemesh")
 
     @staticmethod
@@ -218,31 +223,38 @@ class ObjectService:
 
     @staticmethod
     def object_is_body_proxy(blender_object):
-        return ObjectService.object_is(blender_object, "Proxymesh")
+        """Object has object_type Proxymesh or Proxymeshes."""
+        return ObjectService.object_is(blender_object, "Proxymesh") or ObjectService.object_is(blender_object, "Proxymeshes")
 
     @staticmethod
     def object_is_eyes(blender_object):
+        """Object has object_type == Eyes."""
         return ObjectService.object_is(blender_object, "Eyes")
 
     @staticmethod
     def object_is_basemesh_or_body_proxy(blender_object):
-        return ObjectService.object_is(blender_object, ("Basemesh", "Proxymesh"))
+        """Object has object_type Basemesh or Proxymesh."""
+        return ObjectService.object_is_basemesh(blender_object) or ObjectService.object_is_body_proxy(blender_object)
 
     @staticmethod
     def object_is_any_mesh(blender_object):
+        """Object is not none and has type MESH."""
         return blender_object and blender_object.type == "MESH"
 
     @staticmethod
     def object_is_any_makehuman_mesh(blender_object):
+        """Object is not none, has type MESH and has a valid object_type set."""
         return blender_object and blender_object.type == "MESH" and ObjectService.get_object_type(blender_object)
 
     @staticmethod
     def object_is_any_mesh_asset(blender_object):
+        """Object is not none, has type MESH and has an object_type set which is listed as a mesh asset."""
         return blender_object and blender_object.type == "MESH" and\
             ObjectService.object_is(blender_object, _MESH_ASSET_TYPES)
 
     @staticmethod
     def object_is_any_makehuman_object(blender_object):
+        """Object is not none and has a valid object_type set."""
         return blender_object and ObjectService.get_object_type(blender_object)
 
     @staticmethod

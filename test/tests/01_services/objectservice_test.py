@@ -1,5 +1,8 @@
 import bpy, os
 from mpfb.services.objectservice import ObjectService
+from mpfb.entities.objectproperties import GeneralObjectProperties
+
+_MESH_TYPES = ("Eyes", "Eyelashes", "Eyebrows", "Tongue", "Teeth", "Hair", "Proxymeshes", "Clothes", "Basemesh")
 
 def test_objectservice_exists():
     """ObjectService"""
@@ -94,3 +97,108 @@ def test_create_empty():
     assert obj.name == name, "Empty object should have received the given name"
     assert obj.empty_display_type == "SPHERE", "Empty object should be of display type SPHERE"
     ObjectService.delete_object_by_name(name)
+
+def test_link_blender_object():
+    """ObjectService.link_blender_object()"""
+    name = ObjectService.random_name()
+    obj = ObjectService.create_empty(name)
+    assert obj is not None
+    parent_name = ObjectService.random_name()
+    parent_obj = ObjectService.create_empty(parent_name)
+    assert parent_obj is not None
+    collection = bpy.data.collections.new(ObjectService.random_name())
+    assert collection is not None
+    assert obj.name not in collection.all_objects
+    ObjectService.link_blender_object(obj, collection=collection, parent=parent_obj)
+    assert obj.name in collection.all_objects
+    assert obj.parent == parent_obj
+    ObjectService.delete_object_by_name(name)
+    ObjectService.delete_object_by_name(parent_name)
+    bpy.data.collections.remove(collection)
+
+def test_get_list_of_children():
+    """ObjectService.get_list_of_children()"""
+    parent_name = ObjectService.random_name()
+    parent_obj = ObjectService.create_empty(parent_name)
+    objs = []
+    for i in range(3):
+        name = ObjectService.random_name()
+        obj = ObjectService.create_empty(name)
+        obj.parent = parent_obj
+        objs.append(obj)
+    children = ObjectService.get_list_of_children(parent_obj)
+    assert children is not None
+    assert len(children) > 0
+    assert len(children) == len(objs)
+    assert objs[1] in children
+    for obj in objs:
+        ObjectService.delete_object(obj)
+    ObjectService.delete_object(parent_obj)
+
+# TODO: find_by_data
+
+def test_get_object_type():
+    assert ObjectService.get_object_type(None) == ""
+    name = ObjectService.random_name()
+    obj = ObjectService.create_empty(name)
+    assert obj is not None
+    assert ObjectService.get_object_type(obj) == ""
+    GeneralObjectProperties.set_value("object_type", "yadayada", obj)
+    assert ObjectService.get_object_type(obj) == "yadayada"
+    ObjectService.delete_object(obj)
+
+def test_object_is():
+    name = ObjectService.random_name()
+    obj = ObjectService.create_empty(name)
+    assert obj is not None
+    assert not ObjectService.object_is(obj, "")
+    assert not ObjectService.object_is(obj, "-")
+    GeneralObjectProperties.set_value("object_type", "yadayada", obj)
+    assert not ObjectService.object_is(obj, "-")
+    for meshtype in _MESH_TYPES:
+        GeneralObjectProperties.set_value("object_type", meshtype, obj)
+        assert ObjectService.object_is(obj, meshtype)
+    GeneralObjectProperties.set_value("object_type", "    Clothes  ", obj)
+    assert ObjectService.object_is(obj, [" clothes ", "   hair"])
+    ObjectService.delete_object(obj)
+
+# TODO: object_is_skeleton, subrig, any skeleton
+
+def test_object_is_submethods():
+    name = ObjectService.random_name()
+    obj = ObjectService.create_blender_object_with_mesh(name)
+    assert not ObjectService.object_is_any_makehuman_mesh(obj)
+    assert not ObjectService.object_is_any_mesh_asset(obj)
+    assert not ObjectService.object_is_any_makehuman_object(obj)
+    GeneralObjectProperties.set_value("object_type", "Eyes", obj)
+    assert ObjectService.object_is_eyes(obj)
+    assert ObjectService.object_is_any_mesh_asset(obj)
+    assert ObjectService.object_is_any_makehuman_mesh(obj)
+    assert ObjectService.object_is_any_makehuman_object(obj)
+    assert not ObjectService.object_is_basemesh_or_body_proxy(obj)
+    GeneralObjectProperties.set_value("object_type", "Proxymeshes", obj)
+    assert not ObjectService.object_is_basemesh(obj)
+    assert ObjectService.object_is_body_proxy(obj)
+    assert ObjectService.object_is_any_mesh(obj)
+    assert ObjectService.object_is_any_mesh_asset(obj)
+    assert ObjectService.object_is_any_makehuman_mesh(obj)
+    assert ObjectService.object_is_any_makehuman_object(obj)
+    assert ObjectService.object_is_basemesh_or_body_proxy(obj)
+    GeneralObjectProperties.set_value("object_type", "Basemesh", obj)
+    assert ObjectService.object_is_basemesh(obj)
+    assert not ObjectService.object_is_body_proxy(obj)
+    assert ObjectService.object_is_any_mesh(obj)
+    assert not ObjectService.object_is_any_mesh_asset(obj)
+    assert ObjectService.object_is_any_makehuman_mesh(obj)
+    assert ObjectService.object_is_any_makehuman_object(obj)
+    assert ObjectService.object_is_basemesh_or_body_proxy(obj)
+    ObjectService.delete_object(obj)
+    name = ObjectService.random_name()
+    obj = ObjectService.create_empty(name)
+    assert not ObjectService.object_is_any_makehuman_mesh(obj)
+    assert not ObjectService.object_is_any_mesh(obj)
+    assert not ObjectService.object_is_any_mesh_asset(obj)
+    assert not ObjectService.object_is_any_makehuman_object(obj)
+    GeneralObjectProperties.set_value("object_type", "Eyes", obj)
+    assert ObjectService.object_is_any_makehuman_object(obj)
+    ObjectService.delete_object(obj)
