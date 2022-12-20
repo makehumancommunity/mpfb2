@@ -36,6 +36,8 @@ class ObjectService:
     @staticmethod
     def delete_object_by_name(name):
         """Safely delete an object with a given name. Will gracefully skip doing anything if the object does not exist."""
+        if not name:
+            return
         if not name in bpy.data.objects:
             return
         ObjectService.delete_object(bpy.data.objects[name])
@@ -50,6 +52,8 @@ class ObjectService:
     @staticmethod
     def object_name_exists(name):
         """Check if there's an existing object with the given name."""
+        if not name:
+            return False
         return name in bpy.data.objects
 
     @staticmethod

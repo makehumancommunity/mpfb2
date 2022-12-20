@@ -32,6 +32,7 @@ def test_delete_object():
 
 def test_object_name_exists():
     """ObjectService.name_exists()"""
+    assert not ObjectService.object_name_exists(None)
     name = ObjectService.random_name()
     assert not ObjectService.object_name_exists(name), "Named object should not exist prior to creation"
     mesh = bpy.data.meshes.new(name + "Mesh")
