@@ -202,3 +202,39 @@ def test_object_is_submethods():
     GeneralObjectProperties.set_value("object_type", "Eyes", obj)
     assert ObjectService.object_is_any_makehuman_object(obj)
     ObjectService.delete_object(obj)
+
+def test_find_object_of_type_amongst_nearest_relatives():
+    basemesh = ObjectService.create_blender_object_with_mesh(ObjectService.random_name())
+    GeneralObjectProperties.set_value("object_type", "Basemesh", basemesh)
+    clothes1 = ObjectService.create_blender_object_with_mesh(ObjectService.random_name())
+    GeneralObjectProperties.set_value("object_type", "Clothes", clothes1)
+    clothes2 = ObjectService.create_blender_object_with_mesh(ObjectService.random_name())
+    GeneralObjectProperties.set_value("object_type", "Clothes", clothes2)
+    rig = ObjectService.create_empty(ObjectService.random_name())
+    GeneralObjectProperties.set_value("object_type", "Skeleton", rig)
+    clothes1.parent = rig
+    clothes2.parent = rig
+    basemesh.parent = rig
+    assert not ObjectService.find_object_of_type_amongst_nearest_relatives(None, "Eyes")
+    assert not ObjectService.find_object_of_type_amongst_nearest_relatives(clothes1, "Eyes")
+    assert not ObjectService.find_object_of_type_amongst_nearest_relatives(clothes2, "Yadayada")
+    assert ObjectService.find_object_of_type_amongst_nearest_relatives(clothes1, "Basemesh") == basemesh
+    assert ObjectService.find_object_of_type_amongst_nearest_relatives(basemesh, "Basemesh") == basemesh
+    assert ObjectService.find_object_of_type_amongst_nearest_relatives(basemesh, "Clothes")
+    assert not ObjectService.find_object_of_type_amongst_nearest_relatives(basemesh, "Clothes", only_parents=True)
+    assert ObjectService.find_object_of_type_amongst_nearest_relatives(basemesh, "Basemesh", only_parents=True) == basemesh
+    assert not ObjectService.find_object_of_type_amongst_nearest_relatives(clothes1, "Basemesh", only_children=True)
+    assert ObjectService.find_object_of_type_amongst_nearest_relatives(rig, "Basemesh", only_children=True)
+    assert not ObjectService.find_object_of_type_amongst_nearest_relatives(rig, "Basemesh", only_parents=True)
+    assert len(list(ObjectService.find_all_objects_of_type_amongst_nearest_relatives(basemesh, "Clothes"))) == 2
+    ObjectService.delete_object(basemesh)
+    ObjectService.delete_object(clothes1)
+    ObjectService.delete_object(clothes2)
+    ObjectService.delete_object(rig)
+
+def test_load_base_mesh():
+    basemesh = ObjectService.load_base_mesh()
+    assert basemesh is not None
+    assert ObjectService.object_is_basemesh(basemesh)
+    # TODO: Tests for scale, vertex groups
+    ObjectService.delete_object(basemesh)
