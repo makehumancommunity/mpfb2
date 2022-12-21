@@ -83,6 +83,11 @@ class MPFB_PT_Developer_Panel(bpy.types.Panel):
         box.operator("mpfb.load_weights")
         box.operator("mpfb.save_weights")
 
+    def _tests(self, scene, layout):
+        box = self._create_box(layout, "Unit tests")
+        box.label(text="See README in test dir")
+        box.operator("mpfb.unit_tests")
+
     def draw(self, context):
         _LOG.enter()
         layout = self.layout
@@ -92,6 +97,7 @@ class MPFB_PT_Developer_Panel(bpy.types.Panel):
         self._nodes(layout)
         self._rig(scene, layout)
         self._weights(scene, layout)
+        self._tests(scene, layout)
 
 
 ClassManager.add_class(MPFB_PT_Developer_Panel)

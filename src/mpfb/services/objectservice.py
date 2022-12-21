@@ -1,5 +1,6 @@
+"""This module contains utility functions for working with objects."""
 
-import bpy, os, json, random, gzip, typing
+import bpy, os, json, random, gzip, typing, string
 from mpfb.services.logservice import LogService
 from mpfb.services.locationservice import LocationService
 from mpfb.entities.objectproperties import GeneralObjectProperties
@@ -20,16 +21,45 @@ _SKELETON_TYPES = ("Skeleton", "Subrig")
 _ALL_TYPES = _SKELETON_TYPES + _MESH_TYPES
 
 class ObjectService:
+    """ObjectService contains various functions for working with objects, such as creating a new object,
+    identifying an object, finding an object an so forth."""
 
     def __init__(self):
         raise RuntimeError("You should not instance ObjectService. Use its static methods instead.")
 
     @staticmethod
+    def random_name():
+        """Generate a random string containing 15 lowercase ascii characters."""
+        letters = string.ascii_lowercase
+        return ''.join(random.choice(letters) for i in range(15))
+
+    @staticmethod
+    def delete_object_by_name(name):
+        """Safely delete an object with a given name. Will gracefully skip doing anything if the object does not exist."""
+        if not name:
+            return
+        if not name in bpy.data.objects:
+            return
+        ObjectService.delete_object(bpy.data.objects[name])
+
+    @staticmethod
+    def delete_object(object_to_delete):
+        """Safely delete an object with a given name. Will gracefully skip doing anything if the object is None."""
+        if not object_to_delete:
+            return
+        bpy.data.objects.remove(object_to_delete, do_unlink=True)
+
+    @staticmethod
     def object_name_exists(name):
+        """Check if there's an existing object with the given name."""
+        if not name:
+            return False
         return name in bpy.data.objects
 
     @staticmethod
     def ensure_unique_name(desired_name):
+        """Make sure that the name is unique. If no object with the given name exists, return the name unchanged.
+        Otherwise add an incrementing number to the name until there's no name clash."""
         if not ObjectService.object_name_exists(desired_name):
             return desired_name
         for i in range(1, 100):
@@ -39,7 +69,19 @@ class ObjectService:
         return desired_name + ".999"
 
     @staticmethod
+    def activate_blender_object(object_to_make_active, *, context=None, deselect_all=False):
+        """Make given object selected and active. Optionally also deselect all other objects."""
+        if deselect_all:
+            ObjectService.deselect_and_deactivate_all()
+
+        object_to_make_active.select_set(True)
+
+        context = context or bpy.context
+        context.view_layer.objects.active = object_to_make_active
+
+    @staticmethod
     def deselect_and_deactivate_all():
+        """Make sure no object is selected nor active."""
         if bpy.context.object:
             try:
                 bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
@@ -81,12 +123,14 @@ class ObjectService:
 
     @staticmethod
     def create_blender_object_with_mesh(name="NewObject"):
+        """Create a new mesh object with a mesh data block."""
         mesh = bpy.data.meshes.new(name + "Mesh")
         obj = bpy.data.objects.new(name, mesh)
         return obj
 
     @staticmethod
     def create_empty(name, empty_type="SPHERE", parent=None):
+        """Create a new empty object, optionally specifying its draw type and parent."""
         empty = bpy.data.objects.new(name=name, object_data=None)
         ObjectService.link_blender_object(empty, parent=parent)
         empty.empty_display_type = empty_type
@@ -94,6 +138,7 @@ class ObjectService:
 
     @staticmethod
     def link_blender_object(object_to_link, collection=None, parent=None):
+        """Link a blender object to a collection, optionally also assigning a parent object"""
         if collection is None:
             collection = bpy.context.collection
         collection.objects.link(object_to_link)
@@ -103,17 +148,8 @@ class ObjectService:
             object_to_link.parent = parent
 
     @staticmethod
-    def activate_blender_object(object_to_make_active, *, context=None, deselect_all=False):
-        if deselect_all:
-            ObjectService.deselect_and_deactivate_all()
-
-        object_to_make_active.select_set(True)
-
-        context = context or bpy.context
-        context.view_layer.objects.active = object_to_make_active
-
-    @staticmethod
     def get_list_of_children(parent_object):
+        """Return list with objects whose parent property is set to parent_object."""
         children = []
         for potential_child in bpy.data.objects:
             if potential_child.parent == parent_object:
@@ -125,9 +161,12 @@ class ObjectService:
         for obj in bpy.data.objects:
             if obj.data == id_data:
                 return obj
+        return None
 
     @staticmethod
     def get_object_type(blender_object) -> str:
+        """Return the value of the object_type custom property. This is a string which can be, for example,
+        "Basemesh" for a human object."""
         if not blender_object:
             return ""
 
@@ -171,6 +210,7 @@ class ObjectService:
 
     @staticmethod
     def object_is_basemesh(blender_object):
+        """Object has object_type == Basemesh"""
         return ObjectService.object_is(blender_object, "Basemesh")
 
     @staticmethod
@@ -187,31 +227,38 @@ class ObjectService:
 
     @staticmethod
     def object_is_body_proxy(blender_object):
-        return ObjectService.object_is(blender_object, "Proxymesh")
+        """Object has object_type Proxymesh or Proxymeshes."""
+        return ObjectService.object_is(blender_object, "Proxymesh") or ObjectService.object_is(blender_object, "Proxymeshes")
 
     @staticmethod
     def object_is_eyes(blender_object):
+        """Object has object_type == Eyes."""
         return ObjectService.object_is(blender_object, "Eyes")
 
     @staticmethod
     def object_is_basemesh_or_body_proxy(blender_object):
-        return ObjectService.object_is(blender_object, ("Basemesh", "Proxymesh"))
+        """Object has object_type Basemesh or Proxymesh."""
+        return ObjectService.object_is_basemesh(blender_object) or ObjectService.object_is_body_proxy(blender_object)
 
     @staticmethod
     def object_is_any_mesh(blender_object):
+        """Object is not none and has type MESH."""
         return blender_object and blender_object.type == "MESH"
 
     @staticmethod
     def object_is_any_makehuman_mesh(blender_object):
+        """Object is not none, has type MESH and has a valid object_type set."""
         return blender_object and blender_object.type == "MESH" and ObjectService.get_object_type(blender_object)
 
     @staticmethod
     def object_is_any_mesh_asset(blender_object):
+        """Object is not none, has type MESH and has an object_type set which is listed as a mesh asset."""
         return blender_object and blender_object.type == "MESH" and\
             ObjectService.object_is(blender_object, _MESH_ASSET_TYPES)
 
     @staticmethod
     def object_is_any_makehuman_object(blender_object):
+        """Object is not none and has a valid object_type set."""
         return blender_object and ObjectService.get_object_type(blender_object)
 
     @staticmethod
@@ -353,8 +400,7 @@ class ObjectService:
         for obj in bpy.data.objects:
             if obj.type == "ARMATURE" and obj.data.get("rigify_target_rig") == blender_object:
                 return obj
-        else:
-            return None
+        return None
 
     @staticmethod
     def find_rigify_rig_by_metarig(blender_object):
