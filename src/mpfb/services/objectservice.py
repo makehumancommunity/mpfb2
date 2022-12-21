@@ -264,7 +264,7 @@ class ObjectService:
     @staticmethod
     def find_object_of_type_amongst_nearest_relatives(
             blender_object: bpy.types.Object,
-            mpfb_type_name: str | typing.Sequence[str] = "Basemesh", *,
+            mpfb_type_name: str | typing.Sequence[str]="Basemesh", *,
             only_parents=False, strict_parent=False, only_children=False,
             ) -> typing.Optional[bpy.types.Object]:
         """
@@ -279,7 +279,7 @@ class ObjectService:
     @staticmethod
     def find_all_objects_of_type_amongst_nearest_relatives(
             blender_object: bpy.types.Object,
-            mpfb_type_name: str | typing.Sequence[str] = "Basemesh", *,
+            mpfb_type_name: str | typing.Sequence[str]="Basemesh", *,
             only_parents=False, strict_parent=False, only_children=False,
             ) -> typing.Generator[bpy.types.Object, None, None]:
         """
@@ -412,7 +412,7 @@ class ObjectService:
     @staticmethod
     def find_armature_context_objects(
             armature_object: bpy.types.Object | None, *, operator=None,
-            is_subrig: bool | None = None, only_basemesh=False,
+            is_subrig: bool | None=None, only_basemesh=False,
             ) -> tuple[bpy.types.Object | None, bpy.types.Object | None, bpy.types.Object | None]:
         """
         Find base rig, basemesh, and directly controlled mesh (same as basemesh unless subrig) for the given rig.
