@@ -110,6 +110,12 @@ class MPFB_OT_Load_Clothes_Operator(bpy.types.Operator, ImportHelper):
                 basemesh, clothes, rig, mhclo, interpolate_weights=interpolate_weights,
                 import_subrig=import_subrig, import_weights=import_weights)
 
+        if rig and set_up_rigging:
+            clothes.parent = rig
+        else:
+            if basemesh:
+                clothes.parent = basemesh
+
         if makeclothes_metadata:
             ClothesService.set_makeclothes_object_properties_from_mhclo(clothes, mhclo, delete_group_name=delete_name)
 
