@@ -258,16 +258,17 @@ class TargetService:
                 profiler.leave("-- parse_target_line")
                 profiler.enter("-- insert_target_line")
                 if not blender_object is None:
-                    vert = blender_object.data.vertices[index]
+                    if index < len(blender_object.data.vertices):
+                        vert = blender_object.data.vertices[index]
 
-                    diff = vert_info["coordinate_difference"]
-                    profiler.enter("copy_vert")
-                    bco = vert.co.copy()
-                    tco = [bco[0] + diff[0], bco[1] + diff[1], bco[2] + diff[2]]
-                    profiler.leave("copy_vert")
+                        diff = vert_info["coordinate_difference"]
+                        profiler.enter("copy_vert")
+                        bco = vert.co.copy()
+                        tco = [bco[0] + diff[0], bco[1] + diff[1], bco[2] + diff[2]]
+                        profiler.leave("copy_vert")
 
-                    vert_info["basis_coordinates"] = bco
-                    vert_info["target_coordinates"] = tco
+                        vert_info["basis_coordinates"] = bco
+                        vert_info["target_coordinates"] = tco
                 else:
                     vert_info["basis_coordinates"] = [0.0, 0.0, 0.0] # We have no info about the mesh here
                     vert_info["target_coordinates"] = [0.0, 0.0, 0.0] # We have no info about the mesh here
@@ -309,7 +310,8 @@ class TargetService:
         profiler.enter("-- apply_verts")
         for vertex in shape_key_info["vertices"]:
             index = vertex["index"]
-            mesh.verts[index][target] = vertex["target_coordinates"]
+            if index < len(mesh.verts):
+                mesh.verts[index][target] = vertex["target_coordinates"]
         profiler.leave("-- apply_verts")
 
         profiler.enter("-- apply_bmesh")
@@ -510,7 +512,8 @@ class TargetService:
             _LOG.debug("bmesh, target", (mesh, target))
             for vertex in shape_key_info["vertices"]:
                 index = vertex["index"]
-                mesh.verts[index][target] = vertex["target_coordinates"]
+                if index < len(mesh.verts):
+                    mesh.verts[index][target] = vertex["target_coordinates"]
         profiler.leave(" -- bulk load -> populate shape keys")
         profiler.enter("- apply_shape_key_info")
 
@@ -817,6 +820,14 @@ class TargetService:
                     macro_targets.append(name)
         _MACLOG.dump("get_current_macro_targets", macro_targets)
         return macro_targets
+
+    @staticmethod
+    def reapply_all_details(basemesh, remove_zero_weight_targets=True):
+        target_stack = TargetService.get_target_stack(basemesh, exclude_starts_with="$md")
+        TargetService.reapply_macro_details(basemesh, remove_zero_weight_targets)
+        for tinfo in target_stack:
+            TargetService.set_target_value(basemesh, tinfo['target'], 0.0, delete_target_on_zero=True)
+        TargetService.bulk_load_targets(basemesh, target_stack, encode_target_names=False)
 
     @staticmethod
     def reapply_macro_details(basemesh, remove_zero_weight_targets=True):
