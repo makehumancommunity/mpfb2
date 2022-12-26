@@ -70,6 +70,7 @@ class MPFB_PT_Developer_Panel(bpy.types.Panel):
         box = self._create_box(layout, "Load/save nodes")
         box.operator("mpfb.save_nodes")
         box.operator("mpfb.load_nodes")
+        box.operator("mpfb.rewrite_node_types")
 
     def _rig(self, scene, layout):
         box = self._create_box(layout, "Load/Save rig")

@@ -18,6 +18,7 @@ from .printnodegroup import MPFB_OT_Print_Node_Group_Operator
 from .create_molecules import MPFB_OT_Create_Molecules_Operator
 from .create_cells import MPFB_OT_Create_Cells_Operator
 from .unittests import MPFB_OT_Unit_Tests_Operator
+from .rewritenodetypes import MPFB_OT_Rewrite_Node_Types_Operator
 
 __all__ = [
     "MPFB_OT_List_Log_Levels_Operator",
@@ -32,5 +33,6 @@ __all__ = [
     "MPFB_OT_Print_Node_Group_Operator",
     "MPFB_OT_Create_Molecules_Operator",
     "MPFB_OT_Create_Cells_Operator",
-    "MPFB_OT_Unit_Tests_Operator"
+    "MPFB_OT_Unit_Tests_Operator",
+    "MPFB_OT_Rewrite_Node_Types_Operator"
     ]

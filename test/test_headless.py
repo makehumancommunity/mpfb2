@@ -7,7 +7,7 @@ if "TEST_MODULE" in os.environ:
     tests = os.path.abspath(os.path.join(tests, "..", os.environ['TEST_MODULE']))
     print("TEST_MODULE is set: " + tests)
 
-retcode = pytest.main(["--cov-report", "html:coverage", "--cov", "-x", tests, "-v"])
+retcode = pytest.main(["-v", "--capture=tee-sys", "--cov-report", "html:coverage", "--cov", "-x", tests])
 if retcode:
     print("Unit tests have finished with error code " + str(retcode) + ". See console output for results.")
 else:
