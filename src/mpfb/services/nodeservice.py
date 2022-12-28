@@ -42,18 +42,18 @@ _INTERNAL_NODE_CLASS_ATTRIBUTES = [
     'bl_width_max',
     'bl_width_min'
     ]
-     
+
 _BLACKLISTED_NODE_CLASS_ATTRIBUTES = [
-    'dimensions',        
+    'dimensions',
     'draw_buttons',
-    'draw_buttons_ext',    
+    'draw_buttons_ext',
     'hide',
     'input_template',
     'inputs',
     'interface',
     'internal_links',
     'is_registered_node_type',
-    'label',    
+    'label',
     'mute',
     'name',
     'output_template',
@@ -69,14 +69,14 @@ _BLACKLISTED_NODE_CLASS_ATTRIBUTES = [
     'socket_value_update',
     'type',
     'update',
-    'use_custom_color',    
+    'use_custom_color',
     'width_hidden'
     ]
 
 _BLACKLISTED_ATTRIBUTE_TYPES = [
     'bpy_func',
     'ColorMapping',
-    'ColorRamp',    
+    'ColorRamp',
     'CurveMapping',
     'TexMapping',
     'ImageUser'
@@ -99,23 +99,23 @@ class NodeService:
     def create_node_tree(node_tree_name, inputs=None, outputs=None):
         node_tree = bpy.data.node_groups.new(node_tree_name, 'ShaderNodeTree')
         return node_tree
-    
+
     @staticmethod
     def destroy_node_tree(node_tree):
-        bpy.data.node_groups.remove(node_tree)    
-            
+        bpy.data.node_groups.remove(node_tree)
+
     @staticmethod
     def get_v2_node_info(node):
         """Return a model v2 dict with information about a node instance, such as its values for input and output sockets,
         and its attributes."""
         if not node:
-            raise ValueError("Cannot get node info about None")            
+            raise ValueError("Cannot get node info about None")
         node_info = {
             "class": node.__class__.__name__,
             "inputs": dict(),
             "outputs": dict(),
             "attributes": dict(),
-            }                
+            }
         if hasattr(node, "inputs"):
             for input_socket in node.inputs:
                 input_dict = dict()
@@ -125,11 +125,11 @@ class NodeService:
                 input_dict["value_type"] = input_socket.type
                 input_dict["default_value"] = None
                 if hasattr(input_socket, "default_value"):
-                    if input_socket.type in ["RGBA", "RGB", "VECTOR"]:                    
+                    if input_socket.type in ["RGBA", "RGB", "VECTOR"]:
                         input_dict["default_value"] = list(input_socket.default_value)
-                    else:                        
+                    else:
                         input_dict["default_value"] = input_socket.default_value
-                if not input_dict["class"] in _BLACKLISTED_ATTRIBUTE_TYPES:  # TODO: Should try to parse these instead of filtering them out                
+                if not input_dict["class"] in _BLACKLISTED_ATTRIBUTE_TYPES:  # TODO: Should try to parse these instead of filtering them out
                     node_info["inputs"][input_socket.identifier] = input_dict
         if hasattr(node, "outputs"):
             for output_socket in node.outputs:
@@ -140,19 +140,19 @@ class NodeService:
                 output_dict["value_type"] = output_socket.type
                 output_dict["default_value"] = None
                 if hasattr(output_socket, "default_value"):
-                    if output_socket.type in ["RGBA", "RGB", "VECTOR"]:                    
+                    if output_socket.type in ["RGBA", "RGB", "VECTOR"]:
                         output_dict["default_value"] = list(output_socket.default_value)
-                    else:                        
+                    else:
                         output_dict["default_value"] = output_socket.default_value
-                if not output_dict["class"] in _BLACKLISTED_ATTRIBUTE_TYPES:  # TODO: Should try to parse these instead of filtering them out                
+                if not output_dict["class"] in _BLACKLISTED_ATTRIBUTE_TYPES:  # TODO: Should try to parse these instead of filtering them out
                     node_info["outputs"][output_socket.identifier] = output_dict
         for item in dir(node):
             if not item in _INTERNAL_NODE_CLASS_ATTRIBUTES and not item in _BLACKLISTED_NODE_CLASS_ATTRIBUTES:
                 attribute = dict()
-                attribute["name"] = item                            
+                attribute["name"] = item
                 value = getattr(node, item)
                 value_type = type(value)
-                attribute["class"] = value_type.__name__                
+                attribute["class"] = value_type.__name__
                 attribute["value"] = value
                 if attribute["class"] == "str" and attribute["value"].isupper():
                     attribute["class"] = "enum"
@@ -160,14 +160,14 @@ class NodeService:
                     attribute["value"] = []
                     for i in value:
                         attribute["value"].append(i)
-                if not attribute["class"] in _BLACKLISTED_ATTRIBUTE_TYPES:  # TODO: Should try to parse these instead of filtering them out                    
+                if not attribute["class"] in _BLACKLISTED_ATTRIBUTE_TYPES:  # TODO: Should try to parse these instead of filtering them out
                     node_info["attributes"][item] = attribute
         return node_info
-    
+
     @staticmethod
     def get_known_shader_node_classes():
         return list(_KNOWN_SHADER_NODE_CLASSES)
-        
+
     @staticmethod
     def get_node_info(node):
         """Return a model v1 dict with information about a node instance, such as its input and output sockets,
