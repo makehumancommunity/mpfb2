@@ -23,7 +23,7 @@ class MPFB_OT_Rewrite_Node_Types_Operator(bpy.types.Operator):
     bl_options = {'REGISTER'}
 
     def execute(self, context):
-        _LOG.enter()        
+        _LOG.enter()
         entities = LocationService.get_mpfb_root("entities")
         test = LocationService.get_mpfb_test("tests")
         v2 = os.path.join(entities, "nodemodel", "v2", "primitives")
@@ -32,7 +32,7 @@ class MPFB_OT_Rewrite_Node_Types_Operator(bpy.types.Operator):
         node_tree_name = ObjectService.random_name()
         node_tree = NodeService.create_node_tree(node_tree_name)
         valid_node_class_names = []
-        for shaderclass in classes:            
+        for shaderclass in classes:
             node = node_tree.nodes.new(shaderclass.__name__)
             node_info = NodeService.get_v2_node_info(node)
             with open(os.path.join(v2, "nodewrapper" + shaderclass.__name__.lower()) + ".py", "w") as pyfile:
@@ -52,20 +52,25 @@ class MPFB_OT_Rewrite_Node_Types_Operator(bpy.types.Operator):
                     pprint(shaderclass.__name__ + str(e))
                     print("\n")
                     pprint(node_info)
-            node_tree.nodes.remove(node)                                
+            node_tree.nodes.remove(node)
         NodeService.destroy_node_tree(node_tree)
         valid_node_class_names.sort()
         with open(os.path.join(v2, "__init__.py"), "w") as pyfile:
             pyfile.write("from .abstractnodewrapper import AbstractNodeWrapper\n")
             for node_class in valid_node_class_names:
                 pyfile.write("from .nodewrapper" + node_class.lower() + " import " + shorten_name("NodeWrapper" + node_class) + "\n")
+            pyfile.write("\n")
+            pyfile.write("PRIMITIVE_NODE_WRAPPERS = dict()\n")
+            for node_class in valid_node_class_names:
+                pyfile.write("PRIMITIVE_NODE_WRAPPERS[\"" + node_class+ "\"] = " + shorten_name("NodeWrapper" + node_class) + "\n")
             pyfile.write("\n__all__ = [\n")
-            pyfile.write("    \"AbstractNodeWrapper\"")
+            pyfile.write("    \"AbstractNodeWrapper\",\n")
+            pyfile.write("    \"PRIMITIVE_NODE_WRAPPERS\"")
             for node_class in valid_node_class_names:
                 pyfile.write(",\n    \"" + shorten_name("NodeWrapper" + node_class) + "\"")
             pyfile.write("\n]\n")
-            
-        with open(v2test, "w") as pyfile:            
+
+        with open(v2test, "w") as pyfile:
             pyfile.write("import bpy, os\n")
             pyfile.write("from pytest import approx\n")
             pyfile.write("from mpfb.services.objectservice import ObjectService\n")
@@ -74,7 +79,7 @@ class MPFB_OT_Rewrite_Node_Types_Operator(bpy.types.Operator):
             pyfile.write("def test_primitives_are_available():\n")
             for node_class in valid_node_class_names:
                 pyfile.write("    assert " + shorten_name("NodeWrapper" + node_class) + "\n")
-                            
+
             for node_class in valid_node_class_names:
                 pyfile.write("\ndef test_can_create_" + shorten_name("NodeWrapper" + node_class).lower() + "():\n")
                 pyfile.write("    node_tree_name = ObjectService.random_name()\n")
@@ -84,7 +89,7 @@ class MPFB_OT_Rewrite_Node_Types_Operator(bpy.types.Operator):
                 pyfile.write("    assert node.__class__.__name__ == \"" + node_class + "\"\n")
                 pyfile.write("    node_tree.nodes.remove(node)\n")
                 pyfile.write("    NodeService.destroy_node_tree(node_tree)\n")
-                
+
         return {'FINISHED'}
 
 ClassManager.add_class(MPFB_OT_Rewrite_Node_Types_Operator)

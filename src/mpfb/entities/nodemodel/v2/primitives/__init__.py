@@ -94,8 +94,105 @@ from .nodewrappershadernodevolumescatter import snVolumeScatter
 from .nodewrappershadernodewavelength import snWavelength
 from .nodewrappershadernodewireframe import snWireframe
 
+PRIMITIVE_NODES = dict()
+PRIMITIVE_NODES["ShaderNodeAddShader"] = snAddShader
+PRIMITIVE_NODES["ShaderNodeAmbientOcclusion"] = snAmbientOcclusion
+PRIMITIVE_NODES["ShaderNodeAttribute"] = snAttribute
+PRIMITIVE_NODES["ShaderNodeBackground"] = snBackground
+PRIMITIVE_NODES["ShaderNodeBevel"] = snBevel
+PRIMITIVE_NODES["ShaderNodeBlackbody"] = snBlackbody
+PRIMITIVE_NODES["ShaderNodeBrightContrast"] = snBrightContrast
+PRIMITIVE_NODES["ShaderNodeBsdfAnisotropic"] = snBsdfAnisotropic
+PRIMITIVE_NODES["ShaderNodeBsdfDiffuse"] = snBsdfDiffuse
+PRIMITIVE_NODES["ShaderNodeBsdfGlass"] = snBsdfGlass
+PRIMITIVE_NODES["ShaderNodeBsdfGlossy"] = snBsdfGlossy
+PRIMITIVE_NODES["ShaderNodeBsdfHair"] = snBsdfHair
+PRIMITIVE_NODES["ShaderNodeBsdfHairPrincipled"] = snBsdfHairPrincipled
+PRIMITIVE_NODES["ShaderNodeBsdfPrincipled"] = snBsdfPrincipled
+PRIMITIVE_NODES["ShaderNodeBsdfRefraction"] = snBsdfRefraction
+PRIMITIVE_NODES["ShaderNodeBsdfToon"] = snBsdfToon
+PRIMITIVE_NODES["ShaderNodeBsdfTranslucent"] = snBsdfTranslucent
+PRIMITIVE_NODES["ShaderNodeBsdfTransparent"] = snBsdfTransparent
+PRIMITIVE_NODES["ShaderNodeBsdfVelvet"] = snBsdfVelvet
+PRIMITIVE_NODES["ShaderNodeBump"] = snBump
+PRIMITIVE_NODES["ShaderNodeCameraData"] = snCameraData
+PRIMITIVE_NODES["ShaderNodeClamp"] = snClamp
+PRIMITIVE_NODES["ShaderNodeCombineColor"] = snCombineColor
+PRIMITIVE_NODES["ShaderNodeCombineXYZ"] = snCombineXYZ
+PRIMITIVE_NODES["ShaderNodeDisplacement"] = snDisplacement
+PRIMITIVE_NODES["ShaderNodeEeveeSpecular"] = snEeveeSpecular
+PRIMITIVE_NODES["ShaderNodeEmission"] = snEmission
+PRIMITIVE_NODES["ShaderNodeFloatCurve"] = snFloatCurve
+PRIMITIVE_NODES["ShaderNodeFresnel"] = snFresnel
+PRIMITIVE_NODES["ShaderNodeGamma"] = snGamma
+PRIMITIVE_NODES["ShaderNodeGroup"] = snGroup
+PRIMITIVE_NODES["ShaderNodeHairInfo"] = snHairInfo
+PRIMITIVE_NODES["ShaderNodeHoldout"] = snHoldout
+PRIMITIVE_NODES["ShaderNodeHueSaturation"] = snHueSaturation
+PRIMITIVE_NODES["ShaderNodeInvert"] = snInvert
+PRIMITIVE_NODES["ShaderNodeLayerWeight"] = snLayerWeight
+PRIMITIVE_NODES["ShaderNodeLightFalloff"] = snLightFalloff
+PRIMITIVE_NODES["ShaderNodeLightPath"] = snLightPath
+PRIMITIVE_NODES["ShaderNodeMapRange"] = snMapRange
+PRIMITIVE_NODES["ShaderNodeMapping"] = snMapping
+PRIMITIVE_NODES["ShaderNodeMath"] = snMath
+PRIMITIVE_NODES["ShaderNodeMix"] = snMix
+PRIMITIVE_NODES["ShaderNodeMixShader"] = snMixShader
+PRIMITIVE_NODES["ShaderNodeNewGeometry"] = snNewGeometry
+PRIMITIVE_NODES["ShaderNodeNormal"] = snNormal
+PRIMITIVE_NODES["ShaderNodeNormalMap"] = snNormalMap
+PRIMITIVE_NODES["ShaderNodeObjectInfo"] = snObjectInfo
+PRIMITIVE_NODES["ShaderNodeOutputAOV"] = snOutputAOV
+PRIMITIVE_NODES["ShaderNodeOutputLight"] = snOutputLight
+PRIMITIVE_NODES["ShaderNodeOutputLineStyle"] = snOutputLineStyle
+PRIMITIVE_NODES["ShaderNodeOutputMaterial"] = snOutputMaterial
+PRIMITIVE_NODES["ShaderNodeOutputWorld"] = snOutputWorld
+PRIMITIVE_NODES["ShaderNodeParticleInfo"] = snParticleInfo
+PRIMITIVE_NODES["ShaderNodePointInfo"] = snPointInfo
+PRIMITIVE_NODES["ShaderNodeRGB"] = snRGB
+PRIMITIVE_NODES["ShaderNodeRGBCurve"] = snRGBCurve
+PRIMITIVE_NODES["ShaderNodeRGBToBW"] = snRGBToBW
+PRIMITIVE_NODES["ShaderNodeScript"] = snScript
+PRIMITIVE_NODES["ShaderNodeSeparateColor"] = snSeparateColor
+PRIMITIVE_NODES["ShaderNodeSeparateXYZ"] = snSeparateXYZ
+PRIMITIVE_NODES["ShaderNodeShaderToRGB"] = snShaderToRGB
+PRIMITIVE_NODES["ShaderNodeSubsurfaceScattering"] = snSubsurfaceScattering
+PRIMITIVE_NODES["ShaderNodeTangent"] = snTangent
+PRIMITIVE_NODES["ShaderNodeTexBrick"] = snTexBrick
+PRIMITIVE_NODES["ShaderNodeTexChecker"] = snTexChecker
+PRIMITIVE_NODES["ShaderNodeTexCoord"] = snTexCoord
+PRIMITIVE_NODES["ShaderNodeTexEnvironment"] = snTexEnvironment
+PRIMITIVE_NODES["ShaderNodeTexGradient"] = snTexGradient
+PRIMITIVE_NODES["ShaderNodeTexIES"] = snTexIES
+PRIMITIVE_NODES["ShaderNodeTexImage"] = snTexImage
+PRIMITIVE_NODES["ShaderNodeTexMagic"] = snTexMagic
+PRIMITIVE_NODES["ShaderNodeTexMusgrave"] = snTexMusgrave
+PRIMITIVE_NODES["ShaderNodeTexNoise"] = snTexNoise
+PRIMITIVE_NODES["ShaderNodeTexPointDensity"] = snTexPointDensity
+PRIMITIVE_NODES["ShaderNodeTexSky"] = snTexSky
+PRIMITIVE_NODES["ShaderNodeTexVoronoi"] = snTexVoronoi
+PRIMITIVE_NODES["ShaderNodeTexWave"] = snTexWave
+PRIMITIVE_NODES["ShaderNodeTexWhiteNoise"] = snTexWhiteNoise
+PRIMITIVE_NODES["ShaderNodeUVAlongStroke"] = snUVAlongStroke
+PRIMITIVE_NODES["ShaderNodeUVMap"] = snUVMap
+PRIMITIVE_NODES["ShaderNodeValToRGB"] = snValToRGB
+PRIMITIVE_NODES["ShaderNodeValue"] = snValue
+PRIMITIVE_NODES["ShaderNodeVectorCurve"] = snVectorCurve
+PRIMITIVE_NODES["ShaderNodeVectorDisplacement"] = snVectorDisplacement
+PRIMITIVE_NODES["ShaderNodeVectorMath"] = snVectorMath
+PRIMITIVE_NODES["ShaderNodeVectorRotate"] = snVectorRotate
+PRIMITIVE_NODES["ShaderNodeVectorTransform"] = snVectorTransform
+PRIMITIVE_NODES["ShaderNodeVertexColor"] = snVertexColor
+PRIMITIVE_NODES["ShaderNodeVolumeAbsorption"] = snVolumeAbsorption
+PRIMITIVE_NODES["ShaderNodeVolumeInfo"] = snVolumeInfo
+PRIMITIVE_NODES["ShaderNodeVolumePrincipled"] = snVolumePrincipled
+PRIMITIVE_NODES["ShaderNodeVolumeScatter"] = snVolumeScatter
+PRIMITIVE_NODES["ShaderNodeWavelength"] = snWavelength
+PRIMITIVE_NODES["ShaderNodeWireframe"] = snWireframe
+
 __all__ = [
     "AbstractNodeWrapper",
+    "PRIMITIVE_NODES",
     "snAddShader",
     "snAmbientOcclusion",
     "snAttribute",
