@@ -156,9 +156,15 @@ class AbstractNodeWrapper():
         return comparison
 
     def create_instance(self, node_tree, name=None, label=None, input_socket_values=None, attribute_values=None, output_socket_values=None):
+        from . import PRIMITIVE_NODE_WRAPPERS
         self.pre_create_instance(node_tree)
         self._validate_names(input_socket_values, attribute_values, output_socket_values)
-        node = node_tree.nodes.new(self.node_class_name)
+        if self.node_class_name in PRIMITIVE_NODE_WRAPPERS:
+            node = node_tree.nodes.new(self.node_class_name)
+        else:
+            # Assuming we're going to create a group
+            node = node_tree.nodes.new("ShaderNodeGroup")
+            node.node_tree = bpy.data.node_groups[self.node_class_name]
         self._set_attributes(node, attribute_values)
         self._set_input_sockets(node, input_socket_values)
         self._set_output_sockets(node, output_socket_values)
