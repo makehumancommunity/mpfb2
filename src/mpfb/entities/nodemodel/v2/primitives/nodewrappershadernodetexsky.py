@@ -17,9 +17,9 @@ _ORIGINAL_NODE_DEF = json.loads("""
             "class": "Color",
             "name": "color",
             "value": [
-                0.6079999804496765,
-                0.6079999804496765,
-                0.6079999804496765
+                0.608,
+                0.608,
+                0.608
             ]
         },
         "dust_density": {
@@ -30,7 +30,7 @@ _ORIGINAL_NODE_DEF = json.loads("""
         "ground_albedo": {
             "class": "float",
             "name": "ground_albedo",
-            "value": 0.30000001192092896
+            "value": 0.3
         },
         "height": {
             "class": "float",
@@ -72,7 +72,7 @@ _ORIGINAL_NODE_DEF = json.loads("""
         "sun_elevation": {
             "class": "float",
             "name": "sun_elevation",
-            "value": 0.2617993950843811
+            "value": 0.2618
         },
         "sun_intensity": {
             "class": "float",
@@ -87,12 +87,17 @@ _ORIGINAL_NODE_DEF = json.loads("""
         "sun_size": {
             "class": "float",
             "name": "sun_size",
-            "value": 0.009512044489383698
+            "value": 0.00951
         },
         "turbidity": {
             "class": "float",
             "name": "turbidity",
-            "value": 2.200000047683716
+            "value": 2.2
+        },
+        "use_custom_color": {
+            "class": "bool",
+            "name": "use_custom_color",
+            "value": false
         },
         "width": {
             "class": "float",

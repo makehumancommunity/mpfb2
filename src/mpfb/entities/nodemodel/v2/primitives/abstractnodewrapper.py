@@ -109,6 +109,11 @@ class AbstractNodeWrapper():
             return abs(delta) < 0.00009
         return node_value == default_value
 
+    def _cleanup(self, value):
+        if type(value).__name__ in ["Vector", "Color"]:
+            return list(value)
+        return value
+
     def find_non_default_settings(self, node):
         if node.__class__.__name__ != self.node_class_name:
             raise ValueError("Cannot compare " + node.__class__.__name__ + " with " + self.node_class_name)
@@ -124,7 +129,7 @@ class AbstractNodeWrapper():
             node_value = getattr(node, attribute["name"])
             value_class = attribute["class"]
             if not self._is_same(value_class, node_value, default_value):
-                comparison["attribute_values"][key] = node_value
+                comparison["attribute_values"][key] = self._cleanup(node_value)
 
         for key in self.node_def["inputs"]:
             socket_def = self.node_def["inputs"][key]
@@ -135,7 +140,7 @@ class AbstractNodeWrapper():
                 node_value = socket.default_value
             value_class = socket_def["class"]
             if not self._is_same(value_class, node_value, default_value):
-                comparison["input_socket_values"][key] = node_value
+                comparison["input_socket_values"][key] = self._cleanup(node_value)
 
         for key in self.node_def["outputs"]:
             socket_def = self.node_def["outputs"][key]
@@ -146,7 +151,7 @@ class AbstractNodeWrapper():
                 node_value = socket.default_value
             value_class = socket_def["class"]
             if not self._is_same(value_class, node_value, default_value):
-                comparison["output_socket_values"][key] = node_value
+                comparison["output_socket_values"][key] = self._cleanup(node_value)
 
         return comparison
 

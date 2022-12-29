@@ -7,9 +7,9 @@ _ORIGINAL_NODE_DEF = json.loads("""
             "class": "Color",
             "name": "color",
             "value": [
-                0.6079999804496765,
-                0.6079999804496765,
-                0.6079999804496765
+                0.608,
+                0.608,
+                0.608
             ]
         },
         "height": {
@@ -53,7 +53,7 @@ _ORIGINAL_NODE_DEF = json.loads("""
         "radius": {
             "class": "float",
             "name": "radius",
-            "value": 0.30000001192092896
+            "value": 0.3
         },
         "resolution": {
             "class": "int",
@@ -64,6 +64,11 @@ _ORIGINAL_NODE_DEF = json.loads("""
             "class": "enum",
             "name": "space",
             "value": "OBJECT"
+        },
+        "use_custom_color": {
+            "class": "bool",
+            "name": "use_custom_color",
+            "value": false
         },
         "vertex_attribute_name": {
             "class": "str",

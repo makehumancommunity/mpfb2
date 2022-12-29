@@ -7,9 +7,9 @@ _ORIGINAL_NODE_DEF = json.loads("""
             "class": "Color",
             "name": "color",
             "value": [
-                0.6079999804496765,
-                0.6079999804496765,
-                0.6079999804496765
+                0.608,
+                0.608,
+                0.608
             ]
         },
         "height": {
@@ -24,6 +24,11 @@ _ORIGINAL_NODE_DEF = json.loads("""
                 0.0,
                 0.0
             ]
+        },
+        "use_custom_color": {
+            "class": "bool",
+            "name": "use_custom_color",
+            "value": false
         },
         "width": {
             "class": "float",
@@ -43,9 +48,9 @@ _ORIGINAL_NODE_DEF = json.loads("""
         "Base Color": {
             "class": "NodeSocketColor",
             "default_value": [
-                0.800000011920929,
-                0.800000011920929,
-                0.800000011920929,
+                0.8,
+                0.8,
+                0.8,
                 1.0
             ],
             "identifier": "Base Color",
@@ -102,7 +107,7 @@ _ORIGINAL_NODE_DEF = json.loads("""
         },
         "Roughness": {
             "class": "NodeSocketFloatFactor",
-            "default_value": 0.20000000298023224,
+            "default_value": 0.2,
             "identifier": "Roughness",
             "name": "Roughness",
             "value_type": "VALUE"
@@ -110,9 +115,9 @@ _ORIGINAL_NODE_DEF = json.loads("""
         "Specular": {
             "class": "NodeSocketColor",
             "default_value": [
-                0.029999999329447746,
-                0.029999999329447746,
-                0.029999999329447746,
+                0.03,
+                0.03,
+                0.03,
                 1.0
             ],
             "identifier": "Specular",

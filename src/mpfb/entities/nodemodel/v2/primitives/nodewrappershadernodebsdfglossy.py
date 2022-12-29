@@ -7,9 +7,9 @@ _ORIGINAL_NODE_DEF = json.loads("""
             "class": "Color",
             "name": "color",
             "value": [
-                0.6079999804496765,
-                0.6079999804496765,
-                0.6079999804496765
+                0.608,
+                0.608,
+                0.608
             ]
         },
         "distribution": {
@@ -30,6 +30,11 @@ _ORIGINAL_NODE_DEF = json.loads("""
                 0.0
             ]
         },
+        "use_custom_color": {
+            "class": "bool",
+            "name": "use_custom_color",
+            "value": false
+        },
         "width": {
             "class": "float",
             "name": "width",
@@ -41,9 +46,9 @@ _ORIGINAL_NODE_DEF = json.loads("""
         "Color": {
             "class": "NodeSocketColor",
             "default_value": [
-                0.800000011920929,
-                0.800000011920929,
-                0.800000011920929,
+                0.8,
+                0.8,
+                0.8,
                 1.0
             ],
             "identifier": "Color",

@@ -7,9 +7,9 @@ _ORIGINAL_NODE_DEF = json.loads("""
             "class": "Color",
             "name": "color",
             "value": [
-                0.6079999804496765,
-                0.6079999804496765,
-                0.6079999804496765
+                0.608,
+                0.608,
+                0.608
             ]
         },
         "falloff": {
@@ -30,6 +30,11 @@ _ORIGINAL_NODE_DEF = json.loads("""
                 0.0
             ]
         },
+        "use_custom_color": {
+            "class": "bool",
+            "name": "use_custom_color",
+            "value": false
+        },
         "width": {
             "class": "float",
             "name": "width",
@@ -48,9 +53,9 @@ _ORIGINAL_NODE_DEF = json.loads("""
         "Color": {
             "class": "NodeSocketColor",
             "default_value": [
-                0.800000011920929,
-                0.800000011920929,
-                0.800000011920929,
+                0.8,
+                0.8,
+                0.8,
                 1.0
             ],
             "identifier": "Color",
@@ -59,7 +64,7 @@ _ORIGINAL_NODE_DEF = json.loads("""
         },
         "IOR": {
             "class": "NodeSocketFloatFactor",
-            "default_value": 1.399999976158142,
+            "default_value": 1.4,
             "identifier": "IOR",
             "name": "IOR",
             "value_type": "VALUE"
@@ -79,8 +84,8 @@ _ORIGINAL_NODE_DEF = json.loads("""
             "class": "NodeSocketVector",
             "default_value": [
                 1.0,
-                0.20000000298023224,
-                0.10000000149011612
+                0.2,
+                0.1
             ],
             "identifier": "Radius",
             "name": "Radius",

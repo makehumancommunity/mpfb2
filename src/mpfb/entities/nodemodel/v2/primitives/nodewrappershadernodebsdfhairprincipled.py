@@ -7,9 +7,9 @@ _ORIGINAL_NODE_DEF = json.loads("""
             "class": "Color",
             "name": "color",
             "value": [
-                0.6079999804496765,
-                0.6079999804496765,
-                0.6079999804496765
+                0.608,
+                0.608,
+                0.608
             ]
         },
         "height": {
@@ -30,6 +30,11 @@ _ORIGINAL_NODE_DEF = json.loads("""
             "name": "parametrization",
             "value": "COLOR"
         },
+        "use_custom_color": {
+            "class": "bool",
+            "name": "use_custom_color",
+            "value": false
+        },
         "width": {
             "class": "float",
             "name": "width",
@@ -41,9 +46,9 @@ _ORIGINAL_NODE_DEF = json.loads("""
         "Absorption Coefficient": {
             "class": "NodeSocketVector",
             "default_value": [
-                0.24553099274635315,
-                0.5199999809265137,
-                1.3650000095367432
+                0.24553,
+                0.52,
+                1.365
             ],
             "identifier": "Absorption Coefficient",
             "name": "Absorption Coefficient",
@@ -59,9 +64,9 @@ _ORIGINAL_NODE_DEF = json.loads("""
         "Color": {
             "class": "NodeSocketColor",
             "default_value": [
-                0.01751299947500229,
-                0.005762999877333641,
-                0.002059000078588724,
+                0.01751,
+                0.00576,
+                0.00206,
                 1.0
             ],
             "identifier": "Color",
@@ -70,14 +75,14 @@ _ORIGINAL_NODE_DEF = json.loads("""
         },
         "IOR": {
             "class": "NodeSocketFloat",
-            "default_value": 1.5499999523162842,
+            "default_value": 1.55,
             "identifier": "IOR",
             "name": "IOR",
             "value_type": "VALUE"
         },
         "Melanin": {
             "class": "NodeSocketFloatFactor",
-            "default_value": 0.800000011920929,
+            "default_value": 0.8,
             "identifier": "Melanin",
             "name": "Melanin",
             "value_type": "VALUE"
@@ -91,14 +96,14 @@ _ORIGINAL_NODE_DEF = json.loads("""
         },
         "Offset": {
             "class": "NodeSocketFloatAngle",
-            "default_value": 0.03490658476948738,
+            "default_value": 0.03491,
             "identifier": "Offset",
             "name": "Offset",
             "value_type": "VALUE"
         },
         "Radial Roughness": {
             "class": "NodeSocketFloatFactor",
-            "default_value": 0.30000001192092896,
+            "default_value": 0.3,
             "identifier": "Radial Roughness",
             "name": "Radial Roughness",
             "value_type": "VALUE"
@@ -126,7 +131,7 @@ _ORIGINAL_NODE_DEF = json.loads("""
         },
         "Roughness": {
             "class": "NodeSocketFloatFactor",
-            "default_value": 0.30000001192092896,
+            "default_value": 0.3,
             "identifier": "Roughness",
             "name": "Roughness",
             "value_type": "VALUE"

@@ -7,9 +7,9 @@ _ORIGINAL_NODE_DEF = json.loads("""
             "class": "Color",
             "name": "color",
             "value": [
-                0.6079999804496765,
-                0.6079999804496765,
-                0.6079999804496765
+                0.608,
+                0.608,
+                0.608
             ]
         },
         "height": {
@@ -29,6 +29,11 @@ _ORIGINAL_NODE_DEF = json.loads("""
             "class": "int",
             "name": "samples",
             "value": 4
+        },
+        "use_custom_color": {
+            "class": "bool",
+            "name": "use_custom_color",
+            "value": false
         },
         "width": {
             "class": "float",
@@ -51,7 +56,7 @@ _ORIGINAL_NODE_DEF = json.loads("""
         },
         "Radius": {
             "class": "NodeSocketFloat",
-            "default_value": 0.05000000074505806,
+            "default_value": 0.05,
             "identifier": "Radius",
             "name": "Radius",
             "value_type": "VALUE"

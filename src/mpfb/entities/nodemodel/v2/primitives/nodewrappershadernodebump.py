@@ -7,9 +7,9 @@ _ORIGINAL_NODE_DEF = json.loads("""
             "class": "Color",
             "name": "color",
             "value": [
-                0.6079999804496765,
-                0.6079999804496765,
-                0.6079999804496765
+                0.608,
+                0.608,
+                0.608
             ]
         },
         "height": {
@@ -29,6 +29,11 @@ _ORIGINAL_NODE_DEF = json.loads("""
                 0.0,
                 0.0
             ]
+        },
+        "use_custom_color": {
+            "class": "bool",
+            "name": "use_custom_color",
+            "value": false
         },
         "width": {
             "class": "float",

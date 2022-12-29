@@ -7,9 +7,9 @@ _ORIGINAL_NODE_DEF = json.loads("""
             "class": "Color",
             "name": "color",
             "value": [
-                0.6079999804496765,
-                0.6079999804496765,
-                0.6079999804496765
+                0.608,
+                0.608,
+                0.608
             ]
         },
         "height": {
@@ -45,6 +45,11 @@ _ORIGINAL_NODE_DEF = json.loads("""
             "name": "squash_frequency",
             "value": 2
         },
+        "use_custom_color": {
+            "class": "bool",
+            "name": "use_custom_color",
+            "value": false
+        },
         "width": {
             "class": "float",
             "name": "width",
@@ -70,9 +75,9 @@ _ORIGINAL_NODE_DEF = json.loads("""
         "Color1": {
             "class": "NodeSocketColor",
             "default_value": [
-                0.800000011920929,
-                0.800000011920929,
-                0.800000011920929,
+                0.8,
+                0.8,
+                0.8,
                 1.0
             ],
             "identifier": "Color1",
@@ -82,9 +87,9 @@ _ORIGINAL_NODE_DEF = json.loads("""
         "Color2": {
             "class": "NodeSocketColor",
             "default_value": [
-                0.20000000298023224,
-                0.20000000298023224,
-                0.20000000298023224,
+                0.2,
+                0.2,
+                0.2,
                 1.0
             ],
             "identifier": "Color2",
@@ -105,14 +110,14 @@ _ORIGINAL_NODE_DEF = json.loads("""
         },
         "Mortar Size": {
             "class": "NodeSocketFloat",
-            "default_value": 0.019999999552965164,
+            "default_value": 0.02,
             "identifier": "Mortar Size",
             "name": "Mortar Size",
             "value_type": "VALUE"
         },
         "Mortar Smooth": {
             "class": "NodeSocketFloat",
-            "default_value": 0.10000000149011612,
+            "default_value": 0.1,
             "identifier": "Mortar Smooth",
             "name": "Mortar Smooth",
             "value_type": "VALUE"

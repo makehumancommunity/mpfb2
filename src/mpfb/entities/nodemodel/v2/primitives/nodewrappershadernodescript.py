@@ -17,9 +17,9 @@ _ORIGINAL_NODE_DEF = json.loads("""
             "class": "Color",
             "name": "color",
             "value": [
-                0.6079999804496765,
-                0.6079999804496765,
-                0.6079999804496765
+                0.608,
+                0.608,
+                0.608
             ]
         },
         "filepath": {
@@ -53,6 +53,11 @@ _ORIGINAL_NODE_DEF = json.loads("""
         "use_auto_update": {
             "class": "bool",
             "name": "use_auto_update",
+            "value": false
+        },
+        "use_custom_color": {
+            "class": "bool",
+            "name": "use_custom_color",
             "value": false
         },
         "width": {
