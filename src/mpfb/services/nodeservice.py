@@ -56,6 +56,7 @@ _BLACKLISTED_NODE_CLASS_ATTRIBUTES = [
     'label',
     'mute',
     'name',
+    'node_tree',
     'output_template',
     'outputs',
     'parent',
@@ -69,7 +70,6 @@ _BLACKLISTED_NODE_CLASS_ATTRIBUTES = [
     'socket_value_update',
     'type',
     'update',
-    'use_custom_color',
     'width_hidden'
     ]
 
