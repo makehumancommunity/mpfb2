@@ -130,7 +130,7 @@ class MPFB_OT_Write_Composite_Operator(bpy.types.Operator):
         entities = LocationService.get_mpfb_root("entities")
         test = LocationService.get_mpfb_test("tests")
         v2 = os.path.join(entities, "nodemodel", "v2", "composites")
-        v2test = os.path.join(test, "03_entities", "nodemodel_v2_composites_" + output_name.lower() + ".py")
+        v2test = os.path.join(test, "03_entities", "nodemodel_v2_composites_" + output_name.lower() + "_test.py")
 
         tree_def = self._build_tree_def(node_tree)
 

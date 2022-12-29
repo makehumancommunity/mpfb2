@@ -36,7 +36,7 @@ class MPFB_OT_Rewrite_Node_Types_Operator(bpy.types.Operator):
         entities = LocationService.get_mpfb_root("entities")
         test = LocationService.get_mpfb_test("tests")
         v2 = os.path.join(entities, "nodemodel", "v2", "primitives")
-        v2test = os.path.join(test, "03_entities", "nodemodel_v2_primitives.py")
+        v2test = os.path.join(test, "03_entities", "nodemodel_v2_primitives_test.py")
         classes = NodeService.get_known_shader_node_classes()
         node_tree_name = ObjectService.random_name()
         node_tree = NodeService.create_node_tree(node_tree_name)
