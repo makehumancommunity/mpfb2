@@ -143,16 +143,20 @@ class MPFB_OT_Write_Composite_Operator(bpy.types.Operator):
             pyfile.write(json.dumps(tree_def, sort_keys=True, indent=4))
             pyfile.write("\"\"\")\n\n")
             pyfile.write("from .abstractgroupwrapper import AbstractGroupWrapper\n\n")
-            #pyfile.write("node = AbstractGroupWrapper.node\n")
-            #pyfile.write("link = AbstractGroupWrapper.link\n\n")
             pyfile.write("class _NodeWrapper" + output_name + "(AbstractGroupWrapper):\n")
             pyfile.write("    def __init__(self):\n")
             pyfile.write("        AbstractGroupWrapper.__init__(self, _ORIGINAL_NODE_DEF)\n\n")
             pyfile.write("    def setup_group_nodes(self, node_tree, nodes):\n\n")
             pyfile.write("        def node(node_class_name, name, label=None, input_socket_values=None, attribute_values=None, output_socket_values=None):\n")
-            pyfile.write("            nodes[name] = AbstractGroupWrapper.node(node_class_name, node_tree, name, label=label, input_socket_values=input_socket_values, output_socket_values=output_socket_values)\n\n")
+            pyfile.write("            nodes[name] = AbstractGroupWrapper.node(node_class_name, node_tree, name, label=label, input_socket_values=input_socket_values, attribute_values=attribute_values, output_socket_values=output_socket_values)\n\n")
             pyfile.write("        def link(from_node, from_socket, to_node, to_socket):\n")
             pyfile.write("            AbstractGroupWrapper.create_link(node_tree, nodes[from_node], from_socket, nodes[to_node], to_socket)\n\n")
+            for node in tree_def["nodes"]:
+                if node["name"] == "Group Input":
+                    pyfile.write("        nodes[\"Group Input\"].location = " + str(node["attribute_values"]["location"]) + "\n")
+                if node["name"] == "Group Output":
+                    pyfile.write("        nodes[\"Group Output\"].location = " + str(node["attribute_values"]["location"]) + "\n")
+            pyfile.write("\n")
             for node in tree_def["nodes"]:
                 if node["class"] not in ["NodeGroupOutput", "NodeGroupInput"]:
                     pyfile.write("        node(\"" + node["class"] + "\", \"" + node["name"] + "\"")
