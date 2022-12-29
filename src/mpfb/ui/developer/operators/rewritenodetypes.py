@@ -16,6 +16,15 @@ _LOG.set_level(LogService.DEBUG)
 def shorten_name(original_name):
     return original_name.replace("NodeWrapperShaderNode", "sn")
 
+def round_floats(o):
+    if isinstance(o, float):
+        return round(o, 4)
+    if isinstance(o, dict):
+        return {k: round_floats(v) for k, v in o.items()}
+    if isinstance(o, (list, tuple)):
+        return [round_floats(x) for x in o]
+    return o
+
 class MPFB_OT_Rewrite_Node_Types_Operator(bpy.types.Operator):
     """WARNING: this is a code generation utility and will overwrite corresponding source code files in the addon directory. Only use if you know what you are doing."""
     bl_idname = "mpfb.rewrite_node_types"
@@ -39,7 +48,7 @@ class MPFB_OT_Rewrite_Node_Types_Operator(bpy.types.Operator):
                 try:
                     pyfile.write("import bpy, json\n\n")
                     pyfile.write("_ORIGINAL_NODE_DEF = json.loads(\"\"\"\n")
-                    pyfile.write(json.dumps(node_info, sort_keys=True, indent=4))
+                    pyfile.write(json.dumps(round_floats(node_info), sort_keys=True, indent=4))
                     pyfile.write("\"\"\")\n\n")
                     pyfile.write("from .abstractnodewrapper import AbstractNodeWrapper\n\n")
                     pyfile.write("class _NodeWrapper" + shaderclass.__name__ + "(AbstractNodeWrapper):\n")
