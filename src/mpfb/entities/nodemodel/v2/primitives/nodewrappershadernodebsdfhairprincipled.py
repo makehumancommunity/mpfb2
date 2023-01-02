@@ -46,7 +46,7 @@ _ORIGINAL_NODE_DEF = json.loads("""
         "Absorption Coefficient": {
             "class": "NodeSocketVector",
             "default_value": [
-                0.24553,
+                0.2455,
                 0.52,
                 1.365
             ],
@@ -64,9 +64,9 @@ _ORIGINAL_NODE_DEF = json.loads("""
         "Color": {
             "class": "NodeSocketColor",
             "default_value": [
-                0.01751,
-                0.00576,
-                0.00206,
+                0.0175,
+                0.0058,
+                0.0021,
                 1.0
             ],
             "identifier": "Color",
@@ -96,7 +96,7 @@ _ORIGINAL_NODE_DEF = json.loads("""
         },
         "Offset": {
             "class": "NodeSocketFloatAngle",
-            "default_value": 0.03491,
+            "default_value": 0.0349,
             "identifier": "Offset",
             "name": "Offset",
             "value_type": "VALUE"

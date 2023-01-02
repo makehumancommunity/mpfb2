@@ -18,9 +18,9 @@ _ORIGINAL_NODE_DEF = json.loads("""
             "value": 100.0
         },
         "image": {
-            "class": "NoneType",
+            "class": "image",
             "name": "image",
-            "value": null
+            "value": ""
         },
         "interpolation": {
             "class": "str",

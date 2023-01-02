@@ -87,7 +87,7 @@ _ORIGINAL_NODE_DEF = json.loads("""
         "sun_size": {
             "class": "float",
             "name": "sun_size",
-            "value": 0.00951
+            "value": 0.0095
         },
         "turbidity": {
             "class": "float",

@@ -137,7 +137,11 @@ class AbstractNodeWrapper():
             socket = self._find_socket(node.inputs, socket_def["identifier"])
             node_value = None
             if hasattr(socket, "default_value"):
-                node_value = socket.default_value
+                socket_type = socket_def["value_type"]
+                if socket_type in ["RGB", "RGBA", "VECTOR"]:
+                    node_value = list(socket.default_value)
+                else:
+                    node_value = socket.default_value
             value_class = socket_def["class"]
             if not self._is_same(value_class, node_value, default_value):
                 comparison["input_socket_values"][key] = self._cleanup(node_value)
