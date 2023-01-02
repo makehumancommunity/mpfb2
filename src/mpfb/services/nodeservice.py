@@ -162,6 +162,9 @@ class NodeService:
                         attribute["value"].append(i)
                 if not attribute["class"] in _BLACKLISTED_ATTRIBUTE_TYPES:  # TODO: Should try to parse these instead of filtering them out
                     node_info["attributes"][item] = attribute
+                if attribute["name"] == "image": # Special case for shadernodeteximage
+                    attribute["class"] = "image"
+                    attribute["value"] = ""
         return node_info
 
     @staticmethod
