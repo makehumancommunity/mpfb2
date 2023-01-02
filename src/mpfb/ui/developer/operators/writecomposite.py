@@ -8,7 +8,7 @@ from mpfb.entities.nodemodel.v2.composites import *
 from mpfb._classmanager import ClassManager
 from mpfb.ui.developer.developerpanel import DEVELOPER_PROPERTIES
 from .rewritenodetypes import shorten_name, round_floats
-import bpy, os, json
+import bpy, os, json, pprint
 from string import Template
 
 _LOG = LogService.get_logger("developer.operators.writecomposite")
@@ -140,12 +140,13 @@ class MPFB_OT_Write_Composite_Operator(bpy.types.Operator):
             pyfile.write(json.dumps(node_info, sort_keys=True, indent=4))
             pyfile.write("\"\"\")\n\n")
             pyfile.write("_ORIGINAL_TREE_DEF = json.loads(\"\"\"\n")
+            #pprint.pprint(tree_def)
             pyfile.write(json.dumps(tree_def, sort_keys=True, indent=4))
             pyfile.write("\"\"\")\n\n")
             pyfile.write("from .abstractgroupwrapper import AbstractGroupWrapper\n\n")
             pyfile.write("class _NodeWrapper" + output_name + "(AbstractGroupWrapper):\n")
             pyfile.write("    def __init__(self):\n")
-            pyfile.write("        AbstractGroupWrapper.__init__(self, _ORIGINAL_NODE_DEF)\n\n")
+            pyfile.write("        AbstractGroupWrapper.__init__(self, _ORIGINAL_NODE_DEF, _ORIGINAL_TREE_DEF)\n\n")
             pyfile.write("    def setup_group_nodes(self, node_tree, nodes):\n\n")
             pyfile.write("        def node(node_class_name, name, label=None, input_socket_values=None, attribute_values=None, output_socket_values=None):\n")
             pyfile.write("            nodes[name] = AbstractGroupWrapper.node(node_class_name, node_tree, name, label=label, input_socket_values=input_socket_values, attribute_values=attribute_values, output_socket_values=output_socket_values)\n\n")
@@ -163,7 +164,7 @@ class MPFB_OT_Write_Composite_Operator(bpy.types.Operator):
                     if node["label"] and node["label"] != node["name"]:
                         pyfile.write(", label=\"" + node["label"] + "\"")
                     if node["attribute_values"] and len(node["attribute_values"].keys()) > 0:
-                        pyfile.write(", attribute_values=" + json.dumps(node["attribute_values"]))
+                        pyfile.write(", attribute_values=" + json.dumps(node["attribute_values"]).replace("true", "True").replace("false", "False"))
                     if node["input_socket_values"] and len(node["input_socket_values"].keys()) > 0:
                         pyfile.write(", input_socket_values=" + json.dumps(node["input_socket_values"]))
                     if node["output_socket_values"] and len(node["output_socket_values"].keys()) > 0:
@@ -215,6 +216,14 @@ class MPFB_OT_Write_Composite_Operator(bpy.types.Operator):
             pyfile.write("        if link.to_node.name == \"Group Output\":\n")
             pyfile.write("            has_link_to_output = True\n")
             pyfile.write("    assert has_link_to_output\n")
+            pyfile.write("    node_tree.nodes.remove(node)\n")
+            pyfile.write("    NodeService.destroy_node_tree(node_tree)\n\n")
+
+            pyfile.write("def test_composite_validate_tree():\n")
+            pyfile.write("    node_tree_name = ObjectService.random_name()\n")
+            pyfile.write("    node_tree = NodeService.create_node_tree(node_tree_name)\n")
+            pyfile.write("    node = NodeWrapper" + output_name + ".create_instance(node_tree)\n")
+            pyfile.write("    assert NodeWrapper" + output_name + ".validate_tree_against_original_def()\n")
             pyfile.write("    node_tree.nodes.remove(node)\n")
             pyfile.write("    NodeService.destroy_node_tree(node_tree)\n")
 

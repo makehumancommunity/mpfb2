@@ -44,6 +44,35 @@ class AbstractGroupWrapper(AbstractNodeWrapper):
         AbstractNodeWrapper.__init__(self, group_def)
         self.tree_def = tree_def
 
+    def validate_tree_against_original_def(self):
+        if not self.tree_def:
+            raise ValueError('No tree def registered for composite ' + self.node_class_name)
+        node_tree = bpy.data.node_groups[self.node_class_name]
+        if not node_tree:
+            raise ValueError('Could not find node tree for ' + self.node_class_name)
+        node_names_in_tree = []
+        node_names_in_def = []
+
+        for node in node_tree.nodes:
+            node_names_in_tree.append(node.name)
+
+        for node in self.tree_def["nodes"]:
+            node_names_in_def.append(node["name"])
+
+        missing_nodes = list(set(node_names_in_def) - set(node_names_in_tree))
+        superfluous_nodes = list(set(node_names_in_tree) - set(node_names_in_def))
+
+        if len(missing_nodes) < 1 and len(superfluous_nodes) < 1:
+            return True
+
+        for superfluous in superfluous_nodes:
+            _LOG.warn("Superfluous node", (self.node_class_name, superfluous))
+
+        for missing in missing_nodes:
+            _LOG.error("Node is missing", (self.node_class_name, missing))
+
+        return False
+
     @staticmethod
     def get_wrapper(node_class_name):
         _LOG.enter()
