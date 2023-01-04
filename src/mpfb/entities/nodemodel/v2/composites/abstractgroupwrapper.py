@@ -4,6 +4,7 @@ from mpfb.services.nodeservice import NodeService
 from mpfb.entities.nodemodel.v2.primitives import *
 
 _LOG = LogService.get_logger("nodemodel.v2.abstractgroupwrapper")
+_LOG.set_level(LogService.DEBUG)
 
 _SOCKET_TYPES=[
     "NodeSocketBool",
@@ -81,11 +82,11 @@ class AbstractGroupWrapper(AbstractNodeWrapper):
             wrapper = PRIMITIVE_NODE_WRAPPERS[node_class_name]
         else:
             try:
-                mod = importlib.import_module(".nodewrapper" + node_class_name.lower())
+                mod = importlib.import_module(".nodewrapper" + node_class_name.lower(), package="mpfb.entities.nodemodel.v2.composites")
                 if mod and hasattr(mod, "NodeWrapper" + node_class_name):
                     wrapper = getattr(mod, "NodeWrapper" + node_class_name)
-            except:
-                _LOG.error("Import error for ", node_class_name)
+            except Exception as e:
+                _LOG.error("Import error for ", (node_class_name, e))
         return wrapper
 
     @staticmethod
@@ -126,6 +127,7 @@ class AbstractGroupWrapper(AbstractNodeWrapper):
         _LOG.enter()
         fsocket = None
         tsocket = None
+        _LOG.debug("create link", (from_node, from_socket, to_node, to_socket))
         for socket in from_node.outputs:
             if socket.identifier == from_socket:
                 fsocket = socket
@@ -134,6 +136,7 @@ class AbstractGroupWrapper(AbstractNodeWrapper):
                 if socket.name == from_socket:
                     fsocket = socket
         if not fsocket:
+            _LOG.error("Could not find output socket '" + from_socket + "' on node '" + from_node.name + "'")
             raise ValueError("Could not find output socket '" + from_socket + "' on node '" + from_node.name + "'")
 
         for socket in to_node.inputs:
@@ -144,6 +147,7 @@ class AbstractGroupWrapper(AbstractNodeWrapper):
                 if socket.name == to_socket:
                     tsocket = socket
         if not tsocket:
+            _LOG.error("Could not find input socket '" + to_socket + "' on node '" + to_node.name + "'")
             raise ValueError("Could not find input socket '" + to_socket + "' on node '" + to_node.name + "'")
 
         link = node_tree.links.new(fsocket, tsocket)

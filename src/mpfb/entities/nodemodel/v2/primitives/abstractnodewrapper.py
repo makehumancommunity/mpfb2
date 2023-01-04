@@ -134,7 +134,9 @@ class AbstractNodeWrapper():
         return value
 
     def find_non_default_settings(self, node):
-        if node.__class__.__name__ != self.node_class_name:
+        nc = node.__class__.__name__
+
+        if nc != self.node_class_name and nc != "ShaderNodeGroup":
             raise ValueError("Cannot compare " + node.__class__.__name__ + " with " + self.node_class_name)
 
         comparison = dict()
