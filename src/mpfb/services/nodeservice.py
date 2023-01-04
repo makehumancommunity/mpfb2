@@ -164,7 +164,16 @@ class NodeService:
                     node_info["attributes"][item] = attribute
                 if attribute["name"] == "image": # Special case for shadernodeteximage
                     attribute["class"] = "image"
-                    attribute["value"] = ""
+                    attribute["value"] = dict()
+                    attribute["value"]["filepath"] = ""
+                    attribute["value"]["colorspace"] = "sRGB"
+                    if node.image:
+                        fp = NodeService.get_image_file_path(node)
+                        if fp:
+                            attribute["value"]["filepath"] = fp
+                        if image.colorspace_settings and image.colorspace_settings.name:
+                            attribute["value"]["colorspace"] = image.colorspace_settings.name
+
         return node_info
 
     @staticmethod

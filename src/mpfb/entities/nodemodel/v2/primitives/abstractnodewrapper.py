@@ -1,5 +1,6 @@
-import bpy
+import bpy, os
 from mpfb.services.logservice import LogService
+from mpfb.services.nodeservice import NodeService
 
 _LOG = LogService.get_logger("nodemodel.v2.abstractnodewrapper")
 
@@ -57,10 +58,28 @@ class AbstractNodeWrapper():
         for key in attribute_values:
             value = attribute_values[key]
             attribute = self.node_def["attributes"][key]
-            if not self._check_is_valid_assignment(value, attribute["class"]):
-                _LOG.error("Cannot use '" + str(value) + "' as value for " + key + " attribute of " + self.node_class_name + ". Expected value of type " + attribute["class"] + ".")
-                raise ValueError("Cannot use '" + str(value) + "' as value for " + key + " attribute of " + self.node_class_name + ". Expected value of type " + attribute["class"] + ".")
-            setattr(node, key, value)
+            if attribute["class"] == "image":
+                if value and value["filepath"]:
+                    image_path_absolute = value["filepath"]
+                    image_file_name = os.path.basename(value["filepath"])
+                    if image_file_name in bpy.data.images:
+                        _LOG.debug("image was previously loaded", image_path_absolute)
+                        image = bpy.data.images[image_file_name]
+                    else:
+                        _LOG.debug("image needs loading", image_path_absolute)
+                        image = bpy.data.images.load(image_path_absolute)
+                    colorspace = value["colorspace"]
+                    if colorspace:
+                        try:
+                            image.colorspace_settings.name = colorspace
+                        except:
+                            _LOG.debug("could not assign colorspace", (image_file_name, colorspace))
+                    node.image = image
+            else:
+                if not self._check_is_valid_assignment(value, attribute["class"]):
+                    _LOG.error("Cannot use '" + str(value) + "' as value for " + key + " attribute of " + self.node_class_name + ". Expected value of type " + attribute["class"] + ".")
+                    raise ValueError("Cannot use '" + str(value) + "' as value for " + key + " attribute of " + self.node_class_name + ". Expected value of type " + attribute["class"] + ".")
+                setattr(node, key, value)
 
     def _set_input_sockets(self, node, input_socket_values, forgiving=False):
         if not input_socket_values:
@@ -128,8 +147,15 @@ class AbstractNodeWrapper():
             default_value = attribute["value"]
             node_value = getattr(node, attribute["name"])
             value_class = attribute["class"]
-            if not self._is_same(value_class, node_value, default_value):
-                comparison["attribute_values"][key] = self._cleanup(node_value)
+            if value_class == "image":
+                fp = NodeService.get_image_file_path(node)
+                if not default_value or fp != default_value["filepath"]:
+                    comparison["attribute_values"][key] = dict()
+                    comparison["attribute_values"][key]["filepath"] = fp
+                    comparison["attribute_values"][key]["colorspace"] = node.image.colorspace_settings.name
+            else:
+                if not self._is_same(value_class, node_value, default_value):
+                    comparison["attribute_values"][key] = self._cleanup(node_value)
 
         for key in self.node_def["inputs"]:
             socket_def = self.node_def["inputs"][key]
