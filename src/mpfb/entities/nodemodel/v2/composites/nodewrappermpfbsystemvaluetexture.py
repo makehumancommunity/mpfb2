@@ -44,7 +44,7 @@ _ORIGINAL_NODE_DEF = json.loads("""
             "class": "NodeSocketFloat",
             "default_value": 0.0,
             "identifier": "Output_0",
-            "name": "IsLips",
+            "name": "Value",
             "value_type": "VALUE"
         }
     }
@@ -57,7 +57,7 @@ _ORIGINAL_TREE_DEF = json.loads("""
             "from_node": "RGB to BW",
             "from_socket": "Val",
             "to_node": "Group Output",
-            "to_socket": "IsLips"
+            "to_socket": "Value"
         },
         {
             "from_node": "Texture Coordinate",
@@ -148,20 +148,15 @@ _ORIGINAL_TREE_DEF = json.loads("""
 from .abstractgroupwrapper import AbstractGroupWrapper
 
 class NodeWrapperMpfbSystemValueTexture(AbstractGroupWrapper):
-    def __init__(self, filename, socketname, wrapper_class_name):
+    def __init__(self, filename, wrapper_class_name):
         nodedef = copy.deepcopy(_ORIGINAL_NODE_DEF)
         treedef = copy.deepcopy(_ORIGINAL_TREE_DEF)
 
         nodedef["class"] = wrapper_class_name
-        nodedef["outputs"]["Output_0"]["name"] = socketname
-
-        treedef["links"][0]["to_socket"] = socketname
 
         textures = LocationService.get_mpfb_data("textures")
         self.imagevals = dict(treedef["nodes"][4]["attribute_values"]["image"])
         self.imagevals["filepath"] = os.path.join(textures, filename)
-
-        self.socketname = socketname
 
         AbstractGroupWrapper.__init__(self, nodedef, treedef)
 
@@ -183,5 +178,5 @@ class NodeWrapperMpfbSystemValueTexture(AbstractGroupWrapper):
         link("Texture Coordinate", "UV", "System texture", "Vector")
         link("System texture", "Color", "RGB to BW", "Color")
 
-        link("RGB to BW", "Val", "Group Output", self.socketname)
+        link("RGB to BW", "Val", "Group Output", "Value")
 
