@@ -138,7 +138,9 @@ class RigService:
             modifier.use_deform_preserve_volume = True
             modifier.use_multi_modifier = True
             modifier.vertex_group = vg_name
-            modifier.invert_vertex_group = True
+
+            if bpy.app.version_file < (3, 5, 8):  # Blender bug T103074
+                modifier.invert_vertex_group = True
 
             while object.modifiers.find(modifier.name) > index_pv:
                 bpy.ops.object.modifier_move_up({'object': object}, modifier=modifier.name)
@@ -153,7 +155,9 @@ class RigService:
             modifier.object = subrig
             modifier.use_multi_modifier = True
             modifier.vertex_group = sub_vg_name
-            modifier.invert_vertex_group = True
+
+            if bpy.app.version_file < (3, 5, 8):  # Blender bug T103074
+                modifier.invert_vertex_group = True
 
             while object.modifiers.find(modifier.name) > index_sub:
                 bpy.ops.object.modifier_move_up({'object': object}, modifier=modifier.name)
