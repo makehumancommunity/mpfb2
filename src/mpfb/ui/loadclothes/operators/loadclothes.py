@@ -113,9 +113,6 @@ class MPFB_OT_Load_Clothes_Operator(bpy.types.Operator, ImportHelper):
                 ClothesService.set_up_rigging(
                     basemesh, clothes, rig, mhclo, interpolate_weights=interpolate_weights,
                     import_subrig=import_subrig, import_weights=import_weights)
-
-            if rig and set_up_rigging:
-                clothes.parent = rig
             else:
                 if basemesh:
                     clothes.parent = basemesh
