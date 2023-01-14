@@ -1,7 +1,0 @@
-{
-    "type": "boolean",
-    "name": "set_up_rigging",
-    "description": "Make the imported clothes object a child of a rig and add an armature modifier",
-    "label": "Set up rigging",
-    "default": true
-}

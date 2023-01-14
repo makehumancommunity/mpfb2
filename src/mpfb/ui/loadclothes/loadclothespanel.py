@@ -25,16 +25,7 @@ class MPFB_PT_Load_Clothes_Panel(Abstract_Panel):
         layout = self.layout
         scene = context.scene
         LOAD_CLOTHES_PROPERTIES.draw_properties(scene, layout, [
-            "object_type",
-            "material_type",
-            "fit_to_body",
-            "delete_group",
-            "specific_delete_group",
-            "set_up_rigging",
-            "interpolate_weights",
-            "import_subrig",
-            "import_weights",
-            "makeclothes_metadata"
+            "object_type"
             ])
         layout.operator("mpfb.load_clothes")
 

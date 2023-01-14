@@ -1,7 +1,0 @@
-{
-    "type": "boolean",
-    "name": "fit_to_body",
-    "description": "Adjust the shape of the imported clothes to fit the selected human",
-    "label": "Fit to body",
-    "default": true
-}
