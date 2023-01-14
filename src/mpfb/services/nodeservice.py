@@ -129,6 +129,10 @@ class NodeService:
                         input_dict["default_value"] = list(input_socket.default_value)
                     else:
                         input_dict["default_value"] = input_socket.default_value
+                if input_dict["class"] == "NodeSocketFloat":
+                    tree_input = node.node_tree.inputs[input_socket.name]
+                    input_dict["min_value"] = tree_input.min_value
+                    input_dict["max_value"] = tree_input.max_value
                 if not input_dict["class"] in _BLACKLISTED_ATTRIBUTE_TYPES:  # TODO: Should try to parse these instead of filtering them out
                     node_info["inputs"][input_socket.identifier] = input_dict
         if hasattr(node, "outputs"):
