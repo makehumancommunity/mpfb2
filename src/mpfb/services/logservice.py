@@ -63,6 +63,9 @@ class Logger():
             with open(_COMBINED, "a") as log_file:
                 log_file.write(long_message + "\n")
 
+    def debug_enabled(self):
+        return self.level >= LogService.DEBUG
+
     def set_level(self, level):
         """Set the highest level to report for this channel"""
         self.level = level
