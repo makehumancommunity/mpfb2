@@ -8,6 +8,10 @@ from mpfb.services.sceneconfigset import SceneConfigSet
 
 _LOG = LogService.get_logger("model.modelpanel")
 
+_LOC = os.path.dirname(__file__)
+MODEL_PROPERTIES_DIR = os.path.join(_LOC, "properties")
+MODEL_PROPERTIES = SceneConfigSet.from_definitions_in_json_directory(MODEL_PROPERTIES_DIR, prefix="MDP_")
+
 class MPFB_PT_Model_Panel(bpy.types.Panel):
     """Human modeling panel."""
 
@@ -24,6 +28,13 @@ class MPFB_PT_Model_Panel(bpy.types.Panel):
         box.label(text=box_text)
         return box
 
+    def _settings(self, scene, layout):
+        box = self._create_box(layout, "General")
+        props = [
+            "prune"
+            ]
+        MODEL_PROPERTIES.draw_properties(scene, box, props)
+
     def _general(self, scene, layout):
         box = self._create_box(layout, "General")
         box.operator('mpfb.refit_human')
@@ -33,6 +44,7 @@ class MPFB_PT_Model_Panel(bpy.types.Panel):
         layout = self.layout
         scene = context.scene
 
+        self._settings(scene, layout)
         self._general(scene, layout)
 
     @classmethod

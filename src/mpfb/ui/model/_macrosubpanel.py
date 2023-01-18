@@ -78,13 +78,9 @@ def _general_set_target_value(name, value):
     _LOG.trace("_general_set_target_value", (name, value))
     basemesh = bpy.context.object
     HumanObjectProperties.set_value(name, value, entity_reference=basemesh)
-    TargetService.reapply_macro_details(basemesh)
-    #===========================================================================
-    # macro_info = TargetService.get_macro_info_dict_from_basemesh(basemesh)
-    # _LOG.debug("macro_info", macro_info)
-    # target_stack = TargetService.calculate_target_stack_from_macro_info_dict(macro_info)
-    # _LOG.debug("target_stack", target_stack)
-    #===========================================================================
+    from mpfb.ui.model.modelpanel import MODEL_PROPERTIES
+    prune = MODEL_PROPERTIES.get_value("prune", entity_reference=bpy.context.scene)
+    TargetService.reapply_macro_details(basemesh, remove_zero_weight_targets=prune)
 
 def _general_get_target_value(name):
     basemesh = bpy.context.object
