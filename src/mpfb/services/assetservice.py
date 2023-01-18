@@ -125,7 +125,7 @@ class AssetService:
         _LOG.debug("Searching for asset with basename", filename)
         for root in roots:
             for dirpath, subdirs, files in os.walk(root):
-                _LOG.debug("Looking in directory", dirpath)
+                _LOG.trace("Looking in directory", dirpath)
                 if filename in files:
                     full_path = os.path.join(root, dirpath, filename)
                     _LOG.debug("Found match", full_path)
@@ -179,12 +179,13 @@ class AssetService:
         mhclo_path = AssetService.find_asset_absolute_path(asset_source, asset_subdir)
         _LOG.debug("alternative_materials_for_asset, mhclo path", mhclo_path)
         roots = AssetService.get_asset_roots(asset_subdir)
-        first_filter = "/" + os.path.dirname(mhclo_path) + "/"
+        parent_dir = os.path.basename(os.path.dirname(os.path.realpath(mhclo_path)))
+        first_filter = "/" + parent_dir + "/"
         _LOG.debug("Filter to match against", first_filter)
         possible_materials = []
         for mat in AssetService.find_asset_files_matching_pattern(roots, "*.mhmat"):
             if first_filter in str(mat):
-                possible_materials.append(mat)
+                possible_materials.append(str(mat))
         _LOG.debug("alternative_materials_for_asset, possible materials", possible_materials)
         if len(possible_materials) < 2 and _LOG.debug_enabled():
             _LOG.warn("Debugging alternative materials")
