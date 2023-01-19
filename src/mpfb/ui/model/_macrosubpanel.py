@@ -6,6 +6,7 @@ from mpfb import ClassManager
 from mpfb.services.logservice import LogService
 from mpfb.services.locationservice import LocationService
 from mpfb.services.objectservice import ObjectService
+from mpfb.services.humanservice import HumanService
 from mpfb.services.targetservice import TargetService
 from mpfb.services.uiservice import UiService
 from mpfb.entities.objectproperties import HumanObjectProperties
@@ -58,13 +59,9 @@ class MPFB_PT_Macro_Sub_Panel(bpy.types.Panel):
         layout = self.layout
         scene = context.scene
 
-        if not context.object:
+        basemesh = ObjectService.find_object_of_type_amongst_nearest_relatives(bpy.context.active_object, "Basemesh")
+        if not basemesh:
             return
-
-        if not ObjectService.object_is_basemesh(context.object):
-            return
-
-        basemesh = context.object
 
         for category_name in _MACROTARGETS.keys():
             targets = _MACROTARGETS[category_name]
@@ -76,14 +73,17 @@ _PROPS_DIR = os.path.join(LocationService.get_mpfb_root("entities"), "objectprop
 
 def _general_set_target_value(name, value):
     _LOG.trace("_general_set_target_value", (name, value))
-    basemesh = bpy.context.object
+    basemesh = ObjectService.find_object_of_type_amongst_nearest_relatives(bpy.context.active_object, "Basemesh")
     HumanObjectProperties.set_value(name, value, entity_reference=basemesh)
     from mpfb.ui.model.modelpanel import MODEL_PROPERTIES
     prune = MODEL_PROPERTIES.get_value("prune", entity_reference=bpy.context.scene)
+    ObjectService.activate_blender_object(basemesh)
     TargetService.reapply_macro_details(basemesh, remove_zero_weight_targets=prune)
+    if MODEL_PROPERTIES.get_value("refit", entity_reference=bpy.context.scene):
+        HumanService.refit(basemesh)
 
 def _general_get_target_value(name):
-    basemesh = bpy.context.object
+    basemesh = ObjectService.find_object_of_type_amongst_nearest_relatives(bpy.context.active_object, "Basemesh")
     value = HumanObjectProperties.get_value(name, entity_reference=basemesh)
     _LOG.trace("_general_get_target_value", (name, value))
     return value

@@ -8,6 +8,7 @@ from mpfb.services.locationservice import LocationService
 from mpfb.services.objectservice import ObjectService
 from mpfb.services.targetservice import TargetService
 from mpfb.services.assetservice import AssetService
+from mpfb.services.humanservice import HumanService
 from mpfb.services.uiservice import UiService
 
 from ._modelingicons import MODELING_ICONS
@@ -53,13 +54,9 @@ class _Abstract_Model_Panel(bpy.types.Panel):
         layout = self.layout
         scene = context.scene
 
-        if not context.object:
+        basemesh = ObjectService.find_object_of_type_amongst_nearest_relatives(bpy.context.active_object, "Basemesh")
+        if not basemesh:
             return
-
-        if not ObjectService.object_is_basemesh(context.object):
-            return
-
-        basemesh = context.object
 
         _LOG.dump("target_dir", self.target_dir)
         for category in self.section["categories"]:
@@ -168,10 +165,14 @@ def _set_opposed_modifier_value(scene, blender_object, section, category, value,
 
 def _set_modifier_value(scene, blender_object, section, category, value, side="unsided"):
     _LOG.dump("_set_modifier_value", (blender_object, category, value, side))
+    ObjectService.activate_blender_object(blender_object)
     if "opposites" in category:
         _set_opposed_modifier_value(scene, blender_object, section, category, value, side)
     else:
         _set_simple_modifier_value(scene, blender_object, section, category, value, side)
+    from mpfb.ui.model.modelpanel import MODEL_PROPERTIES
+    if MODEL_PROPERTIES.get_value("refit", entity_reference=bpy.context.scene):
+        HumanService.refit(blender_object)
 
 def _get_modifier_value(scene, blender_object, section, category, side="unsided"):
     _LOG.dump("enter _get_modifier_value", (blender_object, category, side))
@@ -199,7 +200,7 @@ for name in _sections:
         # reference to a function, what it gets is a function pointer. This is independent of name.
 
         _function_str_general = ""
-        _function_str_general = _function_str_general + "    obj = bpy.context.object\n"
+        _function_str_general = _function_str_general + "    obj = ObjectService.find_object_of_type_amongst_nearest_relatives(bpy.context.active_object, \"Basemesh\")\n"
         _function_str_general = _function_str_general + "    secname = \"" + name + "\"\n"
         _function_str_general = _function_str_general + "    cat = _sections[secname][\"categories\"][" + str(_i) + "]\n"
 

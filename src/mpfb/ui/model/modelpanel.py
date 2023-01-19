@@ -31,7 +31,8 @@ class MPFB_PT_Model_Panel(bpy.types.Panel):
     def _settings(self, scene, layout):
         box = self._create_box(layout, "General")
         props = [
-            "prune"
+            "prune",
+            "refit"
             ]
         MODEL_PROPERTIES.draw_properties(scene, box, props)
 
@@ -49,7 +50,10 @@ class MPFB_PT_Model_Panel(bpy.types.Panel):
 
     @classmethod
     def poll(cls, context):
-        return ObjectService.object_is_basemesh(context.active_object)
+        if not context.active_object:
+            return False
+        basemesh = ObjectService.find_object_of_type_amongst_nearest_relatives(context.active_object, "Basemesh")
+        return basemesh is not None
 
 ClassManager.add_class(MPFB_PT_Model_Panel)
 
