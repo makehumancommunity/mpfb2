@@ -29,7 +29,7 @@ class MPFB_PT_Model_Panel(bpy.types.Panel):
         return box
 
     def _settings(self, scene, layout):
-        box = self._create_box(layout, "General")
+        box = self._create_box(layout, "Settings")
         props = [
             "prune",
             "refit"
@@ -37,8 +37,9 @@ class MPFB_PT_Model_Panel(bpy.types.Panel):
         MODEL_PROPERTIES.draw_properties(scene, box, props)
 
     def _general(self, scene, layout):
-        box = self._create_box(layout, "General")
+        box = self._create_box(layout, "Actions")
         box.operator('mpfb.refit_human')
+        box.operator('mpfb.prune_human')
 
     def draw(self, context):
         _LOG.enter()
