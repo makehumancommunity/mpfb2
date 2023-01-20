@@ -437,24 +437,6 @@ class TargetService:
         return 0.0
 
     @staticmethod
-    def prune_shapekeys(blender_object, cutoff=0.0001):
-        keys = blender_object.data.shape_keys
-
-        if keys is None or keys.key_blocks is None or len(keys.key_blocks) < 1:
-            return
-
-        skip = True # First shapekey is Basis
-
-        for shape_key in keys.key_blocks:
-            if not skip and shape_key.value < cutoff:
-                # TODO: This simply assumes that the blender_object is also the context active object.
-                # If this is not the case, this might cause a bit of pain...
-                shape_key_idx = blender_object.data.shape_keys.key_blocks.find(shape_key.name)
-                blender_object.active_shape_key_index = shape_key_idx
-                bpy.ops.object.shape_key_remove()
-            skip = False
-
-    @staticmethod
     def set_target_value(blender_object, target_name, value, delete_target_on_zero=False):
         if blender_object is None or target_name is None or not target_name:
             _LOG.error("Empty object or target", (blender_object, target_name))
@@ -466,15 +448,15 @@ class TargetService:
             _LOG.error("Object does not have any shape keys")
             raise ValueError('Empty object or target')
 
-        if delete_target_on_zero:
-            TargetService.prune_shapekeys(blender_object)
-
         for shape_key in keys.key_blocks:
             if shape_key.name == target_name:
                 shape_key.value = value
-
-        if delete_target_on_zero:
-            TargetService.prune_shapekeys(blender_object)
+                if value < 0.0001 and delete_target_on_zero:
+                    # TODO: This simply assumes that the blender_object is also the context active object.
+                    # If this is not the case, this might cause a bit of pain...
+                    shape_key_idx = blender_object.data.shape_keys.key_blocks.find(shape_key.name)
+                    blender_object.active_shape_key_index = shape_key_idx
+                    bpy.ops.object.shape_key_remove()
 
     @staticmethod
     def bulk_load_targets(blender_object, target_stack, encode_target_names=False):
