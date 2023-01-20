@@ -30,6 +30,12 @@ class MPFB_PT_MakePose_Panel(Abstract_Panel):
         MakePoseProperties.draw_properties(scene, box, props)
         box.operator('mpfb.save_pose')
 
+    def _retarget(self, scene, layout):
+        box = self._create_box(layout, "Retarget", "TOOL_SETTINGS")
+        #props = ["name", "pose_type", "roottrans", "iktrans", "fktrans", "overwrite"]
+        #MakePoseProperties.draw_properties(scene, box, props)
+        box.operator('mpfb.retarget')
+
     def _save_animation(self, scene, layout):
         box = self._create_box(layout, "Save animation", "TOOL_SETTINGS")
         #props = ["name", "pose_type", "roottrans", "iktrans", "fktrans", "overwrite"]
@@ -41,8 +47,6 @@ class MPFB_PT_MakePose_Panel(Abstract_Panel):
         #props = ["name", "pose_type", "roottrans", "iktrans", "fktrans", "overwrite"]
         #MakePoseProperties.draw_properties(scene, box, props)
         box.operator('mpfb.load_animation')
-
-
 
 #===============================================================================
 #     def _initialize_pose(self, blender_object, layout):
@@ -71,14 +75,13 @@ class MPFB_PT_MakePose_Panel(Abstract_Panel):
         blender_object = context.active_object
         if blender_object is None:
             return
-
-        object_type = ObjectService.get_object_type(blender_object)
-
-        if object_type != "Skeleton":
+    
+        if blender_object.type != "ARMATURE":
             return
 
         self._general_settings(scene, layout)
         self._save_pose(scene, layout)
+        self._retarget(scene, layout)
         self._save_animation(scene, layout)
         self._load_animation(scene, layout)
 

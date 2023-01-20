@@ -8,6 +8,7 @@ from mpfb.services.rigservice import RigService
 from .objectservice import ObjectService
 from bpy.types import PoseBone
 from mathutils import Vector
+from mpfb.entities.retarget import RETARGET_MAPS
 
 _LOG = LogService.get_logger("services.animationservice")
 
@@ -201,3 +202,67 @@ class AnimationService:
                 skip = [0]
             AnimationService.set_key_frames_from_dict(armature_object, animation_dict, True, True, True, iter*max, iter_offsets, skip)
             iter = iter + 1
+
+    @staticmethod
+    def retarget(mocap_rig, target_rig, mocap_type="cmucgspeed"):
+        target_type = RigService.identify_rig(target_rig)
+        mappings = RETARGET_MAPS[mocap_type][target_type]
+        ObjectService.activate_blender_object(target_rig, deselect_all=True)
+        target_rig.select_set(True)
+        mocap_rig.select_set(True)
+        
+        bpy.ops.object.mode_set(mode='POSE', toggle=False)
+        
+        for bonemap in mappings:
+            target = RigService.find_pose_bone_by_name(bonemap.target_bone_name, target_rig)
+            mocap = RigService.find_pose_bone_by_name(bonemap.mocap_bone_name, mocap_rig)
+            constraint = RigService.add_bone_constraint_to_pose_bone(target.name, target_rig, "COPY_ROTATION")
+            constraint.target = mocap_rig
+            constraint.subtarget = mocap.name
+            constraint.target_space = bonemap.mocap_rotation_space
+            constraint.owner_space = bonemap.target_rotation_space
+            constraint.mix_mode = 'BEFORE'
+            
+            if bonemap.translation:
+                constraint = RigService.add_bone_constraint_to_pose_bone(target.name, target_rig, "COPY_LOCATION")
+                constraint.target = mocap_rig
+                constraint.subtarget = mocap.name
+                constraint.target_space = bonemap.mocap_location_space
+                constraint.owner_space = bonemap.target_location_space
+                constraint.use_offset = False
+            
+#===============================================================================
+# actposebone.constraints["CopyLoc SMPTarget"].target_space = 'LOCAL'
+# actposebone.constraints["CopyLoc SMPTarget"].owner_space = 'LOCAL'
+# actposebone.constraints["CopyLoc SMPTarget"].use_offset= True
+# 
+# bpy.ops.pose.constraint_add_with_targets(type='COPY_ROTATION')
+# actposebone.constraints[-1].name = 'CopyRot SMPTarget'
+# actposebone.constraints["CopyRot SMPTarget"].target_space = 'LOCAL'
+# actposebone.constraints["CopyRot SMPTarget"].owner_space = 'LOCAL'
+# actposebone.constraints["CopyRot SMPTarget"].mix_mode = 'BEFORE'
+#===============================================================================
+
+#===============================================================================
+# 
+# class BoneMap:
+#     
+#     translation = False
+#     
+#     mocap_bone_name = None
+#     mocap_rotation_space = 'LOCAL'
+#     mocap_location_space = 'WORLD'
+#     
+#     target_bone_name = None
+#     target_rotation_space = 'LOCAL'
+#     target_location_space = 'WORLD'
+#         
+#     def __init__(self, mocap_bone_name, target_bone_name, *args, **kwargs):
+#         
+#         self.mocap_bone_name = mocap_bone_name
+#         self.target_bone_name = target_bone_name
+#         
+#         for key, value in kwargs.items():
+#             setattr(self, key, value)
+#         
+#===============================================================================
