@@ -8,36 +8,46 @@ import bpy, os
 
 _LOG = LogService.get_logger("ui.developerpanel")
 
-_NEED_RELOAD = True
-_CACHED_LEVELS_LIST = []
-
 def invalidate_list():
     """In order to force a reload of the available loggers. This shouldn't really be needed."""
-    global _NEED_RELOAD # pylint: disable=W0603
-    _NEED_RELOAD = True
+    pass
 
 def _populate_list(self, context):
-    global _NEED_RELOAD # pylint: disable=W0603
-    global _CACHED_LEVELS_LIST # pylint: disable=W0603
+    _LOG.enter()
+    global DEVELOPER_PROPERTIES # pylint: disable=W0603
+    filter=""
+    if isinstance(context, bpy.types.Scene):
+        filter = DEVELOPER_PROPERTIES.get_value("loggers_filter", entity_reference=context)
+    else:
+        filter = DEVELOPER_PROPERTIES.get_value("loggers_filter", entity_reference=context.scene)
+    return LogService.get_loggers_list_as_property_enum(filter)
+
+def _populate_categories(self, context):
     _LOG.enter()
     _LOG.trace("Context is scene", isinstance(context, bpy.types.Scene))
-    if _NEED_RELOAD:
-        _CACHED_LEVELS_LIST = LogService.get_loggers_list_as_property_enum()
-        _NEED_RELOAD = False
-    return _CACHED_LEVELS_LIST
+    return LogService.get_loggers_categories_as_property_enum()
 
 _LEVELS_LIST_PROP = {
     "type": "enum",
     "name": "available_loggers",
     "description": "Available loggers",
     "label": "Available loggers",
-    "default": 0
+    "default": None
+}
+
+_LOGGERS_FILTER_PROP = {
+    "type": "enum",
+    "name": "loggers_filter",
+    "description": "Only list loggers starting with this string",
+    "label": "Filter loggers",
+    "default": None
 }
 
 _LOC = os.path.dirname(__file__)
 DEVELOPER_PROPERTIES_DIR = os.path.join(_LOC, "properties")
 DEVELOPER_PROPERTIES = SceneConfigSet.from_definitions_in_json_directory(DEVELOPER_PROPERTIES_DIR, prefix="DEV_")
 DEVELOPER_PROPERTIES.add_property(_LEVELS_LIST_PROP, _populate_list)
+DEVELOPER_PROPERTIES.add_property(_LOGGERS_FILTER_PROP, _populate_categories)
 
 class MPFB_PT_Developer_Panel(bpy.types.Panel):
     """UI for various developer functions."""
@@ -57,7 +67,7 @@ class MPFB_PT_Developer_Panel(bpy.types.Panel):
         box = self._create_box(layout, "Log levels")
         box.operator("mpfb.list_log_levels")
         box.operator("mpfb.reset_log_levels")
-        DEVELOPER_PROPERTIES.draw_properties(scene, box, ["available_loggers", "chosen_level"])
+        DEVELOPER_PROPERTIES.draw_properties(scene, box, ["loggers_filter", "available_loggers", "chosen_level"])
         box.operator("mpfb.set_log_level")
 
     def _export_log_file(self, scene, layout):

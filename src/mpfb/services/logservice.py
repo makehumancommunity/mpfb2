@@ -165,9 +165,14 @@ class LogService():
         return _LOGSERVICE._default_log_level
 
     @staticmethod
-    def get_loggers_list_as_property_enum():
+    def get_loggers_list_as_property_enum(filter=""):
         """Return a list of loggers in a format which is appropriate for lists in the UI."""
-        return _LOGSERVICE.get_loggers_list_as_property_enum()
+        return _LOGSERVICE.get_loggers_list_as_property_enum(filter)
+
+    @staticmethod
+    def get_loggers_categories_as_property_enum():
+        """Return a list of logger categories in a format which is appropriate for lists in the UI."""
+        return _LOGSERVICE.get_loggers_categories_as_property_enum()
 
     @staticmethod
     def get_loggers():
@@ -241,15 +246,33 @@ class _LogService():
         logger.set_level(level)
         self.rewrite_json()
 
-    def get_loggers_list_as_property_enum(self):
+    def get_loggers_list_as_property_enum(self, filter=""):
         loggers = [("default", "default", "the default log level", 0)]
         current = 1
         logger_names = list(self._loggers.keys())
         logger_names.sort()
         for name in logger_names:
-            loggers.append((name, name, name, current))
-            current = current + 1
+            if not filter or name.startswith(filter):
+                loggers.append((name, name, name, current))
+                current = current + 1
         return loggers
+
+    def get_loggers_categories_as_property_enum(self):
+        categories = [("", "", "Show all loggers", 0)]
+        current = 1
+        logger_names = list(self._loggers.keys())
+        logger_names.sort()
+        category_names = []
+        for name in logger_names:
+            if not "." in name:
+                cat = name
+            else:
+                (cat, suffix) = str(name).split(".", 1)
+            if not cat in category_names:
+                category_names.append(cat)
+                categories.append((cat, cat, cat, current))
+                current = current + 1
+        return categories
 
     def get_loggers(self):
         return self._loggers
