@@ -284,9 +284,18 @@ class TargetService:
         out = ""
         if include_header:
             out = _HEADER
+
+        def fmt(value):
+            s = ('%.3f' % abs(value)).strip('0')
+            if s == '.':
+                return '0'
+            if s[-1] == '.':
+                s = s + '0'
+            return '-' + s if value < 0 else s
+
         for i, x, y, z in shape_key_info["vertices"]:
             # Note XZY order and -Y
-            out = out + "{index} {x} {z} {y}\n".format(index=i, x=round(x, 4), y=round(-y, 4), z=round(z, 4))
+            out = out + "{index} {x} {z} {y}\n".format(index=i, x=fmt(x), y=fmt(-y), z=fmt(z))
         return out
 
     @staticmethod
