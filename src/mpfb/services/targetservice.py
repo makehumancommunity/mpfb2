@@ -67,10 +67,33 @@ _OPPOSITES = [
     "pointed-triangle"
     ]
 
+_ODD_TARGET_NAMES = []
+
 class TargetService:
 
     def __init__(self):
         raise RuntimeError("You should not instance TargetService. Use its static methods instead.")
+
+    @staticmethod
+    def shapekey_is_target(shapekey_name):
+        """Guess if shape key is a target based on its name. This will catch the vast majority of all cases, but
+        there are also fringe names and custom target which will not be identified correctly.
+        Unfortunately, custom properties cannot be assigned to shapekeys, so there is no practical way to
+        store additional metadata about a shapekey."""
+        if not shapekey_name:
+            return False
+        if shapekey_name.lower() == "basis":
+            return False
+        if shapekey_name.startswith("$md"):
+            return True
+        for opposite in _OPPOSITES:
+            if opposite in shapekey_name:
+                return True
+            (low, high) = opposite.split("-")
+            if "-" + low in shapekey_name or "-" + high in shapekey_name:
+                return True
+        # Last resort since this array won't be populated if you load a blend file with previously loaded targets
+        return shapekey_name in _ODD_TARGET_NAMES
 
     @staticmethod
     def bake_targets(basemesh):
@@ -569,6 +592,9 @@ class TargetService:
                     shape_key.value = weight
         _LOADER.time(str(full_path) + " " + str(weight))
         profiler.leave("load_target")
+
+        if not TargetService.shapekey_is_target(shape_key.name) and not shape_key.name in _ODD_TARGET_NAMES:
+            _ODD_TARGET_NAMES.append(shape_key.name)
 
         return shape_key
 
