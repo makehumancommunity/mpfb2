@@ -20,7 +20,7 @@ class MPFB_OT_PruneHumanOperator(bpy.types.Operator):
         ObjectService.activate_blender_object(basemesh, deselect_all=True)
         TargetService.prune_shapekeys(basemesh)
 
-        self.report({'INFO'}, "Shape keys have been removed")
+        self.report({'INFO'}, "Shape keys have tidied up")
         return {'FINISHED'}
 
     @classmethod
@@ -31,4 +31,3 @@ class MPFB_OT_PruneHumanOperator(bpy.types.Operator):
         return basemesh is not None
 
 ClassManager.add_class(MPFB_OT_PruneHumanOperator)
-
