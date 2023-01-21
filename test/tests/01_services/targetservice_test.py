@@ -26,3 +26,34 @@ def test_shapekey_is_target_human():
             assert TargetService.shapekey_is_target(shapekey.name)
         else:
             assert not TargetService.shapekey_is_target(shapekey.name)
+
+def test_prune_shapekeys():
+    """HumanService.shapekey_is_target() -- loaded targets"""
+    obj = HumanService.create_human()
+    assert obj is not None
+
+    ObjectService.activate_blender_object(obj, deselect_all=True)
+
+    shapekey_names = []
+
+    for shapekey in obj.data.shape_keys.key_blocks:
+        shapekey_names.append(shapekey.name)
+
+    test_shapekey_name = shapekey_names[2]
+    TargetService.prune_shapekeys(obj)
+
+    assert test_shapekey_name in obj.data.shape_keys.key_blocks
+    assert "Basis" in obj.data.shape_keys.key_blocks
+
+    obj.data.shape_keys.key_blocks[test_shapekey_name].value = 0.0000
+    TargetService.prune_shapekeys(obj)
+
+    assert not test_shapekey_name in obj.data.shape_keys.key_blocks
+    assert "Basis" in obj.data.shape_keys.key_blocks
+
+    TargetService.create_shape_key(obj, "yadayada")
+    obj.data.shape_keys.key_blocks["yadayada"].value = 0.0000
+
+    TargetService.prune_shapekeys(obj)
+
+    assert "yadayada" in obj.data.shape_keys.key_blocks

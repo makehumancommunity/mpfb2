@@ -920,3 +920,23 @@ class TargetService:
         if encode_name:
             name = TargetService.encode_shapekey_name(name)
         return name
+
+    @staticmethod
+    def prune_shapekeys(blender_object, cutoff=0.0001):
+        """Remove shape keys with a weight lower than cutoff. This will only remove shape keys which
+        are identified as targets."""
+        keys = blender_object.data.shape_keys
+
+        if keys is None or keys.key_blocks is None or len(keys.key_blocks) < 1:
+            return
+
+        skip = True # First shapekey is Basis
+
+        for shape_key in keys.key_blocks:
+            if not skip and shape_key.value < cutoff and TargetService.shapekey_is_target(shape_key.name):
+                # TODO: This simply assumes that the blender_object is also the context active object.
+                # If this is not the case, this might cause a bit of pain...
+                shape_key_idx = blender_object.data.shape_keys.key_blocks.find(shape_key.name)
+                blender_object.active_shape_key_index = shape_key_idx
+                bpy.ops.object.shape_key_remove()
+            skip = False
