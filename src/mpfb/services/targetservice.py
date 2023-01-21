@@ -1,6 +1,7 @@
 """Module for managing targets and shape keys."""
 
-import os, gzip, bpy, json, bmesh, random
+import os, gzip, bpy, json, bmesh, random, re
+
 from pathlib import Path
 from mpfb.services.logservice import LogService
 from mpfb.services.assetservice import AssetService
@@ -29,6 +30,7 @@ _MIRROR_RIGHT = None
 _MACRO_CONFIG = dict()
 _TARGETS_DIR = LocationService.get_mpfb_data("targets")
 _MACRO_FILE = os.path.join(_TARGETS_DIR, "macrodetails", "macro.json")
+_MACRO_PATH_PATTERN = "/mpfb/data/targets/macrodetails/"
 
 with open(_MACRO_FILE, "r") as json_file:
     _MACRO_CONFIG = json.load(json_file)
@@ -196,10 +198,11 @@ class TargetService:
 
         _LOG.debug("shape key", shape_key)
 
-        shape_key_idx = blender_object.data.shape_keys.key_blocks.find(shape_key_name)
+        shape_key_idx = blender_object.data.shape_keys.key_blocks.find(shape_key.name)
         blender_object.active_shape_key_index = shape_key_idx
         profiler.leave("create_shape_key")
-        return blender_object.data.shape_keys.key_blocks[shape_key_name]
+
+        return shape_key
 
     @staticmethod
     def get_shape_key_as_dict(blender_object, shape_key_name, smaller_than_counts_as_unmodified=0.0001, only_modified_verts=True):
@@ -581,7 +584,7 @@ class TargetService:
         profiler.leave("bulk_load_targets")
 
     @staticmethod
-    def load_target(blender_object, full_path, weight=0.0, name=None):
+    def load_target(blender_object, full_path, *, weight=0.0, name=None):
 
         profiler = PrimitiveProfiler("TargetService")
         profiler.enter("load_target")
@@ -596,9 +599,7 @@ class TargetService:
         shape_key = None
 
         if name is None:
-            name = os.path.basename(full_path)
-            name = name.replace(".target.gz", "")
-            name = name.replace(".target", "")
+            name = TargetService.filename_to_shapekey_name(full_path)
 
         _LOADER.reset_timer()
         if str(full_path).endswith(".gz"):
@@ -607,17 +608,16 @@ class TargetService:
                 raw_data = gzip_file.read()
                 target_string = raw_data.decode('utf-8')
                 profiler.leave("load_target_gzip")
-                if not target_string is None:
-                    shape_key = TargetService.target_string_to_shape_key(target_string, name, blender_object)
-                    shape_key.value = weight
         else:
             profiler.enter("load_target_plain")
             with open(full_path, "r") as target_file:
                 target_string = target_file.read()
                 profiler.leave("load_target_plain")
-                if not target_string is None:
-                    shape_key = TargetService.target_string_to_shape_key(target_string, name, blender_object)
-                    shape_key.value = weight
+
+        if target_string is not None:
+            shape_key = TargetService.target_string_to_shape_key(target_string, name, blender_object)
+            shape_key.value = weight
+
         _LOADER.time(str(full_path) + " " + str(weight))
         profiler.leave("load_target")
 
@@ -903,7 +903,7 @@ class TargetService:
                 to_load = os.path.join(LocationService.get_mpfb_data("targets"), target[0] + ".target.gz")
                 name = TargetService.macrodetail_filename_to_shapekey_name(to_load, encode_name=True)
                 _LOG.debug("Need to add target: ", (name, to_load))
-                TargetService.load_target(basemesh, to_load, 0.0, name)
+                TargetService.load_target(basemesh, to_load, weight=0.0, name=name)
         for target in required_macro_targets:
             requested = str(TargetService.macrodetail_filename_to_shapekey_name(target[0], encode_name=True)).strip()
             _LOG.debug("Will attempt to set target value for", (requested, target[1]))
@@ -940,13 +940,32 @@ class TargetService:
         return name
 
     @staticmethod
-    def macrodetail_filename_to_shapekey_name(filename, encode_name=False):
+    def macrodetail_filename_to_shapekey_name(filename, encode_name: bool = False):
+        return TargetService.filename_to_shapekey_name(filename, macrodetail=True, encode_name=encode_name)
+
+    @staticmethod
+    def filename_to_shapekey_name(filename, *, macrodetail: bool | None = False, encode_name: bool | None = None):
         name = os.path.basename(filename)
-        name = name.replace(".target.gz", "")
-        name = name.replace(".target", "")
-        name = "macrodetail-" + name
+
+        name = re.sub(r'\.gz$', "", name, flags=re.IGNORECASE)
+        name = re.sub(r'\.p?target$', "", name, flags=re.IGNORECASE)
+
+        if macrodetail is None:
+            from pathlib import Path
+            path_items = Path(os.path.abspath(filename)).parts
+            macrodetail = _MACRO_PATH_PATTERN in '/'.join(path_items).lower()
+
+        if macrodetail:
+            name = "macrodetail-" + name
+            if encode_name is None:
+                encode_name = True
+
+        if encode_name is None and len(name) > 60:
+            encode_name = True
+
         if encode_name:
             name = TargetService.encode_shapekey_name(name)
+
         return name
 
     @staticmethod
