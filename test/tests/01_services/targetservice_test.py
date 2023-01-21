@@ -28,7 +28,7 @@ def test_shapekey_is_target_human():
             assert not TargetService.shapekey_is_target(shapekey.name)
 
 def test_prune_shapekeys():
-    """HumanService.shapekey_is_target() -- loaded targets"""
+    """HumanService.prune_shapekeys()"""
     obj = HumanService.create_human()
     assert obj is not None
 
