@@ -1,6 +1,7 @@
 """Module for managing targets and shape keys."""
 
-import os, gzip, bpy, json, bmesh, random, re
+import os, gzip, bpy, json, random, re
+from itertools import count
 
 from pathlib import Path
 from mpfb.services.logservice import LogService
@@ -10,6 +11,8 @@ from mpfb.entities.objectproperties import GeneralObjectProperties
 from mpfb.entities.objectproperties import HumanObjectProperties
 from mpfb.entities.primitiveprofiler import PrimitiveProfiler
 from mpfb.services.objectservice import ObjectService
+
+from mathutils import Vector
 
 _LOG = LogService.get_logger("services.targetservice")
 
@@ -71,6 +74,7 @@ _OPPOSITES = [
     ]
 
 _ODD_TARGET_NAMES = []
+
 
 class TargetService:
 
@@ -205,7 +209,8 @@ class TargetService:
         return shape_key
 
     @staticmethod
-    def get_shape_key_as_dict(blender_object, shape_key_name, smaller_than_counts_as_unmodified=0.0001, only_modified_verts=True):
+    def get_shape_key_as_dict(blender_object, shape_key_name: str | bpy.types.ShapeKey, *,
+                              smaller_than_counts_as_unmodified=0.0001, only_modified_verts=True):
         _LOG.enter()
         _LOG.reset_timer()
         profiler = PrimitiveProfiler("TargetService")
@@ -219,13 +224,15 @@ class TargetService:
         if not scale_factor or scale_factor < 0.0001:
             scale_factor = 1.0
 
-        target = None
-
-        for shape_key in blender_object.data.shape_keys.key_blocks:
-            if str(shape_key.name).lower() == str(shape_key_name).lower():
-                target = shape_key
-        if not target:
-            raise ValueError("Object does not have the " + shape_key_name + " shape key")
+        if isinstance(shape_key_name, bpy.types.ShapeKey):
+            target = shape_key_name
+        else:
+            for shape_key in blender_object.data.shape_keys.key_blocks:
+                if str(shape_key.name).lower() == str(shape_key_name).lower():
+                    target = shape_key
+                    break
+            else:
+                raise ValueError("Object does not have the " + shape_key_name + " shape key")
 
         basis = target.relative_key
 
@@ -234,30 +241,15 @@ class TargetService:
 
         info = dict()
         info["name"] = shape_key_name
-        info["total_number_of_vertices"] = len(target.data)
-        info["number_of_modified_vertices"] = 0
-        info["scale_factor"] = scale_factor
-        info["vertices"] = []
+        info["vertices"] = vertices = []
 
-        i = 0
-        while i < info["total_number_of_vertices"]:
-            vert_info = dict()
-            vert_info["index"] = i
-            vert_info["basis_coordinates"] = basis.data[i].co.copy()
-            vert_info["target_coordinates"] = target.data[i].co.copy()
-            vert_info["coordinate_difference"] = target.data[i].co - basis.data[i].co
-            vert_info["scaled_coordinate_difference"] = vert_info["coordinate_difference"] * (1.0 / scale_factor)
-            coord = vert_info["scaled_coordinate_difference"]
+        for i, basis_vert, target_vert in zip(count(0), basis.data, target.data):
+            offset = (target_vert.co - basis_vert.co) / scale_factor
+            size = abs(offset[0]) + abs(offset[1]) + abs(offset[2])
 
-            vert_info["normalized_total_difference"] = abs(coord[0]) + abs(coord[1]) + abs(coord[2])
+            if not only_modified_verts or size > smaller_than_counts_as_unmodified:
+                vertices.append((i, offset[0], offset[1], offset[2]))
 
-            if not only_modified_verts or vert_info["normalized_total_difference"] > smaller_than_counts_as_unmodified:
-                info["vertices"].append(vert_info)
-
-            if vert_info["normalized_total_difference"] > smaller_than_counts_as_unmodified:
-                info["number_of_modified_vertices"] = info["number_of_modified_vertices"] + 1
-
-            i = i + 1
         _LOG.time("Extracting shape key took")
 
         profiler.leave("get_shape_key_as_dict")
@@ -265,119 +257,92 @@ class TargetService:
         return info
 
     @staticmethod
-    def shape_key_info_as_target_string(shape_key_info, include_header=True, smaller_than_counts_as_unmodified=0.0001):
+    def _set_shape_key_coords_from_dict(blender_object, shape_key, info, *, scale_factor=None):
+        if scale_factor is None:
+            scale_factor = GeneralObjectProperties.get_value("scale_factor", entity_reference=blender_object)
+            if not scale_factor or scale_factor < 0.0001:
+                scale_factor = 1.0
+
+        basis = shape_key.relative_key
+
+        if not basis:
+            raise ValueError("Object does not have a Basis shape key")
+
+        buffer = [0.0] * (len(shape_key.data) * 3)
+        basis.data.foreach_get('co', buffer)
+
+        for i, x, y, z in info["vertices"]:
+            base = i * 3
+            buffer[base] += x * scale_factor
+            buffer[base + 1] += y * scale_factor
+            buffer[base + 2] += z * scale_factor
+
+        shape_key.data.foreach_set('co', buffer)
+
+    @staticmethod
+    def shape_key_info_as_target_string(shape_key_info, include_header=True):
         out = ""
         if include_header:
             out = _HEADER
-        for vert in shape_key_info["vertices"]:
-            if vert["normalized_total_difference"] > smaller_than_counts_as_unmodified:
-                coord = vert["scaled_coordinate_difference"]
-                # Note XZY order and -Y
-                out = out + "{index} {x} {z} {y}\n".format(index=vert["index"], x=round(coord[0], 4), y=round(-coord[1], 4), z=round(coord[2], 4))
+        for i, x, y, z in shape_key_info["vertices"]:
+            # Note XZY order and -Y
+            out = out + "{index} {x} {z} {y}\n".format(index=i, x=round(x, 4), y=round(-y, 4), z=round(z, 4))
         return out
 
     @staticmethod
-    def _target_string_to_shape_key_info(target_string, shape_key_name, blender_object, scale_factor=None):
-
+    def _target_string_to_shape_key_info(target_string, shape_key_name):
         profiler = PrimitiveProfiler("TargetService")
         profiler.enter("_target_string_to_shape_key_info")
-        if scale_factor is None and not blender_object is None:
-            scale_factor = GeneralObjectProperties.get_value("scale_factor", entity_reference=blender_object)
-        if not scale_factor or scale_factor < 0.0001:
-            scale_factor = 1.0
 
         info = dict()
         info["name"] = shape_key_name
-        info["total_number_of_vertices"] = 0
-        info["number_of_modified_vertices"] = 0
-        info["scale_factor"] = scale_factor
-        info["vertices"] = []
+        info["vertices"] = vertices = []
 
         lines = target_string.splitlines()
 
         profiler.enter("- parse_target_lines")
+
         for line in lines:
             target_line = str(line.strip())
             if target_line and not target_line.startswith("#") and not target_line.startswith("\""):
-                profiler.enter("-- parse_target_line")
                 parts = target_line.split(" ", 4)
+
                 index = int(parts[0])
                 x = float(parts[1])
-                y = -float(parts[3]) # XZY order, -Y
+                y = -float(parts[3])  # XZY order, -Y
                 z = float(parts[2])
-                vert_info = dict()
-                vert_info["index"] = index
-                vert_info["coordinate_difference"] = [x * scale_factor, y * scale_factor, z * scale_factor]
-                vert_info["scaled_coordinate_difference"] = [x, y, z]
-                profiler.leave("-- parse_target_line")
-                profiler.enter("-- insert_target_line")
-                if not blender_object is None:
-                    if index < len(blender_object.data.vertices):
-                        vert = blender_object.data.vertices[index]
 
-                        diff = vert_info["coordinate_difference"]
-                        profiler.enter("copy_vert")
-                        bco = vert.co.copy()
-                        tco = [bco[0] + diff[0], bco[1] + diff[1], bco[2] + diff[2]]
-                        profiler.leave("copy_vert")
+                vertices.append((index, x, y, z))
 
-                        vert_info["basis_coordinates"] = bco
-                        vert_info["target_coordinates"] = tco
-                else:
-                    vert_info["basis_coordinates"] = [0.0, 0.0, 0.0] # We have no info about the mesh here
-                    vert_info["target_coordinates"] = [0.0, 0.0, 0.0] # We have no info about the mesh here
-                info["vertices"].append(vert_info)
-                profiler.leave("-- insert_target_line")
         profiler.leave("- parse_target_lines")
-
-        info["number_of_modified_vertices"] = len(info["vertices"])
-        if not blender_object is None:
-            info["total_number_of_vertices"] = len(blender_object.data.vertices)
-        else:
-            info["total_number_of_vertices"] = len(info["vertices"])
 
         profiler.leave("_target_string_to_shape_key_info")
         return info
 
     @staticmethod
-    def target_string_to_shape_key(target_string, shape_key_name, blender_object):
+    def target_string_to_shape_key(target_string, shape_key_name, blender_object, *, reuse_existing=False):
         _LOG.enter()
         _LOG.reset_timer()
         profiler = PrimitiveProfiler("TargetService")
         profiler.enter("target_string_to_shape_key_info")
-        TargetService.create_shape_key(blender_object, shape_key_name)
-        shape_key_info = TargetService._target_string_to_shape_key_info(target_string, shape_key_name, blender_object)
+
+        if reuse_existing and shape_key_name in blender_object.data.shape_keys.key_blocks:
+            shape_key = blender_object.data.shape_keys.key_blocks[shape_key_name]
+        else:
+            shape_key = TargetService.create_shape_key(blender_object, shape_key_name)
+
+        shape_key_info = TargetService._target_string_to_shape_key_info(target_string, shape_key_name)
 
         profiler.enter("- apply_shape_key_info")
 
-        profiler.enter("-- setup_bmesh")
-        mesh = bmesh.new()
-        mesh.from_mesh(blender_object.data)
-        profiler.leave("-- setup_bmesh")
-        profiler.enter("-- ensure_lookup_table")
-        mesh.verts.ensure_lookup_table()
-        profiler.leave("-- ensure_lookup_table")
-
-        target = mesh.verts.layers.shape[shape_key_name]
-        _LOG.debug("bmesh, target", (mesh, target))
-
-        profiler.enter("-- apply_verts")
-        for vertex in shape_key_info["vertices"]:
-            index = vertex["index"]
-            if index < len(mesh.verts):
-                mesh.verts[index][target] = vertex["target_coordinates"]
-        profiler.leave("-- apply_verts")
-
-        profiler.enter("-- apply_bmesh")
-        mesh.to_mesh(blender_object.data)
-        mesh.free()
-        profiler.leave("-- apply_bmesh")
+        TargetService._set_shape_key_coords_from_dict(blender_object, shape_key, shape_key_info)
 
         profiler.leave("- apply_shape_key_info")
 
         _LOG.time("Target was loaded in")
         profiler.leave("target_string_to_shape_key_info")
-        return blender_object.data.shape_keys.key_blocks[shape_key_name]
+
+        return shape_key
 
     @staticmethod
     def _load_mirror_table():
@@ -535,47 +500,18 @@ class TargetService:
                 else:
                     with open(target_full_path, "r") as target_file:
                         parsed_target["target_string"] = target_file.read()
-                name = os.path.basename(target_full_path)
-                name = name.replace(".target.gz", "")
-                name = name.replace(".target", "")
-                parsed_target["shape_key_name"] = name
+                parsed_target["shape_key_name"] = TargetService.filename_to_shapekey_name(target_full_path)
                 load_info["parsed_target_stack"].append(parsed_target)
             else:
                 _LOG.warn("Skipping target because it could not be resolved to a path", target)
         profiler.leave(" -- bulk load -> load string data")
 
-        profiler.enter(" -- bulk load -> shape key placeholders")
-        for target in load_info["parsed_target_stack"]:
-            TargetService.create_shape_key(blender_object, target["shape_key_name"])
-        profiler.leave(" -- bulk load -> shape key placeholders")
-
-        profiler.enter(" -- bulk load -> setup bmesh")
-        mesh = bmesh.new()
-        mesh.from_mesh(blender_object.data)
-        mesh.verts.ensure_lookup_table()
-        profiler.leave(" -- bulk load -> setup bmesh")
-
         profiler.enter(" -- bulk load -> populate shape keys")
         for target_info in load_info["parsed_target_stack"]:
-            shape_key_info = TargetService._target_string_to_shape_key_info(target_info["target_string"], target_info["shape_key_name"], blender_object)
-            target = mesh.verts.layers.shape[target_info["shape_key_name"]]
-            _LOG.debug("bmesh, target", (mesh, target))
-            for vertex in shape_key_info["vertices"]:
-                index = vertex["index"]
-                if index < len(mesh.verts):
-                    mesh.verts[index][target] = vertex["target_coordinates"]
+            shape_key = TargetService.target_string_to_shape_key(
+                target_info["target_string"], target_info["shape_key_name"], blender_object)
+            shape_key.value = target_info["value"]
         profiler.leave(" -- bulk load -> populate shape keys")
-        profiler.enter("- apply_shape_key_info")
-
-        profiler.enter(" -- bulk load -> apply bmesh")
-        mesh.to_mesh(blender_object.data)
-        mesh.free()
-        profiler.leave(" -- bulk load -> apply bmesh")
-
-        profiler.enter(" -- bulk load -> set target values")
-        for target_info in load_info["parsed_target_stack"]:
-            blender_object.data.shape_keys.key_blocks[target_info["shape_key_name"]].value = target_info["value"]
-        profiler.leave(" -- bulk load -> set target values")
 
         profiler.leave("bulk_load_targets")
 

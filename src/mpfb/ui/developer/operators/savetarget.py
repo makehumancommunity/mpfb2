@@ -83,7 +83,7 @@ class MPFB_OT_Save_Target_Operator(bpy.types.Operator, ExportHelper):
         blender_object = context.active_object
         shape_key = self.get_active_key(blender_object)
 
-        info = TargetService.get_shape_key_as_dict(blender_object, shape_key.name)
+        info = TargetService.get_shape_key_as_dict(blender_object, shape_key)
 
         _LOG.dump("Shape key", info)
 
