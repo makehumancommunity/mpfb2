@@ -176,6 +176,8 @@ class AssetService:
     def alternative_materials_for_asset(asset_source, asset_subdir="clothes", exclude_default=True):
         _LOG.enter()
         _LOG.debug("starting scan for alternative materials for asset source", asset_source)
+        if not asset_source:
+            return []
         mhclo_path = AssetService.find_asset_absolute_path(asset_source, asset_subdir)
         _LOG.debug("alternative_materials_for_asset, mhclo path", mhclo_path)
         roots = AssetService.get_asset_roots(asset_subdir)
