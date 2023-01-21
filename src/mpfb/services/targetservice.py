@@ -506,11 +506,7 @@ class TargetService:
             if shape_key.name == target_name:
                 shape_key.value = value
                 if value < 0.0001 and delete_target_on_zero:
-                    # TODO: This simply assumes that the blender_object is also the context active object.
-                    # If this is not the case, this might cause a bit of pain...
-                    shape_key_idx = blender_object.data.shape_keys.key_blocks.find(shape_key.name)
-                    blender_object.active_shape_key_index = shape_key_idx
-                    bpy.ops.object.shape_key_remove()
+                    blender_object.shape_key_remove(shape_key)
 
     @staticmethod
     def bulk_load_targets(blender_object, target_stack, encode_target_names=False):
@@ -918,9 +914,7 @@ class TargetService:
                 _LOG.debug("Checking shape key", (shape_key.name, shape_key.value))
                 if str(shape_key.name).startswith("$md") and shape_key.value < 0.0001:
                     _LOG.debug("Will remove macrodetail target", TargetService.decode_shapekey_name(shape_key.name))
-                    shape_key_idx = basemesh.data.shape_keys.key_blocks.find(shape_key.name)
-                    basemesh.active_shape_key_index = shape_key_idx
-                    bpy.ops.object.shape_key_remove()
+                    basemesh.shape_key_remove(shape_key)
 
         profiler.leave("reapply_macro_details")
 
@@ -981,9 +975,5 @@ class TargetService:
 
         for shape_key in keys.key_blocks:
             if not skip and shape_key.value < cutoff and TargetService.shapekey_is_target(shape_key.name):
-                # TODO: This simply assumes that the blender_object is also the context active object.
-                # If this is not the case, this might cause a bit of pain...
-                shape_key_idx = blender_object.data.shape_keys.key_blocks.find(shape_key.name)
-                blender_object.active_shape_key_index = shape_key_idx
-                bpy.ops.object.shape_key_remove()
+                blender_object.shape_key_remove(shape_key)
             skip = False
