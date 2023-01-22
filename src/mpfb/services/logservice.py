@@ -247,6 +247,8 @@ class _LogService():
         self.rewrite_json()
 
     def get_loggers_list_as_property_enum(self, filter=""):
+        if filter == "ALL":
+            filter = ""
         loggers = [("default", "default", "the default log level", 0)]
         current = 1
         logger_names = list(self._loggers.keys())
@@ -258,7 +260,7 @@ class _LogService():
         return loggers
 
     def get_loggers_categories_as_property_enum(self):
-        categories = [("", "", "Show all loggers", 0)]
+        categories = [("ALL", "(no filter)", "Do not filter: show all loggers", 0)]
         current = 1
         logger_names = list(self._loggers.keys())
         logger_names.sort()

@@ -6,6 +6,7 @@ from mpfb.services.objectservice import ObjectService
 from mpfb.services.logservice import LogService
 from mpfb.services.locationservice import LocationService
 from mpfb.services.uiservice import UiService
+from mpfb.services.systemservice import SystemService
 
 _LOG = LogService.get_logger("services.assetservice")
 
@@ -176,15 +177,16 @@ class AssetService:
     def alternative_materials_for_asset(asset_source, asset_subdir="clothes", exclude_default=True):
         _LOG.enter()
         _LOG.debug("starting scan for alternative materials for asset source", asset_source)
+        if not asset_source:
+            return []
         mhclo_path = AssetService.find_asset_absolute_path(asset_source, asset_subdir)
         _LOG.debug("alternative_materials_for_asset, mhclo path", mhclo_path)
         roots = AssetService.get_asset_roots(asset_subdir)
         parent_dir = os.path.basename(os.path.dirname(os.path.realpath(mhclo_path)))
-        first_filter = "/" + parent_dir + "/"
-        _LOG.debug("Filter to match against", first_filter)
+        _LOG.debug("Parent dir to match against", parent_dir)
         possible_materials = []
         for mat in AssetService.find_asset_files_matching_pattern(roots, "*.mhmat"):
-            if first_filter in str(mat):
+            if SystemService.string_contains_path_segment(mat, parent_dir):
                 possible_materials.append(str(mat))
         _LOG.debug("alternative_materials_for_asset, possible materials", possible_materials)
         if len(possible_materials) < 2 and _LOG.debug_enabled():

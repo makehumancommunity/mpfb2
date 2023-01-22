@@ -1,6 +1,6 @@
 """Various functionality for system and directories"""
 
-import os, sys, subprocess, bpy, addon_utils
+import os, sys, subprocess, bpy, addon_utils, re
 from .logservice import LogService
 _LOG = LogService.get_logger("services.systemservice")
 
@@ -55,3 +55,23 @@ class SystemService:
         (loaded_default, loaded_state) = addon_utils.check('rigify')
         return loaded_state
 
+    @staticmethod
+    def normalize_path_separators(path_string):
+        if not path_string:
+            return ""
+        return re.sub(r"\\+", "/", str(path_string))
+
+    @staticmethod
+    def string_contains_path_segment(full_path, path_segment, case_insensitive=True):
+        if not full_path or not path_segment:
+            return False
+        full = SystemService.normalize_path_separators(full_path)
+        path_segment = str(path_segment)
+        if case_insensitive:
+            full = full.lower()
+            path_segment = path_segment.lower()
+        segments = full.split("/")
+        for segment in segments:
+            if segment == path_segment:
+                return True
+        return False
