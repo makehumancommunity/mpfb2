@@ -5,12 +5,14 @@ from mathutils import Matrix, Vector
 from mpfb.services.locationservice import LocationService
 from mpfb.services.logservice import LogService
 from mpfb.services.rigservice import RigService
+from mpfb.services.mathservice import MathService
 from .objectservice import ObjectService
 from bpy.types import PoseBone
 from mathutils import Vector
-from mpfb.entities.retarget import RETARGET_MAPS
+from mpfb.entities.retarget import RETARGET_INFO
 
 _LOG = LogService.get_logger("services.animationservice")
+_LOG.set_level(LogService.DEBUG)
 
 class AnimationService:
     """Service with utility functions for working with animations. It only has static methods, so you don't
@@ -204,65 +206,143 @@ class AnimationService:
             iter = iter + 1
 
     @staticmethod
-    def retarget(mocap_rig, target_rig, mocap_type="cmucgspeed"):
-        target_type = RigService.identify_rig(target_rig)
-        mappings = RETARGET_MAPS[mocap_type][target_type]
-        ObjectService.activate_blender_object(target_rig, deselect_all=True)
-        target_rig.select_set(True)
-        mocap_rig.select_set(True)
-        
-        bpy.ops.object.mode_set(mode='POSE', toggle=False)
-        
-        for bonemap in mappings:
-            target = RigService.find_pose_bone_by_name(bonemap.target_bone_name, target_rig)
-            mocap = RigService.find_pose_bone_by_name(bonemap.mocap_bone_name, mocap_rig)
-            constraint = RigService.add_bone_constraint_to_pose_bone(target.name, target_rig, "COPY_ROTATION")
-            constraint.target = mocap_rig
-            constraint.subtarget = mocap.name
-            constraint.target_space = bonemap.mocap_rotation_space
-            constraint.owner_space = bonemap.target_rotation_space
-            constraint.mix_mode = 'BEFORE'
-            
-            if bonemap.translation:
-                constraint = RigService.add_bone_constraint_to_pose_bone(target.name, target_rig, "COPY_LOCATION")
-                constraint.target = mocap_rig
-                constraint.subtarget = mocap.name
-                constraint.target_space = bonemap.mocap_location_space
-                constraint.owner_space = bonemap.target_location_space
-                constraint.use_offset = False
-            
-#===============================================================================
-# actposebone.constraints["CopyLoc SMPTarget"].target_space = 'LOCAL'
-# actposebone.constraints["CopyLoc SMPTarget"].owner_space = 'LOCAL'
-# actposebone.constraints["CopyLoc SMPTarget"].use_offset= True
-# 
-# bpy.ops.pose.constraint_add_with_targets(type='COPY_ROTATION')
-# actposebone.constraints[-1].name = 'CopyRot SMPTarget'
-# actposebone.constraints["CopyRot SMPTarget"].target_space = 'LOCAL'
-# actposebone.constraints["CopyRot SMPTarget"].owner_space = 'LOCAL'
-# actposebone.constraints["CopyRot SMPTarget"].mix_mode = 'BEFORE'
-#===============================================================================
+    def _calculate_axis_contribution(rig, pose_bone, axis, target_head_location, shift_dist=0.001):
+        # There is most likely a mathematic way to solve this with matrices etc. This approach ignores
+        # all differences in rotation orders, coordinate systems etc and instead figures out a direction
+        # by giving it a try, seeing what happens, and acting from there
+        orig_loc = rig.matrix_world @ pose_bone.head
+        original_distance = MathService.vector_distance(orig_loc, target_head_location)
 
-#===============================================================================
-# 
-# class BoneMap:
-#     
-#     translation = False
-#     
-#     mocap_bone_name = None
-#     mocap_rotation_space = 'LOCAL'
-#     mocap_location_space = 'WORLD'
-#     
-#     target_bone_name = None
-#     target_rotation_space = 'LOCAL'
-#     target_location_space = 'WORLD'
-#         
-#     def __init__(self, mocap_bone_name, target_bone_name, *args, **kwargs):
-#         
-#         self.mocap_bone_name = mocap_bone_name
-#         self.target_bone_name = target_bone_name
-#         
-#         for key, value in kwargs.items():
-#             setattr(self, key, value)
-#         
-#===============================================================================
+        _LOG.debug("\n\n\nAXIS\n\n\n", axis)
+
+        _LOG.debug("world space target location", target_head_location)
+
+        _LOG.debug("original pose bone location", pose_bone.location)
+        _LOG.debug("original pose bone head pose space", pose_bone.head)
+        _LOG.debug("original pose bone head world space", orig_loc)
+        _LOG.debug("original distance", original_distance)
+
+        if MathService.vector_equals(orig_loc, target_head_location):
+            return 0.0
+
+        _LOG.debug("shift dist", shift_dist)
+
+        pose_bone.location[axis] = pose_bone.location[axis] + shift_dist
+        bpy.context.view_layer.update()
+
+        shifted_loc = rig.matrix_world @ pose_bone.head
+        shifted_distance = MathService.vector_distance(shifted_loc, target_head_location)
+
+        _LOG.debug("shifted pose bone location", pose_bone.location)
+        _LOG.debug("shifted pose bone head pose space", pose_bone.head)
+        _LOG.debug("shifted pose bone head world space", shifted_loc)
+        _LOG.debug("shifted distance", shifted_distance)
+
+        dist_improvement = original_distance - shifted_distance
+        _LOG.debug("distance improvement", dist_improvement)
+
+        pose_bone.location[axis] = pose_bone.location[axis] - shift_dist
+        bpy.context.view_layer.update()
+
+        return dist_improvement
+
+    @staticmethod
+    def _shift_mpfb_bone_towards_mocap(mocap_rig, mpfb_rig, mocap_pose_bone, mpfb_pose_bone, use_mocap_tail=False, use_mpfb_tail=False):
+        bone_location_before_shift = mpfb_pose_bone.location.copy()
+
+        mocap_bone_location = mocap_rig.matrix_world @ mocap_pose_bone.head
+        mpfb_bone_location = mpfb_rig.matrix_world @ mpfb_pose_bone.head
+
+        _LOG.debug("Shifting bone, from, to", (mocap_pose_bone, mpfb_bone_location, mocap_bone_location))
+        _LOG.debug("mocap_bone_location", mocap_bone_location)
+        _LOG.debug("mpfb_bone_location", mocap_bone_location)
+
+        xcontr = AnimationService._calculate_axis_contribution(mpfb_rig, mpfb_pose_bone, 0, mocap_bone_location)
+        ycontr = AnimationService._calculate_axis_contribution(mpfb_rig, mpfb_pose_bone, 1, mocap_bone_location)
+        zcontr = AnimationService._calculate_axis_contribution(mpfb_rig, mpfb_pose_bone, 2, mocap_bone_location)
+
+        _LOG.dump("\n\n\naxes contributions\n\n\n", (xcontr, ycontr, zcontr))
+
+        contr = abs(xcontr) + abs(ycontr) + abs(zcontr)
+
+        _LOG.dump("total contribution", contr)
+
+        original_dist = MathService.vector_distance(mocap_bone_location, mpfb_bone_location)
+
+        shift_vector = [
+            xcontr / contr * original_dist,
+            ycontr / contr * original_dist,
+            zcontr / contr * original_dist
+            ]
+
+        _LOG.dump("shift_vector", shift_vector)
+
+        for i in range(3):
+            mpfb_pose_bone.location[i] = mpfb_pose_bone.location[i] + shift_vector[i]
+
+        bpy.context.view_layer.update()
+
+        shifted_mpfb_bone_location = mpfb_rig.matrix_world @ mpfb_pose_bone.head
+        shifted_dist = MathService.vector_distance(mocap_bone_location, shifted_mpfb_bone_location)
+
+        _LOG.debug("shifted vs original mpfb_bone_location", (shifted_mpfb_bone_location, mpfb_bone_location))
+        _LOG.debug("shifted vs original dist", (shifted_dist, original_dist))
+
+        distance_covered_fraction = (original_dist - shifted_dist) / original_dist
+
+        _LOG.dump("distance_covered_fraction", distance_covered_fraction)
+
+        shift_vector = [
+            (xcontr / contr * original_dist) / distance_covered_fraction,
+            (ycontr / contr * original_dist) / distance_covered_fraction,
+            (zcontr / contr * original_dist) / distance_covered_fraction
+            ]
+
+        _LOG.dump("adjusted shift_vector", shift_vector)
+
+        for i in range(3):
+            mpfb_pose_bone.location[i] = bone_location_before_shift[i] + shift_vector[i]
+
+        bpy.context.view_layer.update()
+
+        shifted_mpfb_bone_location = mpfb_rig.matrix_world @ mpfb_pose_bone.head
+        shifted_dist = MathService.vector_distance(mocap_bone_location, mpfb_bone_location)
+
+        _LOG.debug("final shifted_mpfb_bone_location", mocap_bone_location)
+        _LOG.debug("final shifted_dist", shifted_dist)
+
+    @staticmethod
+    def retarget(mocap_rig, mpfb_rig, mocap_type="cmucgspeed"):
+        mpfb_type = RigService.identify_rig(mpfb_rig)
+        ObjectService.activate_blender_object(mpfb_rig, deselect_all=True)
+        mpfb_rig.select_set(True)
+        mocap_rig.select_set(True)
+
+        mpfb_info = RETARGET_INFO[mpfb_type]
+        mocap_info = RETARGET_INFO[mocap_type]
+
+        bpy.ops.object.mode_set(mode='POSE', toggle=False)
+
+        mocap_pose_root = RigService.find_pose_bone_by_name(mocap_info.get_root_bone(), mocap_rig)
+        mpfb_pose_root = RigService.find_pose_bone_by_name(mpfb_info.get_root_bone(), mpfb_rig)
+        AnimationService._shift_mpfb_bone_towards_mocap(mocap_rig, mpfb_rig, mocap_pose_root, mpfb_pose_root)
+
+        mocap_left_hand = RigService.find_pose_bone_by_name(mocap_info.get_left_hand_bone(), mocap_rig)
+        mpfb_left_hand = RigService.find_pose_bone_by_name(mpfb_info.get_left_hand_bone(), mpfb_rig)
+        AnimationService._shift_mpfb_bone_towards_mocap(mocap_rig, mpfb_rig, mocap_left_hand, mpfb_left_hand)
+
+        mocap_right_hand = RigService.find_pose_bone_by_name(mocap_info.get_right_hand_bone(), mocap_rig)
+        mpfb_right_hand = RigService.find_pose_bone_by_name(mpfb_info.get_right_hand_bone(), mpfb_rig)
+        AnimationService._shift_mpfb_bone_towards_mocap(mocap_rig, mpfb_rig, mocap_right_hand, mpfb_right_hand)
+
+        mocap_left_foot = RigService.find_pose_bone_by_name(mocap_info.get_left_foot_bone(), mocap_rig)
+        mpfb_left_foot = RigService.find_pose_bone_by_name(mpfb_info.get_left_foot_bone(), mpfb_rig)
+        AnimationService._shift_mpfb_bone_towards_mocap(mocap_rig, mpfb_rig, mocap_left_foot, mpfb_left_foot)
+
+        mocap_right_foot = RigService.find_pose_bone_by_name(mocap_info.get_right_foot_bone(), mocap_rig)
+        mpfb_right_foot = RigService.find_pose_bone_by_name(mpfb_info.get_right_foot_bone(), mpfb_rig)
+        AnimationService._shift_mpfb_bone_towards_mocap(mocap_rig, mpfb_rig, mocap_right_foot, mpfb_right_foot)
+
+        bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
+
+

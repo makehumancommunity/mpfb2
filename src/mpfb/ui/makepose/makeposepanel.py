@@ -75,7 +75,7 @@ class MPFB_PT_MakePose_Panel(Abstract_Panel):
         blender_object = context.active_object
         if blender_object is None:
             return
-    
+
         if blender_object.type != "ARMATURE":
             return
 

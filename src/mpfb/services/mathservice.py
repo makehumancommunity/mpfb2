@@ -1,4 +1,4 @@
-"""Functionality for computation, mostly of vector math. Several of these are probably 
+"""Functionality for computation, mostly of vector math. Several of these are probably
 also available as blender methods, and should be refactored to instead use those."""
 
 import math
@@ -25,7 +25,7 @@ class MathService:
         for i in range(len(vector1)):
             result.append(vector1[i] - vector2[i])
         return result
-    
+
     @staticmethod
     def vector_distance(vector1, vector2):
         # This could probably use mathutils.Vector instead
@@ -35,9 +35,9 @@ class MathService:
         if len(vector1) != len(vector2):
             _LOG.error("Different size vectors", (vector1, vector2))
             raise ValueError("Trying to calculate distance between vectors of different size")
-        
+
         # This is probably less cumbersome than constructing a new vector for math.hypot
-        square_sum = 0.0        
+        square_sum = 0.0
         for i in range(len(vector1)):
             square_sum = square_sum + abs(vector1[i] - vector2[i]) * abs(vector1[i] - vector2[i])
         return math.sqrt(square_sum)
@@ -47,9 +47,9 @@ class MathService:
         if value1 is None or value2 is None:
             return False
         return abs(value1 - value2) < tolerance
-    
+
     @staticmethod
-    def vector_equals(vector1, vector2, tolerance=0.0001):        
+    def vector_equals(vector1, vector2, tolerance=0.0001):
         if not vector1 or not vector2:
             _LOG.error("None vector", (vector1, vector2))
             raise ValueError("Trying to compare None vector")
@@ -60,4 +60,3 @@ class MathService:
             if not MathService.float_equals(vector1[i], vector2[i], tolerance=tolerance):
                 return False
         return True
-    

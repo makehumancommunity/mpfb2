@@ -2,7 +2,7 @@
 
 from mpfb.services.logservice import LogService
 from mpfb.entities.retarget.cmucgspeed import CmuCgspeed
-from mpfb.entities.retarget.default import Default 
+from mpfb.entities.retarget.default import Default
 
 _LOG = LogService.get_logger("retarget.init")
 _LOG.trace("initializing retarget module")

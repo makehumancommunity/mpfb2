@@ -34,20 +34,20 @@ class MPFB_OT_Retarget_Operator(bpy.types.Operator):
 
         target = None
         source = None
-        
+
         for obj in bpy.context.selected_objects:
             if obj.type == 'ARMATURE':
                 if RigService.identify_rig(obj) != "unknown":
                     target = obj
                 else:
                     source = obj
-                    
+
         if not target or not source:
             self.report({'ERROR'}, "Not enough armatures selected")
             return {'FINISHED'}
-        
+
         AnimationService.retarget(source, target)
-        
+
         return {'FINISHED'}
 
 
