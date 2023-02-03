@@ -1,4 +1,3 @@
-
 import bpy, os, json
 from fnmatch import fnmatch
 from bpy.props import BoolProperty, StringProperty, EnumProperty, IntProperty, CollectionProperty, FloatProperty, \
@@ -10,9 +9,7 @@ from .configurationset import ConfigurationSet
 
 _PREFIX = "MPFB_"
 
-
 class BlenderConfigSet(ConfigurationSet):
-
 
     def __init__(self, properties, bpy_type, prefix="", *, lowercase_prefix=False):
         _LOG.debug("Constructing new blender config set with prefix", prefix)
@@ -69,11 +66,16 @@ class BlenderConfigSet(ConfigurationSet):
             return default_value
         full_name = prop["full_name"]
 
-        if not hasattr(entity_reference, full_name):
-            _LOG.warn("Tried to read non existing key from entity:", full_name)
+        _LOG.debug("property name", full_name)
+
+        try:
+            if not hasattr(entity_reference, full_name):
+                _LOG.warn("Tried to read non existing key from entity:", (full_name, entity_reference))
+                return default_value
+        except Exception as e:
+            _LOG.error("Tried to read invalid/unreadable property", (full_name, entity_reference, e))
             return default_value
 
-        _LOG.trace("full name", full_name)
         _LOG.trace("found value", getattr(entity_reference, full_name))
 
         # TODO: check if defined first. If not, check if any alias is defined

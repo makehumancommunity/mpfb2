@@ -1876,6 +1876,96 @@
             "use_inherit_rotation": true,
             "use_local_location": true
         },
+        "MCH-breast-parent": {
+            "constraints": [
+                {
+                    "name": "Armature@DEF",
+                    "targets": [
+                        {
+                            "subtarget": "spine.003",
+                            "weight": 0.6499999761581421
+                        },
+                        {
+                            "subtarget": "spine.004",
+                            "weight": 0.3499999940395355
+                        }
+                    ],
+                    "type": "ARMATURE",
+                    "use_bone_envelopes": false,
+                    "use_current_location": false,
+                    "use_deform_preserve_volume": false
+                }
+            ],
+            "head": {
+                "default_position": [
+                    0.0,
+                    -0.13182,
+                    1.21666
+                ],
+                "strategy": "VERTEX",
+                "vertex_index": 1892
+            },
+            "inherit_scale": "FULL",
+            "layers": [
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                true,
+                false
+            ],
+            "parent": "",
+            "rigify": {
+                "rigify_parameters": {
+                    "relink_constraints": true
+                },
+                "rigify_type": "basic.raw_copy"
+            },
+            "roll": 0.0,
+            "tail": {
+                "default_position": [
+                    0.0,
+                    0.01818,
+                    1.21666
+                ],
+                "offset": [
+                    0.0,
+                    0.15,
+                    0.0
+                ],
+                "strategy": "VERTEX",
+                "vertex_index": 1892
+            },
+            "use_connect": false,
+            "use_inherit_rotation": true,
+            "use_local_location": true
+        },
         "breast.L": {
             "head": {
                 "default_position": [
@@ -1889,7 +1979,7 @@
                     10619
                 ]
             },
-            "inherit_scale": "FULL",
+            "inherit_scale": "AVERAGE",
             "layers": [
                 false,
                 false,
@@ -1924,7 +2014,7 @@
                 false,
                 false
             ],
-            "parent": "spine.004",
+            "parent": "MCH-breast-parent",
             "rigify": {
                 "rigify_type": "basic.super_copy"
             },
@@ -1956,7 +2046,7 @@
                     3956
                 ]
             },
-            "inherit_scale": "FULL",
+            "inherit_scale": "AVERAGE",
             "layers": [
                 false,
                 false,
@@ -1991,7 +2081,7 @@
                 false,
                 false
             ],
-            "parent": "spine.004",
+            "parent": "MCH-breast-parent",
             "rigify": {
                 "rigify_type": "basic.super_copy"
             },
@@ -14456,7 +14546,7 @@
             false,
             false,
             true,
-            false,
+            true,
             false
         ],
         "rigify_colors_lock": true,

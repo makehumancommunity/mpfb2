@@ -8,6 +8,7 @@ from mpfb.services.locationservice import LocationService
 from mpfb.services.objectservice import ObjectService
 from mpfb.services.targetservice import TargetService
 from mpfb.services.assetservice import AssetService
+from mpfb.services.humanservice import HumanService
 from mpfb.services.uiservice import UiService
 
 from ._modelingicons import MODELING_ICONS
@@ -53,13 +54,9 @@ class _Abstract_Model_Panel(bpy.types.Panel):
         layout = self.layout
         scene = context.scene
 
-        if not context.object:
+        basemesh = ObjectService.find_object_of_type_amongst_nearest_relatives(bpy.context.active_object, "Basemesh")
+        if not basemesh:
             return
-
-        if not ObjectService.object_is_basemesh(context.object):
-            return
-
-        basemesh = context.object
 
         _LOG.dump("target_dir", self.target_dir)
         for category in self.section["categories"]:
@@ -109,7 +106,9 @@ def _set_simple_modifier_value(scene, blender_object, section, category, value, 
         _LOG.debug("Will implicitly attempt a load of a target", target_path)
         TargetService.load_target(blender_object, target_path, weight=value, name=name)
     else:
-        TargetService.set_target_value(blender_object, name, value, delete_target_on_zero=True)
+        from mpfb.ui.model.modelpanel import MODEL_PROPERTIES
+        prune = MODEL_PROPERTIES.get_value("prune", entity_reference=bpy.context.scene)
+        TargetService.set_target_value(blender_object, name, value, delete_target_on_zero=prune)
 
 def _get_simple_modifier_value(scene, blender_object, section, category, side="unsided"):
     """This modifier is not a combination of opposing targets ("decr-incr", "in-out"...)"""
@@ -138,11 +137,14 @@ def _set_opposed_modifier_value(scene, blender_object, section, category, value,
     positive = category["opposites"]["positive-" + side]
     negative = category["opposites"]["negative-" + side]
 
+    from mpfb.ui.model.modelpanel import MODEL_PROPERTIES
+    prune = MODEL_PROPERTIES.get_value("prune", entity_reference=bpy.context.scene)
+
     if value < 0.0001 and TargetService.has_target(blender_object, positive):
-        TargetService.set_target_value(blender_object, positive, 0.0, delete_target_on_zero=True)
+        TargetService.set_target_value(blender_object, positive, 0.0, delete_target_on_zero=prune)
 
     if value > -0.0001 and TargetService.has_target(blender_object, negative):
-        TargetService.set_target_value(blender_object, negative, 0.0, delete_target_on_zero=True)
+        TargetService.set_target_value(blender_object, negative, 0.0, delete_target_on_zero=prune)
 
     if value > 0.0:
         if not TargetService.has_target(blender_object, positive):
@@ -150,7 +152,7 @@ def _set_opposed_modifier_value(scene, blender_object, section, category, value,
             _LOG.debug("Will implicitly attempt a load of a system target", target_path)
             TargetService.load_target(blender_object, target_path, weight=value, name=positive)
         else:
-            TargetService.set_target_value(blender_object, positive, value, delete_target_on_zero=True)
+            TargetService.set_target_value(blender_object, positive, value, delete_target_on_zero=prune)
 
     if value < 0.0:
         if not TargetService.has_target(blender_object, negative):
@@ -158,15 +160,19 @@ def _set_opposed_modifier_value(scene, blender_object, section, category, value,
             _LOG.debug("Will implicitly attempt a load of a system target", target_path)
             TargetService.load_target(blender_object, target_path, weight=abs(value), name=negative)
         else:
-            TargetService.set_target_value(blender_object, negative, abs(value), delete_target_on_zero=True)
+            TargetService.set_target_value(blender_object, negative, abs(value), delete_target_on_zero=prune)
 
 
 def _set_modifier_value(scene, blender_object, section, category, value, side="unsided"):
     _LOG.dump("_set_modifier_value", (blender_object, category, value, side))
+    ObjectService.activate_blender_object(blender_object)
     if "opposites" in category:
         _set_opposed_modifier_value(scene, blender_object, section, category, value, side)
     else:
         _set_simple_modifier_value(scene, blender_object, section, category, value, side)
+    from mpfb.ui.model.modelpanel import MODEL_PROPERTIES
+    if MODEL_PROPERTIES.get_value("refit", entity_reference=bpy.context.scene):
+        HumanService.refit(blender_object)
 
 def _get_modifier_value(scene, blender_object, section, category, side="unsided"):
     _LOG.dump("enter _get_modifier_value", (blender_object, category, side))
@@ -194,7 +200,7 @@ for name in _sections:
         # reference to a function, what it gets is a function pointer. This is independent of name.
 
         _function_str_general = ""
-        _function_str_general = _function_str_general + "    obj = bpy.context.object\n"
+        _function_str_general = _function_str_general + "    obj = ObjectService.find_object_of_type_amongst_nearest_relatives(bpy.context.active_object, \"Basemesh\")\n"
         _function_str_general = _function_str_general + "    secname = \"" + name + "\"\n"
         _function_str_general = _function_str_general + "    cat = _sections[secname][\"categories\"][" + str(_i) + "]\n"
 

@@ -41,9 +41,9 @@ _SHAPEKEY_ENCODING = [
     ["macrodetail", "$md"],
     ["female", "$fe"],
     ["male", "$ma"],
+    ["caucasian", "$ca"],
     ["asian", "$as"],
     ["african", "$af"],
-    ["caucasian", "$ca"],
     ["average", "$av"],
     ["weight", "$wg"],
     ["height", "$hg"],
@@ -67,10 +67,33 @@ _OPPOSITES = [
     "pointed-triangle"
     ]
 
+_ODD_TARGET_NAMES = []
+
 class TargetService:
 
     def __init__(self):
         raise RuntimeError("You should not instance TargetService. Use its static methods instead.")
+
+    @staticmethod
+    def shapekey_is_target(shapekey_name):
+        """Guess if shape key is a target based on its name. This will catch the vast majority of all cases, but
+        there are also fringe names and custom target which will not be identified correctly.
+        Unfortunately, custom properties cannot be assigned to shapekeys, so there is no practical way to
+        store additional metadata about a shapekey."""
+        if not shapekey_name:
+            return False
+        if shapekey_name.lower() == "basis":
+            return False
+        if shapekey_name.startswith("$md"):
+            return True
+        for opposite in _OPPOSITES:
+            if opposite in shapekey_name:
+                return True
+            (low, high) = opposite.split("-")
+            if "-" + low in shapekey_name or "-" + high in shapekey_name:
+                return True
+        # Last resort since this array won't be populated if you load a blend file with previously loaded targets
+        return shapekey_name in _ODD_TARGET_NAMES
 
     @staticmethod
     def bake_targets(basemesh):
@@ -570,6 +593,9 @@ class TargetService:
         _LOADER.time(str(full_path) + " " + str(weight))
         profiler.leave("load_target")
 
+        if not TargetService.shapekey_is_target(shape_key.name) and not shape_key.name in _ODD_TARGET_NAMES:
+            _ODD_TARGET_NAMES.append(shape_key.name)
+
         return shape_key
 
     @staticmethod
@@ -894,3 +920,23 @@ class TargetService:
         if encode_name:
             name = TargetService.encode_shapekey_name(name)
         return name
+
+    @staticmethod
+    def prune_shapekeys(blender_object, cutoff=0.0001):
+        """Remove shape keys with a weight lower than cutoff. This will only remove shape keys which
+        are identified as targets."""
+        keys = blender_object.data.shape_keys
+
+        if keys is None or keys.key_blocks is None or len(keys.key_blocks) < 1:
+            return
+
+        skip = True # First shapekey is Basis
+
+        for shape_key in keys.key_blocks:
+            if not skip and shape_key.value < cutoff and TargetService.shapekey_is_target(shape_key.name):
+                # TODO: This simply assumes that the blender_object is also the context active object.
+                # If this is not the case, this might cause a bit of pain...
+                shape_key_idx = blender_object.data.shape_keys.key_blocks.find(shape_key.name)
+                blender_object.active_shape_key_index = shape_key_idx
+                bpy.ops.object.shape_key_remove()
+            skip = False

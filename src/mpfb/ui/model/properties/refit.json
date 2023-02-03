@@ -1,0 +1,7 @@
+{
+    "type": "boolean",
+    "name": "refit",
+    "description": "When changing a modeling slider, automatically refit all attached assets and rigs to fit the new shape of the body. This requires some horse power of the computer, so in many instances it is better to leave this unchecked and instead click the refit button once you are done modeling the body shape",
+    "label": "Auto refit assets",
+    "default": false
+}

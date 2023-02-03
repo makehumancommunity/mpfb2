@@ -1,0 +1,7 @@
+{
+    "type": "boolean",
+    "name": "prune",
+    "description": "Auto-prune shape keys by deleting shape keys which have < 0.0001 weight. If you have performance issues, you might want to disable this, since creating and recreating shape keys is a heavy operation. If disabled, all shape keys that were at one point added will be kept irregardless of whether they are actually used",
+    "label": "Prune",
+    "default": true
+}

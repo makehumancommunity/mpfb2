@@ -8,6 +8,10 @@ from mpfb.services.sceneconfigset import SceneConfigSet
 
 _LOG = LogService.get_logger("model.modelpanel")
 
+_LOC = os.path.dirname(__file__)
+MODEL_PROPERTIES_DIR = os.path.join(_LOC, "properties")
+MODEL_PROPERTIES = SceneConfigSet.from_definitions_in_json_directory(MODEL_PROPERTIES_DIR, prefix="MDP_")
+
 class MPFB_PT_Model_Panel(bpy.types.Panel):
     """Human modeling panel."""
 
@@ -24,20 +28,33 @@ class MPFB_PT_Model_Panel(bpy.types.Panel):
         box.label(text=box_text)
         return box
 
+    def _settings(self, scene, layout):
+        box = self._create_box(layout, "Settings")
+        props = [
+            "prune",
+            "refit"
+            ]
+        MODEL_PROPERTIES.draw_properties(scene, box, props)
+
     def _general(self, scene, layout):
-        box = self._create_box(layout, "General")
+        box = self._create_box(layout, "Actions")
         box.operator('mpfb.refit_human')
+        box.operator('mpfb.prune_human')
 
     def draw(self, context):
         _LOG.enter()
         layout = self.layout
         scene = context.scene
 
+        self._settings(scene, layout)
         self._general(scene, layout)
 
     @classmethod
     def poll(cls, context):
-        return ObjectService.object_is_basemesh(context.active_object)
+        if not context.active_object:
+            return False
+        basemesh = ObjectService.find_object_of_type_amongst_nearest_relatives(context.active_object, "Basemesh")
+        return basemesh is not None
 
 ClassManager.add_class(MPFB_PT_Model_Panel)
 
