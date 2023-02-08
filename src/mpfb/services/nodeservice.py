@@ -105,7 +105,7 @@ class NodeService:
         bpy.data.node_groups.remove(node_tree)
 
     @staticmethod
-    def ensure_v2_node_groups_exist():
+    def ensure_v2_node_groups_exist(fail_on_validation=False):
         """Iterate over all v2 node groups and check them, creating them if they haven't been initialized."""
         from mpfb.entities.nodemodel.v2 import COMPOSITE_NODE_WRAPPERS
         for group_name in COMPOSITE_NODE_WRAPPERS.keys():
@@ -118,7 +118,7 @@ class NodeService:
         for group_name in COMPOSITE_NODE_WRAPPERS.keys():
             group = COMPOSITE_NODE_WRAPPERS[group_name]
             _LOG.debug("Validating", group)
-            group.validate_tree_against_original_def()
+            group.validate_tree_against_original_def(fail_hard=fail_on_validation)
 
     @staticmethod
     def get_v2_node_info(node):

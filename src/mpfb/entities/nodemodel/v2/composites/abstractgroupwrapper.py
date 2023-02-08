@@ -4,7 +4,7 @@ from mpfb.services.nodeservice import NodeService
 from mpfb.entities.nodemodel.v2.primitives import *
 
 _LOG = LogService.get_logger("nodemodel.v2.abstractgroupwrapper")
-_LOG.set_level(LogService.DEBUG)
+_LOG.set_level(LogService.INFO)
 
 _SOCKET_TYPES=[
     "NodeSocketBool",
@@ -45,7 +45,7 @@ class AbstractGroupWrapper(AbstractNodeWrapper):
         AbstractNodeWrapper.__init__(self, group_def)
         self.tree_def = tree_def
 
-    def validate_tree_against_original_def(self):
+    def validate_tree_against_original_def(self, fail_hard=False):
         if not self.tree_def:
             raise ValueError('No tree def registered for composite ' + self.node_class_name)
         node_tree = bpy.data.node_groups[self.node_class_name]
@@ -71,6 +71,8 @@ class AbstractGroupWrapper(AbstractNodeWrapper):
 
         for missing in missing_nodes:
             _LOG.error("Node is missing", (self.node_class_name, missing))
+            if fail_hard:
+                raise ValueError("Expected node is missing in group. Group=" + str(self.node_class_name) + ", Expected=" + str(missing))
 
         return False
 
@@ -181,6 +183,7 @@ class AbstractGroupWrapper(AbstractNodeWrapper):
     def pre_create_instance(self, node_tree=None):
         _LOG.enter()
         if not self.node_class_name in bpy.data.node_groups:
+            _LOG.info("Setting up shader node group", self.node_class_name)
             group_tree = self.create_node_tree()
             nodes = dict()
             nodes["Group Input"] = NodeService.find_first_node_by_type_name(group_tree, "NodeGroupInput")

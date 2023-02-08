@@ -26,7 +26,7 @@ class MPFB_OT_Create_Groups_Operator(bpy.types.Operator):
 
     def execute(self, context):
         _LOG.enter()
-        NodeService.ensure_v2_node_groups_exist()
+        NodeService.ensure_v2_node_groups_exist(fail_on_validation=True)
         self.report({'INFO'}, "All groups should now exist")
         return {'FINISHED'}
 

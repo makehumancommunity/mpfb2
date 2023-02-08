@@ -25,6 +25,7 @@ from .nodewrappermpfbskinnavel import NodeWrapperMpfbSkinNavel
 from .nodewrappermpfbskinnormaldermal import NodeWrapperMpfbSkinNormalDermal
 from .nodewrappermpfbskinnormalunevenness import NodeWrapperMpfbSkinNormalUnevenness
 from .nodewrappermpfbskinspot import NodeWrapperMpfbSkinSpot
+from .nodewrappermpfbskinveins import NodeWrapperMpfbSkinVeins
 from .nodewrappermpfbssscontrol import NodeWrapperMpfbSSSControl
 from .nodewrappermpfbsystemvaluetextureaureolae import NodeWrapperMpfbSystemValueTextureAureolae
 from .nodewrappermpfbsystemvaluetexturecrotch import NodeWrapperMpfbSystemValueTextureCrotch
@@ -69,6 +70,7 @@ COMPOSITE_NODE_WRAPPERS["MpfbSkinNavel"] = NodeWrapperMpfbSkinNavel
 COMPOSITE_NODE_WRAPPERS["MpfbSkinNormalDermal"] = NodeWrapperMpfbSkinNormalDermal
 COMPOSITE_NODE_WRAPPERS["MpfbSkinNormalUnevenness"] = NodeWrapperMpfbSkinNormalUnevenness
 COMPOSITE_NODE_WRAPPERS["MpfbSkinSpot"] = NodeWrapperMpfbSkinSpot
+COMPOSITE_NODE_WRAPPERS["MpfbSkinVeins"] = NodeWrapperMpfbSkinVeins
 COMPOSITE_NODE_WRAPPERS["MpfbSSSControl"] = NodeWrapperMpfbSSSControl
 COMPOSITE_NODE_WRAPPERS["MpfbSystemValueTextureAureolae"] = NodeWrapperMpfbSystemValueTextureAureolae
 COMPOSITE_NODE_WRAPPERS["MpfbSystemValueTextureCrotch"] = NodeWrapperMpfbSystemValueTextureCrotch
@@ -115,6 +117,7 @@ __all__ = [
     "NodeWrapperMpfbSkinNormalDermal",
     "NodeWrapperMpfbSkinNormalUnevenness",
     "NodeWrapperMpfbSkinSpot",
+    "NodeWrapperMpfbSkinVeins",
     "NodeWrapperMpfbSSSControl",
     "NodeWrapperMpfbSystemValueTextureAureolae",
     "NodeWrapperMpfbSystemValueTextureCrotch",
