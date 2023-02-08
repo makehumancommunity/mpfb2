@@ -13,20 +13,20 @@ def test_composite_can_create_instance():
     node = NodeWrapperMpfbSkinVeins.create_instance(node_tree)
     assert node
     assert node.node_tree.name == "MpfbSkinVeins"
-    assert "Wave Texture" in node.node_tree.nodes
-    assert "Wave Texture.001" in node.node_tree.nodes
-    assert "Math.001" in node.node_tree.nodes
-    assert "Math.003" in node.node_tree.nodes
-    assert "Math.004" in node.node_tree.nodes
-    assert "Math.002" in node.node_tree.nodes
-    assert "Math.005" in node.node_tree.nodes
-    assert "Group.001" in node.node_tree.nodes
-    assert "Texture Coordinate" in node.node_tree.nodes
     assert "Group Output" in node.node_tree.nodes
-    assert "Mix" in node.node_tree.nodes
-    assert "Math" in node.node_tree.nodes
-    assert "Combine XYZ" in node.node_tree.nodes
     assert "Mapping" in node.node_tree.nodes
+    assert "SmallVeinWaveTexture" in node.node_tree.nodes
+    assert "SmallVeinScale" in node.node_tree.nodes
+    assert "TextureRotation" in node.node_tree.nodes
+    assert "LargeVeinScale" in node.node_tree.nodes
+    assert "SelectPeak" in node.node_tree.nodes
+    assert "StrengthMultiplier" in node.node_tree.nodes
+    assert "Mix" in node.node_tree.nodes
+    assert "CharacterInfo" in node.node_tree.nodes
+    assert "Texture Coordinate" in node.node_tree.nodes
+    assert "LargeVeinWaveTexture" in node.node_tree.nodes
+    assert "SmallVeinCropPeak" in node.node_tree.nodes
+    assert "LargeVeinCropPeak" in node.node_tree.nodes
     assert "Group Input" in node.node_tree.nodes
     has_link_to_output = False
     for link in node.node_tree.links:
