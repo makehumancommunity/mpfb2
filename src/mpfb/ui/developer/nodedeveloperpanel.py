@@ -25,8 +25,7 @@ class MPFB_PT_Node_Developer_Panel(Abstract_Panel):
         DEVELOPER_PROPERTIES.draw_properties(scene, box, ["output_class_name"])
         box.operator("mpfb.write_composite")
         box.operator("mpfb.print_node_group")
-        box.operator("mpfb.create_molecules")
-        box.operator("mpfb.create_cells")
+        box.operator("mpfb.create_groups")
 
     @classmethod
     def poll(self, context):

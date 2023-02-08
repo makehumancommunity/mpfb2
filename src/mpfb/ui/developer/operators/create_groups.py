@@ -2,18 +2,16 @@
 
 from mpfb.services.logservice import LogService
 from mpfb._classmanager import ClassManager
-from mpfb.entities.nodemodel.cells import CellNodeManager
-from mpfb.ui.developer.developerpanel import DEVELOPER_PROPERTIES
 import bpy
 from string import Template
 
-_LOG = LogService.get_logger("developer.operators.createcells")
+_LOG = LogService.get_logger("developer.operators.creategroups")
 _LOG.set_level(LogService.DEBUG)
 
-class MPFB_OT_Create_Cells_Operator(bpy.types.Operator):
-    """Ensure cells are available to the current node tree """
-    bl_idname = "mpfb.create_cells"
-    bl_label = "Create cells"
+class MPFB_OT_Create_Groups_Operator(bpy.types.Operator):
+    """Ensure v2 node trees exist."""
+    bl_idname = "mpfb.create_groups"
+    bl_label = "Create groups"
     bl_options = {'REGISTER'}
 
     @classmethod
@@ -28,8 +26,7 @@ class MPFB_OT_Create_Cells_Operator(bpy.types.Operator):
     def execute(self, context):
         _LOG.enter()
         node_tree = bpy.context.space_data.edit_tree
-        mnm = CellNodeManager(node_tree)
-        _LOG.debug("Cell node manager", mnm)
+
         return {'FINISHED'}
 
-ClassManager.add_class(MPFB_OT_Create_Cells_Operator)
+ClassManager.add_class(MPFB_OT_Create_Groups_Operator)
