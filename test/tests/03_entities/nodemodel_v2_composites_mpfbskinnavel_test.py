@@ -13,16 +13,19 @@ def test_composite_can_create_instance():
     node = NodeWrapperMpfbSkinNavel.create_instance(node_tree)
     assert node
     assert node.node_tree.name == "MpfbSkinNavel"
-    assert "Group" in node.node_tree.nodes
     assert "Texture Coordinate" in node.node_tree.nodes
-    assert "Group.001" in node.node_tree.nodes
     assert "Group Output" in node.node_tree.nodes
+    assert "WidthMultiplier" in node.node_tree.nodes
+    assert "InsideDistance" in node.node_tree.nodes
+    assert "MapNavelRange" in node.node_tree.nodes
+    assert "ValueRamp" in node.node_tree.nodes
+    assert "AdjustBump" in node.node_tree.nodes
+    assert "ColorStrength" in node.node_tree.nodes
+    assert "HeightMix" in node.node_tree.nodes
+    assert "AsValue" in node.node_tree.nodes
+    assert "ColorMix" in node.node_tree.nodes
     assert "Bump" in node.node_tree.nodes
-    assert "RGB to BW" in node.node_tree.nodes
-    assert "Mix.001" in node.node_tree.nodes
-    assert "Mix.002" in node.node_tree.nodes
-    assert "Map Range" in node.node_tree.nodes
-    assert "Group.002" in node.node_tree.nodes
+    assert "Coordinates" in node.node_tree.nodes
     assert "Group Input" in node.node_tree.nodes
     has_link_to_output = False
     for link in node.node_tree.links:
