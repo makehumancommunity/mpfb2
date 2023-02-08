@@ -3,6 +3,7 @@ from .abstractgroupwrapper import AbstractGroupWrapper
 from .nodewrappermpfbadditiverange2 import NodeWrapperMpfbAdditiveRange2
 from .nodewrappermpfbadditiverange3 import NodeWrapperMpfbAdditiveRange3
 from .nodewrappermpfbbodyconstants import NodeWrapperMpfbBodyConstants
+from .nodewrappermpfbbodysectionsrouter import NodeWrapperMpfbBodySectionsRouter
 from .nodewrappermpfbcharacterinfo import NodeWrapperMpfbCharacterInfo
 from .nodewrappermpfbcolorramp2 import NodeWrapperMpfbColorRamp2
 from .nodewrappermpfbcolorramp3 import NodeWrapperMpfbColorRamp3
@@ -18,8 +19,16 @@ from .nodewrappermpfbshaderrouter2 import NodeWrapperMpfbShaderRouter2
 from .nodewrappermpfbshaderrouter3 import NodeWrapperMpfbShaderRouter3
 from .nodewrappermpfbshaderrouter4 import NodeWrapperMpfbShaderRouter4
 from .nodewrappermpfbshaderrouter5 import NodeWrapperMpfbShaderRouter5
+from .nodewrappermpfbskincolorvariation import NodeWrapperMpfbSkinColorVariation
+from .nodewrappermpfbskinmastercolor import NodeWrapperMpfbSkinMasterColor
+from .nodewrappermpfbskinnavel import NodeWrapperMpfbSkinNavel
+from .nodewrappermpfbskinnormaldermal import NodeWrapperMpfbSkinNormalDermal
+from .nodewrappermpfbskinnormalunevenness import NodeWrapperMpfbSkinNormalUnevenness
+from .nodewrappermpfbskinspot import NodeWrapperMpfbSkinSpot
+from .nodewrappermpfbssscontrol import NodeWrapperMpfbSSSControl
 from .nodewrappermpfbsystemvaluetextureaureolae import NodeWrapperMpfbSystemValueTextureAureolae
 from .nodewrappermpfbsystemvaluetexturecrotch import NodeWrapperMpfbSystemValueTextureCrotch
+from .nodewrappermpfbsystemvaluetextureears import NodeWrapperMpfbSystemValueTextureEars
 from .nodewrappermpfbsystemvaluetextureeyelids import NodeWrapperMpfbSystemValueTextureEyelids
 from .nodewrappermpfbsystemvaluetextureface import NodeWrapperMpfbSystemValueTextureFace
 from .nodewrappermpfbsystemvaluetexturefingernails import NodeWrapperMpfbSystemValueTextureFingernails
@@ -38,6 +47,7 @@ COMPOSITE_NODE_WRAPPERS = dict()
 COMPOSITE_NODE_WRAPPERS["MpfbAdditiveRange2"] = NodeWrapperMpfbAdditiveRange2
 COMPOSITE_NODE_WRAPPERS["MpfbAdditiveRange3"] = NodeWrapperMpfbAdditiveRange3
 COMPOSITE_NODE_WRAPPERS["MpfbBodyConstants"] = NodeWrapperMpfbBodyConstants
+COMPOSITE_NODE_WRAPPERS["MpfbBodySectionsRouter"] = NodeWrapperMpfbBodySectionsRouter
 COMPOSITE_NODE_WRAPPERS["MpfbCharacterInfo"] = NodeWrapperMpfbCharacterInfo
 COMPOSITE_NODE_WRAPPERS["MpfbColorRamp2"] = NodeWrapperMpfbColorRamp2
 COMPOSITE_NODE_WRAPPERS["MpfbColorRamp3"] = NodeWrapperMpfbColorRamp3
@@ -53,8 +63,16 @@ COMPOSITE_NODE_WRAPPERS["MpfbShaderRouter2"] = NodeWrapperMpfbShaderRouter2
 COMPOSITE_NODE_WRAPPERS["MpfbShaderRouter3"] = NodeWrapperMpfbShaderRouter3
 COMPOSITE_NODE_WRAPPERS["MpfbShaderRouter4"] = NodeWrapperMpfbShaderRouter4
 COMPOSITE_NODE_WRAPPERS["MpfbShaderRouter5"] = NodeWrapperMpfbShaderRouter5
+COMPOSITE_NODE_WRAPPERS["MpfbSkinColorVariation"] = NodeWrapperMpfbSkinColorVariation
+COMPOSITE_NODE_WRAPPERS["MpfbSkinMasterColor"] = NodeWrapperMpfbSkinMasterColor
+COMPOSITE_NODE_WRAPPERS["MpfbSkinNavel"] = NodeWrapperMpfbSkinNavel
+COMPOSITE_NODE_WRAPPERS["MpfbSkinNormalDermal"] = NodeWrapperMpfbSkinNormalDermal
+COMPOSITE_NODE_WRAPPERS["MpfbSkinNormalUnevenness"] = NodeWrapperMpfbSkinNormalUnevenness
+COMPOSITE_NODE_WRAPPERS["MpfbSkinSpot"] = NodeWrapperMpfbSkinSpot
+COMPOSITE_NODE_WRAPPERS["MpfbSSSControl"] = NodeWrapperMpfbSSSControl
 COMPOSITE_NODE_WRAPPERS["MpfbSystemValueTextureAureolae"] = NodeWrapperMpfbSystemValueTextureAureolae
 COMPOSITE_NODE_WRAPPERS["MpfbSystemValueTextureCrotch"] = NodeWrapperMpfbSystemValueTextureCrotch
+COMPOSITE_NODE_WRAPPERS["MpfbSystemValueTextureEars"] = NodeWrapperMpfbSystemValueTextureEars
 COMPOSITE_NODE_WRAPPERS["MpfbSystemValueTextureEyelids"] = NodeWrapperMpfbSystemValueTextureEyelids
 COMPOSITE_NODE_WRAPPERS["MpfbSystemValueTextureFace"] = NodeWrapperMpfbSystemValueTextureFace
 COMPOSITE_NODE_WRAPPERS["MpfbSystemValueTextureFingernails"] = NodeWrapperMpfbSystemValueTextureFingernails
@@ -75,6 +93,7 @@ __all__ = [
     "NodeWrapperMpfbAdditiveRange2",
     "NodeWrapperMpfbAdditiveRange3",
     "NodeWrapperMpfbBodyConstants",
+    "NodeWrapperMpfbBodySectionsRouter",
     "NodeWrapperMpfbCharacterInfo",
     "NodeWrapperMpfbColorRamp2",
     "NodeWrapperMpfbColorRamp3",
@@ -90,6 +109,13 @@ __all__ = [
     "NodeWrapperMpfbShaderRouter3",
     "NodeWrapperMpfbShaderRouter4",
     "NodeWrapperMpfbShaderRouter5",
+    "NodeWrapperMpfbSkinColorVariation",
+    "NodeWrapperMpfbSkinMasterColor",
+    "NodeWrapperMpfbSkinNavel",
+    "NodeWrapperMpfbSkinNormalDermal",
+    "NodeWrapperMpfbSkinNormalUnevenness",
+    "NodeWrapperMpfbSkinSpot",
+    "NodeWrapperMpfbSSSControl",
     "NodeWrapperMpfbSystemValueTextureAureolae",
     "NodeWrapperMpfbSystemValueTextureCrotch",
     "NodeWrapperMpfbSystemValueTextureEyelids",
