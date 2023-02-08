@@ -144,11 +144,17 @@ class AbstractNodeWrapper():
         comparison["input_socket_values"] = dict()
         comparison["output_socket_values"] = dict()
 
+        _LOG.debug("Starting attribute detection for", (node, self.node_class_name))
+
         for key in self.node_def["attributes"]:
+
             attribute = self.node_def["attributes"][key]
             default_value = attribute["value"]
             node_value = getattr(node, attribute["name"])
             value_class = attribute["class"]
+
+            _LOG.trace("Found attribute", (key, node_value))
+
             if value_class == "image":
                 fp = NodeService.get_image_file_path(node)
                 if not default_value or fp != default_value["filepath"]:
@@ -156,8 +162,10 @@ class AbstractNodeWrapper():
                     comparison["attribute_values"][key]["filepath"] = fp
                     comparison["attribute_values"][key]["colorspace"] = node.image.colorspace_settings.name
             else:
-                if not self._is_same(value_class, node_value, default_value):
+                if nc == "ShaderNodeGroup" or not self._is_same(value_class, node_value, default_value):
                     comparison["attribute_values"][key] = self._cleanup(node_value)
+
+        _LOG.debug("Attributes", comparison["attribute_values"])
 
         for key in self.node_def["inputs"]:
             socket_def = self.node_def["inputs"][key]

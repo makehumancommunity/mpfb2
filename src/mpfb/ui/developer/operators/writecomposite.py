@@ -58,6 +58,7 @@ class MPFB_OT_Write_Composite_Operator(bpy.types.Operator):
         tree_def["links"] = []
 
         for node in node_tree.nodes:
+            _LOG.debug("Evaluating node", node)
             node_class = node.__class__.__name__
             if node_class == "ShaderNodeGroup":
                 node_class = node.node_tree.name
@@ -81,6 +82,7 @@ class MPFB_OT_Write_Composite_Operator(bpy.types.Operator):
                 wrapper = wrappers[node_class]
                 node_def.update(wrapper.find_non_default_settings(node))
 
+            _LOG.debug("Resulting node def", node_def)
             tree_def["nodes"].append(node_def)
 
         for link in node_tree.links:
