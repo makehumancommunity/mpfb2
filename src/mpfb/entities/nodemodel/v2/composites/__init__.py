@@ -19,6 +19,7 @@ from .nodewrappermpfbshaderrouter2 import NodeWrapperMpfbShaderRouter2
 from .nodewrappermpfbshaderrouter3 import NodeWrapperMpfbShaderRouter3
 from .nodewrappermpfbshaderrouter4 import NodeWrapperMpfbShaderRouter4
 from .nodewrappermpfbshaderrouter5 import NodeWrapperMpfbShaderRouter5
+from .nodewrappermpfbskin import NodeWrapperMpfbSkin
 from .nodewrappermpfbskincolorvariation import NodeWrapperMpfbSkinColorVariation
 from .nodewrappermpfbskinmastercolor import NodeWrapperMpfbSkinMasterColor
 from .nodewrappermpfbskinnavel import NodeWrapperMpfbSkinNavel
@@ -64,6 +65,7 @@ COMPOSITE_NODE_WRAPPERS["MpfbShaderRouter2"] = NodeWrapperMpfbShaderRouter2
 COMPOSITE_NODE_WRAPPERS["MpfbShaderRouter3"] = NodeWrapperMpfbShaderRouter3
 COMPOSITE_NODE_WRAPPERS["MpfbShaderRouter4"] = NodeWrapperMpfbShaderRouter4
 COMPOSITE_NODE_WRAPPERS["MpfbShaderRouter5"] = NodeWrapperMpfbShaderRouter5
+COMPOSITE_NODE_WRAPPERS["MpfbSkin"] = NodeWrapperMpfbSkin
 COMPOSITE_NODE_WRAPPERS["MpfbSkinColorVariation"] = NodeWrapperMpfbSkinColorVariation
 COMPOSITE_NODE_WRAPPERS["MpfbSkinMasterColor"] = NodeWrapperMpfbSkinMasterColor
 COMPOSITE_NODE_WRAPPERS["MpfbSkinNavel"] = NodeWrapperMpfbSkinNavel
@@ -111,6 +113,7 @@ __all__ = [
     "NodeWrapperMpfbShaderRouter3",
     "NodeWrapperMpfbShaderRouter4",
     "NodeWrapperMpfbShaderRouter5",
+    "NodeWrapperMpfbSkin",
     "NodeWrapperMpfbSkinColorVariation",
     "NodeWrapperMpfbSkinMasterColor",
     "NodeWrapperMpfbSkinNavel",
