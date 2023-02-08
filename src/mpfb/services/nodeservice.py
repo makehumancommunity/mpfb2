@@ -105,6 +105,22 @@ class NodeService:
         bpy.data.node_groups.remove(node_tree)
 
     @staticmethod
+    def ensure_v2_node_groups_exist():
+        """Iterate over all v2 node groups and check them, creating them if they haven't been initialized."""
+        from mpfb.entities.nodemodel.v2 import COMPOSITE_NODE_WRAPPERS
+        for group_name in COMPOSITE_NODE_WRAPPERS.keys():
+            group = COMPOSITE_NODE_WRAPPERS[group_name]
+            _LOG.debug("Ensuring group exists", (group_name, group, group.node_class_name))
+            group.ensure_exists()
+
+        _LOG.debug("Starting validation")
+
+        for group_name in COMPOSITE_NODE_WRAPPERS.keys():
+            group = COMPOSITE_NODE_WRAPPERS[group_name]
+            _LOG.debug("Validating", group)
+            group.validate_tree_against_original_def()
+
+    @staticmethod
     def get_v2_node_info(node):
         """Return a model v2 dict with information about a node instance, such as its values for input and output sockets,
         and its attributes."""
@@ -129,7 +145,7 @@ class NodeService:
                         input_dict["default_value"] = list(input_socket.default_value)
                     else:
                         input_dict["default_value"] = input_socket.default_value
-                if input_dict["class"] == "NodeSocketFloat":
+                if input_dict["class"] == "NodeSocketFloat" and hasattr(node, "node_tree"):
                     tree_input = node.node_tree.inputs[input_socket.name]
                     input_dict["min_value"] = tree_input.min_value
                     input_dict["max_value"] = tree_input.max_value

@@ -154,6 +154,9 @@ class AbstractGroupWrapper(AbstractNodeWrapper):
         _LOG.debug("Created new link", link)
         return link
 
+    def ensure_exists(self):
+        self.pre_create_instance()
+
     def create_node_tree(self):
         _LOG.enter()
         node_tree = NodeService.create_node_tree(self.node_class_name)
@@ -175,7 +178,7 @@ class AbstractGroupWrapper(AbstractNodeWrapper):
 
         return node_tree
 
-    def pre_create_instance(self, node_tree):
+    def pre_create_instance(self, node_tree=None):
         _LOG.enter()
         if not self.node_class_name in bpy.data.node_groups:
             group_tree = self.create_node_tree()

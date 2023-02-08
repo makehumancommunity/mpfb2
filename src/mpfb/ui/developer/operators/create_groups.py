@@ -1,6 +1,7 @@
-"""Functionality for printing a node group to the console"""
+"""Functionality for setting up v2 node groups"""
 
 from mpfb.services.logservice import LogService
+from mpfb.services.nodeservice import NodeService
 from mpfb._classmanager import ClassManager
 import bpy
 from string import Template
@@ -9,7 +10,7 @@ _LOG = LogService.get_logger("developer.operators.creategroups")
 _LOG.set_level(LogService.DEBUG)
 
 class MPFB_OT_Create_Groups_Operator(bpy.types.Operator):
-    """Ensure v2 node trees exist."""
+    """Ensure v2 node groups exist."""
     bl_idname = "mpfb.create_groups"
     bl_label = "Create groups"
     bl_options = {'REGISTER'}
@@ -25,8 +26,8 @@ class MPFB_OT_Create_Groups_Operator(bpy.types.Operator):
 
     def execute(self, context):
         _LOG.enter()
-        node_tree = bpy.context.space_data.edit_tree
-
+        NodeService.ensure_v2_node_groups_exist()
+        self.report({'INFO'}, "All groups should now exist")
         return {'FINISHED'}
 
 ClassManager.add_class(MPFB_OT_Create_Groups_Operator)
