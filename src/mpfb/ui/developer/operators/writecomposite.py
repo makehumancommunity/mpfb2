@@ -139,7 +139,7 @@ class MPFB_OT_Write_Composite_Operator(bpy.types.Operator):
         with open(os.path.join(v2, "nodewrapper" + output_name.lower()) + ".py", "w") as pyfile:
             pyfile.write("import bpy, json\n\n")
             pyfile.write("_ORIGINAL_NODE_DEF = json.loads(\"\"\"\n")
-            pyfile.write(json.dumps(node_info, sort_keys=True, indent=4))
+            pyfile.write(json.dumps(node_info, sort_keys=False, indent=4))
             pyfile.write("\"\"\")\n\n")
             pyfile.write("_ORIGINAL_TREE_DEF = json.loads(\"\"\"\n")
             #pprint.pprint(tree_def)
