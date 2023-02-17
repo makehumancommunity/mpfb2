@@ -92,6 +92,22 @@ class AbstractGroupWrapper(AbstractNodeWrapper):
         return wrapper
 
     @staticmethod
+    def _is_constant_group(group_name):
+        name = str(group_name).lower()
+        if "constant" in name or name.endswith("info"):
+            return True
+        if "systemvaluetexture" in name:
+            return True
+        return False
+
+    @staticmethod
+    def _is_texture_group(group_name):
+        name = str(group_name).lower()
+        if name.startswith("mpfbskin"):
+            return True
+        return False
+
+    @staticmethod
     def node(node_class_name, node_tree, name=None, label=None, input_socket_values=None, attribute_values=None, output_socket_values=None):
         _LOG.enter()
         wrapper = AbstractGroupWrapper.get_wrapper(node_class_name)
@@ -100,6 +116,17 @@ class AbstractGroupWrapper(AbstractNodeWrapper):
             raise ValueError('No such node or group: ' + node_class_name)
         inst = wrapper.create_instance(node_tree, name=name, label=label, input_socket_values=input_socket_values, attribute_values=attribute_values, output_socket_values=output_socket_values)
         _LOG.debug("Created node", inst)
+        from mpfb.entities.nodemodel.v2.composites import COMPOSITE_NODE_WRAPPERS
+        if node_class_name in COMPOSITE_NODE_WRAPPERS:
+            inst.use_custom_color = True
+            color = [0.4, 0.4, 0.5]
+            if AbstractGroupWrapper._is_constant_group(node_class_name):
+                color = [0.35, 0.35, 0.0]
+            if AbstractGroupWrapper._is_texture_group(node_class_name):
+                color = [0.35, 0.0, 0.35]
+            if len(color) < len(inst.color):
+                color.append(1.0)
+            inst.color = color
         return inst
 
     @staticmethod
