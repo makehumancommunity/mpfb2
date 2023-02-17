@@ -2,6 +2,7 @@ from .abstractgroupwrapper import AbstractGroupWrapper
 
 from .nodewrappermpfbadditiverange2 import NodeWrapperMpfbAdditiveRange2
 from .nodewrappermpfbadditiverange3 import NodeWrapperMpfbAdditiveRange3
+from .nodewrappermpfbaureolae import NodeWrapperMpfbAureolae
 from .nodewrappermpfbbody import NodeWrapperMpfbBody
 from .nodewrappermpfbbodyconstants import NodeWrapperMpfbBodyConstants
 from .nodewrappermpfbbodysectionsrouter import NodeWrapperMpfbBodySectionsRouter
@@ -54,6 +55,7 @@ from .nodewrappermpfbwithindistanceofeither import NodeWrapperMpfbWithinDistance
 COMPOSITE_NODE_WRAPPERS = dict()
 COMPOSITE_NODE_WRAPPERS["MpfbAdditiveRange2"] = NodeWrapperMpfbAdditiveRange2
 COMPOSITE_NODE_WRAPPERS["MpfbAdditiveRange3"] = NodeWrapperMpfbAdditiveRange3
+COMPOSITE_NODE_WRAPPERS["MpfbAureolae"] = NodeWrapperMpfbAureolae
 COMPOSITE_NODE_WRAPPERS["MpfbBody"] = NodeWrapperMpfbBody
 COMPOSITE_NODE_WRAPPERS["MpfbBodyConstants"] = NodeWrapperMpfbBodyConstants
 COMPOSITE_NODE_WRAPPERS["MpfbBodySectionsRouter"] = NodeWrapperMpfbBodySectionsRouter
@@ -108,6 +110,7 @@ __all__ = [
     "COMPOSITE_NODE_WRAPPERS",
     "NodeWrapperMpfbAdditiveRange2",
     "NodeWrapperMpfbAdditiveRange3",
+    "NodeWrapperMpfbAureolae",
     "NodeWrapperMpfbBody",
     "NodeWrapperMpfbBodyConstants",
     "NodeWrapperMpfbBodySectionsRouter",
