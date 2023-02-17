@@ -2,10 +2,78 @@ import bpy, json
 
 _ORIGINAL_NODE_DEF = json.loads("""
 {
+    "class": "MpfbBodySectionsRouter",
+    "inputs": {
+        "Input_0": {
+            "name": "DefaultBodyShader",
+            "identifier": "Input_0",
+            "class": "NodeSocketShader",
+            "value_type": "SHADER",
+            "default_value": null
+        },
+        "Input_3": {
+            "name": "AureolaeShader",
+            "identifier": "Input_3",
+            "class": "NodeSocketShader",
+            "value_type": "SHADER",
+            "default_value": null
+        },
+        "Input_1": {
+            "name": "FaceShader",
+            "identifier": "Input_1",
+            "class": "NodeSocketShader",
+            "value_type": "SHADER",
+            "default_value": null
+        },
+        "Input_7": {
+            "name": "EarsShader",
+            "identifier": "Input_7",
+            "class": "NodeSocketShader",
+            "value_type": "SHADER",
+            "default_value": null
+        },
+        "Input_2": {
+            "name": "LipsShader",
+            "identifier": "Input_2",
+            "class": "NodeSocketShader",
+            "value_type": "SHADER",
+            "default_value": null
+        },
+        "Input_4": {
+            "name": "FingernailsShader",
+            "identifier": "Input_4",
+            "class": "NodeSocketShader",
+            "value_type": "SHADER",
+            "default_value": null
+        },
+        "Input_5": {
+            "name": "ToenailsShader",
+            "identifier": "Input_5",
+            "class": "NodeSocketShader",
+            "value_type": "SHADER",
+            "default_value": null
+        },
+        "Input_8": {
+            "name": "GenitalsShader",
+            "identifier": "Input_8",
+            "class": "NodeSocketShader",
+            "value_type": "SHADER",
+            "default_value": null
+        }
+    },
+    "outputs": {
+        "Output_6": {
+            "name": "Shader",
+            "identifier": "Output_6",
+            "class": "NodeSocketShader",
+            "value_type": "SHADER",
+            "default_value": null
+        }
+    },
     "attributes": {
         "color": {
-            "class": "Color",
             "name": "color",
+            "class": "Color",
             "value": [
                 0.608,
                 0.608,
@@ -13,95 +81,27 @@ _ORIGINAL_NODE_DEF = json.loads("""
             ]
         },
         "height": {
-            "class": "float",
             "name": "height",
+            "class": "float",
             "value": 100.0
         },
         "location": {
-            "class": "Vector",
             "name": "location",
+            "class": "Vector",
             "value": [
-                1518.5914,
+                1376.2086,
                 1011.9443
             ]
         },
         "use_custom_color": {
-            "class": "bool",
             "name": "use_custom_color",
+            "class": "bool",
             "value": false
         },
         "width": {
-            "class": "float",
             "name": "width",
-            "value": 140.0
-        }
-    },
-    "class": "MpfbBodySectionsRouter",
-    "inputs": {
-        "Input_0": {
-            "class": "NodeSocketShader",
-            "default_value": null,
-            "identifier": "Input_0",
-            "name": "DefaultBodyShader",
-            "value_type": "SHADER"
-        },
-        "Input_1": {
-            "class": "NodeSocketShader",
-            "default_value": null,
-            "identifier": "Input_1",
-            "name": "FaceShader",
-            "value_type": "SHADER"
-        },
-        "Input_2": {
-            "class": "NodeSocketShader",
-            "default_value": null,
-            "identifier": "Input_2",
-            "name": "LipsShader",
-            "value_type": "SHADER"
-        },
-        "Input_3": {
-            "class": "NodeSocketShader",
-            "default_value": null,
-            "identifier": "Input_3",
-            "name": "AureolaeShader",
-            "value_type": "SHADER"
-        },
-        "Input_4": {
-            "class": "NodeSocketShader",
-            "default_value": null,
-            "identifier": "Input_4",
-            "name": "FingernailsShader",
-            "value_type": "SHADER"
-        },
-        "Input_5": {
-            "class": "NodeSocketShader",
-            "default_value": null,
-            "identifier": "Input_5",
-            "name": "ToenailsShader",
-            "value_type": "SHADER"
-        },
-        "Input_7": {
-            "class": "NodeSocketShader",
-            "default_value": null,
-            "identifier": "Input_7",
-            "name": "EarsShader",
-            "value_type": "SHADER"
-        },
-        "Input_8": {
-            "class": "NodeSocketShader",
-            "default_value": null,
-            "identifier": "Input_8",
-            "name": "GenitalsShader",
-            "value_type": "SHADER"
-        }
-    },
-    "outputs": {
-        "Output_6": {
-            "class": "NodeSocketShader",
-            "default_value": null,
-            "identifier": "Output_6",
-            "name": "Shader",
-            "value_type": "SHADER"
+            "class": "float",
+            "value": 282.3828
         }
     }
 }""")
@@ -258,10 +258,18 @@ _ORIGINAL_TREE_DEF = json.loads("""
         },
         {
             "attribute_values": {
+                "color": [
+                    0.608,
+                    0.608,
+                    0.608
+                ],
+                "height": 100.0,
                 "location": [
                     -94.0441,
                     50.065
-                ]
+                ],
+                "use_custom_color": false,
+                "width": 140.0
             },
             "class": "MpfbSystemValueTextureLips",
             "input_socket_values": {},
@@ -271,10 +279,18 @@ _ORIGINAL_TREE_DEF = json.loads("""
         },
         {
             "attribute_values": {
+                "color": [
+                    0.608,
+                    0.608,
+                    0.608
+                ],
+                "height": 100.0,
                 "location": [
                     -492.2594,
                     446.2881
-                ]
+                ],
+                "use_custom_color": false,
+                "width": 140.0
             },
             "class": "MpfbSystemValueTextureAureolae",
             "input_socket_values": {},
@@ -284,10 +300,18 @@ _ORIGINAL_TREE_DEF = json.loads("""
         },
         {
             "attribute_values": {
+                "color": [
+                    0.608,
+                    0.608,
+                    0.608
+                ],
+                "height": 100.0,
                 "location": [
                     -299.4578,
                     204.701
-                ]
+                ],
+                "use_custom_color": false,
+                "width": 140.0
             },
             "class": "MpfbSystemValueTextureFace",
             "input_socket_values": {},
@@ -297,10 +321,18 @@ _ORIGINAL_TREE_DEF = json.loads("""
         },
         {
             "attribute_values": {
+                "color": [
+                    0.608,
+                    0.608,
+                    0.608
+                ],
+                "height": 100.0,
                 "location": [
                     94.1688,
                     -115.6434
-                ]
+                ],
+                "use_custom_color": false,
+                "width": 140.0
             },
             "class": "MpfbSystemValueTextureFingernails",
             "input_socket_values": {},
@@ -362,10 +394,18 @@ _ORIGINAL_TREE_DEF = json.loads("""
         },
         {
             "attribute_values": {
+                "color": [
+                    0.608,
+                    0.608,
+                    0.608
+                ],
+                "height": 100.0,
                 "location": [
                     304.4512,
                     -354.7517
-                ]
+                ],
+                "use_custom_color": false,
+                "width": 140.0
             },
             "class": "MpfbSystemValueTextureToenails",
             "input_socket_values": {},
@@ -375,10 +415,18 @@ _ORIGINAL_TREE_DEF = json.loads("""
         },
         {
             "attribute_values": {
+                "color": [
+                    0.608,
+                    0.608,
+                    0.608
+                ],
+                "height": 100.0,
                 "location": [
                     491.7747,
                     -590.6022
-                ]
+                ],
+                "use_custom_color": false,
+                "width": 140.0
             },
             "class": "MpfbSystemValueTextureEars",
             "input_socket_values": {},
@@ -427,10 +475,18 @@ _ORIGINAL_TREE_DEF = json.loads("""
         },
         {
             "attribute_values": {
+                "color": [
+                    0.608,
+                    0.608,
+                    0.608
+                ],
+                "height": 100.0,
                 "location": [
                     715.5232,
                     -781.2327
-                ]
+                ],
+                "use_custom_color": false,
+                "width": 140.0
             },
             "class": "MpfbSystemValueTextureGenitals",
             "input_socket_values": {},
@@ -472,19 +528,19 @@ class _NodeWrapperMpfbBodySectionsRouter(AbstractGroupWrapper):
         nodes["Group Input"].location = [-813.1845, -11.987]
 
         node("ShaderNodeMixShader", "Mix Shader.001", attribute_values={"location": [-90.473, 188.4992]})
-        node("MpfbSystemValueTextureLips", "IsLips", attribute_values={"location": [-94.0441, 50.065]})
-        node("MpfbSystemValueTextureAureolae", "IsAureolae", attribute_values={"location": [-492.2594, 446.2881]})
-        node("MpfbSystemValueTextureFace", "IsFace", attribute_values={"location": [-299.4578, 204.701]})
-        node("MpfbSystemValueTextureFingernails", "IsFingernails", attribute_values={"location": [94.1688, -115.6434]})
+        node("MpfbSystemValueTextureLips", "IsLips", attribute_values={"color": [0.608, 0.608, 0.608], "height": 100.0, "location": [-94.0441, 50.065], "use_custom_color": False, "width": 140.0})
+        node("MpfbSystemValueTextureAureolae", "IsAureolae", attribute_values={"color": [0.608, 0.608, 0.608], "height": 100.0, "location": [-492.2594, 446.2881], "use_custom_color": False, "width": 140.0})
+        node("MpfbSystemValueTextureFace", "IsFace", attribute_values={"color": [0.608, 0.608, 0.608], "height": 100.0, "location": [-299.4578, 204.701], "use_custom_color": False, "width": 140.0})
+        node("MpfbSystemValueTextureFingernails", "IsFingernails", attribute_values={"color": [0.608, 0.608, 0.608], "height": 100.0, "location": [94.1688, -115.6434], "use_custom_color": False, "width": 140.0})
         node("ShaderNodeMixShader", "Mix Shader.003", attribute_values={"location": [303.818, -212.4323]})
         node("ShaderNodeMixShader", "Mix Shader", attribute_values={"location": [-298.6343, 337.6847]})
         node("ShaderNodeMixShader", "Mix Shader.002", attribute_values={"location": [92.2244, 19.7351]})
         node("ShaderNodeMixShader", "Mix Shader.004", attribute_values={"location": [492.2595, -446.2881]})
-        node("MpfbSystemValueTextureToenails", "IsToenails", attribute_values={"location": [304.4512, -354.7517]})
-        node("MpfbSystemValueTextureEars", "IsEars", attribute_values={"location": [491.7747, -590.6022]})
+        node("MpfbSystemValueTextureToenails", "IsToenails", attribute_values={"color": [0.608, 0.608, 0.608], "height": 100.0, "location": [304.4512, -354.7517], "use_custom_color": False, "width": 140.0})
+        node("MpfbSystemValueTextureEars", "IsEars", attribute_values={"color": [0.608, 0.608, 0.608], "height": 100.0, "location": [491.7747, -590.6022], "use_custom_color": False, "width": 140.0})
         node("ShaderNodeMixShader", "Mix Shader.005", attribute_values={"location": [717.0477, -632.5438]})
         node("ShaderNodeMixShader", "Mix Shader.006", attribute_values={"location": [928.4091, -808.446]})
-        node("MpfbSystemValueTextureGenitals", "IsGenitals", attribute_values={"location": [715.5232, -781.2327]})
+        node("MpfbSystemValueTextureGenitals", "IsGenitals", attribute_values={"color": [0.608, 0.608, 0.608], "height": 100.0, "location": [715.5232, -781.2327], "use_custom_color": False, "width": 140.0})
 
         link("Group Input", "DefaultBodyShader", "Mix Shader", "Shader")
         link("Group Input", "AureolaeShader", "Mix Shader", "Shader_001")

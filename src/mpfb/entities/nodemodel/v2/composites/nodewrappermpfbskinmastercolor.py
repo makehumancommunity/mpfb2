@@ -2,10 +2,355 @@ import bpy, json
 
 _ORIGINAL_NODE_DEF = json.loads("""
 {
+    "class": "MpfbSkinMasterColor",
+    "inputs": {
+        "Input_0": {
+            "name": "DiffuseTextureStrength",
+            "identifier": "Input_0",
+            "class": "NodeSocketFloatFactor",
+            "value_type": "VALUE",
+            "default_value": 0.0
+        },
+        "Input_2": {
+            "name": "DiffuseTexture",
+            "identifier": "Input_2",
+            "class": "NodeSocketColor",
+            "value_type": "RGBA",
+            "default_value": [
+                0.807,
+                0.5647,
+                0.4342,
+                1.0
+            ]
+        },
+        "Input_1": {
+            "name": "SkinColor",
+            "identifier": "Input_1",
+            "class": "NodeSocketColor",
+            "value_type": "RGBA",
+            "default_value": [
+                0.6795,
+                0.4678,
+                0.3763,
+                1.0
+            ]
+        },
+        "Input_18": {
+            "name": "SkinOverride",
+            "identifier": "Input_18",
+            "class": "NodeSocketFloat",
+            "value_type": "VALUE",
+            "default_value": 0.0,
+            "min_value": 0.0,
+            "max_value": 1.0
+        },
+        "Input_4": {
+            "name": "AureolaeColor",
+            "identifier": "Input_4",
+            "class": "NodeSocketColor",
+            "value_type": "RGBA",
+            "default_value": [
+                0.633,
+                0.4019,
+                0.3516,
+                1.0
+            ]
+        },
+        "Input_19": {
+            "name": "AurolaeOverride",
+            "identifier": "Input_19",
+            "class": "NodeSocketFloat",
+            "value_type": "VALUE",
+            "default_value": 0.0,
+            "min_value": 0.0,
+            "max_value": 1.0
+        },
+        "Input_6": {
+            "name": "NavelCenterColor",
+            "identifier": "Input_6",
+            "class": "NodeSocketColor",
+            "value_type": "RGBA",
+            "default_value": [
+                0.3467,
+                0.1912,
+                0.1356,
+                1.0
+            ]
+        },
+        "Input_20": {
+            "name": "NavelCenterOverride",
+            "identifier": "Input_20",
+            "class": "NodeSocketFloat",
+            "value_type": "VALUE",
+            "default_value": 0.0,
+            "min_value": 0.0,
+            "max_value": 1.0
+        },
+        "Input_8": {
+            "name": "LipsColor",
+            "identifier": "Input_8",
+            "class": "NodeSocketColor",
+            "value_type": "RGBA",
+            "default_value": [
+                0.6795,
+                0.3622,
+                0.3348,
+                1.0
+            ]
+        },
+        "Input_21": {
+            "name": "LipsOverride",
+            "identifier": "Input_21",
+            "class": "NodeSocketFloat",
+            "value_type": "VALUE",
+            "default_value": 0.0,
+            "min_value": 0.0,
+            "max_value": 1.0
+        },
+        "Input_11": {
+            "name": "FingernailsColor",
+            "identifier": "Input_11",
+            "class": "NodeSocketColor",
+            "value_type": "RGBA",
+            "default_value": [
+                1.0,
+                0.7206,
+                0.6135,
+                1.0
+            ]
+        },
+        "Input_22": {
+            "name": "FingernailsOverride",
+            "identifier": "Input_22",
+            "class": "NodeSocketFloat",
+            "value_type": "VALUE",
+            "default_value": 0.0,
+            "min_value": 0.0,
+            "max_value": 1.0
+        },
+        "Input_12": {
+            "name": "ToenailsColor",
+            "identifier": "Input_12",
+            "class": "NodeSocketColor",
+            "value_type": "RGBA",
+            "default_value": [
+                1.0,
+                0.7231,
+                0.6105,
+                1.0
+            ]
+        },
+        "Input_23": {
+            "name": "ToenailsOverride",
+            "identifier": "Input_23",
+            "class": "NodeSocketFloat",
+            "value_type": "VALUE",
+            "default_value": 0.0,
+            "min_value": 0.0,
+            "max_value": 1.0
+        },
+        "Input_14": {
+            "name": "SpotColor",
+            "identifier": "Input_14",
+            "class": "NodeSocketColor",
+            "value_type": "RGBA",
+            "default_value": [
+                0.0762,
+                0.0137,
+                0.003,
+                1.0
+            ]
+        },
+        "Input_24": {
+            "name": "SpotOverride",
+            "identifier": "Input_24",
+            "class": "NodeSocketFloat",
+            "value_type": "VALUE",
+            "default_value": 0.0,
+            "min_value": 0.0,
+            "max_value": 1.0
+        },
+        "Input_16": {
+            "name": "EyelidColor",
+            "identifier": "Input_16",
+            "class": "NodeSocketColor",
+            "value_type": "RGBA",
+            "default_value": [
+                0.3467,
+                0.1912,
+                0.1356,
+                1.0
+            ]
+        },
+        "Input_25": {
+            "name": "EyelidOverride",
+            "identifier": "Input_25",
+            "class": "NodeSocketFloat",
+            "value_type": "VALUE",
+            "default_value": 0.0,
+            "min_value": 0.0,
+            "max_value": 1.0
+        },
+        "Input_28": {
+            "name": "GenitalsColor",
+            "identifier": "Input_28",
+            "class": "NodeSocketColor",
+            "value_type": "RGBA",
+            "default_value": [
+                0.6795,
+                0.3608,
+                0.3062,
+                1.0
+            ]
+        },
+        "Input_29": {
+            "name": "GenitalsOverride",
+            "identifier": "Input_29",
+            "class": "NodeSocketFloat",
+            "value_type": "VALUE",
+            "default_value": 0.5,
+            "min_value": 0.0,
+            "max_value": 1.0
+        },
+        "Input_26": {
+            "name": "VeinColor",
+            "identifier": "Input_26",
+            "class": "NodeSocketColor",
+            "value_type": "RGBA",
+            "default_value": [
+                0.1413,
+                0.1301,
+                0.5029,
+                1.0
+            ]
+        }
+    },
+    "outputs": {
+        "Output_3": {
+            "name": "SkinColor",
+            "identifier": "Output_3",
+            "class": "NodeSocketColor",
+            "value_type": "RGBA",
+            "default_value": [
+                0.0,
+                0.0,
+                0.0,
+                0.0
+            ]
+        },
+        "Output_5": {
+            "name": "AureolaeColor",
+            "identifier": "Output_5",
+            "class": "NodeSocketColor",
+            "value_type": "RGBA",
+            "default_value": [
+                0.0,
+                0.0,
+                0.0,
+                0.0
+            ]
+        },
+        "Output_7": {
+            "name": "NavelCenterColor",
+            "identifier": "Output_7",
+            "class": "NodeSocketColor",
+            "value_type": "RGBA",
+            "default_value": [
+                0.0,
+                0.0,
+                0.0,
+                0.0
+            ]
+        },
+        "Output_9": {
+            "name": "LipsColor",
+            "identifier": "Output_9",
+            "class": "NodeSocketColor",
+            "value_type": "RGBA",
+            "default_value": [
+                0.0,
+                0.0,
+                0.0,
+                0.0
+            ]
+        },
+        "Output_10": {
+            "name": "FingernailsColor",
+            "identifier": "Output_10",
+            "class": "NodeSocketColor",
+            "value_type": "RGBA",
+            "default_value": [
+                0.0,
+                0.0,
+                0.0,
+                0.0
+            ]
+        },
+        "Output_13": {
+            "name": "ToenailsColor",
+            "identifier": "Output_13",
+            "class": "NodeSocketColor",
+            "value_type": "RGBA",
+            "default_value": [
+                0.0,
+                0.0,
+                0.0,
+                0.0
+            ]
+        },
+        "Output_15": {
+            "name": "SpotColor",
+            "identifier": "Output_15",
+            "class": "NodeSocketColor",
+            "value_type": "RGBA",
+            "default_value": [
+                0.0,
+                0.0,
+                0.0,
+                0.0
+            ]
+        },
+        "Output_17": {
+            "name": "EyelidColor",
+            "identifier": "Output_17",
+            "class": "NodeSocketColor",
+            "value_type": "RGBA",
+            "default_value": [
+                0.0,
+                0.0,
+                0.0,
+                0.0
+            ]
+        },
+        "Output_30": {
+            "name": "GenitalsColor",
+            "identifier": "Output_30",
+            "class": "NodeSocketColor",
+            "value_type": "RGBA",
+            "default_value": [
+                0.0,
+                0.0,
+                0.0,
+                0.0
+            ]
+        },
+        "Output_27": {
+            "name": "VeinColor",
+            "identifier": "Output_27",
+            "class": "NodeSocketColor",
+            "value_type": "RGBA",
+            "default_value": [
+                0.0,
+                0.0,
+                0.0,
+                0.0
+            ]
+        }
+    },
     "attributes": {
         "color": {
-            "class": "Color",
             "name": "color",
+            "class": "Color",
             "value": [
                 0.608,
                 0.608,
@@ -13,372 +358,27 @@ _ORIGINAL_NODE_DEF = json.loads("""
             ]
         },
         "height": {
-            "class": "float",
             "name": "height",
+            "class": "float",
             "value": 100.0
         },
         "location": {
-            "class": "Vector",
             "name": "location",
+            "class": "Vector",
             "value": [
                 -142.4896,
                 867.0698
             ]
         },
         "use_custom_color": {
-            "class": "bool",
             "name": "use_custom_color",
+            "class": "bool",
             "value": false
         },
         "width": {
-            "class": "float",
             "name": "width",
+            "class": "float",
             "value": 294.3394
-        }
-    },
-    "class": "MpfbSkinMasterColor",
-    "inputs": {
-        "Input_0": {
-            "class": "NodeSocketFloatFactor",
-            "default_value": 0.0,
-            "identifier": "Input_0",
-            "name": "DiffuseTextureStrength",
-            "value_type": "VALUE"
-        },
-        "Input_1": {
-            "class": "NodeSocketColor",
-            "default_value": [
-                0.6795,
-                0.4678,
-                0.3763,
-                1.0
-            ],
-            "identifier": "Input_1",
-            "name": "SkinColor",
-            "value_type": "RGBA"
-        },
-        "Input_11": {
-            "class": "NodeSocketColor",
-            "default_value": [
-                1.0,
-                0.7206,
-                0.6135,
-                1.0
-            ],
-            "identifier": "Input_11",
-            "name": "FingernailsColor",
-            "value_type": "RGBA"
-        },
-        "Input_12": {
-            "class": "NodeSocketColor",
-            "default_value": [
-                1.0,
-                0.7231,
-                0.6105,
-                1.0
-            ],
-            "identifier": "Input_12",
-            "name": "ToenailsColor",
-            "value_type": "RGBA"
-        },
-        "Input_14": {
-            "class": "NodeSocketColor",
-            "default_value": [
-                0.0762,
-                0.0137,
-                0.003,
-                1.0
-            ],
-            "identifier": "Input_14",
-            "name": "SpotColor",
-            "value_type": "RGBA"
-        },
-        "Input_16": {
-            "class": "NodeSocketColor",
-            "default_value": [
-                0.3467,
-                0.1912,
-                0.1356,
-                1.0
-            ],
-            "identifier": "Input_16",
-            "name": "EyelidColor",
-            "value_type": "RGBA"
-        },
-        "Input_18": {
-            "class": "NodeSocketFloat",
-            "default_value": 0.0,
-            "identifier": "Input_18",
-            "max_value": 1.0,
-            "min_value": 0.0,
-            "name": "SkinOverride",
-            "value_type": "VALUE"
-        },
-        "Input_19": {
-            "class": "NodeSocketFloat",
-            "default_value": 0.0,
-            "identifier": "Input_19",
-            "max_value": 1.0,
-            "min_value": 0.0,
-            "name": "AurolaeOverride",
-            "value_type": "VALUE"
-        },
-        "Input_2": {
-            "class": "NodeSocketColor",
-            "default_value": [
-                0.807,
-                0.5647,
-                0.4342,
-                1.0
-            ],
-            "identifier": "Input_2",
-            "name": "DiffuseTexture",
-            "value_type": "RGBA"
-        },
-        "Input_20": {
-            "class": "NodeSocketFloat",
-            "default_value": 0.0,
-            "identifier": "Input_20",
-            "max_value": 1.0,
-            "min_value": 0.0,
-            "name": "NavelCenterOverride",
-            "value_type": "VALUE"
-        },
-        "Input_21": {
-            "class": "NodeSocketFloat",
-            "default_value": 0.0,
-            "identifier": "Input_21",
-            "max_value": 1.0,
-            "min_value": 0.0,
-            "name": "LipsOverride",
-            "value_type": "VALUE"
-        },
-        "Input_22": {
-            "class": "NodeSocketFloat",
-            "default_value": 0.0,
-            "identifier": "Input_22",
-            "max_value": 1.0,
-            "min_value": 0.0,
-            "name": "FingernailsOverride",
-            "value_type": "VALUE"
-        },
-        "Input_23": {
-            "class": "NodeSocketFloat",
-            "default_value": 0.0,
-            "identifier": "Input_23",
-            "max_value": 1.0,
-            "min_value": 0.0,
-            "name": "ToenailsOverride",
-            "value_type": "VALUE"
-        },
-        "Input_24": {
-            "class": "NodeSocketFloat",
-            "default_value": 0.0,
-            "identifier": "Input_24",
-            "max_value": 1.0,
-            "min_value": 0.0,
-            "name": "SpotOverride",
-            "value_type": "VALUE"
-        },
-        "Input_25": {
-            "class": "NodeSocketFloat",
-            "default_value": 0.0,
-            "identifier": "Input_25",
-            "max_value": 1.0,
-            "min_value": 0.0,
-            "name": "EyelidOverride",
-            "value_type": "VALUE"
-        },
-        "Input_26": {
-            "class": "NodeSocketColor",
-            "default_value": [
-                0.1413,
-                0.1301,
-                0.5029,
-                1.0
-            ],
-            "identifier": "Input_26",
-            "name": "VeinColor",
-            "value_type": "RGBA"
-        },
-        "Input_28": {
-            "class": "NodeSocketColor",
-            "default_value": [
-                0.6795,
-                0.3608,
-                0.3062,
-                1.0
-            ],
-            "identifier": "Input_28",
-            "name": "GenitalsColor",
-            "value_type": "RGBA"
-        },
-        "Input_29": {
-            "class": "NodeSocketFloat",
-            "default_value": 0.5,
-            "identifier": "Input_29",
-            "max_value": 1.0,
-            "min_value": 0.0,
-            "name": "GenitalsOverride",
-            "value_type": "VALUE"
-        },
-        "Input_4": {
-            "class": "NodeSocketColor",
-            "default_value": [
-                0.633,
-                0.4019,
-                0.3516,
-                1.0
-            ],
-            "identifier": "Input_4",
-            "name": "AureolaeColor",
-            "value_type": "RGBA"
-        },
-        "Input_6": {
-            "class": "NodeSocketColor",
-            "default_value": [
-                0.3467,
-                0.1912,
-                0.1356,
-                1.0
-            ],
-            "identifier": "Input_6",
-            "name": "NavelCenterColor",
-            "value_type": "RGBA"
-        },
-        "Input_8": {
-            "class": "NodeSocketColor",
-            "default_value": [
-                0.6795,
-                0.3622,
-                0.3348,
-                1.0
-            ],
-            "identifier": "Input_8",
-            "name": "LipsColor",
-            "value_type": "RGBA"
-        }
-    },
-    "outputs": {
-        "Output_10": {
-            "class": "NodeSocketColor",
-            "default_value": [
-                0.0,
-                0.0,
-                0.0,
-                0.0
-            ],
-            "identifier": "Output_10",
-            "name": "FingernailsColor",
-            "value_type": "RGBA"
-        },
-        "Output_13": {
-            "class": "NodeSocketColor",
-            "default_value": [
-                0.0,
-                0.0,
-                0.0,
-                0.0
-            ],
-            "identifier": "Output_13",
-            "name": "ToenailsColor",
-            "value_type": "RGBA"
-        },
-        "Output_15": {
-            "class": "NodeSocketColor",
-            "default_value": [
-                0.0,
-                0.0,
-                0.0,
-                0.0
-            ],
-            "identifier": "Output_15",
-            "name": "SpotColor",
-            "value_type": "RGBA"
-        },
-        "Output_17": {
-            "class": "NodeSocketColor",
-            "default_value": [
-                0.0,
-                0.0,
-                0.0,
-                0.0
-            ],
-            "identifier": "Output_17",
-            "name": "EyelidColor",
-            "value_type": "RGBA"
-        },
-        "Output_27": {
-            "class": "NodeSocketColor",
-            "default_value": [
-                0.0,
-                0.0,
-                0.0,
-                0.0
-            ],
-            "identifier": "Output_27",
-            "name": "VeinColor",
-            "value_type": "RGBA"
-        },
-        "Output_3": {
-            "class": "NodeSocketColor",
-            "default_value": [
-                0.0,
-                0.0,
-                0.0,
-                0.0
-            ],
-            "identifier": "Output_3",
-            "name": "SkinColor",
-            "value_type": "RGBA"
-        },
-        "Output_30": {
-            "class": "NodeSocketColor",
-            "default_value": [
-                0.0,
-                0.0,
-                0.0,
-                0.0
-            ],
-            "identifier": "Output_30",
-            "name": "GenitalsColor",
-            "value_type": "RGBA"
-        },
-        "Output_5": {
-            "class": "NodeSocketColor",
-            "default_value": [
-                0.0,
-                0.0,
-                0.0,
-                0.0
-            ],
-            "identifier": "Output_5",
-            "name": "AureolaeColor",
-            "value_type": "RGBA"
-        },
-        "Output_7": {
-            "class": "NodeSocketColor",
-            "default_value": [
-                0.0,
-                0.0,
-                0.0,
-                0.0
-            ],
-            "identifier": "Output_7",
-            "name": "NavelCenterColor",
-            "value_type": "RGBA"
-        },
-        "Output_9": {
-            "class": "NodeSocketColor",
-            "default_value": [
-                0.0,
-                0.0,
-                0.0,
-                0.0
-            ],
-            "identifier": "Output_9",
-            "name": "LipsColor",
-            "value_type": "RGBA"
         }
     }
 }""")

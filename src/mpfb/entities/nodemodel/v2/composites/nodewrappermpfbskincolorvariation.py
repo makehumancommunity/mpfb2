@@ -2,10 +2,89 @@ import bpy, json
 
 _ORIGINAL_NODE_DEF = json.loads("""
 {
+    "class": "MpfbSkinColorVariation",
+    "inputs": {
+        "Input_8": {
+            "name": "Color",
+            "identifier": "Input_8",
+            "class": "NodeSocketColor",
+            "value_type": "RGBA",
+            "default_value": [
+                1.0,
+                0.6899,
+                0.4647,
+                1.0
+            ]
+        },
+        "Input_9": {
+            "name": "ColorVariationStrength",
+            "identifier": "Input_9",
+            "class": "NodeSocketFloatFactor",
+            "value_type": "VALUE",
+            "default_value": 0.3
+        },
+        "Input_10": {
+            "name": "ColorVariationScaleMultiplier",
+            "identifier": "Input_10",
+            "class": "NodeSocketFloat",
+            "value_type": "VALUE",
+            "default_value": 70.0,
+            "min_value": -10000.0,
+            "max_value": 10000.0
+        },
+        "Input_11": {
+            "name": "ColorVariationBrightness",
+            "identifier": "Input_11",
+            "class": "NodeSocketFloat",
+            "value_type": "VALUE",
+            "default_value": -0.5,
+            "min_value": -1.0,
+            "max_value": 1.0
+        },
+        "Input_4": {
+            "name": "ColorVariationDetail",
+            "identifier": "Input_4",
+            "class": "NodeSocketFloat",
+            "value_type": "VALUE",
+            "default_value": 1.0,
+            "min_value": 0.0,
+            "max_value": 15.0
+        },
+        "Input_5": {
+            "name": "ColorVariationDistortion",
+            "identifier": "Input_5",
+            "class": "NodeSocketFloat",
+            "value_type": "VALUE",
+            "default_value": 0.5,
+            "min_value": -1000.0,
+            "max_value": 1000.0
+        },
+        "Input_6": {
+            "name": "ColorVariationRoughness",
+            "identifier": "Input_6",
+            "class": "NodeSocketFloatFactor",
+            "value_type": "VALUE",
+            "default_value": 0.0
+        }
+    },
+    "outputs": {
+        "Output_7": {
+            "name": "Color",
+            "identifier": "Output_7",
+            "class": "NodeSocketColor",
+            "value_type": "RGBA",
+            "default_value": [
+                0.0,
+                0.0,
+                0.0,
+                0.0
+            ]
+        }
+    },
     "attributes": {
         "color": {
-            "class": "Color",
             "name": "color",
+            "class": "Color",
             "value": [
                 0.608,
                 0.608,
@@ -13,106 +92,27 @@ _ORIGINAL_NODE_DEF = json.loads("""
             ]
         },
         "height": {
-            "class": "float",
             "name": "height",
+            "class": "float",
             "value": 100.0
         },
         "location": {
-            "class": "Vector",
             "name": "location",
+            "class": "Vector",
             "value": [
-                -960.8616,
-                733.6772
+                90.467,
+                101.8807
             ]
         },
         "use_custom_color": {
-            "class": "bool",
             "name": "use_custom_color",
+            "class": "bool",
             "value": false
         },
         "width": {
-            "class": "float",
             "name": "width",
-            "value": 245.2778
-        }
-    },
-    "class": "MpfbSkinColorVariation",
-    "inputs": {
-        "Input_10": {
-            "class": "NodeSocketFloat",
-            "default_value": 30.0,
-            "identifier": "Input_10",
-            "max_value": 10000.0,
-            "min_value": -10000.0,
-            "name": "ColorVariationScaleMultiplier",
-            "value_type": "VALUE"
-        },
-        "Input_11": {
-            "class": "NodeSocketFloat",
-            "default_value": -0.5,
-            "identifier": "Input_11",
-            "max_value": 1.0,
-            "min_value": -1.0,
-            "name": "ColorVariationBrightness",
-            "value_type": "VALUE"
-        },
-        "Input_4": {
-            "class": "NodeSocketFloat",
-            "default_value": 1.0,
-            "identifier": "Input_4",
-            "max_value": 15.0,
-            "min_value": 0.0,
-            "name": "ColorVariationDetail",
-            "value_type": "VALUE"
-        },
-        "Input_5": {
-            "class": "NodeSocketFloat",
-            "default_value": 0.5,
-            "identifier": "Input_5",
-            "max_value": 1000.0,
-            "min_value": -1000.0,
-            "name": "ColorVariationDistortion",
-            "value_type": "VALUE"
-        },
-        "Input_6": {
-            "class": "NodeSocketFloatFactor",
-            "default_value": 0.0,
-            "identifier": "Input_6",
-            "name": "ColorVariationRoughness",
-            "value_type": "VALUE"
-        },
-        "Input_8": {
-            "class": "NodeSocketColor",
-            "default_value": [
-                0.807,
-                0.565,
-                0.4356,
-                1.0
-            ],
-            "identifier": "Input_8",
-            "name": "Color",
-            "value_type": "RGBA"
-        },
-        "Input_9": {
-            "class": "NodeSocketFloatFactor",
-            "default_value": 0.15,
-            "identifier": "Input_9",
-            "name": "ColorVariationStrength",
-            "value_type": "VALUE"
-        }
-    },
-    "outputs": {
-        "Output_7": {
-            "class": "NodeSocketColor",
-            "default_value": [
-                0.0,
-                0.0,
-                0.0,
-                0.0
-            ],
-            "identifier": "Output_7",
-            "name": "Color",
-            "value_type": "RGBA"
+            "class": "float",
+            "value": 236.5711
         }
     }
 }""")
@@ -214,10 +214,18 @@ _ORIGINAL_TREE_DEF = json.loads("""
     "nodes": [
         {
             "attribute_values": {
+                "color": [
+                    0.608,
+                    0.608,
+                    0.608
+                ],
+                "height": 100.0,
                 "location": [
                     -597.7336,
                     345.4013
-                ]
+                ],
+                "use_custom_color": false,
+                "width": 140.0
             },
             "class": "MpfbCharacterInfo",
             "input_socket_values": {},
@@ -365,7 +373,7 @@ class _NodeWrapperMpfbSkinColorVariation(AbstractGroupWrapper):
         nodes["Group Output"].location = [911.4695, -0.5778]
         nodes["Group Input"].location = [-977.2401, -294.2911]
 
-        node("MpfbCharacterInfo", "Group", attribute_values={"location": [-597.7336, 345.4013]})
+        node("MpfbCharacterInfo", "Group", attribute_values={"color": [0.608, 0.608, 0.608], "height": 100.0, "location": [-597.7336, 345.4013], "use_custom_color": False, "width": 140.0})
         node("ShaderNodeTexCoord", "Texture Coordinate", attribute_values={"location": [-416.1124, 52.1619]})
         node("ShaderNodeTexNoise", "Noise Texture", attribute_values={"location": [103.9577, 143.1711]}, input_socket_values={"Detail": 4.0, "Distortion": 2.0, "Roughness": 0.0, "Scale": 400.0})
         node("ShaderNodeMix", "Mix", attribute_values={"data_type": "RGBA", "location": [604.6409, -110.2636]}, input_socket_values={"Factor_Float": 0.1})
