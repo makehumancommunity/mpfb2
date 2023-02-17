@@ -199,14 +199,12 @@ class AbstractNodeWrapper():
         from . import PRIMITIVE_NODE_WRAPPERS
         self.pre_create_instance(node_tree)
         self._validate_names(input_socket_values, attribute_values, output_socket_values)
-        is_mpfb_group = False
         if self.node_class_name in PRIMITIVE_NODE_WRAPPERS:
             node = node_tree.nodes.new(self.node_class_name)
         else:
             # Assuming we're going to create a group
             node = node_tree.nodes.new("ShaderNodeGroup")
             node.node_tree = bpy.data.node_groups[self.node_class_name]
-            is_mpfb_group = str(self.node_class_name).startswith("Mpfb")
         self._set_attributes(node, attribute_values)
         self._set_input_sockets(node, input_socket_values)
         self._set_output_sockets(node, output_socket_values)
@@ -217,12 +215,6 @@ class AbstractNodeWrapper():
         else:
             if name:
                 node.label = name
-        if is_mpfb_group and not node.use_custom_color:
-            node.use_custom_color = True
-            color = [0.35, 0.0, 0.35]
-            if len(node.color) > 3:
-                color.append(1.0)
-            node.color = color
         return node
 
     def pre_create_instance(self, node_tree):
