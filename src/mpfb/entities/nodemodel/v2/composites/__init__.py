@@ -2,6 +2,7 @@ from .abstractgroupwrapper import AbstractGroupWrapper
 
 from .nodewrappermpfbadditiverange2 import NodeWrapperMpfbAdditiveRange2
 from .nodewrappermpfbadditiverange3 import NodeWrapperMpfbAdditiveRange3
+from .nodewrappermpfbbody import NodeWrapperMpfbBody
 from .nodewrappermpfbbodyconstants import NodeWrapperMpfbBodyConstants
 from .nodewrappermpfbbodysectionsrouter import NodeWrapperMpfbBodySectionsRouter
 from .nodewrappermpfbcharacterinfo import NodeWrapperMpfbCharacterInfo
@@ -12,8 +13,13 @@ from .nodewrappermpfbcolorrouter2 import NodeWrapperMpfbColorRouter2
 from .nodewrappermpfbcolorrouter3 import NodeWrapperMpfbColorRouter3
 from .nodewrappermpfbcolorrouter4 import NodeWrapperMpfbColorRouter4
 from .nodewrappermpfbcolorrouter5 import NodeWrapperMpfbColorRouter5
+from .nodewrappermpfbears import NodeWrapperMpfbEars
 from .nodewrappermpfbeyeconstants import NodeWrapperMpfbEyeConstants
+from .nodewrappermpfbface import NodeWrapperMpfbFace
+from .nodewrappermpfbgenitals import NodeWrapperMpfbGenitals
+from .nodewrappermpfblips import NodeWrapperMpfbLips
 from .nodewrappermpfbmassadd import NodeWrapperMpfbMassAdd
+from .nodewrappermpfbnails import NodeWrapperMpfbNails
 from .nodewrappermpfbnormalizevalue import NodeWrapperMpfbNormalizeValue
 from .nodewrappermpfbshaderrouter2 import NodeWrapperMpfbShaderRouter2
 from .nodewrappermpfbshaderrouter3 import NodeWrapperMpfbShaderRouter3
@@ -48,6 +54,7 @@ from .nodewrappermpfbwithindistanceofeither import NodeWrapperMpfbWithinDistance
 COMPOSITE_NODE_WRAPPERS = dict()
 COMPOSITE_NODE_WRAPPERS["MpfbAdditiveRange2"] = NodeWrapperMpfbAdditiveRange2
 COMPOSITE_NODE_WRAPPERS["MpfbAdditiveRange3"] = NodeWrapperMpfbAdditiveRange3
+COMPOSITE_NODE_WRAPPERS["MpfbBody"] = NodeWrapperMpfbBody
 COMPOSITE_NODE_WRAPPERS["MpfbBodyConstants"] = NodeWrapperMpfbBodyConstants
 COMPOSITE_NODE_WRAPPERS["MpfbBodySectionsRouter"] = NodeWrapperMpfbBodySectionsRouter
 COMPOSITE_NODE_WRAPPERS["MpfbCharacterInfo"] = NodeWrapperMpfbCharacterInfo
@@ -58,8 +65,13 @@ COMPOSITE_NODE_WRAPPERS["MpfbColorRouter2"] = NodeWrapperMpfbColorRouter2
 COMPOSITE_NODE_WRAPPERS["MpfbColorRouter3"] = NodeWrapperMpfbColorRouter3
 COMPOSITE_NODE_WRAPPERS["MpfbColorRouter4"] = NodeWrapperMpfbColorRouter4
 COMPOSITE_NODE_WRAPPERS["MpfbColorRouter5"] = NodeWrapperMpfbColorRouter5
+COMPOSITE_NODE_WRAPPERS["MpfbEars"] = NodeWrapperMpfbEars
 COMPOSITE_NODE_WRAPPERS["MpfbEyeConstants"] = NodeWrapperMpfbEyeConstants
+COMPOSITE_NODE_WRAPPERS["MpfbFace"] = NodeWrapperMpfbFace
+COMPOSITE_NODE_WRAPPERS["MpfbGenitals"] = NodeWrapperMpfbGenitals
+COMPOSITE_NODE_WRAPPERS["MpfbLips"] = NodeWrapperMpfbLips
 COMPOSITE_NODE_WRAPPERS["MpfbMassAdd"] = NodeWrapperMpfbMassAdd
+COMPOSITE_NODE_WRAPPERS["MpfbNails"] = NodeWrapperMpfbNails
 COMPOSITE_NODE_WRAPPERS["MpfbNormalizeValue"] = NodeWrapperMpfbNormalizeValue
 COMPOSITE_NODE_WRAPPERS["MpfbShaderRouter2"] = NodeWrapperMpfbShaderRouter2
 COMPOSITE_NODE_WRAPPERS["MpfbShaderRouter3"] = NodeWrapperMpfbShaderRouter3
@@ -96,6 +108,7 @@ __all__ = [
     "COMPOSITE_NODE_WRAPPERS",
     "NodeWrapperMpfbAdditiveRange2",
     "NodeWrapperMpfbAdditiveRange3",
+    "NodeWrapperMpfbBody",
     "NodeWrapperMpfbBodyConstants",
     "NodeWrapperMpfbBodySectionsRouter",
     "NodeWrapperMpfbCharacterInfo",
@@ -106,8 +119,13 @@ __all__ = [
     "NodeWrapperMpfbColorRouter3",
     "NodeWrapperMpfbColorRouter4",
     "NodeWrapperMpfbColorRouter5",
+    "NodeWrapperMpfbEars",
     "NodeWrapperMpfbEyeConstants",
+    "NodeWrapperMpfbFace",
+    "NodeWrapperMpfbGenitals",
+    "NodeWrapperMpfbLips",
     "NodeWrapperMpfbMassAdd",
+    "NodeWrapperMpfbNails",
     "NodeWrapperMpfbNormalizeValue",
     "NodeWrapperMpfbShaderRouter2",
     "NodeWrapperMpfbShaderRouter3",
