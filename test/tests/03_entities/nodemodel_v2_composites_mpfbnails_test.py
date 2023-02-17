@@ -15,7 +15,7 @@ def test_composite_can_create_instance():
     assert node.node_tree.name == "MpfbNails"
     assert "Group Output" in node.node_tree.nodes
     assert "Principled BSDF" in node.node_tree.nodes
-    assert "Group" in node.node_tree.nodes
+    assert "SSS" in node.node_tree.nodes
     assert "Group Input" in node.node_tree.nodes
     has_link_to_output = False
     for link in node.node_tree.links:

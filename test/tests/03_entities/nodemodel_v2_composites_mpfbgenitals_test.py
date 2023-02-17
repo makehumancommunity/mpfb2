@@ -19,9 +19,9 @@ def test_composite_can_create_instance():
     assert "Math" in node.node_tree.nodes
     assert "Noise Texture" in node.node_tree.nodes
     assert "Noise Texture.001" in node.node_tree.nodes
-    assert "Group" in node.node_tree.nodes
     assert "Principled BSDF.001" in node.node_tree.nodes
     assert "Bump" in node.node_tree.nodes
+    assert "SSS" in node.node_tree.nodes
     assert "Group Input" in node.node_tree.nodes
     has_link_to_output = False
     for link in node.node_tree.links:

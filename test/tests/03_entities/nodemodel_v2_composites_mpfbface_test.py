@@ -13,11 +13,11 @@ def test_composite_can_create_instance():
     node = NodeWrapperMpfbFace.create_instance(node_tree)
     assert node
     assert node.node_tree.name == "MpfbFace"
-    assert "Group.001" in node.node_tree.nodes
     assert "Mix" in node.node_tree.nodes
     assert "Principled BSDF.001" in node.node_tree.nodes
     assert "Group Output" in node.node_tree.nodes
     assert "Skin" in node.node_tree.nodes
+    assert "IsEyelids" in node.node_tree.nodes
     assert "Group Input" in node.node_tree.nodes
     has_link_to_output = False
     for link in node.node_tree.links:

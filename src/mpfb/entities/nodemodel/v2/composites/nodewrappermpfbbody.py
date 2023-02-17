@@ -394,23 +394,23 @@ _ORIGINAL_TREE_DEF = json.loads("""
         {
             "from_node": "Group Input",
             "from_socket": "SkinColor",
-            "to_node": "Group.006",
+            "to_node": "NavelSettings",
             "to_socket": "SkinColor"
         },
         {
             "from_node": "Group Input",
             "from_socket": "NavelCenterColor",
-            "to_node": "Group.006",
+            "to_node": "NavelSettings",
             "to_socket": "NavelCenterColor"
         },
         {
-            "from_node": "Group.006",
+            "from_node": "NavelSettings",
             "from_socket": "SkinColor",
             "to_node": "bodyskingroup",
             "to_socket": "SkinColor"
         },
         {
-            "from_node": "Group.006",
+            "from_node": "NavelSettings",
             "from_socket": "Normal",
             "to_node": "bodyskingroup",
             "to_socket": "Normal"
@@ -424,7 +424,7 @@ _ORIGINAL_TREE_DEF = json.loads("""
         {
             "from_node": "Group Input",
             "from_socket": "Normal",
-            "to_node": "Group.006",
+            "to_node": "NavelSettings",
             "to_socket": "Normal"
         },
         {
@@ -664,19 +664,19 @@ _ORIGINAL_TREE_DEF = json.loads("""
         {
             "from_node": "Group Input",
             "from_socket": "NavelWidthMultiplier",
-            "to_node": "Group.006",
+            "to_node": "NavelSettings",
             "to_socket": "NavelWidthMultiplier"
         },
         {
             "from_node": "Group Input",
             "from_socket": "NavelBumpStrength",
-            "to_node": "Group.006",
+            "to_node": "NavelSettings",
             "to_socket": "NavelBumpStrength"
         },
         {
             "from_node": "Group Input",
             "from_socket": "NavelColorStrength",
-            "to_node": "Group.006",
+            "to_node": "NavelSettings",
             "to_socket": "NavelColorStrength"
         }
     ],
@@ -716,16 +716,16 @@ _ORIGINAL_TREE_DEF = json.loads("""
                 ],
                 "height": 100.0,
                 "location": [
-                    -1609.5137,
-                    126.2919
+                    -1208.3087,
+                    -5.6504
                 ],
                 "use_custom_color": false,
-                "width": 272.0078
+                "width": 354.5488
             },
-            "class": "MpfbSkinNavel",
+            "class": "MpfbSkin",
             "input_socket_values": {},
-            "label": "Group.006",
-            "name": "Group.006",
+            "label": "Skin Settings",
+            "name": "bodyskingroup",
             "output_socket_values": {}
         },
         {
@@ -737,16 +737,16 @@ _ORIGINAL_TREE_DEF = json.loads("""
                 ],
                 "height": 100.0,
                 "location": [
-                    -1208.3087,
-                    -5.6504
+                    -1609.5137,
+                    126.2919
                 ],
                 "use_custom_color": false,
-                "width": 354.5488
+                "width": 272.0078
             },
-            "class": "MpfbSkin",
+            "class": "MpfbSkinNavel",
             "input_socket_values": {},
-            "label": "Skin Settings",
-            "name": "bodyskingroup",
+            "label": "Navel Settings",
+            "name": "NavelSettings",
             "output_socket_values": {}
         },
         {
@@ -783,12 +783,12 @@ class _NodeWrapperMpfbBody(AbstractGroupWrapper):
         nodes["Group Input"].location = [-1994.3385, -73.7013]
 
         node("ShaderNodeBsdfPrincipled", "Principled BSDF", attribute_values={"location": [-583.7446, 130.6071]})
-        node("MpfbSkinNavel", "Group.006", attribute_values={"color": [0.608, 0.608, 0.608], "height": 100.0, "location": [-1609.5137, 126.2919], "use_custom_color": False, "width": 272.0078})
         node("MpfbSkin", "bodyskingroup", label="Skin Settings", attribute_values={"color": [0.608, 0.608, 0.608], "height": 100.0, "location": [-1208.3087, -5.6504], "use_custom_color": False, "width": 354.5488})
+        node("MpfbSkinNavel", "NavelSettings", label="Navel Settings", attribute_values={"color": [0.608, 0.608, 0.608], "height": 100.0, "location": [-1609.5137, 126.2919], "use_custom_color": False, "width": 272.0078})
 
-        link("Group Input", "SkinColor", "Group.006", "SkinColor")
-        link("Group Input", "NavelCenterColor", "Group.006", "NavelCenterColor")
-        link("Group Input", "Normal", "Group.006", "Normal")
+        link("Group Input", "SkinColor", "NavelSettings", "SkinColor")
+        link("Group Input", "NavelCenterColor", "NavelSettings", "NavelCenterColor")
+        link("Group Input", "Normal", "NavelSettings", "Normal")
         link("Group Input", "SSSStrength", "bodyskingroup", "SSSStrength")
         link("Group Input", "SSSRadiusMultiplyer", "bodyskingroup", "SSSRadiusMultiplyer")
         link("Group Input", "SSSIor", "bodyskingroup", "SSSIor")
@@ -821,11 +821,11 @@ class _NodeWrapperMpfbBody(AbstractGroupWrapper):
         link("Group Input", "ColorVariationDetail", "bodyskingroup", "ColorVariationDetail")
         link("Group Input", "ColorVariationDistortion", "bodyskingroup", "ColorVariationDistortion")
         link("Group Input", "ColorVariationRoughness", "bodyskingroup", "ColorVariationRoughness")
-        link("Group Input", "NavelWidthMultiplier", "Group.006", "NavelWidthMultiplier")
-        link("Group Input", "NavelBumpStrength", "Group.006", "NavelBumpStrength")
-        link("Group Input", "NavelColorStrength", "Group.006", "NavelColorStrength")
-        link("Group.006", "SkinColor", "bodyskingroup", "SkinColor")
-        link("Group.006", "Normal", "bodyskingroup", "Normal")
+        link("Group Input", "NavelWidthMultiplier", "NavelSettings", "NavelWidthMultiplier")
+        link("Group Input", "NavelBumpStrength", "NavelSettings", "NavelBumpStrength")
+        link("Group Input", "NavelColorStrength", "NavelSettings", "NavelColorStrength")
+        link("NavelSettings", "SkinColor", "bodyskingroup", "SkinColor")
+        link("NavelSettings", "Normal", "bodyskingroup", "Normal")
         link("bodyskingroup", "Normal", "Principled BSDF", "Normal")
         link("bodyskingroup", "SubsurfaceColor", "Principled BSDF", "Subsurface Color")
         link("bodyskingroup", "SSSRadius", "Principled BSDF", "Subsurface Radius")

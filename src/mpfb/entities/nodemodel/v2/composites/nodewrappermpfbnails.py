@@ -144,11 +144,11 @@ _ORIGINAL_TREE_DEF = json.loads("""
         {
             "from_node": "Group Input",
             "from_socket": "NailsColor",
-            "to_node": "Group",
+            "to_node": "SSS",
             "to_socket": "SubsurfaceColor"
         },
         {
-            "from_node": "Group",
+            "from_node": "SSS",
             "from_socket": "SubsurfaceColor",
             "to_node": "Principled BSDF",
             "to_socket": "Subsurface Color"
@@ -156,35 +156,35 @@ _ORIGINAL_TREE_DEF = json.loads("""
         {
             "from_node": "Group Input",
             "from_socket": "NailsSSSStrength",
-            "to_node": "Group",
+            "to_node": "SSS",
             "to_socket": "SubsurfaceStrength"
         },
         {
             "from_node": "Group Input",
             "from_socket": "NailsSSSRadiusMutiplier",
-            "to_node": "Group",
+            "to_node": "SSS",
             "to_socket": "SubsurfaceRadiusMultiplyer"
         },
         {
             "from_node": "Group Input",
             "from_socket": "NailsSSSIor",
-            "to_node": "Group",
+            "to_node": "SSS",
             "to_socket": "SubsurfaceIor"
         },
         {
-            "from_node": "Group",
+            "from_node": "SSS",
             "from_socket": "SubsurfaceRadius",
             "to_node": "Principled BSDF",
             "to_socket": "Subsurface Radius"
         },
         {
-            "from_node": "Group",
+            "from_node": "SSS",
             "from_socket": "SubsurfaceStrength",
             "to_node": "Principled BSDF",
             "to_socket": "Subsurface"
         },
         {
-            "from_node": "Group",
+            "from_node": "SSS",
             "from_socket": "SubsurfaceIor",
             "to_node": "Principled BSDF",
             "to_socket": "Subsurface IOR"
@@ -231,8 +231,8 @@ _ORIGINAL_TREE_DEF = json.loads("""
             "input_socket_values": {
                 "Input_4": 1.0
             },
-            "label": "Group",
-            "name": "Group",
+            "label": "SSS",
+            "name": "SSS",
             "output_socket_values": {}
         },
         {
@@ -269,20 +269,20 @@ class _NodeWrapperMpfbNails(AbstractGroupWrapper):
         nodes["Group Input"].location = [-785.7612, -232.5622]
 
         node("ShaderNodeBsdfPrincipled", "Principled BSDF")
-        node("MpfbSSSControl", "Group", attribute_values={"color": [0.608, 0.608, 0.608], "height": 100.0, "location": [-463.1018, 64.6132], "use_custom_color": False, "width": 232.2694}, input_socket_values={"Input_4": 1.0})
+        node("MpfbSSSControl", "SSS", attribute_values={"color": [0.608, 0.608, 0.608], "height": 100.0, "location": [-463.1018, 64.6132], "use_custom_color": False, "width": 232.2694}, input_socket_values={"Input_4": 1.0})
 
         link("Group Input", "NailsColor", "Principled BSDF", "Base Color")
         link("Group Input", "NailsMetallic", "Principled BSDF", "Metallic")
         link("Group Input", "NailsRoughness", "Principled BSDF", "Roughness")
         link("Group Input", "Normal", "Principled BSDF", "Normal")
-        link("Group Input", "NailsColor", "Group", "SubsurfaceColor")
-        link("Group Input", "NailsSSSStrength", "Group", "SubsurfaceStrength")
-        link("Group Input", "NailsSSSRadiusMutiplier", "Group", "SubsurfaceRadiusMultiplyer")
-        link("Group Input", "NailsSSSIor", "Group", "SubsurfaceIor")
-        link("Group", "SubsurfaceColor", "Principled BSDF", "Subsurface Color")
-        link("Group", "SubsurfaceRadius", "Principled BSDF", "Subsurface Radius")
-        link("Group", "SubsurfaceStrength", "Principled BSDF", "Subsurface")
-        link("Group", "SubsurfaceIor", "Principled BSDF", "Subsurface IOR")
+        link("Group Input", "NailsColor", "SSS", "SubsurfaceColor")
+        link("Group Input", "NailsSSSStrength", "SSS", "SubsurfaceStrength")
+        link("Group Input", "NailsSSSRadiusMutiplier", "SSS", "SubsurfaceRadiusMultiplyer")
+        link("Group Input", "NailsSSSIor", "SSS", "SubsurfaceIor")
+        link("SSS", "SubsurfaceColor", "Principled BSDF", "Subsurface Color")
+        link("SSS", "SubsurfaceRadius", "Principled BSDF", "Subsurface Radius")
+        link("SSS", "SubsurfaceStrength", "Principled BSDF", "Subsurface")
+        link("SSS", "SubsurfaceIor", "Principled BSDF", "Subsurface IOR")
         link("Principled BSDF", "BSDF", "Group Output", "BSDF")
 
 NodeWrapperMpfbNails = _NodeWrapperMpfbNails()

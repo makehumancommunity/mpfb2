@@ -379,7 +379,7 @@ _ORIGINAL_TREE_DEF = json.loads("""
             "to_socket": "A_Color"
         },
         {
-            "from_node": "Group.001",
+            "from_node": "IsEyelids",
             "from_socket": "Value",
             "to_node": "Mix",
             "to_socket": "Factor_Float"
@@ -640,27 +640,6 @@ _ORIGINAL_TREE_DEF = json.loads("""
     "nodes": [
         {
             "attribute_values": {
-                "color": [
-                    0.608,
-                    0.608,
-                    0.608
-                ],
-                "height": 100.0,
-                "location": [
-                    -1468.9873,
-                    748.6599
-                ],
-                "use_custom_color": false,
-                "width": 297.9847
-            },
-            "class": "MpfbSystemValueTextureEyelids",
-            "input_socket_values": {},
-            "label": "Group.001",
-            "name": "Group.001",
-            "output_socket_values": {}
-        },
-        {
-            "attribute_values": {
                 "data_type": "RGBA",
                 "location": [
                     -1069.4127,
@@ -737,6 +716,27 @@ _ORIGINAL_TREE_DEF = json.loads("""
         },
         {
             "attribute_values": {
+                "color": [
+                    0.608,
+                    0.608,
+                    0.608
+                ],
+                "height": 100.0,
+                "location": [
+                    -1468.9873,
+                    748.6599
+                ],
+                "use_custom_color": false,
+                "width": 297.9847
+            },
+            "class": "MpfbSystemValueTextureEyelids",
+            "input_socket_values": {},
+            "label": "Is Eyelids",
+            "name": "IsEyelids",
+            "output_socket_values": {}
+        },
+        {
+            "attribute_values": {
                 "location": [
                     -1687.5262,
                     336.8824
@@ -768,10 +768,10 @@ class _NodeWrapperMpfbFace(AbstractGroupWrapper):
         nodes["Group Output"].location = [233.8077, 683.8954]
         nodes["Group Input"].location = [-1687.5262, 336.8824]
 
-        node("MpfbSystemValueTextureEyelids", "Group.001", attribute_values={"color": [0.608, 0.608, 0.608], "height": 100.0, "location": [-1468.9873, 748.6599], "use_custom_color": False, "width": 297.9847})
         node("ShaderNodeMix", "Mix", attribute_values={"data_type": "RGBA", "location": [-1069.4127, 762.9279]}, input_socket_values={"B_Color": [0.2655, 0.081, 0.0278, 1.0]})
         node("ShaderNodeBsdfPrincipled", "Principled BSDF.001", attribute_values={"location": [-144.3404, 677.2473]}, input_socket_values={"Base Color": [0.8, 0.6037, 0.5003, 1.0], "Roughness": 0.35})
         node("MpfbSkin", "Skin", label="Skin Settings", attribute_values={"color": [0.608, 0.608, 0.608], "height": 100.0, "location": [-747.6187, 798.8463], "use_custom_color": False, "width": 400.0})
+        node("MpfbSystemValueTextureEyelids", "IsEyelids", label="Is Eyelids", attribute_values={"color": [0.608, 0.608, 0.608], "height": 100.0, "location": [-1468.9873, 748.6599], "use_custom_color": False, "width": 297.9847})
 
         link("Group Input", "SkinColor", "Mix", "A_Color")
         link("Group Input", "EyelidColor", "Mix", "B_Color")
@@ -808,7 +808,7 @@ class _NodeWrapperMpfbFace(AbstractGroupWrapper):
         link("Group Input", "ColorVariationDetail", "Skin", "ColorVariationDetail")
         link("Group Input", "ColorVariationDistortion", "Skin", "ColorVariationDistortion")
         link("Group Input", "ColorVariationRoughness", "Skin", "ColorVariationRoughness")
-        link("Group.001", "Value", "Mix", "Factor_Float")
+        link("IsEyelids", "Value", "Mix", "Factor_Float")
         link("Mix", "Result_Color", "Skin", "SkinColor")
         link("Skin", "Normal", "Principled BSDF.001", "Normal")
         link("Skin", "SubsurfaceColor", "Principled BSDF.001", "Subsurface Color")

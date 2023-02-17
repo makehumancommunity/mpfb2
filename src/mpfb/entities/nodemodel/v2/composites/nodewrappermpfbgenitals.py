@@ -214,25 +214,25 @@ _ORIGINAL_TREE_DEF = json.loads("""
             "to_socket": "BSDF"
         },
         {
-            "from_node": "Group",
+            "from_node": "SSS",
             "from_socket": "SubsurfaceColor",
             "to_node": "Principled BSDF.001",
             "to_socket": "Subsurface Color"
         },
         {
-            "from_node": "Group",
+            "from_node": "SSS",
             "from_socket": "SubsurfaceRadius",
             "to_node": "Principled BSDF.001",
             "to_socket": "Subsurface Radius"
         },
         {
-            "from_node": "Group",
+            "from_node": "SSS",
             "from_socket": "SubsurfaceStrength",
             "to_node": "Principled BSDF.001",
             "to_socket": "Subsurface"
         },
         {
-            "from_node": "Group",
+            "from_node": "SSS",
             "from_socket": "SubsurfaceIor",
             "to_node": "Principled BSDF.001",
             "to_socket": "Subsurface IOR"
@@ -252,7 +252,7 @@ _ORIGINAL_TREE_DEF = json.loads("""
         {
             "from_node": "Mix",
             "from_socket": "Result_Color",
-            "to_node": "Group",
+            "to_node": "SSS",
             "to_socket": "SubsurfaceColor"
         },
         {
@@ -294,37 +294,37 @@ _ORIGINAL_TREE_DEF = json.loads("""
         {
             "from_node": "Group Input",
             "from_socket": "SubsurfaceStrength",
-            "to_node": "Group",
+            "to_node": "SSS",
             "to_socket": "SubsurfaceStrength"
         },
         {
             "from_node": "Group Input",
             "from_socket": "SubsurfaceRadiusMultiplyer",
-            "to_node": "Group",
+            "to_node": "SSS",
             "to_socket": "SubsurfaceRadiusMultiplyer"
         },
         {
             "from_node": "Group Input",
             "from_socket": "SubSurfaceRadiusX",
-            "to_node": "Group",
+            "to_node": "SSS",
             "to_socket": "SubSurfaceRadiusX"
         },
         {
             "from_node": "Group Input",
             "from_socket": "SubSurfaceRadiusY",
-            "to_node": "Group",
+            "to_node": "SSS",
             "to_socket": "SubSurfaceRadiusY"
         },
         {
             "from_node": "Group Input",
             "from_socket": "SubSurfaceRadiusZ",
-            "to_node": "Group",
+            "to_node": "SSS",
             "to_socket": "SubSurfaceRadiusZ"
         },
         {
             "from_node": "Group Input",
             "from_socket": "SubsurfaceIor",
-            "to_node": "Group",
+            "to_node": "SSS",
             "to_socket": "SubsurfaceIor"
         },
         {
@@ -446,29 +446,6 @@ _ORIGINAL_TREE_DEF = json.loads("""
         },
         {
             "attribute_values": {
-                "color": [
-                    0.608,
-                    0.608,
-                    0.608
-                ],
-                "height": 100.0,
-                "location": [
-                    510.471,
-                    52.6934
-                ],
-                "use_custom_color": false,
-                "width": 140.0
-            },
-            "class": "MpfbSSSControl",
-            "input_socket_values": {
-                "Input_4": 1.0
-            },
-            "label": "Group",
-            "name": "Group",
-            "output_socket_values": {}
-        },
-        {
-            "attribute_values": {
                 "location": [
                     757.8218,
                     184.8839
@@ -501,6 +478,29 @@ _ORIGINAL_TREE_DEF = json.loads("""
             },
             "label": "Bump",
             "name": "Bump",
+            "output_socket_values": {}
+        },
+        {
+            "attribute_values": {
+                "color": [
+                    0.608,
+                    0.608,
+                    0.608
+                ],
+                "height": 100.0,
+                "location": [
+                    510.471,
+                    52.6934
+                ],
+                "use_custom_color": false,
+                "width": 140.0
+            },
+            "class": "MpfbSSSControl",
+            "input_socket_values": {
+                "Input_4": 1.0
+            },
+            "label": "SSS",
+            "name": "SSS",
             "output_socket_values": {}
         },
         {
@@ -541,9 +541,9 @@ class _NodeWrapperMpfbGenitals(AbstractGroupWrapper):
         node("ShaderNodeMath", "Math", attribute_values={"location": [5.1494, 182.8157], "operation": "MULTIPLY"})
         node("ShaderNodeTexNoise", "Noise Texture", attribute_values={"location": [-185.0458, -77.8821]}, input_socket_values={"Scale": 120.0})
         node("ShaderNodeTexNoise", "Noise Texture.001", attribute_values={"location": [-164.6158, -320.366]}, input_socket_values={"Scale": 200.0})
-        node("MpfbSSSControl", "Group", attribute_values={"color": [0.608, 0.608, 0.608], "height": 100.0, "location": [510.471, 52.6934], "use_custom_color": False, "width": 140.0}, input_socket_values={"Input_4": 1.0})
         node("ShaderNodeBsdfPrincipled", "Principled BSDF.001", attribute_values={"location": [757.8218, 184.8839]}, input_socket_values={"Base Color": [0.7991, 0.3231, 0.3095, 1.0], "Roughness": 0.2})
         node("ShaderNodeBump", "Bump", attribute_values={"location": [329.4041, -247.05]}, input_socket_values={"Strength": 0.1})
+        node("MpfbSSSControl", "SSS", attribute_values={"color": [0.608, 0.608, 0.608], "height": 100.0, "location": [510.471, 52.6934], "use_custom_color": False, "width": 140.0}, input_socket_values={"Input_4": 1.0})
 
         link("Group Input", "Color", "Mix", "A_Color")
         link("Group Input", "VariationColor", "Mix", "B_Color")
@@ -551,23 +551,23 @@ class _NodeWrapperMpfbGenitals(AbstractGroupWrapper):
         link("Group Input", "ColorVariationScale", "Noise Texture", "Scale")
         link("Group Input", "UnevennessScale", "Noise Texture.001", "Scale")
         link("Group Input", "UnevennessStrength", "Bump", "Strength")
-        link("Group Input", "SubsurfaceStrength", "Group", "SubsurfaceStrength")
-        link("Group Input", "SubsurfaceRadiusMultiplyer", "Group", "SubsurfaceRadiusMultiplyer")
-        link("Group Input", "SubSurfaceRadiusX", "Group", "SubSurfaceRadiusX")
-        link("Group Input", "SubSurfaceRadiusY", "Group", "SubSurfaceRadiusY")
-        link("Group Input", "SubSurfaceRadiusZ", "Group", "SubSurfaceRadiusZ")
-        link("Group Input", "SubsurfaceIor", "Group", "SubsurfaceIor")
+        link("Group Input", "SubsurfaceStrength", "SSS", "SubsurfaceStrength")
+        link("Group Input", "SubsurfaceRadiusMultiplyer", "SSS", "SubsurfaceRadiusMultiplyer")
+        link("Group Input", "SubSurfaceRadiusX", "SSS", "SubSurfaceRadiusX")
+        link("Group Input", "SubSurfaceRadiusY", "SSS", "SubSurfaceRadiusY")
+        link("Group Input", "SubSurfaceRadiusZ", "SSS", "SubSurfaceRadiusZ")
+        link("Group Input", "SubsurfaceIor", "SSS", "SubsurfaceIor")
         link("Group Input", "Roughness", "Principled BSDF.001", "Roughness")
         link("Group Input", "Normal", "Bump", "Normal")
         link("Texture Coordinate.001", "Object", "Noise Texture", "Vector")
         link("Texture Coordinate.001", "Object", "Noise Texture.001", "Vector")
         link("Noise Texture.001", "Fac", "Bump", "Height")
         link("Bump", "Normal", "Principled BSDF.001", "Normal")
-        link("Group", "SubsurfaceColor", "Principled BSDF.001", "Subsurface Color")
-        link("Group", "SubsurfaceRadius", "Principled BSDF.001", "Subsurface Radius")
-        link("Group", "SubsurfaceStrength", "Principled BSDF.001", "Subsurface")
-        link("Group", "SubsurfaceIor", "Principled BSDF.001", "Subsurface IOR")
-        link("Mix", "Result_Color", "Group", "SubsurfaceColor")
+        link("SSS", "SubsurfaceColor", "Principled BSDF.001", "Subsurface Color")
+        link("SSS", "SubsurfaceRadius", "Principled BSDF.001", "Subsurface Radius")
+        link("SSS", "SubsurfaceStrength", "Principled BSDF.001", "Subsurface")
+        link("SSS", "SubsurfaceIor", "Principled BSDF.001", "Subsurface IOR")
+        link("Mix", "Result_Color", "SSS", "SubsurfaceColor")
         link("Mix", "Result_Color", "Principled BSDF.001", "Base Color")
         link("Noise Texture", "Fac", "Math", "Value")
         link("Math", "Value", "Mix", "Factor_Float")

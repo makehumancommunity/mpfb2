@@ -15,8 +15,8 @@ def test_composite_can_create_instance():
     assert node.node_tree.name == "MpfbBody"
     assert "Principled BSDF" in node.node_tree.nodes
     assert "Group Output" in node.node_tree.nodes
-    assert "Group.006" in node.node_tree.nodes
     assert "bodyskingroup" in node.node_tree.nodes
+    assert "NavelSettings" in node.node_tree.nodes
     assert "Group Input" in node.node_tree.nodes
     has_link_to_output = False
     for link in node.node_tree.links:
