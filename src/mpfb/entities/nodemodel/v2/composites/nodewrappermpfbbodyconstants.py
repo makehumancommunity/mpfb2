@@ -2,10 +2,80 @@ import bpy, json
 
 _ORIGINAL_NODE_DEF = json.loads("""
 {
+    "class": "MpfbBodyConstants",
+    "inputs": {},
+    "outputs": {
+        "Output_0": {
+            "name": "RightNippleCoordinate",
+            "identifier": "Output_0",
+            "class": "NodeSocketVector",
+            "value_type": "VECTOR",
+            "default_value": [
+                0.0,
+                0.0,
+                0.0
+            ]
+        },
+        "Output_1": {
+            "name": "LeftNippleCoordinate",
+            "identifier": "Output_1",
+            "class": "NodeSocketVector",
+            "value_type": "VECTOR",
+            "default_value": [
+                0.0,
+                0.0,
+                0.0
+            ]
+        },
+        "Output_2": {
+            "name": "NavelCoordinate",
+            "identifier": "Output_2",
+            "class": "NodeSocketVector",
+            "value_type": "VECTOR",
+            "default_value": [
+                0.0,
+                0.0,
+                0.0
+            ]
+        },
+        "Output_3": {
+            "name": "RightMouthCorner",
+            "identifier": "Output_3",
+            "class": "NodeSocketVector",
+            "value_type": "VECTOR",
+            "default_value": [
+                0.0,
+                0.0,
+                0.0
+            ]
+        },
+        "Output_4": {
+            "name": "LeftMouthCorner",
+            "identifier": "Output_4",
+            "class": "NodeSocketVector",
+            "value_type": "VECTOR",
+            "default_value": [
+                0.0,
+                0.0,
+                0.0
+            ]
+        },
+        "Output_5": {
+            "name": "MouthCenter",
+            "identifier": "Output_5",
+            "class": "NodeSocketVector",
+            "value_type": "VECTOR",
+            "default_value": [
+                0.0,
+                0.0,
+                0.0
+            ]
+        }
+    },
     "attributes": {
         "color": {
-            "class": "Color",
             "name": "color",
+            "class": "Color",
             "value": [
                 0.608,
                 0.608,
@@ -13,97 +83,27 @@ _ORIGINAL_NODE_DEF = json.loads("""
             ]
         },
         "height": {
-            "class": "float",
             "name": "height",
+            "class": "float",
             "value": 100.0
         },
         "location": {
-            "class": "Vector",
             "name": "location",
+            "class": "Vector",
             "value": [
-                -876.2673,
-                -13.0458
+                -897.0895,
+                366.3125
             ]
         },
         "use_custom_color": {
-            "class": "bool",
             "name": "use_custom_color",
+            "class": "bool",
             "value": false
         },
         "width": {
-            "class": "float",
             "name": "width",
+            "class": "float",
             "value": 140.0
-        }
-    },
-    "class": "MpfbBodyConstants",
-    "inputs": {},
-    "outputs": {
-        "Output_2": {
-            "class": "NodeSocketVector",
-            "default_value": [
-                0.0,
-                0.0,
-                0.0
-            ],
-            "identifier": "Output_2",
-            "name": "RightNippleCoordinate",
-            "value_type": "VECTOR"
-        },
-        "Output_3": {
-            "class": "NodeSocketVector",
-            "default_value": [
-                0.0,
-                0.0,
-                0.0
-            ],
-            "identifier": "Output_3",
-            "name": "LeftNippleCoordinate",
-            "value_type": "VECTOR"
-        },
-        "Output_4": {
-            "class": "NodeSocketVector",
-            "default_value": [
-                0.0,
-                0.0,
-                0.0
-            ],
-            "identifier": "Output_4",
-            "name": "NavelCoordinate",
-            "value_type": "VECTOR"
-        },
-        "Output_5": {
-            "class": "NodeSocketVector",
-            "default_value": [
-                0.0,
-                0.0,
-                0.0
-            ],
-            "identifier": "Output_5",
-            "name": "RightMouthCorner",
-            "value_type": "VECTOR"
-        },
-        "Output_6": {
-            "class": "NodeSocketVector",
-            "default_value": [
-                0.0,
-                0.0,
-                0.0
-            ],
-            "identifier": "Output_6",
-            "name": "LeftMouthCorner",
-            "value_type": "VECTOR"
-        },
-        "Output_7": {
-            "class": "NodeSocketVector",
-            "default_value": [
-                0.0,
-                0.0,
-                0.0
-            ],
-            "identifier": "Output_7",
-            "name": "MouthCenter",
-            "value_type": "VECTOR"
         }
     }
 }""")
@@ -194,14 +194,14 @@ _ORIGINAL_TREE_DEF = json.loads("""
         {
             "attribute_values": {
                 "location": [
-                    -854.189,
-                    -67.3678
+                    541.3774,
+                    219.5866
                 ]
             },
-            "class": "NodeGroupInput",
+            "class": "NodeGroupOutput",
             "input_socket_values": {},
-            "label": "Group Input",
-            "name": "Group Input",
+            "label": "Group Output",
+            "name": "Group Output",
             "output_socket_values": {}
         },
         {
@@ -355,14 +355,14 @@ _ORIGINAL_TREE_DEF = json.loads("""
         {
             "attribute_values": {
                 "location": [
-                    541.3774,
-                    219.5866
+                    -854.189,
+                    -67.3678
                 ]
             },
-            "class": "NodeGroupOutput",
+            "class": "NodeGroupInput",
             "input_socket_values": {},
-            "label": "Group Output",
-            "name": "Group Output",
+            "label": "Group Input",
+            "name": "Group Input",
             "output_socket_values": {}
         }
     ]
@@ -382,8 +382,8 @@ class _NodeWrapperMpfbBodyConstants(AbstractGroupWrapper):
         def link(from_node, from_socket, to_node, to_socket):
             AbstractGroupWrapper.create_link(node_tree, nodes[from_node], from_socket, nodes[to_node], to_socket)
 
-        nodes["Group Input"].location = [-854.189, -67.3678]
         nodes["Group Output"].location = [541.3774, 219.5866]
+        nodes["Group Input"].location = [-854.189, -67.3678]
 
         node("ShaderNodeCombineXYZ", "RightNipple", attribute_values={"location": [-677.574, 301.1666]}, input_socket_values={"X": 0.3252, "Y": 0.699})
         node("ShaderNodeCombineXYZ", "LeftNipple", attribute_values={"location": [-678.5061, 167.5498]}, input_socket_values={"X": 0.4358, "Y": 0.699})

@@ -13,10 +13,10 @@ def test_composite_can_create_instance():
     node = NodeWrapperMpfbWithinDistance.create_instance(node_tree)
     assert node
     assert node.node_tree.name == "MpfbWithinDistance"
+    assert "Group Input" in node.node_tree.nodes
     assert "Group Output" in node.node_tree.nodes
     assert "Vector Math" in node.node_tree.nodes
     assert "Math" in node.node_tree.nodes
-    assert "Group Input" in node.node_tree.nodes
     has_link_to_output = False
     for link in node.node_tree.links:
         if link.to_node.name == "Group Output":

@@ -2,10 +2,78 @@ import bpy, json
 
 _ORIGINAL_NODE_DEF = json.loads("""
 {
+    "class": "MpfbSkinNormalUnevenness",
+    "inputs": {
+        "Input_0": {
+            "name": "UnevennessScaleMultiplier",
+            "identifier": "Input_0",
+            "class": "NodeSocketFloat",
+            "value_type": "VALUE",
+            "default_value": 150.0,
+            "min_value": -10000.0,
+            "max_value": 10000.0
+        },
+        "Input_2": {
+            "name": "UnevennessBumpStrength",
+            "identifier": "Input_2",
+            "class": "NodeSocketFloatFactor",
+            "value_type": "VALUE",
+            "default_value": 0.1
+        },
+        "Input_4": {
+            "name": "UnevennessDetail",
+            "identifier": "Input_4",
+            "class": "NodeSocketFloat",
+            "value_type": "VALUE",
+            "default_value": 3.0,
+            "min_value": 0.0,
+            "max_value": 15.0
+        },
+        "Input_5": {
+            "name": "UnevennessDistortion",
+            "identifier": "Input_5",
+            "class": "NodeSocketFloat",
+            "value_type": "VALUE",
+            "default_value": 1.5,
+            "min_value": -1000.0,
+            "max_value": 1000.0
+        },
+        "Input_6": {
+            "name": "UnevennessRoughness",
+            "identifier": "Input_6",
+            "class": "NodeSocketFloatFactor",
+            "value_type": "VALUE",
+            "default_value": 0.0
+        },
+        "Input_3": {
+            "name": "Normal",
+            "identifier": "Input_3",
+            "class": "NodeSocketVector",
+            "value_type": "VECTOR",
+            "default_value": [
+                0.0,
+                0.0,
+                0.0
+            ]
+        }
+    },
+    "outputs": {
+        "Output_1": {
+            "name": "Normal",
+            "identifier": "Output_1",
+            "class": "NodeSocketVector",
+            "value_type": "VECTOR",
+            "default_value": [
+                0.0,
+                0.0,
+                0.0
+            ]
+        }
+    },
     "attributes": {
         "color": {
-            "class": "Color",
             "name": "color",
+            "class": "Color",
             "value": [
                 0.608,
                 0.608,
@@ -13,95 +81,27 @@ _ORIGINAL_NODE_DEF = json.loads("""
             ]
         },
         "height": {
-            "class": "float",
             "name": "height",
+            "class": "float",
             "value": 100.0
         },
         "location": {
-            "class": "Vector",
             "name": "location",
+            "class": "Vector",
             "value": [
                 -249.8333,
                 -266.7137
             ]
         },
         "use_custom_color": {
-            "class": "bool",
             "name": "use_custom_color",
+            "class": "bool",
             "value": false
         },
         "width": {
-            "class": "float",
             "name": "width",
+            "class": "float",
             "value": 289.2502
-        }
-    },
-    "class": "MpfbSkinNormalUnevenness",
-    "inputs": {
-        "Input_0": {
-            "class": "NodeSocketFloat",
-            "default_value": 150.0,
-            "identifier": "Input_0",
-            "max_value": 10000.0,
-            "min_value": -10000.0,
-            "name": "UnevennessScaleMultiplier",
-            "value_type": "VALUE"
-        },
-        "Input_2": {
-            "class": "NodeSocketFloatFactor",
-            "default_value": 0.1,
-            "identifier": "Input_2",
-            "name": "UnevennessBumpStrength",
-            "value_type": "VALUE"
-        },
-        "Input_3": {
-            "class": "NodeSocketVector",
-            "default_value": [
-                0.0,
-                0.0,
-                0.0
-            ],
-            "identifier": "Input_3",
-            "name": "Normal",
-            "value_type": "VECTOR"
-        },
-        "Input_4": {
-            "class": "NodeSocketFloat",
-            "default_value": 3.0,
-            "identifier": "Input_4",
-            "max_value": 15.0,
-            "min_value": 0.0,
-            "name": "UnevennessDetail",
-            "value_type": "VALUE"
-        },
-        "Input_5": {
-            "class": "NodeSocketFloat",
-            "default_value": 1.5,
-            "identifier": "Input_5",
-            "max_value": 1000.0,
-            "min_value": -1000.0,
-            "name": "UnevennessDistortion",
-            "value_type": "VALUE"
-        },
-        "Input_6": {
-            "class": "NodeSocketFloatFactor",
-            "default_value": 0.0,
-            "identifier": "Input_6",
-            "name": "UnevennessRoughness",
-            "value_type": "VALUE"
-        }
-    },
-    "outputs": {
-        "Output_1": {
-            "class": "NodeSocketVector",
-            "default_value": [
-                0.0,
-                0.0,
-                0.0
-            ],
-            "identifier": "Output_1",
-            "name": "Normal",
-            "value_type": "VECTOR"
         }
     }
 }""")
@@ -206,10 +206,18 @@ _ORIGINAL_TREE_DEF = json.loads("""
         },
         {
             "attribute_values": {
+                "color": [
+                    0.608,
+                    0.608,
+                    0.608
+                ],
+                "height": 100.0,
                 "location": [
                     -597.7336,
                     345.4013
-                ]
+                ],
+                "use_custom_color": false,
+                "width": 140.0
             },
             "class": "MpfbCharacterInfo",
             "input_socket_values": {},
@@ -296,7 +304,7 @@ class _NodeWrapperMpfbSkinNormalUnevenness(AbstractGroupWrapper):
         nodes["Group Input"].location = [-977.2401, -294.2911]
 
         node("ShaderNodeMath", "Math", attribute_values={"location": [-314.7333, 246.1363], "operation": "DIVIDE"})
-        node("MpfbCharacterInfo", "Group", attribute_values={"location": [-597.7336, 345.4013]})
+        node("MpfbCharacterInfo", "Group", attribute_values={"color": [0.608, 0.608, 0.608], "height": 100.0, "location": [-597.7336, 345.4013], "use_custom_color": False, "width": 140.0})
         node("ShaderNodeBump", "Bump", attribute_values={"location": [678.1032, -18.3332]}, input_socket_values={"Strength": 0.3})
         node("ShaderNodeTexNoise", "Noise Texture", attribute_values={"location": [-48.6558, 160.4243]}, input_socket_values={"Detail": 4.0, "Distortion": 2.0, "Roughness": 0.0})
         node("ShaderNodeTexCoord", "Texture Coordinate", attribute_values={"location": [-571.3127, 4.7156]})

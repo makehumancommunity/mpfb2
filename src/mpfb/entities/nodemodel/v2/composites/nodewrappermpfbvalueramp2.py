@@ -2,10 +2,67 @@ import bpy, json
 
 _ORIGINAL_NODE_DEF = json.loads("""
 {
+    "class": "MpfbValueRamp2",
+    "inputs": {
+        "Input_0": {
+            "name": "Value",
+            "identifier": "Input_0",
+            "class": "NodeSocketFloat",
+            "value_type": "VALUE",
+            "default_value": 1.0,
+            "min_value": -3.4028234663852886e+38,
+            "max_value": 3.4028234663852886e+38
+        },
+        "Input_1": {
+            "name": "ZeroStopValue",
+            "identifier": "Input_1",
+            "class": "NodeSocketFloat",
+            "value_type": "VALUE",
+            "default_value": 0.0,
+            "min_value": -3.4028234663852886e+38,
+            "max_value": 3.4028234663852886e+38
+        },
+        "Input_2": {
+            "name": "BetweenStop1Value",
+            "identifier": "Input_2",
+            "class": "NodeSocketFloat",
+            "value_type": "VALUE",
+            "default_value": 0.999,
+            "min_value": -3.4028234663852886e+38,
+            "max_value": 3.4028234663852886e+38
+        },
+        "Input_3": {
+            "name": "OneStopValue",
+            "identifier": "Input_3",
+            "class": "NodeSocketFloat",
+            "value_type": "VALUE",
+            "default_value": 1.0,
+            "min_value": -3.4028234663852886e+38,
+            "max_value": 3.4028234663852886e+38
+        },
+        "Input_4": {
+            "name": "BetweenStop1Position",
+            "identifier": "Input_4",
+            "class": "NodeSocketFloat",
+            "value_type": "VALUE",
+            "default_value": 0.2,
+            "min_value": -3.4028234663852886e+38,
+            "max_value": 3.4028234663852886e+38
+        }
+    },
+    "outputs": {
+        "Output_5": {
+            "name": "Value",
+            "identifier": "Output_5",
+            "class": "NodeSocketFloat",
+            "value_type": "VALUE",
+            "default_value": 0.0
+        }
+    },
     "attributes": {
         "color": {
-            "class": "Color",
             "name": "color",
+            "class": "Color",
             "value": [
                 0.608,
                 0.608,
@@ -13,74 +70,27 @@ _ORIGINAL_NODE_DEF = json.loads("""
             ]
         },
         "height": {
-            "class": "float",
             "name": "height",
+            "class": "float",
             "value": 100.0
         },
         "location": {
-            "class": "Vector",
             "name": "location",
+            "class": "Vector",
             "value": [
-                -261.5234,
-                580.6266
+                17.6894,
+                -687.0515
             ]
         },
         "use_custom_color": {
-            "class": "bool",
             "name": "use_custom_color",
+            "class": "bool",
             "value": false
         },
         "width": {
-            "class": "float",
             "name": "width",
-            "value": 140.0
-        }
-    },
-    "class": "MpfbValueRamp2",
-    "inputs": {
-        "Input_0": {
-            "class": "NodeSocketFloat",
-            "default_value": 1.0,
-            "identifier": "Input_0",
-            "name": "Value",
-            "value_type": "VALUE"
-        },
-        "Input_6": {
-            "class": "NodeSocketFloat",
-            "default_value": 0.9,
-            "identifier": "Input_6",
-            "name": "ZeroStopValue",
-            "value_type": "VALUE"
-        },
-        "Input_7": {
-            "class": "NodeSocketFloat",
-            "default_value": 0.5,
-            "identifier": "Input_7",
-            "name": "OneStopValue",
-            "value_type": "VALUE"
-        },
-        "Input_8": {
-            "class": "NodeSocketFloat",
-            "default_value": 0.0,
-            "identifier": "Input_8",
-            "name": "BetweenStop1Value",
-            "value_type": "VALUE"
-        },
-        "Input_9": {
-            "class": "NodeSocketFloat",
-            "default_value": 0.3,
-            "identifier": "Input_9",
-            "name": "BetweenStop1Position",
-            "value_type": "VALUE"
-        }
-    },
-    "outputs": {
-        "Output_1": {
-            "class": "NodeSocketFloat",
-            "default_value": 0.0,
-            "identifier": "Output_1",
-            "name": "Value",
-            "value_type": "VALUE"
+            "class": "float",
+            "value": 201.5218
         }
     }
 }""")
@@ -267,28 +277,14 @@ _ORIGINAL_TREE_DEF = json.loads("""
         {
             "attribute_values": {
                 "location": [
-                    -597.9904,
-                    521.6394
+                    -872.1455,
+                    16.1281
                 ]
             },
-            "class": "ShaderNodeMapRange",
+            "class": "NodeGroupInput",
             "input_socket_values": {},
-            "label": "Map Range",
-            "name": "Map Range",
-            "output_socket_values": {}
-        },
-        {
-            "attribute_values": {
-                "location": [
-                    115.1642,
-                    88.7617
-                ],
-                "operation": "LESS_THAN"
-            },
-            "class": "ShaderNodeMath",
-            "input_socket_values": {},
-            "label": "Math.003",
-            "name": "Math.003",
+            "label": "Group Input",
+            "name": "Group Input",
             "output_socket_values": {}
         },
         {
@@ -307,8 +303,35 @@ _ORIGINAL_TREE_DEF = json.loads("""
         {
             "attribute_values": {
                 "location": [
-                    575.2356,
-                    44.7468
+                    -597.99,
+                    521.639
+                ]
+            },
+            "class": "ShaderNodeMapRange",
+            "input_socket_values": {},
+            "label": "Map Range",
+            "name": "Map Range",
+            "output_socket_values": {}
+        },
+        {
+            "attribute_values": {
+                "location": [
+                    115.164,
+                    88.762
+                ],
+                "operation": "LESS_THAN"
+            },
+            "class": "ShaderNodeMath",
+            "input_socket_values": {},
+            "label": "Math.003",
+            "name": "Math.003",
+            "output_socket_values": {}
+        },
+        {
+            "attribute_values": {
+                "location": [
+                    575.236,
+                    44.747
                 ],
                 "use_clamp": true
             },
@@ -323,8 +346,8 @@ _ORIGINAL_TREE_DEF = json.loads("""
         {
             "attribute_values": {
                 "location": [
-                    -272.8209,
-                    570.4285
+                    -272.821,
+                    570.429
                 ],
                 "operation": "SUBTRACT"
             },
@@ -339,8 +362,8 @@ _ORIGINAL_TREE_DEF = json.loads("""
         {
             "attribute_values": {
                 "location": [
-                    -85.8476,
-                    390.5236
+                    -85.848,
+                    390.524
                 ],
                 "operation": "MULTIPLY"
             },
@@ -353,8 +376,8 @@ _ORIGINAL_TREE_DEF = json.loads("""
         {
             "attribute_values": {
                 "location": [
-                    -87.0165,
-                    215.5796
+                    -87.016,
+                    215.58
                 ],
                 "operation": "MULTIPLY"
             },
@@ -367,8 +390,8 @@ _ORIGINAL_TREE_DEF = json.loads("""
         {
             "attribute_values": {
                 "location": [
-                    -619.1524,
-                    -525.6778
+                    -619.152,
+                    -525.678
                 ]
             },
             "class": "ShaderNodeMapRange",
@@ -380,8 +403,8 @@ _ORIGINAL_TREE_DEF = json.loads("""
         {
             "attribute_values": {
                 "location": [
-                    116.6363,
-                    -121.4202
+                    116.636,
+                    -121.42
                 ],
                 "operation": "GREATER_THAN"
             },
@@ -394,8 +417,8 @@ _ORIGINAL_TREE_DEF = json.loads("""
         {
             "attribute_values": {
                 "location": [
-                    -359.4843,
-                    -647.2415
+                    -359.484,
+                    -647.242
                 ],
                 "operation": "SUBTRACT"
             },
@@ -424,8 +447,8 @@ _ORIGINAL_TREE_DEF = json.loads("""
         {
             "attribute_values": {
                 "location": [
-                    -75.7704,
-                    -290.8878
+                    -75.77,
+                    -290.888
                 ],
                 "operation": "MULTIPLY"
             },
@@ -438,8 +461,8 @@ _ORIGINAL_TREE_DEF = json.loads("""
         {
             "attribute_values": {
                 "location": [
-                    -81.9779,
-                    -471.8798
+                    -81.978,
+                    -471.88
                 ],
                 "operation": "MULTIPLY"
             },
@@ -452,8 +475,8 @@ _ORIGINAL_TREE_DEF = json.loads("""
         {
             "attribute_values": {
                 "location": [
-                    116.8681,
-                    -333.7542
+                    116.868,
+                    -333.754
                 ],
                 "use_clamp": true
             },
@@ -466,8 +489,8 @@ _ORIGINAL_TREE_DEF = json.loads("""
         {
             "attribute_values": {
                 "location": [
-                    365.2168,
-                    193.2571
+                    365.217,
+                    193.257
                 ],
                 "operation": "MULTIPLY"
             },
@@ -480,8 +503,8 @@ _ORIGINAL_TREE_DEF = json.loads("""
         {
             "attribute_values": {
                 "location": [
-                    350.1011,
-                    -224.0571
+                    350.101,
+                    -224.057
                 ],
                 "operation": "MULTIPLY"
             },
@@ -489,19 +512,6 @@ _ORIGINAL_TREE_DEF = json.loads("""
             "input_socket_values": {},
             "label": "Math.012",
             "name": "Math.012",
-            "output_socket_values": {}
-        },
-        {
-            "attribute_values": {
-                "location": [
-                    -872.1455,
-                    16.1281
-                ]
-            },
-            "class": "NodeGroupInput",
-            "input_socket_values": {},
-            "label": "Group Input",
-            "name": "Group Input",
             "output_socket_values": {}
         }
     ]
@@ -521,24 +531,24 @@ class _NodeWrapperMpfbValueRamp2(AbstractGroupWrapper):
         def link(from_node, from_socket, to_node, to_socket):
             AbstractGroupWrapper.create_link(node_tree, nodes[from_node], from_socket, nodes[to_node], to_socket)
 
-        nodes["Group Output"].location = [800.6749, 71.5684]
         nodes["Group Input"].location = [-872.1455, 16.1281]
+        nodes["Group Output"].location = [800.6749, 71.5684]
 
-        node("ShaderNodeMapRange", "Map Range", attribute_values={"location": [-597.9904, 521.6394]})
-        node("ShaderNodeMath", "Math.003", attribute_values={"location": [115.1642, 88.7617], "operation": "LESS_THAN"})
-        node("ShaderNodeMath", "Math.006", attribute_values={"location": [575.2356, 44.7468], "use_clamp": True}, input_socket_values={"Value_001": 0.0})
-        node("ShaderNodeMath", "Math", attribute_values={"location": [-272.8209, 570.4285], "operation": "SUBTRACT"}, input_socket_values={"Value": 1.0})
-        node("ShaderNodeMath", "Math.001", attribute_values={"location": [-85.8476, 390.5236], "operation": "MULTIPLY"})
-        node("ShaderNodeMath", "Math.002", attribute_values={"location": [-87.0165, 215.5796], "operation": "MULTIPLY"})
-        node("ShaderNodeMapRange", "Map Range.001", attribute_values={"location": [-619.1524, -525.6778]})
-        node("ShaderNodeMath", "Math.010", attribute_values={"location": [116.6363, -121.4202], "operation": "GREATER_THAN"})
-        node("ShaderNodeMath", "Math.007", attribute_values={"location": [-359.4843, -647.2415], "operation": "SUBTRACT"}, input_socket_values={"Value": 1.0})
+        node("ShaderNodeMapRange", "Map Range", attribute_values={"location": [-597.99, 521.639]})
+        node("ShaderNodeMath", "Math.003", attribute_values={"location": [115.164, 88.762], "operation": "LESS_THAN"})
+        node("ShaderNodeMath", "Math.006", attribute_values={"location": [575.236, 44.747], "use_clamp": True}, input_socket_values={"Value_001": 0.0})
+        node("ShaderNodeMath", "Math", attribute_values={"location": [-272.821, 570.429], "operation": "SUBTRACT"}, input_socket_values={"Value": 1.0})
+        node("ShaderNodeMath", "Math.001", attribute_values={"location": [-85.848, 390.524], "operation": "MULTIPLY"})
+        node("ShaderNodeMath", "Math.002", attribute_values={"location": [-87.016, 215.58], "operation": "MULTIPLY"})
+        node("ShaderNodeMapRange", "Map Range.001", attribute_values={"location": [-619.152, -525.678]})
+        node("ShaderNodeMath", "Math.010", attribute_values={"location": [116.636, -121.42], "operation": "GREATER_THAN"})
+        node("ShaderNodeMath", "Math.007", attribute_values={"location": [-359.484, -647.242], "operation": "SUBTRACT"}, input_socket_values={"Value": 1.0})
         node("ShaderNodeMath", "Math.004", attribute_values={"location": [113.845, 291.209], "use_clamp": True})
-        node("ShaderNodeMath", "Math.008", attribute_values={"location": [-75.7704, -290.8878], "operation": "MULTIPLY"})
-        node("ShaderNodeMath", "Math.009", attribute_values={"location": [-81.9779, -471.8798], "operation": "MULTIPLY"})
-        node("ShaderNodeMath", "Math.011", attribute_values={"location": [116.8681, -333.7542], "use_clamp": True})
-        node("ShaderNodeMath", "Math.005", attribute_values={"location": [365.2168, 193.2571], "operation": "MULTIPLY"})
-        node("ShaderNodeMath", "Math.012", attribute_values={"location": [350.1011, -224.0571], "operation": "MULTIPLY"})
+        node("ShaderNodeMath", "Math.008", attribute_values={"location": [-75.77, -290.888], "operation": "MULTIPLY"})
+        node("ShaderNodeMath", "Math.009", attribute_values={"location": [-81.978, -471.88], "operation": "MULTIPLY"})
+        node("ShaderNodeMath", "Math.011", attribute_values={"location": [116.868, -333.754], "use_clamp": True})
+        node("ShaderNodeMath", "Math.005", attribute_values={"location": [365.217, 193.257], "operation": "MULTIPLY"})
+        node("ShaderNodeMath", "Math.012", attribute_values={"location": [350.101, -224.057], "operation": "MULTIPLY"})
 
         link("Group Input", "Value", "Map Range", "Value")
         link("Group Input", "BetweenStop1Position", "Map Range", "From Max")

@@ -20,11 +20,17 @@ class MPFB_PT_Node_Developer_Panel(Abstract_Panel):
     bl_region_type = "UI"
     bl_category = UiService.get_value("DEVELOPERCATEGORY")
 
-    def _nodes(self, scene, layout):
-        box = self._create_box(layout, "Dump nodes")
-        DEVELOPER_PROPERTIES.draw_properties(scene, box, ["output_class_name"])
+    def _groups(self, scene, layout):
+        box = self._create_box(layout, "Groups")
         box.operator("mpfb.write_composite")
         box.operator("mpfb.create_groups")
+        box.operator("mpfb.destroy_groups")
+
+    def _materials(self, scene, layout):
+        box = self._create_box(layout, "Materials")
+        DEVELOPER_PROPERTIES.draw_properties(scene, box, ["output_material_name"])
+        box.operator("mpfb.write_material")
+        box.operator("mpfb.replace_with_skin")
 
     @classmethod
     def poll(self, context):
@@ -42,7 +48,8 @@ class MPFB_PT_Node_Developer_Panel(Abstract_Panel):
         selected = context.selected_nodes
         _LOG.debug("Selected", selected)
 
-        self._nodes(scene, layout)
+        self._groups(scene, layout)
+        self._materials(scene, layout)
 
 ClassManager.add_class(MPFB_PT_Node_Developer_Panel)
 

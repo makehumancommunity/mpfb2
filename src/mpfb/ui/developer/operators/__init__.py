@@ -15,8 +15,11 @@ from .loadrig import MPFB_OT_Load_Rig_Operator
 from .saveweights import MPFB_OT_Save_Weights_Operator
 from .loadweights import MPFB_OT_Load_Weights_Operator
 from .create_groups import MPFB_OT_Create_Groups_Operator
+from .destroygroups import MPFB_OT_Destroy_Groups_Operator
 from .unittests import MPFB_OT_Unit_Tests_Operator
 from .writecomposite import MPFB_OT_Write_Composite_Operator
+from .writematerial import MPFB_OT_Write_Material_Operator
+from .replacewithskin import MPFB_OT_Replace_With_Skin_Operator
 from .rewritenodetypes import MPFB_OT_Rewrite_Node_Types_Operator
 
 __all__ = [
@@ -30,7 +33,10 @@ __all__ = [
     "MPFB_OT_Save_Weights_Operator",
     "MPFB_OT_Load_Weights_Operator",
     "MPFB_OT_Create_Groups_Operator",
+    "MPFB_OT_Destroy_Groups_Operator",
     "MPFB_OT_Unit_Tests_Operator",
     "MPFB_OT_Write_Composite_Operator",
+    "MPFB_OT_Write_Material_Operator",
+    "MPFB_OT_Replace_With_Skin_Operator",
     "MPFB_OT_Rewrite_Node_Types_Operator"
     ]

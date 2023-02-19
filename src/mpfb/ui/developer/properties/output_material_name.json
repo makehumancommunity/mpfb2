@@ -1,0 +1,7 @@
+{
+    "type": "string",
+    "name": "output_material_name",
+    "description": "What should the generated material be called?",
+    "label": "Material name",
+    "default": "MpfbMaterial"
+}

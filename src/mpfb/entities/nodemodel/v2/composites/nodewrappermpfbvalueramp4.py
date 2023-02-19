@@ -2,10 +2,103 @@ import bpy, json
 
 _ORIGINAL_NODE_DEF = json.loads("""
 {
+    "class": "MpfbValueRamp4",
+    "inputs": {
+        "Input_0": {
+            "name": "Value",
+            "identifier": "Input_0",
+            "class": "NodeSocketFloat",
+            "value_type": "VALUE",
+            "default_value": 1.0,
+            "min_value": 0.0,
+            "max_value": 1.0
+        },
+        "Input_6": {
+            "name": "ZeroStopValue",
+            "identifier": "Input_6",
+            "class": "NodeSocketFloat",
+            "value_type": "VALUE",
+            "default_value": 0.9,
+            "min_value": -3.4028234663852886e+38,
+            "max_value": 3.4028234663852886e+38
+        },
+        "Input_8": {
+            "name": "BetweenStop1Value",
+            "identifier": "Input_8",
+            "class": "NodeSocketFloat",
+            "value_type": "VALUE",
+            "default_value": 0.0,
+            "min_value": -3.402820018375656e+38,
+            "max_value": 3.402820018375656e+38
+        },
+        "Input_11": {
+            "name": "BetweenStop2Value",
+            "identifier": "Input_11",
+            "class": "NodeSocketFloat",
+            "value_type": "VALUE",
+            "default_value": 1.0,
+            "min_value": -3.4028234663852886e+38,
+            "max_value": 3.4028234663852886e+38
+        },
+        "Input_13": {
+            "name": "BetweenStop3Value",
+            "identifier": "Input_13",
+            "class": "NodeSocketFloat",
+            "value_type": "VALUE",
+            "default_value": 0.0,
+            "min_value": -3.4028234663852886e+38,
+            "max_value": 3.4028234663852886e+38
+        },
+        "Input_7": {
+            "name": "OneStopValue",
+            "identifier": "Input_7",
+            "class": "NodeSocketFloat",
+            "value_type": "VALUE",
+            "default_value": 1.0,
+            "min_value": -3.4028234663852886e+38,
+            "max_value": 3.4028234663852886e+38
+        },
+        "Input_9": {
+            "name": "BetweenStop1Position",
+            "identifier": "Input_9",
+            "class": "NodeSocketFloat",
+            "value_type": "VALUE",
+            "default_value": 0.25,
+            "min_value": 0.0001,
+            "max_value": 0.9999
+        },
+        "Input_10": {
+            "name": "BetweenStop2Position",
+            "identifier": "Input_10",
+            "class": "NodeSocketFloat",
+            "value_type": "VALUE",
+            "default_value": 0.5,
+            "min_value": 0.0001,
+            "max_value": 0.9999
+        },
+        "Input_12": {
+            "name": "BetweenStop3Position",
+            "identifier": "Input_12",
+            "class": "NodeSocketFloat",
+            "value_type": "VALUE",
+            "default_value": 0.75,
+            "min_value": -3.4028234663852886e+38,
+            "max_value": 3.4028234663852886e+38
+        }
+    },
+    "outputs": {
+        "Output_1": {
+            "name": "Value",
+            "identifier": "Output_1",
+            "class": "NodeSocketFloat",
+            "value_type": "VALUE",
+            "default_value": 0.0
+        }
+    },
     "attributes": {
         "color": {
-            "class": "Color",
             "name": "color",
+            "class": "Color",
             "value": [
                 0.608,
                 0.608,
@@ -13,102 +106,27 @@ _ORIGINAL_NODE_DEF = json.loads("""
             ]
         },
         "height": {
-            "class": "float",
             "name": "height",
+            "class": "float",
             "value": 100.0
         },
         "location": {
-            "class": "Vector",
             "name": "location",
+            "class": "Vector",
             "value": [
                 -261.5234,
                 580.6266
             ]
         },
         "use_custom_color": {
-            "class": "bool",
             "name": "use_custom_color",
+            "class": "bool",
             "value": false
         },
         "width": {
-            "class": "float",
             "name": "width",
+            "class": "float",
             "value": 301.2596
-        }
-    },
-    "class": "MpfbValueRamp4",
-    "inputs": {
-        "Input_0": {
-            "class": "NodeSocketFloat",
-            "default_value": 1.0,
-            "identifier": "Input_0",
-            "name": "Value",
-            "value_type": "VALUE"
-        },
-        "Input_10": {
-            "class": "NodeSocketFloat",
-            "default_value": 0.5,
-            "identifier": "Input_10",
-            "name": "BetweenStop2Position",
-            "value_type": "VALUE"
-        },
-        "Input_11": {
-            "class": "NodeSocketFloat",
-            "default_value": 1.0,
-            "identifier": "Input_11",
-            "name": "BetweenStop2Value",
-            "value_type": "VALUE"
-        },
-        "Input_12": {
-            "class": "NodeSocketFloat",
-            "default_value": 0.75,
-            "identifier": "Input_12",
-            "name": "BetweenStop3Position",
-            "value_type": "VALUE"
-        },
-        "Input_13": {
-            "class": "NodeSocketFloat",
-            "default_value": 0.0,
-            "identifier": "Input_13",
-            "name": "BetweenStop3Value",
-            "value_type": "VALUE"
-        },
-        "Input_6": {
-            "class": "NodeSocketFloat",
-            "default_value": 0.9,
-            "identifier": "Input_6",
-            "name": "ZeroStopValue",
-            "value_type": "VALUE"
-        },
-        "Input_7": {
-            "class": "NodeSocketFloat",
-            "default_value": 1.0,
-            "identifier": "Input_7",
-            "name": "OneStopValue",
-            "value_type": "VALUE"
-        },
-        "Input_8": {
-            "class": "NodeSocketFloat",
-            "default_value": 0.0,
-            "identifier": "Input_8",
-            "name": "BetweenStop1Value",
-            "value_type": "VALUE"
-        },
-        "Input_9": {
-            "class": "NodeSocketFloat",
-            "default_value": 0.25,
-            "identifier": "Input_9",
-            "name": "BetweenStop1Position",
-            "value_type": "VALUE"
-        }
-    },
-    "outputs": {
-        "Output_1": {
-            "class": "NodeSocketFloat",
-            "default_value": 0.0,
-            "identifier": "Output_1",
-            "name": "Value",
-            "value_type": "VALUE"
         }
     }
 }""")

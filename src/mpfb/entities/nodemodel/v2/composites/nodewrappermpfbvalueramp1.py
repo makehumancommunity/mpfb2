@@ -2,10 +2,49 @@ import bpy, json
 
 _ORIGINAL_NODE_DEF = json.loads("""
 {
+    "class": "MpfbValueRamp1",
+    "inputs": {
+        "Input_0": {
+            "name": "Value",
+            "identifier": "Input_0",
+            "class": "NodeSocketFloat",
+            "value_type": "VALUE",
+            "default_value": 1.0,
+            "min_value": 0.0,
+            "max_value": 1.0
+        },
+        "Input_6": {
+            "name": "ZeroStopValue",
+            "identifier": "Input_6",
+            "class": "NodeSocketFloat",
+            "value_type": "VALUE",
+            "default_value": 0.9,
+            "min_value": -3.4028234663852886e+38,
+            "max_value": 3.4028234663852886e+38
+        },
+        "Input_7": {
+            "name": "OneStopValue",
+            "identifier": "Input_7",
+            "class": "NodeSocketFloat",
+            "value_type": "VALUE",
+            "default_value": 0.1,
+            "min_value": -3.4028234663852886e+38,
+            "max_value": 3.4028234663852886e+38
+        }
+    },
+    "outputs": {
+        "Output_1": {
+            "name": "Value",
+            "identifier": "Output_1",
+            "class": "NodeSocketFloat",
+            "value_type": "VALUE",
+            "default_value": 0.0
+        }
+    },
     "attributes": {
         "color": {
-            "class": "Color",
             "name": "color",
+            "class": "Color",
             "value": [
                 0.608,
                 0.608,
@@ -13,60 +52,27 @@ _ORIGINAL_NODE_DEF = json.loads("""
             ]
         },
         "height": {
-            "class": "float",
             "name": "height",
+            "class": "float",
             "value": 100.0
         },
         "location": {
-            "class": "Vector",
             "name": "location",
+            "class": "Vector",
             "value": [
-                -211.1376,
+                -347.1826,
                 586.6746
             ]
         },
         "use_custom_color": {
-            "class": "bool",
             "name": "use_custom_color",
+            "class": "bool",
             "value": false
         },
         "width": {
-            "class": "float",
             "name": "width",
-            "value": 140.0
-        }
-    },
-    "class": "MpfbValueRamp1",
-    "inputs": {
-        "Input_0": {
-            "class": "NodeSocketFloat",
-            "default_value": 1.0,
-            "identifier": "Input_0",
-            "name": "Value",
-            "value_type": "VALUE"
-        },
-        "Input_6": {
-            "class": "NodeSocketFloat",
-            "default_value": 0.9,
-            "identifier": "Input_6",
-            "name": "ZeroStopValue",
-            "value_type": "VALUE"
-        },
-        "Input_7": {
-            "class": "NodeSocketFloat",
-            "default_value": 0.1,
-            "identifier": "Input_7",
-            "name": "OneStopValue",
-            "value_type": "VALUE"
-        }
-    },
-    "outputs": {
-        "Output_1": {
-            "class": "NodeSocketFloat",
-            "default_value": 0.0,
-            "identifier": "Output_1",
-            "name": "Value",
-            "value_type": "VALUE"
+            "class": "float",
+            "value": 276.0449
         }
     }
 }""")

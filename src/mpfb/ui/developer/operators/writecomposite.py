@@ -14,6 +14,61 @@ from string import Template
 _LOG = LogService.get_logger("developer.operators.writecomposite")
 _LOG.set_level(LogService.DEBUG)
 
+def _identify_socket(all_sockets, socket):
+    name_count = 0
+    for s in all_sockets:
+        if s.name == socket.name:
+            name_count = name_count + 1
+    if name_count < 2:
+        return socket.name
+    return socket.identifier
+
+def _build_tree_def(node_tree):
+    wrappers = dict(PRIMITIVE_NODE_WRAPPERS)
+    wrappers.update(COMPOSITE_NODE_WRAPPERS)
+
+    tree_def = dict()
+    tree_def["nodes"] = []
+    tree_def["links"] = []
+
+    for node in node_tree.nodes:
+        _LOG.debug("Evaluating node", node)
+        node_class = node.__class__.__name__
+        if node_class == "ShaderNodeGroup":
+            node_class = node.node_tree.name
+
+        node_def = dict()
+        node_def["class"] = node_class
+        node_def["name"] = node.name
+        if node.label:
+            node_def["label"] = node.label
+        else:
+            node_def["label"] = node.name
+
+        if node_class in ["NodeGroupOutput", "NodeGroupInput"]:
+            node_def["attribute_values"] = dict()
+            node_def["input_socket_values"] = dict()
+            node_def["output_socket_values"] = dict()
+            node_def["attribute_values"]["location"] = list(node.location)
+        else:
+            if not node_class in wrappers:
+                raise NotImplementedError('Could not find wrapper for ' + node_class)
+            wrapper = wrappers[node_class]
+            node_def.update(wrapper.find_non_default_settings(node))
+
+        _LOG.debug("Resulting node def", node_def)
+        tree_def["nodes"].append(node_def)
+
+    for link in node_tree.links:
+        link_def = dict()
+        link_def["from_node"] = link.from_node.name
+        link_def["to_node"] = link.to_node.name
+        link_def["from_socket"] = _identify_socket(link.from_node.outputs, link.from_socket)
+        link_def["to_socket"] = _identify_socket(link.to_node.inputs, link.to_socket)
+        tree_def["links"].append(link_def)
+
+    return round_floats(tree_def)
+
 class MPFB_OT_Write_Composite_Operator(bpy.types.Operator):
     """Generate the code representing a selected node group to the composite directory"""
     bl_idname = "mpfb.write_composite"
@@ -39,62 +94,6 @@ class MPFB_OT_Write_Composite_Operator(bpy.types.Operator):
                 return True
 
         return False
-
-    def _identify_socket(self, all_sockets, socket):
-        name_count = 0
-        for s in all_sockets:
-            if s.name == socket.name:
-                name_count = name_count + 1
-        if name_count < 2:
-            return socket.name
-        return socket.identifier
-
-    def _build_tree_def(self, node_tree):
-        wrappers = dict(PRIMITIVE_NODE_WRAPPERS)
-        wrappers.update(COMPOSITE_NODE_WRAPPERS)
-
-        tree_def = dict()
-        tree_def["nodes"] = []
-        tree_def["links"] = []
-
-        for node in node_tree.nodes:
-            _LOG.debug("Evaluating node", node)
-            node_class = node.__class__.__name__
-            if node_class == "ShaderNodeGroup":
-                node_class = node.node_tree.name
-
-            node_def = dict()
-            node_def["class"] = node_class
-            node_def["name"] = node.name
-            if node.label:
-                node_def["label"] = node.label
-            else:
-                node_def["label"] = node.name
-
-            if node_class in ["NodeGroupOutput", "NodeGroupInput"]:
-                node_def["attribute_values"] = dict()
-                node_def["input_socket_values"] = dict()
-                node_def["output_socket_values"] = dict()
-                node_def["attribute_values"]["location"] = list(node.location)
-            else:
-                if not node_class in wrappers:
-                    raise NotImplementedError('Could not find wrapper for ' + node_class)
-                wrapper = wrappers[node_class]
-                node_def.update(wrapper.find_non_default_settings(node))
-
-            _LOG.debug("Resulting node def", node_def)
-            tree_def["nodes"].append(node_def)
-
-        for link in node_tree.links:
-            link_def = dict()
-            link_def["from_node"] = link.from_node.name
-            link_def["to_node"] = link.to_node.name
-            link_def["from_socket"] = self._identify_socket(link.from_node.outputs, link.from_socket)
-            link_def["to_socket"] = self._identify_socket(link.to_node.inputs, link.to_socket)
-            tree_def["links"].append(link_def)
-
-        return round_floats(tree_def)
-
 
     def execute(self, context):
         _LOG.enter()
@@ -134,7 +133,7 @@ class MPFB_OT_Write_Composite_Operator(bpy.types.Operator):
         v2 = os.path.join(entities, "nodemodel", "v2", "composites")
         v2test = os.path.join(test, "03_entities", "nodemodel_v2_composites_" + output_name.lower() + "_test.py")
 
-        tree_def = self._build_tree_def(node_tree)
+        tree_def = _build_tree_def(node_tree)
 
         with open(os.path.join(v2, "nodewrapper" + output_name.lower()) + ".py", "w") as pyfile:
             pyfile.write("import bpy, json\n\n")

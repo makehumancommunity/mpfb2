@@ -163,8 +163,8 @@ _ORIGINAL_NODE_DEF = json.loads("""
             "name": "location",
             "class": "Vector",
             "value": [
-                709.5353,
-                -1244.9136
+                710.5547,
+                -1317.3098
             ]
         },
         "use_custom_color": {

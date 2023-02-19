@@ -13,14 +13,14 @@ def test_composite_can_create_instance():
     node = NodeWrapperMpfbCharacterInfo.create_instance(node_tree)
     assert node
     assert node.node_tree.name == "MpfbCharacterInfo"
+    assert "Group Input" in node.node_tree.nodes
+    assert "Group Output" in node.node_tree.nodes
     assert "scale_factor" in node.node_tree.nodes
     assert "gender" in node.node_tree.nodes
     assert "weight" in node.node_tree.nodes
-    assert "Group Input" in node.node_tree.nodes
     assert "muscle" in node.node_tree.nodes
     assert "age" in node.node_tree.nodes
     assert "height" in node.node_tree.nodes
-    assert "Group Output" in node.node_tree.nodes
     has_link_to_output = False
     for link in node.node_tree.links:
         if link.to_node.name == "Group Output":

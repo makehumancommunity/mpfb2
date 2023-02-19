@@ -2,10 +2,81 @@ import bpy, json
 
 _ORIGINAL_NODE_DEF = json.loads("""
 {
+    "class": "MpfbColorRamp2",
+    "inputs": {
+        "Input_0": {
+            "name": "Value",
+            "identifier": "Input_0",
+            "class": "NodeSocketFloat",
+            "value_type": "VALUE",
+            "default_value": 1.0,
+            "min_value": 0.0,
+            "max_value": 1.0
+        },
+        "Input_9": {
+            "name": "ZeroStopColor",
+            "identifier": "Input_9",
+            "class": "NodeSocketColor",
+            "value_type": "RGBA",
+            "default_value": [
+                1.0,
+                0.0003,
+                0.0,
+                1.0
+            ]
+        },
+        "Input_10": {
+            "name": "BetweenStep1Color",
+            "identifier": "Input_10",
+            "class": "NodeSocketColor",
+            "value_type": "RGBA",
+            "default_value": [
+                0.0016,
+                1.0,
+                0.0,
+                1.0
+            ]
+        },
+        "Input_11": {
+            "name": "OneStopColor",
+            "identifier": "Input_11",
+            "class": "NodeSocketColor",
+            "value_type": "RGBA",
+            "default_value": [
+                0.0041,
+                0.0,
+                1.0,
+                1.0
+            ]
+        },
+        "Input_12": {
+            "name": "BetweenStep1Pos",
+            "identifier": "Input_12",
+            "class": "NodeSocketFloat",
+            "value_type": "VALUE",
+            "default_value": 0.5,
+            "min_value": -3.4028234663852886e+38,
+            "max_value": 3.4028234663852886e+38
+        }
+    },
+    "outputs": {
+        "Output_8": {
+            "name": "Color",
+            "identifier": "Output_8",
+            "class": "NodeSocketColor",
+            "value_type": "RGBA",
+            "default_value": [
+                0.0,
+                0.0,
+                0.0,
+                0.0
+            ]
+        }
+    },
     "attributes": {
         "color": {
-            "class": "Color",
             "name": "color",
+            "class": "Color",
             "value": [
                 0.608,
                 0.608,
@@ -13,94 +84,27 @@ _ORIGINAL_NODE_DEF = json.loads("""
             ]
         },
         "height": {
-            "class": "float",
             "name": "height",
+            "class": "float",
             "value": 100.0
         },
         "location": {
-            "class": "Vector",
             "name": "location",
+            "class": "Vector",
             "value": [
                 -336.9789,
                 585.7422
             ]
         },
         "use_custom_color": {
-            "class": "bool",
             "name": "use_custom_color",
+            "class": "bool",
             "value": false
         },
         "width": {
-            "class": "float",
             "name": "width",
+            "class": "float",
             "value": 400.0
-        }
-    },
-    "class": "MpfbColorRamp2",
-    "inputs": {
-        "Input_0": {
-            "class": "NodeSocketFloat",
-            "default_value": 1.0,
-            "identifier": "Input_0",
-            "name": "Value",
-            "value_type": "VALUE"
-        },
-        "Input_10": {
-            "class": "NodeSocketColor",
-            "default_value": [
-                0.0016,
-                1.0,
-                0.0,
-                1.0
-            ],
-            "identifier": "Input_10",
-            "name": "BetweenStep1Color",
-            "value_type": "RGBA"
-        },
-        "Input_11": {
-            "class": "NodeSocketColor",
-            "default_value": [
-                0.0041,
-                0.0,
-                1.0,
-                1.0
-            ],
-            "identifier": "Input_11",
-            "name": "OneStopColor",
-            "value_type": "RGBA"
-        },
-        "Input_12": {
-            "class": "NodeSocketFloat",
-            "default_value": 0.5,
-            "identifier": "Input_12",
-            "name": "BetweenStep1Pos",
-            "value_type": "VALUE"
-        },
-        "Input_9": {
-            "class": "NodeSocketColor",
-            "default_value": [
-                1.0,
-                0.0003,
-                0.0,
-                1.0
-            ],
-            "identifier": "Input_9",
-            "name": "ZeroStopColor",
-            "value_type": "RGBA"
-        }
-    },
-    "outputs": {
-        "Output_8": {
-            "class": "NodeSocketColor",
-            "default_value": [
-                0.0,
-                0.0,
-                0.0,
-                0.0
-            ],
-            "identifier": "Output_8",
-            "name": "Color",
-            "value_type": "RGBA"
         }
     }
 }""")

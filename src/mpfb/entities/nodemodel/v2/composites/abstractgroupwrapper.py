@@ -45,10 +45,11 @@ class AbstractGroupWrapper(AbstractNodeWrapper):
         AbstractNodeWrapper.__init__(self, group_def)
         self.tree_def = tree_def
 
-    def validate_tree_against_original_def(self, fail_hard=False):
+    def validate_tree_against_original_def(self, fail_hard=False, node_tree=None):
         if not self.tree_def:
             raise ValueError('No tree def registered for composite ' + self.node_class_name)
-        node_tree = bpy.data.node_groups[self.node_class_name]
+        if not node_tree:
+            node_tree = bpy.data.node_groups[self.node_class_name]
         if not node_tree:
             raise ValueError('Could not find node tree for ' + self.node_class_name)
         node_names_in_tree = []
@@ -177,6 +178,8 @@ class AbstractGroupWrapper(AbstractNodeWrapper):
                     tsocket = socket
         if not tsocket:
             _LOG.error("Could not find input socket '" + to_socket + "' on node '" + to_node.name + "'")
+            for socket in to_node.inputs:
+                _LOG.error(" -- available socket:", (socket.name, socket.identifier))
             raise ValueError("Could not find input socket '" + to_socket + "' on node '" + to_node.name + "'")
 
         link = node_tree.links.new(fsocket, tsocket)

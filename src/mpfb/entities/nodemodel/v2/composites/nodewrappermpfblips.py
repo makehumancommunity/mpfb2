@@ -401,7 +401,12 @@ _ORIGINAL_TREE_DEF = json.loads("""
             },
             "class": "MpfbValueRamp3",
             "input_socket_values": {
-                "Input_6": 0.7
+                "BetweenStop1Position": 0.45,
+                "BetweenStop1Value": 1.0,
+                "BetweenStop2Position": 0.7,
+                "BetweenStop2Value": 0.4,
+                "OneStopValue": 0.0,
+                "ZeroStopValue": 1.0
             },
             "label": "Group.002",
             "name": "Group.002",
@@ -462,7 +467,7 @@ _ORIGINAL_TREE_DEF = json.loads("""
             },
             "class": "MpfbSSSControl",
             "input_socket_values": {
-                "Input_4": 1.0
+                "SubsurfaceRadiusMultiplyer": 1.0
             },
             "label": "SSS",
             "name": "SSS",
@@ -507,10 +512,10 @@ class _NodeWrapperMpfbLips(AbstractGroupWrapper):
         node("ShaderNodeVectorMath", "Vector Math", attribute_values={"location": [-495.3525, -611.6572], "operation": "MULTIPLY"}, input_socket_values={"Vector_001": [8.0, 1.0, 1.0]})
         node("ShaderNodeTexCoord", "Texture Coordinate", attribute_values={"location": [-1016.369, -543.5457]})
         node("ShaderNodeBump", "Bump", attribute_values={"location": [329.0903, -352.9689]}, input_socket_values={"Strength": 0.3})
-        node("MpfbValueRamp3", "Group.002", attribute_values={"color": [0.608, 0.608, 0.608], "height": 100.0, "location": [-20.4761, -534.9553], "use_custom_color": False, "width": 247.2069}, input_socket_values={"Input_6": 0.7})
+        node("MpfbValueRamp3", "Group.002", attribute_values={"color": [0.608, 0.608, 0.608], "height": 100.0, "location": [-20.4761, -534.9553], "use_custom_color": False, "width": 247.2069}, input_socket_values={"ZeroStopValue": 1.0, "BetweenStop1Value": 1.0, "BetweenStop2Value": 0.4, "OneStopValue": 0.0, "BetweenStop1Position": 0.45, "BetweenStop2Position": 0.7})
         node("ShaderNodeTexNoise", "Noise Texture", attribute_values={"location": [-254.1799, -522.9743]}, input_socket_values={"Detail": 4.0, "Distortion": 2.0, "Scale": 50.0})
         node("MpfbCharacterInfo", "characterinfo", label="Character Info", attribute_values={"color": [0.608, 0.608, 0.608], "height": 100.0, "location": [-1017.6295, -344.016], "use_custom_color": False, "width": 140.0})
-        node("MpfbSSSControl", "SSS", attribute_values={"color": [0.608, 0.608, 0.608], "height": 100.0, "location": [137.0951, 254.0526], "use_custom_color": False, "width": 140.0}, input_socket_values={"Input_4": 1.0})
+        node("MpfbSSSControl", "SSS", attribute_values={"color": [0.608, 0.608, 0.608], "height": 100.0, "location": [137.0951, 254.0526], "use_custom_color": False, "width": 140.0}, input_socket_values={"SubsurfaceRadiusMultiplyer": 1.0})
 
         link("Group Input", "LipsCreaseStretch", "Combine XYZ", "X")
         link("Group Input", "LipsCreaseScale", "Math", "Value")

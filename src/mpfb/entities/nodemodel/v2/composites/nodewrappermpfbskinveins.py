@@ -2,10 +2,78 @@ import bpy, json
 
 _ORIGINAL_NODE_DEF = json.loads("""
 {
+    "class": "MpfbSkinVeins",
+    "inputs": {
+        "Input_0": {
+            "name": "SkinColor",
+            "identifier": "Input_0",
+            "class": "NodeSocketColor",
+            "value_type": "RGBA",
+            "default_value": [
+                0.2414,
+                0.2432,
+                0.5,
+                1.0
+            ]
+        },
+        "Input_4": {
+            "name": "VeinColor",
+            "identifier": "Input_4",
+            "class": "NodeSocketColor",
+            "value_type": "RGBA",
+            "default_value": [
+                0.1413,
+                0.1301,
+                0.5029,
+                1.0
+            ]
+        },
+        "Input_2": {
+            "name": "SmallVeinScaleMultiplier",
+            "identifier": "Input_2",
+            "class": "NodeSocketFloat",
+            "value_type": "VALUE",
+            "default_value": 1.1,
+            "min_value": -10000.0,
+            "max_value": 10000.0
+        },
+        "Input_3": {
+            "name": "LargeVeinScaleMultiplier",
+            "identifier": "Input_3",
+            "class": "NodeSocketFloat",
+            "value_type": "VALUE",
+            "default_value": 0.6,
+            "min_value": -10000.0,
+            "max_value": 10000.0
+        },
+        "Input_5": {
+            "name": "VeinStrength",
+            "identifier": "Input_5",
+            "class": "NodeSocketFloat",
+            "value_type": "VALUE",
+            "default_value": 0.08,
+            "min_value": -10000.0,
+            "max_value": 10000.0
+        }
+    },
+    "outputs": {
+        "Output_1": {
+            "name": "Color",
+            "identifier": "Output_1",
+            "class": "NodeSocketColor",
+            "value_type": "RGBA",
+            "default_value": [
+                0.0,
+                0.0,
+                0.0,
+                0.0
+            ]
+        }
+    },
     "attributes": {
         "color": {
-            "class": "Color",
             "name": "color",
+            "class": "Color",
             "value": [
                 0.608,
                 0.608,
@@ -13,95 +81,27 @@ _ORIGINAL_NODE_DEF = json.loads("""
             ]
         },
         "height": {
-            "class": "float",
             "name": "height",
+            "class": "float",
             "value": 100.0
         },
         "location": {
-            "class": "Vector",
             "name": "location",
+            "class": "Vector",
             "value": [
                 -458.1821,
                 638.4954
             ]
         },
         "use_custom_color": {
-            "class": "bool",
             "name": "use_custom_color",
+            "class": "bool",
             "value": false
         },
         "width": {
-            "class": "float",
             "name": "width",
+            "class": "float",
             "value": 210.2823
-        }
-    },
-    "class": "MpfbSkinVeins",
-    "inputs": {
-        "Input_0": {
-            "class": "NodeSocketColor",
-            "default_value": [
-                0.2414,
-                0.2432,
-                0.5,
-                1.0
-            ],
-            "identifier": "Input_0",
-            "name": "SkinColor",
-            "value_type": "RGBA"
-        },
-        "Input_2": {
-            "class": "NodeSocketFloat",
-            "default_value": 1.1,
-            "identifier": "Input_2",
-            "max_value": 10000.0,
-            "min_value": -10000.0,
-            "name": "SmallVeinScaleMultiplier",
-            "value_type": "VALUE"
-        },
-        "Input_3": {
-            "class": "NodeSocketFloat",
-            "default_value": 0.6,
-            "identifier": "Input_3",
-            "max_value": 10000.0,
-            "min_value": -10000.0,
-            "name": "LargeVeinScaleMultiplier",
-            "value_type": "VALUE"
-        },
-        "Input_4": {
-            "class": "NodeSocketColor",
-            "default_value": [
-                0.1413,
-                0.1301,
-                0.5029,
-                1.0
-            ],
-            "identifier": "Input_4",
-            "name": "VeinColor",
-            "value_type": "RGBA"
-        },
-        "Input_5": {
-            "class": "NodeSocketFloat",
-            "default_value": 0.08,
-            "identifier": "Input_5",
-            "max_value": 10000.0,
-            "min_value": -10000.0,
-            "name": "VeinStrength",
-            "value_type": "VALUE"
-        }
-    },
-    "outputs": {
-        "Output_1": {
-            "class": "NodeSocketColor",
-            "default_value": [
-                0.0,
-                0.0,
-                0.0,
-                0.0
-            ],
-            "identifier": "Output_1",
-            "name": "Color",
-            "value_type": "RGBA"
         }
     }
 }""")
@@ -380,10 +380,18 @@ _ORIGINAL_TREE_DEF = json.loads("""
         },
         {
             "attribute_values": {
+                "color": [
+                    0.608,
+                    0.608,
+                    0.608
+                ],
+                "height": 100.0,
                 "location": [
                     -1218.6906,
                     179.3788
-                ]
+                ],
+                "use_custom_color": false,
+                "width": 140.0
             },
             "class": "MpfbCharacterInfo",
             "input_socket_values": {},
@@ -496,7 +504,7 @@ class _NodeWrapperMpfbSkinVeins(AbstractGroupWrapper):
         node("ShaderNodeMath", "SelectPeak", label="Pick highest peak", attribute_values={"location": [427.4991, -13.7494], "operation": "MAXIMUM"}, input_socket_values={"Value_001": 0.98})
         node("ShaderNodeMath", "StrengthMultiplier", label="Strength multiplier", attribute_values={"location": [708.0868, 167.1202], "operation": "MULTIPLY"}, input_socket_values={"Value_001": 0.05})
         node("ShaderNodeMix", "Mix", label="Skin color vs vein color", attribute_values={"data_type": "RGBA", "location": [983.21, 29.0103]}, input_socket_values={"A_Color": [0.2414, 0.2432, 0.5, 1.0], "B_Color": [0.0015, 0.0, 0.5, 1.0]})
-        node("MpfbCharacterInfo", "CharacterInfo", label="Character info", attribute_values={"location": [-1218.6906, 179.3788]})
+        node("MpfbCharacterInfo", "CharacterInfo", label="Character info", attribute_values={"color": [0.608, 0.608, 0.608], "height": 100.0, "location": [-1218.6906, 179.3788], "use_custom_color": False, "width": 140.0})
         node("ShaderNodeTexCoord", "Texture Coordinate", attribute_values={"location": [-1216.33, -241.5409]})
         node("ShaderNodeTexWave", "LargeVeinWaveTexture", label="Large vein texture", attribute_values={"location": [-30.6633, -214.2721]}, input_socket_values={"Detail Roughness": 0.4, "Detail Scale": 4.0, "Distortion": 15.0, "Phase Offset": 0.5, "Scale": 9.0})
         node("ShaderNodeMath", "SmallVeinCropPeak", label="Use only peaks", attribute_values={"location": [177.5623, 152.2363], "operation": "GREATER_THAN"}, input_socket_values={"Value_001": 0.99})

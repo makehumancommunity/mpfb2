@@ -10,9 +10,9 @@ _ORIGINAL_NODE_DEF = json.loads("""
             "class": "NodeSocketColor",
             "value_type": "RGBA",
             "default_value": [
-                1.0,
-                0.6899,
-                0.4647,
+                0.807,
+                0.565,
+                0.4356,
                 1.0
             ]
         },
@@ -21,14 +21,14 @@ _ORIGINAL_NODE_DEF = json.loads("""
             "identifier": "Input_9",
             "class": "NodeSocketFloatFactor",
             "value_type": "VALUE",
-            "default_value": 0.3
+            "default_value": 0.15
         },
         "Input_10": {
             "name": "ColorVariationScaleMultiplier",
             "identifier": "Input_10",
             "class": "NodeSocketFloat",
             "value_type": "VALUE",
-            "default_value": 70.0,
+            "default_value": 30.0,
             "min_value": -10000.0,
             "max_value": 10000.0
         },
@@ -100,8 +100,8 @@ _ORIGINAL_NODE_DEF = json.loads("""
             "name": "location",
             "class": "Vector",
             "value": [
-                90.467,
-                101.8807
+                -960.8616,
+                733.6772
             ]
         },
         "use_custom_color": {
@@ -112,7 +112,7 @@ _ORIGINAL_NODE_DEF = json.loads("""
         "width": {
             "name": "width",
             "class": "float",
-            "value": 236.5711
+            "value": 245.2778
         }
     }
 }""")

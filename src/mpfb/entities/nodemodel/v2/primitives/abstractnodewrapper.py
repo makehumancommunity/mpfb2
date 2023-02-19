@@ -17,7 +17,12 @@ class AbstractNodeWrapper():
     def _validate_names(self, input_socket_values=None, attribute_values=None, output_socket_values=None):
         if input_socket_values:
             for key in input_socket_values:
-                if not key in self.node_def["inputs"]:
+                isvalid = False
+                for input in self.node_def["inputs"].keys():
+                    ndef = self.node_def["inputs"][input]
+                    if key == str(input) or key == ndef["name"] or key == ndef["identifier"]:
+                        isvalid = True
+                if not isvalid:
                     _LOG.error(key + " is not a valid input socket for " + self.node_class_name)
                     raise ValueError(key + " is not a valid input socket for " + self.node_class_name)
         if output_socket_values:
@@ -38,6 +43,7 @@ class AbstractNodeWrapper():
         for socket in socket_list:
             if socket.name == socket_id:
                 return socket
+        _LOG.warn("Could not find socket", (socket_id, socket_list))
         return None
 
     def _check_is_valid_assignment(self, value, definition_class):
@@ -86,13 +92,24 @@ class AbstractNodeWrapper():
             return
         for key in input_socket_values:
             value = input_socket_values[key]
-            input = self.node_def["inputs"][key]
+            input = None
+            if key in self.node_def["inputs"]:
+                input = self.node_def["inputs"][key]
+            else:
+                for namekey in self.node_def["inputs"].keys():
+                    ndef = self.node_def["inputs"][namekey]
+                    if key == ndef["name"] or key == ndef["identifier"]:
+                        input = ndef
             if not self._check_is_valid_assignment(value, input["class"]):
                 _LOG.error("Cannot use '" + str(value) + "' as value for " + key + " input of " + self.node_class_name + ". Expected value of type " + input["class"] + ".")
                 raise ValueError("Cannot use '" + str(value) + "' as value for " + key + " input of " + self.node_class_name + ". Expected value of type " + input["class"] + ".")
             input_socket = self._find_socket(node.inputs, key)
             if not input_socket:
                 _LOG.error("Input socket '" + key + "' was valid per the original definition, but does not exist on node with class " + node.__class__.__name__)
+                if str(node.__class__.__name__) == "ShaderNodeGroup":
+                    _LOG.error("Target is a group", node.node_tree.name)
+                _LOG.error("Input socket values", input_socket_values)
+                _LOG.error("Node", node)
                 raise KeyError("Input socket '" + key + "' was valid per the original definition, but does not exist on node with class " + node.__class__.__name__)
             input_socket.default_value = value
 
@@ -135,7 +152,7 @@ class AbstractNodeWrapper():
 
     def find_non_default_settings(self, node):
         nc = node.__class__.__name__
-
+        isgroup = nc == "ShaderNodeGroup"
         if nc != self.node_class_name and nc != "ShaderNodeGroup":
             raise ValueError("Cannot compare " + node.__class__.__name__ + " with " + self.node_class_name)
 
@@ -180,7 +197,10 @@ class AbstractNodeWrapper():
                     node_value = socket.default_value
             value_class = socket_def["class"]
             if not self._is_same(value_class, node_value, default_value):
-                comparison["input_socket_values"][key] = self._cleanup(node_value)
+                if isgroup:
+                    comparison["input_socket_values"][socket_def["name"]] = self._cleanup(node_value)
+                else:
+                    comparison["input_socket_values"][key] = self._cleanup(node_value)
 
         for key in self.node_def["outputs"]:
             socket_def = self.node_def["outputs"][key]

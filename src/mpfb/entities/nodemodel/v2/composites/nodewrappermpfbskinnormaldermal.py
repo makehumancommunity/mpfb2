@@ -2,10 +2,53 @@ import bpy, json
 
 _ORIGINAL_NODE_DEF = json.loads("""
 {
+    "class": "MpfbSkinNormalDermal",
+    "inputs": {
+        "Input_0": {
+            "name": "DermalScaleMultiplier",
+            "identifier": "Input_0",
+            "class": "NodeSocketFloat",
+            "value_type": "VALUE",
+            "default_value": 70.0,
+            "min_value": -10000.0,
+            "max_value": 10000.0
+        },
+        "Input_2": {
+            "name": "DermalBumpStrength",
+            "identifier": "Input_2",
+            "class": "NodeSocketFloatFactor",
+            "value_type": "VALUE",
+            "default_value": 0.15
+        },
+        "Input_3": {
+            "name": "Normal",
+            "identifier": "Input_3",
+            "class": "NodeSocketVector",
+            "value_type": "VECTOR",
+            "default_value": [
+                0.0,
+                0.0,
+                0.0
+            ]
+        }
+    },
+    "outputs": {
+        "Output_1": {
+            "name": "Normal",
+            "identifier": "Output_1",
+            "class": "NodeSocketVector",
+            "value_type": "VECTOR",
+            "default_value": [
+                0.0,
+                0.0,
+                0.0
+            ]
+        }
+    },
     "attributes": {
         "color": {
-            "class": "Color",
             "name": "color",
+            "class": "Color",
             "value": [
                 0.608,
                 0.608,
@@ -13,70 +56,27 @@ _ORIGINAL_NODE_DEF = json.loads("""
             ]
         },
         "height": {
-            "class": "float",
             "name": "height",
+            "class": "float",
             "value": 100.0
         },
         "location": {
-            "class": "Vector",
             "name": "location",
+            "class": "Vector",
             "value": [
                 175.0831,
                 -339.0752
             ]
         },
         "use_custom_color": {
-            "class": "bool",
             "name": "use_custom_color",
+            "class": "bool",
             "value": false
         },
         "width": {
-            "class": "float",
             "name": "width",
+            "class": "float",
             "value": 320.8665
-        }
-    },
-    "class": "MpfbSkinNormalDermal",
-    "inputs": {
-        "Input_0": {
-            "class": "NodeSocketFloat",
-            "default_value": 70.0,
-            "identifier": "Input_0",
-            "max_value": 10000.0,
-            "min_value": -10000.0,
-            "name": "DermalScaleMultiplier",
-            "value_type": "VALUE"
-        },
-        "Input_2": {
-            "class": "NodeSocketFloatFactor",
-            "default_value": 0.15,
-            "identifier": "Input_2",
-            "name": "DermalBumpStrength",
-            "value_type": "VALUE"
-        },
-        "Input_3": {
-            "class": "NodeSocketVector",
-            "default_value": [
-                0.0,
-                0.0,
-                0.0
-            ],
-            "identifier": "Input_3",
-            "name": "Normal",
-            "value_type": "VECTOR"
-        }
-    },
-    "outputs": {
-        "Output_1": {
-            "class": "NodeSocketVector",
-            "default_value": [
-                0.0,
-                0.0,
-                0.0
-            ],
-            "identifier": "Output_1",
-            "name": "Normal",
-            "value_type": "VECTOR"
         }
     }
 }""")
@@ -170,15 +170,25 @@ _ORIGINAL_TREE_DEF = json.loads("""
         },
         {
             "attribute_values": {
+                "color": [
+                    0.608,
+                    0.608,
+                    0.608
+                ],
+                "height": 100.0,
                 "location": [
                     248.2872,
                     182.0687
                 ],
+                "use_custom_color": false,
                 "width": 248.8326
             },
             "class": "MpfbValueRamp3",
             "input_socket_values": {
-                "Input_6": 0.1
+                "BetweenStop1Position": 0.05,
+                "BetweenStop1Value": 0.0,
+                "BetweenStop2Position": 0.1,
+                "BetweenStop2Value": 1.0
             },
             "label": "Group.001",
             "name": "Group.001",
@@ -199,10 +209,18 @@ _ORIGINAL_TREE_DEF = json.loads("""
         },
         {
             "attribute_values": {
+                "color": [
+                    0.608,
+                    0.608,
+                    0.608
+                ],
+                "height": 100.0,
                 "location": [
                     -597.7336,
                     345.4013
-                ]
+                ],
+                "use_custom_color": false,
+                "width": 140.0
             },
             "class": "MpfbCharacterInfo",
             "input_socket_values": {},
@@ -273,8 +291,8 @@ class _NodeWrapperMpfbSkinNormalDermal(AbstractGroupWrapper):
 
         node("ShaderNodeMath", "Math", attribute_values={"location": [-314.7333, 246.1363], "operation": "DIVIDE"})
         node("ShaderNodeTexVoronoi", "Voronoi Texture", attribute_values={"feature": "DISTANCE_TO_EDGE", "location": [-27.5202, 196.071]})
-        node("MpfbValueRamp3", "Group.001", attribute_values={"location": [248.2872, 182.0687], "width": 248.8326}, input_socket_values={"Input_6": 0.1})
-        node("MpfbCharacterInfo", "Group", attribute_values={"location": [-597.7336, 345.4013]})
+        node("MpfbValueRamp3", "Group.001", attribute_values={"color": [0.608, 0.608, 0.608], "height": 100.0, "location": [248.2872, 182.0687], "use_custom_color": False, "width": 248.8326}, input_socket_values={"BetweenStop1Value": 0.0, "BetweenStop2Value": 1.0, "BetweenStop1Position": 0.05, "BetweenStop2Position": 0.1})
+        node("MpfbCharacterInfo", "Group", attribute_values={"color": [0.608, 0.608, 0.608], "height": 100.0, "location": [-597.7336, 345.4013], "use_custom_color": False, "width": 140.0})
         node("ShaderNodeTexCoord", "Texture Coordinate", attribute_values={"location": [-467.8459, 14.2048]})
         node("ShaderNodeBump", "Bump", attribute_values={"location": [678.1032, -18.3332]}, input_socket_values={"Strength": 0.3})
 

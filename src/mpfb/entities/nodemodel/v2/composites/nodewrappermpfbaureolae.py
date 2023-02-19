@@ -470,7 +470,10 @@ _ORIGINAL_TREE_DEF = json.loads("""
             },
             "class": "MpfbValueRamp3",
             "input_socket_values": {
-                "Input_6": 0.8
+                "BetweenStop1Position": 0.5,
+                "BetweenStop1Value": 1.0,
+                "BetweenStop2Position": 0.8,
+                "BetweenStop2Value": -0.6
             },
             "label": "Group.004",
             "name": "Group.004",
@@ -553,7 +556,10 @@ _ORIGINAL_TREE_DEF = json.loads("""
             },
             "class": "MpfbValueRamp3",
             "input_socket_values": {
-                "Input_6": 0.6
+                "BetweenStop1Position": 0.4,
+                "BetweenStop2Position": 0.6,
+                "BetweenStop2Value": 0.3,
+                "OneStopValue": 0.3
             },
             "label": "Group.006",
             "name": "Group.006",
@@ -751,23 +757,7 @@ _ORIGINAL_TREE_DEF = json.loads("""
                 "width": 248.0564
             },
             "class": "MpfbWithinDistanceOfEither",
-            "input_socket_values": {
-                "Input_0": [
-                    0.5,
-                    0.5,
-                    0.0
-                ],
-                "Input_1": [
-                    0.25,
-                    0.25,
-                    0.0
-                ],
-                "Input_2": [
-                    0.75,
-                    0.75,
-                    0.0
-                ]
-            },
+            "input_socket_values": {},
             "label": "Inside relevant range",
             "name": "InRange",
             "output_socket_values": {}
@@ -789,7 +779,7 @@ _ORIGINAL_TREE_DEF = json.loads("""
             },
             "class": "MpfbSSSControl",
             "input_socket_values": {
-                "Input_4": 1.0
+                "SubsurfaceRadiusMultiplyer": 1.0
             },
             "label": "SSS",
             "name": "SSS",
@@ -849,12 +839,12 @@ class _NodeWrapperMpfbAureolae(AbstractGroupWrapper):
         nodes["Group Output"].location = [2152.1079, 273.0883]
         nodes["Group Input"].location = [-1024.4425, 18.8993]
 
-        node("MpfbValueRamp3", "Group.004", attribute_values={"color": [0.608, 0.608, 0.608], "height": 100.0, "location": [788.281, -13.9948], "use_custom_color": False, "width": 268.4089}, input_socket_values={"Input_6": 0.8})
+        node("MpfbValueRamp3", "Group.004", attribute_values={"color": [0.608, 0.608, 0.608], "height": 100.0, "location": [788.281, -13.9948], "use_custom_color": False, "width": 268.4089}, input_socket_values={"BetweenStop1Value": 1.0, "BetweenStop2Value": -0.6, "BetweenStop1Position": 0.5, "BetweenStop2Position": 0.8})
         node("ShaderNodeMapRange", "Map Range", attribute_values={"location": [571.2413, -321.8509]})
         node("ShaderNodeBsdfPrincipled", "Principled BSDF", attribute_values={"location": [1796.3329, 153.0367]})
         node("ShaderNodeTexCoord", "Texture Coordinate", attribute_values={"location": [-1025.0469, 479.591]})
         node("MpfbBodyConstants", "BodyConstants", label="Body Constants", attribute_values={"color": [0.608, 0.608, 0.608], "height": 100.0, "location": [-1024.2196, 224.0364], "use_custom_color": False, "width": 140.0})
-        node("MpfbValueRamp3", "Group.006", attribute_values={"color": [0.608, 0.608, 0.608], "height": 100.0, "location": [789.1182, -293.4978], "use_custom_color": False, "width": 260.2514}, input_socket_values={"Input_6": 0.6})
+        node("MpfbValueRamp3", "Group.006", attribute_values={"color": [0.608, 0.608, 0.608], "height": 100.0, "location": [789.1182, -293.4978], "use_custom_color": False, "width": 260.2514}, input_socket_values={"BetweenStop2Value": 0.3, "OneStopValue": 0.3, "BetweenStop1Position": 0.4, "BetweenStop2Position": 0.6})
         node("MpfbSkinColorVariation", "ColorVariation", label="Color Variation", attribute_values={"color": [0.608, 0.608, 0.608], "height": 100.0, "location": [269.8811, 376.1695], "use_custom_color": False, "width": 236.5711})
         node("ShaderNodeMath", "Math", attribute_values={"location": [-461.2459, 297.1048], "operation": "MULTIPLY"}, input_socket_values={"Value_001": 0.02})
         node("ShaderNodeTexVoronoi", "Voronoi Texture", attribute_values={"location": [14.5556, -408.4892]}, input_socket_values={"Randomness": 0.4})
@@ -866,8 +856,8 @@ class _NodeWrapperMpfbAureolae(AbstractGroupWrapper):
         node("ShaderNodeMath", "Math.004", attribute_values={"location": [582.977, -61.1753]})
         node("ShaderNodeBump", "Bump.001", attribute_values={"location": [1196.2094, -124.2676]}, input_socket_values={"Strength": 0.3})
         node("ShaderNodeBump", "Bump", attribute_values={"invert": True, "location": [1533.3766, -362.5945]}, input_socket_values={"Strength": 0.3})
-        node("MpfbWithinDistanceOfEither", "InRange", label="Inside relevant range", attribute_values={"color": [0.608, 0.608, 0.608], "height": 100.0, "location": [-242.8965, 530.403], "use_custom_color": False, "width": 248.0564}, input_socket_values={"Input_0": [0.5, 0.5, 0.0], "Input_1": [0.25, 0.25, 0.0], "Input_2": [0.75, 0.75, 0.0]})
-        node("MpfbSSSControl", "SSS", attribute_values={"color": [0.608, 0.608, 0.608], "height": 100.0, "location": [784.6497, 323.3286], "use_custom_color": False, "width": 271.502}, input_socket_values={"Input_4": 1.0})
+        node("MpfbWithinDistanceOfEither", "InRange", label="Inside relevant range", attribute_values={"color": [0.608, 0.608, 0.608], "height": 100.0, "location": [-242.8965, 530.403], "use_custom_color": False, "width": 248.0564})
+        node("MpfbSSSControl", "SSS", attribute_values={"color": [0.608, 0.608, 0.608], "height": 100.0, "location": [784.6497, 323.3286], "use_custom_color": False, "width": 271.502}, input_socket_values={"SubsurfaceRadiusMultiplyer": 1.0})
         node("MpfbCharacterInfo", "CharacterInfo", label="Character Info", attribute_values={"color": [0.608, 0.608, 0.608], "height": 100.0, "location": [-1020.6154, -340.0347], "use_custom_color": False, "width": 140.0})
 
         link("Group Input", "AureolaeRadius", "Math", "Value")

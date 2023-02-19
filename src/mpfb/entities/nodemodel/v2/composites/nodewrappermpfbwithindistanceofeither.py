@@ -2,10 +2,71 @@ import bpy, json
 
 _ORIGINAL_NODE_DEF = json.loads("""
 {
+    "class": "MpfbWithinDistanceOfEither",
+    "inputs": {
+        "Input_0": {
+            "name": "Position",
+            "identifier": "Input_0",
+            "class": "NodeSocketVector",
+            "value_type": "VECTOR",
+            "default_value": [
+                0.5,
+                0.5,
+                0.0
+            ]
+        },
+        "Input_1": {
+            "name": "Coordinate1",
+            "identifier": "Input_1",
+            "class": "NodeSocketVector",
+            "value_type": "VECTOR",
+            "default_value": [
+                0.25,
+                0.25,
+                0.0
+            ]
+        },
+        "Input_2": {
+            "name": "Coordinate2",
+            "identifier": "Input_2",
+            "class": "NodeSocketVector",
+            "value_type": "VECTOR",
+            "default_value": [
+                0.75,
+                0.75,
+                0.0
+            ]
+        },
+        "Input_3": {
+            "name": "MaxDist",
+            "identifier": "Input_3",
+            "class": "NodeSocketFloat",
+            "value_type": "VALUE",
+            "default_value": 0.1,
+            "min_value": -3.4028234663852886e+38,
+            "max_value": 3.4028234663852886e+38
+        }
+    },
+    "outputs": {
+        "Output_4": {
+            "name": "WithinDistance",
+            "identifier": "Output_4",
+            "class": "NodeSocketFloat",
+            "value_type": "VALUE",
+            "default_value": 0.0
+        },
+        "Output_5": {
+            "name": "ActualLeastDistance",
+            "identifier": "Output_5",
+            "class": "NodeSocketFloat",
+            "value_type": "VALUE",
+            "default_value": 0.0
+        }
+    },
     "attributes": {
         "color": {
-            "class": "Color",
             "name": "color",
+            "class": "Color",
             "value": [
                 0.608,
                 0.608,
@@ -13,86 +74,27 @@ _ORIGINAL_NODE_DEF = json.loads("""
             ]
         },
         "height": {
-            "class": "float",
             "name": "height",
+            "class": "float",
             "value": 100.0
         },
         "location": {
-            "class": "Vector",
             "name": "location",
+            "class": "Vector",
             "value": [
-                -229.6203,
-                -99.7027
+                -242.8965,
+                530.403
             ]
         },
         "use_custom_color": {
-            "class": "bool",
             "name": "use_custom_color",
+            "class": "bool",
             "value": false
         },
         "width": {
-            "class": "float",
             "name": "width",
-            "value": 140.0
-        }
-    },
-    "class": "MpfbWithinDistanceOfEither",
-    "inputs": {
-        "Input_0": {
-            "class": "NodeSocketVector",
-            "default_value": [
-                0.25,
-                0.25,
-                0.0
-            ],
-            "identifier": "Input_0",
-            "name": "Coordinate1",
-            "value_type": "VECTOR"
-        },
-        "Input_1": {
-            "class": "NodeSocketVector",
-            "default_value": [
-                0.75,
-                0.75,
-                0.0
-            ],
-            "identifier": "Input_1",
-            "name": "Coordinate2",
-            "value_type": "VECTOR"
-        },
-        "Input_2": {
-            "class": "NodeSocketVector",
-            "default_value": [
-                0.5,
-                0.5,
-                0.0
-            ],
-            "identifier": "Input_2",
-            "name": "Position",
-            "value_type": "VECTOR"
-        },
-        "Input_3": {
-            "class": "NodeSocketFloat",
-            "default_value": 0.1,
-            "identifier": "Input_3",
-            "name": "MaxDist",
-            "value_type": "VALUE"
-        }
-    },
-    "outputs": {
-        "Output_4": {
-            "class": "NodeSocketFloat",
-            "default_value": 0.0,
-            "identifier": "Output_4",
-            "name": "WithinDistance",
-            "value_type": "VALUE"
-        },
-        "Output_5": {
-            "class": "NodeSocketFloat",
-            "default_value": 0.0,
-            "identifier": "Output_5",
-            "name": "ActualLeastDistance",
-            "value_type": "VALUE"
+            "class": "float",
+            "value": 248.0564
         }
     }
 }""")
@@ -213,56 +215,14 @@ _ORIGINAL_TREE_DEF = json.loads("""
         {
             "attribute_values": {
                 "location": [
-                    -150.6878,
-                    -6.3031
-                ],
-                "operation": "LESS_THAN"
-            },
-            "class": "ShaderNodeMath",
-            "input_socket_values": {},
-            "label": "WithinRange2",
-            "name": "WithinRange2",
-            "output_socket_values": {}
-        },
-        {
-            "attribute_values": {
-                "location": [
-                    101.5132,
-                    336.2606
-                ],
-                "operation": "MULTIPLY"
-            },
-            "class": "ShaderNodeMath",
-            "input_socket_values": {},
-            "label": "DistanceMultInRange1",
-            "name": "DistanceMultInRange1",
-            "output_socket_values": {}
-        },
-        {
-            "attribute_values": {
-                "location": [
-                    346.877,
-                    275.2887
-                ],
-                "use_clamp": true
-            },
-            "class": "ShaderNodeMath",
-            "input_socket_values": {},
-            "label": "InRangeOfEither",
-            "name": "InRangeOfEither",
-            "output_socket_values": {}
-        },
-        {
-            "attribute_values": {
-                "location": [
-                    345.3293,
-                    84.9836
+                    -826.2397,
+                    74.5913
                 ]
             },
-            "class": "ShaderNodeMath",
+            "class": "NodeGroupInput",
             "input_socket_values": {},
-            "label": "LeastDistance",
-            "name": "LeastDistance",
+            "label": "Group Input",
+            "name": "Group Input",
             "output_socket_values": {}
         },
         {
@@ -281,8 +241,63 @@ _ORIGINAL_TREE_DEF = json.loads("""
         {
             "attribute_values": {
                 "location": [
-                    -415.4476,
-                    -144.8118
+                    -150.688,
+                    -6.303
+                ],
+                "operation": "LESS_THAN"
+            },
+            "class": "ShaderNodeMath",
+            "input_socket_values": {},
+            "label": "WithinRange2",
+            "name": "WithinRange2",
+            "output_socket_values": {}
+        },
+        {
+            "attribute_values": {
+                "location": [
+                    101.513,
+                    336.261
+                ],
+                "operation": "MULTIPLY"
+            },
+            "class": "ShaderNodeMath",
+            "input_socket_values": {},
+            "label": "DistanceMultInRange1",
+            "name": "DistanceMultInRange1",
+            "output_socket_values": {}
+        },
+        {
+            "attribute_values": {
+                "location": [
+                    346.877,
+                    275.289
+                ],
+                "use_clamp": true
+            },
+            "class": "ShaderNodeMath",
+            "input_socket_values": {},
+            "label": "InRangeOfEither",
+            "name": "InRangeOfEither",
+            "output_socket_values": {}
+        },
+        {
+            "attribute_values": {
+                "location": [
+                    345.329,
+                    84.984
+                ]
+            },
+            "class": "ShaderNodeMath",
+            "input_socket_values": {},
+            "label": "LeastDistance",
+            "name": "LeastDistance",
+            "output_socket_values": {}
+        },
+        {
+            "attribute_values": {
+                "location": [
+                    -415.448,
+                    -144.812
                 ],
                 "operation": "DISTANCE"
             },
@@ -295,8 +310,8 @@ _ORIGINAL_TREE_DEF = json.loads("""
         {
             "attribute_values": {
                 "location": [
-                    -435.5565,
-                    199.1465
+                    -435.557,
+                    199.147
                 ],
                 "operation": "DISTANCE"
             },
@@ -309,8 +324,8 @@ _ORIGINAL_TREE_DEF = json.loads("""
         {
             "attribute_values": {
                 "location": [
-                    -153.9088,
-                    160.1612
+                    -153.909,
+                    160.161
                 ],
                 "operation": "LESS_THAN"
             },
@@ -323,8 +338,8 @@ _ORIGINAL_TREE_DEF = json.loads("""
         {
             "attribute_values": {
                 "location": [
-                    110.7387,
-                    -83.3803
+                    110.739,
+                    -83.38
                 ],
                 "operation": "MULTIPLY"
             },
@@ -332,19 +347,6 @@ _ORIGINAL_TREE_DEF = json.loads("""
             "input_socket_values": {},
             "label": "DistanceMultInRange2",
             "name": "DistanceMultInRange2",
-            "output_socket_values": {}
-        },
-        {
-            "attribute_values": {
-                "location": [
-                    -826.2397,
-                    74.5913
-                ]
-            },
-            "class": "NodeGroupInput",
-            "input_socket_values": {},
-            "label": "Group Input",
-            "name": "Group Input",
             "output_socket_values": {}
         }
     ]
@@ -364,17 +366,17 @@ class _NodeWrapperMpfbWithinDistanceOfEither(AbstractGroupWrapper):
         def link(from_node, from_socket, to_node, to_socket):
             AbstractGroupWrapper.create_link(node_tree, nodes[from_node], from_socket, nodes[to_node], to_socket)
 
-        nodes["Group Output"].location = [767.7954, 159.2626]
         nodes["Group Input"].location = [-826.2397, 74.5913]
+        nodes["Group Output"].location = [767.7954, 159.2626]
 
-        node("ShaderNodeMath", "WithinRange2", attribute_values={"location": [-150.6878, -6.3031], "operation": "LESS_THAN"})
-        node("ShaderNodeMath", "DistanceMultInRange1", attribute_values={"location": [101.5132, 336.2606], "operation": "MULTIPLY"})
-        node("ShaderNodeMath", "InRangeOfEither", attribute_values={"location": [346.877, 275.2887], "use_clamp": True})
-        node("ShaderNodeMath", "LeastDistance", attribute_values={"location": [345.3293, 84.9836]})
-        node("ShaderNodeVectorMath", "Distance2", attribute_values={"location": [-415.4476, -144.8118], "operation": "DISTANCE"})
-        node("ShaderNodeVectorMath", "Distance1", attribute_values={"location": [-435.5565, 199.1465], "operation": "DISTANCE"})
-        node("ShaderNodeMath", "WithinRange1", attribute_values={"location": [-153.9088, 160.1612], "operation": "LESS_THAN"})
-        node("ShaderNodeMath", "DistanceMultInRange2", attribute_values={"location": [110.7387, -83.3803], "operation": "MULTIPLY"})
+        node("ShaderNodeMath", "WithinRange2", attribute_values={"location": [-150.688, -6.303], "operation": "LESS_THAN"})
+        node("ShaderNodeMath", "DistanceMultInRange1", attribute_values={"location": [101.513, 336.261], "operation": "MULTIPLY"})
+        node("ShaderNodeMath", "InRangeOfEither", attribute_values={"location": [346.877, 275.289], "use_clamp": True})
+        node("ShaderNodeMath", "LeastDistance", attribute_values={"location": [345.329, 84.984]})
+        node("ShaderNodeVectorMath", "Distance2", attribute_values={"location": [-415.448, -144.812], "operation": "DISTANCE"})
+        node("ShaderNodeVectorMath", "Distance1", attribute_values={"location": [-435.557, 199.147], "operation": "DISTANCE"})
+        node("ShaderNodeMath", "WithinRange1", attribute_values={"location": [-153.909, 160.161], "operation": "LESS_THAN"})
+        node("ShaderNodeMath", "DistanceMultInRange2", attribute_values={"location": [110.739, -83.38], "operation": "MULTIPLY"})
 
         link("Group Input", "Position", "Distance1", "Vector")
         link("Group Input", "Position", "Distance2", "Vector")

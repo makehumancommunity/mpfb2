@@ -2,10 +2,118 @@ import bpy, json
 
 _ORIGINAL_NODE_DEF = json.loads("""
 {
+    "class": "MpfbSSSControl",
+    "inputs": {
+        "Input_6": {
+            "name": "SubsurfaceColor",
+            "identifier": "Input_6",
+            "class": "NodeSocketColor",
+            "value_type": "RGBA",
+            "default_value": [
+                0.5,
+                0.5,
+                0.5,
+                1.0
+            ]
+        },
+        "Input_5": {
+            "name": "SubsurfaceStrength",
+            "identifier": "Input_5",
+            "class": "NodeSocketFloat",
+            "value_type": "VALUE",
+            "default_value": 0.0,
+            "min_value": -3.4028234663852886e+38,
+            "max_value": 3.4028234663852886e+38
+        },
+        "Input_4": {
+            "name": "SubsurfaceRadiusMultiplyer",
+            "identifier": "Input_4",
+            "class": "NodeSocketFloat",
+            "value_type": "VALUE",
+            "default_value": 0.5,
+            "min_value": -10000.0,
+            "max_value": 10000.0
+        },
+        "Input_8": {
+            "name": "SubSurfaceRadiusX",
+            "identifier": "Input_8",
+            "class": "NodeSocketFloat",
+            "value_type": "VALUE",
+            "default_value": 1.0,
+            "min_value": -10000.0,
+            "max_value": 10000.0
+        },
+        "Input_9": {
+            "name": "SubSurfaceRadiusY",
+            "identifier": "Input_9",
+            "class": "NodeSocketFloat",
+            "value_type": "VALUE",
+            "default_value": 0.2,
+            "min_value": -10000.0,
+            "max_value": 10000.0
+        },
+        "Input_10": {
+            "name": "SubSurfaceRadiusZ",
+            "identifier": "Input_10",
+            "class": "NodeSocketFloat",
+            "value_type": "VALUE",
+            "default_value": 0.1,
+            "min_value": -10000.0,
+            "max_value": 10000.0
+        },
+        "Input_7": {
+            "name": "SubsurfaceIor",
+            "identifier": "Input_7",
+            "class": "NodeSocketFloat",
+            "value_type": "VALUE",
+            "default_value": 1.4,
+            "min_value": -3.4028234663852886e+38,
+            "max_value": 3.4028234663852886e+38
+        }
+    },
+    "outputs": {
+        "Output_2": {
+            "name": "SubsurfaceColor",
+            "identifier": "Output_2",
+            "class": "NodeSocketColor",
+            "value_type": "RGBA",
+            "default_value": [
+                0.5,
+                0.5,
+                0.5,
+                1.0
+            ]
+        },
+        "Output_0": {
+            "name": "SubsurfaceRadius",
+            "identifier": "Output_0",
+            "class": "NodeSocketVector",
+            "value_type": "VECTOR",
+            "default_value": [
+                0.0,
+                0.0,
+                0.0
+            ]
+        },
+        "Output_1": {
+            "name": "SubsurfaceStrength",
+            "identifier": "Output_1",
+            "class": "NodeSocketFloat",
+            "value_type": "VALUE",
+            "default_value": 0.0
+        },
+        "Output_3": {
+            "name": "SubsurfaceIor",
+            "identifier": "Output_3",
+            "class": "NodeSocketFloat",
+            "value_type": "VALUE",
+            "default_value": 1.4
+        }
+    },
     "attributes": {
         "color": {
-            "class": "Color",
             "name": "color",
+            "class": "Color",
             "value": [
                 0.608,
                 0.608,
@@ -13,135 +121,27 @@ _ORIGINAL_NODE_DEF = json.loads("""
             ]
         },
         "height": {
-            "class": "float",
             "name": "height",
+            "class": "float",
             "value": 100.0
         },
         "location": {
-            "class": "Vector",
             "name": "location",
+            "class": "Vector",
             "value": [
                 348.2335,
                 172.3807
             ]
         },
         "use_custom_color": {
-            "class": "bool",
             "name": "use_custom_color",
+            "class": "bool",
             "value": false
         },
         "width": {
-            "class": "float",
             "name": "width",
+            "class": "float",
             "value": 140.0
-        }
-    },
-    "class": "MpfbSSSControl",
-    "inputs": {
-        "Input_10": {
-            "class": "NodeSocketFloat",
-            "default_value": 0.1,
-            "identifier": "Input_10",
-            "max_value": 10000.0,
-            "min_value": -10000.0,
-            "name": "SubSurfaceRadiusZ",
-            "value_type": "VALUE"
-        },
-        "Input_4": {
-            "class": "NodeSocketFloat",
-            "default_value": 0.5,
-            "identifier": "Input_4",
-            "max_value": 10000.0,
-            "min_value": -10000.0,
-            "name": "SubsurfaceRadiusMultiplyer",
-            "value_type": "VALUE"
-        },
-        "Input_5": {
-            "class": "NodeSocketFloat",
-            "default_value": 0.0,
-            "identifier": "Input_5",
-            "max_value": 3.4028234663852886e+38,
-            "min_value": -3.4028234663852886e+38,
-            "name": "SubsurfaceStrength",
-            "value_type": "VALUE"
-        },
-        "Input_6": {
-            "class": "NodeSocketColor",
-            "default_value": [
-                0.5,
-                0.5,
-                0.5,
-                1.0
-            ],
-            "identifier": "Input_6",
-            "name": "SubsurfaceColor",
-            "value_type": "RGBA"
-        },
-        "Input_7": {
-            "class": "NodeSocketFloat",
-            "default_value": 1.4,
-            "identifier": "Input_7",
-            "max_value": 3.4028234663852886e+38,
-            "min_value": -3.4028234663852886e+38,
-            "name": "SubsurfaceIor",
-            "value_type": "VALUE"
-        },
-        "Input_8": {
-            "class": "NodeSocketFloat",
-            "default_value": 1.0,
-            "identifier": "Input_8",
-            "max_value": 10000.0,
-            "min_value": -10000.0,
-            "name": "SubSurfaceRadiusX",
-            "value_type": "VALUE"
-        },
-        "Input_9": {
-            "class": "NodeSocketFloat",
-            "default_value": 0.2,
-            "identifier": "Input_9",
-            "max_value": 10000.0,
-            "min_value": -10000.0,
-            "name": "SubSurfaceRadiusY",
-            "value_type": "VALUE"
-        }
-    },
-    "outputs": {
-        "Output_0": {
-            "class": "NodeSocketVector",
-            "default_value": [
-                0.0,
-                0.0,
-                0.0
-            ],
-            "identifier": "Output_0",
-            "name": "SubsurfaceRadius",
-            "value_type": "VECTOR"
-        },
-        "Output_1": {
-            "class": "NodeSocketFloat",
-            "default_value": 0.0,
-            "identifier": "Output_1",
-            "name": "SubsurfaceStrength",
-            "value_type": "VALUE"
-        },
-        "Output_2": {
-            "class": "NodeSocketColor",
-            "default_value": [
-                0.5,
-                0.5,
-                0.5,
-                1.0
-            ],
-            "identifier": "Output_2",
-            "name": "SubsurfaceColor",
-            "value_type": "RGBA"
-        },
-        "Output_3": {
-            "class": "NodeSocketFloat",
-            "default_value": 1.4,
-            "identifier": "Output_3",
-            "name": "SubsurfaceIor",
-            "value_type": "VALUE"
         }
     }
 }""")
@@ -237,10 +237,18 @@ _ORIGINAL_TREE_DEF = json.loads("""
     "nodes": [
         {
             "attribute_values": {
+                "color": [
+                    0.608,
+                    0.608,
+                    0.608
+                ],
+                "height": 100.0,
                 "location": [
                     -794.27,
                     296.3641
-                ]
+                ],
+                "use_custom_color": false,
+                "width": 140.0
             },
             "class": "MpfbCharacterInfo",
             "input_socket_values": {},
@@ -358,7 +366,7 @@ class _NodeWrapperMpfbSSSControl(AbstractGroupWrapper):
         nodes["Group Output"].location = [299.8103, 14.135]
         nodes["Group Input"].location = [-821.2342, -3.7404]
 
-        node("MpfbCharacterInfo", "Group.003", attribute_values={"location": [-794.27, 296.3641]})
+        node("MpfbCharacterInfo", "Group.003", attribute_values={"color": [0.608, 0.608, 0.608], "height": 100.0, "location": [-794.27, 296.3641], "use_custom_color": False, "width": 140.0})
         node("ShaderNodeCombineXYZ", "Combine XYZ", attribute_values={"location": [-265.9958, 338.3492]})
         node("ShaderNodeMath", "Math", attribute_values={"location": [-525.0374, 296.8846], "operation": "MULTIPLY"})
         node("ShaderNodeCombineXYZ", "Combine XYZ.001", attribute_values={"location": [-264.3076, 164.0919]}, input_socket_values={"X": 1.0, "Y": 0.2, "Z": 0.1})

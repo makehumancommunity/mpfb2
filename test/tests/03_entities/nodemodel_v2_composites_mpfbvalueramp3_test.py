@@ -13,6 +13,8 @@ def test_composite_can_create_instance():
     node = NodeWrapperMpfbValueRamp3.create_instance(node_tree)
     assert node
     assert node.node_tree.name == "MpfbValueRamp3"
+    assert "Group Input" in node.node_tree.nodes
+    assert "Group Output" in node.node_tree.nodes
     assert "Map Range" in node.node_tree.nodes
     assert "Math.003" in node.node_tree.nodes
     assert "Math" in node.node_tree.nodes
@@ -36,10 +38,8 @@ def test_composite_can_create_instance():
     assert "Math.019" in node.node_tree.nodes
     assert "Math.012" in node.node_tree.nodes
     assert "Math.006" in node.node_tree.nodes
-    assert "Group Output" in node.node_tree.nodes
     assert "Math.021" in node.node_tree.nodes
     assert "Math.018" in node.node_tree.nodes
-    assert "Group Input" in node.node_tree.nodes
     has_link_to_output = False
     for link in node.node_tree.links:
         if link.to_node.name == "Group Output":

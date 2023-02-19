@@ -2,10 +2,56 @@ import bpy, json
 
 _ORIGINAL_NODE_DEF = json.loads("""
 {
+    "class": "MpfbCharacterInfo",
+    "inputs": {},
+    "outputs": {
+        "Output_0": {
+            "name": "scale_factor",
+            "identifier": "Output_0",
+            "class": "NodeSocketFloat",
+            "value_type": "VALUE",
+            "default_value": 0.0
+        },
+        "Output_1": {
+            "name": "gender",
+            "identifier": "Output_1",
+            "class": "NodeSocketFloat",
+            "value_type": "VALUE",
+            "default_value": 0.0
+        },
+        "Output_2": {
+            "name": "age",
+            "identifier": "Output_2",
+            "class": "NodeSocketFloat",
+            "value_type": "VALUE",
+            "default_value": 0.0
+        },
+        "Output_3": {
+            "name": "height",
+            "identifier": "Output_3",
+            "class": "NodeSocketFloat",
+            "value_type": "VALUE",
+            "default_value": 0.0
+        },
+        "Output_4": {
+            "name": "weight",
+            "identifier": "Output_4",
+            "class": "NodeSocketFloat",
+            "value_type": "VALUE",
+            "default_value": 0.0
+        },
+        "Output_5": {
+            "name": "muscle",
+            "identifier": "Output_5",
+            "class": "NodeSocketFloat",
+            "value_type": "VALUE",
+            "default_value": 0.0
+        }
+    },
     "attributes": {
         "color": {
-            "class": "Color",
             "name": "color",
+            "class": "Color",
             "value": [
                 0.608,
                 0.608,
@@ -13,73 +59,27 @@ _ORIGINAL_NODE_DEF = json.loads("""
             ]
         },
         "height": {
-            "class": "float",
             "name": "height",
+            "class": "float",
             "value": 100.0
         },
         "location": {
-            "class": "Vector",
             "name": "location",
+            "class": "Vector",
             "value": [
-                -843.0322,
-                412.9678
+                -805.7254,
+                212.348
             ]
         },
         "use_custom_color": {
-            "class": "bool",
             "name": "use_custom_color",
+            "class": "bool",
             "value": false
         },
         "width": {
-            "class": "float",
             "name": "width",
+            "class": "float",
             "value": 140.0
-        }
-    },
-    "class": "MpfbCharacterInfo",
-    "inputs": {},
-    "outputs": {
-        "Output_0": {
-            "class": "NodeSocketFloat",
-            "default_value": 0.0,
-            "identifier": "Output_0",
-            "name": "scale_factor",
-            "value_type": "VALUE"
-        },
-        "Output_1": {
-            "class": "NodeSocketFloat",
-            "default_value": 0.0,
-            "identifier": "Output_1",
-            "name": "gender",
-            "value_type": "VALUE"
-        },
-        "Output_2": {
-            "class": "NodeSocketFloat",
-            "default_value": 0.0,
-            "identifier": "Output_2",
-            "name": "age",
-            "value_type": "VALUE"
-        },
-        "Output_3": {
-            "class": "NodeSocketFloat",
-            "default_value": 0.0,
-            "identifier": "Output_3",
-            "name": "height",
-            "value_type": "VALUE"
-        },
-        "Output_4": {
-            "class": "NodeSocketFloat",
-            "default_value": 0.0,
-            "identifier": "Output_4",
-            "name": "weight",
-            "value_type": "VALUE"
-        },
-        "Output_5": {
-            "class": "NodeSocketFloat",
-            "default_value": 0.0,
-            "identifier": "Output_5",
-            "name": "muscle",
-            "value_type": "VALUE"
         }
     }
 }""")
@@ -127,54 +127,6 @@ _ORIGINAL_TREE_DEF = json.loads("""
     "nodes": [
         {
             "attribute_values": {
-                "attribute_name": "MPFB_GEN_scale_factor",
-                "attribute_type": "OBJECT",
-                "location": [
-                    -144.1031,
-                    537.2661
-                ],
-                "width": 294.1801
-            },
-            "class": "ShaderNodeAttribute",
-            "input_socket_values": {},
-            "label": "scale_factor",
-            "name": "scale_factor",
-            "output_socket_values": {}
-        },
-        {
-            "attribute_values": {
-                "attribute_name": "MPFB_HUM_gender",
-                "attribute_type": "OBJECT",
-                "location": [
-                    -144.1031,
-                    352.8013
-                ],
-                "width": 294.1801
-            },
-            "class": "ShaderNodeAttribute",
-            "input_socket_values": {},
-            "label": "gender",
-            "name": "gender",
-            "output_socket_values": {}
-        },
-        {
-            "attribute_values": {
-                "attribute_name": "MPFB_HUM_weight",
-                "attribute_type": "OBJECT",
-                "location": [
-                    -144.103,
-                    -200.5927
-                ],
-                "width": 294.1801
-            },
-            "class": "ShaderNodeAttribute",
-            "input_socket_values": {},
-            "label": "weight",
-            "name": "weight",
-            "output_socket_values": {}
-        },
-        {
-            "attribute_values": {
                 "location": [
                     -344.1031,
                     73.5843
@@ -188,13 +140,70 @@ _ORIGINAL_TREE_DEF = json.loads("""
         },
         {
             "attribute_values": {
+                "location": [
+                    380.4579,
+                    83.6644
+                ]
+            },
+            "class": "NodeGroupOutput",
+            "input_socket_values": {},
+            "label": "Group Output",
+            "name": "Group Output",
+            "output_socket_values": {}
+        },
+        {
+            "attribute_values": {
+                "attribute_name": "MPFB_GEN_scale_factor",
+                "attribute_type": "OBJECT",
+                "location": [
+                    -144.103,
+                    537.266
+                ]
+            },
+            "class": "ShaderNodeAttribute",
+            "input_socket_values": {},
+            "label": "scale_factor",
+            "name": "scale_factor",
+            "output_socket_values": {}
+        },
+        {
+            "attribute_values": {
+                "attribute_name": "MPFB_HUM_gender",
+                "attribute_type": "OBJECT",
+                "location": [
+                    -144.103,
+                    352.801
+                ]
+            },
+            "class": "ShaderNodeAttribute",
+            "input_socket_values": {},
+            "label": "gender",
+            "name": "gender",
+            "output_socket_values": {}
+        },
+        {
+            "attribute_values": {
+                "attribute_name": "MPFB_HUM_weight",
+                "attribute_type": "OBJECT",
+                "location": [
+                    -144.103,
+                    -200.593
+                ]
+            },
+            "class": "ShaderNodeAttribute",
+            "input_socket_values": {},
+            "label": "weight",
+            "name": "weight",
+            "output_socket_values": {}
+        },
+        {
+            "attribute_values": {
                 "attribute_name": "MPFB_HUM_muscle",
                 "attribute_type": "OBJECT",
                 "location": [
-                    -142.0875,
-                    -390.0974
-                ],
-                "width": 294.1801
+                    -142.088,
+                    -390.097
+                ]
             },
             "class": "ShaderNodeAttribute",
             "input_socket_values": {},
@@ -207,10 +216,9 @@ _ORIGINAL_TREE_DEF = json.loads("""
                 "attribute_name": "MPFB_HUM_age",
                 "attribute_type": "OBJECT",
                 "location": [
-                    -143.0953,
-                    169.3447
-                ],
-                "width": 294.1801
+                    -143.095,
+                    169.345
+                ]
             },
             "class": "ShaderNodeAttribute",
             "input_socket_values": {},
@@ -223,28 +231,14 @@ _ORIGINAL_TREE_DEF = json.loads("""
                 "attribute_name": "MPFB_HUM_height",
                 "attribute_type": "OBJECT",
                 "location": [
-                    -140.0721,
+                    -140.072,
                     -15.12
-                ],
-                "width": 294.1801
+                ]
             },
             "class": "ShaderNodeAttribute",
             "input_socket_values": {},
             "label": "height",
             "name": "height",
-            "output_socket_values": {}
-        },
-        {
-            "attribute_values": {
-                "location": [
-                    380.4579,
-                    83.6644
-                ]
-            },
-            "class": "NodeGroupOutput",
-            "input_socket_values": {},
-            "label": "Group Output",
-            "name": "Group Output",
             "output_socket_values": {}
         }
     ]
@@ -267,12 +261,12 @@ class _NodeWrapperMpfbCharacterInfo(AbstractGroupWrapper):
         nodes["Group Input"].location = [-344.1031, 73.5843]
         nodes["Group Output"].location = [380.4579, 83.6644]
 
-        node("ShaderNodeAttribute", "scale_factor", attribute_values={"attribute_name": "MPFB_GEN_scale_factor", "attribute_type": "OBJECT", "location": [-144.1031, 537.2661], "width": 294.1801})
-        node("ShaderNodeAttribute", "gender", attribute_values={"attribute_name": "MPFB_HUM_gender", "attribute_type": "OBJECT", "location": [-144.1031, 352.8013], "width": 294.1801})
-        node("ShaderNodeAttribute", "weight", attribute_values={"attribute_name": "MPFB_HUM_weight", "attribute_type": "OBJECT", "location": [-144.103, -200.5927], "width": 294.1801})
-        node("ShaderNodeAttribute", "muscle", attribute_values={"attribute_name": "MPFB_HUM_muscle", "attribute_type": "OBJECT", "location": [-142.0875, -390.0974], "width": 294.1801})
-        node("ShaderNodeAttribute", "age", attribute_values={"attribute_name": "MPFB_HUM_age", "attribute_type": "OBJECT", "location": [-143.0953, 169.3447], "width": 294.1801})
-        node("ShaderNodeAttribute", "height", attribute_values={"attribute_name": "MPFB_HUM_height", "attribute_type": "OBJECT", "location": [-140.0721, -15.12], "width": 294.1801})
+        node("ShaderNodeAttribute", "scale_factor", attribute_values={"attribute_name": "MPFB_GEN_scale_factor", "attribute_type": "OBJECT", "location": [-144.103, 537.266]})
+        node("ShaderNodeAttribute", "gender", attribute_values={"attribute_name": "MPFB_HUM_gender", "attribute_type": "OBJECT", "location": [-144.103, 352.801]})
+        node("ShaderNodeAttribute", "weight", attribute_values={"attribute_name": "MPFB_HUM_weight", "attribute_type": "OBJECT", "location": [-144.103, -200.593]})
+        node("ShaderNodeAttribute", "muscle", attribute_values={"attribute_name": "MPFB_HUM_muscle", "attribute_type": "OBJECT", "location": [-142.088, -390.097]})
+        node("ShaderNodeAttribute", "age", attribute_values={"attribute_name": "MPFB_HUM_age", "attribute_type": "OBJECT", "location": [-143.095, 169.345]})
+        node("ShaderNodeAttribute", "height", attribute_values={"attribute_name": "MPFB_HUM_height", "attribute_type": "OBJECT", "location": [-140.072, -15.12]})
 
         link("scale_factor", "Fac", "Group Output", "scale_factor")
         link("gender", "Fac", "Group Output", "gender")

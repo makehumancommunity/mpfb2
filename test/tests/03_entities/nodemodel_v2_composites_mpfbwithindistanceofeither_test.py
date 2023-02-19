@@ -13,16 +13,16 @@ def test_composite_can_create_instance():
     node = NodeWrapperMpfbWithinDistanceOfEither.create_instance(node_tree)
     assert node
     assert node.node_tree.name == "MpfbWithinDistanceOfEither"
+    assert "Group Input" in node.node_tree.nodes
+    assert "Group Output" in node.node_tree.nodes
     assert "WithinRange2" in node.node_tree.nodes
     assert "DistanceMultInRange1" in node.node_tree.nodes
     assert "InRangeOfEither" in node.node_tree.nodes
     assert "LeastDistance" in node.node_tree.nodes
-    assert "Group Output" in node.node_tree.nodes
     assert "Distance2" in node.node_tree.nodes
     assert "Distance1" in node.node_tree.nodes
     assert "WithinRange1" in node.node_tree.nodes
     assert "DistanceMultInRange2" in node.node_tree.nodes
-    assert "Group Input" in node.node_tree.nodes
     has_link_to_output = False
     for link in node.node_tree.links:
         if link.to_node.name == "Group Output":
