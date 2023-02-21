@@ -12,7 +12,6 @@ import bpy, os, json, pprint
 from string import Template
 
 _LOG = LogService.get_logger("developer.operators.writecomposite")
-_LOG.set_level(LogService.DEBUG)
 
 def _identify_socket(all_sockets, socket):
     name_count = 0

@@ -4,7 +4,6 @@ from mpfb.services.nodeservice import NodeService
 from mpfb.entities.nodemodel.v2.primitives import *
 
 _LOG = LogService.get_logger("nodemodel.v2.abstractgroupwrapper")
-_LOG.set_level(LogService.INFO)
 
 _SOCKET_TYPES=[
     "NodeSocketBool",

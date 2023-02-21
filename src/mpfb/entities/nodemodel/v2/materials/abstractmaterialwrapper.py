@@ -5,7 +5,6 @@ from mpfb.entities.nodemodel.v2.primitives import *
 from mpfb.entities.nodemodel.v2.composites import *
 
 _LOG = LogService.get_logger("nodemodel.v2.abstractmaterialwrapper")
-_LOG.set_level(LogService.DEBUG)
 
 class AbstractMaterialWrapper(AbstractGroupWrapper):
 

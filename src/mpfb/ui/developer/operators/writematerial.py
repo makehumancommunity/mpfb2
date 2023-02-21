@@ -13,7 +13,6 @@ import bpy, os, json, pprint
 from string import Template
 
 _LOG = LogService.get_logger("developer.operators.writematerial")
-_LOG.set_level(LogService.DEBUG)
 
 class MPFB_OT_Write_Material_Operator(bpy.types.Operator):
     """Generate the code representing a material to the materials directory"""

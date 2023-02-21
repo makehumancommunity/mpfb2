@@ -10,7 +10,6 @@ import bpy, os, json, pprint
 from string import Template
 
 _LOG = LogService.get_logger("developer.operators.replacewithskin")
-_LOG.set_level(LogService.DEBUG)
 
 class MPFB_OT_Replace_With_Skin_Operator(bpy.types.Operator):
     """Wipe current node tree and insert v2 skin material"""

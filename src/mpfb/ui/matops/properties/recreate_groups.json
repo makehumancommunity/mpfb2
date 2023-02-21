@@ -1,0 +1,7 @@
+{
+    "type": "boolean",
+    "name": "recreate_groups",
+    "description": "Before creating the material, actively destroy all node groups which might collide with the new material's node setup. WARNING: This will break existing materials which uses these groups",
+    "label": "Recreate groups",
+    "default": true
+}

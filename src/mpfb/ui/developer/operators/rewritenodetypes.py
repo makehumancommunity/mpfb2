@@ -11,7 +11,6 @@ from string import Template
 from pprint import pprint
 
 _LOG = LogService.get_logger("developer.operators.rewritenodetypes")
-_LOG.set_level(LogService.DEBUG)
 
 def shorten_name(original_name):
     return original_name.replace("NodeWrapperShaderNode", "sn")

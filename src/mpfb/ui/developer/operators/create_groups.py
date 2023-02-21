@@ -7,7 +7,6 @@ import bpy
 from string import Template
 
 _LOG = LogService.get_logger("developer.operators.creategroups")
-_LOG.set_level(LogService.DEBUG)
 
 class MPFB_OT_Create_Groups_Operator(bpy.types.Operator):
     """Ensure v2 node groups exist."""

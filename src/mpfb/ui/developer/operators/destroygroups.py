@@ -9,7 +9,6 @@ import bpy, os, json, pprint
 from string import Template
 
 _LOG = LogService.get_logger("developer.operators.destroygroups")
-_LOG.set_level(LogService.DEBUG)
 
 class MPFB_OT_Destroy_Groups_Operator(bpy.types.Operator):
     """Remove all groups starting with mpfb"""
