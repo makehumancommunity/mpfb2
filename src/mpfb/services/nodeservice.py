@@ -670,6 +670,19 @@ class NodeService:
         return nodes[0]
 
     @staticmethod
+    def find_first_group_node_by_tree_name(node_tree, tree_name):
+        """Find the first ShaderNodeGroup with the indicated node tree."""
+        _LOG.enter()
+        nodes = NodeService.find_nodes_by_type_name(node_tree, "ShaderNodeGroup")
+        if nodes is None or len(nodes) < 1:
+            _LOG.debug("Got an empty list of group nodes")
+            return None
+        for node in nodes:
+            if node.node_tree.name == tree_name:
+                return node
+        return None
+
+    @staticmethod
     def find_nodes_by_class(node_tree, type_class):
         """Return an array with all nodes of the given type class in the node tree."""
         _LOG.enter()
