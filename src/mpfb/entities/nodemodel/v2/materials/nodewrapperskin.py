@@ -4,18 +4,6 @@ _ORIGINAL_TREE_DEF = json.loads("""
 {
     "links": [
         {
-            "from_node": "Texture Coordinate",
-            "from_socket": "UV",
-            "to_node": "Image Texture",
-            "to_socket": "Vector"
-        },
-        {
-            "from_node": "Image Texture",
-            "from_socket": "Color",
-            "to_node": "colorgroup",
-            "to_socket": "DiffuseTexture"
-        },
-        {
             "from_node": "colorgroup",
             "from_socket": "SkinColor",
             "to_node": "bodygroup",
@@ -209,36 +197,6 @@ _ORIGINAL_TREE_DEF = json.loads("""
         }
     ],
     "nodes": [
-        {
-            "attribute_values": {
-                "image": {
-                    "colorspace": "sRGB",
-                    "filepath": "/home/joepal/source/makehuman/ComPlug/mpfb-dev-blends/materials/images/skin-reference.png"
-                },
-                "location": [
-                    -556.7543,
-                    602.395
-                ]
-            },
-            "class": "ShaderNodeTexImage",
-            "input_socket_values": {},
-            "label": "Image Texture",
-            "name": "Image Texture",
-            "output_socket_values": {}
-        },
-        {
-            "attribute_values": {
-                "location": [
-                    -901.2983,
-                    425.4302
-                ]
-            },
-            "class": "ShaderNodeTexCoord",
-            "input_socket_values": {},
-            "label": "Texture Coordinate",
-            "name": "Texture Coordinate",
-            "output_socket_values": {}
-        },
         {
             "attribute_values": {
                 "location": [
@@ -520,8 +478,6 @@ class _NodeWrapperSkin(AbstractMaterialWrapper):
 
         nodes["Material Output"].location = [1758.3746, 1035.8737]
 
-        node("ShaderNodeTexImage", "Image Texture", attribute_values={"image": {"filepath": "/home/joepal/source/makehuman/ComPlug/mpfb-dev-blends/materials/images/skin-reference.png", "colorspace": "sRGB"}, "location": [-556.7543, 602.395]})
-        node("ShaderNodeTexCoord", "Texture Coordinate", attribute_values={"location": [-901.2983, 425.4302]})
         node("ShaderNodeNormalMap", "masternormal", label="Master normal map", attribute_values={"location": [-144.3002, 132.2753], "width": 293.9103})
         node("MpfbBodySectionsRouter", "BodySectionsRouter", label="Final Shader", attribute_values={"color": [0.608, 0.608, 0.608], "height": 100.0, "location": [1376.2086, 1011.9443], "use_custom_color": False, "width": 282.3828})
         node("MpfbBody", "bodygroup", label="Body Settings", attribute_values={"color": [0.608, 0.608, 0.608], "height": 100.0, "location": [711.826, 2404.9126], "use_custom_color": False, "width": 315.4109}, input_socket_values={"ColorVariationStrength": 0.25, "ColorVariationScaleMultiplier": 35.0})
@@ -534,8 +490,6 @@ class _NodeWrapperSkin(AbstractMaterialWrapper):
         node("MpfbNails", "fingernailsgroup", label="Fingernails Settings", attribute_values={"color": [0.608, 0.608, 0.608], "height": 100.0, "location": [705.4062, -841.0432], "use_custom_color": False, "width": 320.2273})
         node("MpfbAureolae", "aureolaegroup", label="Aureolae Settings", attribute_values={"color": [0.608, 0.608, 0.608], "height": 100.0, "location": [706.7771, -442.8696], "use_custom_color": False, "width": 323.4169})
 
-        link("Texture Coordinate", "UV", "Image Texture", "Vector")
-        link("Image Texture", "Color", "colorgroup", "DiffuseTexture")
         link("colorgroup", "SkinColor", "bodygroup", "SkinColor")
         link("colorgroup", "NavelCenterColor", "bodygroup", "NavelCenterColor")
         link("colorgroup", "AureolaeColor", "aureolaegroup", "Color")

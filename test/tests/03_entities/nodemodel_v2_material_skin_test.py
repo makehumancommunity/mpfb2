@@ -11,8 +11,6 @@ def test_composite_can_create_instance():
     node_tree_name = ObjectService.random_name()
     node_tree = NodeService.create_node_tree(node_tree_name)
     NodeWrapperSkin.create_instance(node_tree)
-    assert "Image Texture" in node_tree.nodes
-    assert "Texture Coordinate" in node_tree.nodes
     assert "Material Output" in node_tree.nodes
     assert "masternormal" in node_tree.nodes
     assert "BodySectionsRouter" in node_tree.nodes
