@@ -191,8 +191,8 @@ class NodeService:
                         fp = NodeService.get_image_file_path(node)
                         if fp:
                             attribute["value"]["filepath"] = fp
-                        if image.colorspace_settings and image.colorspace_settings.name:
-                            attribute["value"]["colorspace"] = image.colorspace_settings.name
+                        if node.image.colorspace_settings and node.image.colorspace_settings.name:
+                            attribute["value"]["colorspace"] = node.image.colorspace_settings.name
 
         return node_info
 
@@ -416,6 +416,7 @@ class NodeService:
             _LOG.debug("Will attempt to load file", node_info["filename"])
             if os.path.exists(node_info["filename"]):
                 image = bpy.data.images.load(node_info["filename"])
+                _LOG.debug("Image after loading file", image)
             else:
                 _LOG.error("File does not exist:", node_info["filename"])
                 return
