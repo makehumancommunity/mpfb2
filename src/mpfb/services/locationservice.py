@@ -32,7 +32,15 @@ class _LocationService():
         script_location = os.path.dirname(__file__)
 
         self._mpfb_root = os.path.abspath(os.path.join(script_location, ".."))
-        self._repo_src = os.path.abspath(os.path.realpath(os.path.join(self._mpfb_root, '..')))
+        
+        # In developer environments it makes sense to make a symlink in blender's addon directory
+        # pointing to the src/mpfb directory. On sensible platforms, resolving this with 
+        # or.path.realpath works fine, but windows symlinks are not resolvable this way.         
+        modroot = self._mpfb_root                
+        if os.path.islink(modroot):
+            modroot = os.readlink(modroot)
+        
+        self._repo_src = os.path.abspath(os.path.realpath(os.path.join(modroot, '..')))
         self._repo_root = os.path.abspath(os.path.join(self._repo_src, '..'))
         self._test_root = os.path.abspath(os.path.join(self._repo_root, 'test'))
 
