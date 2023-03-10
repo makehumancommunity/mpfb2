@@ -1,0 +1,16 @@
+# This is a target file for MakeHuman
+#
+# It was written by the MakeTarget submodule of MPFB
+#
+# For more information, see MakeHuman's home page at http://www.makehumancommunity.org
+#
+# basemesh hm08
+293 -0.0102 0.0087 0.0269
+294 -0.0 0.0081 0.0296
+296 -0.0086 -0.008 0.0311
+297 -0.0 -0.0094 0.0331
+5052 -0.0098 0.0004 0.0304
+5054 -0.0 -0.0008 0.0328
+7061 0.0102 0.0087 0.0269
+7063 0.0086 -0.008 0.0311
+11670 0.0098 0.0004 0.0304

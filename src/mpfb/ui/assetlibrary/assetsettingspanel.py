@@ -53,10 +53,11 @@ class MPFB_PT_Asset_Settings_Panel(Abstract_Panel):
             "procedural_eyes"
             ])
 
-    def _packs(self, scene, layout):
+    def _assets(self, scene, layout):
         box = layout.box()
-        box.label(text="Asset packs")
+        box.label(text="Install assets")
         box.operator("mpfb.load_pack")
+        box.operator("mpfb.install_target")
 
     def draw(self, context):
         _LOG.enter()
@@ -65,7 +66,7 @@ class MPFB_PT_Asset_Settings_Panel(Abstract_Panel):
         self._draw_skin(scene, layout)
         self._draw_eyes(scene, layout)
         self._draw_mhclo(scene, layout)
-        self._packs(scene, layout)
+        self._assets(scene, layout)
 
 
 ClassManager.add_class(MPFB_PT_Asset_Settings_Panel)
