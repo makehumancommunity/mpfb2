@@ -218,7 +218,7 @@ class TargetService:
             vert_info["scaled_coordinate_difference"] = vert_info["coordinate_difference"] * (1.0 / scale_factor)
             coord = vert_info["scaled_coordinate_difference"]
 
-            vert_info["normalized_total_difference"] = abs(coord[0]) + abs(coord[1]) + abs(coord[1])
+            vert_info["normalized_total_difference"] = abs(coord[0]) + abs(coord[1]) + abs(coord[2])
 
             if not only_modified_verts or vert_info["normalized_total_difference"] > smaller_than_counts_as_unmodified:
                 info["vertices"].append(vert_info)
