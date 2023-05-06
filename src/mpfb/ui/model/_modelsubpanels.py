@@ -37,11 +37,16 @@ class _Abstract_Model_Panel(bpy.types.Panel):
     def _draw_category(self, scene, layout, category, basemesh):
         box = layout.box()
         box.label(text=category["label"])
-        if category["name"] in MODELING_ICONS:
-            image = MODELING_ICONS[category["name"]]
-            box.template_icon(icon_value=image.icon_id, scale=6.0)
-        else:
-            _LOG.dump("No image for ", category["name"])
+
+        from mpfb.ui.model.modelpanel import MODEL_PROPERTIES
+        hideimg = MODEL_PROPERTIES.get_value("hideimg", entity_reference=bpy.context.scene)
+
+        if not hideimg:
+            if category["name"] in MODELING_ICONS:
+                image = MODELING_ICONS[category["name"]]
+                box.template_icon(icon_value=image.icon_id, scale=6.0)
+            else:
+                _LOG.dump("No image for ", category["name"])
 
         if category["has_left_and_right"]:
             box.prop(scene, UiService.as_valid_identifier(self.section_name + ".l-" + category["name"]), text="Left:")

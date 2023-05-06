@@ -33,7 +33,8 @@ class MPFB_PT_Model_Panel(bpy.types.Panel):
         props = [
             "prune",
             "refit",
-            "symmetry"
+            "symmetry",
+            "hideimg"
             ]
         MODEL_PROPERTIES.draw_properties(scene, box, props)
 
