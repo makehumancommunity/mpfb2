@@ -41,7 +41,7 @@ class _Abstract_Model_Panel(bpy.types.Panel):
             image = MODELING_ICONS[category["name"]]
             box.template_icon(icon_value=image.icon_id, scale=6.0)
         else:
-            _LOG.debug("No image for ", category["name"])
+            _LOG.dump("No image for ", category["name"])
 
         if category["has_left_and_right"]:
             box.prop(scene, UiService.as_valid_identifier(self.section_name + ".l-" + category["name"]), text="Left:")
@@ -89,7 +89,9 @@ if len(custom_targets) > 0:
 
 def _set_simple_modifier_value(scene, blender_object, section, category, value, side="unsided", load_target_if_needed=True):
     """This modifier is not a combination of opposing targets ("decr-incr", "in-out"...)"""
+    _LOG.debug("_set_simple_modifier_value", (section, category, value, side))
     name = category["name"]
+
     if side == "right":
         name = "r-" + name
     if side == "left":
@@ -134,33 +136,44 @@ def _get_opposed_modifier_value(scene, blender_object, section, category, side="
 
 def _set_opposed_modifier_value(scene, blender_object, section, category, value, side="unsided"):
     """This modifier is a combination of opposing targets ("decr-incr", "in-out"...)"""
-    positive = category["opposites"]["positive-" + side]
-    negative = category["opposites"]["negative-" + side]
+    _LOG.debug("_set_opposed_modifier_value", (section, category, value, side))
 
     from mpfb.ui.model.modelpanel import MODEL_PROPERTIES
     prune = MODEL_PROPERTIES.get_value("prune", entity_reference=bpy.context.scene)
+    symmetry = MODEL_PROPERTIES.get_value("symmetry", entity_reference=bpy.context.scene)
 
-    if value < 0.0001 and TargetService.has_target(blender_object, positive):
-        TargetService.set_target_value(blender_object, positive, 0.0, delete_target_on_zero=prune)
+    sides = [side]
+    if category["has_left_and_right"] and symmetry:
+        if side == "left":
+            sides.append("right")
+        if side == "right":
+            sides.append("left")
 
-    if value > -0.0001 and TargetService.has_target(blender_object, negative):
-        TargetService.set_target_value(blender_object, negative, 0.0, delete_target_on_zero=prune)
+    for side in sides:
+        positive = category["opposites"]["positive-" + side]
+        negative = category["opposites"]["negative-" + side]
 
-    if value > 0.0:
-        if not TargetService.has_target(blender_object, positive):
-            target_path = os.path.join(_TARGETS_DIR, section, positive + ".target.gz")
-            _LOG.debug("Will implicitly attempt a load of a system target", target_path)
-            TargetService.load_target(blender_object, target_path, weight=value, name=positive)
-        else:
-            TargetService.set_target_value(blender_object, positive, value, delete_target_on_zero=prune)
+        if value < 0.0001 and TargetService.has_target(blender_object, positive):
+            TargetService.set_target_value(blender_object, positive, 0.0, delete_target_on_zero=prune)
 
-    if value < 0.0:
-        if not TargetService.has_target(blender_object, negative):
-            target_path = os.path.join(_TARGETS_DIR, section, negative + ".target.gz")
-            _LOG.debug("Will implicitly attempt a load of a system target", target_path)
-            TargetService.load_target(blender_object, target_path, weight=abs(value), name=negative)
-        else:
-            TargetService.set_target_value(blender_object, negative, abs(value), delete_target_on_zero=prune)
+        if value > -0.0001 and TargetService.has_target(blender_object, negative):
+            TargetService.set_target_value(blender_object, negative, 0.0, delete_target_on_zero=prune)
+
+        if value > 0.0:
+            if not TargetService.has_target(blender_object, positive):
+                target_path = os.path.join(_TARGETS_DIR, section, positive + ".target.gz")
+                _LOG.debug("Will implicitly attempt a load of a system target", target_path)
+                TargetService.load_target(blender_object, target_path, weight=value, name=positive)
+            else:
+                TargetService.set_target_value(blender_object, positive, value, delete_target_on_zero=prune)
+
+        if value < 0.0:
+            if not TargetService.has_target(blender_object, negative):
+                target_path = os.path.join(_TARGETS_DIR, section, negative + ".target.gz")
+                _LOG.debug("Will implicitly attempt a load of a system target", target_path)
+                TargetService.load_target(blender_object, target_path, weight=abs(value), name=negative)
+            else:
+                TargetService.set_target_value(blender_object, negative, abs(value), delete_target_on_zero=prune)
 
 
 def _set_modifier_value(scene, blender_object, section, category, value, side="unsided"):

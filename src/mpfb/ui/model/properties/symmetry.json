@@ -1,0 +1,7 @@
+{
+    "type": "boolean",
+    "name": "symmetry",
+    "description": "When changing a modeling slider, automatically also change the opposing side's slider. Toggling this will not affect previously set values",
+    "label": "Left/right symmetry",
+    "default": false
+}

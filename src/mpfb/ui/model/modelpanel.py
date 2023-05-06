@@ -32,7 +32,8 @@ class MPFB_PT_Model_Panel(bpy.types.Panel):
         box = self._create_box(layout, "Settings")
         props = [
             "prune",
-            "refit"
+            "refit",
+            "symmetry"
             ]
         MODEL_PROPERTIES.draw_properties(scene, box, props)
 
