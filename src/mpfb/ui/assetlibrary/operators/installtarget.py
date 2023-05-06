@@ -10,7 +10,7 @@ from mpfb import ClassManager
 _LOG = LogService.get_logger("assetlibrary.installtarget")
 
 class MPFB_OT_Install_Target_Operator(bpy.types.Operator, ImportHelper):
-    """Install a custom target from a target file. Note that Blender need to be restarted for the 
+    """Install a custom target from a target file. Note that Blender need to be restarted for the
     target to be visible in the custom target list"""
     bl_idname = "mpfb.install_target"
     bl_label = "Install custom target"
@@ -29,20 +29,20 @@ class MPFB_OT_Install_Target_Operator(bpy.types.Operator, ImportHelper):
             return {'FINISHED'}
 
         _LOG.debug("filepath", self.filepath)
-                
+
         custom_dir = LocationService.get_user_data("custom")
-        
+
         _LOG.debug("custom_dir", custom_dir)
-        
+
         if not os.path.exists(custom_dir):
             os.makedirs(custom_dir)
-            
+
         target = os.path.join(custom_dir, os.path.basename(self.filepath))
-        
+
         _LOG.debug("target", target)
-        
+
         shutil.copy(self.filepath, target)
-    
+
         self.report({'INFO'}, "The target has been installed, but Blender needs to be restarted for it to be visible.")
         return {'FINISHED'}
 

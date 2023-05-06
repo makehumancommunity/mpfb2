@@ -30,9 +30,9 @@ class _LocationService():
         self._log_dir = os.path.join(self._user_home, "logs")
 
         script_location = os.path.dirname(__file__)
-        
-        self._mpfb_root = Path(os.path.join(script_location, "..")).resolve()                    
-        
+
+        self._mpfb_root = Path(os.path.join(script_location, "..")).resolve()
+
         self._repo_src = os.path.abspath(os.path.realpath(os.path.join(self._mpfb_root, '..')))
         self._repo_root = os.path.abspath(os.path.join(self._repo_src, '..'))
         self._test_root = os.path.abspath(os.path.join(self._repo_root, 'test'))
