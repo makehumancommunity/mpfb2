@@ -4,7 +4,7 @@ MPFB2 is a free and open source human generator for Blender. For documentation a
 [home page](http://static.makehumancommunity.org/mpfb.html)
 
 In order to get up and running quickly, see the [quick start](http://static.makehumancommunity.org/mpfb/docs/getting_started.html) guide. 
-The quick start guide is also where you can find download links.
+The quick start guide is also where you can find download links. There is also a [getting started video tutorial](https://www.youtube.com/watch?v=9jmTdhVjAsI) on youtube.
 
 Note that MPFB 2 requires a Blender version of at least 3.0.
 
