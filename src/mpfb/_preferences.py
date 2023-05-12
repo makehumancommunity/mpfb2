@@ -40,6 +40,12 @@ class MpfbPreferences(bpy.types.AddonPreferences):
         default=False
     )
 
+    mpfb_shelf_label: bpy.props.StringProperty(
+        name="Shelf label",
+        description="If you want to use a different name for the MPFB shelf tab, you can enter any non-empty string here",
+        default=""
+    )
+
     def draw(self, context):
         layout = self.layout
         layout.label(text='You need to restart blender before changes below come into effect.')
@@ -47,5 +53,6 @@ class MpfbPreferences(bpy.types.AddonPreferences):
 #        layout.prop(self, 'multi_panel')
         layout.prop(self, 'mpfb_user_data')
         layout.prop(self, 'mpfb_excepthook')
+        layout.prop(self, 'mpfb_shelf_label')
         layout.prop(self, 'mh_user_data')
         layout.prop(self, 'mh_auto_user_data')

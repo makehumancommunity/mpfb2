@@ -16,6 +16,11 @@ class _UiService():
         self.set_value("PROPERTYPREFIX", "MPFB_")
         ui_prefix = "MPFB v%d.%d-a%d" % (VERSION[0], VERSION[1], VERSION[2])
 
+        label = get_preference("mpfb_shelf_label")
+        _LOG.debug("Shelf label", label)
+        if label and not str(label).strip() == "":
+            ui_prefix = label
+
         multi = False #get_preference("multi_panel")
         _LOG.debug("multi_panel", multi)
 
