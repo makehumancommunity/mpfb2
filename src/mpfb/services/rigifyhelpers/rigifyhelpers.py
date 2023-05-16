@@ -40,6 +40,9 @@ class RigifyHelpers():
     def convert_to_rigify(self, armature_object):
         _LOG.enter()
 
+        from mpfb.entities.objectproperties import GeneralObjectProperties
+        scale_factor = GeneralObjectProperties.get_value("scale_factor", entity_reference=armature_object)
+
         self._setup_spine(armature_object)
         self._setup_arms(armature_object)
         self._setup_legs(armature_object)
@@ -74,6 +77,9 @@ class RigifyHelpers():
 
             if not self.keep_meta:
                 bpy.data.objects.remove(armature_object, do_unlink=True)
+
+            GeneralObjectProperties.set_value("scale_factor", scale_factor, entity_reference=rigify_object)
+            GeneralObjectProperties.set_value("object_type", "Skeleton", entity_reference=rigify_object)
 
     @staticmethod
     def adjust_children_for_rigify(rigify_object, armature_object):

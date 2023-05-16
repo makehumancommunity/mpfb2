@@ -686,6 +686,7 @@ class RigService:
             ["RThumb", "cmu_mb"],
             ["brow.T.R.002", "rigify.human"],
             ["brow.T.R.002", "toe2-1.L", "rigify.human_toes"],
+            ["ORG-clavicle_l", "rigify_generated.game_engine"],
             ["ORG-brow.T.R.002", "rigify_generated.human"],
             ["ORG-brow.T.R.002", "ORG-toe2-1.L", "rigify_generated.human_toes"]
             ]
