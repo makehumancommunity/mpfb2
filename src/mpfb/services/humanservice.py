@@ -628,7 +628,7 @@ class HumanService:
         if not skin_type or skin_type == "NONE":
             return
 
-        material_instances = (skin_type == "ENHANCED")
+        material_instances = skin_type != "LAYERED"
 
         slot_overrides = None
         if "skin_material_settings" in human_info:

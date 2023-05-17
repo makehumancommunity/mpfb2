@@ -32,6 +32,9 @@ class MPFB_OT_Load_Library_Skin_Operator(bpy.types.Operator):
         basemesh = ObjectService.find_object_of_type_amongst_nearest_relatives(blender_object, "Basemesh")
         bodyproxy = ObjectService.find_object_of_type_amongst_nearest_relatives(blender_object, "Proxymeshes")
 
+        if skin_type == "LAYERED":
+            material_instances = False
+
         HumanService.set_character_skin(self.filepath, basemesh, bodyproxy=bodyproxy, skin_type=skin_type, material_instances=material_instances)
 
         self.report({'INFO'}, "Skin was loaded")
