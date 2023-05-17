@@ -677,9 +677,20 @@ class HumanService:
         profiler.leave("_load_targets")
 
     @staticmethod
-    def deserialize_from_dict(human_info, mask_helpers=True, detailed_helpers=True, extra_vertex_groups=True, feet_on_ground=True, scale=0.1, subdiv_levels=1, load_clothes=True):
+    def deserialize_from_dict(human_info, deserialization_settings):
+
+        _LOG.debug("Deserialization settings", deserialization_settings)
+
         profiler = PrimitiveProfiler("HumanService")
         profiler.enter("deserialize_from_dict")
+
+        mask_helpers = deserialization_settings["mask_helpers"]
+        detailed_helpers = deserialization_settings["detailed_helpers"]
+        extra_vertex_groups = deserialization_settings["extra_vertex_groups"]
+        feet_on_ground = deserialization_settings["feet_on_ground"]
+        scale = deserialization_settings["scale"]
+        subdiv_levels = deserialization_settings["subdiv_levels"]
+        load_clothes = deserialization_settings["load_clothes"]
 
         if human_info is None:
             raise ValueError('Cannot use None as human_info')
@@ -725,7 +736,22 @@ class HumanService:
         return basemesh
 
     @staticmethod
-    def deserialize_from_json_file(filename, mask_helpers=True, detailed_helpers=True, extra_vertex_groups=True, feet_on_ground=True, scale=0.1, subdiv_levels=1, load_clothes=True):
+    def get_default_deserialization_settings():
+        return {
+            "mask_helpers": True,
+            "detailed_helpers": True,
+            "extra_vertex_groups": True,
+            "feet_on_ground": True,
+            "scale": 0.1,
+            "subdiv_levels": 1,
+            "load_clothes": True,
+            "override_skin_model": "PRESET",
+            "override_rig": "PRESET"
+            }
+
+    @staticmethod
+    def deserialize_from_json_file(filename, deserialization_settings):
+        _LOG.debug("Deserialization settings", deserialization_settings)
         if not os.path.exists(filename):
             raise IOError(str(filename) + " does not exist")
         human_info = None
@@ -734,7 +760,7 @@ class HumanService:
         match = re.search(r'human\.([^/\\]*)\.json$', filename)
         name = match.group(1)
         human_info["name"] = name
-        return HumanService.deserialize_from_dict(human_info, mask_helpers, detailed_helpers, extra_vertex_groups, feet_on_ground, scale, subdiv_levels, load_clothes=load_clothes)
+        return HumanService.deserialize_from_dict(human_info, deserialization_settings)
 
     @staticmethod
     def _parse_mhm_modifier_line(human_info, line):

@@ -31,12 +31,14 @@ class MPFB_OT_HumanFromPresetsOperator(bpy.types.Operator):
             self.report({'ERROR'}, "Presets must be selected")
             return {'FINISHED'}
 
-        detailed_helpers = PRESETS_HUMAN_PROPERTIES.get_value("detailed_helpers", entity_reference=context.scene)
-        extra_vertex_groups = PRESETS_HUMAN_PROPERTIES.get_value("extra_vertex_groups", entity_reference=context.scene)
-        mask_helpers = PRESETS_HUMAN_PROPERTIES.get_value("mask_helpers", entity_reference=context.scene)
-        scale_factor = PRESETS_HUMAN_PROPERTIES.get_value("scale_factor", entity_reference=context.scene)
-        load_clothes = PRESETS_HUMAN_PROPERTIES.get_value("load_clothes", entity_reference=context.scene)
+        deserialization_settings = HumanService.get_default_deserialization_settings()
 
+        deserialization_settings["detailed_helpers"] = PRESETS_HUMAN_PROPERTIES.get_value("detailed_helpers", entity_reference=context.scene)
+        deserialization_settings["extra_vertex_groups"] = PRESETS_HUMAN_PROPERTIES.get_value("extra_vertex_groups", entity_reference=context.scene)
+        deserialization_settings["mask_helpers"] = PRESETS_HUMAN_PROPERTIES.get_value("mask_helpers", entity_reference=context.scene)
+        deserialization_settings["load_clothes"] = PRESETS_HUMAN_PROPERTIES.get_value("load_clothes", entity_reference=context.scene)
+
+        scale_factor = PRESETS_HUMAN_PROPERTIES.get_value("scale_factor", entity_reference=context.scene)
         scale = 0.1
 
         if scale_factor == "DECIMETER":
@@ -45,18 +47,16 @@ class MPFB_OT_HumanFromPresetsOperator(bpy.types.Operator):
         if scale_factor == "CENTIMETER":
             scale = 10.0
 
+        deserialization_settings["scale"] = scale
+
+        _LOG.debug("Deserialization settings", deserialization_settings)
+
         fullname = "human." + name + ".json"
         filename = LocationService.get_user_config(fullname)
 
         _LOG.debug("filename", filename)
 
-        basemesh = HumanService.deserialize_from_json_file(filename,
-                                                           mask_helpers=mask_helpers,
-                                                           detailed_helpers=detailed_helpers,
-                                                           extra_vertex_groups=extra_vertex_groups,
-                                                           feet_on_ground=True,
-                                                           scale=scale,
-                                                           load_clothes=load_clothes)
+        basemesh = HumanService.deserialize_from_json_file(filename, deserialization_settings)
 
         _LOG.debug("Basemesh", basemesh)
 
