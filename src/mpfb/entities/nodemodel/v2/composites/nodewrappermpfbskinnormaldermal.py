@@ -18,7 +18,9 @@ _ORIGINAL_NODE_DEF = json.loads("""
             "identifier": "Input_2",
             "class": "NodeSocketFloatFactor",
             "value_type": "VALUE",
-            "default_value": 0.15
+            "default_value": 0.15,
+            "min_value": 0.0,
+            "max_value": 1.0
         },
         "Input_3": {
             "name": "Normal",

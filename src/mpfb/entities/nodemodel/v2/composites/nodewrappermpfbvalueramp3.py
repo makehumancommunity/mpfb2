@@ -18,7 +18,7 @@ _ORIGINAL_NODE_DEF = json.loads("""
             "identifier": "Input_1",
             "class": "NodeSocketFloat",
             "value_type": "VALUE",
-            "default_value": 0.0,
+            "default_value": 1.0,
             "min_value": -3.4028234663852886e+38,
             "max_value": 3.4028234663852886e+38
         },
@@ -27,7 +27,7 @@ _ORIGINAL_NODE_DEF = json.loads("""
             "identifier": "Input_2",
             "class": "NodeSocketFloat",
             "value_type": "VALUE",
-            "default_value": 0.33,
+            "default_value": 1.0,
             "min_value": -3.4028234663852886e+38,
             "max_value": 3.4028234663852886e+38
         },
@@ -36,7 +36,7 @@ _ORIGINAL_NODE_DEF = json.loads("""
             "identifier": "Input_3",
             "class": "NodeSocketFloat",
             "value_type": "VALUE",
-            "default_value": 0.98,
+            "default_value": 0.4,
             "min_value": -3.4028234663852886e+38,
             "max_value": 3.4028234663852886e+38
         },
@@ -45,7 +45,7 @@ _ORIGINAL_NODE_DEF = json.loads("""
             "identifier": "Input_4",
             "class": "NodeSocketFloat",
             "value_type": "VALUE",
-            "default_value": 1.0,
+            "default_value": 0.0,
             "min_value": -3.4028234663852886e+38,
             "max_value": 3.4028234663852886e+38
         },
@@ -54,7 +54,7 @@ _ORIGINAL_NODE_DEF = json.loads("""
             "identifier": "Input_5",
             "class": "NodeSocketFloat",
             "value_type": "VALUE",
-            "default_value": 0.4,
+            "default_value": 0.45,
             "min_value": -3.4028234663852886e+38,
             "max_value": 3.4028234663852886e+38
         },
@@ -63,7 +63,7 @@ _ORIGINAL_NODE_DEF = json.loads("""
             "identifier": "Input_6",
             "class": "NodeSocketFloat",
             "value_type": "VALUE",
-            "default_value": 0.8,
+            "default_value": 0.7,
             "min_value": -3.4028234663852886e+38,
             "max_value": 3.4028234663852886e+38
         }
@@ -96,8 +96,8 @@ _ORIGINAL_NODE_DEF = json.loads("""
             "name": "location",
             "class": "Vector",
             "value": [
-                -42.5992,
-                235.1633
+                -20.4761,
+                -534.9553
             ]
         },
         "use_custom_color": {
@@ -108,7 +108,7 @@ _ORIGINAL_NODE_DEF = json.loads("""
         "width": {
             "name": "width",
             "class": "float",
-            "value": 208.9785
+            "value": 247.2069
         }
     }
 }""")

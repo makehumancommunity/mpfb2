@@ -39,14 +39,18 @@ _ORIGINAL_NODE_DEF = json.loads("""
             "identifier": "Input_10",
             "class": "NodeSocketFloatFactor",
             "value_type": "VALUE",
-            "default_value": 0.3
+            "default_value": 0.3,
+            "min_value": 0.0,
+            "max_value": 1.0
         },
         "Input_12": {
             "name": "LipsRoughness",
             "identifier": "Input_12",
             "class": "NodeSocketFloatFactor",
             "value_type": "VALUE",
-            "default_value": 0.4
+            "default_value": 0.4,
+            "min_value": 0.0,
+            "max_value": 1.0
         },
         "Input_13": {
             "name": "LipsSSSStrength",

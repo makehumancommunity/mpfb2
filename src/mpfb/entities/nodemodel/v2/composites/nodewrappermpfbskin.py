@@ -119,7 +119,9 @@ _ORIGINAL_NODE_DEF = json.loads("""
             "identifier": "Input_13",
             "class": "NodeSocketFloatFactor",
             "value_type": "VALUE",
-            "default_value": 0.6
+            "default_value": 0.6,
+            "min_value": 0.0,
+            "max_value": 1.0
         },
         "Input_14": {
             "name": "SpotScaleMultiplier",
@@ -153,7 +155,9 @@ _ORIGINAL_NODE_DEF = json.loads("""
             "identifier": "Input_17",
             "class": "NodeSocketFloatFactor",
             "value_type": "VALUE",
-            "default_value": 0.0
+            "default_value": 0.0,
+            "min_value": 0.0,
+            "max_value": 1.0
         },
         "Input_18": {
             "name": "SpotValley",
@@ -187,7 +191,9 @@ _ORIGINAL_NODE_DEF = json.loads("""
             "identifier": "Input_24",
             "class": "NodeSocketFloatFactor",
             "value_type": "VALUE",
-            "default_value": 0.1
+            "default_value": 0.1,
+            "min_value": 0.0,
+            "max_value": 1.0
         },
         "Input_25": {
             "name": "UnevennessDetail",
@@ -212,7 +218,9 @@ _ORIGINAL_NODE_DEF = json.loads("""
             "identifier": "Input_27",
             "class": "NodeSocketFloatFactor",
             "value_type": "VALUE",
-            "default_value": 0.0
+            "default_value": 0.0,
+            "min_value": 0.0,
+            "max_value": 1.0
         },
         "Input_28": {
             "name": "DermalScaleMultiplier",
@@ -228,7 +236,9 @@ _ORIGINAL_NODE_DEF = json.loads("""
             "identifier": "Input_29",
             "class": "NodeSocketFloatFactor",
             "value_type": "VALUE",
-            "default_value": 0.15
+            "default_value": 0.15,
+            "min_value": 0.0,
+            "max_value": 1.0
         },
         "Input_32": {
             "name": "SmallVeinScaleMultiplier",
@@ -262,7 +272,9 @@ _ORIGINAL_NODE_DEF = json.loads("""
             "identifier": "Input_35",
             "class": "NodeSocketFloatFactor",
             "value_type": "VALUE",
-            "default_value": 0.15
+            "default_value": 0.15,
+            "min_value": 0.0,
+            "max_value": 1.0
         },
         "Input_36": {
             "name": "ColorVariationScaleMultiplier",
@@ -305,7 +317,9 @@ _ORIGINAL_NODE_DEF = json.loads("""
             "identifier": "Input_40",
             "class": "NodeSocketFloatFactor",
             "value_type": "VALUE",
-            "default_value": 0.0
+            "default_value": 0.0,
+            "min_value": 0.0,
+            "max_value": 1.0
         }
     },
     "outputs": {

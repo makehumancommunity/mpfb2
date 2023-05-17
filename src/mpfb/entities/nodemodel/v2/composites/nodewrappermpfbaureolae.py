@@ -32,7 +32,9 @@ _ORIGINAL_NODE_DEF = json.loads("""
             "identifier": "Input_20",
             "class": "NodeSocketFloatFactor",
             "value_type": "VALUE",
-            "default_value": 0.45
+            "default_value": 0.45,
+            "min_value": 0.0,
+            "max_value": 1.0
         },
         "Input_21": {
             "name": "SSSStrength",
@@ -120,7 +122,9 @@ _ORIGINAL_NODE_DEF = json.loads("""
             "identifier": "Input_17",
             "class": "NodeSocketFloatFactor",
             "value_type": "VALUE",
-            "default_value": 0.3
+            "default_value": 0.3,
+            "min_value": 0.0,
+            "max_value": 1.0
         },
         "Input_18": {
             "name": "ColorVariationScale",
@@ -472,7 +476,6 @@ _ORIGINAL_TREE_DEF = json.loads("""
             "input_socket_values": {
                 "BetweenStop1Position": 0.5,
                 "BetweenStop1Value": 1.0,
-                "BetweenStop2Position": 0.8,
                 "BetweenStop2Value": -0.6
             },
             "label": "Group.004",
@@ -556,7 +559,7 @@ _ORIGINAL_TREE_DEF = json.loads("""
             },
             "class": "MpfbValueRamp3",
             "input_socket_values": {
-                "BetweenStop1Position": 0.4,
+                "BetweenStop1Value": 0.0,
                 "BetweenStop2Position": 0.6,
                 "BetweenStop2Value": 0.3,
                 "OneStopValue": 0.3
@@ -581,7 +584,16 @@ _ORIGINAL_TREE_DEF = json.loads("""
                 "width": 236.5711
             },
             "class": "MpfbSkinColorVariation",
-            "input_socket_values": {},
+            "input_socket_values": {
+                "Color": [
+                    1.0,
+                    0.6899,
+                    0.4647,
+                    1.0
+                ],
+                "ColorVariationScaleMultiplier": 70.0,
+                "ColorVariationStrength": 0.3
+            },
             "label": "Color Variation",
             "name": "ColorVariation",
             "output_socket_values": {}
@@ -839,13 +851,13 @@ class _NodeWrapperMpfbAureolae(AbstractGroupWrapper):
         nodes["Group Output"].location = [2152.1079, 273.0883]
         nodes["Group Input"].location = [-1024.4425, 18.8993]
 
-        node("MpfbValueRamp3", "Group.004", attribute_values={"color": [0.608, 0.608, 0.608], "height": 100.0, "location": [788.281, -13.9948], "use_custom_color": False, "width": 268.4089}, input_socket_values={"BetweenStop1Value": 1.0, "BetweenStop2Value": -0.6, "BetweenStop1Position": 0.5, "BetweenStop2Position": 0.8})
+        node("MpfbValueRamp3", "Group.004", attribute_values={"color": [0.608, 0.608, 0.608], "height": 100.0, "location": [788.281, -13.9948], "use_custom_color": False, "width": 268.4089}, input_socket_values={"BetweenStop1Value": 1.0, "BetweenStop2Value": -0.6, "BetweenStop1Position": 0.5})
         node("ShaderNodeMapRange", "Map Range", attribute_values={"location": [571.2413, -321.8509]})
         node("ShaderNodeBsdfPrincipled", "Principled BSDF", attribute_values={"location": [1796.3329, 153.0367]})
         node("ShaderNodeTexCoord", "Texture Coordinate", attribute_values={"location": [-1025.0469, 479.591]})
         node("MpfbBodyConstants", "BodyConstants", label="Body Constants", attribute_values={"color": [0.608, 0.608, 0.608], "height": 100.0, "location": [-1024.2196, 224.0364], "use_custom_color": False, "width": 140.0})
-        node("MpfbValueRamp3", "Group.006", attribute_values={"color": [0.608, 0.608, 0.608], "height": 100.0, "location": [789.1182, -293.4978], "use_custom_color": False, "width": 260.2514}, input_socket_values={"BetweenStop2Value": 0.3, "OneStopValue": 0.3, "BetweenStop1Position": 0.4, "BetweenStop2Position": 0.6})
-        node("MpfbSkinColorVariation", "ColorVariation", label="Color Variation", attribute_values={"color": [0.608, 0.608, 0.608], "height": 100.0, "location": [269.8811, 376.1695], "use_custom_color": False, "width": 236.5711})
+        node("MpfbValueRamp3", "Group.006", attribute_values={"color": [0.608, 0.608, 0.608], "height": 100.0, "location": [789.1182, -293.4978], "use_custom_color": False, "width": 260.2514}, input_socket_values={"BetweenStop1Value": 0.0, "BetweenStop2Value": 0.3, "OneStopValue": 0.3, "BetweenStop2Position": 0.6})
+        node("MpfbSkinColorVariation", "ColorVariation", label="Color Variation", attribute_values={"color": [0.608, 0.608, 0.608], "height": 100.0, "location": [269.8811, 376.1695], "use_custom_color": False, "width": 236.5711}, input_socket_values={"Color": [1.0, 0.6899, 0.4647, 1.0], "ColorVariationStrength": 0.3, "ColorVariationScaleMultiplier": 70.0})
         node("ShaderNodeMath", "Math", attribute_values={"location": [-461.2459, 297.1048], "operation": "MULTIPLY"}, input_socket_values={"Value_001": 0.02})
         node("ShaderNodeTexVoronoi", "Voronoi Texture", attribute_values={"location": [14.5556, -408.4892]}, input_socket_values={"Randomness": 0.4})
         node("ShaderNodeMath", "Math.002", attribute_values={"location": [-707.8688, -646.6351], "operation": "DIVIDE"}, input_socket_values={"Value": 40.0})

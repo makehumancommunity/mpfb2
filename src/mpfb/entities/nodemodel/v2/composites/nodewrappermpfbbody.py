@@ -68,7 +68,9 @@ _ORIGINAL_NODE_DEF = json.loads("""
             "identifier": "Input_2",
             "class": "NodeSocketFloatFactor",
             "value_type": "VALUE",
-            "default_value": 0.35
+            "default_value": 0.35,
+            "min_value": 0.0,
+            "max_value": 1.0
         },
         "Input_5": {
             "name": "SSSStrength",
@@ -129,7 +131,7 @@ _ORIGINAL_NODE_DEF = json.loads("""
             "identifier": "Input_42",
             "class": "NodeSocketFloat",
             "value_type": "VALUE",
-            "default_value": 0.8,
+            "default_value": 0.7,
             "min_value": 0.0,
             "max_value": 1.0
         },
@@ -138,7 +140,7 @@ _ORIGINAL_NODE_DEF = json.loads("""
             "identifier": "Input_40",
             "class": "NodeSocketFloat",
             "value_type": "VALUE",
-            "default_value": 11.5,
+            "default_value": 11.0,
             "min_value": 0.001,
             "max_value": 0.2
         },
@@ -147,14 +149,18 @@ _ORIGINAL_NODE_DEF = json.loads("""
             "identifier": "Input_41",
             "class": "NodeSocketFloatFactor",
             "value_type": "VALUE",
-            "default_value": 0.1
+            "default_value": 0.1,
+            "min_value": 0.0,
+            "max_value": 1.0
         },
         "Input_14": {
             "name": "SpotStrength",
             "identifier": "Input_14",
             "class": "NodeSocketFloatFactor",
             "value_type": "VALUE",
-            "default_value": 0.6
+            "default_value": 0.6,
+            "min_value": 0.0,
+            "max_value": 1.0
         },
         "Input_15": {
             "name": "SpotScaleMultiplier",
@@ -188,7 +194,9 @@ _ORIGINAL_NODE_DEF = json.loads("""
             "identifier": "Input_18",
             "class": "NodeSocketFloatFactor",
             "value_type": "VALUE",
-            "default_value": 0.0
+            "default_value": 0.0,
+            "min_value": 0.0,
+            "max_value": 1.0
         },
         "Input_19": {
             "name": "SpotValley",
@@ -222,7 +230,9 @@ _ORIGINAL_NODE_DEF = json.loads("""
             "identifier": "Input_25",
             "class": "NodeSocketFloatFactor",
             "value_type": "VALUE",
-            "default_value": 0.1
+            "default_value": 0.1,
+            "min_value": 0.0,
+            "max_value": 1.0
         },
         "Input_26": {
             "name": "UnevennessDetail",
@@ -247,7 +257,9 @@ _ORIGINAL_NODE_DEF = json.loads("""
             "identifier": "Input_28",
             "class": "NodeSocketFloatFactor",
             "value_type": "VALUE",
-            "default_value": 0.0
+            "default_value": 0.0,
+            "min_value": 0.0,
+            "max_value": 1.0
         },
         "Input_29": {
             "name": "DermalScaleMultiplier",
@@ -263,7 +275,9 @@ _ORIGINAL_NODE_DEF = json.loads("""
             "identifier": "Input_30",
             "class": "NodeSocketFloatFactor",
             "value_type": "VALUE",
-            "default_value": 0.15
+            "default_value": 0.15,
+            "min_value": 0.0,
+            "max_value": 1.0
         },
         "Input_31": {
             "name": "SmallVeinScaleMultiplier",
@@ -297,14 +311,16 @@ _ORIGINAL_NODE_DEF = json.loads("""
             "identifier": "Input_34",
             "class": "NodeSocketFloatFactor",
             "value_type": "VALUE",
-            "default_value": 0.15
+            "default_value": 0.25,
+            "min_value": 0.0,
+            "max_value": 1.0
         },
         "Input_35": {
             "name": "ColorVariationScaleMultiplier",
             "identifier": "Input_35",
             "class": "NodeSocketFloat",
             "value_type": "VALUE",
-            "default_value": 30.0,
+            "default_value": 35.0,
             "min_value": 0.0,
             "max_value": 1000.0
         },
@@ -340,7 +356,9 @@ _ORIGINAL_NODE_DEF = json.loads("""
             "identifier": "Input_39",
             "class": "NodeSocketFloatFactor",
             "value_type": "VALUE",
-            "default_value": 0.0
+            "default_value": 0.0,
+            "min_value": 0.0,
+            "max_value": 1.0
         }
     },
     "outputs": {
@@ -402,12 +420,6 @@ _ORIGINAL_TREE_DEF = json.loads("""
             "from_socket": "NavelCenterColor",
             "to_node": "NavelSettings",
             "to_socket": "NavelCenterColor"
-        },
-        {
-            "from_node": "NavelSettings",
-            "from_socket": "SkinColor",
-            "to_node": "bodyskingroup",
-            "to_socket": "SkinColor"
         },
         {
             "from_node": "NavelSettings",
@@ -678,6 +690,12 @@ _ORIGINAL_TREE_DEF = json.loads("""
             "from_socket": "NavelColorStrength",
             "to_node": "NavelSettings",
             "to_socket": "NavelColorStrength"
+        },
+        {
+            "from_node": "NavelSettings",
+            "from_socket": "SkinColor",
+            "to_node": "bodyskingroup",
+            "to_socket": "SkinColor"
         }
     ],
     "nodes": [
@@ -824,7 +842,6 @@ class _NodeWrapperMpfbBody(AbstractGroupWrapper):
         link("Group Input", "NavelWidthMultiplier", "NavelSettings", "NavelWidthMultiplier")
         link("Group Input", "NavelBumpStrength", "NavelSettings", "NavelBumpStrength")
         link("Group Input", "NavelColorStrength", "NavelSettings", "NavelColorStrength")
-        link("NavelSettings", "SkinColor", "bodyskingroup", "SkinColor")
         link("NavelSettings", "Normal", "bodyskingroup", "Normal")
         link("bodyskingroup", "Normal", "Principled BSDF", "Normal")
         link("bodyskingroup", "SubsurfaceColor", "Principled BSDF", "Subsurface Color")
@@ -833,6 +850,7 @@ class _NodeWrapperMpfbBody(AbstractGroupWrapper):
         link("bodyskingroup", "SSSIor", "Principled BSDF", "Subsurface IOR")
         link("bodyskingroup", "Color", "Principled BSDF", "Base Color")
         link("bodyskingroup", "Roughness", "Principled BSDF", "Roughness")
+        link("NavelSettings", "SkinColor", "bodyskingroup", "SkinColor")
         link("Principled BSDF", "BSDF", "Group Output", "BSDF")
 
 NodeWrapperMpfbBody = _NodeWrapperMpfbBody()

@@ -21,7 +21,9 @@ _ORIGINAL_NODE_DEF = json.loads("""
             "identifier": "Input_13",
             "class": "NodeSocketFloatFactor",
             "value_type": "VALUE",
-            "default_value": 0.2
+            "default_value": 0.2,
+            "min_value": 0.0,
+            "max_value": 1.0
         },
         "Input_14": {
             "name": "Normal",
@@ -78,7 +80,9 @@ _ORIGINAL_NODE_DEF = json.loads("""
             "identifier": "Input_6",
             "class": "NodeSocketFloatFactor",
             "value_type": "VALUE",
-            "default_value": 0.1
+            "default_value": 0.1,
+            "min_value": 0.0,
+            "max_value": 1.0
         },
         "Input_7": {
             "name": "SubsurfaceStrength",
@@ -497,7 +501,7 @@ _ORIGINAL_TREE_DEF = json.loads("""
             },
             "class": "MpfbSSSControl",
             "input_socket_values": {
-                "Input_4": 1.0
+                "SubsurfaceRadiusMultiplyer": 1.0
             },
             "label": "SSS",
             "name": "SSS",
@@ -543,7 +547,7 @@ class _NodeWrapperMpfbGenitals(AbstractGroupWrapper):
         node("ShaderNodeTexNoise", "Noise Texture.001", attribute_values={"location": [-164.6158, -320.366]}, input_socket_values={"Scale": 200.0})
         node("ShaderNodeBsdfPrincipled", "Principled BSDF.001", attribute_values={"location": [757.8218, 184.8839]}, input_socket_values={"Base Color": [0.7991, 0.3231, 0.3095, 1.0], "Roughness": 0.2})
         node("ShaderNodeBump", "Bump", attribute_values={"location": [329.4041, -247.05]}, input_socket_values={"Strength": 0.1})
-        node("MpfbSSSControl", "SSS", attribute_values={"color": [0.608, 0.608, 0.608], "height": 100.0, "location": [510.471, 52.6934], "use_custom_color": False, "width": 140.0}, input_socket_values={"Input_4": 1.0})
+        node("MpfbSSSControl", "SSS", attribute_values={"color": [0.608, 0.608, 0.608], "height": 100.0, "location": [510.471, 52.6934], "use_custom_color": False, "width": 140.0}, input_socket_values={"SubsurfaceRadiusMultiplyer": 1.0})
 
         link("Group Input", "Color", "Mix", "A_Color")
         link("Group Input", "VariationColor", "Mix", "B_Color")

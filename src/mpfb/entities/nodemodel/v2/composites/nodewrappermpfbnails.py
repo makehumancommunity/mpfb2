@@ -21,35 +21,45 @@ _ORIGINAL_NODE_DEF = json.loads("""
             "identifier": "Input_2",
             "class": "NodeSocketFloatFactor",
             "value_type": "VALUE",
-            "default_value": 0.1
+            "default_value": 0.1,
+            "min_value": 0.0,
+            "max_value": 1.0
         },
         "Input_5": {
             "name": "NailsSSSIor",
             "identifier": "Input_5",
             "class": "NodeSocketFloatFactor",
             "value_type": "VALUE",
-            "default_value": 1.4
+            "default_value": 1.4,
+            "min_value": 1.01,
+            "max_value": 3.8
         },
         "Input_6": {
             "name": "NailsSSSRadiusMutiplier",
             "identifier": "Input_6",
             "class": "NodeSocketFloatFactor",
             "value_type": "VALUE",
-            "default_value": 0.7
+            "default_value": 0.7,
+            "min_value": 0.0,
+            "max_value": 1.0
         },
         "Input_7": {
             "name": "NailsMetallic",
             "identifier": "Input_7",
             "class": "NodeSocketFloatFactor",
             "value_type": "VALUE",
-            "default_value": 0.0
+            "default_value": 0.0,
+            "min_value": 0.0,
+            "max_value": 1.0
         },
         "Input_10": {
             "name": "NailsRoughness",
             "identifier": "Input_10",
             "class": "NodeSocketFloatFactor",
             "value_type": "VALUE",
-            "default_value": 0.2
+            "default_value": 0.2,
+            "min_value": 0.0,
+            "max_value": 1.0
         },
         "Input_23": {
             "name": "Normal",
@@ -229,7 +239,7 @@ _ORIGINAL_TREE_DEF = json.loads("""
             },
             "class": "MpfbSSSControl",
             "input_socket_values": {
-                "Input_4": 1.0
+                "SubsurfaceRadiusMultiplyer": 1.0
             },
             "label": "SSS",
             "name": "SSS",
@@ -269,7 +279,7 @@ class _NodeWrapperMpfbNails(AbstractGroupWrapper):
         nodes["Group Input"].location = [-785.7612, -232.5622]
 
         node("ShaderNodeBsdfPrincipled", "Principled BSDF")
-        node("MpfbSSSControl", "SSS", attribute_values={"color": [0.608, 0.608, 0.608], "height": 100.0, "location": [-463.1018, 64.6132], "use_custom_color": False, "width": 232.2694}, input_socket_values={"Input_4": 1.0})
+        node("MpfbSSSControl", "SSS", attribute_values={"color": [0.608, 0.608, 0.608], "height": 100.0, "location": [-463.1018, 64.6132], "use_custom_color": False, "width": 232.2694}, input_socket_values={"SubsurfaceRadiusMultiplyer": 1.0})
 
         link("Group Input", "NailsColor", "Principled BSDF", "Base Color")
         link("Group Input", "NailsMetallic", "Principled BSDF", "Metallic")

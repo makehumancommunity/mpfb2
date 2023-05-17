@@ -21,7 +21,9 @@ _ORIGINAL_NODE_DEF = json.loads("""
             "identifier": "Input_9",
             "class": "NodeSocketFloatFactor",
             "value_type": "VALUE",
-            "default_value": 0.15
+            "default_value": 0.15,
+            "min_value": 0.0,
+            "max_value": 1.0
         },
         "Input_10": {
             "name": "ColorVariationScaleMultiplier",
@@ -64,7 +66,9 @@ _ORIGINAL_NODE_DEF = json.loads("""
             "identifier": "Input_6",
             "class": "NodeSocketFloatFactor",
             "value_type": "VALUE",
-            "default_value": 0.0
+            "default_value": 0.0,
+            "min_value": 0.0,
+            "max_value": 1.0
         }
     },
     "outputs": {
