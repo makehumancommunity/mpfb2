@@ -7,6 +7,7 @@ from .nodewrappermpfbbody import NodeWrapperMpfbBody
 from .nodewrappermpfbbodyconstants import NodeWrapperMpfbBodyConstants
 from .nodewrappermpfbbodysectionsrouter import NodeWrapperMpfbBodySectionsRouter
 from .nodewrappermpfbcharacterinfo import NodeWrapperMpfbCharacterInfo
+from .nodewrappermpfbcolorlayermixer import NodeWrapperMpfbColorLayerMixer
 from .nodewrappermpfbcolorramp2 import NodeWrapperMpfbColorRamp2
 from .nodewrappermpfbcolorramp3 import NodeWrapperMpfbColorRamp3
 from .nodewrappermpfbcolorramp4 import NodeWrapperMpfbColorRamp4
@@ -60,6 +61,7 @@ COMPOSITE_NODE_WRAPPERS["MpfbBody"] = NodeWrapperMpfbBody
 COMPOSITE_NODE_WRAPPERS["MpfbBodyConstants"] = NodeWrapperMpfbBodyConstants
 COMPOSITE_NODE_WRAPPERS["MpfbBodySectionsRouter"] = NodeWrapperMpfbBodySectionsRouter
 COMPOSITE_NODE_WRAPPERS["MpfbCharacterInfo"] = NodeWrapperMpfbCharacterInfo
+COMPOSITE_NODE_WRAPPERS["MpfbColorLayerMixer"] = NodeWrapperMpfbColorLayerMixer
 COMPOSITE_NODE_WRAPPERS["MpfbColorRamp2"] = NodeWrapperMpfbColorRamp2
 COMPOSITE_NODE_WRAPPERS["MpfbColorRamp3"] = NodeWrapperMpfbColorRamp3
 COMPOSITE_NODE_WRAPPERS["MpfbColorRamp4"] = NodeWrapperMpfbColorRamp4
@@ -115,6 +117,7 @@ __all__ = [
     "NodeWrapperMpfbBodyConstants",
     "NodeWrapperMpfbBodySectionsRouter",
     "NodeWrapperMpfbCharacterInfo",
+    "NodeWrapperMpfbColorLayerMixer",
     "NodeWrapperMpfbColorRamp2",
     "NodeWrapperMpfbColorRamp3",
     "NodeWrapperMpfbColorRamp4",

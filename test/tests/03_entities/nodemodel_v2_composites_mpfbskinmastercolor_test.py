@@ -13,26 +13,17 @@ def test_composite_can_create_instance():
     node = NodeWrapperMpfbSkinMasterColor.create_instance(node_tree)
     assert node
     assert node.node_tree.name == "MpfbSkinMasterColor"
+    assert "ColorLayersAurolae" in node.node_tree.nodes
+    assert "ColorLayersNavel" in node.node_tree.nodes
+    assert "ColorLayersLips" in node.node_tree.nodes
+    assert "ColorLayersFingernails" in node.node_tree.nodes
+    assert "ColorLayersToenails" in node.node_tree.nodes
+    assert "ColorLayersSpots" in node.node_tree.nodes
+    assert "ColorLayersEyelids" in node.node_tree.nodes
+    assert "ColorLayersGenitals" in node.node_tree.nodes
+    assert "ColorLayersVeins" in node.node_tree.nodes
     assert "Group Output" in node.node_tree.nodes
-    assert "SkinMainMix" in node.node_tree.nodes
-    assert "AureolaeMix" in node.node_tree.nodes
-    assert "NavelCenterMix" in node.node_tree.nodes
-    assert "LipsMix" in node.node_tree.nodes
-    assert "ToenailsMix" in node.node_tree.nodes
-    assert "SpotMix" in node.node_tree.nodes
-    assert "SkinMainOverride" in node.node_tree.nodes
-    assert "AurolaeOverride" in node.node_tree.nodes
-    assert "NavelCenterOverride" in node.node_tree.nodes
-    assert "LipsOverride" in node.node_tree.nodes
-    assert "FingernailsMix" in node.node_tree.nodes
-    assert "FingernailsOverride" in node.node_tree.nodes
-    assert "ToenailsOverride" in node.node_tree.nodes
-    assert "SpotOverride" in node.node_tree.nodes
-    assert "EyelidOverride" in node.node_tree.nodes
-    assert "EyelidMix" in node.node_tree.nodes
-    assert "Mix" in node.node_tree.nodes
-    assert "GenitalsMix" in node.node_tree.nodes
-    assert "GenitalsOverride" in node.node_tree.nodes
+    assert "ColorLayersSkin" in node.node_tree.nodes
     assert "Group Input" in node.node_tree.nodes
     has_link_to_output = False
     for link in node.node_tree.links:

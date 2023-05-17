@@ -4,13 +4,6 @@ _ORIGINAL_NODE_DEF = json.loads("""
 {
     "class": "MpfbSkinMasterColor",
     "inputs": {
-        "Input_0": {
-            "name": "DiffuseTextureStrength",
-            "identifier": "Input_0",
-            "class": "NodeSocketFloatFactor",
-            "value_type": "VALUE",
-            "default_value": 0.0
-        },
         "Input_2": {
             "name": "DiffuseTexture",
             "identifier": "Input_2",
@@ -23,15 +16,41 @@ _ORIGINAL_NODE_DEF = json.loads("""
                 1.0
             ]
         },
+        "Input_0": {
+            "name": "DiffuseTextureStrength",
+            "identifier": "Input_0",
+            "class": "NodeSocketFloatFactor",
+            "value_type": "VALUE",
+            "default_value": 1.0
+        },
+        "Input_31": {
+            "name": "InkLayerColor",
+            "identifier": "Input_31",
+            "class": "NodeSocketColor",
+            "value_type": "RGBA",
+            "default_value": [
+                0.0119,
+                0.0,
+                1.0,
+                1.0
+            ]
+        },
+        "Input_32": {
+            "name": "InkLayerStrength",
+            "identifier": "Input_32",
+            "class": "NodeSocketFloatFactor",
+            "value_type": "VALUE",
+            "default_value": 0.0
+        },
         "Input_1": {
             "name": "SkinColor",
             "identifier": "Input_1",
             "class": "NodeSocketColor",
             "value_type": "RGBA",
             "default_value": [
-                0.6795,
-                0.4678,
-                0.3763,
+                0.71,
+                0.45,
+                0.32,
                 1.0
             ]
         },
@@ -50,9 +69,9 @@ _ORIGINAL_NODE_DEF = json.loads("""
             "class": "NodeSocketColor",
             "value_type": "RGBA",
             "default_value": [
-                0.633,
-                0.4019,
-                0.3516,
+                0.6975,
+                0.3997,
+                0.3149,
                 1.0
             ]
         },
@@ -92,9 +111,9 @@ _ORIGINAL_NODE_DEF = json.loads("""
             "class": "NodeSocketColor",
             "value_type": "RGBA",
             "default_value": [
-                0.6795,
-                0.3622,
-                0.3348,
+                0.8,
+                0.3834,
+                0.3199,
                 1.0
             ]
         },
@@ -366,8 +385,8 @@ _ORIGINAL_NODE_DEF = json.loads("""
             "name": "location",
             "class": "Vector",
             "value": [
-                -142.4896,
-                867.0698
+                -141.6174,
+                910.6931
             ]
         },
         "use_custom_color": {
@@ -387,348 +406,609 @@ _ORIGINAL_TREE_DEF = json.loads("""
 {
     "links": [
         {
-            "from_node": "SkinMainOverride",
-            "from_socket": "Value",
-            "to_node": "SkinMainMix",
-            "to_socket": "Factor_Float"
-        },
-        {
-            "from_node": "Group Input",
-            "from_socket": "SkinColor",
-            "to_node": "SkinMainMix",
-            "to_socket": "A_Color"
-        },
-        {
-            "from_node": "Group Input",
-            "from_socket": "DiffuseTexture",
-            "to_node": "SkinMainMix",
-            "to_socket": "B_Color"
-        },
-        {
-            "from_node": "SkinMainMix",
-            "from_socket": "Result_Color",
+            "from_node": "ColorLayersSkin",
+            "from_socket": "Result",
             "to_node": "Group Output",
             "to_socket": "SkinColor"
         },
         {
-            "from_node": "AurolaeOverride",
-            "from_socket": "Value",
-            "to_node": "AureolaeMix",
-            "to_socket": "Factor_Float"
+            "from_node": "Group Input",
+            "from_socket": "DiffuseTextureStrength",
+            "to_node": "ColorLayersSkin",
+            "to_socket": "DefaultColorStrength"
         },
         {
             "from_node": "Group Input",
             "from_socket": "DiffuseTexture",
-            "to_node": "AureolaeMix",
-            "to_socket": "B_Color"
+            "to_node": "ColorLayersSkin",
+            "to_socket": "DefaultColor"
+        },
+        {
+            "from_node": "Group Input",
+            "from_socket": "SkinColor",
+            "to_node": "ColorLayersSkin",
+            "to_socket": "MixinColor"
+        },
+        {
+            "from_node": "Group Input",
+            "from_socket": "SkinOverride",
+            "to_node": "ColorLayersSkin",
+            "to_socket": "MixinOverrideStrength"
         },
         {
             "from_node": "Group Input",
             "from_socket": "AureolaeColor",
-            "to_node": "AureolaeMix",
-            "to_socket": "A_Color"
-        },
-        {
-            "from_node": "AureolaeMix",
-            "from_socket": "Result_Color",
-            "to_node": "Group Output",
-            "to_socket": "AureolaeColor"
-        },
-        {
-            "from_node": "NavelCenterOverride",
-            "from_socket": "Value",
-            "to_node": "NavelCenterMix",
-            "to_socket": "Factor_Float"
+            "to_node": "ColorLayersAurolae",
+            "to_socket": "MixinColor"
         },
         {
             "from_node": "Group Input",
             "from_socket": "DiffuseTexture",
-            "to_node": "NavelCenterMix",
-            "to_socket": "B_Color"
+            "to_node": "ColorLayersAurolae",
+            "to_socket": "DefaultColor"
+        },
+        {
+            "from_node": "Group Input",
+            "from_socket": "DiffuseTextureStrength",
+            "to_node": "ColorLayersAurolae",
+            "to_socket": "DefaultColorStrength"
+        },
+        {
+            "from_node": "Group Input",
+            "from_socket": "AurolaeOverride",
+            "to_node": "ColorLayersAurolae",
+            "to_socket": "MixinOverrideStrength"
+        },
+        {
+            "from_node": "ColorLayersAurolae",
+            "from_socket": "Result",
+            "to_node": "Group Output",
+            "to_socket": "AureolaeColor"
+        },
+        {
+            "from_node": "Group Input",
+            "from_socket": "DiffuseTexture",
+            "to_node": "ColorLayersNavel",
+            "to_socket": "DefaultColor"
         },
         {
             "from_node": "Group Input",
             "from_socket": "NavelCenterColor",
-            "to_node": "NavelCenterMix",
-            "to_socket": "A_Color"
+            "to_node": "ColorLayersNavel",
+            "to_socket": "MixinColor"
         },
         {
-            "from_node": "NavelCenterMix",
-            "from_socket": "Result_Color",
+            "from_node": "Group Input",
+            "from_socket": "DiffuseTextureStrength",
+            "to_node": "ColorLayersNavel",
+            "to_socket": "DefaultColorStrength"
+        },
+        {
+            "from_node": "Group Input",
+            "from_socket": "NavelCenterOverride",
+            "to_node": "ColorLayersNavel",
+            "to_socket": "MixinOverrideStrength"
+        },
+        {
+            "from_node": "ColorLayersNavel",
+            "from_socket": "Result",
             "to_node": "Group Output",
             "to_socket": "NavelCenterColor"
         },
         {
             "from_node": "Group Input",
+            "from_socket": "DiffuseTextureStrength",
+            "to_node": "ColorLayersLips",
+            "to_socket": "DefaultColorStrength"
+        },
+        {
+            "from_node": "Group Input",
             "from_socket": "DiffuseTexture",
-            "to_node": "LipsMix",
-            "to_socket": "B_Color"
+            "to_node": "ColorLayersLips",
+            "to_socket": "DefaultColor"
         },
         {
             "from_node": "Group Input",
             "from_socket": "LipsColor",
-            "to_node": "LipsMix",
-            "to_socket": "A_Color"
+            "to_node": "ColorLayersLips",
+            "to_socket": "MixinColor"
         },
         {
-            "from_node": "LipsMix",
-            "from_socket": "Result_Color",
+            "from_node": "Group Input",
+            "from_socket": "LipsOverride",
+            "to_node": "ColorLayersLips",
+            "to_socket": "MixinOverrideStrength"
+        },
+        {
+            "from_node": "ColorLayersLips",
+            "from_socket": "Result",
             "to_node": "Group Output",
             "to_socket": "LipsColor"
         },
         {
-            "from_node": "LipsOverride",
-            "from_socket": "Value",
-            "to_node": "LipsMix",
-            "to_socket": "Factor_Float"
+            "from_node": "Group Input",
+            "from_socket": "DiffuseTextureStrength",
+            "to_node": "ColorLayersFingernails",
+            "to_socket": "DefaultColorStrength"
         },
         {
-            "from_node": "FingernailsMix",
-            "from_socket": "Result_Color",
-            "to_node": "Group Output",
-            "to_socket": "FingernailsColor"
-        },
-        {
-            "from_node": "FingernailsOverride",
-            "from_socket": "Value",
-            "to_node": "FingernailsMix",
-            "to_socket": "Factor_Float"
+            "from_node": "Group Input",
+            "from_socket": "DiffuseTexture",
+            "to_node": "ColorLayersFingernails",
+            "to_socket": "DefaultColor"
         },
         {
             "from_node": "Group Input",
             "from_socket": "FingernailsColor",
-            "to_node": "FingernailsMix",
-            "to_socket": "A_Color"
+            "to_node": "ColorLayersFingernails",
+            "to_socket": "MixinColor"
         },
         {
-            "from_node": "ToenailsOverride",
-            "from_socket": "Value",
-            "to_node": "ToenailsMix",
-            "to_socket": "Factor_Float"
+            "from_node": "Group Input",
+            "from_socket": "FingernailsOverride",
+            "to_node": "ColorLayersFingernails",
+            "to_socket": "MixinOverrideStrength"
+        },
+        {
+            "from_node": "ColorLayersFingernails",
+            "from_socket": "Result",
+            "to_node": "Group Output",
+            "to_socket": "FingernailsColor"
+        },
+        {
+            "from_node": "Group Input",
+            "from_socket": "DiffuseTextureStrength",
+            "to_node": "ColorLayersToenails",
+            "to_socket": "DefaultColorStrength"
         },
         {
             "from_node": "Group Input",
             "from_socket": "DiffuseTexture",
-            "to_node": "ToenailsMix",
-            "to_socket": "B_Color"
-        },
-        {
-            "from_node": "Group Input",
-            "from_socket": "DiffuseTexture",
-            "to_node": "FingernailsMix",
-            "to_socket": "B_Color"
+            "to_node": "ColorLayersToenails",
+            "to_socket": "DefaultColor"
         },
         {
             "from_node": "Group Input",
             "from_socket": "ToenailsColor",
-            "to_node": "ToenailsMix",
-            "to_socket": "A_Color"
-        },
-        {
-            "from_node": "ToenailsMix",
-            "from_socket": "Result_Color",
-            "to_node": "Group Output",
-            "to_socket": "ToenailsColor"
+            "to_node": "ColorLayersToenails",
+            "to_socket": "MixinColor"
         },
         {
             "from_node": "Group Input",
-            "from_socket": "SpotColor",
-            "to_node": "SpotMix",
-            "to_socket": "A_Color"
+            "from_socket": "ToenailsOverride",
+            "to_node": "ColorLayersToenails",
+            "to_socket": "MixinOverrideStrength"
         },
         {
-            "from_node": "SpotMix",
-            "from_socket": "Result_Color",
-            "to_node": "Group Output",
-            "to_socket": "SpotColor"
-        },
-        {
-            "from_node": "SpotOverride",
-            "from_socket": "Value",
-            "to_node": "SpotMix",
-            "to_socket": "Factor_Float"
+            "from_node": "Group Input",
+            "from_socket": "DiffuseTextureStrength",
+            "to_node": "ColorLayersSpots",
+            "to_socket": "DefaultColorStrength"
         },
         {
             "from_node": "Group Input",
             "from_socket": "DiffuseTexture",
-            "to_node": "SpotMix",
-            "to_socket": "B_Color"
+            "to_node": "ColorLayersSpots",
+            "to_socket": "DefaultColor"
+        },
+        {
+            "from_node": "Group Input",
+            "from_socket": "SpotColor",
+            "to_node": "ColorLayersSpots",
+            "to_socket": "MixinColor"
+        },
+        {
+            "from_node": "Group Input",
+            "from_socket": "SpotOverride",
+            "to_node": "ColorLayersSpots",
+            "to_socket": "MixinOverrideStrength"
+        },
+        {
+            "from_node": "ColorLayersToenails",
+            "from_socket": "Result",
+            "to_node": "Group Output",
+            "to_socket": "ToenailsColor"
+        },
+        {
+            "from_node": "ColorLayersSpots",
+            "from_socket": "Result",
+            "to_node": "Group Output",
+            "to_socket": "SpotColor"
+        },
+        {
+            "from_node": "Group Input",
+            "from_socket": "DiffuseTextureStrength",
+            "to_node": "ColorLayersEyelids",
+            "to_socket": "DefaultColorStrength"
+        },
+        {
+            "from_node": "Group Input",
+            "from_socket": "DiffuseTexture",
+            "to_node": "ColorLayersEyelids",
+            "to_socket": "DefaultColor"
         },
         {
             "from_node": "Group Input",
             "from_socket": "EyelidColor",
-            "to_node": "EyelidMix",
-            "to_socket": "A_Color"
+            "to_node": "ColorLayersEyelids",
+            "to_socket": "MixinColor"
         },
         {
-            "from_node": "EyelidMix",
-            "from_socket": "Result_Color",
+            "from_node": "Group Input",
+            "from_socket": "EyelidOverride",
+            "to_node": "ColorLayersEyelids",
+            "to_socket": "MixinOverrideStrength"
+        },
+        {
+            "from_node": "ColorLayersEyelids",
+            "from_socket": "Result",
             "to_node": "Group Output",
             "to_socket": "EyelidColor"
         },
         {
             "from_node": "Group Input",
-            "from_socket": "DiffuseTexture",
-            "to_node": "EyelidMix",
-            "to_socket": "B_Color"
-        },
-        {
-            "from_node": "EyelidOverride",
-            "from_socket": "Value",
-            "to_node": "EyelidMix",
-            "to_socket": "Factor_Float"
-        },
-        {
-            "from_node": "Group Input",
             "from_socket": "DiffuseTextureStrength",
-            "to_node": "SkinMainOverride",
-            "to_socket": "Value"
-        },
-        {
-            "from_node": "Group Input",
-            "from_socket": "SkinOverride",
-            "to_node": "SkinMainOverride",
-            "to_socket": "Value_001"
-        },
-        {
-            "from_node": "Group Input",
-            "from_socket": "DiffuseTextureStrength",
-            "to_node": "AurolaeOverride",
-            "to_socket": "Value"
-        },
-        {
-            "from_node": "Group Input",
-            "from_socket": "AurolaeOverride",
-            "to_node": "AurolaeOverride",
-            "to_socket": "Value_001"
-        },
-        {
-            "from_node": "Group Input",
-            "from_socket": "DiffuseTextureStrength",
-            "to_node": "NavelCenterOverride",
-            "to_socket": "Value"
-        },
-        {
-            "from_node": "Group Input",
-            "from_socket": "NavelCenterOverride",
-            "to_node": "NavelCenterOverride",
-            "to_socket": "Value_001"
-        },
-        {
-            "from_node": "Group Input",
-            "from_socket": "DiffuseTextureStrength",
-            "to_node": "LipsOverride",
-            "to_socket": "Value"
-        },
-        {
-            "from_node": "Group Input",
-            "from_socket": "LipsOverride",
-            "to_node": "LipsOverride",
-            "to_socket": "Value_001"
-        },
-        {
-            "from_node": "Group Input",
-            "from_socket": "DiffuseTextureStrength",
-            "to_node": "FingernailsOverride",
-            "to_socket": "Value"
-        },
-        {
-            "from_node": "Group Input",
-            "from_socket": "FingernailsOverride",
-            "to_node": "FingernailsOverride",
-            "to_socket": "Value_001"
-        },
-        {
-            "from_node": "Group Input",
-            "from_socket": "DiffuseTextureStrength",
-            "to_node": "ToenailsOverride",
-            "to_socket": "Value"
-        },
-        {
-            "from_node": "Group Input",
-            "from_socket": "ToenailsOverride",
-            "to_node": "ToenailsOverride",
-            "to_socket": "Value_001"
-        },
-        {
-            "from_node": "Group Input",
-            "from_socket": "DiffuseTextureStrength",
-            "to_node": "SpotOverride",
-            "to_socket": "Value"
-        },
-        {
-            "from_node": "Group Input",
-            "from_socket": "SpotOverride",
-            "to_node": "SpotOverride",
-            "to_socket": "Value_001"
-        },
-        {
-            "from_node": "Group Input",
-            "from_socket": "DiffuseTextureStrength",
-            "to_node": "EyelidOverride",
-            "to_socket": "Value"
-        },
-        {
-            "from_node": "Group Input",
-            "from_socket": "EyelidOverride",
-            "to_node": "EyelidOverride",
-            "to_socket": "Value_001"
-        },
-        {
-            "from_node": "Group Input",
-            "from_socket": "VeinColor",
-            "to_node": "Mix",
-            "to_socket": "A_Color"
-        },
-        {
-            "from_node": "Mix",
-            "from_socket": "Result_Color",
-            "to_node": "Group Output",
-            "to_socket": "VeinColor"
-        },
-        {
-            "from_node": "GenitalsOverride",
-            "from_socket": "Value",
-            "to_node": "GenitalsMix",
-            "to_socket": "Factor_Float"
+            "to_node": "ColorLayersGenitals",
+            "to_socket": "DefaultColorStrength"
         },
         {
             "from_node": "Group Input",
             "from_socket": "DiffuseTexture",
-            "to_node": "GenitalsMix",
-            "to_socket": "B_Color"
+            "to_node": "ColorLayersGenitals",
+            "to_socket": "DefaultColor"
         },
         {
             "from_node": "Group Input",
             "from_socket": "GenitalsColor",
-            "to_node": "GenitalsMix",
-            "to_socket": "A_Color"
-        },
-        {
-            "from_node": "Group Input",
-            "from_socket": "DiffuseTextureStrength",
-            "to_node": "GenitalsOverride",
-            "to_socket": "Value"
+            "to_node": "ColorLayersGenitals",
+            "to_socket": "MixinColor"
         },
         {
             "from_node": "Group Input",
             "from_socket": "GenitalsOverride",
-            "to_node": "GenitalsOverride",
-            "to_socket": "Value_001"
+            "to_node": "ColorLayersGenitals",
+            "to_socket": "MixinOverrideStrength"
         },
         {
-            "from_node": "GenitalsMix",
-            "from_socket": "Result_Color",
+            "from_node": "ColorLayersGenitals",
+            "from_socket": "Result",
             "to_node": "Group Output",
             "to_socket": "GenitalsColor"
+        },
+        {
+            "from_node": "Group Input",
+            "from_socket": "VeinColor",
+            "to_node": "ColorLayersVeins",
+            "to_socket": "DefaultColor"
+        },
+        {
+            "from_node": "Group Input",
+            "from_socket": "VeinColor",
+            "to_node": "ColorLayersVeins",
+            "to_socket": "MixinColor"
+        },
+        {
+            "from_node": "ColorLayersVeins",
+            "from_socket": "Result",
+            "to_node": "Group Output",
+            "to_socket": "VeinColor"
+        },
+        {
+            "from_node": "Group Input",
+            "from_socket": "InkLayerColor",
+            "to_node": "ColorLayersSkin",
+            "to_socket": "OverlayColor"
+        },
+        {
+            "from_node": "Group Input",
+            "from_socket": "InkLayerStrength",
+            "to_node": "ColorLayersSkin",
+            "to_socket": "OverlayStrength"
+        },
+        {
+            "from_node": "Group Input",
+            "from_socket": "InkLayerColor",
+            "to_node": "ColorLayersAurolae",
+            "to_socket": "OverlayColor"
+        },
+        {
+            "from_node": "Group Input",
+            "from_socket": "InkLayerStrength",
+            "to_node": "ColorLayersAurolae",
+            "to_socket": "OverlayStrength"
+        },
+        {
+            "from_node": "Group Input",
+            "from_socket": "InkLayerColor",
+            "to_node": "ColorLayersNavel",
+            "to_socket": "OverlayColor"
+        },
+        {
+            "from_node": "Group Input",
+            "from_socket": "InkLayerStrength",
+            "to_node": "ColorLayersNavel",
+            "to_socket": "OverlayStrength"
+        },
+        {
+            "from_node": "Group Input",
+            "from_socket": "InkLayerColor",
+            "to_node": "ColorLayersLips",
+            "to_socket": "OverlayColor"
+        },
+        {
+            "from_node": "Group Input",
+            "from_socket": "InkLayerStrength",
+            "to_node": "ColorLayersLips",
+            "to_socket": "OverlayStrength"
+        },
+        {
+            "from_node": "Group Input",
+            "from_socket": "InkLayerColor",
+            "to_node": "ColorLayersEyelids",
+            "to_socket": "OverlayColor"
+        },
+        {
+            "from_node": "Group Input",
+            "from_socket": "InkLayerStrength",
+            "to_node": "ColorLayersEyelids",
+            "to_socket": "OverlayStrength"
+        },
+        {
+            "from_node": "Group Input",
+            "from_socket": "InkLayerColor",
+            "to_node": "ColorLayersFingernails",
+            "to_socket": "OverlayColor"
+        },
+        {
+            "from_node": "Group Input",
+            "from_socket": "InkLayerStrength",
+            "to_node": "ColorLayersFingernails",
+            "to_socket": "OverlayStrength"
+        },
+        {
+            "from_node": "Group Input",
+            "from_socket": "InkLayerColor",
+            "to_node": "ColorLayersToenails",
+            "to_socket": "OverlayColor"
+        },
+        {
+            "from_node": "Group Input",
+            "from_socket": "InkLayerStrength",
+            "to_node": "ColorLayersToenails",
+            "to_socket": "OverlayStrength"
+        },
+        {
+            "from_node": "Group Input",
+            "from_socket": "InkLayerColor",
+            "to_node": "ColorLayersSpots",
+            "to_socket": "OverlayColor"
+        },
+        {
+            "from_node": "Group Input",
+            "from_socket": "InkLayerStrength",
+            "to_node": "ColorLayersSpots",
+            "to_socket": "OverlayStrength"
+        },
+        {
+            "from_node": "Group Input",
+            "from_socket": "InkLayerColor",
+            "to_node": "ColorLayersGenitals",
+            "to_socket": "OverlayColor"
+        },
+        {
+            "from_node": "Group Input",
+            "from_socket": "InkLayerStrength",
+            "to_node": "ColorLayersGenitals",
+            "to_socket": "OverlayStrength"
+        },
+        {
+            "from_node": "Group Input",
+            "from_socket": "InkLayerColor",
+            "to_node": "ColorLayersVeins",
+            "to_socket": "OverlayColor"
+        },
+        {
+            "from_node": "Group Input",
+            "from_socket": "InkLayerStrength",
+            "to_node": "ColorLayersVeins",
+            "to_socket": "OverlayStrength"
         }
     ],
     "nodes": [
         {
             "attribute_values": {
+                "color": [
+                    0.608,
+                    0.608,
+                    0.608
+                ],
+                "height": 100.0,
                 "location": [
-                    392.2274,
-                    -444.5667
+                    -389.7957,
+                    632.5613
+                ],
+                "use_custom_color": false,
+                "width": 273.9324
+            },
+            "class": "MpfbColorLayerMixer",
+            "input_socket_values": {},
+            "label": "Aurolae",
+            "name": "ColorLayersAurolae",
+            "output_socket_values": {}
+        },
+        {
+            "attribute_values": {
+                "color": [
+                    0.608,
+                    0.608,
+                    0.608
+                ],
+                "height": 100.0,
+                "location": [
+                    -390.6679,
+                    404.847
+                ],
+                "use_custom_color": false,
+                "width": 273.9324
+            },
+            "class": "MpfbColorLayerMixer",
+            "input_socket_values": {},
+            "label": "Navel",
+            "name": "ColorLayersNavel",
+            "output_socket_values": {}
+        },
+        {
+            "attribute_values": {
+                "color": [
+                    0.608,
+                    0.608,
+                    0.608
+                ],
+                "height": 100.0,
+                "location": [
+                    -392.4124,
+                    182.3674
+                ],
+                "use_custom_color": false,
+                "width": 273.9324
+            },
+            "class": "MpfbColorLayerMixer",
+            "input_socket_values": {},
+            "label": "Lips",
+            "name": "ColorLayersLips",
+            "output_socket_values": {}
+        },
+        {
+            "attribute_values": {
+                "color": [
+                    0.608,
+                    0.608,
+                    0.608
+                ],
+                "height": 100.0,
+                "location": [
+                    -393.2846,
+                    -45.3471
+                ],
+                "use_custom_color": false,
+                "width": 273.9324
+            },
+            "class": "MpfbColorLayerMixer",
+            "input_socket_values": {},
+            "label": "Fingernails",
+            "name": "ColorLayersFingernails",
+            "output_socket_values": {}
+        },
+        {
+            "attribute_values": {
+                "color": [
+                    0.608,
+                    0.608,
+                    0.608
+                ],
+                "height": 100.0,
+                "location": [
+                    -392.4124,
+                    -270.4442
+                ],
+                "use_custom_color": false,
+                "width": 273.9324
+            },
+            "class": "MpfbColorLayerMixer",
+            "input_socket_values": {},
+            "label": "Toenails",
+            "name": "ColorLayersToenails",
+            "output_socket_values": {}
+        },
+        {
+            "attribute_values": {
+                "color": [
+                    0.608,
+                    0.608,
+                    0.608
+                ],
+                "height": 100.0,
+                "location": [
+                    -390.6679,
+                    -499.0314
+                ],
+                "use_custom_color": false,
+                "width": 273.9324
+            },
+            "class": "MpfbColorLayerMixer",
+            "input_socket_values": {},
+            "label": "Spots",
+            "name": "ColorLayersSpots",
+            "output_socket_values": {}
+        },
+        {
+            "attribute_values": {
+                "color": [
+                    0.608,
+                    0.608,
+                    0.608
+                ],
+                "height": 100.0,
+                "location": [
+                    -391.5401,
+                    -727.619
+                ],
+                "use_custom_color": false,
+                "width": 273.9324
+            },
+            "class": "MpfbColorLayerMixer",
+            "input_socket_values": {},
+            "label": "Eyelids",
+            "name": "ColorLayersEyelids",
+            "output_socket_values": {}
+        },
+        {
+            "attribute_values": {
+                "color": [
+                    0.608,
+                    0.608,
+                    0.608
+                ],
+                "height": 100.0,
+                "location": [
+                    -393.2846,
+                    -948.3545
+                ],
+                "use_custom_color": false,
+                "width": 273.9324
+            },
+            "class": "MpfbColorLayerMixer",
+            "input_socket_values": {},
+            "label": "Genitals",
+            "name": "ColorLayersGenitals",
+            "output_socket_values": {}
+        },
+        {
+            "attribute_values": {
+                "color": [
+                    0.608,
+                    0.608,
+                    0.608
+                ],
+                "height": 100.0,
+                "location": [
+                    -395.0291,
+                    -1176.0699
+                ],
+                "use_custom_color": false,
+                "width": 273.9324
+            },
+            "class": "MpfbColorLayerMixer",
+            "input_socket_values": {},
+            "label": "Veins",
+            "name": "ColorLayersVeins",
+            "output_socket_values": {}
+        },
+        {
+            "attribute_values": {
+                "location": [
+                    244.2672,
+                    30.335
                 ]
             },
             "class": "NodeGroupOutput",
@@ -739,286 +1019,30 @@ _ORIGINAL_TREE_DEF = json.loads("""
         },
         {
             "attribute_values": {
-                "data_type": "RGBA",
-                "location": [
-                    -143.8119,
-                    554.3099
-                ]
-            },
-            "class": "ShaderNodeMix",
-            "input_socket_values": {},
-            "label": "Skin Main Mix",
-            "name": "SkinMainMix",
-            "output_socket_values": {}
-        },
-        {
-            "attribute_values": {
-                "data_type": "RGBA",
-                "location": [
-                    -146.9567,
-                    289.8055
-                ]
-            },
-            "class": "ShaderNodeMix",
-            "input_socket_values": {},
-            "label": "Aureolae Mix",
-            "name": "AureolaeMix",
-            "output_socket_values": {}
-        },
-        {
-            "attribute_values": {
-                "data_type": "RGBA",
-                "location": [
-                    -146.6655,
-                    36.6086
-                ]
-            },
-            "class": "ShaderNodeMix",
-            "input_socket_values": {},
-            "label": "Navel Center Mix",
-            "name": "NavelCenterMix",
-            "output_socket_values": {}
-        },
-        {
-            "attribute_values": {
-                "data_type": "RGBA",
-                "location": [
-                    -145.7235,
-                    -206.1388
-                ]
-            },
-            "class": "ShaderNodeMix",
-            "input_socket_values": {},
-            "label": "Lips Mix",
-            "name": "LipsMix",
-            "output_socket_values": {}
-        },
-        {
-            "attribute_values": {
-                "data_type": "RGBA",
-                "location": [
-                    -142.7661,
-                    -701.5549
-                ]
-            },
-            "class": "ShaderNodeMix",
-            "input_socket_values": {},
-            "label": "Toenails Mix",
-            "name": "ToenailsMix",
-            "output_socket_values": {}
-        },
-        {
-            "attribute_values": {
-                "data_type": "RGBA",
-                "location": [
-                    -144.2362,
-                    -942.5393
-                ]
-            },
-            "class": "ShaderNodeMix",
-            "input_socket_values": {},
-            "label": "Spot Mix",
-            "name": "SpotMix",
-            "output_socket_values": {}
-        },
-        {
-            "attribute_values": {
-                "location": [
-                    -395.0411,
-                    519.9173
+                "color": [
+                    0.608,
+                    0.608,
+                    0.608
                 ],
-                "operation": "SUBTRACT",
-                "use_clamp": true
-            },
-            "class": "ShaderNodeMath",
-            "input_socket_values": {},
-            "label": "Skin Main Override",
-            "name": "SkinMainOverride",
-            "output_socket_values": {}
-        },
-        {
-            "attribute_values": {
+                "height": 100.0,
                 "location": [
-                    -392.8619,
-                    262.7036
+                    -391.5401,
+                    855.0407
                 ],
-                "operation": "SUBTRACT",
-                "use_clamp": true
+                "use_custom_color": false,
+                "width": 273.9324
             },
-            "class": "ShaderNodeMath",
+            "class": "MpfbColorLayerMixer",
             "input_socket_values": {},
-            "label": "Aurolae Override",
-            "name": "AurolaeOverride",
+            "label": "Main skin",
+            "name": "ColorLayersSkin",
             "output_socket_values": {}
         },
         {
             "attribute_values": {
                 "location": [
-                    -389.5932,
-                    -7.5887
-                ],
-                "operation": "SUBTRACT",
-                "use_clamp": true
-            },
-            "class": "ShaderNodeMath",
-            "input_socket_values": {},
-            "label": "Navel Center Override",
-            "name": "NavelCenterOverride",
-            "output_socket_values": {}
-        },
-        {
-            "attribute_values": {
-                "location": [
-                    -390.6827,
-                    -259.3529
-                ],
-                "operation": "SUBTRACT",
-                "use_clamp": true
-            },
-            "class": "ShaderNodeMath",
-            "input_socket_values": {},
-            "label": "Lips Override",
-            "name": "LipsOverride",
-            "output_socket_values": {}
-        },
-        {
-            "attribute_values": {
-                "data_type": "RGBA",
-                "location": [
-                    -145.9052,
-                    -460.5084
-                ]
-            },
-            "class": "ShaderNodeMix",
-            "input_socket_values": {},
-            "label": "Fingernails Mix",
-            "name": "FingernailsMix",
-            "output_socket_values": {}
-        },
-        {
-            "attribute_values": {
-                "location": [
-                    -383.0556,
-                    -492.5891
-                ],
-                "operation": "SUBTRACT",
-                "use_clamp": true
-            },
-            "class": "ShaderNodeMath",
-            "input_socket_values": {},
-            "label": "Fingernails Override",
-            "name": "FingernailsOverride",
-            "output_socket_values": {}
-        },
-        {
-            "attribute_values": {
-                "location": [
-                    -380.8764,
-                    -737.8142
-                ],
-                "operation": "SUBTRACT",
-                "use_clamp": true
-            },
-            "class": "ShaderNodeMath",
-            "input_socket_values": {},
-            "label": "Toenails Override",
-            "name": "ToenailsOverride",
-            "output_socket_values": {}
-        },
-        {
-            "attribute_values": {
-                "location": [
-                    -384.7022,
-                    -953.6123
-                ],
-                "operation": "SUBTRACT",
-                "use_clamp": true
-            },
-            "class": "ShaderNodeMath",
-            "input_socket_values": {},
-            "label": "Spot Override",
-            "name": "SpotOverride",
-            "output_socket_values": {}
-        },
-        {
-            "attribute_values": {
-                "location": [
-                    -382.523,
-                    -1185.7588
-                ],
-                "operation": "SUBTRACT",
-                "use_clamp": true
-            },
-            "class": "ShaderNodeMath",
-            "input_socket_values": {},
-            "label": "Eyelid Override",
-            "name": "EyelidOverride",
-            "output_socket_values": {}
-        },
-        {
-            "attribute_values": {
-                "data_type": "RGBA",
-                "location": [
-                    -143.9895,
-                    -1203.0403
-                ]
-            },
-            "class": "ShaderNodeMix",
-            "input_socket_values": {},
-            "label": "Eyelid Mix",
-            "name": "EyelidMix",
-            "output_socket_values": {}
-        },
-        {
-            "attribute_values": {
-                "data_type": "RGBA",
-                "location": [
-                    -129.8082,
-                    -1707.5752
-                ]
-            },
-            "class": "ShaderNodeMix",
-            "input_socket_values": {
-                "Factor_Float": 0.0
-            },
-            "label": "Mix",
-            "name": "Mix",
-            "output_socket_values": {}
-        },
-        {
-            "attribute_values": {
-                "data_type": "RGBA",
-                "location": [
-                    -141.951,
-                    -1436.5038
-                ]
-            },
-            "class": "ShaderNodeMix",
-            "input_socket_values": {},
-            "label": "Genitals Mix",
-            "name": "GenitalsMix",
-            "output_socket_values": {}
-        },
-        {
-            "attribute_values": {
-                "location": [
-                    -376.4073,
-                    -1406.9883
-                ],
-                "operation": "SUBTRACT",
-                "use_clamp": true
-            },
-            "class": "ShaderNodeMath",
-            "input_socket_values": {},
-            "label": "Genitals Override",
-            "name": "GenitalsOverride",
-            "output_socket_values": {}
-        },
-        {
-            "attribute_values": {
-                "location": [
-                    -1113.7202,
-                    -454.5674
+                    -995.7593,
+                    137.6411
                 ]
             },
             "class": "NodeGroupInput",
@@ -1044,84 +1068,87 @@ class _NodeWrapperMpfbSkinMasterColor(AbstractGroupWrapper):
         def link(from_node, from_socket, to_node, to_socket):
             AbstractGroupWrapper.create_link(node_tree, nodes[from_node], from_socket, nodes[to_node], to_socket)
 
-        nodes["Group Output"].location = [392.2274, -444.5667]
-        nodes["Group Input"].location = [-1113.7202, -454.5674]
+        nodes["Group Output"].location = [244.2672, 30.335]
+        nodes["Group Input"].location = [-995.7593, 137.6411]
 
-        node("ShaderNodeMix", "SkinMainMix", label="Skin Main Mix", attribute_values={"data_type": "RGBA", "location": [-143.8119, 554.3099]})
-        node("ShaderNodeMix", "AureolaeMix", label="Aureolae Mix", attribute_values={"data_type": "RGBA", "location": [-146.9567, 289.8055]})
-        node("ShaderNodeMix", "NavelCenterMix", label="Navel Center Mix", attribute_values={"data_type": "RGBA", "location": [-146.6655, 36.6086]})
-        node("ShaderNodeMix", "LipsMix", label="Lips Mix", attribute_values={"data_type": "RGBA", "location": [-145.7235, -206.1388]})
-        node("ShaderNodeMix", "ToenailsMix", label="Toenails Mix", attribute_values={"data_type": "RGBA", "location": [-142.7661, -701.5549]})
-        node("ShaderNodeMix", "SpotMix", label="Spot Mix", attribute_values={"data_type": "RGBA", "location": [-144.2362, -942.5393]})
-        node("ShaderNodeMath", "SkinMainOverride", label="Skin Main Override", attribute_values={"location": [-395.0411, 519.9173], "operation": "SUBTRACT", "use_clamp": True})
-        node("ShaderNodeMath", "AurolaeOverride", label="Aurolae Override", attribute_values={"location": [-392.8619, 262.7036], "operation": "SUBTRACT", "use_clamp": True})
-        node("ShaderNodeMath", "NavelCenterOverride", label="Navel Center Override", attribute_values={"location": [-389.5932, -7.5887], "operation": "SUBTRACT", "use_clamp": True})
-        node("ShaderNodeMath", "LipsOverride", label="Lips Override", attribute_values={"location": [-390.6827, -259.3529], "operation": "SUBTRACT", "use_clamp": True})
-        node("ShaderNodeMix", "FingernailsMix", label="Fingernails Mix", attribute_values={"data_type": "RGBA", "location": [-145.9052, -460.5084]})
-        node("ShaderNodeMath", "FingernailsOverride", label="Fingernails Override", attribute_values={"location": [-383.0556, -492.5891], "operation": "SUBTRACT", "use_clamp": True})
-        node("ShaderNodeMath", "ToenailsOverride", label="Toenails Override", attribute_values={"location": [-380.8764, -737.8142], "operation": "SUBTRACT", "use_clamp": True})
-        node("ShaderNodeMath", "SpotOverride", label="Spot Override", attribute_values={"location": [-384.7022, -953.6123], "operation": "SUBTRACT", "use_clamp": True})
-        node("ShaderNodeMath", "EyelidOverride", label="Eyelid Override", attribute_values={"location": [-382.523, -1185.7588], "operation": "SUBTRACT", "use_clamp": True})
-        node("ShaderNodeMix", "EyelidMix", label="Eyelid Mix", attribute_values={"data_type": "RGBA", "location": [-143.9895, -1203.0403]})
-        node("ShaderNodeMix", "Mix", attribute_values={"data_type": "RGBA", "location": [-129.8082, -1707.5752]}, input_socket_values={"Factor_Float": 0.0})
-        node("ShaderNodeMix", "GenitalsMix", label="Genitals Mix", attribute_values={"data_type": "RGBA", "location": [-141.951, -1436.5038]})
-        node("ShaderNodeMath", "GenitalsOverride", label="Genitals Override", attribute_values={"location": [-376.4073, -1406.9883], "operation": "SUBTRACT", "use_clamp": True})
+        node("MpfbColorLayerMixer", "ColorLayersAurolae", label="Aurolae", attribute_values={"color": [0.608, 0.608, 0.608], "height": 100.0, "location": [-389.7957, 632.5613], "use_custom_color": False, "width": 273.9324})
+        node("MpfbColorLayerMixer", "ColorLayersNavel", label="Navel", attribute_values={"color": [0.608, 0.608, 0.608], "height": 100.0, "location": [-390.6679, 404.847], "use_custom_color": False, "width": 273.9324})
+        node("MpfbColorLayerMixer", "ColorLayersLips", label="Lips", attribute_values={"color": [0.608, 0.608, 0.608], "height": 100.0, "location": [-392.4124, 182.3674], "use_custom_color": False, "width": 273.9324})
+        node("MpfbColorLayerMixer", "ColorLayersFingernails", label="Fingernails", attribute_values={"color": [0.608, 0.608, 0.608], "height": 100.0, "location": [-393.2846, -45.3471], "use_custom_color": False, "width": 273.9324})
+        node("MpfbColorLayerMixer", "ColorLayersToenails", label="Toenails", attribute_values={"color": [0.608, 0.608, 0.608], "height": 100.0, "location": [-392.4124, -270.4442], "use_custom_color": False, "width": 273.9324})
+        node("MpfbColorLayerMixer", "ColorLayersSpots", label="Spots", attribute_values={"color": [0.608, 0.608, 0.608], "height": 100.0, "location": [-390.6679, -499.0314], "use_custom_color": False, "width": 273.9324})
+        node("MpfbColorLayerMixer", "ColorLayersEyelids", label="Eyelids", attribute_values={"color": [0.608, 0.608, 0.608], "height": 100.0, "location": [-391.5401, -727.619], "use_custom_color": False, "width": 273.9324})
+        node("MpfbColorLayerMixer", "ColorLayersGenitals", label="Genitals", attribute_values={"color": [0.608, 0.608, 0.608], "height": 100.0, "location": [-393.2846, -948.3545], "use_custom_color": False, "width": 273.9324})
+        node("MpfbColorLayerMixer", "ColorLayersVeins", label="Veins", attribute_values={"color": [0.608, 0.608, 0.608], "height": 100.0, "location": [-395.0291, -1176.0699], "use_custom_color": False, "width": 273.9324})
+        node("MpfbColorLayerMixer", "ColorLayersSkin", label="Main skin", attribute_values={"color": [0.608, 0.608, 0.608], "height": 100.0, "location": [-391.5401, 855.0407], "use_custom_color": False, "width": 273.9324})
 
-        link("Group Input", "SkinColor", "SkinMainMix", "A_Color")
-        link("Group Input", "DiffuseTexture", "SkinMainMix", "B_Color")
-        link("Group Input", "DiffuseTexture", "AureolaeMix", "B_Color")
-        link("Group Input", "AureolaeColor", "AureolaeMix", "A_Color")
-        link("Group Input", "DiffuseTexture", "NavelCenterMix", "B_Color")
-        link("Group Input", "NavelCenterColor", "NavelCenterMix", "A_Color")
-        link("Group Input", "DiffuseTexture", "LipsMix", "B_Color")
-        link("Group Input", "LipsColor", "LipsMix", "A_Color")
-        link("Group Input", "FingernailsColor", "FingernailsMix", "A_Color")
-        link("Group Input", "DiffuseTexture", "ToenailsMix", "B_Color")
-        link("Group Input", "DiffuseTexture", "FingernailsMix", "B_Color")
-        link("Group Input", "ToenailsColor", "ToenailsMix", "A_Color")
-        link("Group Input", "SpotColor", "SpotMix", "A_Color")
-        link("Group Input", "DiffuseTexture", "SpotMix", "B_Color")
-        link("Group Input", "EyelidColor", "EyelidMix", "A_Color")
-        link("Group Input", "DiffuseTexture", "EyelidMix", "B_Color")
-        link("Group Input", "DiffuseTextureStrength", "SkinMainOverride", "Value")
-        link("Group Input", "SkinOverride", "SkinMainOverride", "Value_001")
-        link("Group Input", "DiffuseTextureStrength", "AurolaeOverride", "Value")
-        link("Group Input", "AurolaeOverride", "AurolaeOverride", "Value_001")
-        link("Group Input", "DiffuseTextureStrength", "NavelCenterOverride", "Value")
-        link("Group Input", "NavelCenterOverride", "NavelCenterOverride", "Value_001")
-        link("Group Input", "DiffuseTextureStrength", "LipsOverride", "Value")
-        link("Group Input", "LipsOverride", "LipsOverride", "Value_001")
-        link("Group Input", "DiffuseTextureStrength", "FingernailsOverride", "Value")
-        link("Group Input", "FingernailsOverride", "FingernailsOverride", "Value_001")
-        link("Group Input", "DiffuseTextureStrength", "ToenailsOverride", "Value")
-        link("Group Input", "ToenailsOverride", "ToenailsOverride", "Value_001")
-        link("Group Input", "DiffuseTextureStrength", "SpotOverride", "Value")
-        link("Group Input", "SpotOverride", "SpotOverride", "Value_001")
-        link("Group Input", "DiffuseTextureStrength", "EyelidOverride", "Value")
-        link("Group Input", "EyelidOverride", "EyelidOverride", "Value_001")
-        link("Group Input", "VeinColor", "Mix", "A_Color")
-        link("Group Input", "DiffuseTexture", "GenitalsMix", "B_Color")
-        link("Group Input", "GenitalsColor", "GenitalsMix", "A_Color")
-        link("Group Input", "DiffuseTextureStrength", "GenitalsOverride", "Value")
-        link("Group Input", "GenitalsOverride", "GenitalsOverride", "Value_001")
-        link("SkinMainOverride", "Value", "SkinMainMix", "Factor_Float")
-        link("AurolaeOverride", "Value", "AureolaeMix", "Factor_Float")
-        link("NavelCenterOverride", "Value", "NavelCenterMix", "Factor_Float")
-        link("LipsOverride", "Value", "LipsMix", "Factor_Float")
-        link("FingernailsOverride", "Value", "FingernailsMix", "Factor_Float")
-        link("ToenailsOverride", "Value", "ToenailsMix", "Factor_Float")
-        link("SpotOverride", "Value", "SpotMix", "Factor_Float")
-        link("EyelidOverride", "Value", "EyelidMix", "Factor_Float")
-        link("GenitalsOverride", "Value", "GenitalsMix", "Factor_Float")
-        link("SkinMainMix", "Result_Color", "Group Output", "SkinColor")
-        link("AureolaeMix", "Result_Color", "Group Output", "AureolaeColor")
-        link("NavelCenterMix", "Result_Color", "Group Output", "NavelCenterColor")
-        link("LipsMix", "Result_Color", "Group Output", "LipsColor")
-        link("FingernailsMix", "Result_Color", "Group Output", "FingernailsColor")
-        link("ToenailsMix", "Result_Color", "Group Output", "ToenailsColor")
-        link("SpotMix", "Result_Color", "Group Output", "SpotColor")
-        link("EyelidMix", "Result_Color", "Group Output", "EyelidColor")
-        link("Mix", "Result_Color", "Group Output", "VeinColor")
-        link("GenitalsMix", "Result_Color", "Group Output", "GenitalsColor")
+        link("Group Input", "DiffuseTextureStrength", "ColorLayersSkin", "DefaultColorStrength")
+        link("Group Input", "DiffuseTexture", "ColorLayersSkin", "DefaultColor")
+        link("Group Input", "SkinColor", "ColorLayersSkin", "MixinColor")
+        link("Group Input", "SkinOverride", "ColorLayersSkin", "MixinOverrideStrength")
+        link("Group Input", "AureolaeColor", "ColorLayersAurolae", "MixinColor")
+        link("Group Input", "DiffuseTexture", "ColorLayersAurolae", "DefaultColor")
+        link("Group Input", "DiffuseTextureStrength", "ColorLayersAurolae", "DefaultColorStrength")
+        link("Group Input", "AurolaeOverride", "ColorLayersAurolae", "MixinOverrideStrength")
+        link("Group Input", "DiffuseTexture", "ColorLayersNavel", "DefaultColor")
+        link("Group Input", "NavelCenterColor", "ColorLayersNavel", "MixinColor")
+        link("Group Input", "DiffuseTextureStrength", "ColorLayersNavel", "DefaultColorStrength")
+        link("Group Input", "NavelCenterOverride", "ColorLayersNavel", "MixinOverrideStrength")
+        link("Group Input", "DiffuseTextureStrength", "ColorLayersLips", "DefaultColorStrength")
+        link("Group Input", "DiffuseTexture", "ColorLayersLips", "DefaultColor")
+        link("Group Input", "LipsColor", "ColorLayersLips", "MixinColor")
+        link("Group Input", "LipsOverride", "ColorLayersLips", "MixinOverrideStrength")
+        link("Group Input", "DiffuseTextureStrength", "ColorLayersFingernails", "DefaultColorStrength")
+        link("Group Input", "DiffuseTexture", "ColorLayersFingernails", "DefaultColor")
+        link("Group Input", "FingernailsColor", "ColorLayersFingernails", "MixinColor")
+        link("Group Input", "FingernailsOverride", "ColorLayersFingernails", "MixinOverrideStrength")
+        link("Group Input", "DiffuseTextureStrength", "ColorLayersToenails", "DefaultColorStrength")
+        link("Group Input", "DiffuseTexture", "ColorLayersToenails", "DefaultColor")
+        link("Group Input", "ToenailsColor", "ColorLayersToenails", "MixinColor")
+        link("Group Input", "ToenailsOverride", "ColorLayersToenails", "MixinOverrideStrength")
+        link("Group Input", "DiffuseTextureStrength", "ColorLayersSpots", "DefaultColorStrength")
+        link("Group Input", "DiffuseTexture", "ColorLayersSpots", "DefaultColor")
+        link("Group Input", "SpotColor", "ColorLayersSpots", "MixinColor")
+        link("Group Input", "SpotOverride", "ColorLayersSpots", "MixinOverrideStrength")
+        link("Group Input", "DiffuseTextureStrength", "ColorLayersEyelids", "DefaultColorStrength")
+        link("Group Input", "DiffuseTexture", "ColorLayersEyelids", "DefaultColor")
+        link("Group Input", "EyelidColor", "ColorLayersEyelids", "MixinColor")
+        link("Group Input", "EyelidOverride", "ColorLayersEyelids", "MixinOverrideStrength")
+        link("Group Input", "DiffuseTextureStrength", "ColorLayersGenitals", "DefaultColorStrength")
+        link("Group Input", "DiffuseTexture", "ColorLayersGenitals", "DefaultColor")
+        link("Group Input", "GenitalsColor", "ColorLayersGenitals", "MixinColor")
+        link("Group Input", "GenitalsOverride", "ColorLayersGenitals", "MixinOverrideStrength")
+        link("Group Input", "VeinColor", "ColorLayersVeins", "DefaultColor")
+        link("Group Input", "VeinColor", "ColorLayersVeins", "MixinColor")
+        link("Group Input", "InkLayerColor", "ColorLayersSkin", "OverlayColor")
+        link("Group Input", "InkLayerStrength", "ColorLayersSkin", "OverlayStrength")
+        link("Group Input", "InkLayerColor", "ColorLayersAurolae", "OverlayColor")
+        link("Group Input", "InkLayerStrength", "ColorLayersAurolae", "OverlayStrength")
+        link("Group Input", "InkLayerColor", "ColorLayersNavel", "OverlayColor")
+        link("Group Input", "InkLayerStrength", "ColorLayersNavel", "OverlayStrength")
+        link("Group Input", "InkLayerColor", "ColorLayersLips", "OverlayColor")
+        link("Group Input", "InkLayerStrength", "ColorLayersLips", "OverlayStrength")
+        link("Group Input", "InkLayerColor", "ColorLayersEyelids", "OverlayColor")
+        link("Group Input", "InkLayerStrength", "ColorLayersEyelids", "OverlayStrength")
+        link("Group Input", "InkLayerColor", "ColorLayersFingernails", "OverlayColor")
+        link("Group Input", "InkLayerStrength", "ColorLayersFingernails", "OverlayStrength")
+        link("Group Input", "InkLayerColor", "ColorLayersToenails", "OverlayColor")
+        link("Group Input", "InkLayerStrength", "ColorLayersToenails", "OverlayStrength")
+        link("Group Input", "InkLayerColor", "ColorLayersSpots", "OverlayColor")
+        link("Group Input", "InkLayerStrength", "ColorLayersSpots", "OverlayStrength")
+        link("Group Input", "InkLayerColor", "ColorLayersGenitals", "OverlayColor")
+        link("Group Input", "InkLayerStrength", "ColorLayersGenitals", "OverlayStrength")
+        link("Group Input", "InkLayerColor", "ColorLayersVeins", "OverlayColor")
+        link("Group Input", "InkLayerStrength", "ColorLayersVeins", "OverlayStrength")
+        link("ColorLayersSkin", "Result", "Group Output", "SkinColor")
+        link("ColorLayersAurolae", "Result", "Group Output", "AureolaeColor")
+        link("ColorLayersNavel", "Result", "Group Output", "NavelCenterColor")
+        link("ColorLayersLips", "Result", "Group Output", "LipsColor")
+        link("ColorLayersFingernails", "Result", "Group Output", "FingernailsColor")
+        link("ColorLayersToenails", "Result", "Group Output", "ToenailsColor")
+        link("ColorLayersSpots", "Result", "Group Output", "SpotColor")
+        link("ColorLayersEyelids", "Result", "Group Output", "EyelidColor")
+        link("ColorLayersGenitals", "Result", "Group Output", "GenitalsColor")
+        link("ColorLayersVeins", "Result", "Group Output", "VeinColor")
 
 NodeWrapperMpfbSkinMasterColor = _NodeWrapperMpfbSkinMasterColor()
