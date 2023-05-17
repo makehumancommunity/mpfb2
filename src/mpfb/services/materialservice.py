@@ -3,6 +3,8 @@ import os, bpy
 from .logservice import LogService
 from .objectservice import ObjectService
 from .nodeservice import NodeService
+from mpfb.entities.nodemodel.v2.materials import NodeWrapperSkin
+
 _LOG = LogService.get_logger("services.materialservice")
 
 class MaterialService():
@@ -53,6 +55,8 @@ class MaterialService():
                     return "enhanced_skin"
                 if "IrisSection4Color" in node_info["values"]:
                     return "procedural_eyes"
+                if "NavelCenterOverride" in node_info["values"]:
+                    return "layered"
 
         # Since we're not enhanced skin nor procedural eyes, next guess is makeskin
         # This might give a false positive if someone added a material with a principled node
@@ -130,7 +134,7 @@ class MaterialService():
             MaterialService._set_normalmap_in_nodetree(group.node_tree, filename)
             return
 
-        if material_type == "makeskin":
+        if material_type in ["makeskin", "layered"]:
             MaterialService._set_normalmap_in_nodetree(material.node_tree, filename)
             return
 
@@ -158,6 +162,60 @@ class MaterialService():
         material.blend_method = 'HASHED'
         if not blender_object is None:
             blender_object.data.materials.append(material)
+        return material
+
+    @staticmethod
+    def create_v2_skin_material(name, blender_object=None, mhmat_file=None):
+        if blender_object is None:
+            raise ValueError("Object needed when creating a v2 skin")
+
+        MaterialService.delete_all_materials(blender_object)
+        material = MaterialService.create_empty_material(name, blender_object)
+
+        node_tree = material.node_tree
+
+        if not node_tree:
+            raise ValueError("Could not deduce node tree from new empty material")
+
+        NodeWrapperSkin.create_instance(node_tree)
+
+        mastercolor = NodeService.find_first_group_node_by_tree_name(node_tree, "MpfbSkinMasterColor")
+        if mastercolor:
+            # In case we do not find a diffuse texture later on
+            mastercolor.inputs["DiffuseTextureStrength"].default_value = 0.0
+        else:
+            _LOG.warn("Could not find master color control in v2 skin")
+
+        if mhmat_file:
+            from mpfb.entities.material.makeskinmaterial import MakeSkinMaterial
+            makeskin_material = MakeSkinMaterial()
+            makeskin_material.populate_from_mhmat(mhmat_file)
+
+            diffuse = makeskin_material.get_value("diffuseTexture")
+            normalmap = makeskin_material.get_value("normalmapTexture")
+
+            _LOG.debug("Textures", (diffuse, normalmap))
+
+            if normalmap or diffuse:
+                texco = NodeService.create_node(node_tree, "ShaderNodeTexCoord", name="TexCoord", label="Texture Coordinates", xpos=-901, ypos=425)
+                uvsocket = texco.outputs["UV"]
+
+            if normalmap:
+                MaterialService.set_normalmap(material, normalmap)
+                # TODO: link to texco for completeness
+
+            if diffuse:
+                node_tree = material.node_tree
+                diffuse = NodeService.create_image_texture_node(node_tree, name="DiffuseTexture", label="Diffuse Texture", xpos=-556, ypos=602, image_path_absolute=diffuse)
+                from_socket = diffuse.outputs["Color"]
+                to_socket = mastercolor.inputs["DiffuseTexture"]
+                node_tree.links.new(from_socket, to_socket)
+                mastercolor.inputs["DiffuseTextureStrength"].default_value = 1.0
+                to_socket = diffuse.inputs["Vector"]
+                node_tree.links.new(uvsocket, to_socket)
+
+        material.diffuse_color = MaterialService.get_skin_diffuse_color()
+
         return material
 
     @staticmethod

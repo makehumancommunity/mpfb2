@@ -534,6 +534,9 @@ class HumanService:
             blender_material = MaterialService.create_empty_material(name, basemesh)
             makeskin_material.apply_node_tree(blender_material)
 
+        if skin_type == "LAYERED":
+            blender_material = MaterialService.create_v2_skin_material(name, basemesh, mhmat_file)
+
         if skin_type in ["ENHANCED", "ENHANCED_SSS"]:
             presets = dict()
             presets["skin_material_type"] = skin_type
