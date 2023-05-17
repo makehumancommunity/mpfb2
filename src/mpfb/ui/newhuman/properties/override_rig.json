@@ -1,0 +1,17 @@
+{
+    "type": "enum",
+    "name": "override_rig",
+    "description": "What rig to use for the character",
+    "label": "Rig",
+    "default": "PRESET",
+    "items": [
+        ["NONE", "No rig", "Do not add a rig, no matter what is said in the preset", 1],
+        ["PRESET", "From preset", "Use the rig specified in the preset", 2],
+        ["default", "Default", "Use the default rig", 3],
+        ["default_no_toes", "Default (no_toes)", "Use the default_no_toes rig", 4],
+        ["game_engine", "Game engine", "Use the game_engine rig", 5],
+        ["cmu_mb", "CMU MB", "Use the cmu_mb rig", 6],
+        ["rigify.human_toes", "Rigify default metarig", "Use the default rigify metarig. See the rigging panel for generating the final rigify rig", 7],
+        ["rigify.human", "Rigify metarig without toes", "Use the default rigify metarig without toes. See the rigging panel for generating the final rigify rig", 8]
+    ]
+}

@@ -1,0 +1,13 @@
+{
+    "type": "enum",
+    "name": "override_skin_model",
+    "description": "What skin model to use for the character",
+    "label": "Skin model",
+    "default": "PRESET",
+    "items": [
+        ["NONE", "No skin", "Do not set a skin material, no matter what is said in the preset", 1],
+        ["PRESET", "From preset", "Use the skin model specified in the preset", 2],
+        ["MAKESKIN", "MakeSkin (skin model v0)", "Use a simple material for the skin, without any particular procedural aspects", 3],
+        ["ENHANCED", "Enhanced (skin model v1)", "Use the enhanced skin, which adds a few procedural aspects and which has been the default in MPFB1/MPFB2 until mid 2023", 4],
+    ]
+}

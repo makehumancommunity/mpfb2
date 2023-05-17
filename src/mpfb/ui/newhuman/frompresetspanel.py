@@ -42,6 +42,8 @@ class MPFB_PT_From_Presets_Panel(Abstract_Panel):
         PRESETS_HUMAN_PROPERTIES.draw_properties(scene, layout, [
             "available_presets",
             "scale_factor",
+            "override_rig",
+            "override_skin_model",
             "detailed_helpers",
             "extra_vertex_groups",
             "mask_helpers",

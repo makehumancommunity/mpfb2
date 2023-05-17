@@ -552,6 +552,11 @@ class HumanService:
             blender_material = MaterialService.create_empty_material(name, basemesh)
             enhanced_material.apply_node_tree(blender_material)
 
+        if not material_instances and bodyproxy and basemesh:
+            material = MaterialService.get_material(basemesh)
+            if material:
+                bodyproxy.data.materials.append(material)
+
         if material_instances:
             _LOG.debug("Will now attempt to create material slots for", (basemesh, bodyproxy))
             MaterialService.create_and_assign_material_slots(basemesh, bodyproxy)
@@ -614,8 +619,13 @@ class HumanService:
             return
 
         skin_type = human_info["skin_material_type"]
+
+        _LOG.debug("Skin type", skin_type)
+
         if not skin_type or skin_type == "NONE":
             return
+
+        material_instances = (skin_type == "ENHANCED")
 
         slot_overrides = None
         if "skin_material_settings" in human_info:
@@ -624,7 +634,7 @@ class HumanService:
         else:
             _LOG.debug("There are no slot overrides")
 
-        HumanService.set_character_skin(mhmat_file, basemesh, skin_type=skin_type, material_instances=True, slot_overrides=slot_overrides)
+        HumanService.set_character_skin(mhmat_file, basemesh, skin_type=skin_type, material_instances=material_instances, slot_overrides=slot_overrides)
         HumanObjectProperties.set_value("material_source", human_info["skin_mhmat"], entity_reference=basemesh)
 
     @staticmethod
@@ -701,6 +711,15 @@ class HumanService:
 
         if not "alternative_materials" in human_info:
             human_info["alternative_materials"] = dict();
+
+        if "override_rig" in deserialization_settings and deserialization_settings["override_rig"] and deserialization_settings["override_rig"] != "PRESET":
+            if deserialization_settings["override_rig"] == "NONE":
+                human_info["rig"] = ""
+            else:
+                human_info["rig"] = deserialization_settings["override_rig"]
+
+        if "override_skin_model" in deserialization_settings and deserialization_settings["override_skin_model"] and deserialization_settings["override_skin_model"] != "PRESET":
+            human_info["skin_material_type"] = deserialization_settings["override_skin_model"]
 
         macro_detail_dict = human_info["phenotype"]
         basemesh = HumanService.create_human(mask_helpers, detailed_helpers, extra_vertex_groups, feet_on_ground, scale, macro_detail_dict)
