@@ -21,7 +21,9 @@ _ORIGINAL_NODE_DEF = json.loads("""
             "identifier": "Input_0",
             "class": "NodeSocketFloatFactor",
             "value_type": "VALUE",
-            "default_value": 1.0
+            "default_value": 1.0,
+            "min_value": 0.0,
+            "max_value": 1.0
         },
         "Input_31": {
             "name": "InkLayerColor",
@@ -40,7 +42,9 @@ _ORIGINAL_NODE_DEF = json.loads("""
             "identifier": "Input_32",
             "class": "NodeSocketFloatFactor",
             "value_type": "VALUE",
-            "default_value": 0.0
+            "default_value": 0.0,
+            "min_value": 0.0,
+            "max_value": 1.0
         },
         "Input_1": {
             "name": "SkinColor",

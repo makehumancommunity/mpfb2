@@ -145,7 +145,7 @@ class NodeService:
                         input_dict["default_value"] = list(input_socket.default_value)
                     else:
                         input_dict["default_value"] = input_socket.default_value
-                if input_dict["class"] == "NodeSocketFloat" and hasattr(node, "node_tree"):
+                if "Float" in input_dict["class"] and hasattr(node, "node_tree"):
                     tree_input = node.node_tree.inputs[input_socket.name]
                     input_dict["min_value"] = tree_input.min_value
                     input_dict["max_value"] = tree_input.max_value

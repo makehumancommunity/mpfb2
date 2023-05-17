@@ -130,13 +130,18 @@ class AbstractGroupWrapper(AbstractNodeWrapper):
         return inst
 
     @staticmethod
-    def add_input_socket(node_tree, name, socket_type="NodeSocketFloat", default_value=None):
+    def add_input_socket(node_tree, name, socket_type="NodeSocketFloat", default_value=None, min_value=None, max_value=None):
         _LOG.enter()
         if not socket_type in _SOCKET_TYPES:
             raise ValueError("Illegal socket type " + socket_type)
         socket = node_tree.inputs.new(name=name, type=socket_type)
+        _LOG.debug("Socket params", { "name": name, "default_value": default_value, "min_value": min_value, "max_value": max_value, "hasattr": hasattr(socket, "min_value")} )
         if not default_value is None:
             socket.default_value=default_value
+        if min_value is not None and hasattr(socket, "min_value"):
+            socket.min_value = min_value
+        if max_value is not None and hasattr(socket, "max_value"):
+            socket.max_value = max_value
         _LOG.debug("Created input socket", socket)
         return socket
 
@@ -202,7 +207,13 @@ class AbstractGroupWrapper(AbstractNodeWrapper):
 
         for input_name in self.node_def["inputs"]:
             input_def = self.node_def["inputs"][input_name]
-            socket = AbstractGroupWrapper.add_input_socket(node_tree, input_def["name"], input_def["class"], input_def["default_value"])
+            min_value = None
+            max_value = None
+            if "min_value" in input_def:
+                min_value = input_def["min_value"]
+            if "max_value" in input_def:
+                max_value = input_def["max_value"]
+            socket = AbstractGroupWrapper.add_input_socket(node_tree, input_def["name"], input_def["class"], input_def["default_value"], min_value=min_value, max_value=max_value)
         for output_name in self.node_def["outputs"]:
             output_def = self.node_def["outputs"][output_name]
             socket = AbstractGroupWrapper.add_output_socket(node_tree, output_def["name"], output_def["class"], output_def["default_value"])
