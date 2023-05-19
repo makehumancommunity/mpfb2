@@ -12,7 +12,7 @@ def _create_object(with_material=False):
     if with_material:
         MaterialService.create_empty_material(name + "Material", obj)
     return obj
-    
+
 def test_materialservice_exists():
     """MaterialService"""
     assert MaterialService is not None, "MaterialService can be imported"

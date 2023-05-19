@@ -2,6 +2,7 @@ import bpy, os
 from pytest import approx
 from mpfb.services.objectservice import ObjectService
 from mpfb.services.humanservice import HumanService
+from mpfb.services.materialservice import MaterialService
 from mpfb.services.locationservice import LocationService
 
 def test_humanservice_exists():
@@ -54,3 +55,25 @@ def test_add_builtin_rig_standard():
     assert basemesh.parent == rig
     ObjectService.delete_object(basemesh)
     ObjectService.delete_object(rig)
+
+def test_serialize_v2_skin():
+    """HumanService.serialize_to_json_string() -- v2 skin"""
+    basemesh = HumanService.create_human()
+    assert basemesh is not None
+    human_info = HumanService._create_default_human_info_dict()
+    assert human_info
+    assert human_info["skin_material_type"] == "NONE"
+    assert len(human_info["skin_material_settings"].keys()) == 0
+
+    name = ObjectService.random_name()
+    MaterialService.create_v2_skin_material(name, basemesh)
+
+    HumanService._populate_human_info_with_skin_info(human_info, basemesh)
+
+    assert human_info["skin_material_type"] == "LAYERED"
+    assert len(human_info["skin_material_settings"].keys()) > 0
+    assert "color" in human_info["skin_material_settings"]
+    assert "DiffuseTextureStrength" in human_info["skin_material_settings"]["color"]
+
+    ObjectService.delete_object(basemesh)
+
