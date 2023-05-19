@@ -56,7 +56,7 @@ class MaterialService():
                 if "IrisSection4Color" in node_info["values"]:
                     return "procedural_eyes"
                 if "NavelCenterOverride" in node_info["values"]:
-                    return "layered"
+                    return "layered_skin"
 
         # Since we're not enhanced skin nor procedural eyes, next guess is makeskin
         # This might give a false positive if someone added a material with a principled node
@@ -134,7 +134,7 @@ class MaterialService():
             MaterialService._set_normalmap_in_nodetree(group.node_tree, filename)
             return
 
-        if material_type in ["makeskin", "layered"]:
+        if material_type in ["makeskin", "layered_skin"]:
             MaterialService._set_normalmap_in_nodetree(material.node_tree, filename)
             return
 
