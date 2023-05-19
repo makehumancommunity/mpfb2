@@ -223,7 +223,7 @@ class AbstractGroupWrapper(AbstractNodeWrapper):
     def pre_create_instance(self, node_tree=None):
         _LOG.enter()
         if not self.node_class_name in bpy.data.node_groups:
-            _LOG.info("Setting up shader node group", self.node_class_name)
+            _LOG.debug("Setting up shader node group", self.node_class_name)
             group_tree = self.create_node_tree()
             nodes = dict()
             nodes["Group Input"] = NodeService.find_first_node_by_type_name(group_tree, "NodeGroupInput")
