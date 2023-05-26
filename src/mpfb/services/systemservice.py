@@ -13,6 +13,7 @@ class SystemService:
 
     @staticmethod
     def deduce_platform():
+        """Deduces the current system platform (ie the operating system)."""
         if sys.platform.startswith('linux'):
             return "LINUX"
 
@@ -30,6 +31,7 @@ class SystemService:
 
     @staticmethod
     def open_file_browser(path):
+        """Open a file browser window for the specified path."""
         platform = SystemService.deduce_platform()
         if platform == "LINUX":
             subprocess.call(["xdg-open", path])
@@ -41,28 +43,30 @@ class SystemService:
 
     @staticmethod
     def check_for_obj_importer():
+        """Check if the Blender OBJ importer is installed."""
         if not hasattr(bpy.ops.import_scene, "obj"):
             return False
-
-        (loaded_default, loaded_state) = addon_utils.check('io_scene_obj')
+        (loaded_default, loaded_state) = addon_utils.check('io_scene_obj') # pylint: disable=W0612
         return loaded_state
 
     @staticmethod
     def check_for_rigify():
+        """Check if the Blender Rigify addon is installed."""
         if not hasattr(bpy.ops.pose, "rigify_generate"):
             return False
-
-        (loaded_default, loaded_state) = addon_utils.check('rigify')
+        (loaded_default, loaded_state) = addon_utils.check('rigify') # pylint: disable=W0612
         return loaded_state
 
     @staticmethod
     def normalize_path_separators(path_string):
+        """Replace all escaped backslashes with forward slashes."""
         if not path_string:
             return ""
         return re.sub(r"\\+", "/", str(path_string))
 
     @staticmethod
     def string_contains_path_segment(full_path, path_segment, case_insensitive=True):
+        """Check if the full path contains the path segment."""
         if not full_path or not path_segment:
             return False
         full = SystemService.normalize_path_separators(full_path)

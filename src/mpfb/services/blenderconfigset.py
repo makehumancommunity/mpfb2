@@ -36,7 +36,7 @@ class BlenderConfigSet(ConfigurationSet):
             if fnmatch(file_name, "*.json"):
                 json_file_name = os.path.join(properties_dir, file_name)
                 _LOG.debug("Trying to add properties from file", json_file_name)
-                try:                 
+                try:
                     with open(json_file_name) as json_file:
                         data = json.load(json_file)
                         _LOG.dump("Json from file", data)

@@ -1,3 +1,5 @@
+"""Various functions for working with materials"""
+
 import os, bpy
 
 from .logservice import LogService
@@ -8,12 +10,20 @@ from mpfb.entities.nodemodel.v2.materials import NodeWrapperSkin
 _LOG = LogService.get_logger("services.materialservice")
 
 class MaterialService():
+    """Utility class for working with materials"""
 
     def __init__(self):
+        """You should not instance MaterialService. Use its static methods instead."""
         raise RuntimeError("You should not instance MaterialService. Use its static methods instead.")
 
     @staticmethod
     def delete_all_materials(blender_object, also_destroy_groups=False):
+        """Deletes all materials from the given blender object.
+
+        Args:
+            blender_object (bpy.types.Object): The blender object to delete materials from.
+            also_destroy_groups (bool): Whether to also destroy the groups that were created for the materials.
+        """
         _LOG.dump("Current materials", (blender_object.data.materials, len(blender_object.data.materials)))
         for material in blender_object.data.materials:
             material.name = material.name + ".unused"
@@ -45,6 +55,9 @@ class MaterialService():
         if not material:
             return "empty"
         nodes = material.node_tree.nodes
+
+        if len(nodes) == 0:
+            return "empty"
 
         for node in nodes:
             node_info = NodeService.get_node_info(node)
@@ -142,6 +155,15 @@ class MaterialService():
 
     @staticmethod
     def assign_new_or_existing_material(name, blender_object):
+        """Assigns a new material to the given blender object.
+
+        Args:
+            name (str): The name of the material to assign.
+            blender_object (bpy.types.Object): The blender object to assign the material to.
+
+        Returns:
+            bpy.types.Material: The material that was assigned.
+        """
         if name in bpy.data.materials:
             material = bpy.data.materials[name]
             if not blender_object is None:
@@ -160,12 +182,23 @@ class MaterialService():
         material = bpy.data.materials.new(name)
         material.use_nodes = True
         material.blend_method = 'HASHED'
-        if not blender_object is None:
+        if blender_object is not None:
             blender_object.data.materials.append(material)
         return material
 
     @staticmethod
     def create_v2_skin_material(name, blender_object=None, mhmat_file=None):
+        """Create a new v2 skin material with the given name, and assign it to the blender object.
+
+        Args:
+            name (str): The name of the material to assign.
+            blender_object (bpy.types.Object): The blender object to assign the material to.
+            mhmat_file (str): The path to the mhmat file to use.
+
+        Returns:
+            bpy.types.Material: The material that was assigned.
+        """
+
         if blender_object is None:
             raise ValueError("Object needed when creating a v2 skin")
 
@@ -206,7 +239,12 @@ class MaterialService():
 
             if diffuse:
                 node_tree = material.node_tree
-                diffuse = NodeService.create_image_texture_node(node_tree, name="DiffuseTexture", label="Diffuse Texture", xpos=-556, ypos=602, image_path_absolute=diffuse)
+                diffuse = NodeService.create_image_texture_node(node_tree,
+                                                                name="DiffuseTexture",
+                                                                label="Diffuse Texture",
+                                                                xpos=-556,
+                                                                ypos=602,
+                                                                image_path_absolute=diffuse)
                 from_socket = diffuse.outputs["Color"]
                 to_socket = mastercolor.inputs["DiffuseTexture"]
                 node_tree.links.new(from_socket, to_socket)
@@ -226,8 +264,8 @@ class MaterialService():
 
         (path, location, name)
         """
-        blendPath, dirName, assetName = (part.strip() for part in path.rsplit('/', 2))
-        return blendPath, dirName, assetName
+        blend_path, dir_name, asset_name = (part.strip() for part in path.rsplit('/', 2))
+        return blend_path, dir_name, asset_name
 
     @staticmethod
     def save_material_in_blend_file(blender_object, path_to_blend_file, material_number=None, fake_user=False):
@@ -236,7 +274,7 @@ class MaterialService():
         the object's materials. Otherwise, save material slot with that number. This writes into the file
         but will not overwrite it, although it might overwrite something already in it.
         """
-        if not material_number is None:
+        if material_number is not None:
             for mat_slot in blender_object.material_slots:
                 mat = mat_slot.material
                 bpy.data.libraries.write(str(path_to_blend_file), {mat}, fake_user=fake_user)
@@ -250,16 +288,16 @@ class MaterialService():
         """
         Load a material from a blend file determined by path, to a new material slot.
         """
-        path, dirName, assetName = MaterialService.as_blend_path(path)
-        print('Loading material @: ', path, dirName, assetName)
-        with bpy.data.libraries.load(path) as (inBasket, outBasket):
+        path, dir_name, asset_name = MaterialService.as_blend_path(path)
+        print('Loading material @: ', path, dir_name, asset_name)
+        with bpy.data.libraries.load(path) as (in_basket, out_basket):
             # Weird syntax.
-            setattr(outBasket, dirName, [assetName])
+            setattr(out_basket, dir_name, [asset_name])
 
-        mat = getattr(outBasket, dirName)[0]
+        mat = getattr(out_basket, dir_name)[0]
         mat.make_local()
 
-        if not blender_object is None:
+        if blender_object is not None:
             blender_object.data.materials.append(mat)
         return mat
 
@@ -290,6 +328,13 @@ class MaterialService():
 
     @staticmethod
     def create_and_assign_material_slots(basemesh, bodyproxy=None):
+        """Creates and assigns material slots for each body vertex group.
+
+        Args:
+            basemesh (bpy.types.Mesh): The base mesh to assign material slots to.
+            bodyproxy (bpy.types.Object): The body proxy to assign material slots to (optional).
+        """
+
         if not MaterialService.has_materials(basemesh):
             raise ValueError("Basemesh must have the initial material created before calling this method")
 
@@ -301,7 +346,7 @@ class MaterialService():
 
         _LOG.debug("prefix", prefix)
 
-        if not bodyproxy is None:
+        if bodyproxy is not None:
             MaterialService.delete_all_materials(bodyproxy)
             MaterialService.assign_new_or_existing_material(base_material.name, bodyproxy)
 
@@ -319,6 +364,14 @@ class MaterialService():
 
     @staticmethod
     def find_color_adjustment(blender_object):
+        """Return a dict with all color adjustments that were applied to the blender object's material slots.
+
+        Args:
+            blender_object (bpy.types.Object): The blender object to find color adjustments for.
+
+        Returns:
+            A dict with all color adjustments that were applied to the blender object's material slots.'
+        """
         if not blender_object:
             _LOG.debug("The blender object was none")
             return None
@@ -343,13 +396,19 @@ class MaterialService():
 
         info = NodeService.get_node_info(mix)
 
-        if not info or not "values" in info:
+        if not info or "values" not in info:
             raise ValueError('Could not find values:' + str(info))
 
         return info["values"]
 
     @staticmethod
     def apply_color_adjustment(blender_object, color_adjustment):
+        """Apply a color adjustment to the blender object's material slots.
+
+        Args:
+            blender_object (bpy.types.Object): The blender object to apply the color adjustment to.
+            color_adjustment (dict): The color adjustment to apply.
+        """
         if not blender_object:
             _LOG.debug("The blender object was none")
             return
@@ -376,26 +435,32 @@ class MaterialService():
 
     @staticmethod
     def get_skin_diffuse_color():
+        """Return a static color for the skin material, for example to be used in the viewport."""
         return [0.721, 0.568, 0.431, 1.0]
 
     @staticmethod
     def get_generic_bodypart_diffuse_color():
+        """Return a static color for a bodypart material, for example to be used in the viewport."""
         return [0.194, 0.030, 0.014, 1.0]
 
     @staticmethod
     def get_generic_clothes_diffuse_color():
+        """Return a static color for a clothes material, for example to be used in the viewport."""
         return [0.6, 0.6, 0.6, 1.0]
 
     @staticmethod
     def get_eye_diffuse_color():
+        """Return a static color for the eye material, for example to be used in the viewport."""
         return [0.95, 0.95, 0.95, 1.0]
 
     @staticmethod
     def get_teeth_diffuse_color():
+        """Return a static color for the teeth material, for example to be used in the viewport."""
         return [0.95, 0.95, 0.95, 1.0]
 
     @staticmethod
     def get_diffuse_colors():
+        """Return all static colors for all materials."""
         colors = dict()
         colors["Eyes"] = MaterialService.get_eye_diffuse_color()
         colors["Teeth"] = MaterialService.get_teeth_diffuse_color()
