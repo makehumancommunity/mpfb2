@@ -35,11 +35,16 @@ class BlenderConfigSet(ConfigurationSet):
             _LOG.trace("file name", file_name)
             if fnmatch(file_name, "*.json"):
                 json_file_name = os.path.join(properties_dir, file_name)
-                _LOG.debug("Adding scene properties from file", json_file_name)
-                with open(json_file_name) as json_file:
-                    data = json.load(json_file)
-                    _LOG.dump("Json from file", data)
-                    known_properties.append(data)
+                _LOG.debug("Trying to add properties from file", json_file_name)
+                try:                 
+                    with open(json_file_name) as json_file:
+                        data = json.load(json_file)
+                        _LOG.dump("Json from file", data)
+                        known_properties.append(data)
+                except Exception as e:
+                    _LOG.error("FAILED to add properties from file", os.path.abspath(json_file_name))
+                    _LOG.error("Exception was", e)
+                    raise IOError("Failed to read properties from " + str(json_file))
         return known_properties
 
     def check_and_transform_entity_reference(self, entity_reference):
