@@ -4,21 +4,21 @@ _ORIGINAL_NODE_DEF = json.loads("""
 {
     "class": "MpfbSkinSpot",
     "inputs": {
-        "Input_8": {
+        "Input_0": {
             "name": "SkinColor",
-            "identifier": "Input_8",
+            "identifier": "Input_0",
             "class": "NodeSocketColor",
             "value_type": "RGBA",
             "default_value": [
+                0.9963,
+                0.936,
                 1.0,
-                0.6899,
-                0.4647,
                 1.0
             ]
         },
-        "Input_12": {
+        "Input_1": {
             "name": "SpotColor",
-            "identifier": "Input_12",
+            "identifier": "Input_1",
             "class": "NodeSocketColor",
             "value_type": "RGBA",
             "default_value": [
@@ -28,18 +28,18 @@ _ORIGINAL_NODE_DEF = json.loads("""
                 1.0
             ]
         },
-        "Input_9": {
+        "Input_2": {
             "name": "SpotStrength",
-            "identifier": "Input_9",
+            "identifier": "Input_2",
             "class": "NodeSocketFloatFactor",
             "value_type": "VALUE",
             "default_value": 0.6,
             "min_value": 0.0,
             "max_value": 1.0
         },
-        "Input_10": {
+        "Input_3": {
             "name": "SpotScaleMultiplier",
-            "identifier": "Input_10",
+            "identifier": "Input_3",
             "class": "NodeSocketFloat",
             "value_type": "VALUE",
             "default_value": 20.0,
@@ -73,18 +73,18 @@ _ORIGINAL_NODE_DEF = json.loads("""
             "min_value": 0.0,
             "max_value": 1.0
         },
-        "Input_13": {
+        "Input_7": {
             "name": "SpotValley",
-            "identifier": "Input_13",
+            "identifier": "Input_7",
             "class": "NodeSocketFloat",
             "value_type": "VALUE",
             "default_value": 0.848,
             "min_value": 0.0,
             "max_value": 0.99
         },
-        "Input_14": {
+        "Input_8": {
             "name": "SpotPeak",
-            "identifier": "Input_14",
+            "identifier": "Input_8",
             "class": "NodeSocketFloat",
             "value_type": "VALUE",
             "default_value": 0.916,
@@ -93,9 +93,9 @@ _ORIGINAL_NODE_DEF = json.loads("""
         }
     },
     "outputs": {
-        "Output_7": {
+        "Output_9": {
             "name": "Color",
-            "identifier": "Output_7",
+            "identifier": "Output_9",
             "class": "NodeSocketColor",
             "value_type": "RGBA",
             "default_value": [
@@ -125,8 +125,8 @@ _ORIGINAL_NODE_DEF = json.loads("""
             "name": "location",
             "class": "Vector",
             "value": [
-                -32.5884,
-                543.9255
+                -437.9299,
+                347.867
             ]
         },
         "use_custom_color": {
@@ -137,7 +137,7 @@ _ORIGINAL_NODE_DEF = json.loads("""
         "width": {
             "name": "width",
             "class": "float",
-            "value": 190.1191
+            "value": 140.0
         }
     }
 }""")
@@ -146,51 +146,9 @@ _ORIGINAL_TREE_DEF = json.loads("""
 {
     "links": [
         {
-            "from_node": "Group",
-            "from_socket": "scale_factor",
-            "to_node": "Math",
-            "to_socket": "Value_001"
-        },
-        {
-            "from_node": "Texture Coordinate",
-            "from_socket": "Object",
-            "to_node": "Noise Texture",
-            "to_socket": "Vector"
-        },
-        {
-            "from_node": "Group Input",
-            "from_socket": "SkinColor",
-            "to_node": "Mix",
-            "to_socket": "A_Color"
-        },
-        {
-            "from_node": "Mix",
-            "from_socket": "Result_Color",
-            "to_node": "Group Output",
-            "to_socket": "Color"
-        },
-        {
             "from_node": "Group Input",
             "from_socket": "SpotScaleMultiplier",
             "to_node": "Math",
-            "to_socket": "Value"
-        },
-        {
-            "from_node": "Noise Texture",
-            "from_socket": "Fac",
-            "to_node": "Group.001",
-            "to_socket": "Value"
-        },
-        {
-            "from_node": "Math.001",
-            "from_socket": "Value",
-            "to_node": "Mix",
-            "to_socket": "Factor_Float"
-        },
-        {
-            "from_node": "Group.001",
-            "from_socket": "Value",
-            "to_node": "Math.001",
             "to_socket": "Value"
         },
         {
@@ -198,12 +156,6 @@ _ORIGINAL_TREE_DEF = json.loads("""
             "from_socket": "SpotStrength",
             "to_node": "Math.001",
             "to_socket": "Value_001"
-        },
-        {
-            "from_node": "Math",
-            "from_socket": "Value",
-            "to_node": "Noise Texture",
-            "to_socket": "Scale"
         },
         {
             "from_node": "Group Input",
@@ -224,10 +176,34 @@ _ORIGINAL_TREE_DEF = json.loads("""
             "to_socket": "Roughness"
         },
         {
-            "from_node": "Group Input",
-            "from_socket": "SpotColor",
-            "to_node": "Mix",
-            "to_socket": "B_Color"
+            "from_node": "Group",
+            "from_socket": "scale_factor",
+            "to_node": "Math",
+            "to_socket": "Value_001"
+        },
+        {
+            "from_node": "Texture Coordinate",
+            "from_socket": "Object",
+            "to_node": "Noise Texture",
+            "to_socket": "Vector"
+        },
+        {
+            "from_node": "Noise Texture",
+            "from_socket": "Fac",
+            "to_node": "Group.001",
+            "to_socket": "Value"
+        },
+        {
+            "from_node": "Group.001",
+            "from_socket": "Value",
+            "to_node": "Math.001",
+            "to_socket": "Value"
+        },
+        {
+            "from_node": "Math",
+            "from_socket": "Value",
+            "to_node": "Noise Texture",
+            "to_socket": "Scale"
         },
         {
             "from_node": "Group Input",
@@ -240,22 +216,33 @@ _ORIGINAL_TREE_DEF = json.loads("""
             "from_socket": "SpotPeak",
             "to_node": "Group.001",
             "to_socket": "BetweenStop2Position"
+        },
+        {
+            "from_node": "Group Input",
+            "from_socket": "SkinColor",
+            "to_node": "Mix",
+            "to_socket": "A_Color"
+        },
+        {
+            "from_node": "Mix",
+            "from_socket": "Result_Color",
+            "to_node": "Group Output",
+            "to_socket": "Color"
+        },
+        {
+            "from_node": "Math.001",
+            "from_socket": "Value",
+            "to_node": "Mix",
+            "to_socket": "Factor_Float"
+        },
+        {
+            "from_node": "Group Input",
+            "from_socket": "SpotColor",
+            "to_node": "Mix",
+            "to_socket": "B_Color"
         }
     ],
     "nodes": [
-        {
-            "attribute_values": {
-                "location": [
-                    1366.6917,
-                    21.0829
-                ]
-            },
-            "class": "NodeGroupOutput",
-            "input_socket_values": {},
-            "label": "Group Output",
-            "name": "Group Output",
-            "output_socket_values": {}
-        },
         {
             "attribute_values": {
                 "location": [
@@ -305,22 +292,91 @@ _ORIGINAL_TREE_DEF = json.loads("""
         {
             "attribute_values": {
                 "color": [
-                    0.608,
-                    0.608,
-                    0.608
+                    0.35,
+                    0.35,
+                    0.0
                 ],
                 "height": 100.0,
                 "location": [
                     -805.7254,
                     212.348
                 ],
-                "use_custom_color": false,
+                "use_custom_color": true,
                 "width": 140.0
             },
             "class": "MpfbCharacterInfo",
             "input_socket_values": {},
             "label": "Group",
             "name": "Group",
+            "output_socket_values": {}
+        },
+        {
+            "attribute_values": {
+                "location": [
+                    1366.6917,
+                    21.0829
+                ]
+            },
+            "class": "NodeGroupOutput",
+            "input_socket_values": {},
+            "label": "Group Output",
+            "name": "Group Output",
+            "output_socket_values": {}
+        },
+        {
+            "attribute_values": {
+                "data_type": "RGBA",
+                "location": [
+                    1070.9824,
+                    -65.9174
+                ]
+            },
+            "class": "ShaderNodeMix",
+            "input_socket_values": {
+                "A_Color": [
+                    0.5,
+                    0.0051,
+                    0.0,
+                    1.0
+                ],
+                "B_Color": [
+                    0.0,
+                    0.0,
+                    0.0,
+                    1.0
+                ],
+                "Factor_Float": 0.1
+            },
+            "label": "Mix",
+            "name": "Mix",
+            "output_socket_values": {}
+        },
+        {
+            "attribute_values": {
+                "color": [
+                    0.4,
+                    0.4,
+                    0.5
+                ],
+                "height": 100.0,
+                "location": [
+                    464.3445,
+                    359.8197
+                ],
+                "use_custom_color": true,
+                "width": 242.6163
+            },
+            "class": "MpfbValueRamp3",
+            "input_socket_values": {
+                "BetweenStop1Position": 0.848,
+                "BetweenStop1Value": 0.0,
+                "BetweenStop2Position": 0.916,
+                "BetweenStop2Value": 1.0,
+                "OneStopValue": 1.0,
+                "ZeroStopValue": 0.0
+            },
+            "label": "Group.001",
+            "name": "Group.001",
             "output_socket_values": {}
         },
         {
@@ -337,48 +393,6 @@ _ORIGINAL_TREE_DEF = json.loads("""
             },
             "label": "Math.001",
             "name": "Math.001",
-            "output_socket_values": {}
-        },
-        {
-            "attribute_values": {
-                "data_type": "RGBA",
-                "location": [
-                    1070.9824,
-                    -65.9174
-                ]
-            },
-            "class": "ShaderNodeMix",
-            "input_socket_values": {
-                "Factor_Float": 0.1
-            },
-            "label": "Mix",
-            "name": "Mix",
-            "output_socket_values": {}
-        },
-        {
-            "attribute_values": {
-                "color": [
-                    0.608,
-                    0.608,
-                    0.608
-                ],
-                "height": 100.0,
-                "location": [
-                    464.3445,
-                    359.8197
-                ],
-                "use_custom_color": false,
-                "width": 242.6163
-            },
-            "class": "MpfbValueRamp3",
-            "input_socket_values": {
-                "BetweenStop1Position": 0.848,
-                "BetweenStop1Value": 0.0,
-                "BetweenStop2Position": 0.916,
-                "BetweenStop2Value": 1.0
-            },
-            "label": "Group.001",
-            "name": "Group.001",
             "output_socket_values": {}
         },
         {
@@ -417,26 +431,26 @@ class _NodeWrapperMpfbSkinSpot(AbstractGroupWrapper):
         node("ShaderNodeTexCoord", "Texture Coordinate", attribute_values={"location": [-444.5622, 608.2729]})
         node("ShaderNodeTexNoise", "Noise Texture", attribute_values={"location": [50.5701, 299.0699]}, input_socket_values={"Detail": 1.0, "Roughness": 0.0, "Scale": 200.0})
         node("ShaderNodeMath", "Math", attribute_values={"location": [-429.549, 158.7146], "operation": "DIVIDE"}, input_socket_values={"Value": 40.0})
-        node("MpfbCharacterInfo", "Group", attribute_values={"color": [0.608, 0.608, 0.608], "height": 100.0, "location": [-805.7254, 212.348], "use_custom_color": False, "width": 140.0})
+        node("MpfbCharacterInfo", "Group", attribute_values={"color": [0.35, 0.35, 0.0], "height": 100.0, "location": [-805.7254, 212.348], "use_custom_color": True, "width": 140.0})
+        node("ShaderNodeMix", "Mix", attribute_values={"data_type": "RGBA", "location": [1070.9824, -65.9174]}, input_socket_values={"A_Color": [0.5, 0.0051, 0.0, 1.0], "B_Color": [0.0, 0.0, 0.0, 1.0], "Factor_Float": 0.1})
+        node("MpfbValueRamp3", "Group.001", attribute_values={"color": [0.4, 0.4, 0.5], "height": 100.0, "location": [464.3445, 359.8197], "use_custom_color": True, "width": 242.6163}, input_socket_values={"ZeroStopValue": 0.0, "BetweenStop1Value": 0.0, "BetweenStop2Value": 1.0, "OneStopValue": 1.0, "BetweenStop1Position": 0.848, "BetweenStop2Position": 0.916})
         node("ShaderNodeMath", "Math.001", attribute_values={"location": [814.5854, 63.3332], "operation": "MULTIPLY"}, input_socket_values={"Value_001": 1.0})
-        node("ShaderNodeMix", "Mix", attribute_values={"data_type": "RGBA", "location": [1070.9824, -65.9174]}, input_socket_values={"Factor_Float": 0.1})
-        node("MpfbValueRamp3", "Group.001", attribute_values={"color": [0.608, 0.608, 0.608], "height": 100.0, "location": [464.3445, 359.8197], "use_custom_color": False, "width": 242.6163}, input_socket_values={"BetweenStop1Value": 0.0, "BetweenStop2Value": 1.0, "BetweenStop1Position": 0.848, "BetweenStop2Position": 0.916})
 
-        link("Group Input", "SkinColor", "Mix", "A_Color")
         link("Group Input", "SpotScaleMultiplier", "Math", "Value")
         link("Group Input", "SpotStrength", "Math.001", "Value_001")
         link("Group Input", "SpotDetail", "Noise Texture", "Detail")
         link("Group Input", "SpotDistortion", "Noise Texture", "Distortion")
         link("Group Input", "SpotRoughness", "Noise Texture", "Roughness")
-        link("Group Input", "SpotColor", "Mix", "B_Color")
         link("Group Input", "SpotValley", "Group.001", "BetweenStop1Position")
         link("Group Input", "SpotPeak", "Group.001", "BetweenStop2Position")
+        link("Group Input", "SkinColor", "Mix", "A_Color")
+        link("Group Input", "SpotColor", "Mix", "B_Color")
         link("Group", "scale_factor", "Math", "Value_001")
         link("Texture Coordinate", "Object", "Noise Texture", "Vector")
         link("Noise Texture", "Fac", "Group.001", "Value")
-        link("Math.001", "Value", "Mix", "Factor_Float")
         link("Group.001", "Value", "Math.001", "Value")
         link("Math", "Value", "Noise Texture", "Scale")
+        link("Math.001", "Value", "Mix", "Factor_Float")
         link("Mix", "Result_Color", "Group Output", "Color")
 
 NodeWrapperMpfbSkinSpot = _NodeWrapperMpfbSkinSpot()
