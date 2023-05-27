@@ -4,9 +4,9 @@ _ORIGINAL_NODE_DEF = json.loads("""
 {
     "class": "MpfbSkinNavel",
     "inputs": {
-        "Input_4": {
+        "Input_0": {
             "name": "SkinColor",
-            "identifier": "Input_4",
+            "identifier": "Input_0",
             "class": "NodeSocketColor",
             "value_type": "RGBA",
             "default_value": [
@@ -16,9 +16,9 @@ _ORIGINAL_NODE_DEF = json.loads("""
                 1.0
             ]
         },
-        "Input_5": {
+        "Input_1": {
             "name": "NavelCenterColor",
-            "identifier": "Input_5",
+            "identifier": "Input_1",
             "class": "NodeSocketColor",
             "value_type": "RGBA",
             "default_value": [
@@ -28,9 +28,9 @@ _ORIGINAL_NODE_DEF = json.loads("""
                 1.0
             ]
         },
-        "Input_3": {
+        "Input_2": {
             "name": "Normal",
-            "identifier": "Input_3",
+            "identifier": "Input_2",
             "class": "NodeSocketVector",
             "value_type": "VECTOR",
             "default_value": [
@@ -39,30 +39,32 @@ _ORIGINAL_NODE_DEF = json.loads("""
                 0.0
             ]
         },
-        "Input_7": {
+        "Input_3": {
             "name": "NavelColorStrength",
-            "identifier": "Input_7",
+            "identifier": "Input_3",
             "class": "NodeSocketFloat",
             "value_type": "VALUE",
             "default_value": 1.0,
             "min_value": 0.0,
             "max_value": 1.0
         },
-        "Input_0": {
+        "Input_4": {
             "name": "NavelWidthMultiplier",
-            "identifier": "Input_0",
+            "identifier": "Input_4",
             "class": "NodeSocketFloat",
             "value_type": "VALUE",
             "default_value": 0.01,
             "min_value": 0.001,
             "max_value": 0.2
         },
-        "Input_2": {
+        "Input_5": {
             "name": "NavelBumpStrength",
-            "identifier": "Input_2",
+            "identifier": "Input_5",
             "class": "NodeSocketFloatFactor",
             "value_type": "VALUE",
-            "default_value": 0.1
+            "default_value": 0.1,
+            "min_value": -3.4028234663852886e+38,
+            "max_value": 3.4028234663852886e+38
         }
     },
     "outputs": {
@@ -78,9 +80,9 @@ _ORIGINAL_NODE_DEF = json.loads("""
                 0.0
             ]
         },
-        "Output_1": {
+        "Output_7": {
             "name": "Normal",
-            "identifier": "Output_1",
+            "identifier": "Output_7",
             "class": "NodeSocketVector",
             "value_type": "VECTOR",
             "default_value": [
@@ -95,9 +97,9 @@ _ORIGINAL_NODE_DEF = json.loads("""
             "name": "color",
             "class": "Color",
             "value": [
-                0.608,
-                0.608,
-                0.608
+                0.35,
+                0.0,
+                0.35
             ]
         },
         "height": {
@@ -116,7 +118,7 @@ _ORIGINAL_NODE_DEF = json.loads("""
         "use_custom_color": {
             "name": "use_custom_color",
             "class": "bool",
-            "value": false
+            "value": true
         },
         "width": {
             "name": "width",
@@ -134,6 +136,42 @@ _ORIGINAL_TREE_DEF = json.loads("""
             "from_socket": "Normal",
             "to_node": "Bump",
             "to_socket": "Normal"
+        },
+        {
+            "from_node": "Group Input",
+            "from_socket": "SkinColor",
+            "to_node": "ColorMix",
+            "to_socket": "B_Color"
+        },
+        {
+            "from_node": "Group Input",
+            "from_socket": "NavelBumpStrength",
+            "to_node": "Bump",
+            "to_socket": "Strength"
+        },
+        {
+            "from_node": "Group Input",
+            "from_socket": "NavelWidthMultiplier",
+            "to_node": "WidthMultiplier",
+            "to_socket": "Value"
+        },
+        {
+            "from_node": "Group Input",
+            "from_socket": "NavelCenterColor",
+            "to_node": "Mix",
+            "to_socket": "B_Color"
+        },
+        {
+            "from_node": "Group Input",
+            "from_socket": "SkinColor",
+            "to_node": "Mix",
+            "to_socket": "A_Color"
+        },
+        {
+            "from_node": "Group Input",
+            "from_socket": "NavelColorStrength",
+            "to_node": "Mix",
+            "to_socket": "Factor_Float"
         },
         {
             "from_node": "Coordinates",
@@ -166,22 +204,10 @@ _ORIGINAL_TREE_DEF = json.loads("""
             "to_socket": "Value"
         },
         {
-            "from_node": "Group Input",
-            "from_socket": "SkinColor",
-            "to_node": "ColorMix",
-            "to_socket": "B_Color"
-        },
-        {
             "from_node": "MapNavelRange",
             "from_socket": "Result",
             "to_node": "ValueRamp",
             "to_socket": "Value"
-        },
-        {
-            "from_node": "Group Input",
-            "from_socket": "NavelBumpStrength",
-            "to_node": "Bump",
-            "to_socket": "Strength"
         },
         {
             "from_node": "AdjustBump",
@@ -196,16 +222,28 @@ _ORIGINAL_TREE_DEF = json.loads("""
             "to_socket": "Value"
         },
         {
-            "from_node": "Group Input",
-            "from_socket": "NavelWidthMultiplier",
-            "to_node": "WidthMultiplier",
-            "to_socket": "Value"
-        },
-        {
             "from_node": "WidthMultiplier",
             "from_socket": "Value",
             "to_node": "MapNavelRange",
             "to_socket": "From Max"
+        },
+        {
+            "from_node": "AsValue",
+            "from_socket": "Val",
+            "to_node": "Bump",
+            "to_socket": "Height"
+        },
+        {
+            "from_node": "Math.001",
+            "from_socket": "Value",
+            "to_node": "ColorMix",
+            "to_socket": "Factor_Float"
+        },
+        {
+            "from_node": "Mix",
+            "from_socket": "Result_Color",
+            "to_node": "ColorMix",
+            "to_socket": "A_Color"
         },
         {
             "from_node": "Bump",
@@ -220,61 +258,43 @@ _ORIGINAL_TREE_DEF = json.loads("""
             "to_socket": "SkinColor"
         },
         {
-            "from_node": "AsValue",
-            "from_socket": "Val",
-            "to_node": "Bump",
-            "to_socket": "Height"
+            "from_node": "InsideDistance",
+            "from_socket": "WithinDistance",
+            "to_node": "Math",
+            "to_socket": "Value_001"
         },
         {
             "from_node": "ValueRamp",
             "from_socket": "Value",
-            "to_node": "ColorMix",
-            "to_socket": "Factor_Float"
+            "to_node": "Math.001",
+            "to_socket": "Value"
         },
         {
-            "from_node": "Group Input",
-            "from_socket": "NavelCenterColor",
-            "to_node": "Mix",
-            "to_socket": "B_Color"
-        },
-        {
-            "from_node": "Group Input",
-            "from_socket": "SkinColor",
-            "to_node": "Mix",
-            "to_socket": "A_Color"
-        },
-        {
-            "from_node": "Mix",
-            "from_socket": "Result_Color",
-            "to_node": "ColorMix",
-            "to_socket": "A_Color"
-        },
-        {
-            "from_node": "Group Input",
-            "from_socket": "NavelColorStrength",
-            "to_node": "Mix",
-            "to_socket": "Factor_Float"
+            "from_node": "Math",
+            "from_socket": "Value",
+            "to_node": "Math.001",
+            "to_socket": "Value_001"
         }
     ],
     "nodes": [
         {
             "attribute_values": {
                 "location": [
-                    -895.7065,
-                    152.4116
+                    1434.42,
+                    -310.9015
                 ]
             },
-            "class": "ShaderNodeTexCoord",
+            "class": "NodeGroupOutput",
             "input_socket_values": {},
-            "label": "Texture Coordinate",
-            "name": "Texture Coordinate",
+            "label": "Group Output",
+            "name": "Group Output",
             "output_socket_values": {}
         },
         {
             "attribute_values": {
                 "location": [
-                    -709.6689,
-                    16.9508
+                    -570.997,
+                    9.5032
                 ],
                 "operation": "MULTIPLY"
             },
@@ -288,30 +308,9 @@ _ORIGINAL_TREE_DEF = json.loads("""
         },
         {
             "attribute_values": {
-                "color": [
-                    0.608,
-                    0.608,
-                    0.608
-                ],
-                "height": 100.0,
                 "location": [
-                    -517.1282,
-                    221.2281
-                ],
-                "use_custom_color": false,
-                "width": 200.3467
-            },
-            "class": "MpfbWithinDistance",
-            "input_socket_values": {},
-            "label": "Within relevant distance",
-            "name": "InsideDistance",
-            "output_socket_values": {}
-        },
-        {
-            "attribute_values": {
-                "location": [
-                    -248.8288,
-                    203.7098
+                    -110.1569,
+                    196.2622
                 ]
             },
             "class": "ShaderNodeMapRange",
@@ -323,8 +322,8 @@ _ORIGINAL_TREE_DEF = json.loads("""
         {
             "attribute_values": {
                 "location": [
-                    249.0976,
-                    366.1043
+                    387.7695,
+                    358.6567
                 ],
                 "use_clamp": true
             },
@@ -340,8 +339,8 @@ _ORIGINAL_TREE_DEF = json.loads("""
             "attribute_values": {
                 "data_type": "RGBA",
                 "location": [
-                    479.4925,
-                    340.3265
+                    618.1644,
+                    332.8789
                 ]
             },
             "class": "ShaderNodeMix",
@@ -366,8 +365,8 @@ _ORIGINAL_TREE_DEF = json.loads("""
         {
             "attribute_values": {
                 "location": [
-                    691.7144,
-                    179.1387
+                    830.3863,
+                    171.6911
                 ]
             },
             "class": "ShaderNodeRGBToBW",
@@ -379,16 +378,16 @@ _ORIGINAL_TREE_DEF = json.loads("""
         {
             "attribute_values": {
                 "color": [
-                    0.608,
-                    0.608,
-                    0.608
+                    0.35,
+                    0.35,
+                    0.0
                 ],
                 "height": 100.0,
                 "location": [
-                    -897.0895,
-                    366.3125
+                    -758.4177,
+                    358.8649
                 ],
-                "use_custom_color": false,
+                "use_custom_color": true,
                 "width": 140.0
             },
             "class": "MpfbBodyConstants",
@@ -400,20 +399,27 @@ _ORIGINAL_TREE_DEF = json.loads("""
         {
             "attribute_values": {
                 "color": [
-                    0.608,
-                    0.608,
-                    0.608
+                    0.4,
+                    0.4,
+                    0.5
                 ],
                 "height": 100.0,
                 "location": [
-                    -42.5992,
-                    235.1633
+                    96.0727,
+                    227.7157
                 ],
-                "use_custom_color": false,
+                "use_custom_color": true,
                 "width": 208.9785
             },
             "class": "MpfbValueRamp3",
-            "input_socket_values": {},
+            "input_socket_values": {
+                "BetweenStop1Position": 0.2,
+                "BetweenStop1Value": 0.0,
+                "BetweenStop2Position": 0.8,
+                "BetweenStop2Value": 0.8,
+                "OneStopValue": 1.0,
+                "ZeroStopValue": 0.0
+            },
             "label": "Value ramp",
             "name": "ValueRamp",
             "output_socket_values": {}
@@ -421,8 +427,8 @@ _ORIGINAL_TREE_DEF = json.loads("""
         {
             "attribute_values": {
                 "location": [
-                    1022.2803,
-                    -340.6845
+                    1160.9521,
+                    -348.1321
                 ]
             },
             "class": "ShaderNodeBump",
@@ -435,23 +441,10 @@ _ORIGINAL_TREE_DEF = json.loads("""
         },
         {
             "attribute_values": {
-                "location": [
-                    1295.7482,
-                    -303.4539
-                ]
-            },
-            "class": "NodeGroupOutput",
-            "input_socket_values": {},
-            "label": "Group Output",
-            "name": "Group Output",
-            "output_socket_values": {}
-        },
-        {
-            "attribute_values": {
                 "data_type": "RGBA",
                 "location": [
-                    617.1303,
-                    -95.4095
+                    755.8022,
+                    -102.8571
                 ]
             },
             "class": "ShaderNodeMix",
@@ -477,8 +470,8 @@ _ORIGINAL_TREE_DEF = json.loads("""
             "attribute_values": {
                 "data_type": "RGBA",
                 "location": [
-                    192.1495,
-                    -10.506
+                    156.7835,
+                    -15.1607
                 ]
             },
             "class": "ShaderNodeMix",
@@ -492,8 +485,73 @@ _ORIGINAL_TREE_DEF = json.loads("""
         {
             "attribute_values": {
                 "location": [
-                    -895.5255,
-                    -151.3739
+                    -130.8755,
+                    430.1924
+                ],
+                "operation": "SUBTRACT",
+                "use_clamp": true
+            },
+            "class": "ShaderNodeMath",
+            "input_socket_values": {
+                "Value": 1.0
+            },
+            "label": "Math",
+            "name": "Math",
+            "output_socket_values": {}
+        },
+        {
+            "attribute_values": {
+                "color": [
+                    0.4,
+                    0.4,
+                    0.5
+                ],
+                "height": 100.0,
+                "location": [
+                    -378.4563,
+                    213.7805
+                ],
+                "use_custom_color": true,
+                "width": 200.3467
+            },
+            "class": "MpfbWithinDistance",
+            "input_socket_values": {},
+            "label": "Within relevant distance",
+            "name": "InsideDistance",
+            "output_socket_values": {}
+        },
+        {
+            "attribute_values": {
+                "location": [
+                    399.6143,
+                    136.9439
+                ],
+                "use_clamp": true
+            },
+            "class": "ShaderNodeMath",
+            "input_socket_values": {},
+            "label": "Math.001",
+            "name": "Math.001",
+            "output_socket_values": {}
+        },
+        {
+            "attribute_values": {
+                "location": [
+                    -757.0346,
+                    144.964
+                ]
+            },
+            "class": "ShaderNodeTexCoord",
+            "input_socket_values": {},
+            "label": "Texture Coordinate",
+            "name": "Texture Coordinate",
+            "output_socket_values": {}
+        },
+        {
+            "attribute_values": {
+                "location": [
+                    -756.8537,
+                    -158.8215
                 ]
             },
             "class": "NodeGroupInput",
@@ -519,21 +577,23 @@ class _NodeWrapperMpfbSkinNavel(AbstractGroupWrapper):
         def link(from_node, from_socket, to_node, to_socket):
             AbstractGroupWrapper.create_link(node_tree, nodes[from_node], from_socket, nodes[to_node], to_socket)
 
-        nodes["Group Output"].location = [1295.7482, -303.4539]
-        nodes["Group Input"].location = [-895.5255, -151.3739]
+        nodes["Group Output"].location = [1434.42, -310.9015]
+        nodes["Group Input"].location = [-756.8537, -158.8215]
 
-        node("ShaderNodeTexCoord", "Texture Coordinate", attribute_values={"location": [-895.7065, 152.4116]})
-        node("ShaderNodeMath", "WidthMultiplier", label="Width multiplier", attribute_values={"location": [-709.6689, 16.9508], "operation": "MULTIPLY"}, input_socket_values={"Value_001": 0.001})
-        node("MpfbWithinDistance", "InsideDistance", label="Within relevant distance", attribute_values={"color": [0.608, 0.608, 0.608], "height": 100.0, "location": [-517.1282, 221.2281], "use_custom_color": False, "width": 200.3467})
-        node("ShaderNodeMapRange", "MapNavelRange", label="Map Range", attribute_values={"location": [-248.8288, 203.7098]})
-        node("ShaderNodeMath", "AdjustBump", label="Adjust bump value", attribute_values={"location": [249.0976, 366.1043], "use_clamp": True}, input_socket_values={"Value_001": 0.3})
-        node("ShaderNodeMix", "HeightMix", label="Height Mix", attribute_values={"data_type": "RGBA", "location": [479.4925, 340.3265]}, input_socket_values={"A_Color": [0.0, 0.0, 0.0, 1.0], "B_Color": [1.0, 1.0, 1.0, 1.0]})
-        node("ShaderNodeRGBToBW", "AsValue", label="As value", attribute_values={"location": [691.7144, 179.1387]})
-        node("MpfbBodyConstants", "Coordinates", label="Body coordinates", attribute_values={"color": [0.608, 0.608, 0.608], "height": 100.0, "location": [-897.0895, 366.3125], "use_custom_color": False, "width": 140.0})
-        node("MpfbValueRamp3", "ValueRamp", label="Value ramp", attribute_values={"color": [0.608, 0.608, 0.608], "height": 100.0, "location": [-42.5992, 235.1633], "use_custom_color": False, "width": 208.9785})
-        node("ShaderNodeBump", "Bump", attribute_values={"location": [1022.2803, -340.6845]}, input_socket_values={"Strength": 0.3})
-        node("ShaderNodeMix", "ColorMix", label="Color Mix", attribute_values={"data_type": "RGBA", "location": [617.1303, -95.4095]}, input_socket_values={"A_Color": [0.5138, 0.2284, 0.0983, 1.0], "B_Color": [1.0, 1.0, 1.0, 1.0]})
-        node("ShaderNodeMix", "Mix", attribute_values={"data_type": "RGBA", "location": [192.1495, -10.506]}, input_socket_values={"Factor_Float": 1.0})
+        node("ShaderNodeMath", "WidthMultiplier", label="Width multiplier", attribute_values={"location": [-570.997, 9.5032], "operation": "MULTIPLY"}, input_socket_values={"Value_001": 0.001})
+        node("ShaderNodeMapRange", "MapNavelRange", label="Map Range", attribute_values={"location": [-110.1569, 196.2622]})
+        node("ShaderNodeMath", "AdjustBump", label="Adjust bump value", attribute_values={"location": [387.7695, 358.6567], "use_clamp": True}, input_socket_values={"Value_001": 0.3})
+        node("ShaderNodeMix", "HeightMix", label="Height Mix", attribute_values={"data_type": "RGBA", "location": [618.1644, 332.8789]}, input_socket_values={"A_Color": [0.0, 0.0, 0.0, 1.0], "B_Color": [1.0, 1.0, 1.0, 1.0]})
+        node("ShaderNodeRGBToBW", "AsValue", label="As value", attribute_values={"location": [830.3863, 171.6911]})
+        node("MpfbBodyConstants", "Coordinates", label="Body coordinates", attribute_values={"color": [0.35, 0.35, 0.0], "height": 100.0, "location": [-758.4177, 358.8649], "use_custom_color": True, "width": 140.0})
+        node("MpfbValueRamp3", "ValueRamp", label="Value ramp", attribute_values={"color": [0.4, 0.4, 0.5], "height": 100.0, "location": [96.0727, 227.7157], "use_custom_color": True, "width": 208.9785}, input_socket_values={"ZeroStopValue": 0.0, "BetweenStop1Value": 0.0, "BetweenStop2Value": 0.8, "OneStopValue": 1.0, "BetweenStop1Position": 0.2, "BetweenStop2Position": 0.8})
+        node("ShaderNodeBump", "Bump", attribute_values={"location": [1160.9521, -348.1321]}, input_socket_values={"Strength": 0.3})
+        node("ShaderNodeMix", "ColorMix", label="Color Mix", attribute_values={"data_type": "RGBA", "location": [755.8022, -102.8571]}, input_socket_values={"A_Color": [0.5138, 0.2284, 0.0983, 1.0], "B_Color": [1.0, 1.0, 1.0, 1.0]})
+        node("ShaderNodeMix", "Mix", attribute_values={"data_type": "RGBA", "location": [156.7835, -15.1607]}, input_socket_values={"Factor_Float": 1.0})
+        node("ShaderNodeMath", "Math", attribute_values={"location": [-130.8755, 430.1924], "operation": "SUBTRACT", "use_clamp": True}, input_socket_values={"Value": 1.0})
+        node("MpfbWithinDistance", "InsideDistance", label="Within relevant distance", attribute_values={"color": [0.4, 0.4, 0.5], "height": 100.0, "location": [-378.4563, 213.7805], "use_custom_color": True, "width": 200.3467})
+        node("ShaderNodeMath", "Math.001", attribute_values={"location": [399.6143, 136.9439], "use_clamp": True})
+        node("ShaderNodeTexCoord", "Texture Coordinate", attribute_values={"location": [-757.0346, 144.964]})
 
         link("Group Input", "Normal", "Bump", "Normal")
         link("Group Input", "SkinColor", "ColorMix", "B_Color")
@@ -552,8 +612,11 @@ class _NodeWrapperMpfbSkinNavel(AbstractGroupWrapper):
         link("ValueRamp", "Value", "AdjustBump", "Value")
         link("WidthMultiplier", "Value", "MapNavelRange", "From Max")
         link("AsValue", "Val", "Bump", "Height")
-        link("ValueRamp", "Value", "ColorMix", "Factor_Float")
+        link("Math.001", "Value", "ColorMix", "Factor_Float")
         link("Mix", "Result_Color", "ColorMix", "A_Color")
+        link("InsideDistance", "WithinDistance", "Math", "Value_001")
+        link("ValueRamp", "Value", "Math.001", "Value")
+        link("Math", "Value", "Math.001", "Value_001")
         link("Bump", "Normal", "Group Output", "Normal")
         link("ColorMix", "Result_Color", "Group Output", "SkinColor")
 
