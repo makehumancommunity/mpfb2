@@ -13,18 +13,36 @@ _ORIGINAL_NODE_DEF = json.loads("""
             "min_value": -10000.0,
             "max_value": 10000.0
         },
-        "Input_2": {
+        "Input_1": {
             "name": "DermalBumpStrength",
-            "identifier": "Input_2",
+            "identifier": "Input_1",
             "class": "NodeSocketFloatFactor",
             "value_type": "VALUE",
             "default_value": 0.15,
             "min_value": 0.0,
             "max_value": 1.0
         },
-        "Input_3": {
+        "Input_4": {
+            "name": "DermalValley",
+            "identifier": "Input_4",
+            "class": "NodeSocketFloat",
+            "value_type": "VALUE",
+            "default_value": 0.05,
+            "min_value": 0.0,
+            "max_value": 1.0
+        },
+        "Input_5": {
+            "name": "DermalPeak",
+            "identifier": "Input_5",
+            "class": "NodeSocketFloat",
+            "value_type": "VALUE",
+            "default_value": 0.1,
+            "min_value": 0.0,
+            "max_value": 1.0
+        },
+        "Input_2": {
             "name": "Normal",
-            "identifier": "Input_3",
+            "identifier": "Input_2",
             "class": "NodeSocketVector",
             "value_type": "VECTOR",
             "default_value": [
@@ -35,9 +53,9 @@ _ORIGINAL_NODE_DEF = json.loads("""
         }
     },
     "outputs": {
-        "Output_1": {
+        "Output_3": {
             "name": "Normal",
-            "identifier": "Output_1",
+            "identifier": "Output_3",
             "class": "NodeSocketVector",
             "value_type": "VECTOR",
             "default_value": [
@@ -66,8 +84,8 @@ _ORIGINAL_NODE_DEF = json.loads("""
             "name": "location",
             "class": "Vector",
             "value": [
-                175.0831,
-                -339.0752
+                -439.0309,
+                178.1685
             ]
         },
         "use_custom_color": {
@@ -78,7 +96,7 @@ _ORIGINAL_NODE_DEF = json.loads("""
         "width": {
             "name": "width",
             "class": "float",
-            "value": 320.8665
+            "value": 140.0
         }
     }
 }""")
@@ -93,16 +111,16 @@ _ORIGINAL_TREE_DEF = json.loads("""
             "to_socket": "Value"
         },
         {
-            "from_node": "Bump",
-            "from_socket": "Normal",
-            "to_node": "Group Output",
-            "to_socket": "Normal"
-        },
-        {
             "from_node": "Group Input",
             "from_socket": "DermalBumpStrength",
             "to_node": "Bump",
             "to_socket": "Strength"
+        },
+        {
+            "from_node": "Group Input",
+            "from_socket": "Normal",
+            "to_node": "Bump",
+            "to_socket": "Normal"
         },
         {
             "from_node": "Group",
@@ -135,13 +153,38 @@ _ORIGINAL_TREE_DEF = json.loads("""
             "to_socket": "Height"
         },
         {
-            "from_node": "Group Input",
+            "from_node": "Bump",
             "from_socket": "Normal",
-            "to_node": "Bump",
+            "to_node": "Group Output",
             "to_socket": "Normal"
+        },
+        {
+            "from_node": "Group Input",
+            "from_socket": "DermalValley",
+            "to_node": "Group.001",
+            "to_socket": "BetweenStop1Position"
+        },
+        {
+            "from_node": "Group Input",
+            "from_socket": "DermalPeak",
+            "to_node": "Group.001",
+            "to_socket": "BetweenStop2Position"
         }
     ],
     "nodes": [
+        {
+            "attribute_values": {
+                "location": [
+                    972.6872,
+                    46.8686
+                ]
+            },
+            "class": "NodeGroupOutput",
+            "input_socket_values": {},
+            "label": "Group Output",
+            "name": "Group Output",
+            "output_socket_values": {}
+        },
         {
             "attribute_values": {
                 "location": [
@@ -173,24 +216,23 @@ _ORIGINAL_TREE_DEF = json.loads("""
         {
             "attribute_values": {
                 "color": [
-                    0.608,
-                    0.608,
-                    0.608
+                    0.4,
+                    0.4,
+                    0.5
                 ],
                 "height": 100.0,
                 "location": [
                     248.2872,
                     182.0687
                 ],
-                "use_custom_color": false,
+                "use_custom_color": true,
                 "width": 248.8326
             },
             "class": "MpfbValueRamp3",
             "input_socket_values": {
                 "BetweenStop1Position": 0.05,
-                "BetweenStop1Value": 0.0,
                 "BetweenStop2Position": 0.1,
-                "BetweenStop2Value": 1.0
+                "BetweenStop2Value": 0.0
             },
             "label": "Group.001",
             "name": "Group.001",
@@ -198,30 +240,17 @@ _ORIGINAL_TREE_DEF = json.loads("""
         },
         {
             "attribute_values": {
-                "location": [
-                    972.6872,
-                    46.8686
-                ]
-            },
-            "class": "NodeGroupOutput",
-            "input_socket_values": {},
-            "label": "Group Output",
-            "name": "Group Output",
-            "output_socket_values": {}
-        },
-        {
-            "attribute_values": {
                 "color": [
-                    0.608,
-                    0.608,
-                    0.608
+                    0.35,
+                    0.35,
+                    0.0
                 ],
                 "height": 100.0,
                 "location": [
                     -597.7336,
                     345.4013
                 ],
-                "use_custom_color": false,
+                "use_custom_color": true,
                 "width": 140.0
             },
             "class": "MpfbCharacterInfo",
@@ -293,14 +322,16 @@ class _NodeWrapperMpfbSkinNormalDermal(AbstractGroupWrapper):
 
         node("ShaderNodeMath", "Math", attribute_values={"location": [-314.7333, 246.1363], "operation": "DIVIDE"})
         node("ShaderNodeTexVoronoi", "Voronoi Texture", attribute_values={"feature": "DISTANCE_TO_EDGE", "location": [-27.5202, 196.071]})
-        node("MpfbValueRamp3", "Group.001", attribute_values={"color": [0.608, 0.608, 0.608], "height": 100.0, "location": [248.2872, 182.0687], "use_custom_color": False, "width": 248.8326}, input_socket_values={"BetweenStop1Value": 0.0, "BetweenStop2Value": 1.0, "BetweenStop1Position": 0.05, "BetweenStop2Position": 0.1})
-        node("MpfbCharacterInfo", "Group", attribute_values={"color": [0.608, 0.608, 0.608], "height": 100.0, "location": [-597.7336, 345.4013], "use_custom_color": False, "width": 140.0})
+        node("MpfbValueRamp3", "Group.001", attribute_values={"color": [0.4, 0.4, 0.5], "height": 100.0, "location": [248.2872, 182.0687], "use_custom_color": True, "width": 248.8326}, input_socket_values={"BetweenStop2Value": 0.0, "BetweenStop1Position": 0.05, "BetweenStop2Position": 0.1})
+        node("MpfbCharacterInfo", "Group", attribute_values={"color": [0.35, 0.35, 0.0], "height": 100.0, "location": [-597.7336, 345.4013], "use_custom_color": True, "width": 140.0})
         node("ShaderNodeTexCoord", "Texture Coordinate", attribute_values={"location": [-467.8459, 14.2048]})
         node("ShaderNodeBump", "Bump", attribute_values={"location": [678.1032, -18.3332]}, input_socket_values={"Strength": 0.3})
 
         link("Group Input", "DermalScaleMultiplier", "Math", "Value")
         link("Group Input", "DermalBumpStrength", "Bump", "Strength")
         link("Group Input", "Normal", "Bump", "Normal")
+        link("Group Input", "DermalValley", "Group.001", "BetweenStop1Position")
+        link("Group Input", "DermalPeak", "Group.001", "BetweenStop2Position")
         link("Group", "scale_factor", "Math", "Value_001")
         link("Math", "Value", "Voronoi Texture", "Scale")
         link("Texture Coordinate", "Object", "Voronoi Texture", "Vector")
