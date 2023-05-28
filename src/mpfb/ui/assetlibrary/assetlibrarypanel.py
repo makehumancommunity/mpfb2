@@ -1,6 +1,6 @@
 """Asset library subpanels"""
 
-import bpy
+import bpy, math
 from mpfb import ClassManager
 from mpfb.services.logservice import LogService
 from mpfb.services.assetservice import AssetService, ASSET_LIBRARY_SECTIONS
@@ -39,6 +39,10 @@ class _Abstract_Asset_Library_Panel(bpy.types.Panel):
 
     def _draw_section(self, scene, layout):
         _LOG.enter()
+        tot_width = bpy.context.region.width
+        cols = max(1, math.floor(tot_width / 256))
+        _LOG.debug("Number of UI columns to use", cols)
+
         items = AssetService.get_asset_list(self.asset_subdir, self.asset_type)
         allnames = list(items.keys())
         if len(allnames) < 1:
@@ -61,12 +65,10 @@ class _Abstract_Asset_Library_Panel(bpy.types.Panel):
             original_name = items[name]["name_without_ext"]
             if filter_term:
                 if not filter_term in str(name).lower() and not filter_term in original_name:
-                    _LOG.debug(name + " not acceptable, does not match ", filter_term)
+                    _LOG.trace(name + " not acceptable, does not match ", filter_term)
                     acceptable = False
             if pack_term:
                 if not original_name in pack_assets:
-                    if "shoe" in name:
-                        _LOG.debug(original_name + " not acceptable, not in any asset pack matching", pack_term)
                     acceptable = False
             if acceptable:
                 names.append(name)
@@ -76,8 +78,10 @@ class _Abstract_Asset_Library_Panel(bpy.types.Panel):
             layout.label(text="Maybe change filter?")
             return
 
+        grid = layout.grid_flow(columns=cols, even_columns=True, even_rows=False)
+
         for name in names:
-            box = layout.box()
+            box = grid.box()
             box.label(text=name)
             asset = items[name]
             is_equipped = False
@@ -86,7 +90,7 @@ class _Abstract_Asset_Library_Panel(bpy.types.Panel):
                     is_equipped = True
                     break
             _LOG.debug("Now checking asset", asset)
-            _LOG.debug("Asset is equipped", is_equipped)
+            _LOG.dump("Asset is equipped", is_equipped)
 
             if "thumb" in asset and not asset["thumb"] is None:
                 box.template_icon(icon_value=asset["thumb"].icon_id, scale=6.0)
