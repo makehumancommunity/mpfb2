@@ -1,6 +1,6 @@
 """Target subpanels for modeling humans"""
 
-import bpy, os, json
+import bpy, os, json, math
 from bpy.props import FloatProperty
 from mpfb import ClassManager
 from mpfb.services.logservice import LogService
@@ -63,9 +63,14 @@ class _Abstract_Model_Panel(bpy.types.Panel):
         if not basemesh:
             return
 
+        tot_width = bpy.context.region.width
+        cols = max(1, math.floor(tot_width / 220))
+        _LOG.debug("Number of UI columns to use", cols)
+        grid = layout.grid_flow(columns=cols, even_columns=True, even_rows=False)
+
         _LOG.dump("target_dir", self.target_dir)
         for category in self.section["categories"]:
-            self._draw_category(scene, layout, category, basemesh)
+            self._draw_category(scene, grid, category, basemesh)
 
 _sections = dict()
 with open(_TARGETS_JSON, "r") as _json_file:
