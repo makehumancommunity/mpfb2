@@ -36,16 +36,6 @@ class AbstractNodeWrapper():
                     _LOG.error(key + " is not a valid attribute for " + self.node_class_name)
                     raise ValueError(key + " is not a valid attribute for " + self.node_class_name)
 
-    def _find_socket(self, socket_list, socket_id):
-        for socket in socket_list:
-            if socket.identifier == socket_id:
-                return socket
-        for socket in socket_list:
-            if socket.name == socket_id:
-                return socket
-        _LOG.warn("Could not find socket", (socket_id, socket_list))
-        return None
-
     def _check_is_valid_assignment(self, value, definition_class):
         value_class = type(value).__name__
         if value_class == definition_class:
@@ -103,7 +93,7 @@ class AbstractNodeWrapper():
             if not self._check_is_valid_assignment(value, input["class"]):
                 _LOG.error("Cannot use '" + str(value) + "' as value for " + key + " input of " + self.node_class_name + ". Expected value of type " + input["class"] + ".")
                 raise ValueError("Cannot use '" + str(value) + "' as value for " + key + " input of " + self.node_class_name + ". Expected value of type " + input["class"] + ".")
-            input_socket = self._find_socket(node.inputs, key)
+            input_socket = NodeService.find_input_socket_by_identifier_or_name(node, key, key)
             if not input_socket:
                 _LOG.error("Input socket '" + key + "' was valid per the original definition, but does not exist on node with class " + node.__class__.__name__)
                 if str(node.__class__.__name__) == "ShaderNodeGroup":
@@ -122,7 +112,7 @@ class AbstractNodeWrapper():
             if not self._check_is_valid_assignment(value, output["class"]):
                 _LOG.error("Cannot use '" + str(value) + "' as value for " + key + " output of " + self.node_class_name + ". Expected value of type " + output["class"] + ".")
                 raise ValueError("Cannot use '" + str(value) + "' as value for " + key + " output of " + self.node_class_name + ". Expected value of type " + output["class"] + ".")
-            output_socket = self._find_socket(node.outputs, key)
+            output_socket = NodeService.find_output_socket_by_identifier_or_name(node, key, key)
             if not output_socket:
                 _LOG.error("Output socket '" + key + "' was valid per the original definition, but does not exist on node with class " + node.__class__.__name__)
                 raise KeyError("Output socket '" + key + "' was valid per the original definition, but does not exist on node with class " + node.__class__.__name__)
@@ -187,7 +177,9 @@ class AbstractNodeWrapper():
         for key in self.node_def["inputs"]:
             socket_def = self.node_def["inputs"][key]
             default_value = socket_def["default_value"]
-            socket = self._find_socket(node.inputs, socket_def["identifier"])
+            _LOG.debug("Socket def", socket_def)
+            socket = NodeService.find_input_socket_by_identifier_or_name(node, socket_def["identifier"], socket_def["name"])
+            _LOG.debug("Socket", socket)
             node_value = None
             if hasattr(socket, "default_value"):
                 socket_type = socket_def["value_type"]
@@ -205,7 +197,7 @@ class AbstractNodeWrapper():
         for key in self.node_def["outputs"]:
             socket_def = self.node_def["outputs"][key]
             default_value = socket_def["default_value"]
-            socket = self._find_socket(node.outputs, socket_def["identifier"])
+            socket = NodeService.find_output_socket_by_identifier_or_name(node, socket_def["identifier"], socket_def["name"])
             node_value = None
             if hasattr(socket, "default_value"):
                 node_value = socket.default_value

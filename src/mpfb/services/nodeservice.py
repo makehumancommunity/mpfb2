@@ -661,6 +661,51 @@ class NodeService:
         return nodes
 
     @staticmethod
+    def find_input_socket_by_identifier_or_name(node, socket_identifier, socket_name=None, force_find_by_name=False):
+        """Return the input socket with the given identifier or name. If the socket is not found, return None."""
+        _LOG.enter()
+        return NodeService._find_socket_by_identifier_or_name(node, node.inputs, socket_identifier, socket_name, force_find_by_name)
+
+    @staticmethod
+    def find_output_socket_by_identifier_or_name(node, socket_identifier, socket_name=None, force_find_by_name=False):
+        """Return the output socket with the given identifier or name. If the socket is not found, return None."""
+        _LOG.enter()
+        return NodeService._find_socket_by_identifier_or_name(node, node.outputs, socket_identifier, socket_name, force_find_by_name)
+
+    @staticmethod
+    def _find_socket_by_identifier_or_name(node, sockets, socket_identifier, socket_name=None, force_find_by_name=False):
+        """Return the a socket with the given identifier or name. If the socket is not found, return None."""
+        _LOG.enter()
+        _LOG.debug("Sockets", sockets)
+        if not socket_name and force_find_by_name:
+            _LOG.error("Illegal combination", (socket_name, force_find_by_name))
+            raise ValueError('Tried to force find a socket by name, but no socket name was provided')
+        _LOG.debug("Node", node)
+        if node.__class__.__name__ == "ShaderNodeGroup" and socket_name:
+            # Prefer name over identifier if we are operating on a group
+            _LOG.debug("Is group and name is provided")
+            for socket in sockets:
+                _LOG.debug("Socket", socket)
+                if socket.name == socket_name:
+                    _LOG.debug("Socket match for group", socket)
+                    return socket
+        if socket_identifier and not force_find_by_name:
+            _LOG.debug("Searching for socket by identifier", socket_identifier)
+            for socket in sockets:
+                _LOG.debug("Socket", socket)
+                if socket.identifier == socket_identifier:
+                    _LOG.debug("Socket match for identifier", socket)
+                    return socket
+        _LOG.debug("Searching for socket by name", socket_name)
+        for socket in sockets:
+            _LOG.debug("Socket", socket)
+            if socket.name == socket_name:
+                _LOG.debug("Socket match for name", socket)
+                return socket
+        _LOG.warn("Did not find socket", (node, sockets, socket_identifier, socket_name))
+        return None
+
+    @staticmethod
     def find_first_node_by_type_name(node_tree, type_name):
         """Find the first node with the given type in the node tree."""
         _LOG.enter()
