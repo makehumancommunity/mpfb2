@@ -13,14 +13,14 @@ def test_composite_can_create_instance():
     node = NodeWrapperMpfbSkinSpot.create_instance(node_tree)
     assert node
     assert node.node_tree.name == "MpfbSkinSpot"
-    assert "Group Output" in node.node_tree.nodes
     assert "Texture Coordinate" in node.node_tree.nodes
     assert "Noise Texture" in node.node_tree.nodes
     assert "Math" in node.node_tree.nodes
     assert "Group" in node.node_tree.nodes
-    assert "Math.001" in node.node_tree.nodes
+    assert "Group Output" in node.node_tree.nodes
     assert "Mix" in node.node_tree.nodes
     assert "Group.001" in node.node_tree.nodes
+    assert "Math.001" in node.node_tree.nodes
     assert "Group Input" in node.node_tree.nodes
     has_link_to_output = False
     for link in node.node_tree.links:

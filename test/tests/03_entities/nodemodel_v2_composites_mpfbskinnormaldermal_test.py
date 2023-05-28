@@ -13,10 +13,10 @@ def test_composite_can_create_instance():
     node = NodeWrapperMpfbSkinNormalDermal.create_instance(node_tree)
     assert node
     assert node.node_tree.name == "MpfbSkinNormalDermal"
+    assert "Group Output" in node.node_tree.nodes
     assert "Math" in node.node_tree.nodes
     assert "Voronoi Texture" in node.node_tree.nodes
     assert "Group.001" in node.node_tree.nodes
-    assert "Group Output" in node.node_tree.nodes
     assert "Group" in node.node_tree.nodes
     assert "Texture Coordinate" in node.node_tree.nodes
     assert "Bump" in node.node_tree.nodes
