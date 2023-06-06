@@ -17,7 +17,7 @@ PRESETS_HUMAN_PROPERTIES = SceneConfigSet.from_definitions_in_json_directory(PRE
 def _populate_settings(self, context):
     _LOG.enter()
     _LOG.trace("Context is scene", isinstance(context, bpy.types.Scene))
-    return HumanService.get_list_of_human_presets()
+    return HumanService.get_list_of_human_presets(use_cache=False)
 
 _SETTINGS_LIST_PROP = {
     "type": "enum",
