@@ -1,0 +1,18 @@
+version v1.2.0
+name testchar
+camera 15.0 49.0 0.0 0.0 0.0 1.0
+modifier head/head-square 0.422000
+modifier breast/BreastSize 0.500000
+modifier breast/BreastFirmness 0.500000
+modifier macrodetails/Gender 1.000000
+modifier macrodetails/Age 0.500000
+modifier macrodetails/African 0.000000
+modifier macrodetails/Asian 0.000000
+modifier macrodetails/Caucasian 1.000000
+modifier macrodetails-universal/Muscle 0.721000
+modifier macrodetails-universal/Weight 0.361000
+modifier macrodetails-height/Height 0.500000
+modifier macrodetails-proportions/BodyProportions 0.653000
+skeleton default.mhskel
+clothesHideFaces True
+subdivide False

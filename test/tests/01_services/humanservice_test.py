@@ -77,3 +77,34 @@ def test_serialize_v2_skin():
 
     ObjectService.delete_object(basemesh)
 
+def test_deserialize_from_dict():
+    """HumanService.deserialize_from_dict()"""
+    name = ObjectService.random_name()
+
+    human_info = HumanService._create_default_human_info_dict()
+    human_info["name"] = name
+
+    deser = HumanService.get_default_deserialization_settings()
+
+    basemesh = HumanService.deserialize_from_dict(human_info, deser)
+    assert basemesh
+    assert basemesh.name == name + ".body"
+
+    ObjectService.delete_object(basemesh)
+
+def test_deserialize_from_mhm():
+    """HumanService.deserialize_from_mhm()"""
+    deser = HumanService.get_default_deserialization_settings()
+    deser["clothes_deep_search"] = False
+    deser["bodypart_deep_search"] = False
+
+    testdata = LocationService.get_mpfb_test("testdata")
+    mhm_file = os.path.join(testdata, "testchar.mhm")
+
+    assert os.path.exists(mhm_file)
+
+    basemesh = HumanService.deserialize_from_mhm(mhm_file, deser)
+    assert basemesh
+    assert basemesh.name == "testchar.body"
+
+    ObjectService.delete_object(basemesh)
