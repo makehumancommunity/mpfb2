@@ -191,6 +191,7 @@ good-names=i,
 	   x,
 	   y,
 	   z,
+	   ui,
            ex,
            Run,
            _
@@ -446,6 +447,7 @@ disable=raw-checker-failed,
 	too-many-locals,
 	too-many-nested-blocks,
         too-many-return-statements,
+        too-few-public-methods,
 	# code style
 	use-dict-literal,
 	# workarounds

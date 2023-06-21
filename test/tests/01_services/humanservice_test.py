@@ -108,3 +108,18 @@ def test_deserialize_from_mhm():
     assert basemesh.name == "testchar.body"
 
     ObjectService.delete_object(basemesh)
+
+def test_serialize_to_json_string():
+    """HumanService.serialize_to_json_string()"""
+    obj = HumanService.create_human()
+    assert obj is not None
+
+    name = ObjectService.random_name()
+    obj.name = name + ".body"
+
+    jstr = HumanService.serialize_to_json_string(obj)
+    assert jstr
+    assert "eyebrows" in jstr
+
+    ObjectService.delete_object(obj)
+

@@ -2,18 +2,22 @@
 
 from mpfb.services.logservice import LogService
 from mpfb._classmanager import ClassManager
+from mpfb.ui.mpfboperator import MpfbOperator
 import bpy
 
-_LOG = LogService.get_logger("loglevels.operators.listloglevels")
+_LOG = LogService.get_logger("developer.listloglevels")
 
 
-class MPFB_OT_List_Log_Levels_Operator(bpy.types.Operator):
+class MPFB_OT_List_Log_Levels_Operator(MpfbOperator):
     """List log levels to the console"""
     bl_idname = "mpfb.list_log_levels"
     bl_label = "List log levels"
     bl_options = {'REGISTER'}
 
-    def execute(self, context):
+    def __init__(self):
+        MpfbOperator.__init__(self, "developer.listloglevels")
+
+    def hardened_execute(self, context):
         _LOG.enter()
         print("default".ljust(40, '.') + ": " + LogService.LOGLEVELS[LogService.get_default_log_level()])
 

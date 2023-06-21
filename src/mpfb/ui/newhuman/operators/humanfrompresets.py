@@ -6,17 +6,21 @@ from mpfb.services.locationservice import LocationService
 from mpfb.services.humanservice import HumanService
 from mpfb.services.objectservice import ObjectService
 from mpfb.services.systemservice import SystemService
+from mpfb.ui.mpfboperator import MpfbOperator
 from mpfb import ClassManager
 
 _LOG = LogService.get_logger("newhuman.humanfrompresets")
 
-class MPFB_OT_HumanFromPresetsOperator(bpy.types.Operator):
+class MPFB_OT_HumanFromPresetsOperator(MpfbOperator):
     """Create a new human from presets"""
     bl_idname = "mpfb.human_from_presets"
     bl_label = "Create human"
     bl_options = {'REGISTER', 'UNDO'}
 
-    def execute(self, context):
+    def __init__(self):
+        MpfbOperator.__init__(self, "newhuman.humanfrompresets")
+
+    def hardened_execute(self, context):
 
         if not SystemService.check_for_obj_importer():
             self.report({'ERROR'}, "The \"Import-Export Wavefront OBJ format\" addon seems to be disabled. You need to enable this in the preferences.")

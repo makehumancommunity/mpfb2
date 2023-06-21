@@ -1031,7 +1031,11 @@ class HumanService:
 
 
     @staticmethod
-    def deserialize_from_mhm(filename, mask_helpers=True, detailed_helpers=True, extra_vertex_groups=True, feet_on_ground=True, scale=0.1, subdiv_levels=1, load_clothes=True, clothes_deep_search=False, bodypart_deep_search=True):
+    def deserialize_from_mhm(filename, deserialization_settings):
+
+        clothes_deep_search = deserialization_settings["clothes_deep_search"]
+        bodypart_deep_search = deserialization_settings["bodypart_deep_search"]
+
         profiler = PrimitiveProfiler("HumanService")
         profiler.enter("deserialize_from_mhm")
         _LOG.debug("filename", filename)
@@ -1085,7 +1089,7 @@ class HumanService:
         human_info["name"] = name
 
         _LOG.dump("human_info", human_info)
-        basemesh = HumanService.deserialize_from_dict(human_info, mask_helpers, detailed_helpers, extra_vertex_groups, feet_on_ground, scale, subdiv_levels, load_clothes=load_clothes)
+        basemesh = HumanService.deserialize_from_dict(human_info, deserialization_settings)
 
         profiler.leave("deserialize_from_mhm")
         return basemesh

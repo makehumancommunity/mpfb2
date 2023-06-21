@@ -7,11 +7,12 @@ from mpfb.services.logservice import LogService
 from mpfb.services.humanservice import HumanService
 from mpfb.services.objectservice import ObjectService
 from mpfb.services.systemservice import SystemService
+from mpfb.ui.mpfboperator import MpfbOperator
 from mpfb import ClassManager
 
 _LOG = LogService.get_logger("newhuman.humanfrommhm")
 
-class MPFB_OT_HumanFromMHMOperator(bpy.types.Operator, ImportHelper):
+class MPFB_OT_HumanFromMHMOperator(MpfbOperator, ImportHelper):
     """Create a new human from MHM"""
     bl_idname = "mpfb.human_from_mhm"
     bl_label = "Import MHM"
@@ -19,7 +20,10 @@ class MPFB_OT_HumanFromMHMOperator(bpy.types.Operator, ImportHelper):
 
     filter_glob: StringProperty(default='*.mhm', options={'HIDDEN'})
 
-    def execute(self, context):
+    def __init__(self):
+        MpfbOperator.__init__(self, "newhuman.humanfrommhm")
+
+    def hardened_execute(self, context):
 
         if not SystemService.check_for_obj_importer():
             self.report({'ERROR'}, "The \"Import-Export Wavefront OBJ format\" addon seems to be disabled. You need to enable this in the preferences.")
@@ -31,14 +35,18 @@ class MPFB_OT_HumanFromMHMOperator(bpy.types.Operator, ImportHelper):
 
         _LOG.debug("filepath", self.filepath)
 
-        detailed_helpers = PRESETS_HUMAN_PROPERTIES.get_value("detailed_helpers", entity_reference=context.scene)
-        extra_vertex_groups = PRESETS_HUMAN_PROPERTIES.get_value("extra_vertex_groups", entity_reference=context.scene)
-        mask_helpers = PRESETS_HUMAN_PROPERTIES.get_value("mask_helpers", entity_reference=context.scene)
-        scale_factor = PRESETS_HUMAN_PROPERTIES.get_value("scale_factor", entity_reference=context.scene)
-        load_clothes = PRESETS_HUMAN_PROPERTIES.get_value("load_clothes", entity_reference=context.scene)
-        bodypart_deep_search = PRESETS_HUMAN_PROPERTIES.get_value("bodypart_deep_search", entity_reference=context.scene)
-        clothes_deep_search = PRESETS_HUMAN_PROPERTIES.get_value("clothes_deep_search", entity_reference=context.scene)
+        deserialization_settings = HumanService.get_default_deserialization_settings()
 
+        deserialization_settings["detailed_helpers"] = PRESETS_HUMAN_PROPERTIES.get_value("detailed_helpers", entity_reference=context.scene)
+        deserialization_settings["extra_vertex_groups"] = PRESETS_HUMAN_PROPERTIES.get_value("extra_vertex_groups", entity_reference=context.scene)
+        deserialization_settings["mask_helpers"] = PRESETS_HUMAN_PROPERTIES.get_value("mask_helpers", entity_reference=context.scene)
+        deserialization_settings["load_clothes"] = PRESETS_HUMAN_PROPERTIES.get_value("load_clothes", entity_reference=context.scene)
+        deserialization_settings["override_rig"] = PRESETS_HUMAN_PROPERTIES.get_value("override_rig", entity_reference=context.scene)
+        deserialization_settings["override_skin_model"] = PRESETS_HUMAN_PROPERTIES.get_value("override_skin_model", entity_reference=context.scene)
+        deserialization_settings["bodypart_deep_search"] = PRESETS_HUMAN_PROPERTIES.get_value("bodypart_deep_search", entity_reference=context.scene)
+        deserialization_settings["clothes_deep_search"] = PRESETS_HUMAN_PROPERTIES.get_value("clothes_deep_search", entity_reference=context.scene)
+
+        scale_factor = PRESETS_HUMAN_PROPERTIES.get_value("scale_factor", entity_reference=context.scene)
         scale = 0.1
 
         if scale_factor == "DECIMETER":
@@ -47,15 +55,11 @@ class MPFB_OT_HumanFromMHMOperator(bpy.types.Operator, ImportHelper):
         if scale_factor == "CENTIMETER":
             scale = 10.0
 
-        basemesh = HumanService.deserialize_from_mhm(self.filepath,
-                                                     mask_helpers=mask_helpers,
-                                                     detailed_helpers=detailed_helpers,
-                                                     extra_vertex_groups=extra_vertex_groups,
-                                                     feet_on_ground=True,
-                                                     scale=scale,
-                                                     load_clothes=load_clothes,
-                                                     bodypart_deep_search=bodypart_deep_search,
-                                                     clothes_deep_search=clothes_deep_search)
+        deserialization_settings["scale"] = scale
+
+        _LOG.debug("Deserialization settings", deserialization_settings)
+
+        basemesh = HumanService.deserialize_from_mhm(self.filepath, deserialization_settings)
 
         _LOG.debug("Basemesh", basemesh)
 

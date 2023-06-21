@@ -8,6 +8,7 @@ from mpfb.services.nodeservice import NodeService
 from mpfb.services.uiservice import UiService
 from mpfb.ui.importer.importerpanel import IMPORTER_PROPERTIES
 from mpfb.ui.importerpresets.importerpresetspanel import IMPORTER_PRESETS_PROPERTIES
+from mpfb.ui.mpfboperator import MpfbOperator
 from mpfb._classmanager import ClassManager
 from mpfb.entities.socketobject.socketbodyobject import SocketBodyObject
 from mpfb.entities.socketobject.socketproxyobject import SocketProxyObject
@@ -15,14 +16,16 @@ from mpfb.entities.material.makeskinmaterial import MakeSkinMaterial
 from mpfb.entities.material.enhancedskinmaterial import EnhancedSkinMaterial
 import bpy, os, json
 
-_LOG = LogService.get_logger("importer.operators.importhuman")
+_LOG = LogService.get_logger("newhuman.importhuman")
 
-
-class MPFB_OT_ImportHumanOperator(bpy.types.Operator):
+class MPFB_OT_ImportHumanOperator(MpfbOperator):
     """Import human from MakeHuman"""
     bl_idname = "mpfb.importer_import_body"
     bl_label = "Import human"
     bl_options = {'REGISTER', 'UNDO'}
+
+    def __init__(self):
+        MpfbOperator.__init__(self, "newhuman.importhuman")
 
     def _get_settings_from_ui(self, context):
         _LOG.enter()
@@ -436,8 +439,19 @@ class MPFB_OT_ImportHumanOperator(bpy.types.Operator):
             material.blend_method = "BLEND"
             material.show_transparent_back = True
 
-    def execute(self, context):
+    def hardened_execute(self, context):
         _LOG.enter()
+
+        # Start with checking if MH is answering at all.
+        # If not, it is pointless to continue.
+        try:
+            mh_user_dir = SocketService.get_user_dir()
+            _LOG.debug("Seems MH is answering, says user dir is at", mh_user_dir)
+        except ConnectionRefusedError as err:
+            _LOG.error("Could not read mh_user_dir. Maybe socket server is down? Error was:", err)
+            self.report({'ERROR'}, "Could not connect to MakeHuman. Is MH running, and is the socket server started?")
+            return {'CANCELLED'}
+
         _LOG.reset_timer()
 
         importer = dict()
