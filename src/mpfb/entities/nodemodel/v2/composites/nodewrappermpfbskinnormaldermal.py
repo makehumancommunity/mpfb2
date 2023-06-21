@@ -277,11 +277,12 @@ _ORIGINAL_TREE_DEF = json.loads("""
                 "location": [
                     678.1032,
                     -18.3332
-                ]
+                ],
+                "invert": true
             },
             "class": "ShaderNodeBump",
             "input_socket_values": {
-                "Strength": 0.3
+                "Strength": 0.3                
             },
             "label": "Bump",
             "name": "Bump",
@@ -325,7 +326,7 @@ class _NodeWrapperMpfbSkinNormalDermal(AbstractGroupWrapper):
         node("MpfbValueRamp3", "Group.001", attribute_values={"color": [0.4, 0.4, 0.5], "height": 100.0, "location": [248.2872, 182.0687], "use_custom_color": True, "width": 248.8326}, input_socket_values={"BetweenStop2Value": 0.0, "BetweenStop1Position": 0.05, "BetweenStop2Position": 0.1})
         node("MpfbCharacterInfo", "Group", attribute_values={"color": [0.35, 0.35, 0.0], "height": 100.0, "location": [-597.7336, 345.4013], "use_custom_color": True, "width": 140.0})
         node("ShaderNodeTexCoord", "Texture Coordinate", attribute_values={"location": [-467.8459, 14.2048]})
-        node("ShaderNodeBump", "Bump", attribute_values={"location": [678.1032, -18.3332]}, input_socket_values={"Strength": 0.3})
+        node("ShaderNodeBump", "Bump", attribute_values={"location": [678.1032, -18.3332], "invert": True}, input_socket_values={"Strength": 0.3})
 
         link("Group Input", "DermalScaleMultiplier", "Math", "Value")
         link("Group Input", "DermalBumpStrength", "Bump", "Strength")
