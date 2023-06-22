@@ -129,6 +129,13 @@ class ObjectService:
         return obj
 
     @staticmethod
+    def create_blender_object_with_armature(name="NewObject"):
+        """Create a new armature object with an armature data block."""
+        armature = bpy.data.armatures.new(name + "Armature")
+        obj = bpy.data.objects.new(name, armature)
+        return obj
+
+    @staticmethod
     def create_empty(name, empty_type="SPHERE", parent=None):
         """Create a new empty object, optionally specifying its draw type and parent."""
         empty = bpy.data.objects.new(name=name, object_data=None)
@@ -162,6 +169,42 @@ class ObjectService:
             if obj.data == id_data:
                 return obj
         return None
+
+    @staticmethod
+    def get_selected_objects(exclude_non_mh_objects=False, exclude_mesh_objects=False, exclude_armature_objects=False, exclude_meta_objects=True):
+        """Find all selected objects, but optionally exclude non-MH objects, mesh objects, armature objects, and meta objects."""
+        objects = []
+        for object in bpy.context.selected_objects:
+            include = True
+            if object.type == "MESH" and exclude_mesh_objects:
+                include = False
+            if object.type == "ARMATURE" and exclude_armature_objects:
+                include = False
+            if object.type not in ["MESH", "ARMATURE"] and exclude_meta_objects:
+                include = False
+            if not ObjectService.get_object_type(object) and exclude_non_mh_objects:
+                include = False
+            if include:
+                objects.append(object)
+        return objects
+
+    @staticmethod
+    def get_selected_armature_objects():
+        """Find all selected armature objects."""
+        objects = []
+        for object in bpy.context.selected_objects:
+            if object.type == "ARMATURE":
+                objects.append(object)
+        return objects
+
+    @staticmethod
+    def get_selected_mesh_objects():
+        """Find all selected mesh objects."""
+        objects = []
+        for object in bpy.context.selected_objects:
+            if object.type == "MESH":
+                objects.append(object)
+        return objects
 
     @staticmethod
     def get_object_type(blender_object) -> str:

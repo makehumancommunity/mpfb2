@@ -239,3 +239,34 @@ def test_load_base_mesh():
     assert ObjectService.object_is_basemesh(basemesh)
     # TODO: Tests for scale, vertex groups
     ObjectService.delete_object(basemesh)
+
+def test_get_selected_objects():
+    non_mh_mesh_1 = ObjectService.create_blender_object_with_mesh(ObjectService.random_name())
+    mh_mesh_1 = ObjectService.create_blender_object_with_mesh(ObjectService.random_name())
+    non_mh_mesh_2 = ObjectService.create_blender_object_with_mesh(ObjectService.random_name())
+
+    non_mh_armature_1 = ObjectService.create_blender_object_with_armature(ObjectService.random_name())
+    mh_armature_1 = ObjectService.create_blender_object_with_armature(ObjectService.random_name())
+    non_mh_armature_2 = ObjectService.create_blender_object_with_armature(ObjectService.random_name())
+
+    GeneralObjectProperties.set_value("object_type", "Eyes", mh_mesh_1)
+    GeneralObjectProperties.set_value("object_type", "Skeleton", mh_armature_1)
+
+    selected_objects = ObjectService.get_selected_objects()
+    assert len(selected_objects) > 0
+    assert non_mh_mesh_1 in selected_objects
+    assert mh_mesh_1 in selected_objects
+    assert non_mh_mesh_2 in selected_objects
+    assert non_mh_armature_1 in selected_objects
+
+    selected_objects = ObjectService.get_selected_objects(exclude_non_mh_objects=True)
+    assert len(selected_objects) > 0
+    assert mh_mesh_1 in selected_objects
+    assert non_mh_mesh_2 not in selected_objects
+
+    selected_objects = ObjectService.get_selected_objects(exclude_mesh_objects=True)
+    assert len(selected_objects) > 0
+    assert mh_mesh_1 not in selected_objects
+    assert non_mh_mesh_2 not in selected_objects
+    assert non_mh_armature_2 in selected_objects
+
