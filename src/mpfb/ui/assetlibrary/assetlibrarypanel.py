@@ -88,6 +88,7 @@ class _Abstract_Asset_Library_Panel(bpy.types.Panel):
             for child in self.equipped:
                 if child in asset["fragment"]:
                     is_equipped = True
+                    box.alert = True
                     break
             _LOG.debug("Now checking asset", asset)
             _LOG.dump("Asset is equipped", is_equipped)
