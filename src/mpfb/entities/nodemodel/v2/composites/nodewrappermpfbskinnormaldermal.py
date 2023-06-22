@@ -282,7 +282,7 @@ _ORIGINAL_TREE_DEF = json.loads("""
             },
             "class": "ShaderNodeBump",
             "input_socket_values": {
-                "Strength": 0.3                
+                "Strength": 0.3
             },
             "label": "Bump",
             "name": "Bump",

@@ -1,0 +1,7 @@
+{
+    "type": "boolean",
+    "name": "head",
+    "description": "Update head",
+    "label": "Update head",
+    "default": false
+}
