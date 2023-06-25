@@ -51,10 +51,12 @@ MakeRigProperties.add_property(_TAIL_CUBE, get_joints)
 
 from .makerigpanel import MPFB_PT_MakeRig_Panel
 from .bonespanel import MPFB_PT_MakeRigBones_Panel
+from .weightspanel import MPFB_PT_MakeRigWeights_Panel
 from .operators import *
 
 __all__ = [
     "MPFB_PT_MakeRig_Panel",
     "MPFB_PT_MakeRigBones_Panel",
+    "MPFB_PT_MakeRigWeights_Panel",
     "MakeRigProperties"
     ]
