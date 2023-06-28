@@ -252,6 +252,17 @@ def test_get_selected_objects():
     GeneralObjectProperties.set_value("object_type", "Eyes", mh_mesh_1)
     GeneralObjectProperties.set_value("object_type", "Skeleton", mh_armature_1)
 
+    ObjectService.deselect_and_deactivate_all()
+    selected_objects = ObjectService.get_selected_objects()
+    assert len(selected_objects) == 0
+
+    non_mh_mesh_1.select_set(True)
+    non_mh_mesh_2.select_set(True)
+    mh_mesh_1.select_set(True)
+    non_mh_armature_1.select_set(True)
+    non_mh_armature_2.select_set(True)
+    mh_armature_1.select_set(True)
+
     selected_objects = ObjectService.get_selected_objects()
     assert len(selected_objects) > 0
     assert non_mh_mesh_1 in selected_objects
