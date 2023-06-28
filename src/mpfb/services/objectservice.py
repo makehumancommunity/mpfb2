@@ -122,17 +122,19 @@ class ObjectService:
         return relevant_vertices
 
     @staticmethod
-    def create_blender_object_with_mesh(name="NewObject"):
+    def create_blender_object_with_mesh(name="NewObject", parent=None):
         """Create a new mesh object with a mesh data block."""
         mesh = bpy.data.meshes.new(name + "Mesh")
         obj = bpy.data.objects.new(name, mesh)
+        ObjectService.link_blender_object(obj, parent=parent)
         return obj
 
     @staticmethod
-    def create_blender_object_with_armature(name="NewObject"):
+    def create_blender_object_with_armature(name="NewObject", parent=None):
         """Create a new armature object with an armature data block."""
         armature = bpy.data.armatures.new(name + "Armature")
         obj = bpy.data.objects.new(name, armature)
+        ObjectService.link_blender_object(obj, parent=parent)
         return obj
 
     @staticmethod
