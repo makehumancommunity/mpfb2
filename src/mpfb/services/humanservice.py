@@ -1079,7 +1079,7 @@ class HumanService:
             if line.startswith("clothes"):
                 HumanService._check_parse_mhm_clothes_line(human_info, line, clothes_deep_search)
 
-        if not "rig" in human_info or not human_info["rig"]:
+        if "rig" not in human_info or not human_info["rig"]:
             human_info["rig"] = "default"
 
         if not name:

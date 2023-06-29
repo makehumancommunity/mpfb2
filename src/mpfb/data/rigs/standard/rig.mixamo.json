@@ -1,0 +1,3215 @@
+{
+    "bones": {
+        "mixamorig:Head": {
+            "head": {
+                "default_position": [
+                    0.00121,
+                    -0.02185,
+                    1.5301
+                ],
+                "strategy": "MEAN",
+                "vertex_indices": [
+                    823,
+                    7530
+                ]
+            },
+            "inherit_scale": "FULL",
+            "layers": [
+                true,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false
+            ],
+            "parent": "mixamorig:Neck",
+            "rigify": {},
+            "roll": 0.0,
+            "tail": {
+                "default_position": [
+                    0.0,
+                    -0.01963,
+                    1.73319
+                ],
+                "strategy": "MEAN",
+                "vertex_indices": [
+                    18875,
+                    19089
+                ]
+            },
+            "use_connect": false,
+            "use_inherit_rotation": true,
+            "use_local_location": true
+        },
+        "mixamorig:Hips": {
+            "head": {
+                "default_position": [
+                    -0.00032,
+                    -0.01717,
+                    0.96245
+                ],
+                "strategy": "MEAN",
+                "vertex_indices": [
+                    4059,
+                    10997
+                ]
+            },
+            "inherit_scale": "FULL",
+            "layers": [
+                true,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false
+            ],
+            "parent": "",
+            "rigify": {},
+            "roll": -0.00047,
+            "tail": {
+                "default_position": [
+                    1e-05,
+                    -0.02294,
+                    1.06748
+                ],
+                "strategy": "MEAN",
+                "vertex_indices": [
+                    16022,
+                    17349
+                ]
+            },
+            "use_connect": false,
+            "use_inherit_rotation": true,
+            "use_local_location": true
+        },
+        "mixamorig:LeftArm": {
+            "head": {
+                "cube_name": "joint-l-shoulder",
+                "default_position": [
+                    0.17542,
+                    -0.00278,
+                    1.40315
+                ],
+                "strategy": "CUBE"
+            },
+            "inherit_scale": "FULL",
+            "layers": [
+                true,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false
+            ],
+            "parent": "mixamorig:LeftShoulder",
+            "rigify": {},
+            "roll": 3.11726,
+            "tail": {
+                "cube_name": "joint-l-elbow",
+                "default_position": [
+                    0.42295,
+                    0.02905,
+                    1.39621
+                ],
+                "strategy": "CUBE"
+            },
+            "use_connect": true,
+            "use_inherit_rotation": true,
+            "use_local_location": true
+        },
+        "mixamorig:LeftFoot": {
+            "head": {
+                "cube_name": "joint-l-ankle",
+                "default_position": [
+                    0.0863,
+                    -0.01782,
+                    0.06824
+                ],
+                "strategy": "CUBE"
+            },
+            "inherit_scale": "FULL",
+            "layers": [
+                true,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false
+            ],
+            "parent": "mixamorig:LeftLeg",
+            "rigify": {},
+            "roll": 3.65268,
+            "tail": {
+                "cube_name": "joint-l-toe-2-1",
+                "default_position": [
+                    0.08196,
+                    -0.15713,
+                    0.02194
+                ],
+                "strategy": "CUBE"
+            },
+            "use_connect": false,
+            "use_inherit_rotation": true,
+            "use_local_location": true
+        },
+        "mixamorig:LeftForeArm": {
+            "head": {
+                "cube_name": "joint-l-elbow",
+                "default_position": [
+                    0.42295,
+                    0.02905,
+                    1.39621
+                ],
+                "strategy": "CUBE"
+            },
+            "inherit_scale": "FULL",
+            "layers": [
+                true,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false
+            ],
+            "parent": "mixamorig:LeftArm",
+            "rigify": {},
+            "roll": 3.11001,
+            "tail": {
+                "cube_name": "joint-l-hand",
+                "default_position": [
+                    0.65844,
+                    0.01486,
+                    1.39337
+                ],
+                "strategy": "CUBE"
+            },
+            "use_connect": true,
+            "use_inherit_rotation": true,
+            "use_local_location": true
+        },
+        "mixamorig:LeftHand": {
+            "head": {
+                "cube_name": "joint-l-hand",
+                "default_position": [
+                    0.65844,
+                    0.01486,
+                    1.39337
+                ],
+                "strategy": "CUBE"
+            },
+            "inherit_scale": "FULL",
+            "layers": [
+                true,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false
+            ],
+            "parent": "mixamorig:LeftForeArm",
+            "rigify": {},
+            "roll": -2.98608,
+            "tail": {
+                "default_position": [
+                    0.7511,
+                    0.0307,
+                    1.38539
+                ],
+                "strategy": "MEAN",
+                "vertex_indices": [
+                    9088,
+                    9891
+                ]
+            },
+            "use_connect": true,
+            "use_inherit_rotation": true,
+            "use_local_location": true
+        },
+        "mixamorig:LeftHandIndex1": {
+            "head": {
+                "cube_name": "joint-l-finger-2-1",
+                "default_position": [
+                    0.76605,
+                    -0.00889,
+                    1.38556
+                ],
+                "strategy": "CUBE"
+            },
+            "inherit_scale": "FULL",
+            "layers": [
+                true,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false
+            ],
+            "parent": "mixamorig:LeftHand",
+            "rigify": {},
+            "roll": 3.14157,
+            "tail": {
+                "cube_name": "joint-l-finger-2-2",
+                "default_position": [
+                    0.79252,
+                    -0.00881,
+                    1.38119
+                ],
+                "strategy": "CUBE"
+            },
+            "use_connect": false,
+            "use_inherit_rotation": true,
+            "use_local_location": true
+        },
+        "mixamorig:LeftHandIndex2": {
+            "head": {
+                "cube_name": "joint-l-finger-2-2",
+                "default_position": [
+                    0.79252,
+                    -0.00881,
+                    1.38119
+                ],
+                "strategy": "CUBE"
+            },
+            "inherit_scale": "FULL",
+            "layers": [
+                true,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false
+            ],
+            "parent": "mixamorig:LeftHandIndex1",
+            "rigify": {},
+            "roll": -3.14158,
+            "tail": {
+                "cube_name": "joint-l-finger-2-3",
+                "default_position": [
+                    0.81636,
+                    -0.00782,
+                    1.37875
+                ],
+                "strategy": "CUBE"
+            },
+            "use_connect": false,
+            "use_inherit_rotation": true,
+            "use_local_location": true
+        },
+        "mixamorig:LeftHandIndex3": {
+            "head": {
+                "cube_name": "joint-l-finger-2-3",
+                "default_position": [
+                    0.81636,
+                    -0.00782,
+                    1.37875
+                ],
+                "strategy": "CUBE"
+            },
+            "inherit_scale": "FULL",
+            "layers": [
+                true,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false
+            ],
+            "parent": "mixamorig:LeftHandIndex2",
+            "rigify": {},
+            "roll": -3.14154,
+            "tail": {
+                "cube_name": "joint-l-finger-2-4",
+                "default_position": [
+                    0.84348,
+                    -0.00688,
+                    1.3724
+                ],
+                "strategy": "CUBE"
+            },
+            "use_connect": false,
+            "use_inherit_rotation": true,
+            "use_local_location": true
+        },
+        "mixamorig:LeftHandMiddle1": {
+            "head": {
+                "cube_name": "joint-l-finger-3-1",
+                "default_position": [
+                    0.76444,
+                    0.01812,
+                    1.38999
+                ],
+                "strategy": "CUBE"
+            },
+            "inherit_scale": "FULL",
+            "layers": [
+                true,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false
+            ],
+            "parent": "mixamorig:LeftHand",
+            "rigify": {},
+            "roll": -3.14135,
+            "tail": {
+                "cube_name": "joint-l-finger-3-2",
+                "default_position": [
+                    0.79909,
+                    0.01897,
+                    1.38463
+                ],
+                "strategy": "CUBE"
+            },
+            "use_connect": false,
+            "use_inherit_rotation": true,
+            "use_local_location": true
+        },
+        "mixamorig:LeftHandMiddle2": {
+            "head": {
+                "cube_name": "joint-l-finger-3-2",
+                "default_position": [
+                    0.79909,
+                    0.01897,
+                    1.38463
+                ],
+                "strategy": "CUBE"
+            },
+            "inherit_scale": "FULL",
+            "layers": [
+                true,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false
+            ],
+            "parent": "mixamorig:LeftHandMiddle1",
+            "rigify": {},
+            "roll": -3.14131,
+            "tail": {
+                "cube_name": "joint-l-finger-3-3",
+                "default_position": [
+                    0.8276,
+                    0.01802,
+                    1.38274
+                ],
+                "strategy": "CUBE"
+            },
+            "use_connect": false,
+            "use_inherit_rotation": true,
+            "use_local_location": true
+        },
+        "mixamorig:LeftHandMiddle3": {
+            "head": {
+                "cube_name": "joint-l-finger-3-3",
+                "default_position": [
+                    0.8276,
+                    0.01802,
+                    1.38274
+                ],
+                "strategy": "CUBE"
+            },
+            "inherit_scale": "FULL",
+            "layers": [
+                true,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false
+            ],
+            "parent": "mixamorig:LeftHandMiddle2",
+            "rigify": {},
+            "roll": -3.14131,
+            "tail": {
+                "cube_name": "joint-l-finger-3-4",
+                "default_position": [
+                    0.855,
+                    0.01798,
+                    1.37736
+                ],
+                "strategy": "CUBE"
+            },
+            "use_connect": false,
+            "use_inherit_rotation": true,
+            "use_local_location": true
+        },
+        "mixamorig:LeftHandPinky1": {
+            "head": {
+                "cube_name": "joint-l-finger-5-1",
+                "default_position": [
+                    0.74732,
+                    0.05679,
+                    1.38569
+                ],
+                "strategy": "CUBE"
+            },
+            "inherit_scale": "FULL",
+            "layers": [
+                true,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false
+            ],
+            "parent": "mixamorig:LeftHand",
+            "rigify": {},
+            "roll": 3.14088,
+            "tail": {
+                "cube_name": "joint-l-finger-5-2",
+                "default_position": [
+                    0.7694,
+                    0.05811,
+                    1.38444
+                ],
+                "strategy": "CUBE"
+            },
+            "use_connect": false,
+            "use_inherit_rotation": true,
+            "use_local_location": true
+        },
+        "mixamorig:LeftHandPinky2": {
+            "head": {
+                "cube_name": "joint-l-finger-5-2",
+                "default_position": [
+                    0.7694,
+                    0.05811,
+                    1.38444
+                ],
+                "strategy": "CUBE"
+            },
+            "inherit_scale": "FULL",
+            "layers": [
+                true,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false
+            ],
+            "parent": "mixamorig:LeftHandPinky1",
+            "rigify": {},
+            "roll": 3.14088,
+            "tail": {
+                "cube_name": "joint-l-finger-5-3",
+                "default_position": [
+                    0.78552,
+                    0.05825,
+                    1.3832
+                ],
+                "strategy": "CUBE"
+            },
+            "use_connect": false,
+            "use_inherit_rotation": true,
+            "use_local_location": true
+        },
+        "mixamorig:LeftHandPinky3": {
+            "head": {
+                "cube_name": "joint-l-finger-5-3",
+                "default_position": [
+                    0.78552,
+                    0.05825,
+                    1.3832
+                ],
+                "strategy": "CUBE"
+            },
+            "inherit_scale": "FULL",
+            "layers": [
+                true,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false
+            ],
+            "parent": "mixamorig:LeftHandPinky2",
+            "rigify": {},
+            "roll": 3.14087,
+            "tail": {
+                "cube_name": "joint-l-finger-5-4",
+                "default_position": [
+                    0.80605,
+                    0.0589,
+                    1.38193
+                ],
+                "strategy": "CUBE"
+            },
+            "use_connect": false,
+            "use_inherit_rotation": true,
+            "use_local_location": true
+        },
+        "mixamorig:LeftHandRing1": {
+            "head": {
+                "cube_name": "joint-l-finger-4-1",
+                "default_position": [
+                    0.75788,
+                    0.03804,
+                    1.39044
+                ],
+                "strategy": "CUBE"
+            },
+            "inherit_scale": "FULL",
+            "layers": [
+                true,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false
+            ],
+            "parent": "mixamorig:LeftHand",
+            "rigify": {},
+            "roll": 3.13944,
+            "tail": {
+                "cube_name": "joint-l-finger-4-2",
+                "default_position": [
+                    0.78823,
+                    0.03935,
+                    1.38527
+                ],
+                "strategy": "CUBE"
+            },
+            "use_connect": false,
+            "use_inherit_rotation": true,
+            "use_local_location": true
+        },
+        "mixamorig:LeftHandRing2": {
+            "head": {
+                "cube_name": "joint-l-finger-4-2",
+                "default_position": [
+                    0.78823,
+                    0.03935,
+                    1.38527
+                ],
+                "strategy": "CUBE"
+            },
+            "inherit_scale": "FULL",
+            "layers": [
+                true,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false
+            ],
+            "parent": "mixamorig:LeftHandRing1",
+            "rigify": {},
+            "roll": 3.13942,
+            "tail": {
+                "cube_name": "joint-l-finger-4-3",
+                "default_position": [
+                    0.81367,
+                    0.03867,
+                    1.38145
+                ],
+                "strategy": "CUBE"
+            },
+            "use_connect": false,
+            "use_inherit_rotation": true,
+            "use_local_location": true
+        },
+        "mixamorig:LeftHandRing3": {
+            "head": {
+                "cube_name": "joint-l-finger-4-3",
+                "default_position": [
+                    0.81367,
+                    0.03867,
+                    1.38145
+                ],
+                "strategy": "CUBE"
+            },
+            "inherit_scale": "FULL",
+            "layers": [
+                true,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false
+            ],
+            "parent": "mixamorig:LeftHandRing2",
+            "rigify": {},
+            "roll": 3.1394,
+            "tail": {
+                "cube_name": "joint-l-finger-4-4",
+                "default_position": [
+                    0.8404,
+                    0.03973,
+                    1.37445
+                ],
+                "strategy": "CUBE"
+            },
+            "use_connect": false,
+            "use_inherit_rotation": true,
+            "use_local_location": true
+        },
+        "mixamorig:LeftHandThumb1": {
+            "head": {
+                "cube_name": "joint-l-finger-1-1",
+                "default_position": [
+                    0.69765,
+                    -0.0092,
+                    1.38856
+                ],
+                "strategy": "CUBE"
+            },
+            "inherit_scale": "FULL",
+            "layers": [
+                true,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false
+            ],
+            "parent": "mixamorig:LeftHand",
+            "rigify": {},
+            "roll": -1.71168,
+            "tail": {
+                "cube_name": "joint-l-finger-1-2",
+                "default_position": [
+                    0.71057,
+                    -0.02855,
+                    1.36669
+                ],
+                "strategy": "CUBE"
+            },
+            "use_connect": false,
+            "use_inherit_rotation": true,
+            "use_local_location": true
+        },
+        "mixamorig:LeftHandThumb2": {
+            "head": {
+                "cube_name": "joint-l-finger-1-2",
+                "default_position": [
+                    0.71057,
+                    -0.02855,
+                    1.36669
+                ],
+                "strategy": "CUBE"
+            },
+            "inherit_scale": "FULL",
+            "layers": [
+                true,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false
+            ],
+            "parent": "mixamorig:LeftHandThumb1",
+            "rigify": {},
+            "roll": -2.4239,
+            "tail": {
+                "cube_name": "joint-l-finger-1-3",
+                "default_position": [
+                    0.73778,
+                    -0.046,
+                    1.34738
+                ],
+                "strategy": "CUBE"
+            },
+            "use_connect": false,
+            "use_inherit_rotation": true,
+            "use_local_location": true
+        },
+        "mixamorig:LeftHandThumb3": {
+            "head": {
+                "cube_name": "joint-l-finger-1-3",
+                "default_position": [
+                    0.73778,
+                    -0.046,
+                    1.34738
+                ],
+                "strategy": "CUBE"
+            },
+            "inherit_scale": "FULL",
+            "layers": [
+                true,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false
+            ],
+            "parent": "mixamorig:LeftHandThumb2",
+            "rigify": {},
+            "roll": -2.50465,
+            "tail": {
+                "cube_name": "joint-l-finger-1-4",
+                "default_position": [
+                    0.76095,
+                    -0.05165,
+                    1.33105
+                ],
+                "strategy": "CUBE"
+            },
+            "use_connect": false,
+            "use_inherit_rotation": true,
+            "use_local_location": true
+        },
+        "mixamorig:LeftLeg": {
+            "head": {
+                "cube_name": "joint-l-knee",
+                "default_position": [
+                    0.10252,
+                    -0.0367,
+                    0.48847
+                ],
+                "strategy": "CUBE"
+            },
+            "inherit_scale": "FULL",
+            "layers": [
+                true,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false
+            ],
+            "parent": "mixamorig:LeftUpLeg",
+            "rigify": {},
+            "roll": -3.10987,
+            "tail": {
+                "cube_name": "joint-l-ankle",
+                "default_position": [
+                    0.0863,
+                    -0.01782,
+                    0.06824
+                ],
+                "strategy": "CUBE"
+            },
+            "use_connect": true,
+            "use_inherit_rotation": true,
+            "use_local_location": true
+        },
+        "mixamorig:LeftShoulder": {
+            "head": {
+                "default_position": [
+                    0.05742,
+                    -0.01475,
+                    1.4388
+                ],
+                "strategy": "MEAN",
+                "vertex_indices": [
+                    14055,
+                    18825
+                ]
+            },
+            "inherit_scale": "FULL",
+            "layers": [
+                true,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false
+            ],
+            "parent": "mixamorig:Spine2",
+            "rigify": {},
+            "roll": -2.92643,
+            "tail": {
+                "cube_name": "joint-l-shoulder",
+                "default_position": [
+                    0.17542,
+                    -0.00278,
+                    1.40315
+                ],
+                "strategy": "CUBE"
+            },
+            "use_connect": false,
+            "use_inherit_rotation": true,
+            "use_local_location": true
+        },
+        "mixamorig:LeftToeBase": {
+            "head": {
+                "cube_name": "joint-l-toe-2-1",
+                "default_position": [
+                    0.08196,
+                    -0.15713,
+                    0.02194
+                ],
+                "strategy": "CUBE"
+            },
+            "inherit_scale": "FULL",
+            "layers": [
+                true,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false
+            ],
+            "parent": "mixamorig:LeftFoot",
+            "rigify": {},
+            "roll": -0.33357,
+            "tail": {
+                "cube_name": "joint-l-toe-2-4",
+                "default_position": [
+                    0.08415,
+                    -0.20894,
+                    0.00756
+                ],
+                "strategy": "CUBE"
+            },
+            "use_connect": false,
+            "use_inherit_rotation": true,
+            "use_local_location": true
+        },
+        "mixamorig:LeftUpLeg": {
+            "head": {
+                "cube_name": "joint-l-upper-leg",
+                "default_position": [
+                    0.1046,
+                    -0.00509,
+                    0.91033
+                ],
+                "strategy": "CUBE"
+            },
+            "inherit_scale": "FULL",
+            "layers": [
+                true,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false
+            ],
+            "parent": "mixamorig:Hips",
+            "rigify": {},
+            "roll": 3.12481,
+            "tail": {
+                "cube_name": "joint-l-knee",
+                "default_position": [
+                    0.10252,
+                    -0.0367,
+                    0.48847
+                ],
+                "strategy": "CUBE"
+            },
+            "use_connect": false,
+            "use_inherit_rotation": true,
+            "use_local_location": true
+        },
+        "mixamorig:Neck": {
+            "head": {
+                "cube_name": "joint-neck",
+                "default_position": [
+                    0.0,
+                    -0.00545,
+                    1.4785
+                ],
+                "strategy": "CUBE"
+            },
+            "inherit_scale": "FULL",
+            "layers": [
+                true,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false
+            ],
+            "parent": "mixamorig:Spine2",
+            "rigify": {},
+            "roll": 0.0,
+            "tail": {
+                "default_position": [
+                    -1e-05,
+                    -0.00036,
+                    1.53584
+                ],
+                "strategy": "MEAN",
+                "vertex_indices": [
+                    836,
+                    7547
+                ]
+            },
+            "use_connect": false,
+            "use_inherit_rotation": true,
+            "use_local_location": true
+        },
+        "mixamorig:RightArm": {
+            "head": {
+                "cube_name": "joint-r-shoulder",
+                "default_position": [
+                    -0.17527,
+                    -0.0021,
+                    1.4007
+                ],
+                "strategy": "CUBE"
+            },
+            "inherit_scale": "FULL",
+            "layers": [
+                true,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false
+            ],
+            "parent": "mixamorig:RightShoulder",
+            "rigify": {},
+            "roll": -3.12173,
+            "tail": {
+                "cube_name": "joint-r-elbow",
+                "default_position": [
+                    -0.42275,
+                    0.03084,
+                    1.40211
+                ],
+                "strategy": "CUBE"
+            },
+            "use_connect": true,
+            "use_inherit_rotation": true,
+            "use_local_location": true
+        },
+        "mixamorig:RightFoot": {
+            "head": {
+                "cube_name": "joint-r-ankle",
+                "default_position": [
+                    -0.08206,
+                    -0.01782,
+                    0.06839
+                ],
+                "strategy": "CUBE"
+            },
+            "inherit_scale": "FULL",
+            "layers": [
+                true,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false
+            ],
+            "parent": "mixamorig:RightLeg",
+            "rigify": {},
+            "roll": -4.04193,
+            "tail": {
+                "cube_name": "joint-r-toe-2-1",
+                "default_position": [
+                    -0.07737,
+                    -0.15713,
+                    0.02212
+                ],
+                "strategy": "CUBE"
+            },
+            "use_connect": false,
+            "use_inherit_rotation": true,
+            "use_local_location": true
+        },
+        "mixamorig:RightForeArm": {
+            "head": {
+                "cube_name": "joint-r-elbow",
+                "default_position": [
+                    -0.42275,
+                    0.03084,
+                    1.40211
+                ],
+                "strategy": "CUBE"
+            },
+            "inherit_scale": "FULL",
+            "layers": [
+                true,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false
+            ],
+            "parent": "mixamorig:RightArm",
+            "rigify": {},
+            "roll": -3.112,
+            "tail": {
+                "cube_name": "joint-r-hand",
+                "default_position": [
+                    -0.65826,
+                    0.01768,
+                    1.4071
+                ],
+                "strategy": "CUBE"
+            },
+            "use_connect": true,
+            "use_inherit_rotation": true,
+            "use_local_location": true
+        },
+        "mixamorig:RightHand": {
+            "head": {
+                "cube_name": "joint-r-hand",
+                "default_position": [
+                    -0.65826,
+                    0.01768,
+                    1.4071
+                ],
+                "strategy": "CUBE"
+            },
+            "inherit_scale": "FULL",
+            "layers": [
+                true,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false
+            ],
+            "parent": "mixamorig:RightForeArm",
+            "rigify": {},
+            "roll": 3.11954,
+            "tail": {
+                "default_position": [
+                    -0.73973,
+                    0.02955,
+                    1.39955
+                ],
+                "strategy": "MEAN",
+                "vertex_indices": [
+                    3115,
+                    3648
+                ]
+            },
+            "use_connect": true,
+            "use_inherit_rotation": true,
+            "use_local_location": true
+        },
+        "mixamorig:RightHandIndex1": {
+            "head": {
+                "cube_name": "joint-r-finger-2-1",
+                "default_position": [
+                    -0.76618,
+                    -0.00556,
+                    1.4028
+                ],
+                "strategy": "CUBE"
+            },
+            "inherit_scale": "FULL",
+            "layers": [
+                true,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false
+            ],
+            "parent": "mixamorig:RightHand",
+            "rigify": {},
+            "roll": -3.14105,
+            "tail": {
+                "cube_name": "joint-r-finger-2-2",
+                "default_position": [
+                    -0.79279,
+                    -0.00535,
+                    1.39932
+                ],
+                "strategy": "CUBE"
+            },
+            "use_connect": false,
+            "use_inherit_rotation": true,
+            "use_local_location": true
+        },
+        "mixamorig:RightHandIndex2": {
+            "head": {
+                "cube_name": "joint-r-finger-2-2",
+                "default_position": [
+                    -0.79279,
+                    -0.00535,
+                    1.39932
+                ],
+                "strategy": "CUBE"
+            },
+            "inherit_scale": "FULL",
+            "layers": [
+                true,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false
+            ],
+            "parent": "mixamorig:RightHandIndex1",
+            "rigify": {},
+            "roll": -3.14116,
+            "tail": {
+                "cube_name": "joint-r-finger-2-3",
+                "default_position": [
+                    -0.81669,
+                    -0.00425,
+                    1.39768
+                ],
+                "strategy": "CUBE"
+            },
+            "use_connect": false,
+            "use_inherit_rotation": true,
+            "use_local_location": true
+        },
+        "mixamorig:RightHandIndex3": {
+            "head": {
+                "cube_name": "joint-r-finger-2-3",
+                "default_position": [
+                    -0.81669,
+                    -0.00425,
+                    1.39768
+                ],
+                "strategy": "CUBE"
+            },
+            "inherit_scale": "FULL",
+            "layers": [
+                true,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false
+            ],
+            "parent": "mixamorig:RightHandIndex2",
+            "rigify": {},
+            "roll": -3.14101,
+            "tail": {
+                "cube_name": "joint-r-finger-2-4",
+                "default_position": [
+                    -0.844,
+                    -0.00317,
+                    1.39224
+                ],
+                "strategy": "CUBE"
+            },
+            "use_connect": false,
+            "use_inherit_rotation": true,
+            "use_local_location": true
+        },
+        "mixamorig:RightHandMiddle1": {
+            "head": {
+                "cube_name": "joint-r-finger-3-1",
+                "default_position": [
+                    -0.7643,
+                    0.02142,
+                    1.40726
+                ],
+                "strategy": "CUBE"
+            },
+            "inherit_scale": "FULL",
+            "layers": [
+                true,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false
+            ],
+            "parent": "mixamorig:RightHand",
+            "rigify": {},
+            "roll": -3.14035,
+            "tail": {
+                "cube_name": "joint-r-finger-3-2",
+                "default_position": [
+                    -0.7991,
+                    0.02245,
+                    1.40306
+                ],
+                "strategy": "CUBE"
+            },
+            "use_connect": false,
+            "use_inherit_rotation": true,
+            "use_local_location": true
+        },
+        "mixamorig:RightHandMiddle2": {
+            "head": {
+                "cube_name": "joint-r-finger-3-2",
+                "default_position": [
+                    -0.7991,
+                    0.02245,
+                    1.40306
+                ],
+                "strategy": "CUBE"
+            },
+            "inherit_scale": "FULL",
+            "layers": [
+                true,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false
+            ],
+            "parent": "mixamorig:RightHandMiddle1",
+            "rigify": {},
+            "roll": -3.14037,
+            "tail": {
+                "cube_name": "joint-r-finger-3-3",
+                "default_position": [
+                    -0.82767,
+                    0.02163,
+                    1.40212
+                ],
+                "strategy": "CUBE"
+            },
+            "use_connect": false,
+            "use_inherit_rotation": true,
+            "use_local_location": true
+        },
+        "mixamorig:RightHandMiddle3": {
+            "head": {
+                "cube_name": "joint-r-finger-3-3",
+                "default_position": [
+                    -0.82767,
+                    0.02163,
+                    1.40212
+                ],
+                "strategy": "CUBE"
+            },
+            "inherit_scale": "FULL",
+            "layers": [
+                true,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false
+            ],
+            "parent": "mixamorig:RightHandMiddle2",
+            "rigify": {},
+            "roll": -3.14039,
+            "tail": {
+                "cube_name": "joint-r-finger-3-4",
+                "default_position": [
+                    -0.85523,
+                    0.02172,
+                    1.39766
+                ],
+                "strategy": "CUBE"
+            },
+            "use_connect": false,
+            "use_inherit_rotation": true,
+            "use_local_location": true
+        },
+        "mixamorig:RightHandPinky1": {
+            "head": {
+                "cube_name": "joint-r-finger-5-1",
+                "default_position": [
+                    -0.74716,
+                    0.06003,
+                    1.40252
+                ],
+                "strategy": "CUBE"
+            },
+            "inherit_scale": "FULL",
+            "layers": [
+                true,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false
+            ],
+            "parent": "mixamorig:RightHand",
+            "rigify": {},
+            "roll": -3.14079,
+            "tail": {
+                "cube_name": "joint-r-finger-5-2",
+                "default_position": [
+                    -0.76926,
+                    0.06145,
+                    1.40201
+                ],
+                "strategy": "CUBE"
+            },
+            "use_connect": false,
+            "use_inherit_rotation": true,
+            "use_local_location": true
+        },
+        "mixamorig:RightHandPinky2": {
+            "head": {
+                "cube_name": "joint-r-finger-5-2",
+                "default_position": [
+                    -0.76926,
+                    0.06145,
+                    1.40201
+                ],
+                "strategy": "CUBE"
+            },
+            "inherit_scale": "FULL",
+            "layers": [
+                true,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false
+            ],
+            "parent": "mixamorig:RightHandPinky1",
+            "rigify": {},
+            "roll": -3.14079,
+            "tail": {
+                "cube_name": "joint-r-finger-5-3",
+                "default_position": [
+                    -0.78541,
+                    0.06166,
+                    1.4013
+                ],
+                "strategy": "CUBE"
+            },
+            "use_connect": false,
+            "use_inherit_rotation": true,
+            "use_local_location": true
+        },
+        "mixamorig:RightHandPinky3": {
+            "head": {
+                "cube_name": "joint-r-finger-5-3",
+                "default_position": [
+                    -0.78541,
+                    0.06166,
+                    1.4013
+                ],
+                "strategy": "CUBE"
+            },
+            "inherit_scale": "FULL",
+            "layers": [
+                true,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false
+            ],
+            "parent": "mixamorig:RightHandPinky2",
+            "rigify": {},
+            "roll": -3.1408,
+            "tail": {
+                "cube_name": "joint-r-finger-5-4",
+                "default_position": [
+                    -0.80597,
+                    0.06242,
+                    1.40073
+                ],
+                "strategy": "CUBE"
+            },
+            "use_connect": false,
+            "use_inherit_rotation": true,
+            "use_local_location": true
+        },
+        "mixamorig:RightHandRing1": {
+            "head": {
+                "cube_name": "joint-r-finger-4-1",
+                "default_position": [
+                    -0.75764,
+                    0.04132,
+                    1.40756
+                ],
+                "strategy": "CUBE"
+            },
+            "inherit_scale": "FULL",
+            "layers": [
+                true,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false
+            ],
+            "parent": "mixamorig:RightHand",
+            "rigify": {},
+            "roll": 3.14115,
+            "tail": {
+                "cube_name": "joint-r-finger-4-2",
+                "default_position": [
+                    -0.78814,
+                    0.04278,
+                    1.40341
+                ],
+                "strategy": "CUBE"
+            },
+            "use_connect": false,
+            "use_inherit_rotation": true,
+            "use_local_location": true
+        },
+        "mixamorig:RightHandRing2": {
+            "head": {
+                "cube_name": "joint-r-finger-4-2",
+                "default_position": [
+                    -0.78814,
+                    0.04278,
+                    1.40341
+                ],
+                "strategy": "CUBE"
+            },
+            "inherit_scale": "FULL",
+            "layers": [
+                true,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false
+            ],
+            "parent": "mixamorig:RightHandRing1",
+            "rigify": {},
+            "roll": 3.14102,
+            "tail": {
+                "cube_name": "joint-r-finger-4-3",
+                "default_position": [
+                    -0.8137,
+                    0.04222,
+                    1.40044
+                ],
+                "strategy": "CUBE"
+            },
+            "use_connect": false,
+            "use_inherit_rotation": true,
+            "use_local_location": true
+        },
+        "mixamorig:RightHandRing3": {
+            "head": {
+                "cube_name": "joint-r-finger-4-3",
+                "default_position": [
+                    -0.8137,
+                    0.04222,
+                    1.40044
+                ],
+                "strategy": "CUBE"
+            },
+            "inherit_scale": "FULL",
+            "layers": [
+                true,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false
+            ],
+            "parent": "mixamorig:RightHandRing2",
+            "rigify": {},
+            "roll": 3.14107,
+            "tail": {
+                "cube_name": "joint-r-finger-4-4",
+                "default_position": [
+                    -0.84064,
+                    0.04342,
+                    1.39433
+                ],
+                "strategy": "CUBE"
+            },
+            "use_connect": true,
+            "use_inherit_rotation": true,
+            "use_local_location": true
+        },
+        "mixamorig:RightHandThumb1": {
+            "head": {
+                "cube_name": "joint-r-finger-1-1",
+                "default_position": [
+                    -0.69772,
+                    -0.00619,
+                    1.40352
+                ],
+                "strategy": "CUBE"
+            },
+            "inherit_scale": "FULL",
+            "layers": [
+                true,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false
+            ],
+            "parent": "mixamorig:RightHand",
+            "rigify": {},
+            "roll": 1.83499,
+            "tail": {
+                "cube_name": "joint-r-finger-1-2",
+                "default_position": [
+                    -0.71145,
+                    -0.0254,
+                    1.38203
+                ],
+                "strategy": "CUBE"
+            },
+            "use_connect": false,
+            "use_inherit_rotation": true,
+            "use_local_location": true
+        },
+        "mixamorig:RightHandThumb2": {
+            "head": {
+                "cube_name": "joint-r-finger-1-2",
+                "default_position": [
+                    -0.71145,
+                    -0.0254,
+                    1.38203
+                ],
+                "strategy": "CUBE"
+            },
+            "inherit_scale": "FULL",
+            "layers": [
+                true,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false
+            ],
+            "parent": "mixamorig:RightHandThumb1",
+            "rigify": {},
+            "roll": 2.25741,
+            "tail": {
+                "cube_name": "joint-r-finger-1-3",
+                "default_position": [
+                    -0.73936,
+                    -0.04267,
+                    1.36359
+                ],
+                "strategy": "CUBE"
+            },
+            "use_connect": false,
+            "use_inherit_rotation": true,
+            "use_local_location": true
+        },
+        "mixamorig:RightHandThumb3": {
+            "head": {
+                "cube_name": "joint-r-finger-1-3",
+                "default_position": [
+                    -0.73936,
+                    -0.04267,
+                    1.36359
+                ],
+                "strategy": "CUBE"
+            },
+            "inherit_scale": "FULL",
+            "layers": [
+                true,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false
+            ],
+            "parent": "mixamorig:RightHandThumb2",
+            "rigify": {},
+            "roll": 2.29892,
+            "tail": {
+                "cube_name": "joint-r-finger-1-4",
+                "default_position": [
+                    -0.76309,
+                    -0.04816,
+                    1.34802
+                ],
+                "strategy": "CUBE"
+            },
+            "use_connect": false,
+            "use_inherit_rotation": true,
+            "use_local_location": true
+        },
+        "mixamorig:RightLeg": {
+            "head": {
+                "cube_name": "joint-r-knee",
+                "default_position": [
+                    -0.10155,
+                    -0.0367,
+                    0.48848
+                ],
+                "strategy": "CUBE"
+            },
+            "inherit_scale": "FULL",
+            "layers": [
+                true,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false
+            ],
+            "parent": "mixamorig:RightUpLeg",
+            "rigify": {},
+            "roll": 3.10988,
+            "tail": {
+                "cube_name": "joint-r-ankle",
+                "default_position": [
+                    -0.08206,
+                    -0.01782,
+                    0.06839
+                ],
+                "strategy": "CUBE"
+            },
+            "use_connect": true,
+            "use_inherit_rotation": true,
+            "use_local_location": true
+        },
+        "mixamorig:RightShoulder": {
+            "head": {
+                "default_position": [
+                    -0.05931,
+                    -0.0136,
+                    1.43959
+                ],
+                "strategy": "MEAN",
+                "vertex_indices": [
+                    1493,
+                    15876
+                ]
+            },
+            "inherit_scale": "FULL",
+            "layers": [
+                true,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false
+            ],
+            "parent": "mixamorig:Spine2",
+            "rigify": {},
+            "roll": 2.92126,
+            "tail": {
+                "cube_name": "joint-r-shoulder",
+                "default_position": [
+                    -0.17527,
+                    -0.0021,
+                    1.4007
+                ],
+                "strategy": "CUBE"
+            },
+            "use_connect": false,
+            "use_inherit_rotation": true,
+            "use_local_location": true
+        },
+        "mixamorig:RightToeBase": {
+            "head": {
+                "cube_name": "joint-r-toe-2-1",
+                "default_position": [
+                    -0.07737,
+                    -0.15713,
+                    0.02212
+                ],
+                "strategy": "CUBE"
+            },
+            "inherit_scale": "FULL",
+            "layers": [
+                true,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false
+            ],
+            "parent": "mixamorig:RightFoot",
+            "rigify": {},
+            "roll": -2.99366,
+            "tail": {
+                "cube_name": "joint-r-toe-2-4",
+                "default_position": [
+                    -0.07945,
+                    -0.20894,
+                    0.00772
+                ],
+                "strategy": "CUBE"
+            },
+            "use_connect": false,
+            "use_inherit_rotation": true,
+            "use_local_location": true
+        },
+        "mixamorig:RightUpLeg": {
+            "head": {
+                "cube_name": "joint-r-upper-leg",
+                "default_position": [
+                    -0.1046,
+                    -0.00509,
+                    0.91033
+                ],
+                "strategy": "CUBE"
+            },
+            "inherit_scale": "FULL",
+            "layers": [
+                true,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false
+            ],
+            "parent": "mixamorig:Hips",
+            "rigify": {},
+            "roll": -3.12478,
+            "tail": {
+                "cube_name": "joint-r-knee",
+                "default_position": [
+                    -0.10155,
+                    -0.0367,
+                    0.48848
+                ],
+                "strategy": "CUBE"
+            },
+            "use_connect": false,
+            "use_inherit_rotation": true,
+            "use_local_location": true
+        },
+        "mixamorig:Spine": {
+            "head": {
+                "default_position": [
+                    1e-05,
+                    -0.02294,
+                    1.06748
+                ],
+                "strategy": "MEAN",
+                "vertex_indices": [
+                    16022,
+                    17349
+                ]
+            },
+            "inherit_scale": "FULL",
+            "layers": [
+                true,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false
+            ],
+            "parent": "mixamorig:Hips",
+            "rigify": {},
+            "roll": -0.00372,
+            "tail": {
+                "default_position": [
+                    0.0,
+                    -0.00946,
+                    1.1743
+                ],
+                "strategy": "MEAN",
+                "vertex_indices": [
+                    3991,
+                    10651
+                ]
+            },
+            "use_connect": false,
+            "use_inherit_rotation": true,
+            "use_local_location": true
+        },
+        "mixamorig:Spine1": {
+            "head": {
+                "default_position": [
+                    0.0,
+                    -0.00946,
+                    1.1743
+                ],
+                "strategy": "MEAN",
+                "vertex_indices": [
+                    3991,
+                    10651
+                ]
+            },
+            "inherit_scale": "FULL",
+            "layers": [
+                true,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false
+            ],
+            "parent": "mixamorig:Spine",
+            "rigify": {},
+            "roll": 0.0,
+            "tail": {
+                "cube_name": "joint-spine-1",
+                "default_position": [
+                    0.0,
+                    0.01942,
+                    1.2984
+                ],
+                "strategy": "CUBE"
+            },
+            "use_connect": true,
+            "use_inherit_rotation": true,
+            "use_local_location": true
+        },
+        "mixamorig:Spine2": {
+            "head": {
+                "cube_name": "joint-spine-1",
+                "default_position": [
+                    0.0,
+                    0.01942,
+                    1.2984
+                ],
+                "strategy": "CUBE"
+            },
+            "inherit_scale": "FULL",
+            "layers": [
+                true,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false
+            ],
+            "parent": "mixamorig:Spine1",
+            "rigify": {},
+            "roll": 0.0,
+            "tail": {
+                "cube_name": "joint-neck",
+                "default_position": [
+                    0.0,
+                    -0.00545,
+                    1.4785
+                ],
+                "strategy": "CUBE"
+            },
+            "use_connect": true,
+            "use_inherit_rotation": true,
+            "use_local_location": true
+        }
+    },
+    "is_subrig": false,
+    "scale_factor": 0.10000000149011612,
+    "version": 100
+}

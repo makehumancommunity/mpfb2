@@ -684,6 +684,7 @@ class RigService:
             ["oculi02.R", "toe2-1.L", "default"],
             ["thumb_01_l", "game_engine"],
             ["RThumb", "cmu_mb"],
+            ["mixamo:Hips", "mixamo"],
             ["brow.T.R.002", "rigify.human"],
             ["brow.T.R.002", "toe2-1.L", "rigify.human_toes"],
             ["ORG-clavicle_l", "rigify_generated.game_engine"],
@@ -712,6 +713,12 @@ class RigService:
                 guessed_rig = "rigify.unknown"
             else:
                 guessed_rig = "unknown"
+
+        if guessed_rig == "unknown":
+            for bone in armature_object.data.bones:
+                if "mixamo" in bone.name:
+                    guessed_rig = "mixamo"
+                    break
 
         return guessed_rig
 
