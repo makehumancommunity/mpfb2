@@ -10,13 +10,11 @@ import bpy, math
 _LOG = LogService.get_logger("animops.mapmixamo")
 _LOG.set_level(LogService.DEBUG)
 
-_CUBE_CENTER_CACHE = {}
-
 class MPFB_OT_Map_Mixamo_Operator(MpfbOperator):
-    """Snap bones to mixamo animation"""
+    """Add bone constraints to all mixamo bones in the target rig, making them copy the location and rotation of the bones in the source rig"""
     bl_idname = "mpfb.map_mixamo"
-    bl_label = "Map Mixamo"
-    bl_options = {'REGISTER'}
+    bl_label = "Snap to mixamo"
+    bl_options = {'REGISTER', 'UNDO'}
 
     def __init__(self):
         MpfbOperator.__init__(self, "animops.mapmixamo")

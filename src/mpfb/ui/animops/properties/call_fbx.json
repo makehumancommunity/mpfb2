@@ -1,0 +1,7 @@
+{
+    "type": "boolean",
+    "name": "call_fbx",
+    "description": "Open the FBX export dialog when doll has been create",
+    "label": "Open FBX dialog",
+    "default": true
+}

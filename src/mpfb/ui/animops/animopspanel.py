@@ -21,8 +21,8 @@ class MPFB_PT_AnimopsPanel(Abstract_Panel):
     bl_options = {'DEFAULT_CLOSED'}
     bl_parent_id = "MPFB_PT_Operations_Panel"
 
-    def _mixamo(self, scene, layout):
-        box = self.create_box(layout, "Mixamo")
+    def _map_mixamo(self, scene, layout):
+        box = self.create_box(layout, "Map mixamo")
         armatures = ObjectService.get_selected_armature_objects()
         if len(armatures) != 2:
             box.label(text="Select two mixamo armatures")
@@ -48,8 +48,12 @@ class MPFB_PT_AnimopsPanel(Abstract_Panel):
                 dst = armatures[0]
         box.label(text="Source: %s" % src.name)
         box.label(text="Dest: %s" % dst.name)
-        #ANIMOPS_PROPERTIES.draw_properties(scene, box, ["recreate_groups", "reuse_textures"])
         box.operator("mpfb.map_mixamo")
+
+    def _create_mixamo(self, scene, layout):
+        box = self.create_box(layout, "Reduced doll")
+        ANIMOPS_PROPERTIES.draw_properties(scene, box, ["call_fbx"])
+        box.operator("mpfb.reduced_doll")
 
     def draw(self, context):
         _LOG.enter()
@@ -61,10 +65,12 @@ class MPFB_PT_AnimopsPanel(Abstract_Panel):
         if context.object is None:
             return
 
+        self._create_mixamo(scene, layout)
+
         _LOG.debug("Type", context.object.type)
         if context.object.type != "ARMATURE":
             return
 
-        self._mixamo(scene, layout)
+        self._map_mixamo(scene, layout)
 
 ClassManager.add_class(MPFB_PT_AnimopsPanel)

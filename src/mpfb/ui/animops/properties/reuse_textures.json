@@ -1,7 +1,0 @@
-{
-    "type": "boolean",
-    "name": "reuse_textures",
-    "description": "If the current material has diffuse texture and/or normalmap assigned, try to reuse these in the new v2 skin material",
-    "label": "Reuse textures",
-    "default": true
-}
