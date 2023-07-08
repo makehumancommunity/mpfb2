@@ -20,12 +20,12 @@ class MPFB_PT_Add_Cycle_Panel(Abstract_Panel):
     def _load_cycle(self, scene, layout):
         box = self._create_box(layout, "Load walk cycle", "TOOL_SETTINGS")
         box.label(text=' ')
-        box.label(text='DEPRECATED in favor of')        
+        box.label(text='DEPRECATED in favor of')
         box.label(text='mixamo functionality')
         box.label(text=' ')
         box.label(text='(and it never worked')
         box.label(text='particularly well in')
-        box.label(text='the first place)')        
+        box.label(text='the first place)')
 
     def draw(self, context):
         layout = self.layout

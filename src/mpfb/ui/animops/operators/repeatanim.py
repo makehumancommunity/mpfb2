@@ -21,12 +21,12 @@ class MPFB_OT_Repeat_Animation_Operator(MpfbOperator):
 
     def __init__(self):
         MpfbOperator.__init__(self, "animops.repeatanim")
-        
+
     @classmethod
     def poll(cls, context):
         _LOG.enter()
         if context.object is None or context.object.type != 'ARMATURE':
-            return False        
+            return False
         return True
 
     def hardened_execute(self, context):
@@ -41,27 +41,27 @@ class MPFB_OT_Repeat_Animation_Operator(MpfbOperator):
         from mpfb.ui.animops.animopspanel import ANIMOPS_PROPERTIES
 
         iterations = ANIMOPS_PROPERTIES.get_value('iterations', entity_reference=context.scene)
-        offset = ANIMOPS_PROPERTIES.get_value('offset', entity_reference=context.scene)        
+        offset = ANIMOPS_PROPERTIES.get_value('offset', entity_reference=context.scene)
         skipfirst = ANIMOPS_PROPERTIES.get_value('skipfirst', entity_reference=context.scene)
 
         skip = 0
         if skipfirst:
             skip = 1
-            
+
         if not iterations:
             self.report({'ERROR'}, "Must specify a positive number of iterations")
             return {'CANCELLED'}
 
         bpy.ops.object.mode_set(mode='POSE', toggle=False)
-            
+
         max_keyframe = AnimationService.get_max_keyframe(armature_object)
         _LOG.debug("max_keyframe", max_keyframe)
-                
+
         for i in range(iterations):
             position = max_keyframe + offset + (i*(max_keyframe-skip))
-            _LOG.debug("position", position)        
-            AnimationService.duplicate_keyframes(armature_object, position, skip+1, max_keyframe)        
-                
+            _LOG.debug("position", position)
+            AnimationService.duplicate_keyframes(armature_object, position, skip+1, max_keyframe)
+
         bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
 
         self.report({'INFO'}, "Done")

@@ -25,25 +25,25 @@ class AnimationService:
         if not armature_object:
             _LOG.error("armature_object is None")
             return None
-        
+
         max_keyframe = None
-        
+
         anim = armature_object.animation_data
         _LOG.debug("animation_data", anim)
 
         action = anim.action
         _LOG.debug("action", action)
         _LOG.debug("action frame range", action.frame_range)
-        
+
         for fcurve in action.fcurves:
-            for keyframe in fcurve.keyframe_points:                
+            for keyframe in fcurve.keyframe_points:
                 if not max_keyframe or (keyframe and keyframe.co and keyframe.co[0] and keyframe.co[0] > max_keyframe):
                     max_keyframe = int(keyframe.co[0])
                     _LOG.debug("max_keyframe", (max_keyframe, fcurve.data_path))
-        
+
         if max_keyframe is None:
             return None
-        
+
         return max_keyframe
 
     @staticmethod
@@ -51,12 +51,12 @@ class AnimationService:
         if not armature_object:
             _LOG.error("armature_object is None")
             return
-                
-        for source_keyframe in range(first_keyframe, last_keyframe+1):            
+
+        for source_keyframe in range(first_keyframe, last_keyframe+1):
             target_keyframe = start_duplicate_at + source_keyframe - first_keyframe
             _LOG.debug("Duplicating keyframe", (source_keyframe, target_keyframe))
             AnimationService.duplicate_keyframe(armature_object, source_keyframe, target_keyframe)
-                                
+
     @staticmethod
     def duplicate_keyframe(armature_object, source_keyframe, target_keyframe):
         """Duplicates a keyframe from one armature object to another.
@@ -75,15 +75,15 @@ class AnimationService:
         if not target_keyframe:
             _LOG.error("target_keyframe is None")
             return
-        
+
         anim = armature_object.animation_data
         _LOG.dump("animation_data", anim)
 
         action = anim.action
         _LOG.dump("action", action)
-        _LOG.dump("action frame range", action.frame_range)        
-        
-        for fcurve in action.fcurves:            
+        _LOG.dump("action frame range", action.frame_range)
+
+        for fcurve in action.fcurves:
             if source_keyframe > len(fcurve.keyframe_points) - 1 or not fcurve.keyframe_points[source_keyframe]:
                 #print("source_keyframe not in fcurve.keyframe_points", (source_keyframe, fcurve))
                 continue
@@ -97,9 +97,9 @@ class AnimationService:
             new_keyframe.handle_right_type = old_keyframe.handle_right_type
             new_keyframe.period = old_keyframe.period
             new_keyframe.easing = old_keyframe.easing
-            new_keyframe.back = old_keyframe.back          
-                
-                
+            new_keyframe.back = old_keyframe.back
+
+
     @staticmethod
     def get_key_frames_as_dict(armature_object):
         """Scan through all key frames set for pose bones and return a dict with all info."""
@@ -128,7 +128,7 @@ class AnimationService:
             curve_name = fcurve.data_path
             if "\"" in curve_name:
                 curve_name = str(fcurve.data_path).split("\"")[1]
-                
+
             if curve_name not in animation_data:
                 animation_data[curve_name] = dict()
 
@@ -137,7 +137,7 @@ class AnimationService:
             curve_idx = int(fcurve.array_index)
 
             _LOG.debug("name, type, idx", (curve_name, curve_type, curve_idx))
-        
+
             for keyframe in fcurve.keyframe_points:
                 frame_number = int(keyframe.co[0])
                 result = fcurve.evaluate(frame_number)
@@ -150,18 +150,18 @@ class AnimationService:
                 if curve_type not in fdata:
                     fdata[curve_type] = dict()
                     fdata[curve_type]["values"] = [0.0, 0.0, 0.0]
-                    fdata[curve_type]["metadata"] = [dict(), dict(), dict()]                    
+                    fdata[curve_type]["metadata"] = [dict(), dict(), dict()]
 
                 if curve_idx > len(fdata[curve_type]["metadata"]) - 1:
                     fdata[curve_type]["metadata"].append(dict())
 
                 if curve_idx > len(fdata[curve_type]["values"]) - 1:
                     fdata[curve_type]["values"].append(0.0)
-                    
+
                 metadata = fdata[curve_type]["metadata"][curve_idx]
-                
+
                 #_LOG.debug("metadata", (curve_idx, len(fdata[curve_type]["metadata"]), fdata[curve_type]["metadata"]))
-                
+
                 fdata[curve_type]["values"][curve_idx] = result
 
                 metadata["interpolation"] = str(keyframe.interpolation)
