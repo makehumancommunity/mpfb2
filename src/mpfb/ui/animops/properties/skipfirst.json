@@ -1,0 +1,7 @@
+{
+    "type": "boolean",
+    "name": "skipfirst",
+    "description": "Assume first keyframe is the same as the last and skip it for the next iteration",
+    "label": "Skip first frame",
+    "default": true
+}

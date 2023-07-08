@@ -1,0 +1,7 @@
+{
+    "type": "int",
+    "name": "iterations",
+    "description": "How many times should the sequence be iterated?",
+    "label": "Iterations",
+    "default": 10
+}

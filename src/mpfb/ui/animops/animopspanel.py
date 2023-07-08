@@ -55,6 +55,11 @@ class MPFB_PT_AnimopsPanel(Abstract_Panel):
         ANIMOPS_PROPERTIES.draw_properties(scene, box, ["call_fbx"])
         box.operator("mpfb.reduced_doll")
 
+    def _repeat_anim(self, scene, layout):
+        box = self.create_box(layout, "Repeat animation")
+        ANIMOPS_PROPERTIES.draw_properties(scene, box, ["iterations", "offset", "skipfirst"])
+        box.operator("mpfb.repeat_animation")
+
     def draw(self, context):
         _LOG.enter()
 
@@ -72,5 +77,6 @@ class MPFB_PT_AnimopsPanel(Abstract_Panel):
             return
 
         self._map_mixamo(scene, layout)
+        self._repeat_anim(scene, layout)
 
 ClassManager.add_class(MPFB_PT_AnimopsPanel)

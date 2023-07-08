@@ -1,7 +1,0 @@
-{
-    "type": "int",
-    "name": "iterations",
-    "description": "How many iterations of the cycle should be interpolated (i.e how far should the character walk)?",
-    "label": "Iterations",
-    "default": 10
-}
