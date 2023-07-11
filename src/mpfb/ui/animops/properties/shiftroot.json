@@ -1,0 +1,7 @@
+{
+    "type": "boolean",
+    "name": "shiftroot",
+    "description": "Interpolate the next location of the root bone based on the distance moved during the animation",
+    "label": "Move root bone",
+    "default": false
+}

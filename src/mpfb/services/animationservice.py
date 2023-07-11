@@ -10,7 +10,6 @@ from bpy.types import PoseBone
 from mathutils import Vector
 
 _LOG = LogService.get_logger("services.animationservice")
-_LOG.set_level(LogService.DEBUG)
 
 class AnimationService:
     """Service with utility functions for working with animations. It only has static methods, so you don't
@@ -45,6 +44,50 @@ class AnimationService:
             return None
 
         return max_keyframe
+
+    @staticmethod
+    def get_bone_movement_distance(armature_object, bone_name, start_keyframe, end_keyframe):
+        start_loc = [0.0, 0.0, 0.0]
+        end_loc = [0.0, 0.0, 0.0]
+
+        scene = bpy.context.scene
+
+        scene.frame_set(start_keyframe)
+        bone = RigService.find_pose_bone_by_name(bone_name, armature_object)
+        if not bone:
+            _LOG.error("Could not find bone", bone_name)
+        else:
+            start_loc = bone.location.copy()
+
+        scene.frame_set(end_keyframe)
+        bone = RigService.find_pose_bone_by_name(bone_name, armature_object)
+        if not bone:
+            _LOG.error("Could not find bone", bone_name)
+        else:
+            end_loc = bone.location.copy()
+
+        _LOG.debug("start, end", (start_loc, end_loc))
+
+        return [end_loc[0] - start_loc[0], end_loc[1] - start_loc[1], end_loc[2] - start_loc[2]]
+
+    @staticmethod
+    def move_bone_for_all_keyframes(armature_object, bone_name, distance, start_keyframe, end_keyframe):
+        if not armature_object:
+            _LOG.error("armature_object is None")
+            return
+
+        scene = bpy.context.scene
+
+        for keyframe in range(start_keyframe, end_keyframe+1):
+            scene.frame_set(keyframe)
+            bone = RigService.find_pose_bone_by_name(bone_name, armature_object)
+            if not bone:
+                _LOG.error("Could not find bone", bone_name)
+                return
+            target = [bone.location[0] + distance[0], bone.location[1] + distance[1], bone.location[2] + distance[2]]
+            _LOG.debug("moving bone. Frame, from, to", (keyframe, bone.location, target))
+            bone.location = target
+            bone.keyframe_insert(data_path="location", frame=keyframe)
 
     @staticmethod
     def duplicate_keyframes(armature_object, start_duplicate_at, first_keyframe, last_keyframe):
@@ -85,9 +128,13 @@ class AnimationService:
 
         for fcurve in action.fcurves:
             if source_keyframe > len(fcurve.keyframe_points) - 1 or not fcurve.keyframe_points[source_keyframe]:
-                #print("source_keyframe not in fcurve.keyframe_points", (source_keyframe, fcurve))
                 continue
-            old_keyframe = fcurve.keyframe_points[source_keyframe]
+
+            # TODO: co.y and position in keyframe_points isn't necessarily the same.
+            #       The following line should be expanded to check this and take measures
+            #       if co.y does not match the intended keyframe.
+            old_keyframe = fcurve.keyframe_points[source_keyframe-1]
+
             new_keyframe = fcurve.keyframe_points.insert(target_keyframe, old_keyframe.co.y)
             new_keyframe.amplitude = old_keyframe.amplitude
             new_keyframe.interpolation = old_keyframe.interpolation

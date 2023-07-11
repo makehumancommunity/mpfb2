@@ -11,10 +11,9 @@ from bpy.types import StringProperty
 from bpy_extras.io_utils import ExportHelper
 
 _LOG = LogService.get_logger("animops.repeatanim")
-_LOG.set_level(LogService.DEBUG)
 
 class MPFB_OT_Repeat_Animation_Operator(MpfbOperator):
-    """Repeat an animation by copying its keyframes, optionally with given offsets"""
+    """WARNING: THIS IS RATHER EXPERIMENTAL. Repeat an animation by copying its keyframes, optionally with given offsets and distance shifts. Note that if all you want is to make an animation cyclic, this is probably overkill"""
     bl_idname = "mpfb.repeat_animation"
     bl_label = "Repeat animation"
     bl_options = {'REGISTER', 'UNDO'}
@@ -57,10 +56,20 @@ class MPFB_OT_Repeat_Animation_Operator(MpfbOperator):
         max_keyframe = AnimationService.get_max_keyframe(armature_object)
         _LOG.debug("max_keyframe", max_keyframe)
 
+        total_distance = AnimationService.get_bone_movement_distance(armature_object, "mixamorig:Hips", skip, max_keyframe)
+        first_distance = AnimationService.get_bone_movement_distance(armature_object, "mixamorig:Hips", skip, skip+1)
+        _LOG.debug("total_distance", total_distance)
+        _LOG.debug("first_distance", first_distance)
+        distance = total_distance
+
         for i in range(iterations):
-            position = max_keyframe + offset + (i*(max_keyframe-skip))
-            _LOG.debug("position", position)
-            AnimationService.duplicate_keyframes(armature_object, position, skip+1, max_keyframe)
+            first_keyframe = max_keyframe + offset + (i*(max_keyframe-skip))
+            last_keyframe = first_keyframe + max_keyframe - skip
+            _LOG.debug("first, last, skip", (first_keyframe, last_keyframe, skip))
+            AnimationService.duplicate_keyframes(armature_object, first_keyframe, skip, max_keyframe)
+
+            currdist = [distance[0] * (i+1), distance[1] * (i+1), distance[2] * (i+1)]
+            AnimationService.move_bone_for_all_keyframes(armature_object, "mixamorig:Hips", currdist, first_keyframe, last_keyframe)
 
         bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
 

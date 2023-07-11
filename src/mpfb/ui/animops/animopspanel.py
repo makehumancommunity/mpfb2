@@ -57,7 +57,10 @@ class MPFB_PT_AnimopsPanel(Abstract_Panel):
 
     def _repeat_anim(self, scene, layout):
         box = self.create_box(layout, "Repeat animation")
-        ANIMOPS_PROPERTIES.draw_properties(scene, box, ["iterations", "offset", "skipfirst"])
+        ANIMOPS_PROPERTIES.draw_properties(scene, box, ["iterations", "offset", "skipfirst", "shiftroot"])
+        shiftroot = ANIMOPS_PROPERTIES.get_value("shiftroot", entity_reference=scene)
+        if shiftroot:
+            ANIMOPS_PROPERTIES.draw_properties(scene, box, ["firstframe", "rootbone"])
         box.operator("mpfb.repeat_animation")
 
     def draw(self, context):

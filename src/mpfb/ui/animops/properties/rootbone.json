@@ -1,0 +1,7 @@
+{
+    "type": "string",
+    "name": "rootbone",
+    "description": "The name of the root bone",
+    "label": "Root bone",
+    "default": "mixamorig:Hips"
+}
