@@ -1,7 +1,7 @@
 {
     "type": "boolean",
     "name": "shiftroot",
-    "description": "Interpolate the next location of the root bone based on the distance moved during the animation",
+    "description": "Auto move the root bone to the next logical position at the start of the next iteration",
     "label": "Move root bone",
-    "default": false
+    "default": true
 }

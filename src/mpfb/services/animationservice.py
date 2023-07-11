@@ -46,6 +46,22 @@ class AnimationService:
         return max_keyframe
 
     @staticmethod
+    def make_cyclic(armature_object, bone_with_offset=None):
+        """Make an animation cyclic by adding a modifier to each fcurve. Optionally add offset parameter to one bone."""
+
+        anim = armature_object.animation_data
+        _LOG.debug("animation_data", anim)
+
+        action = anim.action
+        _LOG.debug("action", action)
+
+        for fcurve in action.fcurves:
+            _LOG.debug("fcurve", (fcurve.group, fcurve.data_path))
+            modifier = fcurve.modifiers.new(type='CYCLES')
+            if bone_with_offset and (bone_with_offset in str(fcurve) or bone_with_offset in str(fcurve.group)):
+                modifier.mode_after = 'REPEAT_OFFSET'
+
+    @staticmethod
     def get_bone_movement_distance(armature_object, bone_name, start_keyframe, end_keyframe):
         start_loc = [0.0, 0.0, 0.0]
         end_loc = [0.0, 0.0, 0.0]
