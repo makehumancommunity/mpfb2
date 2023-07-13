@@ -4,14 +4,14 @@ _LOG.trace("initializing ui module")
 
 # Top level panels
 from mpfb.ui.newpanel import *
-from mpfb.ui.model import *
-from mpfb.ui.assetspanel import *
-#from mpfb.ui.materialspanel import *
 from mpfb.ui.presetspanel import *
+from mpfb.ui.model import *
 from mpfb.ui.rigpanel import *
-from mpfb.ui.createpanel import *
+from mpfb.ui.assetspanel import *
 from mpfb.ui.operationspanel import *
+from mpfb.ui.createpanel import *
 from mpfb.ui.systempanel import *
+from mpfb.ui.developer import *
 
 # New human panels
 from mpfb.ui.newhuman import *
@@ -53,16 +53,6 @@ from mpfb.ui.boneops import *
 # System
 from mpfb.ui.webresources import *
 from mpfb.ui.dirresources import *
-
-# Targets
-
-# Old
-#from .clothespanel import MPFB_PT_Clothes_Panel
-#from .materialspanel import MPFB_PT_Materials_Panel
-#from .targetspanel import MPFB_PT_Targets_Panel
-
-# Developer
-from mpfb.ui.developer import *
 
 __all__ = [
     "MPFB_PT_New_Panel",

@@ -1,0 +1,7 @@
+{
+    "type": "boolean",
+    "name": "shiftroot",
+    "description": "Auto move the root bone to the next logical position at the start of the next iteration",
+    "label": "Move root bone",
+    "default": true
+}

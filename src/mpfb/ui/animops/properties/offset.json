@@ -1,0 +1,7 @@
+{
+    "type": "int",
+    "name": "offset",
+    "description": "On which frame after the last iteration should the new one start?",
+    "label": "Offset",
+    "default": 1
+}

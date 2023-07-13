@@ -1,0 +1,7 @@
+{
+    "type": "boolean",
+    "name": "firstframe",
+    "description": "Also add the distance moved between the first and second frame",
+    "label": "Include first",
+    "default": false
+}

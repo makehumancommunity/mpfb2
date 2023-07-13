@@ -188,6 +188,11 @@ class AssetService:
         for mat in AssetService.find_asset_files_matching_pattern(roots, "*.mhmat"):
             if SystemService.string_contains_path_segment(mat, parent_dir):
                 possible_materials.append(str(mat))
+        # If asset_subdir is "eyes", then also search alternative location for materials
+        if asset_subdir == "eyes":
+            for mat in AssetService.find_asset_files_matching_pattern(roots, "*.mhmat"):
+                if SystemService.string_contains_path_segment(mat, "materials"):
+                    possible_materials.append(str(mat))
         _LOG.debug("alternative_materials_for_asset, possible materials", possible_materials)
         if len(possible_materials) < 2 and _LOG.debug_enabled():
             _LOG.warn("Debugging alternative materials")

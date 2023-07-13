@@ -55,6 +55,22 @@ class MPFB_PT_AnimopsPanel(Abstract_Panel):
         ANIMOPS_PROPERTIES.draw_properties(scene, box, ["call_fbx"])
         box.operator("mpfb.reduced_doll")
 
+    def _make_cyclic(self, scene, layout):
+        box = self.create_box(layout, "Make cyclic")
+        ANIMOPS_PROPERTIES.draw_properties(scene, box, ["shiftroot"])
+        shiftroot = ANIMOPS_PROPERTIES.get_value("shiftroot", entity_reference=scene)
+        if shiftroot:
+            ANIMOPS_PROPERTIES.draw_properties(scene, box, ["rootbone"])
+        box.operator("mpfb.make_cyclic")
+
+    def _repeat_anim(self, scene, layout):
+        box = self.create_box(layout, "Repeat animation")
+        ANIMOPS_PROPERTIES.draw_properties(scene, box, ["iterations", "offset", "skipfirst", "shiftroot"])
+        shiftroot = ANIMOPS_PROPERTIES.get_value("shiftroot", entity_reference=scene)
+        if shiftroot:
+            ANIMOPS_PROPERTIES.draw_properties(scene, box, ["firstframe", "rootbone"])
+        box.operator("mpfb.repeat_animation")
+
     def draw(self, context):
         _LOG.enter()
 
@@ -72,5 +88,7 @@ class MPFB_PT_AnimopsPanel(Abstract_Panel):
             return
 
         self._map_mixamo(scene, layout)
+        self._make_cyclic(scene, layout)
+        self._repeat_anim(scene, layout)
 
 ClassManager.add_class(MPFB_PT_AnimopsPanel)
