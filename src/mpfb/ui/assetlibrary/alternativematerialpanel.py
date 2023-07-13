@@ -26,7 +26,8 @@ def _populate_settings(self, context):
     altmats.sort()
     i = 1
     for mat in altmats:
-        materials.append((str(mat), str(os.path.basename(mat)).replace(".mhmat", ""), os.path.basename(mat), i))
+        bn = str(os.path.basename(mat))
+        materials.append((bn, bn.replace(".mhmat", ""), bn, i))
         i = i + 1
     _LOG.debug("materials", materials)
     return materials

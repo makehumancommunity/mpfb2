@@ -1,6 +1,6 @@
 """Operator for loading an alternative material"""
 
-import bpy
+import bpy, os
 from bpy.props import StringProperty
 from mpfb.services.logservice import LogService
 from mpfb.services.objectservice import ObjectService
@@ -30,6 +30,20 @@ class MPFB_OT_Load_Library_Material_Operator(bpy.types.Operator):
         if not selected_material or selected_material == "DEFAULT":
             pass
         else:
+            asset_type = ObjectService.get_object_type(context.object)
+            from mpfb.entities.objectproperties import GeneralObjectProperties
+            source = GeneralObjectProperties.get_value("asset_source", entity_reference=context.object)
+            altmats = AssetService.alternative_materials_for_asset(source, str(asset_type).lower())
+            found_material = None
+            for mat in altmats:
+                bn = str(os.path.basename(mat))
+                if bn == selected_material:
+                    found_material = mat
+                    break
+            if found_material is None:
+                self.report({'ERROR'}, "Could not find full path to alternative material: " + selected_material)
+                return {'CANCELED'}
+        
             if MaterialService.has_materials(obj):
                 while len(obj.data.materials) > 0:
                     obj.data.materials.pop(index=0)
@@ -37,7 +51,7 @@ class MPFB_OT_Load_Library_Material_Operator(bpy.types.Operator):
             material = MaterialService.create_empty_material("makeskinmaterial", obj)
 
             mhmat = MakeSkinMaterial()
-            mhmat.populate_from_mhmat(selected_material)
+            mhmat.populate_from_mhmat(found_material)
             mhmat.apply_node_tree(material)
 
             object_type = ObjectService.get_object_type(obj)
