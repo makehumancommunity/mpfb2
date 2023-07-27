@@ -43,7 +43,7 @@ class MPFB_OT_Load_Library_Material_Operator(bpy.types.Operator):
             if found_material is None:
                 self.report({'ERROR'}, "Could not find full path to alternative material: " + selected_material)
                 return {'CANCELED'}
-        
+
             if MaterialService.has_materials(obj):
                 while len(obj.data.materials) > 0:
                     obj.data.materials.pop(index=0)

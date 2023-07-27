@@ -76,7 +76,6 @@ _sections = dict()
 with open(_TARGETS_JSON, "r") as _json_file:
     _sections = json.load(_json_file)
 
-user_targets_dir = LocationService.get_user_data("targets")
 custom_asset_roots = AssetService.get_asset_roots("custom")
 custom_asset_roots.extend(AssetService.get_asset_roots("targets/custom"))
 
@@ -96,6 +95,41 @@ if len(custom_targets) > 0:
                 "targets": [target],
                 "full_path": target
                 })
+
+user_targets_dir = LocationService.get_user_data("targets")
+_LOG.debug("User targets dir:", user_targets_dir)
+if os.path.exists(user_targets_dir):
+    user_targets = AssetService.find_asset_files_matching_pattern([user_targets_dir], "*.target")
+    for target in user_targets:
+        dirn = str(os.path.basename(os.path.dirname(target)))
+        if dirn not in _sections:
+            _sections[dirn] = dict()
+            _sections[dirn]["include_per_default"] = True
+            _sections[dirn]["label"] = dirn
+            _sections[dirn]["categories"] = []
+        section = _sections[dirn]
+        cat = {
+                "has_left_and_right": False,
+                "label": os.path.basename(target).replace(".target","").replace("_", " "),
+                "name": os.path.basename(target).replace(".target",""),
+                "targets": [target],
+                "full_path": target
+                }
+        section["categories"].append(cat)
+        bn = str(os.path.basename(target)).replace(".target","")
+        img = None
+        png = os.path.join(os.path.dirname(target),bn + ".png")
+        if os.path.exists(png):
+            img = png
+        thumb = os.path.join(os.path.dirname(target),bn + ".thumb")
+        if os.path.exists(thumb):
+            img = thumb
+        if img:
+            MODELING_ICONS.load(bn, img, 'IMAGE')
+        else:
+            _LOG.warn("No image for ", str(target))
+else:
+    _LOG.debug("User targets dir does not exist", user_targets_dir)
 
 def _set_simple_modifier_value(scene, blender_object, section, category, value, side="unsided", load_target_if_needed=True):
     """This modifier is not a combination of opposing targets ("decr-incr", "in-out"...)"""

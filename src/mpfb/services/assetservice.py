@@ -101,6 +101,8 @@ class AssetService:
         found_files = []
         for root in asset_roots:
             _LOG.debug("Will examine asset root with pattern", (root, pattern))
+            if root == "/":
+                raise IOError("Refusing to scan entire HD for assets")
             count = 0
             for path in Path(root).rglob(pattern):
                 if os.path.isfile(path):
