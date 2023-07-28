@@ -9,7 +9,20 @@ from mpfb.services.materialservice import MaterialService
 
 _LOG = LogService.get_logger("material.makeskinmaterial")
 
-_TEXTURE_NAMES = ["bumpmap", "diffuse", "displacementmap", "metallicmap", "normalmap", "roughnessmap", "transmissionmap"]
+_TEXTURE_NAMES = [
+    "bumpmap",
+    "diffuse",
+    "displacementmap",
+    "metallicmap",
+    "normalmap",
+    "roughnessmap",
+    "transmissionmap",
+    "aomap",
+    "emissioncolormap",
+    "emissionstrengthmap",
+    "subsurfacecolormap",
+    "subsurfacestrengthmap",
+    "specularmap"]
 
 _NODE_SOCKET_VALUES = [] # key name, node name, socket name
 _NODE_SOCKET_VALUES.append(["diffuseColor", "Principled BSDF", "Base Color"]) # First pick up color from principled
@@ -54,6 +67,13 @@ class MakeSkinMaterial(MhMaterial):
             self._template(template_values, "has_normalmap", "normalmap_filename", "normalMapTexture")
             self._template(template_values, "has_roughnessmap", "roughnessmap_filename", "roughnessMapTexture")
             self._template(template_values, "has_transmissionmap", "transmissionmap_filename", "transmissionMapTexture")
+            self._template(template_values, "has_ao", "ao_filename", "aomapTexture")
+            self._template(template_values, "has_emc", "emc_filename", "emissionColorMapTexture")
+            self._template(template_values, "has_ems", "ems_filename", "emissionStrengthMapTexture")
+            self._template(template_values, "has_subc", "subc_filename", "subsurfaceColorMapTexture")
+            self._template(template_values, "has_subs", "subs_filename", "subsurfaceStrengthMapTexture")
+            self._template(template_values, "has_specularmap", "specularmap_filename", "specularMapTexture")
+            
 
         template_values["bump_or_normal"] = "false"
         if template_values["has_bumpmap"] == "true":

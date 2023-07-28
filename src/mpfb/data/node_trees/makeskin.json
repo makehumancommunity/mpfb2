@@ -192,6 +192,91 @@
             "filename": "$diffuse_filename",
             "values": {}
         },
+        "aoMix": {
+            "create": "$has_ao",
+            "label": "AO Multiplier",
+            "location": [
+                -399.44610595703125,
+                900.8138427734375
+            ],
+            "name": "aoMix",
+            "type": "ShaderNodeMixRGB",
+            "values": {
+                "Color1": [
+                    0.5,
+                    0.5,
+                    0.5,
+                    1.0
+                ],
+                "Color2": [
+                    0.5,
+                    0.5,
+                    0.5,
+                    1.0
+                ],
+                "Fac": 1.0
+            }
+        },
+        "aoTexture": {
+            "create": "$has_ao",
+            "label": "AO Texture",
+            "location": [
+                -900.0,
+                900.5057983398438
+            ],
+            "name": "aoTexture",
+            "type": "ShaderNodeTexImage",
+            "filename": "$ao_filename",
+            "values": {}
+        },
+        "emcTexture": {
+            "create": "$has_emc",
+            "label": "Emission Color Texture",
+            "location": [
+                -900.0,
+                900.5057983398438
+            ],
+            "name": "emcTexture",
+            "type": "ShaderNodeTexImage",
+            "filename": "$emc_filename",
+            "values": {}
+        },
+        "emsTexture": {
+            "create": "$has_ems",
+            "label": "Emission Strength Texture",
+            "location": [
+                -900.0,
+                900.5057983398438
+            ],
+            "name": "emsTexture",
+            "type": "ShaderNodeTexImage",
+            "filename": "$ems_filename",
+            "values": {}
+        },
+        "subcTexture": {
+            "create": "$has_subc",
+            "label": "SSS Color Texture",
+            "location": [
+                -900.0,
+                900.5057983398438
+            ],
+            "name": "subcTexture",
+            "type": "ShaderNodeTexImage",
+            "filename": "$subc_filename",
+            "values": {}
+        },
+        "subsTexture": {
+            "create": "$has_subs",
+            "label": "SSS Strength Texture",
+            "location": [
+                -900.0,
+                900.5057983398438
+            ],
+            "name": "subsTexture",
+            "type": "ShaderNodeTexImage",
+            "filename": "$subs_filename",
+            "values": {}
+        },
         "displacementmap": {
             "create": "$has_displacementmap",
             "label": "Displacementmap",
