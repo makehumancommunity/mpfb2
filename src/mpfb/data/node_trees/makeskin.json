@@ -146,6 +146,18 @@
             "from_socket": "Color",
             "to_node": "Principled BSDF",
             "to_socket": "Emission Strength"
+        },
+        {
+            "from_node": "specularmapTexture",
+            "from_socket": "Color",
+            "to_node": "specularInvert",
+            "to_socket": 1
+        },
+        {
+            "from_node": "specularInvert",
+            "from_socket": "Value",
+            "to_node": "Principled BSDF",
+            "to_socket": "Roughness"
         }
     ],
     "nodes": {
@@ -431,6 +443,33 @@
             "type": "ShaderNodeTexImage",
             "filename": "$roughnessmap_filename",
             "values": {}
+        },
+        "specularmapTexture": {
+            "create": "$has_specularmap",
+            "label": "Specularmap Texture",
+            "location": [
+                -900.0,
+                381.7806091308594
+            ],
+            "name": "specularmapTexture",
+            "colorspace": "Non-Color",
+            "type": "ShaderNodeTexImage",
+            "filename": "$specularmap_filename",
+            "values": {}
+        },
+        "specularInvert": {
+            "create": "$has_specularmap",
+            "label": "Specular Invert",
+            "location": [
+                -450.0,
+                381.7806091308594
+            ],
+            "name": "specularInvert",
+            "type": "ShaderNodeMath",
+            "operation": "SUBTRACT",
+            "values": {
+                "Value": 1.0
+            }
         },
         "opacitymapTexture": {
             "create": "$has_opacitymap",

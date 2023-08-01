@@ -98,4 +98,36 @@ def test_most_textures():
             found_name = "not found"
         assert name == found_name
 
+def test_specularmap():
+    td = LocationService.get_mpfb_test("testdata")
+    matfile = os.path.join(td, "materials", "specularmap.mhmat")
+    from mpfb.entities.material.makeskinmaterial import MakeSkinMaterial
+    mhmat = MakeSkinMaterial()
+    mhmat.populate_from_mhmat(matfile)
+
+    obj = _create_object(True)
+    assert obj
+
+    blender_material = MaterialService.get_material(obj)
+    assert blender_material
+
+    mhmat.apply_node_tree(blender_material)
+
+    node_tree = blender_material.node_tree
+    assert node_tree
+
+    expected_nodes = [
+        "Principled BSDF",
+        "specularmapTexture",
+        "specularInvert"
+        ]
+
+    for name in expected_nodes:
+        node = NodeService.find_node_by_name(node_tree, name)
+        if node:
+            found_name = node.name
+        else:
+            found_name = "not found"
+        assert name == found_name
+
 
