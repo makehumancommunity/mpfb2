@@ -1,0 +1,23 @@
+aomapTexture aomapTexture.jpg
+bumpmapTexture bumpmapTexture.jpg
+diffuseTexture diffuseTexture.png
+displacementmapTexture displacementmapTexture.jpg
+emissionColorMapTexture emissionColorMapTexture.jpg
+emissionStrengthMapTexture emissionStrengthMapTexture.jpg
+metallicmapTexture metallicmapTexture.jpg
+normalmapTexture normalmapTexture.jpg
+roughnessmapTexture roughnessmapTexture.jpg
+subsurfaceColorMapTexture subsurfaceColorMapTexture.jpg
+subsurfaceStrengthMapTexture subsurfaceStrengthMapTexture.jpg
+transmissionmapTexture transmissionmapTexture.jpg
+opacitymapTexture opacitymapTexture.jpg
+
+#specularmapTexture -- mutually exclusive with roughness map
+
+diffuseIntensity 0.6
+normalmapIntensity 0.6
+bumpmapIntensity 0.6
+displacementmapIntensity 0.6
+
+# AO map intensity?
+

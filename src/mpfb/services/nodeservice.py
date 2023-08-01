@@ -454,6 +454,9 @@ class NodeService:
         if node_info["type"] == "ShaderNodeTexImage":
             NodeService.update_tex_image_with_settings_from_dict(node, node_info)
 
+        if node_info["type"] in ["ShaderNodeMix", "ShaderNodeMixRGB"] and "blend_type" in node_info:
+            node.blend_type = node_info["blend_type"]
+
         if node_info["type"] in ["ShaderNodeMath", "ShaderNodeVectorMath"]:
             if "operation" in node_info:
                 node.operation = node_info["operation"]
@@ -597,6 +600,8 @@ class NodeService:
 
         for link in dict_with_node_tree["links"]:
             if link["from_node"] in node_by_name and link["to_node"] in node_by_name:
+                if "disabled" in link and link["disabled"]:
+                    continue
                 from_node = node_by_name[link["from_node"]]
                 to_node = node_by_name[link["to_node"]]
                 if from_node is None:

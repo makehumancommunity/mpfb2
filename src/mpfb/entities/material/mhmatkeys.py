@@ -32,7 +32,7 @@ MHMAT_KEYS.append(MhMatFileKey("normalmapTexture", None, 'Texture'))
 MHMAT_KEYS.append(MhMatFileKey("displacementmapTexture", None, 'Texture'))
 MHMAT_KEYS.append(MhMatFileKey("specularmapTexture", None, 'Texture'))
 MHMAT_KEYS.append(MhMatFileKey("transmissionmapTexture", None, 'Texture'))
-MHMAT_KEYS.append(MhMatFileKey("transparencymapTexture", None, 'Texture'))
+MHMAT_KEYS.append(MhMatFileKey("opacitymapTexture", None, 'Texture'))
 MHMAT_KEYS.append(MhMatFileKey("roughnessmapTexture", None, 'Texture'))
 MHMAT_KEYS.append(MhMatFileKey("metallicmapTexture", None, 'Texture'))
 MHMAT_KEYS.append(MhMatFileKey("aomapTexture", None, 'Texture'))
@@ -49,7 +49,7 @@ MHMAT_KEYS.append(MhMatFloatKey("bumpmapIntensity", None, 'Intensity'))
 MHMAT_KEYS.append(MhMatFloatKey("normalmapIntensity", None, 'Intensity'))
 MHMAT_KEYS.append(MhMatFloatKey("displacementMapIntensity", None, 'Intensity'))
 MHMAT_KEYS.append(MhMatFloatKey("specularmapIntensity", None, 'Intensity'))
-MHMAT_KEYS.append(MhMatFloatKey("transparencymapIntensity", None, 'Intensity'))
+MHMAT_KEYS.append(MhMatFloatKey("opacitymapIntensity", None, 'Intensity'))
 MHMAT_KEYS.append(MhMatFloatKey("aomapIntensity", None, 'Intensity'))
 MHMAT_KEYS.append(MhMatFloatKey("emissionIntensity", None, 'Intensity'))
 MHMAT_KEYS.append(MhMatFloatKey("subsurfaceIntensity", None, 'Intensity'))
@@ -89,8 +89,8 @@ MHMAT_ALIAS["albedoTexture"] = "diffuseTexture"
 MHMAT_ALIAS["albedoMapTexture"] = "diffuseTexture"
 MHMAT_ALIAS["basecolorTexture"] = "diffuseTexture"
 MHMAT_ALIAS["basecolorMapTexture"] = "diffuseTexture"
-MHMAT_ALIAS["opacityTexture"] = "transparencymapTexture"
-MHMAT_ALIAS["opacityMapTexture"] = "transparencymapTexture"
+MHMAT_ALIAS["opacityTexture"] = "opacitymapTexture"
+MHMAT_ALIAS["opacityMapTexture"] = "opacitymapTexture"
 MHMAT_ALIAS["emissiveTexture"] = "emissionColorMapTexture"
 MHMAT_ALIAS["emissionTexture"] = "emissionColorMapTexture"
 MHMAT_ALIAS["sssTexture"] = "subsurfaceColorMapTexture"
@@ -104,7 +104,7 @@ for keyObj in MHMAT_KEYS:
 for alias in MHMAT_ALIAS.keys():
     refers_to = MHMAT_ALIAS[str(alias)]
     MHMAT_NAME_TO_KEY[str(alias).lower()] = MHMAT_NAME_TO_KEY[str(refers_to).lower()]
-    
+
 # SHADERS
 
 MHMAT_SHADER_KEYS = []

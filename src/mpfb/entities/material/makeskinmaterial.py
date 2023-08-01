@@ -67,13 +67,13 @@ class MakeSkinMaterial(MhMaterial):
             self._template(template_values, "has_normalmap", "normalmap_filename", "normalMapTexture")
             self._template(template_values, "has_roughnessmap", "roughnessmap_filename", "roughnessMapTexture")
             self._template(template_values, "has_transmissionmap", "transmissionmap_filename", "transmissionMapTexture")
+            self._template(template_values, "has_opacitymap", "opacitymap_filename", "opacityMapTexture")
             self._template(template_values, "has_ao", "ao_filename", "aomapTexture")
             self._template(template_values, "has_emc", "emc_filename", "emissionColorMapTexture")
             self._template(template_values, "has_ems", "ems_filename", "emissionStrengthMapTexture")
             self._template(template_values, "has_subc", "subc_filename", "subsurfaceColorMapTexture")
             self._template(template_values, "has_subs", "subs_filename", "subsurfaceStrengthMapTexture")
             self._template(template_values, "has_specularmap", "specularmap_filename", "specularMapTexture")
-            
 
         template_values["bump_or_normal"] = "false"
         if template_values["has_bumpmap"] == "true":
@@ -87,7 +87,7 @@ class MakeSkinMaterial(MhMaterial):
             "diffuseColor": "[0.5, 0.5, 0.5, 1.0]"
         }
         for key in color_keys.keys():
-            if not key in template_values:
+            if key not in template_values:
                 value = self.get_value(key)
                 if value:
                     if len(value) < 4:

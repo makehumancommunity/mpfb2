@@ -32,23 +32,70 @@ def test_basic_nodetree():
     from mpfb.entities.material.makeskinmaterial import MakeSkinMaterial
     mhmat = MakeSkinMaterial()
     mhmat.populate_from_mhmat(matfile)
-    
+
     obj = _create_object(True)
     assert obj
-    
+
     blender_material = MaterialService.get_material(obj)
     assert blender_material
-    
+
     mhmat.apply_node_tree(blender_material)
-    
+
     node_tree = blender_material.node_tree
     assert node_tree
-    
+
     principled = NodeService.find_node_by_name(node_tree, "Principled BSDF")
     assert principled
     col = principled.inputs["Base Color"].default_value
     assert col
     assert col[0] < 0.6
     assert col[1] > 0.4
-        
-    
+
+def test_most_textures():
+    td = LocationService.get_mpfb_test("testdata")
+    matfile = os.path.join(td, "materials", "almost_all_textures.mhmat")
+    from mpfb.entities.material.makeskinmaterial import MakeSkinMaterial
+    mhmat = MakeSkinMaterial()
+    mhmat.populate_from_mhmat(matfile)
+
+    obj = _create_object(True)
+    assert obj
+
+    blender_material = MaterialService.get_material(obj)
+    assert blender_material
+
+    mhmat.apply_node_tree(blender_material)
+
+    node_tree = blender_material.node_tree
+    assert node_tree
+
+    expected_nodes = [
+        "Principled BSDF",
+        "diffuseTexture",
+        "bumpmapTexture",
+        "normalmapTexture",
+        "displacementmapTexture",
+        #"specularmapTexture",
+        "transmissionmapTexture",
+        "opacitymapTexture",
+        "roughnessmapTexture",
+        "metallicmapTexture",
+        "aoTexture",
+        "emcTexture",
+        "emsTexture",
+        "subcTexture",
+        "subsTexture",
+        "bumpmap",
+        "normalmap",
+        "opacityMix"
+        ]
+
+    for name in expected_nodes:
+        node = NodeService.find_node_by_name(node_tree, name)
+        if node:
+            found_name = node.name
+        else:
+            found_name = "not found"
+        assert name == found_name
+
+

@@ -2,6 +2,7 @@
     "groups": {},
     "links": [
         {
+            "disabled": "$has_opacitymap",
             "from_node": "Principled BSDF",
             "from_socket": "BSDF",
             "to_node": "Material Output",
@@ -14,6 +15,7 @@
             "to_socket": "Color2"
         },
         {
+            "disabled": "$has_ao",
             "from_node": "diffuseIntensity",
             "from_socket": "Color",
             "to_node": "Principled BSDF",
@@ -78,6 +80,72 @@
             "from_socket": "Color",
             "to_node": "normalmap",
             "to_socket": "Color"
+        },
+        {
+            "from_node": "aoMix",
+            "from_socket": "Color",
+            "to_node": "Principled BSDF",
+            "to_socket": "Base Color"
+        },
+        {
+            "from_node": "aoTexture",
+            "from_socket": "Color",
+            "to_node": "aoMix",
+            "to_socket": "Color2"
+        },
+        {
+            "from_node": "diffuseIntensity",
+            "from_socket": "Color",
+            "to_node": "aoMix",
+            "to_socket": "Color1"
+        },
+        {
+            "from_node": "opacitymapTexture",
+            "from_socket": "Color",
+            "to_node": "opacityMix",
+            "to_socket": "Fac"
+        },
+        {
+            "from_node": "Principled BSDF",
+            "from_socket": "BSDF",
+            "to_node": "opacityMix",
+            "to_socket": 2
+        },
+        {
+            "from_node": "transparent",
+            "from_socket": "BSDF",
+            "to_node": "opacityMix",
+            "to_socket": 1
+        },
+        {
+            "from_node": "opacityMix",
+            "from_socket": "Shader",
+            "to_node": "Material Output",
+            "to_socket": "Surface"
+        },
+        {
+            "from_node": "subcTexture",
+            "from_socket": "Color",
+            "to_node": "Principled BSDF",
+            "to_socket": "Subsurface Color"
+        },
+        {
+            "from_node": "subsTexture",
+            "from_socket": "Color",
+            "to_node": "Principled BSDF",
+            "to_socket": "Subsurface"
+        },
+        {
+            "from_node": "emcTexture",
+            "from_socket": "Color",
+            "to_node": "Principled BSDF",
+            "to_socket": "Emission"
+        },
+        {
+            "from_node": "emsTexture",
+            "from_socket": "Color",
+            "to_node": "Principled BSDF",
+            "to_socket": "Emission Strength"
         }
     ],
     "nodes": {
@@ -85,7 +153,7 @@
             "create": true,
             "label": "",
             "location": [
-                480.97882080078125,
+                700.97882080078125,
                 288.9161682128906
             ],
             "name": "Material Output",
@@ -137,7 +205,7 @@
             "label": "Bumpmap",
             "location": [
                 -385.4263610839844,
-                -47.781314849853516
+                50.781314849853516
             ],
             "name": "bumpmap",
             "type": "ShaderNodeBump",
@@ -152,7 +220,7 @@
             "label": "Bumpmap Texture",
             "location": [
                 -900.0,
-                -170.6919708251953
+                30.6919708251953
             ],
             "name": "bumpmapTexture",
             "colorspace": "Non-Color",
@@ -164,8 +232,8 @@
             "create": "$has_diffuse",
             "label": "diffuse intensity",
             "location": [
-                -399.44610595703125,
-                712.8138427734375
+                -540.0,
+                810.0
             ],
             "name": "diffuseIntensity",
             "type": "ShaderNodeMixRGB",
@@ -196,8 +264,8 @@
             "create": "$has_ao",
             "label": "AO Multiplier",
             "location": [
-                -399.44610595703125,
-                900.8138427734375
+                -330.0,
+                970.0
             ],
             "name": "aoMix",
             "type": "ShaderNodeMixRGB",
@@ -215,14 +283,15 @@
                     1.0
                 ],
                 "Fac": 1.0
-            }
+            },
+            "blend_type": "MULTIPLY"
         },
         "aoTexture": {
             "create": "$has_ao",
             "label": "AO Texture",
             "location": [
                 -900.0,
-                900.5057983398438
+                1100.5057983398438
             ],
             "name": "aoTexture",
             "type": "ShaderNodeTexImage",
@@ -233,8 +302,8 @@
             "create": "$has_emc",
             "label": "Emission Color Texture",
             "location": [
-                -900.0,
-                900.5057983398438
+                -1500.0,
+                170.0
             ],
             "name": "emcTexture",
             "type": "ShaderNodeTexImage",
@@ -245,8 +314,8 @@
             "create": "$has_ems",
             "label": "Emission Strength Texture",
             "location": [
-                -900.0,
-                900.5057983398438
+                -1500.0,
+                -150.5057983398438
             ],
             "name": "emsTexture",
             "type": "ShaderNodeTexImage",
@@ -257,8 +326,8 @@
             "create": "$has_subc",
             "label": "SSS Color Texture",
             "location": [
-                -900.0,
-                900.5057983398438
+                -1500.0,
+                800.5057983398438
             ],
             "name": "subcTexture",
             "type": "ShaderNodeTexImage",
@@ -269,8 +338,8 @@
             "create": "$has_subs",
             "label": "SSS Strength Texture",
             "location": [
-                -900.0,
-                900.5057983398438
+                -1500.0,
+                500.5057983398438
             ],
             "name": "subsTexture",
             "type": "ShaderNodeTexImage",
@@ -296,8 +365,8 @@
             "create": "$has_displacementmap",
             "label": "Displacementmap Texture",
             "location": [
-                -900.0,
-                -611.57763671875
+                -650.0,
+                -500.57763671875
             ],
             "name": "displacementmapTexture",
             "colorspace": "Non-Color",
@@ -309,8 +378,8 @@
             "create": "$has_metallicmap",
             "label": "Metallicmap Texture",
             "location": [
-                -900.0,
-                506.6513366699219
+                -1200.0,
+                450.6513366699219
             ],
             "name": "metallicmapTexture",
             "colorspace": "Non-Color",
@@ -323,7 +392,7 @@
             "label": "Normalmap",
             "location": [
                 -600.0,
-                -315.5165710449219
+                -120.5165710449219
             ],
             "name": "normalmap",
             "type": "ShaderNodeNormalMap",
@@ -341,7 +410,7 @@
             "create": "$has_normalmap",
             "label": "Normalmap Texture",
             "location": [
-                -900.0,
+                -1100.0,
                 -393.34869384765625
             ],
             "name": "normalmapTexture",
@@ -355,7 +424,7 @@
             "label": "Roughnessmap Texture",
             "location": [
                 -900.0,
-                281.7806091308594
+                381.7806091308594
             ],
             "name": "roughnessmapTexture",
             "colorspace": "Non-Color",
@@ -363,18 +432,54 @@
             "filename": "$roughnessmap_filename",
             "values": {}
         },
+        "opacitymapTexture": {
+            "create": "$has_opacitymap",
+            "label": "Opacitymap Texture",
+            "location": [
+                -72,
+                1000.0
+            ],
+            "name": "opacitymapTexture",
+            "colorspace": "Non-Color",
+            "type": "ShaderNodeTexImage",
+            "filename": "$opacitymap_filename",
+            "values": {}
+        },
         "transmissionmapTexture": {
             "create": "$has_transmissionmap",
             "label": "Transmissionmap Texture",
             "location": [
-                -900.0,
-                53.44550704956055
+                -1200.0,
+                100.0
             ],
             "name": "transmissionmapTexture",
             "colorspace": "Non-Color",
             "type": "ShaderNodeTexImage",
             "filename": "$transmissionmap_filename",
             "values": {}
+        },
+        "transparent": {
+            "create": "$has_opacitymap",
+            "label": "Transparent",
+            "location": [
+                28.0,
+                720.0
+            ],
+            "name": "transparent",
+            "type": "ShaderNodeBsdfTransparent",
+            "values": {}
+        },
+        "opacityMix": {
+            "create": "$has_opacitymap",
+            "label": "Opacity Mix",
+            "location": [
+                430.0,
+                400.0
+            ],
+            "name": "opacityMix",
+            "type": "ShaderNodeMixShader",
+            "values": {
+            }
         }
     }
 }

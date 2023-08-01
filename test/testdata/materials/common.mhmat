@@ -1,0 +1,6 @@
+diffuseTexture diffuseTexture.png
+normalmapTexture normalmapTexture.jpg
+
+diffuseIntensity 0.6
+normalmapIntensity 0.6
+
