@@ -15,7 +15,7 @@
             "to_socket": "Color2"
         },
         {
-            "disabled": "$has_ao",
+            "disabled": "$has_aomap",
             "from_node": "diffuseIntensity",
             "from_socket": "Color",
             "to_node": "Principled BSDF",
@@ -273,7 +273,7 @@
             "values": {}
         },
         "aoMix": {
-            "create": "$has_ao",
+            "create": "$has_aomap",
             "label": "AO Multiplier",
             "location": [
                 -330.0,
@@ -299,63 +299,63 @@
             "blend_type": "MULTIPLY"
         },
         "aoTexture": {
-            "create": "$has_ao",
+            "create": "$has_aomap",
             "label": "AO Texture",
             "location": [
                 -900.0,
                 1100.5057983398438
             ],
-            "name": "aoTexture",
+            "name": "aomapTexture",
             "type": "ShaderNodeTexImage",
-            "filename": "$ao_filename",
+            "filename": "$aomap_filename",
             "values": {}
         },
         "emcTexture": {
-            "create": "$has_emc",
+            "create": "$has_emissionColorMap",
             "label": "Emission Color Texture",
             "location": [
                 -1500.0,
                 170.0
             ],
-            "name": "emcTexture",
+            "name": "emissionColorMapTexture",
             "type": "ShaderNodeTexImage",
-            "filename": "$emc_filename",
+            "filename": "$emissionColorMap_filename",
             "values": {}
         },
         "emsTexture": {
-            "create": "$has_ems",
+            "create": "$has_emissionStrengthMap",
             "label": "Emission Strength Texture",
             "location": [
                 -1500.0,
                 -150.5057983398438
             ],
-            "name": "emsTexture",
+            "name": "emissionStrengthMapTexture",
             "type": "ShaderNodeTexImage",
-            "filename": "$ems_filename",
+            "filename": "$emissionStrengthMap_filename",
             "values": {}
         },
         "subcTexture": {
-            "create": "$has_subc",
+            "create": "$has_subsurfaceColorMap",
             "label": "SSS Color Texture",
             "location": [
                 -1500.0,
                 800.5057983398438
             ],
-            "name": "subcTexture",
+            "name": "subsurfaceColorMapTexture",
             "type": "ShaderNodeTexImage",
-            "filename": "$subc_filename",
+            "filename": "$subsurfaceColorMap_filename",
             "values": {}
         },
         "subsTexture": {
-            "create": "$has_subs",
+            "create": "$has_subsurfaceStrengthMap",
             "label": "SSS Strength Texture",
             "location": [
                 -1500.0,
                 500.5057983398438
             ],
-            "name": "subsTexture",
+            "name": "subsurfaceStrengthMapTexture",
             "type": "ShaderNodeTexImage",
-            "filename": "$subs_filename",
+            "filename": "$subsurfaceStrengthMap_filename",
             "values": {}
         },
         "displacementmap": {

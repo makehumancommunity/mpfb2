@@ -28,13 +28,7 @@ class MPFB_OT_CreateMaterialOperator(bpy.types.Operator):
         from mpfb.ui.makeskin.makeskinpanel import MAKESKIN_PROPERTIES # pylint: disable=C0415
         from mpfb.ui.makeskin import MakeSkinObjectProperties # pylint: disable=C0415
 
-        overwrite = MAKESKIN_PROPERTIES.get_value("overwrite", entity_reference=scene)
-
-        if not overwrite and MaterialService.has_materials(blender_object):
-            self.report({'ERROR'}, "Object already has a material")
-            return {'FINISHED'}
-
-        if overwrite and MaterialService.has_materials(blender_object):
+        if MaterialService.has_materials(blender_object):
             MaterialService.delete_all_materials(blender_object)
 
         name = MakeSkinObjectProperties.get_value("name", entity_reference=blender_object)

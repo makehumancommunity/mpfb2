@@ -1,4 +1,4 @@
-import os, json, shutil
+import os, json, shutil, bpy
 from pathlib import Path
 from .mhmaterial import MhMaterial
 from .mhmatkeys import MHMAT_KEYS
@@ -10,19 +10,21 @@ from mpfb.services.materialservice import MaterialService
 _LOG = LogService.get_logger("material.makeskinmaterial")
 
 _TEXTURE_NAMES = [
+    "aomap",
     "bumpmap",
     "diffuse",
     "displacementmap",
+    "emissionColorMap",
+    "emissionStrengthMap",
     "metallicmap",
     "normalmap",
+    "opacitymap",
     "roughnessmap",
-    "transmissionmap",
-    "aomap",
-    "emissioncolormap",
-    "emissionstrengthmap",
-    "subsurfacecolormap",
-    "subsurfacestrengthmap",
-    "specularmap"]
+    "specularmap",
+    "subsurfaceColorMap",
+    "subsurfaceStrengthMap",
+    "transmissionmap"
+    ]
 
 _NODE_SOCKET_VALUES = [] # key name, node name, socket name
 _NODE_SOCKET_VALUES.append(["diffuseColor", "Principled BSDF", "Base Color"]) # First pick up color from principled
@@ -60,20 +62,21 @@ class MakeSkinMaterial(MhMaterial):
 
         if template_values is None:
             template_values = dict()
+            self._template(template_values, "has_aomap", "aomap_filename", "aomapTexture")
             self._template(template_values, "has_bumpmap", "bumpmap_filename", "bumpMapTexture")
             self._template(template_values, "has_diffuse", "diffuse_filename", "diffuseTexture")
             self._template(template_values, "has_displacementmap", "displacementmap_filename", "displacementMapTexture")
+            self._template(template_values, "has_emissionColorMap", "emissionColorMap_filename", "emissionColorMapTexture")
+            self._template(template_values, "has_emissionStrengthMap", "emissionStrengthMap_filename", "emissionStrengthMapTexture")
             self._template(template_values, "has_metallicmap", "metallicmap_filename", "metallicMapTexture")
             self._template(template_values, "has_normalmap", "normalmap_filename", "normalMapTexture")
-            self._template(template_values, "has_roughnessmap", "roughnessmap_filename", "roughnessMapTexture")
-            self._template(template_values, "has_transmissionmap", "transmissionmap_filename", "transmissionMapTexture")
             self._template(template_values, "has_opacitymap", "opacitymap_filename", "opacityMapTexture")
-            self._template(template_values, "has_ao", "ao_filename", "aomapTexture")
-            self._template(template_values, "has_emc", "emc_filename", "emissionColorMapTexture")
-            self._template(template_values, "has_ems", "ems_filename", "emissionStrengthMapTexture")
-            self._template(template_values, "has_subc", "subc_filename", "subsurfaceColorMapTexture")
-            self._template(template_values, "has_subs", "subs_filename", "subsurfaceStrengthMapTexture")
+            self._template(template_values, "has_roughnessmap", "roughnessmap_filename", "roughnessMapTexture")
             self._template(template_values, "has_specularmap", "specularmap_filename", "specularMapTexture")
+            self._template(template_values, "has_subsurfaceColorMap", "subsurfaceColorMap_filename", "subsurfaceColorMapTexture")
+            self._template(template_values, "has_subsurfaceStrengthMap", "subsurfaceStrengthMap_filename", "subsurfaceStrengthMapTexture")
+            self._template(template_values, "has_transmissionmap", "transmissionmap_filename", "transmissionMapTexture")
+
 
         template_values["bump_or_normal"] = "false"
         if template_values["has_bumpmap"] == "true":
@@ -144,7 +147,7 @@ class MakeSkinMaterial(MhMaterial):
         key_by_name = dict()
 
         for key in MHMAT_KEYS:
-            _LOG.debug("key", (key.key_name, key.default_value, key.key_group))
+            _LOG.debug("populate from object", (key.key_name, key.default_value, key.key_group))
             self._settings[key.key_name] = key.default_value
             key_by_name[key.key_name] = key
             if key.key_group == "Texture":
@@ -177,7 +180,7 @@ class MakeSkinMaterial(MhMaterial):
 
         _LOG.dump("\n\n\nRESULTS, POPULATE FROM OBJECT\n\n\n", self._settings)
 
-    def check_that_all_textures_are_saved(self, blender_object):
+    def check_that_all_textures_are_saved(self, blender_object, mhmat_dir=None, mhmat_bn=None):
         material = blender_object.material_slots[0].material
         node_tree = material.node_tree
 
@@ -186,12 +189,21 @@ class MakeSkinMaterial(MhMaterial):
             node = NodeService.find_node_by_name(node_tree, texture_name)
             _LOG.debug("texture name, node", (texture_name, node))
             if node:
-                # The material has this kind of texture, check that its image exists
+                image = node.image
+                if not image:
+                    return "The " + node.name + " does not have an image"
                 node_info = NodeService.get_node_info(node)
-                if not "filename" in node_info or not node_info["filename"]:
-                    return "The " + texture_name + " node has an unsaved image"
-                if not os.path.exists(node_info["filename"]):
-                    return "The " + texture_name + " refers to an image which does not exist as a file"
+                if "filename" not in node_info or not node_info["filename"]:
+                    if mhmat_bn and mhmat_dir:
+                        image.filepath_raw = os.path.join(mhmat_dir, mhmat_bn + "_" + texture_name_base + ".png")
+                        image.file_format = 'PNG'
+                        image.save()
+                        self._set_texture(node_tree, texture_name)
+                    else:
+                        _LOG.warn("basename or dirname is none", (mhmat_bn, mhmat_dir))
+                        return "The " + node.name + " has an unsaved image !!?"
+                else:
+                    image.save()
             else:
                 # The material isn't using this kind of texture
                 _LOG.debug("No node was found for", texture_name)
@@ -209,7 +221,8 @@ class MakeSkinMaterial(MhMaterial):
                     fn, ext = os.path.splitext(src)
                     dest = os.path.join(mhmat_loc, mhmat_base + textureType + ext)
                     _LOG.debug("src, dest", (src, dest))
-                    shutil.copy(src, dest)
+                    if src != dest:
+                        shutil.copy(src, dest)
                     newfn = os.path.basename(dest)
                     self._settings[key] = newfn
 
@@ -227,14 +240,12 @@ class MakeSkinMaterial(MhMaterial):
 
         if blender_object is None:
             raise ValueError('Must provide an object')
-        if MaterialService.has_materials(blender_object) and not MAKESKIN_PROPERTIES.get_value("overwrite", entity_reference=scene):
-            raise ValueError('Object already has material')
         if scene is None:
             raise ValueError('Must provide a scene')
 
         template_values = dict()
         for part in _TEXTURE_NAMES:
-            _LOG.debug("part", part)
+            _LOG.debug("checking texture", part)
             if MAKESKIN_PROPERTIES.get_value("create_" + part, entity_reference=scene):
                 template_values["has_" + part] = "true"
             else:
@@ -246,3 +257,13 @@ class MakeSkinMaterial(MhMaterial):
         material = MaterialService.create_empty_material(name, blender_object)
         msmat = MakeSkinMaterial()
         msmat.apply_node_tree(material, template_values)
+
+        resolution = MAKESKIN_PROPERTIES.get_value("resolution", entity_reference=scene)
+        if resolution and resolution != "NONE":
+            for part in _TEXTURE_NAMES:
+                if MAKESKIN_PROPERTIES.get_value("create_" + part, entity_reference=scene):
+                    node = NodeService.find_node_by_name(material.node_tree, part + "Texture")
+                    _LOG.debug("create image for", (part, node))
+                    side = int(resolution)
+                    bpy.ops.image.new(name=part + "Texture", width=side, height=side)
+                    node.image = bpy.data.images[part + "Texture"]

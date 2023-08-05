@@ -1,7 +1,7 @@
 {
     "type": "boolean",
     "name": "create_roughnessmap",
-    "description": "Create a placeholder for a roughnessmap",
+    "description": "Create a placeholder for a roughness map",
     "label": "Roughness map",
     "default": false
 }

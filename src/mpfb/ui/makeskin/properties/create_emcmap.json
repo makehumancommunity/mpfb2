@@ -1,0 +1,7 @@
+{
+    "type": "boolean",
+    "name": "create_emissionColorMap",
+    "description": "Create a placeholder for an emission color map",
+    "label": "Emission color map",
+    "default": false
+}

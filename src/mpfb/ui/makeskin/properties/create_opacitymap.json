@@ -1,0 +1,7 @@
+{
+    "type": "boolean",
+    "name": "create_opacitymap",
+    "description": "Create a placeholder for an opacity map. Note that makehuman uses the alpha channel of the diffuse texture rather than a discrete opacity map",
+    "label": "Opacity map",
+    "default": false
+}

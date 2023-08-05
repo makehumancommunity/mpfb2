@@ -1,0 +1,7 @@
+{
+    "type": "boolean",
+    "name": "create_specularmap",
+    "description": "Create a placeholder for a specular map. Note that you'll normally want a roughness map instead. A specular map is the inverse of a roughness map",
+    "label": "Specular map",
+    "default": false
+}

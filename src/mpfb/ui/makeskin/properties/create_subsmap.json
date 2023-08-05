@@ -1,0 +1,7 @@
+{
+    "type": "boolean",
+    "name": "create_subsurfaceStrengthMap",
+    "description": "Create a placeholder for a subsurface strength map",
+    "label": "SSS strength map",
+    "default": false
+}

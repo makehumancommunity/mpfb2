@@ -1,0 +1,7 @@
+{
+    "type": "boolean",
+    "name": "create_emissionStrengthMap",
+    "description": "Create a placeholder for an emission strength map",
+    "label": "Emission strength map",
+    "default": false
+}

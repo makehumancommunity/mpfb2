@@ -116,7 +116,7 @@ class MhMaterial:
         return None
 
     def as_mhmat(self):
-        mat = "# This is a material for MakeHuman\n"
+        mat = "# This is a material for MakeHuman or MPFB\n"
 
         for key_group in MHMAT_KEY_GROUPS:
             mat = mat + "\n// " + key_group + "\n\n"

@@ -101,9 +101,10 @@ for keyObj in MHMAT_KEYS:
     keyname = keyObj.key_name_lower
     MHMAT_NAME_TO_KEY[keyname] = keyObj
 
-for alias in MHMAT_ALIAS.keys():
-    refers_to = MHMAT_ALIAS[str(alias)]
-    MHMAT_NAME_TO_KEY[str(alias).lower()] = MHMAT_NAME_TO_KEY[str(refers_to).lower()]
+# TODO: This causes duplicates in the resulting MHMAT, need better strategy
+#for alias in MHMAT_ALIAS.keys():
+#    refers_to = MHMAT_ALIAS[str(alias)]
+#    MHMAT_NAME_TO_KEY[str(alias).lower()] = MHMAT_NAME_TO_KEY[str(refers_to).lower()]
 
 # SHADERS
 

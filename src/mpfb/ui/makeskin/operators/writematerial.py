@@ -11,7 +11,7 @@ from mpfb.entities.material.makeskinmaterial import MakeSkinMaterial
 _LOG = LogService.get_logger("makeskin.writematerial")
 
 class MPFB_OT_WriteMaterialOperator(bpy.types.Operator, ExportHelper):
-    """Write material to MHMAT file"""
+    """Write material to MHMAT file. WARNING: This will also save all assigned images alongside the MHMAT file"""
     bl_idname = "mpfb.write_makeskin_material"
     bl_label = "Save as MHMAT"
     bl_options = {'REGISTER'}
@@ -46,6 +46,8 @@ class MPFB_OT_WriteMaterialOperator(bpy.types.Operator, ExportHelper):
         blender_object = context.active_object
 
         file_name = bpy.path.abspath(self.filepath)
+        dirn = os.path.dirname(file_name)
+        bn = os.path.basename(file_name).replace(".mhmat", "")
 
         if not MaterialService.has_materials(blender_object):
             self.report({'ERROR'}, "Object does not have a material")
@@ -54,7 +56,7 @@ class MPFB_OT_WriteMaterialOperator(bpy.types.Operator, ExportHelper):
         material = MakeSkinMaterial()
         material.populate_from_object(blender_object)
 
-        image_file_error = material.check_that_all_textures_are_saved(blender_object)
+        image_file_error = material.check_that_all_textures_are_saved(blender_object, dirn, bn)
         if not image_file_error is None:
             self.report({'ERROR'}, image_file_error)
             return {'FINISHED'}

@@ -1,0 +1,7 @@
+{
+    "type": "boolean",
+    "name": "create_aomap",
+    "description": "Create a placeholder for an ambient occlusion map",
+    "label": "AO map",
+    "default": false
+}

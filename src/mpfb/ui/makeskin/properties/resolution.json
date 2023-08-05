@@ -1,0 +1,15 @@
+{
+    "type": "enum",
+    "name": "resolution",
+    "description": "Also generate images for each placeholder. Skip this if you want different resolutions",
+    "label": "Generate images",
+    "default": "NONE",
+    "items": [
+        ["NONE", "Do not generate", "Do not generate images for placeholders", 1],
+        ["1024", "Generate 1024x1024", "Generate 1024x1024 px images", 2],
+        ["2048", "Generate 2048x2048", "Generate 2048x2048 px images", 3],
+        ["4096", "Generate 4096x4096", "Generate 4096x4096 px images", 4],
+        ["8192", "Generate 8192x8192", "Generate 8192x8192 px images", 5],
+        ["16384", "Generate 16384x16384", "Generate 16384x16384 px images", 6]
+        ]
+}
