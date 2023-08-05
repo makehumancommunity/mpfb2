@@ -48,6 +48,15 @@ class _Abstract_Model_Panel(bpy.types.Panel):
             else:
                 _LOG.dump("No image for ", category["name"])
 
+        is_modified = False
+        for target in category["targets"]:
+            name = str(os.path.basename(target)).replace(".target", "")
+            value = TargetService.get_target_value(basemesh, name)
+            if abs(value) > 0.001:
+                is_modified = True
+                _LOG.debug("Target value modified", (name, value))
+        box.alert = is_modified
+
         if category["has_left_and_right"]:
             box.prop(scene, UiService.as_valid_identifier(self.section_name + ".l-" + category["name"]), text="Left:")
             box.prop(scene, UiService.as_valid_identifier(self.section_name + ".r-" + category["name"]), text="Right:")
