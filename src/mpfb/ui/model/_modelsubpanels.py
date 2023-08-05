@@ -69,7 +69,9 @@ class _Abstract_Model_Panel(bpy.types.Panel):
         grid = layout.grid_flow(columns=cols, even_columns=True, even_rows=False)
 
         _LOG.dump("target_dir", self.target_dir)
-        for category in self.section["categories"]:
+
+        for category_name in _SORTED_CATEGORIES[self.section_name]:
+            category = _CATEGORIES_BY_LABEL[self.section_name][category_name]
             self._draw_category(scene, grid, category, basemesh)
 
 _sections = dict()
@@ -130,6 +132,17 @@ if os.path.exists(user_targets_dir):
             _LOG.warn("No image for ", str(target))
 else:
     _LOG.debug("User targets dir does not exist", user_targets_dir)
+
+_SORTED_CATEGORIES = {}
+_CATEGORIES_BY_LABEL = {}
+
+for key in _sections.keys():
+    _SORTED_CATEGORIES[str(key)] = []
+    _CATEGORIES_BY_LABEL[str(key)] = {}
+    for cat in _sections[str(key)]["categories"]:
+        _SORTED_CATEGORIES[str(key)].append(cat["label"])
+        _CATEGORIES_BY_LABEL[str(key)][cat["label"]] = cat
+    _SORTED_CATEGORIES[str(key)].sort()
 
 def _set_simple_modifier_value(scene, blender_object, section, category, value, side="unsided", load_target_if_needed=True):
     """This modifier is not a combination of opposing targets ("decr-incr", "in-out"...)"""
