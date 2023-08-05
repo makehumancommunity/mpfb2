@@ -1,0 +1,7 @@
+{
+    "type": "string",
+    "name": "filter",
+    "description": "Only show targets with this term in the name",
+    "label": "Filter term",
+    "default": ""
+}

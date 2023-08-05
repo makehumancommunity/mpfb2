@@ -59,9 +59,13 @@ class _Abstract_Model_Panel(bpy.types.Panel):
         layout = self.layout
         scene = context.scene
 
+
         basemesh = ObjectService.find_object_of_type_amongst_nearest_relatives(bpy.context.active_object, "Basemesh")
         if not basemesh:
             return
+
+        from mpfb.ui.model.modelpanel import MODEL_PROPERTIES
+        filter = MODEL_PROPERTIES.get_value("filter", entity_reference=bpy.context.scene)
 
         tot_width = bpy.context.region.width
         cols = max(1, math.floor(tot_width / 220))
@@ -71,8 +75,9 @@ class _Abstract_Model_Panel(bpy.types.Panel):
         _LOG.dump("target_dir", self.target_dir)
 
         for category_name in _SORTED_CATEGORIES[self.section_name]:
-            category = _CATEGORIES_BY_LABEL[self.section_name][category_name]
-            self._draw_category(scene, grid, category, basemesh)
+            if not str(filter) or str(filter).lower() in str(category_name).lower():
+                category = _CATEGORIES_BY_LABEL[self.section_name][category_name]
+                self._draw_category(scene, grid, category, basemesh)
 
 _sections = dict()
 with open(_TARGETS_JSON, "r") as _json_file:

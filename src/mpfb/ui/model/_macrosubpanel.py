@@ -51,8 +51,15 @@ class MPFB_PT_Macro_Sub_Panel(bpy.types.Panel):
     def _draw_category(self, scene, layout, category_name, targets, basemesh):
         box = layout.box()
         box.label(text=category_name)
+
+        from mpfb.ui.model.modelpanel import MODEL_PROPERTIES
+        filter = MODEL_PROPERTIES.get_value("filter", entity_reference=bpy.context.scene)
+
         for target in targets:
-            box.prop(scene, _INTERNAL_PREFIX + target)
+            if not str(filter) or str(filter).lower() in str(target).lower():
+                box.prop(scene, _INTERNAL_PREFIX + target)
+            else:
+                print("Not matching " + str(filter).lower() + " -> " + str(target).lower())
 
     def draw(self, context):
         _LOG.enter()
