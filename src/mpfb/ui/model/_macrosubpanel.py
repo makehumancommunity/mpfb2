@@ -58,8 +58,6 @@ class MPFB_PT_Macro_Sub_Panel(bpy.types.Panel):
         for target in targets:
             if not str(filter) or str(filter).lower() in str(target).lower():
                 box.prop(scene, _INTERNAL_PREFIX + target)
-            else:
-                print("Not matching " + str(filter).lower() + " -> " + str(target).lower())
 
     def draw(self, context):
         _LOG.enter()
