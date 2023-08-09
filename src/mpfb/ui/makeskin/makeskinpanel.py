@@ -6,6 +6,7 @@ from mpfb.services.logservice import LogService
 from mpfb.services.sceneconfigset import SceneConfigSet
 from mpfb.services.uiservice import UiService
 from mpfb.ui.makeskin import MakeSkinObjectProperties
+from mpfb.services.materialservice import MaterialService
 from mpfb.ui.abstractpanel import Abstract_Panel
 
 _LOC = os.path.dirname(__file__)
@@ -50,8 +51,8 @@ class MPFB_PT_MakeSkin_Panel(Abstract_Panel):
         box = self._create_box(layout, "Import", "MATERIAL_DATA")
         box.operator('mpfb.import_makeskin_material')
 
-    def _save_material(self, blender_object, layout):
-        box = self._create_box(layout, "Write material", "MATERIAL_DATA")
+    def _material_prop(self, blender_object, layout):
+        box = self._create_box(layout, "Material properties", "MATERIAL_DATA")
         props = [
             "name",
             "description",
@@ -59,6 +60,12 @@ class MPFB_PT_MakeSkin_Panel(Abstract_Panel):
             "license",
             "author",
             "homepage",
+            ]
+        MakeSkinObjectProperties.draw_properties(blender_object, box, props)
+
+    def _mh_prop(self, blender_object, layout):
+        box = self._create_box(layout, "MakeHuman specific", "MATERIAL_DATA")
+        props = [
             "backface_culling",
             "cast_shadows",
             "receive_shadows",
@@ -69,13 +76,27 @@ class MPFB_PT_MakeSkin_Panel(Abstract_Panel):
             "depthless",
             "sss_enable",
             "auto_blend",
-            "textures",
             "use_litsphere",
             "litsphere"
             ]
         MakeSkinObjectProperties.draw_properties(blender_object, box, props)
-        box.operator('mpfb.write_makeskin_to_library')
+
+    def _path_prop(self, blender_object, layout):
+        box = self._create_box(layout, "Path management", "MATERIAL_DATA")
+        props = [
+            "textures"
+            ]
+        MakeSkinObjectProperties.draw_properties(blender_object, box, props)
+
+    def _save_file(self, blender_object, layout):
+        box = self._create_box(layout, "Save file", "MATERIAL_DATA")
+        #box.operator('mpfb.write_makeskin_to_library')
         box.operator('mpfb.write_makeskin_material')
+
+    def _save_library(self, blender_object, layout):
+        box = self._create_box(layout, "Store in library", "MATERIAL_DATA")
+        box.operator('mpfb.write_alternate')
+        box.operator('mpfb.write_makeskin_to_library')
 
     def draw(self, context):
         _LOG.enter()
@@ -87,9 +108,14 @@ class MPFB_PT_MakeSkin_Panel(Abstract_Panel):
             return
 
         if blender_object.type == "MESH":
-            self._create_material(scene, layout)
-            self._import_material(layout)
-            self._save_material(blender_object, layout)
+            if not MaterialService.has_materials(context.active_object):
+                self._create_material(scene, layout)
+                self._import_material(layout)
+            self._material_prop(blender_object, layout)
+            self._mh_prop(blender_object, layout)
+            self._path_prop(blender_object, layout)
+            self._save_file(blender_object, layout)
+            self._save_library(blender_object, layout)
 
 
 ClassManager.add_class(MPFB_PT_MakeSkin_Panel)

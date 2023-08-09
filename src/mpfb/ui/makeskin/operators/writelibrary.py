@@ -6,22 +6,21 @@ from bpy.props import StringProperty
 from mpfb.services.logservice import LogService
 from mpfb.services.locationservice import LocationService
 from mpfb.services.materialservice import MaterialService
+from mpfb.services.objectservice import ObjectService
 from mpfb import ClassManager
 from mpfb.entities.material.makeskinmaterial import MakeSkinMaterial
 
 _LOG = LogService.get_logger("makeskin.writelibrary")
 
 class MPFB_OT_WriteLibraryOperator(bpy.types.Operator):
-    """Write material to skin library"""
+    """Save material in the user skins directory to make it available as new body skin"""
     bl_idname = "mpfb.write_makeskin_to_library"
-    bl_label = "Store in library"
+    bl_label = "Store as skin"
     bl_options = {'REGISTER'}
 
     @classmethod
     def poll(cls, context):
-        if context.active_object is not None:
-            return MaterialService.has_materials(context.active_object)
-        return False
+        return ObjectService.object_is_basemesh_or_body_proxy(context.active_object)
 
     def execute(self, context):
 
