@@ -124,6 +124,7 @@ if os.path.exists(user_targets_dir):
             _sections[dirn]["label"] = dirn
             _sections[dirn]["categories"] = []
         section = _sections[dirn]
+        _LOG.debug("section:", section)
         cat = {
                 "has_left_and_right": False,
                 "label": os.path.basename(target).replace(".target","").replace("_", " "),
@@ -131,6 +132,7 @@ if os.path.exists(user_targets_dir):
                 "targets": [target],
                 "full_path": target
                 }
+        _LOG.debug("cat", cat)
         section["categories"].append(cat)
         bn = str(os.path.basename(target)).replace(".target","")
         img = None
@@ -264,8 +266,10 @@ def _get_modifier_value(scene, blender_object, section, category, side="unsided"
         return _get_opposed_modifier_value(scene, blender_object, section, category, side)
     return _get_simple_modifier_value(scene, blender_object, section, category, side)
 
-for name in _sections:
+_section_names = list(_sections.keys())
+_section_names.sort()
 
+for name in _section_names:
     _section = _sections[name]
     _i = 0
     for _category in _section["categories"]:
