@@ -306,6 +306,7 @@
                 1100.5057983398438
             ],
             "name": "aomapTexture",
+            "colorspace": "Non-Color",
             "type": "ShaderNodeTexImage",
             "filename": "$aomap_filename",
             "values": {}
@@ -330,6 +331,7 @@
                 -150.5057983398438
             ],
             "name": "emissionStrengthMapTexture",
+            "colorspace": "Non-Color",
             "type": "ShaderNodeTexImage",
             "filename": "$emissionStrengthMap_filename",
             "values": {}
@@ -354,6 +356,7 @@
                 500.5057983398438
             ],
             "name": "subsurfaceStrengthMapTexture",
+            "colorspace": "Non-Color",
             "type": "ShaderNodeTexImage",
             "filename": "$subsurfaceStrengthMap_filename",
             "values": {}

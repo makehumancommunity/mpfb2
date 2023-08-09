@@ -26,6 +26,20 @@ _TEXTURE_NAMES = [
     "transmissionmap"
     ]
 
+_NONCOLOR = [
+    "aomap",
+    "bumpmap",
+    "displacementmap",
+    "emissionStrengthMap",
+    "metallicmap",
+    "normalmap",
+    "opacitymap",
+    "roughnessmap",
+    "specularmap",
+    "subsurfaceStrengthMap",
+    "transmissionmap"
+    ]
+
 _NODE_SOCKET_VALUES = [] # key name, node name, socket name
 _NODE_SOCKET_VALUES.append(["diffuseColor", "Principled BSDF", "Base Color"]) # First pick up color from principled
 _NODE_SOCKET_VALUES.append(["diffuseColor", "diffuseIntensity", "Color1"]) # Then overwrite with intensity node if any
@@ -267,3 +281,5 @@ class MakeSkinMaterial(MhMaterial):
                     side = int(resolution)
                     bpy.ops.image.new(name=part + "Texture", width=side, height=side)
                     node.image = bpy.data.images[part + "Texture"]
+                    if part in _NONCOLOR:
+                        node.image.colorspace_settings.name = "Non-Color"
