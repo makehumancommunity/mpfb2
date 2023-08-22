@@ -185,10 +185,13 @@ class MakeSkinMaterial(MhMaterial):
             self._settings["sssEnabled"] = True
             node = NodeService.find_node_by_name(blender_material.node_tree, "Principled BSDF")
             socket_values = NodeService.get_socket_default_values(node)
-            radius = socket_values["Subsurface Radius"]
-            self._settings["sssRScale"] = radius[0]
-            self._settings["sssGScale"] = radius[1]
-            self._settings["sssBScale"] = radius[2]
+            if "Subsurface Radius" in socket_values:
+                radius = socket_values["Subsurface Radius"]
+                self._settings["sssRScale"] = radius[0]
+                self._settings["sssGScale"] = radius[1]
+                self._settings["sssBScale"] = radius[2]
+            else:
+                _LOG.warn("Expected to find a Subsurface Radius socket, but it did not exist on the principled BSDF node. Values are", socket_values)
         else:
             self._settings["sssEnabled"] = False
 
