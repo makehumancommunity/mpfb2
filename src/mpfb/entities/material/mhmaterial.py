@@ -1,6 +1,6 @@
 
 import re, os
-from .mhmatkeys import MHMAT_KEY_GROUPS, MHMAT_NAME_TO_KEY
+from .mhmatkeys import MHMAT_KEY_GROUPS, MHMAT_NAME_TO_KEY, parse_alias
 from .mhmatkeytypes import MhMatFileKey
 from mpfb.services.socketservice import SocketService
 from mpfb.services.logservice import LogService
@@ -22,6 +22,11 @@ class MhMaterial:
         match = re.search(r'^([a-zA-Z]+)\s+(.*)$', line)
         if match:
             key = match.group(1)
+            origkey = match.group(1)
+
+            if key:
+                key = parse_alias(key)
+
             key_lower = key.lower()
             value = None
 
@@ -31,6 +36,9 @@ class MhMaterial:
                 if key != key_correct_case:
                     _LOG.debug("Autofixing case: " + key + " -> " + key_correct_case)
                     key = key_correct_case
+                if key != origkey:
+                    _LOG.warn("Patching input material line to cater for non-normalized key", (origkey, key))
+                    line = line.replace(str(origkey), str(key))
                 if isinstance(key_obj, MhMatFileKey):
                     (used_key, value) = key_obj.parse_file(line, self.location)
                 else:

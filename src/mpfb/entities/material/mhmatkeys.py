@@ -85,6 +85,7 @@ MHMAT_KEYS.append(MhMatBooleanKey("autoBlendSkin", None, 'Various'))
 
 MHMAT_ALIAS = dict()
 MHMAT_ALIAS["diffusemapTexture"] = "diffuseTexture"
+MHMAT_ALIAS["bumpTexture"] = "bumpmapTexture"
 MHMAT_ALIAS["albedoTexture"] = "diffuseTexture"
 MHMAT_ALIAS["albedoMapTexture"] = "diffuseTexture"
 MHMAT_ALIAS["basecolorTexture"] = "diffuseTexture"
@@ -96,15 +97,17 @@ MHMAT_ALIAS["emissionTexture"] = "emissionColorMapTexture"
 MHMAT_ALIAS["sssTexture"] = "subsurfaceColorMapTexture"
 MHMAT_ALIAS["sssMapTexture"] = "subsurfaceColorMapTexture"
 
+def parse_alias(texture_name):
+    for key in MHMAT_ALIAS.keys():
+        name = str(key).lower()
+        if str(texture_name).lower() == name:
+            return str(MHMAT_ALIAS[key])
+    return texture_name
+
 MHMAT_NAME_TO_KEY = {}
 for keyObj in MHMAT_KEYS:
     keyname = keyObj.key_name_lower
     MHMAT_NAME_TO_KEY[keyname] = keyObj
-
-# TODO: This causes duplicates in the resulting MHMAT, need better strategy
-#for alias in MHMAT_ALIAS.keys():
-#    refers_to = MHMAT_ALIAS[str(alias)]
-#    MHMAT_NAME_TO_KEY[str(alias).lower()] = MHMAT_NAME_TO_KEY[str(refers_to).lower()]
 
 # SHADERS
 
