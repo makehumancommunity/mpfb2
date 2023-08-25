@@ -127,8 +127,11 @@ class RigService:
             modifier = object.modifiers.new("Armature", 'ARMATURE')
             modifier.object = armature_object
 
+            override = bpy.context.copy()
+            override["object"] = object
             while object.modifiers.find(modifier.name) > index_normal:
-                bpy.ops.object.modifier_move_up({'object': object}, modifier=modifier.name)
+                with bpy.context.temp_override(**override):
+                    bpy.ops.object.modifier_move_up(modifier=modifier.name)
 
         if index_pv < 0 and vg_name in object.vertex_groups:
             index_pv = index_normal + 1
