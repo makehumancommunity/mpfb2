@@ -44,6 +44,10 @@ class SystemService:
     @staticmethod
     def check_for_obj_importer():
         """Check if the Blender OBJ importer is installed."""
+        if SystemService.is_blender_version_at_least([3,6,0]):
+            # Blender 3.6.0+ has a native obj importer, but check anyway just to be sure
+            if hasattr(bpy.ops.wm, "obj_import"):
+                return True
         if not hasattr(bpy.ops.import_scene, "obj"):
             return False
         (loaded_default, loaded_state) = addon_utils.check('io_scene_obj') # pylint: disable=W0612
@@ -78,4 +82,33 @@ class SystemService:
         for segment in segments:
             if segment == path_segment:
                 return True
+        return False
+
+    # Method for finding if the currently running blender version is at least the specified version
+    @staticmethod
+    def is_blender_version_at_least(version=[3,6,0]):
+        """Check if the currently running blender version is at least the specified version.
+
+        Args:
+            version (list): The version to check against.
+        """
+        if not version:
+            return False
+        if len(version) != 3:
+            _LOG.error("Version need to be specified as a three item list, the provided value was", version)
+            return False
+
+        if bpy.app.version[0] > version[0]:
+            return True
+        if bpy.app.version[0] < version[0]:
+            return False
+
+        if bpy.app.version[1] > version[1]:
+            return True
+        if bpy.app.version[1] < version[1]:
+            return False
+
+        if bpy.app.version[2] >= version[2]:
+            return True
+
         return False

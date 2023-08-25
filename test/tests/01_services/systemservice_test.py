@@ -23,3 +23,14 @@ def test_string_contains_path_segment():
     assert not SystemService.string_contains_path_segment("", "")
     assert not SystemService.string_contains_path_segment("d:\\Ugga\\Bugga", "ugga", case_insensitive=False)
     assert SystemService.string_contains_path_segment("d:\\Ugga\\Bugga", "ugga")
+
+def test_is_blender_version_at_least():
+    """is_blender_version_at_least"""
+    assert SystemService.is_blender_version_at_least([2, 80, 0])
+    assert SystemService.is_blender_version_at_least([3, 0, 0])
+    assert SystemService.is_blender_version_at_least(list(bpy.app.version))
+    assert not SystemService.is_blender_version_at_least([300, 0, 0])
+
+def test_check_for_obj_importer():
+    """check_for_obj_importer"""
+    assert SystemService.check_for_obj_importer()

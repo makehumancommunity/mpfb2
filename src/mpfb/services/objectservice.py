@@ -3,6 +3,7 @@
 import bpy, os, json, random, gzip, typing, string
 from mpfb.services.logservice import LogService
 from mpfb.services.locationservice import LocationService
+from mpfb.services.systemservice import SystemService
 from mpfb.entities.objectproperties import GeneralObjectProperties
 from mpfb.entities.socketobject import BASEMESH_EXTRA_GROUPS
 
@@ -543,12 +544,16 @@ class ObjectService:
             raise ValueError('Cannot load None filepath')
         if not os.path.exists(filepath):
             raise IOError('File does not exist: ' + filepath)
-        bpy.ops.import_scene.obj(filepath=filepath, use_split_objects=False, use_split_groups=False)
+
+        if SystemService.is_blender_version_at_least([3, 6, 0]):
+            bpy.ops.wm.obj_import(filepath=filepath, use_split_objects=False, use_split_groups=False)
+        else:
+            bpy.ops.import_scene.obj(filepath=filepath, use_split_objects=False, use_split_groups=False)
 
         # import_scene rotated object 90 degrees
         bpy.ops.object.transform_apply(location=False, rotation=True, scale=False)
 
-        loaded_object = bpy.context.selected_objects[0] # pylint: disable=E1136
+        loaded_object = context.selected_objects[0] # pylint: disable=E1136
         return loaded_object
 
     @staticmethod
