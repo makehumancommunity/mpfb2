@@ -482,8 +482,16 @@ class NodeService:
             if not value in node.inputs:
                 _LOG.error("Found an input name which didn't exist as socket:", value)
             else:
-                node.inputs[value].default_value = node_info["values"][value]
-
+                try:
+                    node.inputs[value].default_value = node_info["values"][value]
+                except ValueError as e:
+                    _LOG.error("Tried to set illegal default value", {
+                        "node": node,
+                        "input name": value,
+                        "input": node.inputs[value],
+                        "value": node_info["values"][value],
+                        "error": e
+                        })
         node.name = node_info["name"]
         if "label" in node_info:
             node.label = node_info["label"]
