@@ -2,6 +2,7 @@ import bpy, os
 from pytest import approx
 from mpfb.services.objectservice import ObjectService
 from mpfb.services.nodeservice import NodeService
+from mpfb.services.systemservice import SystemService
 from mpfb.entities.nodemodel.v2 import *
 
 def test_primitives_are_available():
@@ -191,6 +192,11 @@ def test_can_create_snbsdfglass():
     NodeService.destroy_node_tree(node_tree)
 
 def test_can_create_snbsdfglossy():
+    if SystemService.is_blender_version_at_least([4,0,0]):
+        # Per 2023-08-26 there is a bug in Blender 4.0.0 where an anisotropic
+        # node will be created when a glossy node is requested.
+        # TODO: Revisit when Blender 4.0.0 is released.
+        return
     node_tree_name = ObjectService.random_name()
     node_tree = NodeService.create_node_tree(node_tree_name)
     node = snBsdfGlossy.create_instance(node_tree)
@@ -263,6 +269,10 @@ def test_can_create_snbsdftransparent():
     NodeService.destroy_node_tree(node_tree)
 
 def test_can_create_snbsdfvelvet():
+    if SystemService.is_blender_version_at_least([4,0,0]):
+        # Velvet node does not seem to exist in b4
+        # TODO: Revisit when Blender 4.0.0 is released.
+        return
     node_tree_name = ObjectService.random_name()
     node_tree = NodeService.create_node_tree(node_tree_name)
     node = snBsdfVelvet.create_instance(node_tree)
