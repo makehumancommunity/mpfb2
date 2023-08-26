@@ -1,6 +1,7 @@
 import bpy, os
 from mpfb.services.logservice import LogService
 from mpfb.services.nodeservice import NodeService
+from mpfb.services.systemservice import SystemService
 
 _LOG = LogService.get_logger("nodemodel.v2.abstractnodewrapper")
 
@@ -122,18 +123,27 @@ class AbstractNodeWrapper():
                 _LOG.warn("Output socket did not have default_value attribute", output_socket)
 
     def _is_same(self, value_class, node_value, default_value):
-        if node_value is None:
-            return True
-        if value_class in _VALID_ARRAY_TYPES:
-            for i in range(len(node_value)):
-                delta = node_value[i] - default_value[i]
-                if abs(delta) > 0.00009:
-                    return False
-            return True
-        if value_class in _VALID_NUMERIC_TYPES:
-            delta = node_value - default_value
-            return abs(delta) < 0.00009
-        return node_value == default_value
+        try:
+            if node_value is None:
+                return True
+            if value_class in _VALID_ARRAY_TYPES:
+                for i in range(len(node_value)):
+                    delta = node_value[i] - default_value[i]
+                    if abs(delta) > 0.00009:
+                        return False
+                return True
+            if value_class in _VALID_NUMERIC_TYPES:
+                delta = node_value - default_value
+                return abs(delta) < 0.00009
+            return node_value == default_value
+        except TypeError as e:
+            _LOG.error("Cannot compare", {
+                "value_class": value_class,
+                "node_value": node_value,
+                "default_value": default_value,
+                "node_value_type": type(node_value).__name__
+                })
+            raise e
 
     def _cleanup(self, value):
         if type(value).__name__ in ["Vector", "Color"]:
@@ -188,11 +198,18 @@ class AbstractNodeWrapper():
                 else:
                     node_value = socket.default_value
             value_class = socket_def["class"]
-            if not self._is_same(value_class, node_value, default_value):
-                if isgroup:
-                    comparison["input_socket_values"][socket_def["name"]] = self._cleanup(node_value)
-                else:
-                    comparison["input_socket_values"][key] = self._cleanup(node_value)
+            skip = False
+            if SystemService.is_blender_version_at_least([4,0,0]) and socket_def["name"] == "Sheen Tint":
+                # Socket has changed type from float to color in blender 4. Until we know that this is
+                # intended and final, we'll just skip this particular socket.
+                # TODO: Revisit this when b4 is stable
+                skip = True
+            if not skip:
+                if not self._is_same(value_class, node_value, default_value):
+                    if isgroup:
+                        comparison["input_socket_values"][socket_def["name"]] = self._cleanup(node_value)
+                    else:
+                        comparison["input_socket_values"][key] = self._cleanup(node_value)
 
         for key in self.node_def["outputs"]:
             socket_def = self.node_def["outputs"][key]
@@ -213,6 +230,9 @@ class AbstractNodeWrapper():
         self._validate_names(input_socket_values, attribute_values, output_socket_values)
         if self.node_class_name in PRIMITIVE_NODE_WRAPPERS:
             node = node_tree.nodes.new(self.node_class_name)
+            if node.__class__.__name__ != self.node_class_name:
+                _LOG.error("Created node ended up having the wrong type", (self.node_class_name, node.__class__.__name__))
+                raise ValueError("Could not create instance of " + self.node_class_name)
         else:
             # Assuming we're going to create a group
             node = node_tree.nodes.new("ShaderNodeGroup")
