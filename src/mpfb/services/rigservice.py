@@ -145,8 +145,11 @@ class RigService:
             if bpy.app.version_file < (3, 5, 8):  # Blender bug T103074
                 modifier.invert_vertex_group = True
 
+            override = bpy.context.copy()
+            override["object"] = object
             while object.modifiers.find(modifier.name) > index_pv:
-                bpy.ops.object.modifier_move_up({'object': object}, modifier=modifier.name)
+                with bpy.context.temp_override(**override):
+                    bpy.ops.object.modifier_move_up(modifier=modifier.name)
 
         if index_sub < 0 and subrig is not None:
             if sub_vg_name not in object.vertex_groups:
