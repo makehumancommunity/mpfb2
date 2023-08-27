@@ -1,0 +1,7 @@
+{
+    "type": "string",
+    "name": "second_root",
+    "description": "Override the location of the secondary root, normally set in the preferences",
+    "label": "Overide secondary root",
+    "default": ""
+}
