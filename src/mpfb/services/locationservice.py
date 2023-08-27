@@ -2,6 +2,7 @@ import os, bpy
 from mpfb import get_preference
 from .logservice import LogService
 from pathlib import Path
+
 _LOG = LogService.get_logger("services.locationservice")
 
 class _LocationService():
@@ -19,6 +20,19 @@ class _LocationService():
         _LOG.debug("overriden_user_home", overriden_user_home)
         if overriden_user_home:
             self._user_home = overriden_user_home
+
+        self._second_root = None
+        try:
+            self._second_root = get_preference("mpfb_second_root")
+            if self._second_root is not None:
+                self._second_root = str(self._second_root).strip()
+                if self._second_root:
+                    self._second_root = os.path.abspath(self._second_root)
+                else:
+                    self._second_root = None
+        except:
+            _LOG.warn("Could not read preference mpfb_second_root")
+        _LOG.debug("second root", self._second_root)
 
         self._mh_user_data = None
         self._mh_auto_user_data = False
@@ -137,6 +151,12 @@ class _LocationService():
     def get_mpfb_root(self, sub_path=None):
         _LOG.enter()
         return self._return_path(self._mpfb_root, sub_path)
+
+    def get_second_root(self, sub_path=None):
+        _LOG.enter()
+        if not self._second_root:
+            return None
+        return self._return_path(self._second_root, sub_path)
 
     def get_log_dir(self, sub_path=None):
         _LOG.enter()

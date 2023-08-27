@@ -210,14 +210,17 @@ class AssetService:
         user_data = LocationService.get_user_data()
         mh_data = LocationService.get_mh_user_data()
         mpfb_data = LocationService.get_mpfb_data()
+        second_root = LocationService.get_second_root()
 
-        _LOG.dump("Data roots raw", [mpfb_data, mh_data, user_data])
+        _LOG.dump("Data roots raw", [mpfb_data, mh_data, user_data, second_root])
 
         roots = []
-        for root in [mpfb_data, mh_data, user_data]:
-            if not root is None:
+        for root in [mpfb_data, mh_data, user_data, second_root]:
+            if root:
                 if os.path.exists(root):
                     roots.append(root)
+                else:
+                    _LOG.warn("Data root is set but does not exist", root)
 
         _LOG.dump("Data roots checked", roots)
 
