@@ -21,21 +21,7 @@ class _LocationService():
         if overriden_user_home:
             self._user_home = overriden_user_home
 
-        self._second_root = None
-        try:
-            self._second_root = get_preference("mpfb_second_root")
-            if self._second_root is not None:
-                self._second_root = str(self._second_root).strip()
-                if self._second_root:
-                    self._second_root = os.path.abspath(self._second_root)
-                else:
-                    self._second_root = None
-        except:
-            _LOG.warn("Could not read preference mpfb_second_root")
-        _LOG.debug("second root", self._second_root)
-
-        self._mh_user_data = None
-        self._mh_auto_user_data = False
+        self._check_set_second_root()
         self._check_set_mh_user_dir()
 
         self._user_data = os.path.join(self._user_home, "data")
@@ -64,8 +50,32 @@ class _LocationService():
         self._relevant_directories.append(self._mpfb_root)
         self._relevant_directories.append(self._mpfb_data)
 
+    def update_mh_data(self):
+        _LOG.debug("Config change: Update MH data location")
+        self._check_set_mh_user_dir()
+
+    def update_second_root(self):
+        _LOG.debug("Config change: Update second root location")
+        self._check_set_second_root()
+
+    def _check_set_second_root(self):
+        self._second_root = None
+        try:
+            self._second_root = get_preference("mpfb_second_root")
+            if self._second_root is not None:
+                self._second_root = str(self._second_root).strip()
+                if self._second_root:
+                    self._second_root = os.path.abspath(self._second_root)
+                else:
+                    self._second_root = None
+        except:
+            _LOG.warn("Could not read preference mpfb_second_root")
+        _LOG.debug("second root", self._second_root)
+
     def _check_set_mh_user_dir(self):
         _LOG.enter()
+        self._mh_user_data = None
+        self._mh_auto_user_data = False
         try:
             mh_user_data = get_preference("mh_user_data")
         except:
@@ -154,9 +164,20 @@ class _LocationService():
 
     def get_second_root(self, sub_path=None):
         _LOG.enter()
-        if not self._second_root:
+        sr = self._second_root
+
+        if bpy.context and hasattr(bpy.context, "scene") and bpy.context.scene:
+            from mpfb.ui.assetlibrary.assetsettingspanel import ASSET_SETTINGS_PROPERTIES
+            src = ASSET_SETTINGS_PROPERTIES.get_value("second_root", entity_reference=bpy.context.scene)
+            if str(src).strip():
+                sr = str(src).strip()
+                _LOG.debug("Fetched second_root from scene", ("'" + str(sr) + "'", os.path.exists(sr)))
+        _LOG.debug("Returning second_root", sr)
+
+        if not sr:
             return None
-        return self._return_path(self._second_root, sub_path)
+
+        return self._return_path(sr, sub_path)
 
     def get_log_dir(self, sub_path=None):
         _LOG.enter()
