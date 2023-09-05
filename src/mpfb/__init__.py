@@ -5,7 +5,7 @@ bl_info = { # pylint: disable=C0103
     "name": "mpfb",
     "author": "Joel Palmius",
     "version": (2, 0, 4),
-    "blender": (3, 6, 0),
+    "blender": (4, 0, 0),
     "warning": "Plugin is in Alpha stage",
     "location": "View3D > Properties > MPFB",
     "description": "MakeHuman Plugin For Blender",
