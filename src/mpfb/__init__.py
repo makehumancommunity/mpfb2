@@ -4,8 +4,8 @@ the README.md file in the zip."""
 bl_info = { # pylint: disable=C0103
     "name": "mpfb",
     "author": "Joel Palmius",
-    "version": (2, 0, 3),
-    "blender": (3, 0, 0),
+    "version": (2, 0, 4),
+    "blender": (3, 6, 0),
     "warning": "Plugin is in Alpha stage",
     "location": "View3D > Properties > MPFB",
     "description": "MakeHuman Plugin For Blender",
