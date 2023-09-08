@@ -3,6 +3,7 @@
 import os, gzip, bpy, json, bmesh, random
 from pathlib import Path
 from mpfb.services.logservice import LogService
+from mpfb.services.assetservice import AssetService
 from mpfb.services.locationservice import LocationService
 from mpfb.entities.objectproperties import GeneralObjectProperties
 from mpfb.entities.objectproperties import HumanObjectProperties
@@ -141,6 +142,9 @@ class TargetService:
     @staticmethod
     def target_full_path(target_name):
         _LOG.enter()
+
+        # Strategy: First scan the system targets. This is the vast majority of cases,
+        # so it makes sense to check if the target is there first
         targets_dir = LocationService.get_mpfb_data("targets")
         _LOG.debug("Target dir:", targets_dir)
         for name in Path(targets_dir).rglob("*.target.gz"):
@@ -148,9 +152,32 @@ class TargetService:
             bn = str(os.path.basename(name)).lower()
             if bn.startswith(str(target_name).lower()):
                 return str(name)
+        _LOG.debug("Did not find matching system target for", target_name)
+
+        # Next scan the custom targets dir. This can be expected to be a small list of targets
+        custom_asset_roots = AssetService.get_asset_roots("custom")
+        custom_asset_roots.extend(AssetService.get_asset_roots("targets/custom"))
+        custom_targets = AssetService.find_asset_files_matching_pattern(custom_asset_roots, "*.target")
+        custom_targets.extend(AssetService.find_asset_files_matching_pattern(custom_asset_roots, "*.target.gz"))
+        for name in custom_targets:
+            _LOG.dump("matching vs file", name)
+            bn = str(os.path.basename(name)).lower()
+            if bn.startswith(str(target_name).lower()):
+                return str(name)
+        _LOG.debug("Did not find matching custom target for", target_name)
+
+        # Finally scan all potential dirs for targets
+        target_asset_roots = AssetService.get_asset_roots("targets")
+        targets = AssetService.find_asset_files_matching_pattern(target_asset_roots, "*.target")
+        targets.extend(AssetService.find_asset_files_matching_pattern(target_asset_roots, "*.target.gz"))
+        for name in targets:
+            _LOG.dump("matching vs file", name)
+            bn = str(os.path.basename(name)).lower()
+            if bn.startswith(str(target_name).lower()):
+                return str(name)
+
         _LOG.warn("Did not find matching target for", target_name)
         return None
-
 
     @staticmethod
     def create_shape_key(blender_object, shape_key_name, also_create_basis=True, create_from_mix=False):
