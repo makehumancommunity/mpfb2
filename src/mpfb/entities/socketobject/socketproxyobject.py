@@ -92,7 +92,7 @@ class SocketProxyObject(SocketMeshObject):
         if name_prefix:
             name = name_prefix.split(".")[0] + "." + name  # check if prefix has a trailing dot
 
-        obj = ObjectService.create_blender_object_with_mesh(name)
+        obj = ObjectService.create_blender_object_with_mesh(name, skip_linking=True)
 
         # Set custom properties for the generated blender object
         GeneralObjectProperties.set_value("object_type", self._object_info["type"], obj)

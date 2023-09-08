@@ -100,7 +100,7 @@ class SocketBodyObject(SocketMeshObject):
 
     def _create_mesh_object(self, mesh_name):
         """Create the actual blender object for the basemesh, and apply vertex groups and modifiers for it"""
-        obj = ObjectService.create_blender_object_with_mesh(mesh_name)
+        obj = ObjectService.create_blender_object_with_mesh(mesh_name, skip_linking=True)
         _LOG.debug("obj", obj)
         mesh = obj.data
         _LOG.debug("mesh", mesh)
