@@ -145,7 +145,8 @@ class TargetService:
         _LOG.debug("Target dir:", targets_dir)
         for name in Path(targets_dir).rglob("*.target.gz"):
             _LOG.dump("matching vs file", name)
-            if target_name in str(name):
+            bn = str(os.path.basename(name)).lower()
+            if bn.startswith(str(target_name).lower()):
                 return str(name)
         _LOG.warn("Did not find matching target for", target_name)
         return None
