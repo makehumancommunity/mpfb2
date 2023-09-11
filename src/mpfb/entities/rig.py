@@ -23,6 +23,8 @@ _MEAN_LENGTH_PENALTY = 1.0  # Higher penalizes distant vertex pairs more
 
 CLOSE_MEAN_SEARCH_RADIUS = _MAX_ALLOWED_DIST * 2
 
+CUR_VERSION = 100
+
 
 class Rig:
 
@@ -40,7 +42,7 @@ class Rig:
         self.rig_header = {
             "bones": self.rig_definition,
             "is_subrig": bool(parent),
-            "version": 100,
+            "version": CUR_VERSION,
         }
         self.lowest_point = 1000.0
         self.bad_constraint_targets = set()
@@ -68,7 +70,14 @@ class Rig:
                 rig.rig_definition = json_data["bones"]
 
             else:
+                rig.rig_header["version"] = 100
                 rig.rig_definition.update(json_data)
+
+        if rig._upgrade_definition():
+            _LOG.debug("Upgraded the rig definition version")
+
+            # with open(filename + ".new", "w") as json_file:
+            #     json.dump(rig.rig_header, json_file, indent=4, sort_keys=True)
 
         if rig.rig_header.get("scale_factor"):
             scale_factor = GeneralObjectProperties.get_value(
@@ -78,6 +87,17 @@ class Rig:
 
         rig.build_basemesh_position_info()
         return rig
+
+    def _upgrade_definition(self):
+        version = self.rig_header["version"]
+        if version == CUR_VERSION:
+            return False
+
+        if version > CUR_VERSION:
+            raise ValueError(f"The rig file format version is too high: {version}")
+
+        self.rig_header["version"] = CUR_VERSION
+        return True
 
     @staticmethod
     def from_given_armature_context(armature_object: bpy.types.Object | None, *,
