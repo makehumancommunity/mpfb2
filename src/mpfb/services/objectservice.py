@@ -428,8 +428,9 @@ class ObjectService:
         if not blender_object or blender_object.type != "ARMATURE" or blender_object.data.get("rig_id"):
             return False
 
-        if blender_object.data.get("rigify_layers") and len(blender_object.data.rigify_layers) > 0\
-                or blender_object.data.get("rigify_target_rig"):
+        if (blender_object.data.get("rigify_target_rig") or
+                blender_object.data.get("rigify_colors") and len(blender_object.data.rigify_colors) > 0 or
+                any(bcoll.get("rigify_ui_row", 0) > 0 for bcoll in blender_object.data.collections)):
             return True
 
         if check_bones:

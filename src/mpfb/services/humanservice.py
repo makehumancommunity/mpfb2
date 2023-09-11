@@ -1174,7 +1174,7 @@ class HumanService:
 
         # Type-specific handling
         if is_rigify:
-            assert len(armature_object.data.rigify_layers) > 0
+            assert len(armature_object.data.rigify_colors) > 0
 
             if hasattr(armature_object.data, 'rigify_rig_basename'):
                 armature_object.data.rigify_rig_basename = "Human.rigify"
