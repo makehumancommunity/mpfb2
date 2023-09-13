@@ -166,8 +166,7 @@ class RigifyHelpers():
         if not rigify_ui or not SystemService.check_for_rigify():
             return
 
-        bpy.ops.armature.rigify_add_bone_groups()
-        bpy.ops.pose.rigify_layer_init()
+        bpy.ops.armature.rigify_add_color_sets()
 
         armature_object.data.rigify_colors_lock = rigify_ui["rigify_colors_lock"]
         armature_object.data.rigify_selection_colors.select = rigify_ui["selection_colors"]["select"]
@@ -180,20 +179,23 @@ class RigifyHelpers():
             color.name = col["name"]
             color.normal = col["normal"]
 
-        armature_object.data.layers = rigify_ui["layers"]
+        collections = armature_object.data.collections
 
-        for rigify_layer, layer in zip(armature_object.data.rigify_layers, rigify_ui["rigify_layers"]):
-            rigify_layer.name = layer["name"]
-            rigify_layer.row = layer["row"]
-            rigify_layer.selset = layer["selset"]
-            rigify_layer.group = layer["group"]
+        for bcoll_name, bcoll_info in rigify_ui["collections"].items():
+            bcoll = collections[bcoll_name]
+            bcoll.is_visible = bcoll_info["is_visible"]
+            bcoll.rigify_ui_row = bcoll_info["ui_row"]
+            bcoll.rigify_ui_title = bcoll_info["ui_title"]
+            bcoll.rigify_sel_set = bcoll_info["sel_set"]
+            bcoll.rigify_color_set_id = bcoll_info["color_set_id"]
 
     @staticmethod
     def get_rigify_ui(armature_object):
         if not SystemService.check_for_rigify():
             return None
 
-        if len(armature_object.data.rigify_layers) == 0:
+        if (len(armature_object.data.rigify_colors) == 0 and
+                not any(bcoll.rigify_ui_row > 0 for bcoll in armature_object.data.collections)):
             return None
 
         rigify_ui = dict()
@@ -211,22 +213,85 @@ class RigifyHelpers():
             col["normal"] = color["normal"].to_list()
             rigify_ui["colors"].append(col)
 
-        rigify_ui["layers"] = []
-        for layer in armature_object.data.layers:
-            rigify_ui["layers"].append(layer)
+        rigify_ui["collections"] = {}
 
-        rigify_ui["rigify_layers"] = []
-
-        for rigify_layer in armature_object.data.rigify_layers:
-            layer = dict()
-            layer["name"] = rigify_layer.name
-            layer["row"] = rigify_layer.row
-            layer["selset"] = rigify_layer.selset
-            layer["group"] = rigify_layer.group
-
-            rigify_ui["rigify_layers"].append(layer)
+        for bcoll in armature_object.data.collections:
+            rigify_ui["collections"][bcoll.name] = {
+                "is_visible": bcoll.is_visible,
+                "ui_row": bcoll.rigify_ui_row,
+                "ui_title": bcoll.rigify_ui_title,
+                "sel_set": bcoll.rigify_sel_set,
+                "color_set_id": bcoll.rigify_color_set_id,
+            }
 
         return rigify_ui
+
+    @staticmethod
+    def upgrade_rigify_layer_refs(rigify, coll_names, coll_used):
+        default_layers = [i == 1 for i in range(32)]
+        default_map = {
+            'faces.super_face': ['primary', 'secondary'],
+            'limbs.arm': ['fk', 'tweak'],
+            'limbs.front_paw': ['fk', 'tweak'],
+            'limbs.leg': ['fk', 'tweak'],
+            'limbs.paw': ['fk', 'tweak'],
+            'limbs.rear_paw': ['fk', 'tweak'],
+            'limbs.simple_tentacle': ['tweak'],
+            'limbs.super_finger': ['tweak'],
+            'limbs.super_limb': ['fk', 'tweak'],
+            'spines.basic_spine': ['fk', 'tweak'],
+        }
+
+        if params := rigify.get("rigify_parameters"):
+            if default_list := default_map.get(rigify.get("rigify_type")):
+                for name in default_list:
+                    if params.get(name + "_layers_extra", True) and (name + "_layers") not in params:
+                        params[name + "_layers"] = default_layers
+
+            for param_name, param_value in list(params.items()):
+                if (param_name.endswith("_layers") and isinstance(param_value, list)
+                        and len(param_value) == 32):
+                    used = set(i for i, v in enumerate(param_value) if v)
+                    params[param_name[:-7] + "_coll_refs"] = [coll_names[i] for i in sorted(used)]
+                    coll_used |= used
+                    del params[param_name]
+
+    @staticmethod
+    def upgrade_rigify_ui_layers(rigify_ui, coll_names, coll_used):
+        from rigify.utils.rig import resolve_layer_names
+
+        resolved_names = resolve_layer_names(rigify_ui["rigify_layers"])
+
+        for i, name in enumerate(resolved_names):
+            if name:
+                coll_names[i] = name
+
+        coll_names[28] = "Root"
+        coll_names[29] = "DEF"
+        coll_names[30] = "MCH"
+        coll_names[31] = "ORG"
+
+        collections = {}
+
+        for i, info in enumerate(rigify_ui["rigify_layers"]):
+            name = info["name"].strip()
+            if name and i <= 28:
+                coll_used.add(i)
+                collections[coll_names[i]] = {
+                    "is_visible": True,  # Unlike 3.6, in 4.0 this affects visibility of generated layers
+                    "ui_row": info["row"],
+                    "ui_title": "" if name == coll_names[i] else name,
+                    "sel_set": info["selset"],
+                    "color_set_id": info["group"],
+                }
+
+        if "Root" in collections:
+            collections["Root"]["ui_row"] = 3 + max(v["ui_row"] for k, v in collections.items() if k != "Root")
+
+        rigify_ui["collections"] = collections
+
+        del rigify_ui["layers"]
+        del rigify_ui["rigify_layers"]
 
     def _set_use_connect_on_bones(self, armature_object, bone_names, exclude_first=True):
         _LOG.enter()
