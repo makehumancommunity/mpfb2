@@ -94,6 +94,11 @@ class MPFB_PT_Developer_Panel(bpy.types.Panel):
         box.operator("mpfb.load_weights")
         box.operator("mpfb.save_weights")
 
+    def _targets(self, scene, layout):
+        box = self._create_box(layout, "Load/Save targets")
+        box.operator("mpfb.load_target")
+        box.operator("mpfb.save_target")
+
     def _tests(self, scene, layout):
         box = self._create_box(layout, "Unit tests")
         box.label(text="See README in test dir")
@@ -108,6 +113,7 @@ class MPFB_PT_Developer_Panel(bpy.types.Panel):
         self._nodes(layout)
         self._rig(scene, layout)
         self._weights(scene, layout)
+        self._targets(scene, layout)
         self._tests(scene, layout)
 
 
