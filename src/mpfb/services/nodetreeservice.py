@@ -21,23 +21,31 @@ class NodeTreeService:
         """Return an interface socket with the given name and in/out type, or None if it doesn't exist."""
         _LOG.enter()
         for item in node_tree.interface.items_tree:
+            _LOG.debug("Item, socket_name", (item, socket_name))
             if isinstance(item, bpy.types.NodeTreeInterfaceSocket):
                 if item.in_out == in_out:
                     if item.name == socket_name:
+                        _LOG.debug("Returning item", item)
                         return item
+                    else:
+                        _LOG.debug("Socket name doesn't match", (item.name, socket_name))
+                else:
+                    _LOG.debug("Socket in_out doesn't match", (item.in_out, in_out))
+            else:
+                _LOG.debug("Item is not a socket", item)
         return None
 
     @staticmethod
     def get_output_socket(node_tree, socket_name):
         """Return an interface output socket with the given name, or None if it doesn't exist."""
         _LOG.enter()
-        NodeTreeService.get_socket(node_tree, socket_name, in_out="OUTPUT")
+        return NodeTreeService.get_socket(node_tree, socket_name, in_out="OUTPUT")
 
     @staticmethod
     def get_input_socket(node_tree, socket_name):
         """Return an interface input socket with the given name, or None if it doesn't exist."""
         _LOG.enter()
-        NodeTreeService.get_socket(node_tree, socket_name, in_out="INPUT")
+        return NodeTreeService.get_socket(node_tree, socket_name, in_out="INPUT")
 
     @staticmethod
     def has_socket(node_tree, socket_name, in_out="INPUT"):
