@@ -537,14 +537,15 @@ class NodeService:
 
             if "inputs" in group:
                 for input_name in group["inputs"].keys():
-                    if not input_name in node_tree.inputs:
+                    if not NodeService._has_socket(node_tree, input_name, in_out="INPUT"):
                         input_def = group["inputs"][input_name]
                         _LOG.debug("Missing input socket:", input_def)
                         create = True
                         if "create" in input_def:
                             create = input_def["create"]
                         if create:
-                            input_socket = node_tree.inputs.new(input_def["type"], input_name)
+                            input_socket = NodeService._create_socket(node_tree, input_name, input_def["type"], in_out="INPUT")
+                            _LOG.debug("Input socket created:", input_socket)
                             if not "Vector" in input_def["type"]:
                                 input_socket.default_value = input_def["value"]
                     else:
@@ -552,11 +553,27 @@ class NodeService:
 
             if "outputs" in group:
                 for output_name in group["outputs"].keys():
-                    if not output_name in node_tree.outputs:
+                    if not NodeService._has_socket(node_tree, output_name, in_out="OUTPUT"):
                         _LOG.debug("Missing output socket:", output_name)
-                        node_tree.outputs.new(name=output_name, type=group["outputs"][output_name])
+                        socket = NodeService._create_socket(node_tree, output_name, group["outputs"][output_name], in_out="OUTPUT")
+                        _LOG.debug("Output socket created:", socket)
                     else:
                         _LOG.debug("Output socket already existed:", output_name)
+
+    @staticmethod
+    def _has_socket(node_tree, socket_name, in_out="INPUT"):
+        _LOG.enter()
+        for item in node_tree.interface.items_tree:
+            if isinstance(item, bpy.types.NodeTreeInterfaceSocket):
+                if item.in_out == in_out:
+                    if item.name == socket_name:
+                        return True
+        return False
+
+    @staticmethod
+    def _create_socket(node_tree, socket_name, socket_type, in_out="INPUT"):
+        _LOG.enter()
+        return node_tree.interface.new_socket(socket_name, socket_type=socket_type, in_out=in_out);
 
     @staticmethod
     def apply_node_tree_from_dict(target_node_tree, dict_with_node_tree, wipe_node_tree=False):
