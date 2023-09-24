@@ -1,6 +1,7 @@
 import bpy, importlib
 from mpfb.services.logservice import LogService
 from mpfb.services.nodeservice import NodeService
+from mpfb.services.nodetreeservice import NodeTreeService
 from mpfb.entities.nodemodel.v2.primitives import *
 
 _LOG = LogService.get_logger("nodemodel.v2.abstractgroupwrapper")
@@ -132,9 +133,13 @@ class AbstractGroupWrapper(AbstractNodeWrapper):
     @staticmethod
     def add_input_socket(node_tree, name, socket_type="NodeSocketFloat", default_value=None, min_value=None, max_value=None):
         _LOG.enter()
+        if socket_type == "NodeSocketFloatFactor":
+            # TODO: This is a blender 4 workaround. Ideally we should stop using FloatFactor in the definition instead.
+            socket_type = "NodeSocketFloat"
         if not socket_type in _SOCKET_TYPES:
             raise ValueError("Illegal socket type " + socket_type)
-        socket = node_tree.inputs.new(name=name, type=socket_type)
+        socket = NodeTreeService.create_input_socket(node_tree, name, socket_type)
+        #socket = node_tree.inputs.new(name=name, type=socket_type)
         _LOG.debug("Socket params", { "name": name, "default_value": default_value, "min_value": min_value, "max_value": max_value, "hasattr": hasattr(socket, "min_value")} )
         if not default_value is None:
             socket.default_value=default_value
@@ -148,9 +153,13 @@ class AbstractGroupWrapper(AbstractNodeWrapper):
     @staticmethod
     def add_output_socket(node_tree, name, socket_type="NodeSocketFloat", default_value=None):
         _LOG.enter()
+        if socket_type == "NodeSocketFloatFactor":
+            # TODO: This is a blender 4 workaround. Ideally we should stop using FloatFactor in the definition instead.
+            socket_type = "NodeSocketFloat"
         if not socket_type in _SOCKET_TYPES:
             raise ValueError("Illegal socket type " + socket_type)
-        socket = node_tree.outputs.new(name=name, type=socket_type)
+        socket = NodeTreeService.create_output_socket(node_tree, name, socket_type)
+        #socket = node_tree.outputs.new(name=name, type=socket_type)
         if not default_value is None:
             socket.default_value=default_value
         _LOG.debug("Created output socket", socket)
@@ -173,6 +182,9 @@ class AbstractGroupWrapper(AbstractNodeWrapper):
             _LOG.error("Could not find output socket '" + from_socket + "' on node '" + from_node.name + "'")
             raise ValueError("Could not find output socket '" + from_socket + "' on node '" + from_node.name + "'")
 
+        if to_socket == "Subsurface Color":
+            # TODO: This is a blender 4 workaround. Ideally we should stop using Subsurface Color instead.
+            to_socket = "Base Color"
         for socket in to_node.inputs:
             if socket.identifier == to_socket:
                 tsocket = socket
