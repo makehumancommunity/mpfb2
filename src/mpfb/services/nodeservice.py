@@ -82,10 +82,12 @@ _BLACKLISTED_ATTRIBUTE_TYPES = [
     'ImageUser'
     ]
 
-# TODO: blender 4 does not seem to support listing subclasses of bpy.types.ShaderNode,
-# presumably because they haven't been imported at this point. This is problematic since
-# we can't then know which types of shader nodes are available.
-_KNOWN_SHADER_NODE_CLASSES = bpy.types.ShaderNode.__subclasses__()
+_KNOWN_SHADER_NODE_CLASSES = []
+
+for subc in dir(bpy.types):
+    obj = getattr(bpy.types, subc)
+    if hasattr(obj, "__bases__") and bpy.types.ShaderNode in obj.__bases__:
+        _KNOWN_SHADER_NODE_CLASSES.append(obj)
 
 # TODO: add extra nodes which are relevant, but not descendants of ShaderNode
 
