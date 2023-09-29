@@ -289,9 +289,9 @@ class _NodeWrapperMpfbNails(AbstractGroupWrapper):
         link("Group Input", "NailsSSSStrength", "SSS", "SubsurfaceStrength")
         link("Group Input", "NailsSSSRadiusMutiplier", "SSS", "SubsurfaceRadiusMultiplyer")
         link("Group Input", "NailsSSSIor", "SSS", "SubsurfaceIor")
-        link("SSS", "SubsurfaceColor", "Principled BSDF", "Subsurface Color")
+        #link("SSS", "SubsurfaceColor", "Principled BSDF", "Subsurface Color")
         link("SSS", "SubsurfaceRadius", "Principled BSDF", "Subsurface Radius")
-        link("SSS", "SubsurfaceStrength", "Principled BSDF", "Subsurface")
+        link("SSS", "SubsurfaceStrength", "Principled BSDF", "Subsurface Weight")
         link("SSS", "SubsurfaceIor", "Principled BSDF", "Subsurface IOR")
         link("Principled BSDF", "BSDF", "Group Output", "BSDF")
 
