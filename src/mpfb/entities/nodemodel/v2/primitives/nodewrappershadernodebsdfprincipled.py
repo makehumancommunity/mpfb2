@@ -106,7 +106,7 @@ _ORIGINAL_NODE_DEF = json.loads("""
             "name": "Clearcoat Roughness",
             "value_type": "VALUE"
         },
-        "Emission": {
+        "Emission Color": {
             "class": "NodeSocketColor",
             "default_value": [
                 0.0,
@@ -157,7 +157,7 @@ _ORIGINAL_NODE_DEF = json.loads("""
             "name": "Roughness",
             "value_type": "VALUE"
         },
-        "Sheen": {
+        "Sheen Weight": {
             "class": "NodeSocketFloatFactor",
             "default_value": 0.0,
             "identifier": "Sheen",
@@ -165,11 +165,16 @@ _ORIGINAL_NODE_DEF = json.loads("""
             "value_type": "VALUE"
         },
         "Sheen Tint": {
-            "class": "NodeSocketFloatFactor",
-            "default_value": 0.5,
+            "class": "NodeSocketColor",
+            "default_value": [
+                0.0,
+                0.0,
+                0.0,
+                1.0
+            ],
             "identifier": "Sheen Tint",
             "name": "Sheen Tint",
-            "value_type": "VALUE"
+            "value_type": "RGBA"
         },
         "Specular": {
             "class": "NodeSocketFloatFactor",
@@ -179,13 +184,18 @@ _ORIGINAL_NODE_DEF = json.loads("""
             "value_type": "VALUE"
         },
         "Specular Tint": {
-            "class": "NodeSocketFloatFactor",
-            "default_value": 0.0,
+            "class": "NodeSocketColor",
+            "default_value": [
+                0.0,
+                0.0,
+                0.0,
+                1.0
+            ],
             "identifier": "Specular Tint",
             "name": "Specular Tint",
-            "value_type": "VALUE"
+            "value_type": "RGBA"
         },
-        "Subsurface": {
+        "Subsurface Weight": {
             "class": "NodeSocketFloatFactor",
             "default_value": 0.0,
             "identifier": "Subsurface",
@@ -198,18 +208,6 @@ _ORIGINAL_NODE_DEF = json.loads("""
             "identifier": "Subsurface Anisotropy",
             "name": "Subsurface Anisotropy",
             "value_type": "VALUE"
-        },
-        "Subsurface Color": {
-            "class": "NodeSocketColor",
-            "default_value": [
-                0.8,
-                0.8,
-                0.8,
-                1.0
-            ],
-            "identifier": "Subsurface Color",
-            "name": "Subsurface Color",
-            "value_type": "RGBA"
         },
         "Subsurface IOR": {
             "class": "NodeSocketFloatFactor",
@@ -240,7 +238,7 @@ _ORIGINAL_NODE_DEF = json.loads("""
             "name": "Tangent",
             "value_type": "VECTOR"
         },
-        "Transmission": {
+        "Transmission Weight": {
             "class": "NodeSocketFloatFactor",
             "default_value": 0.0,
             "identifier": "Transmission",
