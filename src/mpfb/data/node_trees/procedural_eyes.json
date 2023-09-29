@@ -761,7 +761,7 @@
                     "from_node": "TransmissionValue",
                     "from_socket": "Val",
                     "to_node": "Principled BSDF",
-                    "to_socket": "Transmission"
+                    "to_socket": "Transmission Weight"
                 },
                 {
                     "from_node": "RoughnessMix",
@@ -1091,13 +1091,13 @@
                     "from_node": "Group Input",
                     "from_socket": "Clearcoat",
                     "to_node": "Principled BSDF",
-                    "to_socket": "Clearcoat"
+                    "to_socket": "Coat Weight"
                 },
                 {
                     "from_node": "Group Input",
                     "from_socket": "Clearcoat Roughness",
                     "to_node": "Principled BSDF",
-                    "to_socket": "Clearcoat Roughness"
+                    "to_socket": "Coat Roughness"
                 }
             ],
             "nodes": {
@@ -1429,9 +1429,9 @@
                             0.800000011920929,
                             1.0
                         ],
-                        "Clearcoat": 0.0,
-                        "Clearcoat Roughness": 0.029999999329447746,
-                        "Emission": [
+                        "Coat Weight": 0.0,
+                        "Coat Roughness": 0.029999999329447746,
+                        "Emission Color": [
                             0.0,
                             0.0,
                             0.0,
@@ -1440,19 +1440,11 @@
                         "IOR": 1.4500000476837158,
                         "Metallic": 0.0,
                         "Roughness": 0.5,
-                        "Sheen": 0.0,
-                        "Sheen Tint": 0.5,
-                        "Specular": 0.5,
-                        "Specular Tint": 0.0,
-                        "Subsurface": 0.0,
-                        "Subsurface Color": [
-                            0.800000011920929,
-                            0.800000011920929,
-                            0.800000011920929,
-                            1.0
-                        ],
-                        "Transmission": 0.0,
-                        "Transmission Roughness": 0.0
+                        "Sheen Weight": 0.0,
+                        "Sheen Tint": [1.0, 1.0, 1.0, 1.0],
+                        "Specular Tint": [1.0, 1.0, 1.0, 1.0],
+                        "Subsurface Weight": 0.0,
+                        "Transmission Weight": 0.0
                     }
                 },
                 "PupilHeight": {

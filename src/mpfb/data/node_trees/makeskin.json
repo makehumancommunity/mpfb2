@@ -124,16 +124,10 @@
             "to_socket": "Surface"
         },
         {
-            "from_node": "subcTexture",
-            "from_socket": "Color",
-            "to_node": "Principled BSDF",
-            "to_socket": "Subsurface Color"
-        },
-        {
             "from_node": "subsTexture",
             "from_socket": "Color",
             "to_node": "Principled BSDF",
-            "to_socket": "Subsurface"
+            "to_socket": "Subsurface Weight"
         },
         {
             "from_node": "emcTexture",
@@ -186,30 +180,22 @@
                 "Anisotropic": 0.0,
                 "Anisotropic Rotation": 0.0,
                 "Base Color": "$diffuseColor",
-                "Clearcoat": 0.0,
-                "Clearcoat Roughness": 0.029999999329447746,
-                "Emission": [
+                "Coat Weight": 0.0,
+                "Coat Roughness": 0.0,
+                "Emission Color": [
                     0.0,
                     0.0,
                     0.0,
                     1.0
                 ],
-                "IOR": 1.4500000476837158,
+                "IOR": 1.45,
                 "Metallic": 0.0,
                 "Roughness": 0.699999988079071,
-                "Sheen": 0.0,
-                "Sheen Tint": 0.5,
-                "Specular": 0.5,
-                "Specular Tint": 0.0,
-                "Subsurface": 0.0,
-                "Subsurface Color": [
-                    0.800000011920929,
-                    0.800000011920929,
-                    0.800000011920929,
-                    1.0
-                ],
-                "Transmission": 0.0,
-                "Transmission Roughness": 0.0
+                "Sheen Weight": 0.0,
+                "Sheen Tint": [1.0, 1.0, 1.0, 1.0],                
+                "Specular Tint": [1.0, 1.0, 1.0, 1.0],
+                "Subsurface Weight": 0.0,
+                "Transmission Weight": 0.0
             }
         },
         "bumpmap": {

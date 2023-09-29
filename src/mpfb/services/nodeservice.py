@@ -486,6 +486,10 @@ class NodeService:
         for value in node_info["values"]:
             if not value in node.inputs:
                 _LOG.error("Found an input name which didn't exist as socket:", value)
+                sockets = []
+                for inp in node.inputs:
+                    sockets.append((inp.name, inp.type))
+                _LOG.error("The following input sockets exist on node", (node, sockets))
             else:
                 try:
                     node.inputs[value].default_value = node_info["values"][value]
