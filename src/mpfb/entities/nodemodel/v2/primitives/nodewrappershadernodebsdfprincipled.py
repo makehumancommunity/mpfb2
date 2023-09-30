@@ -15,7 +15,7 @@ _ORIGINAL_NODE_DEF = json.loads("""
         "distribution": {
             "class": "enum",
             "name": "distribution",
-            "value": "GGX"
+            "value": "MULTI_GGX"
         },
         "height": {
             "class": "float",
@@ -81,46 +81,65 @@ _ORIGINAL_NODE_DEF = json.loads("""
             "name": "Base Color",
             "value_type": "RGBA"
         },
-        "Clearcoat": {
-            "class": "NodeSocketFloatFactor",
-            "default_value": 0.0,
-            "identifier": "Clearcoat",
-            "name": "Clearcoat",
+        "Coat IOR": {
+            "class": "NodeSocketFloat",
+            "default_value": 1.5,
+            "identifier": "Coat IOR",
+            "name": "Coat IOR",
             "value_type": "VALUE"
         },
-        "Clearcoat Normal": {
+        "Coat Normal": {
             "class": "NodeSocketVector",
             "default_value": [
                 0.0,
                 0.0,
                 0.0
             ],
-            "identifier": "Clearcoat Normal",
-            "name": "Clearcoat Normal",
+            "identifier": "Coat Normal",
+            "name": "Coat Normal",
             "value_type": "VECTOR"
         },
-        "Clearcoat Roughness": {
+        "Coat Roughness": {
             "class": "NodeSocketFloatFactor",
             "default_value": 0.03,
-            "identifier": "Clearcoat Roughness",
-            "name": "Clearcoat Roughness",
+            "identifier": "Coat Roughness",
+            "name": "Coat Roughness",
+            "value_type": "VALUE"
+        },
+        "Coat Tint": {
+            "class": "NodeSocketColor",
+            "default_value": [
+                1.0,
+                1.0,
+                1.0,
+                1.0
+            ],
+            "identifier": "Coat Tint",
+            "name": "Coat Tint",
+            "value_type": "RGBA"
+        },
+        "Coat Weight": {
+            "class": "NodeSocketFloatFactor",
+            "default_value": 0.0,
+            "identifier": "Coat Weight",
+            "name": "Coat Weight",
             "value_type": "VALUE"
         },
         "Emission Color": {
             "class": "NodeSocketColor",
             "default_value": [
-                0.0,
-                0.0,
-                0.0,
+                1.0,
+                1.0,
+                1.0,
                 1.0
             ],
-            "identifier": "Emission",
-            "name": "Emission",
+            "identifier": "Emission Color",
+            "name": "Emission Color",
             "value_type": "RGBA"
         },
         "Emission Strength": {
             "class": "NodeSocketFloat",
-            "default_value": 1.0,
+            "default_value": 0.0,
             "identifier": "Emission Strength",
             "name": "Emission Strength",
             "value_type": "VALUE"
@@ -157,50 +176,50 @@ _ORIGINAL_NODE_DEF = json.loads("""
             "name": "Roughness",
             "value_type": "VALUE"
         },
-        "Sheen Weight": {
+        "Sheen Roughness": {
             "class": "NodeSocketFloatFactor",
-            "default_value": 0.0,
-            "identifier": "Sheen",
-            "name": "Sheen",
+            "default_value": 0.5,
+            "identifier": "Sheen Roughness",
+            "name": "Sheen Roughness",
             "value_type": "VALUE"
         },
         "Sheen Tint": {
             "class": "NodeSocketColor",
             "default_value": [
-                0.0,
-                0.0,
-                0.0,
+                1.0,
+                1.0,
+                1.0,
                 1.0
             ],
             "identifier": "Sheen Tint",
             "name": "Sheen Tint",
             "value_type": "RGBA"
         },
-        "Specular": {
+        "Sheen Weight": {
+            "class": "NodeSocketFloatFactor",
+            "default_value": 0.0,
+            "identifier": "Sheen Weight",
+            "name": "Sheen Weight",
+            "value_type": "VALUE"
+        },
+        "Specular IOR Level": {
             "class": "NodeSocketFloatFactor",
             "default_value": 0.5,
-            "identifier": "Specular",
-            "name": "Specular",
+            "identifier": "Specular IOR Level",
+            "name": "Specular IOR Level",
             "value_type": "VALUE"
         },
         "Specular Tint": {
             "class": "NodeSocketColor",
             "default_value": [
-                0.0,
-                0.0,
-                0.0,
+                1.0,
+                1.0,
+                1.0,
                 1.0
             ],
             "identifier": "Specular Tint",
             "name": "Specular Tint",
             "value_type": "RGBA"
-        },
-        "Subsurface Weight": {
-            "class": "NodeSocketFloatFactor",
-            "default_value": 0.0,
-            "identifier": "Subsurface",
-            "name": "Subsurface",
-            "value_type": "VALUE"
         },
         "Subsurface Anisotropy": {
             "class": "NodeSocketFloatFactor",
@@ -227,6 +246,20 @@ _ORIGINAL_NODE_DEF = json.loads("""
             "name": "Subsurface Radius",
             "value_type": "VECTOR"
         },
+        "Subsurface Scale": {
+            "class": "NodeSocketFloatDistance",
+            "default_value": 0.05,
+            "identifier": "Subsurface Scale",
+            "name": "Subsurface Scale",
+            "value_type": "VALUE"
+        },
+        "Subsurface Weight": {
+            "class": "NodeSocketFloatFactor",
+            "default_value": 0.0,
+            "identifier": "Subsurface Weight",
+            "name": "Subsurface Weight",
+            "value_type": "VALUE"
+        },
         "Tangent": {
             "class": "NodeSocketVector",
             "default_value": [
@@ -241,15 +274,8 @@ _ORIGINAL_NODE_DEF = json.loads("""
         "Transmission Weight": {
             "class": "NodeSocketFloatFactor",
             "default_value": 0.0,
-            "identifier": "Transmission",
-            "name": "Transmission",
-            "value_type": "VALUE"
-        },
-        "Transmission Roughness": {
-            "class": "NodeSocketFloatFactor",
-            "default_value": 0.0,
-            "identifier": "Transmission Roughness",
-            "name": "Transmission Roughness",
+            "identifier": "Transmission Weight",
+            "name": "Transmission Weight",
             "value_type": "VALUE"
         },
         "Weight": {

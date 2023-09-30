@@ -3,6 +3,11 @@ import bpy, json
 _ORIGINAL_NODE_DEF = json.loads("""
 {
     "attributes": {
+        "blend_type": {
+            "class": "enum",
+            "name": "blend_type",
+            "value": "MIX"
+        },
         "color": {
             "class": "Color",
             "name": "color",
@@ -11,11 +16,6 @@ _ORIGINAL_NODE_DEF = json.loads("""
                 0.608,
                 0.608
             ]
-        },
-        "distribution": {
-            "class": "enum",
-            "name": "distribution",
-            "value": "GGX"
         },
         "height": {
             "class": "float",
@@ -30,6 +30,16 @@ _ORIGINAL_NODE_DEF = json.loads("""
                 0.0
             ]
         },
+        "use_alpha": {
+            "class": "bool",
+            "name": "use_alpha",
+            "value": false
+        },
+        "use_clamp": {
+            "class": "bool",
+            "name": "use_clamp",
+            "value": false
+        },
         "use_custom_color": {
             "class": "bool",
             "name": "use_custom_color",
@@ -38,64 +48,63 @@ _ORIGINAL_NODE_DEF = json.loads("""
         "width": {
             "class": "float",
             "name": "width",
-            "value": 150.0
+            "value": 140.0
         }
     },
-    "class": "ShaderNodeBsdfGlossy",
+    "class": "ShaderNodeMixRGB",
     "inputs": {
-        "Color": {
+        "Color1": {
             "class": "NodeSocketColor",
             "default_value": [
-                0.8,
-                0.8,
-                0.8,
+                0.5,
+                0.5,
+                0.5,
                 1.0
             ],
-            "identifier": "Color",
-            "name": "Color",
+            "identifier": "Color1",
+            "name": "Color1",
             "value_type": "RGBA"
         },
-        "Normal": {
-            "class": "NodeSocketVector",
+        "Color2": {
+            "class": "NodeSocketColor",
             "default_value": [
-                0.0,
-                0.0,
-                0.0
+                0.5,
+                0.5,
+                0.5,
+                1.0
             ],
-            "identifier": "Normal",
-            "name": "Normal",
-            "value_type": "VECTOR"
+            "identifier": "Color2",
+            "name": "Color2",
+            "value_type": "RGBA"
         },
-        "Roughness": {
+        "Fac": {
             "class": "NodeSocketFloatFactor",
             "default_value": 0.5,
-            "identifier": "Roughness",
-            "name": "Roughness",
-            "value_type": "VALUE"
-        },
-        "Weight": {
-            "class": "NodeSocketFloat",
-            "default_value": 0.0,
-            "identifier": "Weight",
-            "name": "Weight",
+            "identifier": "Fac",
+            "name": "Fac",
             "value_type": "VALUE"
         }
     },
     "outputs": {
-        "BSDF": {
-            "class": "NodeSocketShader",
-            "default_value": null,
-            "identifier": "BSDF",
-            "name": "BSDF",
-            "value_type": "SHADER"
+        "Color": {
+            "class": "NodeSocketColor",
+            "default_value": [
+                0.0,
+                0.0,
+                0.0,
+                0.0
+            ],
+            "identifier": "Color",
+            "name": "Color",
+            "value_type": "RGBA"
         }
     }
 }""")
 
 from .abstractnodewrapper import AbstractNodeWrapper
 
-class _NodeWrapperShaderNodeBsdfGlossy(AbstractNodeWrapper):
+class _NodeWrapperShaderNodeMixRGB(AbstractNodeWrapper):
     def __init__(self):
         AbstractNodeWrapper.__init__(self, _ORIGINAL_NODE_DEF)
 
-snBsdfGlossy = _NodeWrapperShaderNodeBsdfGlossy()
+snMixRGB = _NodeWrapperShaderNodeMixRGB()

@@ -17,19 +17,6 @@ _ORIGINAL_NODE_DEF = json.loads("""
             "name": "height",
             "value": 100.0
         },
-        "image": {
-            "class": "image",
-            "name": "image",
-            "value": {
-                "colorspace": "sRGB",
-                "filepath": ""
-            }
-        },
-        "interpolation": {
-            "class": "str",
-            "name": "interpolation",
-            "value": "Linear"
-        },
         "location": {
             "class": "Vector",
             "name": "location",
@@ -37,11 +24,6 @@ _ORIGINAL_NODE_DEF = json.loads("""
                 0.0,
                 0.0
             ]
-        },
-        "projection": {
-            "class": "enum",
-            "name": "projection",
-            "value": "EQUIRECTANGULAR"
         },
         "use_custom_color": {
             "class": "bool",
@@ -51,21 +33,31 @@ _ORIGINAL_NODE_DEF = json.loads("""
         "width": {
             "class": "float",
             "name": "width",
-            "value": 240.0
+            "value": 140.0
         }
     },
-    "class": "ShaderNodeTexEnvironment",
+    "class": "ShaderNodeCombineHSV",
     "inputs": {
-        "Vector": {
-            "class": "NodeSocketVector",
-            "default_value": [
-                0.0,
-                0.0,
-                0.0
-            ],
-            "identifier": "Vector",
-            "name": "Vector",
-            "value_type": "VECTOR"
+        "H": {
+            "class": "NodeSocketFloatUnsigned",
+            "default_value": 0.0,
+            "identifier": "H",
+            "name": "H",
+            "value_type": "VALUE"
+        },
+        "S": {
+            "class": "NodeSocketFloatUnsigned",
+            "default_value": 0.0,
+            "identifier": "S",
+            "name": "S",
+            "value_type": "VALUE"
+        },
+        "V": {
+            "class": "NodeSocketFloatUnsigned",
+            "default_value": 0.0,
+            "identifier": "V",
+            "name": "V",
+            "value_type": "VALUE"
         }
     },
     "outputs": {
@@ -86,8 +78,8 @@ _ORIGINAL_NODE_DEF = json.loads("""
 
 from .abstractnodewrapper import AbstractNodeWrapper
 
-class _NodeWrapperShaderNodeTexEnvironment(AbstractNodeWrapper):
+class _NodeWrapperShaderNodeCombineHSV(AbstractNodeWrapper):
     def __init__(self):
         AbstractNodeWrapper.__init__(self, _ORIGINAL_NODE_DEF)
 
-snTexEnvironment = _NodeWrapperShaderNodeTexEnvironment()
+snCombineHSV = _NodeWrapperShaderNodeCombineHSV()

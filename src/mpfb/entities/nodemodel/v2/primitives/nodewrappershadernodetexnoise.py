@@ -30,6 +30,11 @@ _ORIGINAL_NODE_DEF = json.loads("""
             "name": "noise_dimensions",
             "value": "3D"
         },
+        "normalize": {
+            "class": "bool",
+            "name": "normalize",
+            "value": true
+        },
         "use_custom_color": {
             "class": "bool",
             "name": "use_custom_color",
@@ -55,6 +60,13 @@ _ORIGINAL_NODE_DEF = json.loads("""
             "default_value": 0.0,
             "identifier": "Distortion",
             "name": "Distortion",
+            "value_type": "VALUE"
+        },
+        "Lacunarity": {
+            "class": "NodeSocketFloat",
+            "default_value": 2.0,
+            "identifier": "Lacunarity",
+            "name": "Lacunarity",
             "value_type": "VALUE"
         },
         "Roughness": {

@@ -15,7 +15,7 @@ _ORIGINAL_NODE_DEF = json.loads("""
         "distribution": {
             "class": "enum",
             "name": "distribution",
-            "value": "BECKMANN"
+            "value": "MULTI_GGX"
         },
         "height": {
             "class": "float",

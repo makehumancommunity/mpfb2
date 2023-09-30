@@ -79,11 +79,7 @@ _ORIGINAL_NODE_DEF = json.loads("""
         },
         "Rotation": {
             "class": "NodeSocketVectorEuler",
-            "default_value": [
-                0.0,
-                0.0,
-                0.0
-            ],
+            "default_value": null,
             "identifier": "Rotation",
             "name": "Rotation",
             "value_type": "VECTOR"

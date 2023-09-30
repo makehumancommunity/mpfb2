@@ -17,19 +17,6 @@ _ORIGINAL_NODE_DEF = json.loads("""
             "name": "height",
             "value": 100.0
         },
-        "image": {
-            "class": "image",
-            "name": "image",
-            "value": {
-                "colorspace": "sRGB",
-                "filepath": ""
-            }
-        },
-        "interpolation": {
-            "class": "str",
-            "name": "interpolation",
-            "value": "Linear"
-        },
         "location": {
             "class": "Vector",
             "name": "location",
@@ -37,11 +24,6 @@ _ORIGINAL_NODE_DEF = json.loads("""
                 0.0,
                 0.0
             ]
-        },
-        "projection": {
-            "class": "enum",
-            "name": "projection",
-            "value": "EQUIRECTANGULAR"
         },
         "use_custom_color": {
             "class": "bool",
@@ -51,25 +33,35 @@ _ORIGINAL_NODE_DEF = json.loads("""
         "width": {
             "class": "float",
             "name": "width",
-            "value": 240.0
+            "value": 140.0
         }
     },
-    "class": "ShaderNodeTexEnvironment",
+    "class": "ShaderNodeCombineRGB",
     "inputs": {
-        "Vector": {
-            "class": "NodeSocketVector",
-            "default_value": [
-                0.0,
-                0.0,
-                0.0
-            ],
-            "identifier": "Vector",
-            "name": "Vector",
-            "value_type": "VECTOR"
+        "B": {
+            "class": "NodeSocketFloat",
+            "default_value": 0.0,
+            "identifier": "B",
+            "name": "B",
+            "value_type": "VALUE"
+        },
+        "G": {
+            "class": "NodeSocketFloat",
+            "default_value": 0.0,
+            "identifier": "G",
+            "name": "G",
+            "value_type": "VALUE"
+        },
+        "R": {
+            "class": "NodeSocketFloat",
+            "default_value": 0.0,
+            "identifier": "R",
+            "name": "R",
+            "value_type": "VALUE"
         }
     },
     "outputs": {
-        "Color": {
+        "Image": {
             "class": "NodeSocketColor",
             "default_value": [
                 0.0,
@@ -77,8 +69,8 @@ _ORIGINAL_NODE_DEF = json.loads("""
                 0.0,
                 0.0
             ],
-            "identifier": "Color",
-            "name": "Color",
+            "identifier": "Image",
+            "name": "Image",
             "value_type": "RGBA"
         }
     }
@@ -86,8 +78,8 @@ _ORIGINAL_NODE_DEF = json.loads("""
 
 from .abstractnodewrapper import AbstractNodeWrapper
 
-class _NodeWrapperShaderNodeTexEnvironment(AbstractNodeWrapper):
+class _NodeWrapperShaderNodeCombineRGB(AbstractNodeWrapper):
     def __init__(self):
         AbstractNodeWrapper.__init__(self, _ORIGINAL_NODE_DEF)
 
-snTexEnvironment = _NodeWrapperShaderNodeTexEnvironment()
+snCombineRGB = _NodeWrapperShaderNodeCombineRGB()

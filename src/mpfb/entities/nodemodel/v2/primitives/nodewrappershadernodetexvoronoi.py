@@ -35,6 +35,11 @@ _ORIGINAL_NODE_DEF = json.loads("""
                 0.0
             ]
         },
+        "normalize": {
+            "class": "bool",
+            "name": "normalize",
+            "value": false
+        },
         "use_custom_color": {
             "class": "bool",
             "name": "use_custom_color",
@@ -53,6 +58,13 @@ _ORIGINAL_NODE_DEF = json.loads("""
     },
     "class": "ShaderNodeTexVoronoi",
     "inputs": {
+        "Detail": {
+            "class": "NodeSocketFloat",
+            "default_value": 0.0,
+            "identifier": "Detail",
+            "name": "Detail",
+            "value_type": "VALUE"
+        },
         "Exponent": {
             "class": "NodeSocketFloat",
             "default_value": 0.5,
@@ -60,11 +72,25 @@ _ORIGINAL_NODE_DEF = json.loads("""
             "name": "Exponent",
             "value_type": "VALUE"
         },
+        "Lacunarity": {
+            "class": "NodeSocketFloat",
+            "default_value": 2.0,
+            "identifier": "Lacunarity",
+            "name": "Lacunarity",
+            "value_type": "VALUE"
+        },
         "Randomness": {
             "class": "NodeSocketFloatFactor",
             "default_value": 1.0,
             "identifier": "Randomness",
             "name": "Randomness",
+            "value_type": "VALUE"
+        },
+        "Roughness": {
+            "class": "NodeSocketFloatFactor",
+            "default_value": 0.5,
+            "identifier": "Roughness",
+            "name": "Roughness",
             "value_type": "VALUE"
         },
         "Scale": {

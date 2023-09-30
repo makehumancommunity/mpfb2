@@ -15,7 +15,7 @@ _ORIGINAL_NODE_DEF = json.loads("""
         "distribution": {
             "class": "enum",
             "name": "distribution",
-            "value": "MULTI_GGX"
+            "value": "MICROFIBER"
         },
         "height": {
             "class": "float",
@@ -38,18 +38,11 @@ _ORIGINAL_NODE_DEF = json.loads("""
         "width": {
             "class": "float",
             "name": "width",
-            "value": 150.0
+            "value": 140.0
         }
     },
-    "class": "ShaderNodeBsdfAnisotropic",
+    "class": "ShaderNodeBsdfSheen",
     "inputs": {
-        "Anisotropy": {
-            "class": "NodeSocketFloat",
-            "default_value": 0.0,
-            "identifier": "Anisotropy",
-            "name": "Anisotropy",
-            "value_type": "VALUE"
-        },
         "Color": {
             "class": "NodeSocketColor",
             "default_value": [
@@ -73,30 +66,12 @@ _ORIGINAL_NODE_DEF = json.loads("""
             "name": "Normal",
             "value_type": "VECTOR"
         },
-        "Rotation": {
-            "class": "NodeSocketFloatFactor",
-            "default_value": 0.0,
-            "identifier": "Rotation",
-            "name": "Rotation",
-            "value_type": "VALUE"
-        },
         "Roughness": {
             "class": "NodeSocketFloatFactor",
             "default_value": 0.5,
             "identifier": "Roughness",
             "name": "Roughness",
             "value_type": "VALUE"
-        },
-        "Tangent": {
-            "class": "NodeSocketVector",
-            "default_value": [
-                0.0,
-                0.0,
-                0.0
-            ],
-            "identifier": "Tangent",
-            "name": "Tangent",
-            "value_type": "VECTOR"
         },
         "Weight": {
             "class": "NodeSocketFloat",
@@ -119,8 +94,8 @@ _ORIGINAL_NODE_DEF = json.loads("""
 
 from .abstractnodewrapper import AbstractNodeWrapper
 
-class _NodeWrapperShaderNodeBsdfAnisotropic(AbstractNodeWrapper):
+class _NodeWrapperShaderNodeBsdfSheen(AbstractNodeWrapper):
     def __init__(self):
         AbstractNodeWrapper.__init__(self, _ORIGINAL_NODE_DEF)
 
-snBsdfAnisotropic = _NodeWrapperShaderNodeBsdfAnisotropic()
+snBsdfSheen = _NodeWrapperShaderNodeBsdfSheen()
