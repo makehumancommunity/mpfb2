@@ -41,26 +41,29 @@ class MPFB_OT_Rewrite_Node_Types_Operator(bpy.types.Operator):
         node_tree = NodeService.create_node_tree(node_tree_name)
         valid_node_class_names = []
         for shaderclass in classes:
-            node = node_tree.nodes.new(shaderclass.__name__)
-            node_info = NodeService.get_v2_node_info(node)
-            with open(os.path.join(v2, "nodewrapper" + shaderclass.__name__.lower()) + ".py", "w") as pyfile:
-                try:
-                    pyfile.write("import bpy, json\n\n")
-                    pyfile.write("_ORIGINAL_NODE_DEF = json.loads(\"\"\"\n")
-                    pyfile.write(json.dumps(round_floats(node_info), sort_keys=True, indent=4))
-                    pyfile.write("\"\"\")\n\n")
-                    pyfile.write("from .abstractnodewrapper import AbstractNodeWrapper\n\n")
-                    pyfile.write("class _NodeWrapper" + shaderclass.__name__ + "(AbstractNodeWrapper):\n")
-                    pyfile.write("    def __init__(self):\n")
-                    pyfile.write("        AbstractNodeWrapper.__init__(self, _ORIGINAL_NODE_DEF)\n\n")
-                    pyfile.write(shorten_name("NodeWrapper" + shaderclass.__name__) + " = _NodeWrapper" + shaderclass.__name__ + "()\n")
-                    valid_node_class_names.append(shaderclass.__name__)
-                except Exception as e:
-                    print("\n\n\n\n\n")
-                    pprint(shaderclass.__name__ + str(e))
-                    print("\n")
-                    pprint(node_info)
-            node_tree.nodes.remove(node)
+            node = None
+            if shaderclass.__name__ != "ShaderNodeCustomGroup":
+                node = node_tree.nodes.new(shaderclass.__name__)
+            if node:
+                node_info = NodeService.get_v2_node_info(node)
+                with open(os.path.join(v2, "nodewrapper" + shaderclass.__name__.lower()) + ".py", "w") as pyfile:
+                    try:
+                        pyfile.write("import bpy, json\n\n")
+                        pyfile.write("_ORIGINAL_NODE_DEF = json.loads(\"\"\"\n")
+                        pyfile.write(json.dumps(round_floats(node_info), sort_keys=True, indent=4))
+                        pyfile.write("\"\"\")\n\n")
+                        pyfile.write("from .abstractnodewrapper import AbstractNodeWrapper\n\n")
+                        pyfile.write("class _NodeWrapper" + shaderclass.__name__ + "(AbstractNodeWrapper):\n")
+                        pyfile.write("    def __init__(self):\n")
+                        pyfile.write("        AbstractNodeWrapper.__init__(self, _ORIGINAL_NODE_DEF)\n\n")
+                        pyfile.write(shorten_name("NodeWrapper" + shaderclass.__name__) + " = _NodeWrapper" + shaderclass.__name__ + "()\n")
+                        valid_node_class_names.append(shaderclass.__name__)
+                    except Exception as e:
+                        print("\n\n\n\n\n")
+                        pprint(shaderclass.__name__ + str(e))
+                        print("\n")
+                        pprint(node_info)
+                node_tree.nodes.remove(node)
         NodeService.destroy_node_tree(node_tree)
         valid_node_class_names.sort()
         with open(os.path.join(v2, "__init__.py"), "w") as pyfile:

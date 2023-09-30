@@ -145,11 +145,12 @@ class NodeService:
                 input_dict["class"] = input_socket.__class__.__name__
                 input_dict["value_type"] = input_socket.type
                 input_dict["default_value"] = None
-                if hasattr(input_socket, "default_value"):
-                    if input_socket.type in ["RGBA", "RGB", "VECTOR"]:
-                        input_dict["default_value"] = list(input_socket.default_value)
-                    else:
-                        input_dict["default_value"] = input_socket.default_value
+                if hasattr(input_socket, "default_value") and input_socket.default_value is not None:
+                    if "Euler" not in input_socket.default_value.__class__.__name__:  # TODO: Euler is not JSON serializable, need to find workaround
+                        if input_socket.type in ["RGBA", "RGB", "VECTOR"]:
+                            input_dict["default_value"] = list(input_socket.default_value)
+                        else:
+                            input_dict["default_value"] = input_socket.default_value
                 if "Float" in input_dict["class"] and hasattr(node, "node_tree"):
                     tree_input = node.node_tree.inputs[input_socket.name]
                     input_dict["min_value"] = tree_input.min_value
@@ -164,11 +165,12 @@ class NodeService:
                 output_dict["class"] = output_socket.__class__.__name__
                 output_dict["value_type"] = output_socket.type
                 output_dict["default_value"] = None
-                if hasattr(output_socket, "default_value"):
-                    if output_socket.type in ["RGBA", "RGB", "VECTOR"]:
-                        output_dict["default_value"] = list(output_socket.default_value)
-                    else:
-                        output_dict["default_value"] = output_socket.default_value
+                if hasattr(output_socket, "default_value") and output_socket.default_value is not None:
+                    if "Euler" not in output_socket.default_value.__class__.__name__: # TODO: Euler is not JSON serializable, need to find workaround
+                        if output_socket.type in ["RGBA", "RGB", "VECTOR"]:
+                            output_dict["default_value"] = list(output_socket.default_value)
+                        else:
+                            output_dict["default_value"] = output_socket.default_value
                 if not output_dict["class"] in _BLACKLISTED_ATTRIBUTE_TYPES:  # TODO: Should try to parse these instead of filtering them out
                     node_info["outputs"][output_socket.identifier] = output_dict
         for item in dir(node):
