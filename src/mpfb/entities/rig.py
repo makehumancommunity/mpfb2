@@ -883,8 +883,8 @@ class Rig:
             bone_info["use_inherit_rotation"] = bone.use_inherit_rotation
             bone_info["inherit_scale"] = bone.inherit_scale
 
-            if bone.bbone_segments > 1:
-                bone_info["bendy_bone"] = self._encode_bbone_info(bone)
+            if bbone_info := self._encode_bbone_info(bone):
+                bone_info["bendy_bone"] = bbone_info
 
             bone_info["collections"] = list(sorted(bcoll.name for bcoll in bone.collections))
 
@@ -921,6 +921,7 @@ class Rig:
     def _encode_bbone_info(self, bone):
         defaults = {
             "segments": 1,
+            "mapping_mode": "STRAIGHT",
             "custom_handle_start": None, "custom_handle_end": None,
             "handle_type_start": "AUTO", "handle_type_end": "AUTO",
             "handle_use_ease_start": False, "handle_use_ease_end": False,

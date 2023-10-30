@@ -5666,6 +5666,9 @@
             "use_local_location": true
         },
         "lip.B.L.001": {
+            "bendy_bone": {
+                "mapping_mode": "CURVED"
+            },
             "collections": [
                 "Face (Secondary)"
             ],
@@ -5766,6 +5769,9 @@
             "use_local_location": true
         },
         "lip.B.R.001": {
+            "bendy_bone": {
+                "mapping_mode": "CURVED"
+            },
             "collections": [
                 "Face (Secondary)"
             ],
@@ -5866,6 +5872,9 @@
             "use_local_location": true
         },
         "lip.T.L.001": {
+            "bendy_bone": {
+                "mapping_mode": "CURVED"
+            },
             "collections": [
                 "Face (Secondary)"
             ],
@@ -5966,6 +5975,9 @@
             "use_local_location": true
         },
         "lip.T.R.001": {
+            "bendy_bone": {
+                "mapping_mode": "CURVED"
+            },
             "collections": [
                 "Face (Secondary)"
             ],
