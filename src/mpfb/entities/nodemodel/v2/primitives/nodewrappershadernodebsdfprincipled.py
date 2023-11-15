@@ -33,7 +33,7 @@ _ORIGINAL_NODE_DEF = json.loads("""
         "subsurface_method": {
             "class": "enum",
             "name": "subsurface_method",
-            "value": "RANDOM_WALK"
+            "value": "RANDOM_WALK_SKIN"
         },
         "use_custom_color": {
             "class": "bool",

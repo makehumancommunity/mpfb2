@@ -6,6 +6,7 @@ import bpy.types
 from mpfb.services.logservice import LogService
 
 _LOG = LogService.get_logger("services.nodetreeservice")
+_LOG.set_level(LogService.DEBUG)
 
 class NodeTreeService:
 

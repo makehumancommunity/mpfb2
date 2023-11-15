@@ -10,6 +10,7 @@ from mpfb.services.objectservice import ObjectService
 from mpfb.services.logservice import LogService
 
 _LOG = LogService.get_logger("services.nodeservice")
+_LOG.set_level(LogService.DEBUG)
 
 _NODETYPETOCLASS = dict()
 _NODETYPETOCLASS["BOOLEAN"] = "NodeSocketBool"
@@ -152,11 +153,13 @@ class NodeService:
                         else:
                             input_dict["default_value"] = input_socket.default_value
                 if "Float" in input_dict["class"] and hasattr(node, "node_tree"):
-                    tree_input = node.node_tree.inputs[input_socket.name]
+                    from mpfb.services.nodetreeservice import NodeTreeService
+                    _LOG.debug("input_socket", input_socket)
+                    tree_input = NodeTreeService.get_input_socket(node.node_tree, input_socket.name)
                     input_dict["min_value"] = tree_input.min_value
                     input_dict["max_value"] = tree_input.max_value
                 if not input_dict["class"] in _BLACKLISTED_ATTRIBUTE_TYPES:  # TODO: Should try to parse these instead of filtering them out
-                    node_info["inputs"][input_socket.identifier] = input_dict
+                    node_info["inputs"]["Input_Socket_" + input_socket.name] = input_dict
         if hasattr(node, "outputs"):
             for output_socket in node.outputs:
                 output_dict = dict()
@@ -172,7 +175,7 @@ class NodeService:
                         else:
                             output_dict["default_value"] = output_socket.default_value
                 if not output_dict["class"] in _BLACKLISTED_ATTRIBUTE_TYPES:  # TODO: Should try to parse these instead of filtering them out
-                    node_info["outputs"][output_socket.identifier] = output_dict
+                    node_info["outputs"]["Output_Socket_" + output_socket.name] = output_dict
         for item in dir(node):
             if not item in _INTERNAL_NODE_CLASS_ATTRIBUTES and not item in _BLACKLISTED_NODE_CLASS_ATTRIBUTES:
                 attribute = dict()
