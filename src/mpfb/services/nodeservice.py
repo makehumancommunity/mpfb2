@@ -10,7 +10,7 @@ from mpfb.services.objectservice import ObjectService
 from mpfb.services.logservice import LogService
 
 _LOG = LogService.get_logger("services.nodeservice")
-_LOG.set_level(LogService.DEBUG)
+#_LOG.set_level(LogService.DEBUG)
 
 _NODETYPETOCLASS = dict()
 _NODETYPETOCLASS["BOOLEAN"] = "NodeSocketBool"

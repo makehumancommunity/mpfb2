@@ -128,8 +128,8 @@ _ORIGINAL_NODE_DEF = json.loads("""
             "name": "location",
             "class": "Vector",
             "value": [
-                348.2335,
-                172.3807
+                330.434,
+                97.355
             ]
         },
         "use_custom_color": {
@@ -234,19 +234,6 @@ _ORIGINAL_TREE_DEF = json.loads("""
         {
             "attribute_values": {
                 "location": [
-                    299.8103,
-                    14.135
-                ]
-            },
-            "class": "NodeGroupOutput",
-            "input_socket_values": {},
-            "label": "Group Output",
-            "name": "Group Output",
-            "output_socket_values": {}
-        },
-        {
-            "attribute_values": {
-                "location": [
                     -282.2525,
                     248.0846
                 ],
@@ -273,6 +260,19 @@ _ORIGINAL_TREE_DEF = json.loads("""
             },
             "label": "Combine XYZ.001",
             "name": "Combine XYZ.001",
+            "output_socket_values": {}
+        },
+        {
+            "attribute_values": {
+                "location": [
+                    299.8103,
+                    14.135
+                ]
+            },
+            "class": "NodeGroupOutput",
+            "input_socket_values": {},
+            "label": "Group Output",
+            "name": "Group Output",
             "output_socket_values": {}
         },
         {
@@ -312,15 +312,18 @@ class _NodeWrapperMpfbSSSControl(AbstractGroupWrapper):
         node("ShaderNodeMath", "Math", attribute_values={"location": [-282.2525, 248.0846], "operation": "MULTIPLY"})
         node("ShaderNodeCombineXYZ", "Combine XYZ.001", attribute_values={"location": [-283.4263, -287.7945]}, input_socket_values={"X": 1.0, "Y": 0.2, "Z": 0.1})
 
-        link("Group Input", "SSSWeight", "Group Output", "SSSWeight")
         link("Group Input", "SSSRadiusX", "Combine XYZ.001", "X")
         link("Group Input", "SSSRadiusY", "Combine XYZ.001", "Y")
         link("Group Input", "SSSRadiusZ", "Combine XYZ.001", "Z")
-        link("Combine XYZ.001", "Vector", "Group Output", "SSSRadius")
-        link("Group Input", "SSSScaleMultiplier", "Math", "Value_001")
-        link("Group.003", "scale_factor", "Math", "Value")
-        link("Math", "Value", "Group Output", "SSSScale")
+        link("Group Input", "SSSWeight", "Group Output", "SSSWeight")
         link("Group Input", "SSSIor", "Group Output", "SSSIor")
+        link("Group Input", "SSSScaleMultiplier", "Math", "Value_001")
+        link("Group Input", "SSSAnisotropy", "Group Output", "SSSAnisotropy")
+        link("Group.003", "scale_factor", "Math", "Value")
+        link("Group Input", "SSSWeight", "Group Output", "SSSWeight")
+        link("Group Input", "SSSIor", "Group Output", "SSSIor")
+        link("Combine XYZ.001", "Vector", "Group Output", "SSSRadius")
+        link("Math", "Value", "Group Output", "SSSScale")
         link("Group Input", "SSSAnisotropy", "Group Output", "SSSAnisotropy")
 
 NodeWrapperMpfbSSSControl = _NodeWrapperMpfbSSSControl()

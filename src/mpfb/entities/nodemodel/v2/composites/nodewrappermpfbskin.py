@@ -60,14 +60,14 @@ _ORIGINAL_NODE_DEF = json.loads("""
                 0.0
             ]
         },
-        "Input_Socket_SSSStrength": {
-            "name": "SSSStrength",
+        "Input_Socket_SSSWeight": {
+            "name": "SSSWeight",
             "identifier": "Socket_5",
             "class": "NodeSocketFloat",
             "value_type": "VALUE",
             "default_value": 0.0,
-            "min_value": -3.4028234663852886e+38,
-            "max_value": 3.4028234663852886e+38
+            "min_value": 0.0,
+            "max_value": 10.0
         },
         "Input_Socket_SSSRadiusMultiplyer": {
             "name": "SSSRadiusMultiplyer",
@@ -77,15 +77,6 @@ _ORIGINAL_NODE_DEF = json.loads("""
             "default_value": 0.5,
             "min_value": -10000.0,
             "max_value": 10000.0
-        },
-        "Input_Socket_SSSIor": {
-            "name": "SSSIor",
-            "identifier": "Socket_7",
-            "class": "NodeSocketFloat",
-            "value_type": "VALUE",
-            "default_value": 1.4,
-            "min_value": -3.4028234663852886e+38,
-            "max_value": 3.4028234663852886e+38
         },
         "Input_Socket_SSSRadiusX": {
             "name": "SSSRadiusX",
@@ -114,12 +105,21 @@ _ORIGINAL_NODE_DEF = json.loads("""
             "min_value": -10000.0,
             "max_value": 10000.0
         },
+        "Input_Socket_SSSIor": {
+            "name": "SSSIor",
+            "identifier": "Socket_7",
+            "class": "NodeSocketFloat",
+            "value_type": "VALUE",
+            "default_value": 1.4,
+            "min_value": -3.4028234663852886e+38,
+            "max_value": 3.4028234663852886e+38
+        },
         "Input_Socket_SSSAnisotropy": {
             "name": "SSSAnisotropy",
             "identifier": "Socket_43",
             "class": "NodeSocketFloat",
             "value_type": "VALUE",
-            "default_value": 0.8,
+            "default_value": 0.0,
             "min_value": 0.0,
             "max_value": 1.0
         },
@@ -376,19 +376,19 @@ _ORIGINAL_NODE_DEF = json.loads("""
             "value_type": "VALUE",
             "default_value": 0.0
         },
-        "Output_Socket_SSSAnisotropy": {
-            "name": "SSSAnisotropy",
-            "identifier": "Socket_42",
-            "class": "NodeSocketFloat",
-            "value_type": "VALUE",
-            "default_value": 0.0
-        },
         "Output_Socket_SSSIor": {
             "name": "SSSIor",
             "identifier": "Socket_39",
             "class": "NodeSocketFloat",
             "value_type": "VALUE",
             "default_value": 1.4
+        },
+        "Output_Socket_SSSAnisotropy": {
+            "name": "SSSAnisotropy",
+            "identifier": "Socket_42",
+            "class": "NodeSocketFloat",
+            "value_type": "VALUE",
+            "default_value": 0.0
         },
         "Output_Socket_Normal": {
             "name": "Normal",
@@ -455,7 +455,7 @@ _ORIGINAL_TREE_DEF = json.loads("""
         },
         {
             "from_node": "Group Input",
-            "from_socket": "SSSStrength",
+            "from_socket": "SSSWeight",
             "to_node": "SSS",
             "to_socket": "SSSWeight"
         },
@@ -695,15 +695,15 @@ _ORIGINAL_TREE_DEF = json.loads("""
         },
         {
             "from_node": "SSS",
-            "from_socket": "SubsurfaceIor",
+            "from_socket": "SSSIor",
             "to_node": "Group Output",
-            "to_socket": "SSSAnisotropy"
+            "to_socket": "SSSIor"
         },
         {
             "from_node": "SSS",
-            "from_socket": "Socket_12",
+            "from_socket": "SSSAnisotropy",
             "to_node": "Group Output",
-            "to_socket": "SSSIor"
+            "to_socket": "SSSAnisotropy"
         },
         {
             "from_node": "Group Input",
@@ -840,16 +840,14 @@ _ORIGINAL_TREE_DEF = json.loads("""
                 ],
                 "height": 100.0,
                 "location": [
-                    326.096,
-                    69.725
+                    330.434,
+                    97.355
                 ],
                 "use_custom_color": true,
                 "width": 140.0
             },
             "class": "MpfbSSSControl",
-            "input_socket_values": {
-                "SSSAnisotropy": 0.8
-            },
+            "input_socket_values": {},
             "label": "SSS",
             "name": "SSS",
             "output_socket_values": {}
@@ -892,11 +890,11 @@ class _NodeWrapperMpfbSkin(AbstractGroupWrapper):
         node("MpfbSkinSpot", "Spots", attribute_values={"color": [0.35, 0.0, 0.35], "height": 100.0, "location": [-32.5884, 543.9255], "use_custom_color": True, "width": 190.1191})
         node("MpfbSkinNormalUnevenness", "Unevenness", attribute_values={"color": [0.35, 0.0, 0.35], "height": 100.0, "location": [-249.8333, -266.7137], "use_custom_color": True, "width": 289.2502})
         node("MpfbSkinNormalDermal", "Dermal", attribute_values={"color": [0.35, 0.0, 0.35], "height": 100.0, "location": [175.0831, -339.0752], "use_custom_color": True, "width": 320.8665})
-        node("MpfbSSSControl", "SSS", attribute_values={"color": [0.4, 0.4, 0.5], "height": 100.0, "location": [326.096, 69.725], "use_custom_color": True, "width": 140.0}, input_socket_values={"SSSAnisotropy": 0.8})
+        node("MpfbSSSControl", "SSS", attribute_values={"color": [0.4, 0.4, 0.5], "height": 100.0, "location": [330.434, 97.355], "use_custom_color": True, "width": 140.0})
 
         link("Group Input", "SkinColor", "ColorVarian", "Color")
         link("Group Input", "Normal", "Unevenness", "Normal")
-        link("Group Input", "SSSStrength", "SSS", "SSSWeight")
+        link("Group Input", "SSSWeight", "SSS", "SSSWeight")
         link("Group Input", "SSSRadiusMultiplyer", "SSS", "SSSScaleMultiplier")
         link("Group Input", "SSSIor", "SSS", "SSSIor")
         link("Group Input", "SpotColor", "Spots", "SpotColor")

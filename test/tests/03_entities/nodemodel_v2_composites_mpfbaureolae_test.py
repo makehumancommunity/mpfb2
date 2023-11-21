@@ -15,25 +15,21 @@ def test_composite_can_create_instance():
     assert node.node_tree.name == "MpfbAureolae"
     assert "Group Output" in node.node_tree.nodes
     assert "Group.004" in node.node_tree.nodes
-    assert "Map Range" in node.node_tree.nodes
     assert "Principled BSDF" in node.node_tree.nodes
     assert "Texture Coordinate" in node.node_tree.nodes
     assert "BodyConstants" in node.node_tree.nodes
-    assert "Group.006" in node.node_tree.nodes
     assert "ColorVariation" in node.node_tree.nodes
-    assert "Math" in node.node_tree.nodes
-    assert "Voronoi Texture" in node.node_tree.nodes
     assert "Math.002" in node.node_tree.nodes
     assert "Math.001" in node.node_tree.nodes
     assert "Noise Texture" in node.node_tree.nodes
     assert "Group.003" in node.node_tree.nodes
     assert "Math.003" in node.node_tree.nodes
     assert "Math.004" in node.node_tree.nodes
-    assert "Bump.001" in node.node_tree.nodes
-    assert "Bump" in node.node_tree.nodes
-    assert "InRange" in node.node_tree.nodes
     assert "SSS" in node.node_tree.nodes
     assert "CharacterInfo" in node.node_tree.nodes
+    assert "Voronoi Texture" in node.node_tree.nodes
+    assert "Bump" in node.node_tree.nodes
+    assert "Bump.001" in node.node_tree.nodes
     assert "Group Input" in node.node_tree.nodes
     has_link_to_output = False
     for link in node.node_tree.links:

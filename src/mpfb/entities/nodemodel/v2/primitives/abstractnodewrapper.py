@@ -187,7 +187,8 @@ class AbstractNodeWrapper():
                     comparison["attribute_values"][key]["colorspace"] = node.image.colorspace_settings.name
             else:
                 if nc == "ShaderNodeGroup" or not self._is_same(value_class, node_value, default_value):
-                    comparison["attribute_values"][key] = self._cleanup(node_value)
+                    if node_value is not None:
+                        comparison["attribute_values"][key] = self._cleanup(node_value)
 
         _LOG.debug("Attributes", comparison["attribute_values"])
 
