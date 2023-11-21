@@ -2,11 +2,12 @@ import bpy, os
 from mpfb.services.logservice import LogService
 from mpfb.services.nodeservice import NodeService
 from mpfb.services.systemservice import SystemService
+from mathutils import Euler
 
 _LOG = LogService.get_logger("nodemodel.v2.abstractnodewrapper")
 
-_VALID_ARRAY_TYPES = ["tuple", "list", "array", "Vector", "Color", "NodeSocketColor", "NodeSocketVector"]
-_VALID_NUMERIC_TYPES = ["int", "float", "NodeSocketFloat", "NodeSocketFloatFactor", "NodeSocketInt", "NodeSocketIntFactor"]
+_VALID_ARRAY_TYPES = ["tuple", "list", "array", "Vector", "Color", "NodeSocketColor", "NodeSocketVector", "NodeSocketRotation"]
+_VALID_NUMERIC_TYPES = ["int", "float", "NodeSocketFloat", "NodeSocketFloatFactor", "NodeSocketInt", "NodeSocketIntFactor", "NodeSocketFloatDistance"]
 _VALID_STRING_TYPES = ["str", "enum"]
 
 class AbstractNodeWrapper():
@@ -123,7 +124,11 @@ class AbstractNodeWrapper():
                 _LOG.warn("Output socket did not have default_value attribute", output_socket)
 
     def _is_same(self, value_class, node_value, default_value):
+        if default_value is None:
+            return False
         try:
+            if isinstance(node_value, Euler):
+                node_value = [node_value.x, node_value.y, node_value.z]
             if node_value is None:
                 return True
             if value_class in _VALID_ARRAY_TYPES:
@@ -148,6 +153,8 @@ class AbstractNodeWrapper():
     def _cleanup(self, value):
         if type(value).__name__ in ["Vector", "Color"]:
             return list(value)
+        if type(value).__name__ == "Euler":
+            return [value.x, value.y, value.z]
         return value
 
     def find_non_default_settings(self, node):
@@ -220,7 +227,8 @@ class AbstractNodeWrapper():
                 node_value = socket.default_value
             value_class = socket_def["class"]
             if not self._is_same(value_class, node_value, default_value):
-                comparison["output_socket_values"][key] = self._cleanup(node_value)
+                if key != "BSDF":
+                    comparison["output_socket_values"][key] = self._cleanup(node_value)
 
         return comparison
 
