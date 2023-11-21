@@ -21,7 +21,7 @@ _ORIGINAL_NODE_DEF = json.loads("""
             "identifier": "Socket_1",
             "class": "NodeSocketFloat",
             "value_type": "VALUE",
-            "default_value": 9.5,
+            "default_value": 10.0,
             "min_value": -10000.0,
             "max_value": 10000.0
         },
@@ -39,7 +39,7 @@ _ORIGINAL_NODE_DEF = json.loads("""
             "identifier": "Socket_3",
             "class": "NodeSocketFloat",
             "value_type": "VALUE",
-            "default_value": 0.35,
+            "default_value": 0.15,
             "min_value": 0.0,
             "max_value": 1.0
         },
@@ -57,7 +57,7 @@ _ORIGINAL_NODE_DEF = json.loads("""
             "identifier": "Socket_5",
             "class": "NodeSocketFloat",
             "value_type": "VALUE",
-            "default_value": 0.1,
+            "default_value": 0.2,
             "min_value": -3.4028234663852886e+38,
             "max_value": 3.4028234663852886e+38
         },
@@ -111,7 +111,7 @@ _ORIGINAL_NODE_DEF = json.loads("""
             "identifier": "Socket_18",
             "class": "NodeSocketFloat",
             "value_type": "VALUE",
-            "default_value": 0.0,
+            "default_value": 0.8,
             "min_value": 0.0,
             "max_value": 1.0
         },
@@ -120,7 +120,7 @@ _ORIGINAL_NODE_DEF = json.loads("""
             "identifier": "Socket_8",
             "class": "NodeSocketFloat",
             "value_type": "VALUE",
-            "default_value": 100.0,
+            "default_value": 150.0,
             "min_value": -10000.0,
             "max_value": 10000.0
         },
@@ -129,7 +129,7 @@ _ORIGINAL_NODE_DEF = json.loads("""
             "identifier": "Socket_9",
             "class": "NodeSocketFloat",
             "value_type": "VALUE",
-            "default_value": 0.15,
+            "default_value": 0.1,
             "min_value": 0.0,
             "max_value": 1.0
         },
@@ -305,12 +305,6 @@ _ORIGINAL_TREE_DEF = json.loads("""
             "to_socket": "UnevennessRoughness"
         },
         {
-            "from_node": "Group",
-            "from_socket": "Normal",
-            "to_node": "Bump",
-            "to_socket": "Normal"
-        },
-        {
             "from_node": "Vector Math",
             "from_socket": "Vector",
             "to_node": "Noise Texture",
@@ -417,6 +411,12 @@ _ORIGINAL_TREE_DEF = json.loads("""
             "from_socket": "SSSAnisotropy",
             "to_node": "SSS",
             "to_socket": "SSSAnisotropy"
+        },
+        {
+            "from_node": "Group",
+            "from_socket": "Normal",
+            "to_node": "Bump",
+            "to_socket": "Normal"
         }
     ],
     "nodes": [
@@ -451,59 +451,6 @@ _ORIGINAL_TREE_DEF = json.loads("""
         {
             "attribute_values": {
                 "location": [
-                    329.0903,
-                    -352.9689
-                ]
-            },
-            "class": "ShaderNodeBump",
-            "input_socket_values": {
-                "Strength": 0.3
-            },
-            "label": "Bump",
-            "name": "Bump",
-            "output_socket_values": {}
-        },
-        {
-            "attribute_values": {
-                "color": [
-                    0.4,
-                    0.4,
-                    0.5
-                ],
-                "height": 100.0,
-                "location": [
-                    77.2454,
-                    -830.0649
-                ],
-                "use_custom_color": true,
-                "width": 247.2069
-            },
-            "class": "MpfbValueRamp3",
-            "input_socket_values": {},
-            "label": "Group.002",
-            "name": "Group.002",
-            "output_socket_values": {}
-        },
-        {
-            "attribute_values": {
-                "location": [
-                    -156.4584,
-                    -818.0838
-                ]
-            },
-            "class": "ShaderNodeTexNoise",
-            "input_socket_values": {
-                "Detail": 4.0,
-                "Distortion": 2.0,
-                "Scale": 50.0
-            },
-            "label": "Noise Texture",
-            "name": "Noise Texture",
-            "output_socket_values": {}
-        },
-        {
-            "attribute_values": {
-                "location": [
                     -397.631,
                     -906.7668
                 ],
@@ -519,23 +466,6 @@ _ORIGINAL_TREE_DEF = json.loads("""
             },
             "label": "Vector Math",
             "name": "Vector Math",
-            "output_socket_values": {}
-        },
-        {
-            "attribute_values": {
-                "location": [
-                    -669.1196,
-                    -961.1784
-                ]
-            },
-            "class": "ShaderNodeCombineXYZ",
-            "input_socket_values": {
-                "X": 8.0,
-                "Y": 1.0,
-                "Z": 1.0
-            },
-            "label": "Combine XYZ",
-            "name": "Combine XYZ",
             "output_socket_values": {}
         },
         {
@@ -634,6 +564,76 @@ _ORIGINAL_TREE_DEF = json.loads("""
         },
         {
             "attribute_values": {
+                "color": [
+                    0.4,
+                    0.4,
+                    0.5
+                ],
+                "height": 100.0,
+                "location": [
+                    35.918,
+                    -570.8289
+                ],
+                "use_custom_color": true,
+                "width": 247.2069
+            },
+            "class": "MpfbValueRamp3",
+            "input_socket_values": {},
+            "label": "Group.002",
+            "name": "Group.002",
+            "output_socket_values": {}
+        },
+        {
+            "attribute_values": {
+                "location": [
+                    -187.454,
+                    -756.9351
+                ]
+            },
+            "class": "ShaderNodeTexNoise",
+            "input_socket_values": {
+                "Detail": 4.0,
+                "Distortion": 2.0,
+                "Scale": 50.0
+            },
+            "label": "Noise Texture",
+            "name": "Noise Texture",
+            "output_socket_values": {}
+        },
+        {
+            "attribute_values": {
+                "location": [
+                    -725.9448,
+                    -992.1833
+                ]
+            },
+            "class": "ShaderNodeCombineXYZ",
+            "input_socket_values": {
+                "X": 8.0,
+                "Y": 1.0,
+                "Z": 1.0
+            },
+            "label": "Combine XYZ",
+            "name": "Combine XYZ",
+            "output_socket_values": {}
+        },
+        {
+            "attribute_values": {
+                "location": [
+                    329.0903,
+                    -352.9689
+                ]
+            },
+            "class": "ShaderNodeBump",
+            "input_socket_values": {
+                "Strength": 0.3
+            },
+            "label": "Bump",
+            "name": "Bump",
+            "output_socket_values": {}
+        },
+        {
+            "attribute_values": {
                 "location": [
                     -1014.3296,
                     -77.1974
@@ -666,16 +666,16 @@ class _NodeWrapperMpfbLips(AbstractGroupWrapper):
         nodes["Group Input"].location = [-1014.3296, -77.1974]
 
         node("ShaderNodeBsdfPrincipled", "Principled BSDF", attribute_values={"location": [599.8683, 26.5137]}, input_socket_values={"Roughness": 0.2})
-        node("ShaderNodeBump", "Bump", attribute_values={"location": [329.0903, -352.9689]}, input_socket_values={"Strength": 0.3})
-        node("MpfbValueRamp3", "Group.002", attribute_values={"color": [0.4, 0.4, 0.5], "height": 100.0, "location": [77.2454, -830.0649], "use_custom_color": True, "width": 247.2069})
-        node("ShaderNodeTexNoise", "Noise Texture", attribute_values={"location": [-156.4584, -818.0838]}, input_socket_values={"Detail": 4.0, "Distortion": 2.0, "Scale": 50.0})
         node("ShaderNodeVectorMath", "Vector Math", attribute_values={"location": [-397.631, -906.7668], "operation": "MULTIPLY"}, input_socket_values={"Vector_001": [8.0, 1.0, 1.0]})
-        node("ShaderNodeCombineXYZ", "Combine XYZ", attribute_values={"location": [-669.1196, -961.1784]}, input_socket_values={"X": 8.0, "Y": 1.0, "Z": 1.0})
         node("ShaderNodeMath", "Math", attribute_values={"location": [-518.0641, -698.05], "operation": "DIVIDE"}, input_socket_values={"Value": 20.0})
         node("MpfbSkinNormalUnevenness", "Group", attribute_values={"color": [0.35, 0.0, 0.35], "height": 100.0, "location": [-338.2765, -408.3474], "use_custom_color": True, "width": 140.0})
         node("MpfbCharacterInfo", "characterinfo", label="Character Info", attribute_values={"color": [0.35, 0.35, 0.0], "height": 100.0, "location": [-1015.6287, -514.6119], "use_custom_color": True, "width": 140.0})
         node("ShaderNodeTexCoord", "Texture Coordinate", attribute_values={"location": [-1017.0906, -719.7971]})
         node("MpfbSSSControl", "SSS", attribute_values={"color": [0.4, 0.4, 0.5], "height": 100.0, "location": [137.0951, 254.0526], "use_custom_color": True, "width": 140.0}, input_socket_values={"SSSScaleMultiplier": 1.0})
+        node("MpfbValueRamp3", "Group.002", attribute_values={"color": [0.4, 0.4, 0.5], "height": 100.0, "location": [35.918, -570.8289], "use_custom_color": True, "width": 247.2069})
+        node("ShaderNodeTexNoise", "Noise Texture", attribute_values={"location": [-187.454, -756.9351]}, input_socket_values={"Detail": 4.0, "Distortion": 2.0, "Scale": 50.0})
+        node("ShaderNodeCombineXYZ", "Combine XYZ", attribute_values={"location": [-725.9448, -992.1833]}, input_socket_values={"X": 8.0, "Y": 1.0, "Z": 1.0})
+        node("ShaderNodeBump", "Bump", attribute_values={"location": [329.0903, -352.9689]}, input_socket_values={"Strength": 0.3})
 
         link("Group Input", "LipsCreaseStretch", "Combine XYZ", "X")
         link("Group Input", "LipsCreaseScale", "Math", "Value")
@@ -695,7 +695,6 @@ class _NodeWrapperMpfbLips(AbstractGroupWrapper):
         link("Group Input", "SSSRadiusY", "SSS", "SSSRadiusY")
         link("Group Input", "SSSRadiusZ", "SSS", "SSSRadiusZ")
         link("Group Input", "SSSAnisotropy", "SSS", "SSSAnisotropy")
-        link("Group", "Normal", "Bump", "Normal")
         link("Vector Math", "Vector", "Noise Texture", "Vector")
         link("Texture Coordinate", "Object", "Vector Math", "Vector")
         link("characterinfo", "scale_factor", "Math", "Value_001")
@@ -709,6 +708,7 @@ class _NodeWrapperMpfbLips(AbstractGroupWrapper):
         link("Bump", "Normal", "Principled BSDF", "Normal")
         link("SSS", "SSSScale", "Principled BSDF", "Subsurface Scale")
         link("SSS", "SSSAnisotropy", "Principled BSDF", "Subsurface Anisotropy")
+        link("Group", "Normal", "Bump", "Normal")
         link("Principled BSDF", "BSDF", "Group Output", "BSDF")
 
 NodeWrapperMpfbLips = _NodeWrapperMpfbLips()
