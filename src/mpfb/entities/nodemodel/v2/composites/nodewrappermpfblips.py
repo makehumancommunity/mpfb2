@@ -438,7 +438,8 @@ _ORIGINAL_TREE_DEF = json.loads("""
                 "location": [
                     599.8683,
                     26.5137
-                ]
+                ],
+                "subsurface_method": "RANDOM_WALK_SKIN"
             },
             "class": "ShaderNodeBsdfPrincipled",
             "input_socket_values": {
@@ -665,7 +666,7 @@ class _NodeWrapperMpfbLips(AbstractGroupWrapper):
         nodes["Group Output"].location = [1027.3911, 150.8435]
         nodes["Group Input"].location = [-1014.3296, -77.1974]
 
-        node("ShaderNodeBsdfPrincipled", "Principled BSDF", attribute_values={"location": [599.8683, 26.5137]}, input_socket_values={"Roughness": 0.2})
+        node("ShaderNodeBsdfPrincipled", "Principled BSDF", attribute_values={"location": [599.8683, 26.5137], "subsurface_method": "RANDOM_WALK_SKIN"}, input_socket_values={"Roughness": 0.2})
         node("ShaderNodeVectorMath", "Vector Math", attribute_values={"location": [-397.631, -906.7668], "operation": "MULTIPLY"}, input_socket_values={"Vector_001": [8.0, 1.0, 1.0]})
         node("ShaderNodeMath", "Math", attribute_values={"location": [-518.0641, -698.05], "operation": "DIVIDE"}, input_socket_values={"Value": 20.0})
         node("MpfbSkinNormalUnevenness", "Group", attribute_values={"color": [0.35, 0.0, 0.35], "height": 100.0, "location": [-338.2765, -408.3474], "use_custom_color": True, "width": 140.0})

@@ -176,8 +176,8 @@ _ORIGINAL_NODE_DEF = json.loads("""
             "name": "location",
             "class": "Vector",
             "value": [
-                707.9717,
-                -1485.2301
+                707.1108,
+                -1635.9293
             ]
         },
         "use_custom_color": {
@@ -499,7 +499,8 @@ _ORIGINAL_TREE_DEF = json.loads("""
                 "location": [
                     793.9831,
                     283.0536
-                ]
+                ],
+                "subsurface_method": "RANDOM_WALK_SKIN"
             },
             "class": "ShaderNodeBsdfPrincipled",
             "input_socket_values": {
@@ -577,7 +578,7 @@ class _NodeWrapperMpfbGenitals(AbstractGroupWrapper):
         node("ShaderNodeBump", "Bump", attribute_values={"location": [374.1753, -425.3056]}, input_socket_values={"Strength": 0.1})
         node("ShaderNodeTexNoise", "Noise Texture.001", attribute_values={"location": [-263.6289, -349.6447]}, input_socket_values={"Scale": 200.0})
         node("ShaderNodeTexCoord", "Texture Coordinate.001", attribute_values={"location": [-723.0281, 334.1442]})
-        node("ShaderNodeBsdfPrincipled", "Principled BSDF.001", attribute_values={"location": [793.9831, 283.0536]}, input_socket_values={"Base Color": [0.7991, 0.3231, 0.3095, 1.0], "Roughness": 0.2})
+        node("ShaderNodeBsdfPrincipled", "Principled BSDF.001", attribute_values={"location": [793.9831, 283.0536], "subsurface_method": "RANDOM_WALK_SKIN"}, input_socket_values={"Base Color": [0.7991, 0.3231, 0.3095, 1.0], "Roughness": 0.2})
         node("MpfbSSSControl", "SSS", attribute_values={"color": [0.4, 0.4, 0.5], "height": 100.0, "location": [494.9734, 151.7243], "use_custom_color": True, "width": 140.0}, input_socket_values={"SSSScaleMultiplier": 1.0})
 
         link("Group Input", "Color", "Mix", "A_Color")

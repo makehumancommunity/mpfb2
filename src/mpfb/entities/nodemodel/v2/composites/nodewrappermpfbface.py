@@ -730,7 +730,8 @@ _ORIGINAL_TREE_DEF = json.loads("""
                 "location": [
                     -144.3404,
                     677.2473
-                ]
+                ],
+                "subsurface_method": "RANDOM_WALK_SKIN"
             },
             "class": "ShaderNodeBsdfPrincipled",
             "input_socket_values": {
@@ -762,9 +763,7 @@ _ORIGINAL_TREE_DEF = json.loads("""
                 "width": 400.0
             },
             "class": "MpfbSkin",
-            "input_socket_values": {
-                "SSSAnisotropy": 0.0
-            },
+            "input_socket_values": {},
             "label": "Skin Settings",
             "name": "Skin",
             "output_socket_values": {}
@@ -824,8 +823,8 @@ class _NodeWrapperMpfbFace(AbstractGroupWrapper):
         nodes["Group Input"].location = [-1687.5262, 336.8824]
 
         node("ShaderNodeMix", "Mix", attribute_values={"data_type": "RGBA", "location": [-1069.4127, 762.9279]}, input_socket_values={"A_Rotation": [0.0, 0.0, 0.0], "B_Color": [0.2655, 0.081, 0.0278, 1.0], "B_Rotation": [0.0, 0.0, 0.0]}, output_socket_values={"Result_Rotation": [0.0, 0.0, 0.0]})
-        node("ShaderNodeBsdfPrincipled", "Principled BSDF.001", attribute_values={"location": [-144.3404, 677.2473]}, input_socket_values={"Base Color": [0.8, 0.6037, 0.5003, 1.0], "Roughness": 0.35})
-        node("MpfbSkin", "Skin", label="Skin Settings", attribute_values={"color": [0.35, 0.0, 0.35], "height": 100.0, "location": [-747.6187, 798.8463], "use_custom_color": True, "width": 400.0}, input_socket_values={"SSSAnisotropy": 0.0})
+        node("ShaderNodeBsdfPrincipled", "Principled BSDF.001", attribute_values={"location": [-144.3404, 677.2473], "subsurface_method": "RANDOM_WALK_SKIN"}, input_socket_values={"Base Color": [0.8, 0.6037, 0.5003, 1.0], "Roughness": 0.35})
+        node("MpfbSkin", "Skin", label="Skin Settings", attribute_values={"color": [0.35, 0.0, 0.35], "height": 100.0, "location": [-747.6187, 798.8463], "use_custom_color": True, "width": 400.0})
         node("MpfbSystemValueTextureEyelids", "IsEyelids", label="Is Eyelids", attribute_values={"color": [0.35, 0.35, 0.0], "height": 100.0, "location": [-1468.9873, 748.6599], "use_custom_color": True, "width": 297.9847})
 
         link("Group Input", "SkinColor", "Mix", "A_Color")

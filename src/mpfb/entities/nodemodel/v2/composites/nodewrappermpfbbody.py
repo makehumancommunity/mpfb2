@@ -738,7 +738,8 @@ _ORIGINAL_TREE_DEF = json.loads("""
                 "location": [
                     -583.7446,
                     130.6071
-                ]
+                ],
+                "subsurface_method": "RANDOM_WALK_SKIN"
             },
             "class": "ShaderNodeBsdfPrincipled",
             "input_socket_values": {},
@@ -783,9 +784,7 @@ _ORIGINAL_TREE_DEF = json.loads("""
                 "width": 354.5488
             },
             "class": "MpfbSkin",
-            "input_socket_values": {
-                "SSSAnisotropy": 0.0
-            },
+            "input_socket_values": {},
             "label": "Skin Settings",
             "name": "bodyskingroup",
             "output_socket_values": {}
@@ -823,9 +822,9 @@ class _NodeWrapperMpfbBody(AbstractGroupWrapper):
         nodes["Group Output"].location = [-273.2507, 132.5241]
         nodes["Group Input"].location = [-1994.3385, -73.7013]
 
-        node("ShaderNodeBsdfPrincipled", "Principled BSDF", attribute_values={"location": [-583.7446, 130.6071]})
+        node("ShaderNodeBsdfPrincipled", "Principled BSDF", attribute_values={"location": [-583.7446, 130.6071], "subsurface_method": "RANDOM_WALK_SKIN"})
         node("MpfbSkinNavel", "NavelSettings", label="Navel Settings", attribute_values={"color": [0.35, 0.0, 0.35], "height": 100.0, "location": [-1609.5137, 126.2919], "use_custom_color": True, "width": 272.0078})
-        node("MpfbSkin", "bodyskingroup", label="Skin Settings", attribute_values={"color": [0.35, 0.0, 0.35], "height": 100.0, "location": [-1208.3087, -5.6504], "use_custom_color": True, "width": 354.5488}, input_socket_values={"SSSAnisotropy": 0.0})
+        node("MpfbSkin", "bodyskingroup", label="Skin Settings", attribute_values={"color": [0.35, 0.0, 0.35], "height": 100.0, "location": [-1208.3087, -5.6504], "use_custom_color": True, "width": 354.5488})
 
         link("Group Input", "SkinColor", "NavelSettings", "SkinColor")
         link("Group Input", "NavelCenterColor", "NavelSettings", "NavelCenterColor")

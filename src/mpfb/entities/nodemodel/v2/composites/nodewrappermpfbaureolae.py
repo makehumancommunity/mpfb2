@@ -453,7 +453,8 @@ _ORIGINAL_TREE_DEF = json.loads("""
                 "location": [
                     1953.9177,
                     153.0367
-                ]
+                ],
+                "subsurface_method": "RANDOM_WALK_SKIN"
             },
             "class": "ShaderNodeBsdfPrincipled",
             "input_socket_values": {},
@@ -742,7 +743,7 @@ class _NodeWrapperMpfbAureolae(AbstractGroupWrapper):
         nodes["Group Input"].location = [-1024.4425, 18.8993]
 
         node("MpfbValueRamp3", "Group.004", attribute_values={"color": [0.4, 0.4, 0.5], "height": 100.0, "location": [788.281, -13.9948], "use_custom_color": True, "width": 268.4089}, input_socket_values={"BetweenStop2Value": -0.6, "BetweenStop1Position": 0.5})
-        node("ShaderNodeBsdfPrincipled", "Principled BSDF", attribute_values={"location": [1953.9177, 153.0367]})
+        node("ShaderNodeBsdfPrincipled", "Principled BSDF", attribute_values={"location": [1953.9177, 153.0367], "subsurface_method": "RANDOM_WALK_SKIN"})
         node("ShaderNodeTexCoord", "Texture Coordinate", attribute_values={"location": [-1025.0469, 479.591]})
         node("MpfbBodyConstants", "BodyConstants", label="Body Constants", attribute_values={"color": [0.35, 0.35, 0.0], "height": 100.0, "location": [-1024.2196, 224.0364], "use_custom_color": True, "width": 140.0})
         node("MpfbSkinColorVariation", "ColorVariation", label="Color Variation", attribute_values={"color": [0.35, 0.0, 0.35], "height": 100.0, "location": [269.8811, 376.1695], "use_custom_color": True, "width": 236.5711}, input_socket_values={"Color": [1.0, 0.6899, 0.4647, 1.0], "ColorVariationStrength": 0.3, "ColorVariationScaleMultiplier": 70.0})

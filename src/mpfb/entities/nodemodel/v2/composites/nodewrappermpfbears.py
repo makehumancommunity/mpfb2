@@ -667,6 +667,7 @@ _ORIGINAL_TREE_DEF = json.loads("""
                     0.5003,
                     1.0
                 ],
+                "subsurface_method": "RANDOM_WALK_SKIN",
                 "Roughness": 0.35
             },
             "label": "Principled BSDF.001",
@@ -729,7 +730,7 @@ class _NodeWrapperMpfbEars(AbstractGroupWrapper):
         nodes["Group Output"].location = [233.8077, 683.8954]
         nodes["Group Input"].location = [-1687.5262, 336.8824]
 
-        node("ShaderNodeBsdfPrincipled", "Principled BSDF.001", attribute_values={"location": [-144.3404, 677.2473]}, input_socket_values={"Base Color": [0.8, 0.6037, 0.5003, 1.0], "Roughness": 0.35})
+        node("ShaderNodeBsdfPrincipled", "Principled BSDF.001", attribute_values={"location": [-144.3404, 677.2473], "subsurface_method": "RANDOM_WALK_SKIN"}, input_socket_values={"Base Color": [0.8, 0.6037, 0.5003, 1.0], "Roughness": 0.35})
         node("MpfbSkin", "earsskingroup", label="Skin Settings", attribute_values={"color": [0.35, 0.0, 0.35], "height": 100.0, "location": [-747.6187, 798.8463], "use_custom_color": True, "width": 400.0}, input_socket_values={"SSSAnisotropy": 0.0})
 
         link("Group Input", "Normal", "earsskingroup", "Normal")
