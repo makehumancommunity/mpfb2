@@ -232,7 +232,7 @@ class AbstractGroupWrapper(AbstractNodeWrapper):
 
         return node_tree
 
-    def pre_create_instance(self, node_tree=None):
+    def pre_create_instance(self, node_tree=None, mhmat=None):
         _LOG.enter()
         if not self.node_class_name in bpy.data.node_groups:
             _LOG.debug("Setting up shader node group", self.node_class_name)
@@ -248,8 +248,12 @@ class AbstractGroupWrapper(AbstractNodeWrapper):
             nodes["Group Output"].label = ""
             nodes["Group Output"].use_custom_color = True
             nodes["Group Output"].color = [0.0, 0.35, 0.35]
-            self.setup_group_nodes(group_tree, nodes)
+            if mhmat:
+                self.setup_group_nodes(group_tree, nodes, mhmat=mhmat)
+            else:
+                # Ugly workaround... most nodes do not know about the mhmat parameter.
+                self.setup_group_nodes(group_tree, nodes)
 
-    def setup_group_nodes(self, node_tree, nodes):
+    def setup_group_nodes(self, node_tree, nodes, mhmat=None):
         _LOG.enter()
         raise NotImplementedError(self.node_class_name + " did not override the setup_group_nodes() method")

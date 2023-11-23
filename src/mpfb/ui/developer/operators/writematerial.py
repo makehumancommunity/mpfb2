@@ -41,6 +41,7 @@ class MPFB_OT_Write_Material_Operator(bpy.types.Operator):
             return {'FINISHED'}
 
         output_name = DEVELOPER_PROPERTIES.get_value("output_material_name", entity_reference=scene)
+        mhmat_based = DEVELOPER_PROPERTIES.get_value("mhmat_based", entity_reference=scene)
 
         if not output_name or not output_name.strip():
             self.report({'ERROR'}, "Must provide valid name")
@@ -63,17 +64,45 @@ class MPFB_OT_Write_Material_Operator(bpy.types.Operator):
             pyfile.write("class _NodeWrapper" + output_name + "(AbstractMaterialWrapper):\n")
             pyfile.write("    def __init__(self):\n")
             pyfile.write("        AbstractMaterialWrapper.__init__(self, \"" + output_name + "\", _ORIGINAL_TREE_DEF)\n\n")
-            pyfile.write("    def setup_group_nodes(self, node_tree, nodes):\n\n")
-            pyfile.write("        def node(node_class_name, name, label=None, input_socket_values=None, attribute_values=None, output_socket_values=None):\n")
-            pyfile.write("            nodes[name] = AbstractMaterialWrapper.node(node_class_name, node_tree, name, label=label, input_socket_values=input_socket_values, attribute_values=attribute_values, output_socket_values=output_socket_values)\n\n")
-            pyfile.write("        def link(from_node, from_socket, to_node, to_socket):\n")
-            pyfile.write("            AbstractMaterialWrapper.create_link(node_tree, nodes[from_node], from_socket, nodes[to_node], to_socket)\n\n")
+            if mhmat_based:
+                pyfile.write("    def setup_group_nodes(self, node_tree, nodes, mhmat=None):\n\n")
+                pyfile.write("        def node(node_class_name, name, label=None, input_socket_values=None, attribute_values=None, output_socket_values=None, mhmat_key=None):\n")
+                pyfile.write("            if not mhmat_key:\n")
+                pyfile.write("                nodes[name] = AbstractMaterialWrapper.node(node_class_name, node_tree, name, label=label, input_socket_values=input_socket_values, attribute_values=attribute_values, output_socket_values=output_socket_values)\n")
+                pyfile.write("            if mhmat_key and self.mhmat.get_value(mhmat_key):\n")
+                pyfile.write("                nodes[name] = AbstractMaterialWrapper.node(node_class_name, node_tree, name, label=label, input_socket_values=input_socket_values, attribute_values=attribute_values, output_socket_values=output_socket_values)\n")
+                pyfile.write("                if \"Texture\" in mhmat_key:\n")
+                pyfile.write("                    self.assign_mhmat_image(nodes[name], mhmat_key, mhmat)\n\n")
+                pyfile.write("        def link(from_node, from_socket, to_node, to_socket, mhmat_key=None):\n")
+                pyfile.write("            if not mhmat_key:\n")
+                pyfile.write("                AbstractMaterialWrapper.create_link(node_tree, nodes[from_node], from_socket, nodes[to_node], to_socket)\n\n")
+                pyfile.write("            if mhmat_key and self.mhmat.get_value(mhmat_key):\n")
+                pyfile.write("                AbstractMaterialWrapper.create_link(node_tree, nodes[from_node], from_socket, nodes[to_node], to_socket)\n\n")
+            else:
+                pyfile.write("    def setup_group_nodes(self, node_tree, nodes, mhmat=None):\n\n")
+                pyfile.write("        def node(node_class_name, name, label=None, input_socket_values=None, attribute_values=None, output_socket_values=None):\n")
+                pyfile.write("            nodes[name] = AbstractMaterialWrapper.node(node_class_name, node_tree, name, label=label, input_socket_values=input_socket_values, attribute_values=attribute_values, output_socket_values=output_socket_values)\n\n")
+                pyfile.write("        def link(from_node, from_socket, to_node, to_socket):\n")
+                pyfile.write("            AbstractMaterialWrapper.create_link(node_tree, nodes[from_node], from_socket, nodes[to_node], to_socket)\n\n")
             for node in tree_def["nodes"]:
                 if node["name"] == "Material Output":
                     pyfile.write("        nodes[\"Material Output\"].location = " + str(node["attribute_values"]["location"]) + "\n")
             pyfile.write("\n")
+            principled = None
+            #===================================================================
+            # if mhmat_based:
+            #     pyfile.write("        if mhmat:\n")
+            #     from mpfb.entities.material.mhmatkeys import MHMAT_KEYS
+            #     for key in MHMAT_KEYS:
+            #         if "Texture" in key.key_name:
+            #             key_name = str(key.key_name).capitalize()
+            #             pyfile.write("            has" + key_name + " = mhmat.get_value(\"" + key.key_name + "\") is not None\n")
+            #     pyfile.write("\n")
+            #===================================================================
             for node in tree_def["nodes"]:
                 if node["class"] not in ["NodeGroupOutput", "NodeGroupInput", "ShaderNodeOutputMaterial"]:
+                    if node["class"] == "ShaderNodeBsdfPrincipled":
+                        principled = node["name"]
                     pyfile.write("        node(\"" + node["class"] + "\", \"" + node["name"] + "\"")
                     if node["label"] and node["label"] != node["name"]:
                         pyfile.write(", label=\"" + node["label"] + "\"")
@@ -83,6 +112,8 @@ class MPFB_OT_Write_Material_Operator(bpy.types.Operator):
                         pyfile.write(", input_socket_values=" + json.dumps(node["input_socket_values"]))
                     if node["output_socket_values"] and len(node["output_socket_values"].keys()) > 0:
                         pyfile.write(", output_socket_values=" + json.dumps(node["output_socket_values"]))
+                    if mhmat_based:
+                        pyfile.write(", mhmat_key=\"\"")
                     pyfile.write(")\n")
             pyfile.write("\n")
             for link in tree_def["links"]:
@@ -98,7 +129,10 @@ class MPFB_OT_Write_Material_Operator(bpy.types.Operator):
                     pyfile.write("\"" + link["from_node"] + "\", ")
                     pyfile.write("\"" + link["from_socket"] + "\", ")
                     pyfile.write("\"" + link["to_node"] + "\", ")
-                    pyfile.write("\"" + link["to_socket"] + "\")\n")
+                    pyfile.write("\"" + link["to_socket"] + "\"")
+                    if mhmat_based:
+                        pyfile.write(", mhmat_key=\"\"")
+                    pyfile.write(")\n")
             for link in tree_def["links"]:
                 if link["to_node"] == "Group Output":
                     pyfile.write("        link(")
@@ -107,6 +141,15 @@ class MPFB_OT_Write_Material_Operator(bpy.types.Operator):
                     pyfile.write("\"" + link["to_node"] + "\", ")
                     pyfile.write("\"" + link["to_socket"] + "\")\n")
 
+            if principled and mhmat_based:
+                pyfile.write("\n        principled = nodes[\"" + principled + "\"]\n");
+                pyfile.write("        if mhmat:\n")
+                pyfile.write("            diffuse_color = mhmat.get_value(\"diffuseColor\")\n")
+                pyfile.write("            if diffuse_color:\n")
+                pyfile.write("                if len(diffuse_color) < 4:\n")
+                pyfile.write("                    diffuse_color.append(1.0)\n")
+                pyfile.write("                principled.inputs[0].default_value = diffuse_color\n")
+
             pyfile.write("\n" + shorten_name("NodeWrapper" + output_name) + " = _NodeWrapper" + output_name+ "()\n")
 
         with open(v2test, "w") as pyfile:
@@ -114,15 +157,28 @@ class MPFB_OT_Write_Material_Operator(bpy.types.Operator):
             pyfile.write("from pytest import approx\n")
             pyfile.write("from mpfb.services.objectservice import ObjectService\n")
             pyfile.write("from mpfb.services.nodeservice import NodeService\n")
+            if mhmat_based:
+                pyfile.write("from mpfb.services.locationservice import LocationService\n")
+                pyfile.write("from mpfb.entities.material.mhmaterial import MhMaterial\n")
             pyfile.write("from mpfb.entities.nodemodel.v2.materials.nodewrapper" + output_name.lower() + " import NodeWrapper" + output_name + "\n\n")
             pyfile.write("def test_composite_is_available():\n")
             pyfile.write("    assert NodeWrapper" + output_name + "\n\n")
             pyfile.write("def test_composite_can_create_instance():\n")
             pyfile.write("    node_tree_name = ObjectService.random_name()\n")
             pyfile.write("    node_tree = NodeService.create_node_tree(node_tree_name)\n")
-            pyfile.write("    NodeWrapper" + output_name + ".create_instance(node_tree)\n")
-            for node in tree_def["nodes"]:
-                pyfile.write("    assert \"" + node["name"] + "\" in node_tree.nodes\n")
+            if mhmat_based:
+                pyfile.write("    td = LocationService.get_mpfb_test(\"testdata\")\n")
+                pyfile.write("    matfile = os.path.join(td, \"materials\", \"almost_all_textures.mhmat\")\n")
+                pyfile.write("    assert os.path.exists(matfile)\n")
+                pyfile.write("    mhmat = MhMaterial()\n")
+                pyfile.write("    assert mhmat\n")
+                pyfile.write("    mhmat.populate_from_mhmat(matfile)\n")
+                pyfile.write("    NodeWrapper" + output_name + ".create_instance(node_tree, mhmat=mhmat)\n")
+            else:
+                pyfile.write("    NodeWrapper" + output_name + ".create_instance(node_tree)\n")
+                for node in tree_def["nodes"]:
+                    pyfile.write("    assert \"" + node["name"] + "\" in node_tree.nodes\n")
+
             pyfile.write("    has_link_to_output = False\n")
             pyfile.write("    for link in node_tree.links:\n")
             pyfile.write("        if link.to_node.name == \"Material Output\":\n")
@@ -133,8 +189,12 @@ class MPFB_OT_Write_Material_Operator(bpy.types.Operator):
             pyfile.write("def test_composite_validate_tree():\n")
             pyfile.write("    node_tree_name = ObjectService.random_name()\n")
             pyfile.write("    node_tree = NodeService.create_node_tree(node_tree_name)\n")
-            pyfile.write("    NodeWrapper" + output_name + ".create_instance(node_tree)\n")
-            pyfile.write("    assert NodeWrapper" + output_name + ".validate_tree_against_original_def(fail_hard=True, node_tree=node_tree)\n")
+            if mhmat_based:
+                pyfile.write("    NodeWrapper" + output_name + ".create_instance(node_tree, mhmat=None)\n")
+                pyfile.write("    assert NodeWrapper" + output_name + ".validate_tree_against_original_def(fail_hard=False, node_tree=node_tree)\n")
+            else:
+                pyfile.write("    NodeWrapper" + output_name + ".create_instance(node_tree)\n")
+                pyfile.write("    assert NodeWrapper" + output_name + ".validate_tree_against_original_def(fail_hard=True, node_tree=node_tree)\n")
             pyfile.write("    NodeService.destroy_node_tree(node_tree)\n")
 
         return {'FINISHED'}
