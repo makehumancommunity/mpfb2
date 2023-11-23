@@ -18,12 +18,16 @@ class AbstractMaterialWrapper(AbstractGroupWrapper):
     def assign_mhmat_image(self, node, mhmat_key, mhmat):
         if not mhmat:
             return
+        _LOG.debug("Assigning material image for " + mhmat_key)
 
     def ensure_exists(self):
         pass
 
     def create_instance(self, node_tree, name=None, label=None, input_socket_values=None, attribute_values=None, output_socket_values=None, mhmat=None):
-        self.pre_create_instance(node_tree)
+        if mhmat:
+            self.pre_create_instance(node_tree, mhmat=mhmat)
+        else:
+            self.pre_create_instance(node_tree)
         return None
 
     def pre_create_instance(self, node_tree=None, mhmat=None):
@@ -41,4 +45,7 @@ class AbstractMaterialWrapper(AbstractGroupWrapper):
         if not "Material Output" in nodes:
             nodes["Material Output"] = node_tree.nodes.new("ShaderNodeOutputMaterial")
             nodes["Material Output"].name = "Material Output"
-        self.setup_group_nodes(node_tree, nodes)
+        if mhmat:
+            self.setup_group_nodes(node_tree, nodes, mhmat=mhmat)
+        else:
+            self.setup_group_nodes(node_tree, nodes)

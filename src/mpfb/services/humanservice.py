@@ -12,6 +12,7 @@ from mpfb.services.nodeservice import NodeService
 from mpfb.entities.clothes.mhclo import Mhclo
 from mpfb.entities.rig import Rig
 from mpfb.entities.material.makeskinmaterial import MakeSkinMaterial
+from mpfb.entities.material.mhmaterial import MhMaterial
 from mpfb.entities.material.enhancedskinmaterial import EnhancedSkinMaterial
 from mpfb.services.materialservice import MaterialService
 from mpfb.services.locationservice import LocationService
@@ -563,6 +564,14 @@ class HumanService:
             makeskin_material.populate_from_mhmat(mhmat_file)
             blender_material = MaterialService.create_empty_material(name, basemesh)
             makeskin_material.apply_node_tree(blender_material)
+
+        if skin_type == "GAMEENGINE":
+            _LOG.warn("Creating game engine skin material")
+            from mpfb.entities.nodemodel.v2.materials.nodewrappergameengine import NodeWrapperGameEngine
+            blender_material = MaterialService.create_empty_material(name, basemesh)
+            mhmat = MhMaterial()
+            mhmat.populate_from_mhmat(mhmat_file)
+            NodeWrapperGameEngine.create_instance(blender_material.node_tree, mhmat=mhmat)
 
         if skin_type == "LAYERED":
             blender_material = MaterialService.create_v2_skin_material(name, basemesh, mhmat_file)
