@@ -49,7 +49,6 @@ class MPFB_PT_Asset_Settings_Panel(Abstract_Panel):
             "skin_type",
             "clothes_type",
             "eyes_type",
-            "procedural_eyes",
             "material_instances"
             ])
 
