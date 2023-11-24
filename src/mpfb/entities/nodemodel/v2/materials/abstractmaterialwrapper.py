@@ -32,6 +32,23 @@ class AbstractMaterialWrapper(AbstractGroupWrapper):
             colorspace = "Non-Color"
         NodeService.set_image_in_image_node(node, file_name, colorspace=colorspace)
 
+    def update_principled_sockets_from_mhmat(self, principled, mhmat):
+        if not principled or not mhmat:
+            return
+        diffuse_color = mhmat.get_value("diffuseColor")
+        if diffuse_color:
+            if len(diffuse_color) < 4:
+                diffuse_color.append(1.0)
+            principled.inputs[0].default_value = diffuse_color
+        roughness = mhmat.get_value("roughness")
+        shininess = mhmat.get_value("shininess")
+
+        if shininess and not roughness:
+            roughness = 1.0 - shininess
+
+        if roughness:
+            principled.inputs["Roughness"].default_value = roughness
+
     def ensure_exists(self):
         pass
 

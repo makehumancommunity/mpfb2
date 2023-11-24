@@ -143,12 +143,8 @@ class MPFB_OT_Write_Material_Operator(bpy.types.Operator):
 
             if principled and mhmat_based:
                 pyfile.write("\n        principled = nodes[\"" + principled + "\"]\n");
-                pyfile.write("        if mhmat:\n")
-                pyfile.write("            diffuse_color = mhmat.get_value(\"diffuseColor\")\n")
-                pyfile.write("            if diffuse_color:\n")
-                pyfile.write("                if len(diffuse_color) < 4:\n")
-                pyfile.write("                    diffuse_color.append(1.0)\n")
-                pyfile.write("                principled.inputs[0].default_value = diffuse_color\n")
+                pyfile.write("        self.update_principled_sockets_from_mhmat(principled, mhmat)\n")
+
 
             pyfile.write("\n" + shorten_name("NodeWrapper" + output_name) + " = _NodeWrapper" + output_name+ "()\n")
 

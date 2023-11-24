@@ -159,11 +159,7 @@ class _NodeWrapperGameEngine(AbstractMaterialWrapper):
         link("Normal Map", "Normal", "Principled BSDF", "Normal", mhmat_key="normalmapTexture")
 
         principled = nodes["Principled BSDF"]
-        if mhmat:
-            diffuse_color = mhmat.get_value("diffuseColor")
-            if diffuse_color:
-                if len(diffuse_color) < 4:
-                    diffuse_color.append(1.0)
-                principled.inputs[0].default_value = diffuse_color
+        self.update_principled_sockets_from_mhmat(principled, mhmat)
+
 
 NodeWrapperGameEngine = _NodeWrapperGameEngine()
