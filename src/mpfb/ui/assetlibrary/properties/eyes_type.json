@@ -1,0 +1,12 @@
+{
+    "type": "enum",
+    "name": "eyes_type",
+    "description": "What type of eyes material should be loaded?",
+    "label": "Eyes type",
+    "default": "PROCEDURAL_EYES",
+    "items": [
+        ["GAMEENGINE", "GameEngine (PBR)", "Use a simplistic PBR-style material for the eyes, without any procedural aspects at all. This is geared towards export to external applications.", 1],
+        ["MAKESKIN", "MakeSkin (PBR)", "Use a PBR-style material for the eyes, relying mostly on image textures and with few procedural aspects. This supports more of the general PBR model than the GameEngine material.", 2],
+        ["PROCEDURAL_EYES", "Procedural", "Use a procedural material, which allows dynamic color and feature adjustments", 3]
+    ]
+}

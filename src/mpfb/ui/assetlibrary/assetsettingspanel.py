@@ -42,19 +42,15 @@ class MPFB_PT_Asset_Settings_Panel(Abstract_Panel):
             "makeclothes_metadata"
             ])
 
-    def _draw_skin(self, scene, layout):
+    def _draw_materials(self, scene, layout):
         box = layout.box()
-        box.label(text="Skin")
+        box.label(text="Materials")
         ASSET_SETTINGS_PROPERTIES.draw_properties(scene, box, [
             "skin_type",
+            "clothes_type",
+            "eyes_type",
+            "procedural_eyes",
             "material_instances"
-            ])
-
-    def _draw_eyes(self, scene, layout):
-        box = layout.box()
-        box.label(text="Eyes")
-        ASSET_SETTINGS_PROPERTIES.draw_properties(scene, box, [
-            "procedural_eyes"
             ])
 
     def _second_root(self, scene, layout):
@@ -72,8 +68,7 @@ class MPFB_PT_Asset_Settings_Panel(Abstract_Panel):
         _LOG.enter()
         layout = self.layout
         scene = context.scene
-        self._draw_skin(scene, layout)
-        self._draw_eyes(scene, layout)
+        self._draw_materials(scene, layout)
         self._draw_mhclo(scene, layout)
         self._assets(scene, layout)
         self._second_root(scene, layout)

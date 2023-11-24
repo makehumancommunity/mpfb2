@@ -1,0 +1,11 @@
+{
+    "type": "enum",
+    "name": "clothes_type",
+    "description": "What type of material should be used for clothes and hair?",
+    "label": "Clothes type",
+    "default": "MAKESKIN",
+    "items": [
+        ["GAMEENGINE", "GameEngine (PBR)", "Use a simplistic PBR-style material, without any procedural aspects at all. This is geared towards export to external applications.", 1],
+        ["MAKESKIN", "MakeSkin (PBR)", "Use a PBR-style material, relying mostly on image textures and with few procedural aspects. This supports more of the general PBR model than the GameEngine material.", 2]
+    ]
+}

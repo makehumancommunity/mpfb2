@@ -44,6 +44,9 @@ class AbstractMaterialWrapper(AbstractGroupWrapper):
         shininess = mhmat.get_value("shininess")
 
         if shininess and not roughness:
+            if shininess > 0.92:
+                # Assume bad legacy shininess
+                shininess = 0.3
             roughness = 1.0 - shininess
 
         if roughness:

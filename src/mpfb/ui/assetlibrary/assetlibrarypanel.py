@@ -103,10 +103,9 @@ class _Abstract_Asset_Library_Panel(bpy.types.Panel):
                     operator = box.operator("mpfb.load_library_clothes")
             if self.asset_type == "proxy":
                 operator = box.operator("mpfb.load_library_proxy")
-            if self.asset_type == "mhmat":
-                if self.skin_overrides:
-                    operator = box.operator("mpfb.load_library_skin")
-            if not operator is None:
+            if self.asset_type == "mhmat" and self.skin_overrides:
+                operator = box.operator("mpfb.load_library_skin")
+            if operator is not None:
                 if not is_equipped:
                     operator.filepath = asset["full_path"]
                 else:
@@ -114,16 +113,14 @@ class _Abstract_Asset_Library_Panel(bpy.types.Panel):
                 if hasattr(operator, "object_type") and self.object_type:
                     operator.object_type = self.object_type
                 if hasattr(operator, "material_type"):
-                    procedural_eyes = ASSET_SETTINGS_PROPERTIES.get_value("procedural_eyes", entity_reference=scene)
-                    _LOG.dump("Eye settings, eye_overrides, procedural_eyes", (self.eye_overrides, procedural_eyes))
-                    if self.eye_overrides and procedural_eyes:
-                        operator.material_type = "PROCEDURAL_EYES"
+                    operator.material_type = "MAKESKIN"
+                    if self.eye_overrides:
+                        operator.material_type  = ASSET_SETTINGS_PROPERTIES.get_value("eyes_type", entity_reference=scene)
                     else:
-                        operator.material_type = "MAKESKIN"
+                        operator.material_type  = ASSET_SETTINGS_PROPERTIES.get_value("clothes_type", entity_reference=scene)
                     _LOG.debug("Operator material type is now", operator.material_type)
                 else:
                     _LOG.debug("Operator does not have a material type")
-
 
     def draw(self, context):
         _LOG.enter()
