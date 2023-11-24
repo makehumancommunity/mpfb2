@@ -16,9 +16,21 @@ class AbstractMaterialWrapper(AbstractGroupWrapper):
         self.tree_def = tree_def
 
     def assign_mhmat_image(self, node, mhmat_key, mhmat):
-        if not mhmat:
+        if not mhmat or not node or not mhmat_key:
             return
-        _LOG.debug("Assigning material image for " + mhmat_key)
+        file_name = mhmat.get_value(mhmat_key)
+        _LOG.debug("Assigning material image", (node, node.__class__.__name__, mhmat_key, file_name))
+        if "image" not in str(node.__class__.__name__).lower():
+            _LOG.debug("Not an image node", (node, node.__class__.__name__))
+            return
+        if not file_name or not str(file_name).strip():
+            _LOG.debug("No file set for mhmat key", mhmat_key)
+            return
+        _LOG.debug("About to assign material image", (mhmat_key, file_name))
+        colorspace = "sRGB"
+        if "normal" in mhmat_key:
+            colorspace = "Non-Color"
+        NodeService.set_image_in_image_node(node, file_name, colorspace=colorspace)
 
     def ensure_exists(self):
         pass

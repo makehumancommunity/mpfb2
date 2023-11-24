@@ -408,32 +408,28 @@ class NodeService:
             node_tree.nodes.remove(node)
 
     @staticmethod
-    def update_tex_image_with_settings_from_dict(node, node_info):
-        """Set file name and colorspace information in an image texture node based on
-        information in the provided dict. This will also load the file as an
-        image object if this had not already been done."""
-
-        file_name = os.path.basename(node_info["filename"])
-        if not str(file_name).strip():
+    def set_image_in_image_node(node, file_name, colorspace=None):
+        """Update an existing image node with the provided filename and colorspace."""
+        if not file_name or not str(file_name).strip():
             _LOG.error("Trying to load image with null/empty filename")
-            _LOG.error("node_info", node_info)
             return
-        if file_name in bpy.data.images:
-            _LOG.debug("image existed:", node_info["filename"])
-            image = bpy.data.images[file_name]
+        bn = os.path.basename(file_name)
+        if bn in bpy.data.images:
+            _LOG.debug("image existed:", bn)
+            image = bpy.data.images[bn]
         else:
-            _LOG.debug("Will attempt to load file", node_info["filename"])
-            if os.path.exists(node_info["filename"]):
-                image = bpy.data.images.load(node_info["filename"])
+            _LOG.debug("Will attempt to load file", file_name)
+            if os.path.exists(file_name):
+                image = bpy.data.images.load(file_name)
                 _LOG.debug("Image after loading file", image)
             else:
-                _LOG.error("File does not exist:", node_info["filename"])
+                _LOG.error("File does not exist:", file_name)
                 return
-        if "colorspace" in node_info:
+        if colorspace:
             try:
-                image.colorspace_settings.name = node_info["colorspace"]
+                image.colorspace_settings.name = colorspace
             except TypeError as e:
-                _LOG.error("Tried to set color space \"" + node_info["colorspace"] + "\" but blender says", e)
+                _LOG.error("Tried to set color space \"" + colorspace + "\" but blender says", e)
                 if image.colorspace_settings:
                     _LOG.error("Image colorspace defaults to", image.colorspace_settings.name)
                 else:
@@ -441,6 +437,21 @@ class NodeService:
         else:
             image.colorspace_settings.name = "sRGB"
         node.image = image
+
+    @staticmethod
+    def update_tex_image_with_settings_from_dict(node, node_info):
+        """Set file name and colorspace information in an image texture node based on
+        information in the provided dict. This will also load the file as an
+        image object if this had not already been done."""
+
+        file_name = node_info["filename"]
+        colorspace = None
+
+        if "colorspace" in node_info:
+            colorspace = node_info["colorspace"]
+
+        NodeService.set_image_in_image_node(node, file_name, colorspace)
+
 
     @staticmethod
     def update_node_with_settings_from_dict(node, node_info):
