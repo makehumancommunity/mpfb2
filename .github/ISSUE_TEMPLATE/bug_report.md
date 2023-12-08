@@ -12,7 +12,7 @@ A clear and concise description of what the bug is.
 
 **Checklist**
 - If you are using blender 4, did you use the blender 4 specific build?
-- If you recently upgraded mpfb2, did you read http://static.makehumancommunity.org/mpfb/faq/ensure\_correct\_version.html
+- If you recently upgraded mpfb2, did you read http://static.makehumancommunity.org/mpfb/faq/ensure_correct_version.html
 
 **Screenshots / logs**
 - If applicable, add screenshots to help explain your problem.
