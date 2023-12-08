@@ -547,10 +547,9 @@ class ObjectService:
         if not os.path.exists(filepath):
             raise IOError('File does not exist: ' + filepath)
 
-        if SystemService.is_blender_version_at_least([3, 6, 0]):
-            bpy.ops.wm.obj_import(filepath=filepath, use_split_objects=False, use_split_groups=False)
-        else:
-            bpy.ops.import_scene.obj(filepath=filepath, use_split_objects=False, use_split_groups=False)
+        bpy.ops.wm.obj_import(filepath=filepath, use_split_objects=False, use_split_groups=False)
+
+        # previous blender operation: bpy.ops.import_scene.obj(filepath=filepath, use_split_objects=False, use_split_groups=False)
 
         # import_scene rotated object 90 degrees
         bpy.ops.object.transform_apply(location=False, rotation=True, scale=False)

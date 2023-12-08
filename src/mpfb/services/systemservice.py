@@ -44,14 +44,8 @@ class SystemService:
     @staticmethod
     def check_for_obj_importer():
         """Check if the Blender OBJ importer is installed."""
-        if SystemService.is_blender_version_at_least([3,6,0]):
-            # Blender 3.6.0+ has a native obj importer, but check anyway just to be sure
-            if hasattr(bpy.ops.wm, "obj_import"):
-                return True
-        if not hasattr(bpy.ops.import_scene, "obj"):
-            return False
-        (loaded_default, loaded_state) = addon_utils.check('io_scene_obj') # pylint: disable=W0612
-        return loaded_state
+        _LOG.warn("Doing superfluous check for Blender OBJ importer")
+        return True
 
     @staticmethod
     def check_for_rigify():
