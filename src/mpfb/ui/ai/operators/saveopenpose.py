@@ -10,11 +10,7 @@ from bpy_extras.io_utils import ExportHelper
 from bpy_extras.object_utils import world_to_camera_view
 from ._openposeconstants import COCO
 
-from mpfb.ui.ai.aipanel import AI_PROPERTIES
-
 _LOG = LogService.get_logger("ai.operators.saveopenpose")
-_LOG.set_level(LogService.DEBUG)
-
 
 class MPFB_OT_Save_Openpose_Operator(bpy.types.Operator, ExportHelper):
     """Save pose as openpose json"""

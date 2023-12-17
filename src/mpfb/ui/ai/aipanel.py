@@ -9,10 +9,6 @@ import bpy, os
 
 _LOG = LogService.get_logger("ui.aipanel")
 
-_LOC = os.path.dirname(__file__)
-AI_PROPERTIES_DIR = os.path.join(_LOC, "properties")
-AI_PROPERTIES = SceneConfigSet.from_definitions_in_json_directory(AI_PROPERTIES_DIR, prefix="AIP_")
-
 class MPFB_PT_Ai_Panel(Abstract_Panel):
     """UI for various AI-related functions."""
     bl_label = "AI"
@@ -22,7 +18,6 @@ class MPFB_PT_Ai_Panel(Abstract_Panel):
 
     def _openpose(self, scene, layout):
         box = self._create_box(layout, "OpenPose")
-        AI_PROPERTIES.draw_properties(scene, box, ["zoom"])
         box.operator("mpfb.save_openpose")
 
     def draw(self, context):
