@@ -49,6 +49,7 @@ from mpfb.ui.poseops import *
 from mpfb.ui.sculpt import *
 from mpfb.ui.matops import *
 from mpfb.ui.boneops import *
+from mpfb.ui.ai import *
 
 # System
 from mpfb.ui.webresources import *
@@ -72,5 +73,6 @@ __all__ = [
     "MPFB_PT_Load_Clothes_Panel",
     "MPFB_PT_MakeClothes_Panel",
     "MPFB_PT_Operations_Panel",
-    "MPFB_PT_Devloper_Panel"
+    "MPFB_PT_Devloper_Panel",
+    "MPFB_PT_Ai_Panel"
     ]

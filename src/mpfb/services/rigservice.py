@@ -169,6 +169,17 @@ class RigService:
                 bpy.ops.object.modifier_move_up({'object': object}, modifier=modifier.name)
 
     @staticmethod
+    def get_world_space_location_of_pose_bone(bone_name, armature_object):
+        """Find the head and tail of a pose bone and return their locations in world space."""
+        bone = RigService.find_pose_bone_by_name(bone_name, armature_object)
+
+        loc = dict()
+        loc["head"] = armature_object.matrix_world @ bone.tail
+        loc["tail"] = armature_object.matrix_world @ bone.head
+
+        return loc
+
+    @staticmethod
     def find_pose_bone_by_name(name, armature_object):
         """Find a bone with the given name of the armature object, in pose mode."""
         return armature_object.pose.bones.get(name)
