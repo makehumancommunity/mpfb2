@@ -1,0 +1,7 @@
+{
+    "type": "boolean",
+    "name": "use3d",
+    "description": "Populate 3d coordinate structures. Use only if you know what you are doing, most controls will not understand 3d.",
+    "label": "3D coordinates",
+    "default": false
+}

@@ -1,0 +1,7 @@
+{
+    "type": "int",
+    "name": "resx",
+    "description": "Width of the target openpose canvas. This should be equal to the witdh of the image you intend to generate later on.",
+    "label": "Target width",
+    "default": 512
+}

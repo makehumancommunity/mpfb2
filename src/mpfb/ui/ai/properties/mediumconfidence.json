@@ -1,0 +1,9 @@
+{
+    "type": "float",
+    "name": "mediumconfidence",
+    "description": "Confidence level to use for so-so certain mappings",
+    "label": "Medium confidence",
+    "default": 0.4,
+    "max": 1.0,
+    "min": 0.01
+}

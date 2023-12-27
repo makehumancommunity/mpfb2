@@ -1,0 +1,9 @@
+{
+    "type": "float",
+    "name": "highconfidence",
+    "description": "Confidence level to use for certain mappings",
+    "label": "High confidence",
+    "default": 0.8,
+    "max": 1.0,
+    "min": 0.01
+}

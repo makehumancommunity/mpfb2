@@ -1,0 +1,7 @@
+{
+    "type": "boolean",
+    "name": "face",
+    "description": "Also populate coordinated for face",
+    "label": "Face",
+    "default": false
+}

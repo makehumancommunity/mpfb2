@@ -1,0 +1,7 @@
+{
+    "type": "boolean",
+    "name": "use2d",
+    "description": "Populate 2d coordinate structures.",
+    "label": "2D coordinates",
+    "default": true
+}

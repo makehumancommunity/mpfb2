@@ -1,0 +1,11 @@
+{
+    "type": "enum",
+    "name": "bodyformat",
+    "description": "Which format to use for the body mappings. Unless you know what you're doing, COCO is the safest choice.",
+    "label": "Body format",
+    "default": "COCO",
+    "items": [
+        ["COCO", "COCO", "18 point body mapping, usable in for example automatic1111", 0],
+        ["BODY_25", "BODY_25", "25 point body mapping", 1]
+    ]
+}

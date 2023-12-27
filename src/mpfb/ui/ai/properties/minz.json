@@ -1,0 +1,7 @@
+{
+    "type": "float",
+    "name": "maxz",
+    "description": "Maximum Z for the bounding box",
+    "label": "Max Z",
+    "default": 2.0
+}
