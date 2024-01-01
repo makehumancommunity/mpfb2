@@ -85,7 +85,8 @@ class MPFB_OT_Delete_Helpers_Operator(bpy.types.Operator):
 
         self.report({'INFO'}, "Helper geometry deleted")
 
-        TargetService.reapply_all_details(obj)
+        if TargetService.has_any_shapekey(obj):
+            TargetService.reapply_all_details(obj)
 
         obj.select_set(True)
         ObjectService.activate_blender_object(obj)
