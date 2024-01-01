@@ -439,6 +439,14 @@ class TargetService:
         return stack
 
     @staticmethod
+    def has_any_shapekey(blender_object):
+        if not blender_object or blender_object.type != "MESH":
+            return False
+        if not blender_object.data.shape_keys or not blender_object.data.shape_keys.key_blocks:
+            return False
+        return len(blender_object.data.shape_keys.key_blocks) > 0
+
+    @staticmethod
     def has_target(blender_object, target_name, also_check_for_encoded=True):
         if blender_object is None or target_name is None or not target_name:
             _LOG.debug("Empty object or target", (blender_object, target_name))
