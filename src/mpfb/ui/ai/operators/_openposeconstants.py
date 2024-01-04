@@ -14,7 +14,7 @@ COCO = []
 COCO.append({
     "type": "vertex",
     "name": "Nose",
-    "data": 201,
+    "data": 5134,
     "confidence": _LOW_CONFIDENCE
     })
 
@@ -76,7 +76,7 @@ COCO.append({
 
 # 8
 COCO.append({
-    "type": "head",
+    "type": "tail",
     "name": "Right Hip",
     "data": "upperleg01.R",
     "confidence": _HIGH_CONFIDENCE
@@ -100,7 +100,7 @@ COCO.append({
 
 # 11
 COCO.append({
-    "type": "head",
+    "type": "tail",
     "name": "Left Hip",
     "data": "upperleg01.L",
     "confidence": _HIGH_CONFIDENCE
@@ -140,17 +140,17 @@ COCO.append({
 
 # 16
 COCO.append({
-    "type": "vertex",
+    "type": "mean",
     "name": "Right Ear",
-    "data": 5543,
+    "data": [5434, 5629],
     "confidence": _LOW_CONFIDENCE
     })
 
 # 17
 COCO.append({
-    "type": "vertex",
+    "type": "mean",
     "name": "Left Ear",
-    "data": 12142,
+    "data": [12033, 12226],
     "confidence": _LOW_CONFIDENCE
     })
 

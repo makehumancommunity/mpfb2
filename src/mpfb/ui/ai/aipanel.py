@@ -30,11 +30,11 @@ class MPFB_PT_Ai_Panel(Abstract_Panel):
     def _parts(self, scene, layout):
         box = self._create_box(layout, "OpenPose structures")
         props = [
-            "bodyformat",
+            #"bodyformat",
             "hands",
-            "face",
-            "use2d",
-            "use3d"
+            #"face",
+            #"use2d",
+            #"use3d"
             ]
         AI_PROPERTIES.draw_properties(scene, box, props)
 

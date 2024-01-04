@@ -27,10 +27,10 @@ class MPFB_OT_Save_Openpose_Operator(bpy.types.Operator, ExportHelper):
     @classmethod
     def poll(cls, context):
         _LOG.enter()
-        if context.object is None or context.object.type != 'ARMATURE':
-            return False
-        # TODO: check current mode
-        return True
+        for obj in context.selected_objects:
+            if obj.type == 'ARMATURE':
+                return True
+        return False
 
     def _as_camera_coordinate(self, scene, camera, resx, resy, keypoint):
         # Due to limitations in world_to_camera_view(), this ends up distorted. A world coordinate is
@@ -70,9 +70,18 @@ class MPFB_OT_Save_Openpose_Operator(bpy.types.Operator, ExportHelper):
             keypoint = Vector([0.0, 0.0, 0.0])
             _LOG.debug("position", position)
             if position["type"] == "vertex":
-                keypoint = bm.verts[position["data"]].co + armature_object.location
+                keypoint = armature_object.matrix_world @ bm.verts[position["data"]].co
             if position["type"] == "mean":
-                keypoint = bm.verts[position["data"][0]].co + armature_object.location
+                keypoint = [0.0, 0.0, 0.0]
+                for index in position["data"]:
+                    loc = armature_object.matrix_world @ bm.verts[index].co
+                    keypoint[0] += loc[0]
+                    keypoint[1] += loc[1]
+                    keypoint[2] += loc[2]
+                keypoint[0] /= len(position["data"])
+                keypoint[1] /= len(position["data"])
+                keypoint[2] /= len(position["data"])
+                _LOG.debug("mean", keypoint)
             if position["type"] in ("head", "tail"):
                 bone_name = position["data"]
                 loc = RigService.get_world_space_location_of_pose_bone(bone_name, armature_object)
@@ -114,16 +123,30 @@ class MPFB_OT_Save_Openpose_Operator(bpy.types.Operator, ExportHelper):
     def execute(self, context):
         _LOG.enter()
 
-        if context.object is None or context.object.type != 'ARMATURE':
-            self.report({'ERROR'}, "Must have armature as active object")
+        if context.object is None:
+            self.report({'ERROR'}, "Must have armature(s) as selected object")
             return {'FINISHED'}
 
-        armature_object = context.object
+        for armature_object in context.selected_objects:
 
-        rig_type = RigService.identify_rig(armature_object)
-        if not rig_type or not "default" in rig_type:
-            self.report({'ERROR'}, "Only default rig is supported")
-            return {'FINISHED'}
+            if armature_object.type != 'ARMATURE':
+                self.report({'ERROR'}, "Can only have armature(s) as selected object")
+                return {'FINISHED'}
+
+            rig_type = RigService.identify_rig(armature_object)
+            if not rig_type or not "default" in rig_type:
+                self.report({'ERROR'}, "Only default rig is supported")
+                return {'FINISHED'}
+
+            basemesh = ObjectService.find_object_of_type_amongst_nearest_relatives(armature_object, "Basemesh")
+            if not basemesh:
+                self.report({'ERROR'}, "Could not find a basemesh for one of the armatures")
+                return {'FINISHED'}
+
+            for modifier in basemesh.modifiers:
+                if modifier.type == "MASK" and modifier.vertex_group == "body" and modifier.invert_vertex_group:
+                    self.report({'ERROR'}, "The base mesh has a mask modifier hiding the body. Maybe unequip a proxy?")
+                    return {'FINISHED'}
 
         camera = None
         for o in bpy.context.scene.objects:
@@ -137,7 +160,7 @@ class MPFB_OT_Save_Openpose_Operator(bpy.types.Operator, ExportHelper):
 
         from mpfb.ui.ai.aipanel import AI_PROPERTIES
         hands = AI_PROPERTIES.get_value("hands", entity_reference=context.scene)
-        face = AI_PROPERTIES.get_value("face", entity_reference=context.scene)
+        #face = AI_PROPERTIES.get_value("face", entity_reference=context.scene)
         mode = AI_PROPERTIES.get_value("mode", entity_reference=context.scene)
 
         bpy.ops.object.mode_set(mode='POSE', toggle=False)
@@ -161,7 +184,9 @@ class MPFB_OT_Save_Openpose_Operator(bpy.types.Operator, ExportHelper):
             "people": []
             }
 
-        for person_id in [0]:
+        person_id = 0
+
+        for armature_object in context.selected_objects:
             basemesh = ObjectService.find_object_of_type_amongst_nearest_relatives(armature_object, "Basemesh")
             if not basemesh:
                 self.report({'ERROR'}, "Could not find a Basemesh object for one armature")
@@ -195,11 +220,15 @@ class MPFB_OT_Save_Openpose_Operator(bpy.types.Operator, ExportHelper):
             output["people"].append(person)
 
             bm.free()
+            person_id += 1
+
         _LOG.debug("output", output)
 
         with open(absolute_file_path, "w") as json_file:
             json.dump(output, json_file, indent=4, sort_keys=True)
             self.report({'INFO'}, "JSON file written to " + absolute_file_path)
+
+        bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
 
         return {'FINISHED'}
 
