@@ -62,4 +62,5 @@ class MPFB_PT_Model_Panel(bpy.types.Panel):
 ClassManager.add_class(MPFB_PT_Model_Panel)
 
 from ._macrosubpanel import MPFB_PT_Macro_Sub_Panel
+from ._measuresubpanel import MPFB_PT_Measure_Sub_Panel
 from ._modelsubpanels import *

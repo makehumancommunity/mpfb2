@@ -932,3 +932,31 @@ class TargetService:
             if not skip and shape_key.value < cutoff and TargetService.shapekey_is_target(shape_key.name):
                 blender_object.shape_key_remove(shape_key)
             skip = False
+
+    @staticmethod
+    def set_measure_target_value(basemesh, measure_target_base_name, value, delete_target_on_zero=False):
+        """Convert the real-world measurement value to something on a -1.0 to +1.0 scale and use this
+        to set the appropriate target value(s)."""
+        _LOG.trace("Enter")
+
+    @staticmethod
+    def get_measure_target_value(basemesh, measure_target_base_name):
+        """Get the appropriate target value and convert it back to a real-world measurement value."""
+        _LOG.trace("Enter")
+        stack = TargetService.get_target_stack(basemesh)
+
+        measure_target = None
+        for tinfo in stack:
+            if str(measure_target_base_name) in str(tinfo['target']).lower():
+                # Might find both -incr and -decr here, should probably exclude if it has value 0.0
+                measure_target = tinfo
+
+        if measure_target:
+            _LOG.debug("Found measure target", measure_target)
+            # Target value is now measure_target["value"].
+            #
+            # Here we would make a call that converts the slider real-world measurement value to a target value and sets it in the target stack
+            # Note that scale in target weight goes from -1.0 to +1.0, where above zero is target name + "-incr" and below zero is target name + "-decr",
+            # but we will find at least one of the sided targets with a value of 0.0 or higher.
+
+        return 0.0

@@ -270,6 +270,8 @@ _section_names = list(_sections.keys())
 _section_names.sort()
 
 for name in _section_names:
+    if name == "measure":
+        continue
     _section = _sections[name]
     _i = 0
     for _category in _section["categories"]:
