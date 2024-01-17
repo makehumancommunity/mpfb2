@@ -199,13 +199,19 @@ def _get_opposed_modifier_value(scene, blender_object, section, category, side="
     positive = category["opposites"]["positive-" + side]
     negative = category["opposites"]["negative-" + side]
 
-    if TargetService.has_target(blender_object, positive):
-        return TargetService.get_target_value(blender_object, positive)
+    if "measure-" not in positive:
+        if TargetService.has_target(blender_object, positive):
+            return TargetService.get_target_value(blender_object, positive)
 
-    if TargetService.has_target(blender_object, negative):
-        return -TargetService.get_target_value(blender_object, negative)
+        if TargetService.has_target(blender_object, negative):
+            return -TargetService.get_target_value(blender_object, negative)
 
-    return 0.0
+        return 0.0
+
+    from mpfb.ui.model.modelpanel import MODEL_PROPERTIES
+    metric = MODEL_PROPERTIES.get_value("metric", entity_reference=bpy.context.scene)
+
+    return TargetService.get_measure_target_value(blender_object, negative, metric)
 
 def _set_opposed_modifier_value(scene, blender_object, section, category, value, side="unsided"):
     """This modifier is a combination of opposing targets ("decr-incr", "in-out"...)"""
@@ -226,27 +232,32 @@ def _set_opposed_modifier_value(scene, blender_object, section, category, value,
         positive = category["opposites"]["positive-" + side]
         negative = category["opposites"]["negative-" + side]
 
-        if value < 0.0001 and TargetService.has_target(blender_object, positive):
-            TargetService.set_target_value(blender_object, positive, 0.0, delete_target_on_zero=prune)
+        is_measure = "measure-" in positive
+        if is_measure:
+            # The argument here can be negative or positive - doesn't matter as we are using base name
+            TargetService.set_measure_target_value(blender_object, negative, value, delete_target_on_zero=prune)
+        else:
+            if value < 0.0001 and TargetService.has_target(blender_object, positive):
+                TargetService.set_target_value(blender_object, positive, 0.0, delete_target_on_zero=prune)
 
-        if value > -0.0001 and TargetService.has_target(blender_object, negative):
-            TargetService.set_target_value(blender_object, negative, 0.0, delete_target_on_zero=prune)
+            if value > -0.0001 and TargetService.has_target(blender_object, negative):
+                TargetService.set_target_value(blender_object, negative, 0.0, delete_target_on_zero=prune)
 
-        if value > 0.0:
-            if not TargetService.has_target(blender_object, positive):
-                target_path = os.path.join(_TARGETS_DIR, section, positive + ".target.gz")
-                _LOG.debug("Will implicitly attempt a load of a system target", target_path)
-                TargetService.load_target(blender_object, target_path, weight=value, name=positive)
-            else:
-                TargetService.set_target_value(blender_object, positive, value, delete_target_on_zero=prune)
+            if value > 0.0:
+                if not TargetService.has_target(blender_object, positive):
+                    target_path = os.path.join(_TARGETS_DIR, section, positive + ".target.gz")
+                    _LOG.debug("Will implicitly attempt a load of a system target", target_path)
+                    TargetService.load_target(blender_object, target_path, weight=value, name=positive)
+                else:
+                    TargetService.set_target_value(blender_object, positive, value, delete_target_on_zero=prune)
 
-        if value < 0.0:
-            if not TargetService.has_target(blender_object, negative):
-                target_path = os.path.join(_TARGETS_DIR, section, negative + ".target.gz")
-                _LOG.debug("Will implicitly attempt a load of a system target", target_path)
-                TargetService.load_target(blender_object, target_path, weight=abs(value), name=negative)
-            else:
-                TargetService.set_target_value(blender_object, negative, abs(value), delete_target_on_zero=prune)
+            if value < 0.0:
+                if not TargetService.has_target(blender_object, negative):
+                    target_path = os.path.join(_TARGETS_DIR, section, negative + ".target.gz")
+                    _LOG.debug("Will implicitly attempt a load of a system target", target_path)
+                    TargetService.load_target(blender_object, target_path, weight=abs(value), name=negative)
+                else:
+                    TargetService.set_target_value(blender_object, negative, abs(value), delete_target_on_zero=prune)
 
 
 def _set_modifier_value(scene, blender_object, section, category, value, side="unsided"):
@@ -370,5 +381,3 @@ for name in _section_names:
     _LOG.debug("sub_panel", sub_panel)
 
     ClassManager.add_class(sub_panel)
-
-

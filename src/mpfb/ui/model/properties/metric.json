@@ -1,0 +1,7 @@
+{
+    "type": "boolean",
+    "name": "metric",
+    "description": "Toggle between centimeters (metric) and inches (imperial) as the measurement unit.",
+    "label": "Metric System",
+    "default": false
+}
