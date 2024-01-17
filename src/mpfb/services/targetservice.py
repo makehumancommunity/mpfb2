@@ -2,8 +2,11 @@
 
 import os, gzip, bpy, json, random, re
 from itertools import count
-
+from functools import lru_cache
+from math import dist, fabs
 from pathlib import Path
+import bmesh
+
 from mpfb.services.logservice import LogService
 from mpfb.services.assetservice import AssetService
 from mpfb.services.locationservice import LocationService
@@ -15,6 +18,7 @@ from mpfb.services.objectservice import ObjectService
 from mathutils import Vector
 
 _LOG = LogService.get_logger("services.targetservice")
+# _LOG.set_level(LogService.DEBUG)
 
 _MACLOG = LogService.get_logger("macrotargets")
 
@@ -39,7 +43,7 @@ with open(_MACRO_FILE, "r") as json_file:
     _MACRO_CONFIG = json.load(json_file)
 
 _LOADER = LogService.get_logger("target loader")
-#_LOADER.set_level(LogService.DUMP)
+# _LOADER.set_level(LogService.DUMP)
 
 # This is very annoying, but the maximum length of a shape key name is 61 characters
 # in blender. The combinations used in MH filenames tend to be longer than that.
@@ -75,6 +79,63 @@ _OPPOSITES = [
 
 _ODD_TARGET_NAMES = []
 
+_MEASURES = {
+    'measure-neck-circ': [7514,10358,7631,7496,7488,7489,7474,7475,7531,7537,7543,7549,7555,7561,7743,7722,856,1030,1051,850,844,838,832,826,820,756,755,770,769,777,929,3690,804,800,808,801,799,803,7513,7515,7521,7514],
+    'measure-neck-height': [853,854,855,856,857,858,1496,1491],
+    'measure-upperarm-circ': [8383,8393,8392,8391,8390,8394,8395,8399,10455,10516,8396,8397,8398,8388,8387,8386,10431,8385,8384,8389],
+    'measure-upperarm-length': [8274,10037],
+    'measure-lowerarm-length': [10040,10548],
+    'measure-wrist-circ': [10208,10211,10212,10216,10471,10533,10213,10214,10215,10205,10204,10203,10437,10202,10201,10206,10200,10210,10209,10208],
+    'measure-frontchest-dist': [1437,8125],
+    'measure-bust-circ': [8439,8455,8462,8446,8478,8494,8557,8510,8526,8542,10720,10601,10603,10602,10612,10611,10610,10613,10604,10605,10606,3942,3941,3940,3950,3947,3948,3949,3938,3939,3937,4065,1870,1854,1838,1885,1822,1806,1774,1790,1783,1767,1799,8471],
+    'measure-underbust-circ': [10750,10744,10724,10725,10748,10722,10640,10642,10641,10651,10650,10649,10652,10643,10644,10645,10646,10647,10648,3988,3987,3986,3985,3984,3983,3982,3992,3989,3990,3991,3980,3981,3979,4067,4098,4073,4072,4094,4100,4082,4088, 4088],
+    'measure-waist-circ': [4121,10760,10757,10777,10776,10779,10780,10778,10781,10771,10773,10772,10775,10774,10814,10834,10816,10817,10818,10819,10820,10821,4181,4180,4179,4178,4177,4176,4175,4196,4173,4131,4132,4129,4130,4128,4138,4135,4137,4136,4133,4134,4108,4113,4118,4121],
+    'measure-napetowaist-dist': [1491,4181],
+    'measure-waisttohip-dist': [4121,4341],
+    'measure-shoulder-dist': [7478,8274],
+    'measure-hips-circ': [4341,10968,10969,10971,10970,10967,10928,10927,10925,10926,10923,10924,10868,10875,10861,10862,4228,4227,4226,4242,4234,4294,4293,4296,4295,4297,4298,4342,4345,4346,4344,4343,4361,4341],
+    'measure-upperleg-height': [10970,11230],
+    'measure-thigh-circ': [11071,11080,11081,11086,11076,11077,11074,11075,11072,11073,11069,11070,11087,11085,11084,12994,11083,11082,11079,11071],
+    'measure-lowerleg-height': [11225,12820],
+    'measure-calf-circ': [11339,11336,11353,11351,11350,13008,11349,11348,11345,11337,11344,11346,11347,11352,11342,11343,11340,11341,11338,11339],
+    'measure-ankle-circ': [11460,11464,11458,11459,11419,11418,12958,12965,12960,12963,12961,12962,12964,12927,13028,12957,11463,11461,11457,11460],
+    'measure-knee-circ': [11223,11230,11232,11233,11238,11228,11229,11226,11227,11224,11225,11221,11222,11239,11237,11236,13002,11235,11234,11223],
+}
+
+_MEASURETARGETS = {
+    "arms": [
+        "lowerarm-length",
+        "upperarm-circ",
+        "upperarm-length"
+        ],
+    "hands": [
+        "wrist-circ",
+        ],
+    "legs": [
+        "calf-circ",
+        "knee-circ",
+        "lowerleg-height",
+        "thigh-circ",
+        "upperleg-height"
+        ],
+    "feet": [
+        "ankle-circ",
+        ],
+    "neck": [
+        "neck-circ",
+        "neck-height"
+        ],
+    "torso": [
+        "bust-circ",
+        "frontchest-dist",
+        "hips-circ",
+        "napetowaist-dist",
+        "shoulder-dist",
+        "underbust-circ",
+        "waist-circ",
+        "waisttohip-dist"
+        ]
+    }
 
 class TargetService:
 
@@ -561,7 +622,7 @@ class TargetService:
                 profiler.leave("load_target_gzip")
         else:
             profiler.enter("load_target_plain")
-            with open(full_path, "r") as target_file:
+            with open(full_path, "r", encoding='utf-8') as target_file:
                 target_string = target_file.read()
                 profiler.leave("load_target_plain")
 
@@ -934,29 +995,217 @@ class TargetService:
             skip = False
 
     @staticmethod
+    @lru_cache
+    def load_measure_target(full_path, *, weight=0.0, name=None):
+        """Loads a target by path and returns a dict the first time, and subsequently returns
+        a cached version of the dict."""
+        profiler = PrimitiveProfiler("TargetService")
+        profiler.enter("load_target")
+
+        if full_path is None or not full_path:
+            raise ValueError("Must specify a valid path - null or none was given")
+        if not os.path.exists(full_path):
+            raise IOError(full_path + " does not exist")
+        target_string = None
+
+        if name is None:
+            name = TargetService.filename_to_shapekey_name(full_path)
+
+        _LOADER.reset_timer()
+        if str(full_path).endswith(".gz"):
+            profiler.enter("load_target_gzip")
+            with gzip.open(full_path, "rb") as gzip_file:
+                raw_data = gzip_file.read()
+                target_string = raw_data.decode('utf-8')
+                profiler.leave("load_target_gzip")
+        else:
+            profiler.enter("load_target_plain")
+            with open(full_path, "r", encoding="utf-8") as target_file:
+                target_string = target_file.read()
+                profiler.leave("load_target_plain")
+
+        if target_string is not None:
+            info = TargetService._target_string_to_shape_key_info(target_string, name)
+
+        _LOADER.time(str(full_path) + " " + str(weight))
+        profiler.leave("load_target")
+
+        return info
+
+    @staticmethod
+    def get_extreme_measures(full_path, basemesh=None, metric=False):
+        """Calculates minimum and maximum positions and get the measures based on target"""
+        target_data = TargetService.load_measure_target(full_path, weight=0.0)
+        weight = 1.0
+
+        verts_len = 50000
+        target_name = TargetService.filename_to_shapekey_name(full_path)
+        if basemesh:
+            depsgraph = bpy.context.evaluated_depsgraph_get()
+            bm = bmesh.new()
+            bm.from_object( basemesh, depsgraph )
+            bm.verts.ensure_lookup_table()
+
+            verts_len = len(bm.verts)
+            value = TargetService.get_target_value(basemesh, target_name)
+            weight = 1.0 - value
+
+        new_positions = target_data.copy()
+        new_positions["vertices"] = []
+        for vert in target_data["vertices"]:
+            weight_values = (weight * vert[j] for j in range(1, 4))
+            weighted_vector = Vector(weight_values)
+
+            if basemesh is None or vert[0] >= verts_len:
+                new_vert = (vert[0], round(vert[1] + weighted_vector.x, 3), round(vert[2] + weighted_vector.y, 3), round(vert[3] + weighted_vector.z, 3))
+            else:
+                vco = bm.verts[vert[0]].co + weighted_vector
+                new_vert = (vert[0], round(vco.x, 3), round(vco.y, 3), round(vco.z, 3))
+
+            new_positions["vertices"].append(new_vert)
+
+        if basemesh:
+            bm.free()
+        return TargetService.get_measure(target_name[:-5], new_positions, metric)
+
+    @staticmethod
+    def get_measure(target_name, target_data, metric):
+        """Given vertex positions calculate measure in real world system"""
+        vertex_dict = {vert[0]: Vector(vert[1:]) for vert in target_data["vertices"]}
+
+        measure = 0
+        vindex1 = _MEASURES[target_name][0]
+        for vindex2 in _MEASURES[target_name][1:]:
+            vco1 = vertex_dict.get(vindex1)
+            vco2 = vertex_dict.get(vindex2)
+            if vco1 is not None and vco2 is not None:
+                measure += dist(vco1, vco2)
+            vindex1 = vindex2
+
+        if metric:
+            return 100.0 * measure
+        return 100.0 * measure * 0.393700787
+
+    @staticmethod
+    def get_current_measure(basemesh, target_name, metric=False):
+        """Given vertex positions calculate measure in real world system"""
+        depsgraph = bpy.context.evaluated_depsgraph_get()
+        bm = bmesh.new()
+        bm.from_object( basemesh, depsgraph )
+        bm.verts.ensure_lookup_table()
+
+        measure = 0.0
+        vindex1 = _MEASURES[target_name][0]
+        for vindex2 in _MEASURES[target_name][1:]:
+            vco1 = bm.verts[vindex1].co if vindex1 < 13380 else None
+            vco2 = bm.verts[vindex2].co if vindex1 < 13380 else None
+            if vco1 is not None and vco2 is not None:
+                measure += dist(vco1, vco2)
+            vindex1 = vindex2
+
+        bm.free()
+        if metric:
+            return 100.0 * measure
+        return 100.0 * measure * 0.393700787
+
+    @staticmethod
+    def find_section_by_target(value_to_find):
+        """Finds the target section"""
+        return [key for key, value_list in _MEASURETARGETS.items() if value_to_find in value_list][0]
+
+    @staticmethod
     def set_measure_target_value(basemesh, measure_target_base_name, value, delete_target_on_zero=False):
         """Convert the real-world measurement value to something on a -1.0 to +1.0 scale and use this
         to set the appropriate target value(s)."""
         _LOG.trace("Enter")
 
+        from mpfb.ui.model.modelpanel import MODEL_PROPERTIES
+        metric = MODEL_PROPERTIES.get_value("metric", entity_reference=bpy.context.scene)
+
+        base_name = measure_target_base_name[:-5] if measure_target_base_name.endswith(('-incr', '-decr')) else measure_target_base_name
+        negative, positive = [base_name + unsided for unsided in ["-decr", "-incr"]]
+
+        section = TargetService.find_section_by_target(base_name[8:]) # remove measure- from start
+        goal = float(value)
+
+        _min_value = -1.0
+        _max_value = 1.0
+
+        # Find the maximum and minimum real world values 
+        # Not being used anywhere here. However helped identify issues
+        # with the way how extremes are being calculated
+        target_paths = [
+            os.path.join(_TARGETS_DIR, section, f"{negative}.target.gz"),
+            os.path.join(_TARGETS_DIR, section, f"{positive}.target.gz")
+        ]
+        extremes = [-1.0, 1.0]
+        for index, full_path in enumerate(target_paths):
+            TargetService.load_measure_target(full_path)
+            extremes[index] = TargetService.get_extreme_measures(full_path, basemesh, metric)
+        print(extremes)
+
+        if TargetService.has_target(basemesh, positive, False):
+            current_value = TargetService.get_target_value(basemesh, positive)
+        elif TargetService.has_target(basemesh, negative, False):
+            current_value = TargetService.get_target_value(basemesh, negative)
+        else:
+            current_value = 0.0
+        measure = TargetService.get_measure_target_value(basemesh, measure_target_base_name, metric)
+
+        tries = 10
+        while tries:
+            # print(measure, goal, current_value)
+            if fabs(measure - goal) < 0.01:
+                break
+            if goal < measure:
+                _max_value = current_value
+                if value == _min_value:
+                    break
+                current_value = _min_value + (current_value - _min_value) / 2.0
+            else:
+                _min_value = current_value
+                if value == _max_value:
+                    break
+                current_value = current_value + (_max_value - current_value) / 2.0
+
+            if current_value < 0.0001 and TargetService.has_target(basemesh, positive):
+               TargetService.set_target_value(basemesh, positive, 0.0, delete_target_on_zero)
+
+            elif current_value > -0.0001 and TargetService.has_target(basemesh, negative):
+                TargetService.set_target_value(basemesh, negative, 0.0, delete_target_on_zero)
+
+            if current_value < 0:
+                if not TargetService.has_target(basemesh, negative):
+                    target_path = os.path.join(_TARGETS_DIR, section, negative + ".target.gz")
+                    _LOG.debug("Will implicitly attempt a load of a system target", target_path)
+                    TargetService.load_target(basemesh, target_path, weight=abs(current_value), name=negative)
+                    # print("loaded negative target")
+                else:
+                    # print(negative)
+                    TargetService.set_target_value(basemesh, negative, abs(current_value), delete_target_on_zero)
+
+            elif current_value > 0:
+                if not TargetService.has_target(basemesh, positive):
+                    target_path = os.path.join(_TARGETS_DIR, section, positive + ".target.gz")
+                    _LOG.debug("Will implicitly attempt a load of a system target", target_path)
+                    TargetService.load_target(basemesh, target_path, weight=current_value, name=positive)
+                    # print("loaded positive target")
+                else:
+                    # print(positive)
+                    TargetService.set_target_value(basemesh, positive, current_value, delete_target_on_zero)
+
+            if round(current_value, 2) == _min_value and goal <= extremes[0]:
+                break
+            if round(current_value, 2) == _max_value and goal >= extremes[1]:
+                break
+
+            measure = TargetService.get_measure_target_value(basemesh, measure_target_base_name, metric)
+            tries -= 1
+
     @staticmethod
-    def get_measure_target_value(basemesh, measure_target_base_name):
-        """Get the appropriate target value and convert it back to a real-world measurement value."""
-        _LOG.trace("Enter")
-        stack = TargetService.get_target_stack(basemesh)
+    def get_measure_target_value(basemesh, measure_target_base_name, metric: bool):
+        """Return the real-world measurement value for given target."""
+        _LOG.trace("Enter get measure target")
 
-        measure_target = None
-        for tinfo in stack:
-            if str(measure_target_base_name) in str(tinfo['target']).lower():
-                # Might find both -incr and -decr here, should probably exclude if it has value 0.0
-                measure_target = tinfo
-
-        if measure_target:
-            _LOG.debug("Found measure target", measure_target)
-            # Target value is now measure_target["value"].
-            #
-            # Here we would make a call that converts the slider real-world measurement value to a target value and sets it in the target stack
-            # Note that scale in target weight goes from -1.0 to +1.0, where above zero is target name + "-incr" and below zero is target name + "-decr",
-            # but we will find at least one of the sided targets with a value of 0.0 or higher.
-
-        return 0.0
+        base_name = measure_target_base_name[:-5] if measure_target_base_name.endswith(('-incr', '-decr')) else measure_target_base_name
+        return TargetService.get_current_measure(basemesh, base_name, metric)

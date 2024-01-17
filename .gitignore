@@ -2,6 +2,7 @@
 __pycache__/
 *.py[cod]
 *$py.class
+.DS_STORE
 
 # C extensions
 *.so
@@ -141,6 +142,7 @@ cython_debug/
 .project
 .pydevproject
 .settings
+.vscode
 
 # Pylint and unit testing
 .coverage
