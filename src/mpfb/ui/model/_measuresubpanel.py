@@ -51,6 +51,8 @@ _MEASURETARGETS = {
         ]
     }
 
+_IS_CHANGED = dict()
+
 class MPFB_PT_Measure_Sub_Panel(bpy.types.Panel):
     """Panel with measure model sliders"""
 
@@ -118,11 +120,26 @@ def _general_get_target_value(name):
     _LOG.trace("_general_get_target_value", name)
     basemesh = ObjectService.find_object_of_type_amongst_nearest_relatives(bpy.context.active_object, "Basemesh")
 
+    if basemesh.name not in _IS_CHANGED:
+        _IS_CHANGED[basemesh.name] = dict()
+
+    if name not in _IS_CHANGED[basemesh.name]:
+        _IS_CHANGED[basemesh.name][name] = { "value": None, "fingerprint": "" }
+
     from mpfb.ui.model.modelpanel import MODEL_PROPERTIES
     metric = MODEL_PROPERTIES.get_value("metric", entity_reference=bpy.context.scene)
 
-    # Core logic for converting is in TargetService.py
-    value = TargetService.get_measure_target_value(basemesh, name, metric)
+    fingerprint = TargetService.get_target_stack_fingerprint(basemesh)
+
+    if fingerprint != _IS_CHANGED[basemesh.name][name]["fingerprint"]: # Should probably also take the "metric" prop into account
+        # Core logic for converting is in TargetService.py
+        value = TargetService.get_measure_target_value(basemesh, name, metric)
+        _LOG.debug("Recalculated measure target value", (name, value))
+        _IS_CHANGED[basemesh.name][name]["value"] = value
+        _IS_CHANGED[basemesh.name][name]["fingerprint"] = fingerprint
+    else:
+        value = _IS_CHANGED[basemesh.name][name]["value"]
+        _LOG.trace("Cached measure target value", (name, value))
 
     return value
 

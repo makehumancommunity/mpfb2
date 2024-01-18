@@ -4,6 +4,7 @@ from mpfb.services.objectservice import ObjectService
 from mpfb.services.humanservice import HumanService
 from mpfb.services.locationservice import LocationService
 from mpfb.services.targetservice import TargetService
+from mpfb.entities.objectproperties import HumanObjectProperties
 
 def test_targetservice_exists():
     """TargetService"""
@@ -57,3 +58,24 @@ def test_prune_shapekeys():
     TargetService.prune_shapekeys(obj)
 
     assert "yadayada" in obj.data.shape_keys.key_blocks
+
+def test_target_fingerprinting():
+    """TargetService.get_target_stack_fingerprint()"""
+    obj = HumanService.create_human()
+    assert obj is not None
+
+    fingerprint_before = TargetService.get_target_stack_fingerprint(obj)
+    assert fingerprint_before is not None
+
+    TargetService.reapply_macro_details(obj, remove_zero_weight_targets=True)
+    fingerprint_inbetween = TargetService.get_target_stack_fingerprint(obj)
+    assert fingerprint_inbetween is not None
+    assert fingerprint_before == fingerprint_inbetween
+
+    HumanObjectProperties.set_value("weight", 0.75, entity_reference=obj)
+    TargetService.reapply_macro_details(obj, remove_zero_weight_targets=True)
+
+    fingerprint_after = TargetService.get_target_stack_fingerprint(obj)
+    assert fingerprint_after is not None
+    assert fingerprint_before != fingerprint_after
+
