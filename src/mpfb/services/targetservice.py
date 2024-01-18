@@ -1,6 +1,6 @@
 """Module for managing targets and shape keys."""
 
-import os, gzip, bpy, json, random, re
+import os, gzip, bpy, json, random, re, hashlib, time
 from itertools import count
 from functools import lru_cache
 from math import dist, fabs
@@ -1131,7 +1131,7 @@ class TargetService:
         _min_value = -1.0
         _max_value = 1.0
 
-        # Find the maximum and minimum real world values 
+        # Find the maximum and minimum real world values
         # Not being used anywhere here. However helped identify issues
         # with the way how extremes are being calculated
         target_paths = [
@@ -1209,3 +1209,14 @@ class TargetService:
 
         base_name = measure_target_base_name[:-5] if measure_target_base_name.endswith(('-incr', '-decr')) else measure_target_base_name
         return TargetService.get_current_measure(basemesh, base_name, metric)
+
+    @staticmethod
+    def get_target_stack_fingerprint(basemesh):
+        """Returns a md5sum hash of the target stack"""
+        before = time.time()
+        target_stack = TargetService.get_target_stack(basemesh)
+        target_stack_json = json.dumps(target_stack, sort_keys=True)
+        target_stack_md5 = hashlib.md5(target_stack_json.encode('utf-8')).hexdigest()
+        after = time.time()
+        _LOG.debug("Obj, Fingerprint, time", (basemesh, target_stack_md5, 1000.0 * (after - before)))
+        return target_stack_md5
