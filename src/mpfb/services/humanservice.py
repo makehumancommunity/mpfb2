@@ -1322,3 +1322,10 @@ class HumanService:
             bpy.data.objects.remove(subrig)
 
         bpy.data.objects.remove(asset)
+
+    @staticmethod
+    def feet_on_ground(basemesh):
+        """ Make feet touch the ground """
+        lowest_point = ObjectService.get_lowest_point(basemesh)
+        basemesh.location = (0.0, 0.0, -lowest_point)
+        bpy.ops.object.transform_apply(location=True, rotation=True, scale=True)

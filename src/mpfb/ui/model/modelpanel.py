@@ -44,6 +44,7 @@ class MPFB_PT_Model_Panel(bpy.types.Panel):
         box = self._create_box(layout, "Actions")
         box.operator('mpfb.refit_human')
         box.operator('mpfb.prune_human')
+        box.operator('mpfb.feet_on_ground')
 
     def draw(self, context):
         _LOG.enter()
