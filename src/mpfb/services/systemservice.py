@@ -39,6 +39,9 @@ class SystemService:
         if platform == "WINDOWS":
             os.startfile(path) # pylint: disable=E1101
             return
+        if platform == "MACOS":
+            subprocess.call(["open", path])
+            return
         raise NotImplementedError("Opening a file browser is not supported for platform " + platform)
 
     @staticmethod
