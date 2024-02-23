@@ -1,0 +1,18 @@
+{
+    "type": "enum",
+    "name": "object_type",
+    "description": "Select the type of the object. This will be used internally to steer what happens to it when operated upon",
+    "label": "Object type",
+    "default": "Clothes",
+    "items": [
+        ["Basemesh", "Base mesh", "This is a human body", 0],
+        ["Proxymesh", "Proxy mesh", "This is a body proxy, ie a alternate topology for the body", 1],
+        ["Clothes", "Clothes", "This is clothes. This is usually what you want when working with MakeClothes", 2],
+        ["Hair", "Hair", "This is a hair object", 3],
+        ["Teeth", "Teeth", "This is a teeth object", 4],
+        ["Tongue", "Tongue", "This is a tongue object", 5],
+        ["Eyes", "Eyes", "This is an eyes object", 6],
+        ["Eyelashes", "Eye lashes", "This is an eye lashes object", 7],
+        ["Eyebrows", "Eyebrows", "This is an eyebrows object", 8]
+    ]
+}

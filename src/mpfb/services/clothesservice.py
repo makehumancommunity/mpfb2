@@ -1,19 +1,104 @@
 """This module contains utility functions for clothes."""
 
-import random, os, bpy
+import random, os, bpy, time, bmesh
 
-import bmesh
 from mathutils import Vector
 
 from mpfb.entities.rig import Rig
+from mpfb.entities.clothes.vertexmatch import VertexMatch
 from mpfb.services.objectservice import ObjectService
 from mpfb.services.logservice import LogService
+from mpfb.services.locationservice import LocationService
 from mpfb.services.assetservice import AssetService
 from mpfb.entities.objectproperties import GeneralObjectProperties
 from mpfb.entities.clothes.mhclo import Mhclo
+from mpfb.entities.meshcrossref import MeshCrossRef
 from mpfb.services.rigservice import RigService
 
 _LOG = LogService.get_logger("services.clothesservice")
+
+CLOTHES_REFERENCE_SCALE = {
+                        "Body": {
+                            "xmin": 13868,
+                            "xmax": 14308,
+                            "ymin": 10854,
+                            "ymax": 10981,
+                            "zmin": 881,
+                            "zmax": 13137
+                        },
+                        "Head": {
+                            "xmin": 5399,
+                            "xmax": 11998,
+                            "ymin": 962,
+                            "ymax": 5320,
+                            "zmin": 791,
+                            "zmax": 881
+                        },
+                        "Teeth": {
+                            "xmin": 15077,
+                            "xmax": 15111,
+                            "ymin": 15061,
+                            "ymax": 15068,
+                            "zmin": 14993,
+                            "zmax": 15061
+                        },
+                        "Torso": {
+                            "xmin": 3924,
+                            "xmax": 10589,
+                            "ymin": 1892,
+                            "ymax": 3946,
+                            "zmin": 1524,
+                            "zmax": 4370
+                        },
+                        "Arm": {
+                            "xmin": 8300,
+                            "xmax": 10210,
+                            "ymin": 10076,
+                            "ymax": 10543,
+                            "zmin": 10064,
+                            "zmax": 10069
+                        },
+                        "Hand": {
+                            "xmin": 8938,
+                            "xmax": 10548,
+                            "ymin": 9864,
+                            "ymax": 10267,
+                            "zmin": 9881,
+                            "zmax": 10318
+                        },
+                        "Leg": {
+                            "xmin": 11133,
+                            "xmax": 11141,
+                            "ymin": 11130,
+                            "ymax": 11135,
+                            "zmin": 11025,
+                            "zmax": 11460
+                        },
+                        "Foot": {
+                            "xmin": 12839,
+                            "xmax": 12860,
+                            "ymin": 11609,
+                            "ymax": 12442,
+                            "zmin": 12828,
+                            "zmax": 12888
+                        },
+                        "Eye": {
+                            "xmin": 14618,
+                            "xmax": 14645,
+                            "ymin": 14650,
+                            "ymax": 14658,
+                            "zmin": 14636,
+                            "zmax": 14663
+                        },
+                        "Genital": {
+                            "xmin": 6335,
+                            "xmax": 12932,
+                            "ymin": 4347,
+                            "ymax": 4376,
+                            "zmin": 4335,
+                            "zmax": 6431
+                        }
+                    }
 
 class ClothesService:
     """Utility functions for clothes."""
@@ -489,3 +574,96 @@ class ClothesService:
 
         if not delete_group_name is None:
             MakeClothesObjectProperties.set_value("delete_group", delete_group_name, entity_reference=clothes_object)
+
+    @staticmethod
+    def create_mhclo_from_clothes_matching(basemesh, clothes, properties_dict=None):
+        """Create a MHCLO object by matching vertices on the clothes to vertices on the basemesh."""
+        mhclo = Mhclo()
+        mhclo.verts = dict()
+        mhclo.clothes = clothes
+
+        if properties_dict:
+            for key in properties_dict.keys():
+                name = str(key)
+                if hasattr(mhclo, name):
+                    value = properties_dict[key]
+                    setattr(mhclo, name, value)
+
+        cache_dir = LocationService.get_user_cache("basemesh_xref")
+        read_cache = os.path.exists(cache_dir)
+
+        before = time.time()
+        basemesh_xref = MeshCrossRef(basemesh, after_modifiers=True, build_faces_by_group_reference=True, cache_dir=cache_dir, write_cache=False, read_cache=read_cache)
+        after = time.time()
+        duration = int((after - before) * 1000.0)
+        _LOG.debug("basemesh xref", (duration, basemesh_xref))
+
+        before = time.time()
+        clothes_xref = MeshCrossRef(clothes, after_modifiers=True, build_faces_by_group_reference=True, cache_dir=None, write_cache=False, read_cache=False)
+        after = time.time()
+        duration = int((after - before) * 1000.0)
+        _LOG.debug("clothes xref", (duration, clothes_xref))
+
+        scale_factor = GeneralObjectProperties.get_value("scale_factor", entity_reference=basemesh)
+
+        before = time.time()
+        for vert in range(len(clothes_xref.vertex_coordinates)):
+            vmatch = VertexMatch(clothes, vert, clothes_xref, basemesh, basemesh_xref, scale_factor=scale_factor)
+            _LOG.debug("vmatch mhclo", vmatch.mhclo_line)
+            mhclo.verts[vert] = vmatch.mhclo_line
+        after = time.time()
+        duration = int((after - before) * 1000.0)
+        _LOG.debug("vert matching total", duration)
+
+        return mhclo
+
+    @staticmethod
+    def get_reference_scale(basemesh, body_part_reference="Torso"):
+        """Get a reference scale from a basemesh object."""
+
+        reference_scale = {
+            "x_scale": 1.0,
+            "y_scale": 1.0,
+            "z_scale": 1.0
+            }
+
+        # Cannot have modifiers which alter the number of vertices
+        mesh_object = basemesh.copy()
+        mesh_object.data = basemesh.data.copy()
+        ObjectService.link_blender_object(mesh_object)
+        for modifier in mesh_object.modifiers:
+            if modifier.type in ["MASK", "SUBSURF"]:
+                mesh_object.modifiers.remove(modifier)
+
+        depsgraph = bpy.context.evaluated_depsgraph_get()
+        evaluated_mesh = mesh_object.evaluated_get(depsgraph)
+        mesh = evaluated_mesh.to_mesh(preserve_all_data_layers=True, depsgraph=depsgraph)
+
+        dimensions = CLOTHES_REFERENCE_SCALE[body_part_reference]
+        coords = dict()
+        for key in dimensions.keys():
+            vertex_index = dimensions[key]
+            coords[key] = mesh.vertices[vertex_index].co
+
+        reference_scale["x_scale"] = abs((coords["xmax"] - coords["xmin"]).length)
+        reference_scale["y_scale"] = abs((coords["ymax"] - coords["ymin"]).length)
+        reference_scale["z_scale"] = abs((coords["zmax"] - coords["zmin"]).length)
+
+        basemesh_scale = 1.0
+        scale_prop = GeneralObjectProperties.get_value("scale_factor", entity_reference=basemesh)
+        if scale_prop:
+            basemesh_scale = float(scale_prop)
+
+        for key in reference_scale.keys():
+            scale = reference_scale[key] / basemesh_scale
+            if scale < 0.001:
+                scale = 1.0
+            reference_scale[key] = scale
+
+        for key in dimensions.keys():
+            reference_scale[key] = dimensions[key]
+
+        evaluated_mesh.to_mesh_clear()
+        ObjectService.delete_object(mesh_object)
+
+        return reference_scale

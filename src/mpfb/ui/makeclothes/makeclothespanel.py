@@ -6,8 +6,18 @@ from mpfb.services.logservice import LogService
 from mpfb.services.sceneconfigset import SceneConfigSet
 from mpfb.services.uiservice import UiService
 from mpfb.services.objectservice import ObjectService
+from mpfb.services.locationservice import LocationService
 from mpfb.ui.makeclothes import MakeClothesObjectProperties
 from mpfb.ui.abstractpanel import Abstract_Panel
+
+# TODO:
+# - Nuke all vert groups
+# - Assign vert group
+# - Check clothes obj
+# - specify body part to base scale reference on
+# - z-depth
+# - Ensure compat with obj props from old MakeClothes
+# - max pole check
 
 _LOC = os.path.dirname(__file__)
 MAKECLOTHES_PROPERTIES_DIR = os.path.join(_LOC, "properties")
@@ -49,21 +59,76 @@ class MPFB_PT_MakeClothes_Panel(Abstract_Panel):
     bl_options = {'DEFAULT_CLOSED'}
     bl_parent_id = "MPFB_PT_Create_Panel"
 
-    def _setup_clothes(self, scene, layout, blender_object):
-        box = self._create_box(layout, "Set up clothes", "TOOL_SETTINGS")
-        if ObjectService.object_is_basemesh(blender_object):
-            props = ["available_groups"]
-            MAKECLOTHES_PROPERTIES.draw_properties(scene, box, props)
-            box.operator('mpfb.extract_makeclothes_clothes')
-        #box.operator('mpfb.mark_makeclothes_clothes')
+    def _bm_xref(self, scene, layout, basemesh):
+        box = self._create_box(layout, "Basemesh xref", "TOOL_SETTINGS")
+        box.operator('mpfb.basemesh_xref')
+
+    def _extract_clothes(self, scene, layout, blender_object):
+        box = self._create_box(layout, "Extract clothes", "TOOL_SETTINGS")
+        props = ["available_groups"]
+        MAKECLOTHES_PROPERTIES.draw_properties(scene, box, props)
+        box.operator('mpfb.extract_makeclothes_clothes')
+
+    def _set_type(self, scene, layout, blender_object):
+        box = self._create_box(layout, "Set object type", "TOOL_SETTINGS")
+        ot = ObjectService.get_object_type(blender_object)
+        if ot == "":
+            ot = "none"
+        box.label(text="Current type: " + ot)
+        props = ["object_type"]
+        MAKECLOTHES_PROPERTIES.draw_properties(scene, box, props)
+        box.operator('mpfb.mark_makeclothes_clothes')
 
     def _write_clothes(self, blender_object, scene, layout):
         box = self._create_box(layout, "Write clothes", "MATERIAL_DATA")
+
+        if len(bpy.context.selected_objects) != 2:
+            box.label(text="Select exactly two objects")
+            return
+
+        basemesh = None
+        clothes = None
+        for obj in bpy.context.selected_objects:
+            if ObjectService.object_is_basemesh(obj):
+                basemesh = obj
+            else:
+                ot = ObjectService.get_object_type(obj)
+                if ot and ot != "Skeleton":
+                    clothes = obj
+
+        if not basemesh:
+            box.label(text="Select a base mesh")
+            return
+
+        if not clothes:
+            box.label(text="Select a clothes type mesh")
+            return
+
+        cache_dir = LocationService.get_user_cache("basemesh_xref")
+        if not os.path.exists(cache_dir):
+            box.label(text="Need xref cache")
+            return
 
         props = [
             "overwrite"
             ]
         MAKECLOTHES_PROPERTIES.draw_properties(scene, box, props)
+
+        box.operator('mpfb.write_makeclothes_clothes')
+
+    def _clothes_props(self, scene, layout):
+        box = self._create_box(layout, "Clothes props", "MATERIAL_DATA")
+
+        clothes = None
+        for obj in bpy.context.selected_objects:
+            if not ObjectService.object_is_basemesh(obj):
+                ot = ObjectService.get_object_type(obj)
+                if ot and ot != "Skeleton":
+                    clothes = obj
+
+        if not clothes:
+            box.label(text="Select a clothes type mesh")
+            return
 
         props = [
             "name",
@@ -71,35 +136,44 @@ class MPFB_PT_MakeClothes_Panel(Abstract_Panel):
             "tag",
             "license",
             "author",
-            "homepage"
+            "homepage",
+            "username",
+            "uuid"
             ]
-        MakeClothesObjectProperties.draw_properties(blender_object, box, props)
-
-        box.operator('mpfb.write_makeclothes_clothes')
+        MakeClothesObjectProperties.draw_properties(clothes, box, props)
+        box.operator('mpfb.genuuid')
 
     def draw(self, context):
         _LOG.enter()
         layout = self.layout
         scene = context.scene
 
-        layout.label(text="WARNING: MakeClothes has")
-        layout.label(text="not been ported yet.")
-        layout.label(text="Only clothes extraction works.")
-        layout.label(text=" ")
-        layout.label(text="TO CREATE CLOTHES, USE THE")
-        layout.label(text="STANDALONE VERSION OF")
-        layout.label(text="MAKECLOTHES FOR NOW")
-
         blender_object = context.active_object
 
-        if not blender_object:
+        if not blender_object or blender_object.type != "MESH":
             return
 
-        if blender_object:
-            self._setup_clothes(scene, layout, blender_object)
+        if ObjectService.object_is_basemesh(blender_object):
+            self._extract_clothes(scene, layout, blender_object)
 
-        #if blender_object.type == "MESH":
-        #    self._write_clothes(blender_object, scene, layout)
+        self._set_type(scene, layout, blender_object)
+
+        basemesh = None
+        clothes = None
+        for obj in context.selected_objects:
+            if ObjectService.object_is_basemesh(obj):
+                basemesh = obj
+            else:
+                ot = ObjectService.get_object_type(obj)
+                if ot and ot != "Skeleton":
+                    clothes = obj
+
+        if basemesh:
+            self._bm_xref(scene, layout, basemesh)
+        if clothes:
+            self._clothes_props(scene, layout)
+
+        self._write_clothes(blender_object, scene, layout)
 
 
 ClassManager.add_class(MPFB_PT_MakeClothes_Panel)

@@ -558,6 +558,20 @@ class ObjectService:
         return loaded_object
 
     @staticmethod
+    def save_wavefront_file(filepath, mesh_object, context=None):
+        if context is None:
+            context = bpy.context
+        if filepath is None:
+            raise ValueError('Cannot load None filepath')
+        if not mesh_object or mesh_object.type != 'MESH':
+            raise ValueError('No valid mesh object was provided')
+
+        ObjectService.deselect_and_deactivate_all()
+        mesh_object.select_set(True)
+
+        bpy.ops.wm.obj_export(filepath=filepath, export_selected_objects=True, export_materials=False)
+
+    @staticmethod
     def load_base_mesh(context=None, scale_factor=1.0, load_vertex_groups=True, exclude_vertex_groups=None):
         objsdir = LocationService.get_mpfb_data("3dobjs")
         filepath = os.path.join(objsdir, "base.obj")

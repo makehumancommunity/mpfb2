@@ -217,3 +217,78 @@ class Mhclo:
                 # TODO: Need to update with new names for makeclothes properties
                 #context.active_object.MhOffsetScale = bodypart
         return
+
+    def write_mhclo(self, filename, also_export_mhmat=False, also_export_obj=True, reference_scale=None):
+        if filename is None:
+            raise ValueError('No file name has been specified')
+
+        if (also_export_mhmat or also_export_obj) and not self.clothes:
+            raise ValueError("No clothes mesh has been set")
+
+        bn = os.path.basename(filename)
+        dn = os.path.dirname(filename)
+        mhmat_filename = os.path.join(dn, bn.replace(".mhclo", ".mhmat"))
+        obj_filename = os.path.join(dn, bn.replace(".mhclo", ".obj"))
+
+        if also_export_mhmat:
+            _LOG.debug("Will export MHMAT to", mhmat_filename)
+
+        if also_export_obj:
+            _LOG.debug("Will export OBJ to", obj_filename)
+            ObjectService.save_wavefront_file(obj_filename, self.clothes)
+
+        _LOG.debug("Writing MHCLO file", filename)
+        with open(filename, "w", encoding="utf8") as mhclo_file:
+            mhclo_file.write("# MHCLO asset for MakeHuman and MPFB, created using MPFB2\n#\n")
+
+            if self.author:
+                mhclo_file.write("# author: {}\n".format(self.author))
+
+            if self.license:
+                mhclo_file.write("# license: {}\n".format(self.license))
+
+            if self.description:
+                mhclo_file.write("# description: {}\n".format(self.description))
+
+            mhclo_file.write("basemesh hm08\n\n")
+
+            mhclo_file.write("# Basic info:\n")
+            if self.name:
+                mhclo_file.write("name {}\n".format(self.name))
+
+            if self.uuid:
+                mhclo_file.write("uuid {}\n".format(self.uuid))
+
+            if also_export_obj:
+                mhclo_file.write("obj_file {}\n".format(os.path.basename(obj_filename)))
+
+            if also_export_mhmat:
+                mhclo_file.write("material {}\n".format(os.path.basename(mhmat_filename)))
+
+            if reference_scale:
+                mhclo_file.write("\n# Scale references:\n")
+                mhclo_file.write("x_scale {} {} {:.4f}\n".format(reference_scale["xmin"], reference_scale["xmax"], reference_scale["x_scale"]))
+                # Y and Z are flipped in MakeHuman
+                mhclo_file.write("y_scale {} {} {:.4f}\n".format(reference_scale["zmin"], reference_scale["zmax"], reference_scale["z_scale"]))
+                mhclo_file.write("z_scale {} {} {:.4f}\n".format(reference_scale["ymin"], reference_scale["ymax"], reference_scale["y_scale"]))
+            else:
+                _LOG.warn("No scalings provided")
+
+            mhclo_file.write("\n# The following are matches between clothes vertices and body vertices:\nverts 0\n")
+            for vert_no in self.verts.keys():
+                vdef = self.verts[vert_no]
+                verts = vdef['verts']
+                weights = vdef['weights']
+                offsets = vdef['offsets']
+
+                if weights[0] == 1 and weights[1] == 0 and weights[2] == 0:
+                    # This is an exact match
+                    mhclo_file.write("{}\n".format(verts[0]))
+                else:
+                    # This is an offset match
+                    mhclo_file.write("{} {} {} ".format(verts[0], verts[1], verts[2]))
+                    mhclo_file.write("{:.4f} {:.4f} {:.4f} ".format(weights[0], weights[1], weights[2]))
+                    mhclo_file.write("{:.4f} {:.4f} {:.4f}\n".format(offsets[0], offsets[1], offsets[2]))
+
+
+
