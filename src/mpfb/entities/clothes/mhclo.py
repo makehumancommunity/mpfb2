@@ -275,6 +275,7 @@ class Mhclo:
                 _LOG.warn("No scalings provided")
 
             mhclo_file.write("\n# The following are matches between clothes vertices and body vertices:\nverts 0\n")
+
             for vert_no in self.verts.keys():
                 vdef = self.verts[vert_no]
                 verts = vdef['verts']

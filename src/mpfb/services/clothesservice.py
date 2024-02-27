@@ -582,6 +582,8 @@ class ClothesService:
         mhclo.verts = dict()
         mhclo.clothes = clothes
 
+        reference_scale = ClothesService.get_reference_scale(basemesh)
+
         if properties_dict:
             for key in properties_dict.keys():
                 name = str(key)
@@ -608,7 +610,7 @@ class ClothesService:
 
         before = time.time()
         for vert in range(len(clothes_xref.vertex_coordinates)):
-            vmatch = VertexMatch(clothes, vert, clothes_xref, basemesh, basemesh_xref, scale_factor=scale_factor)
+            vmatch = VertexMatch(clothes, vert, clothes_xref, basemesh, basemesh_xref, scale_factor=scale_factor, reference_scale=reference_scale)
             _LOG.debug("vmatch mhclo", vmatch.mhclo_line)
             mhclo.verts[vert] = vmatch.mhclo_line
         after = time.time()

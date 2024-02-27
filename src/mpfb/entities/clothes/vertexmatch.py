@@ -6,11 +6,12 @@ from mpfb.services.meshservice import MeshService
 from mpfb.services.logservice import LogService
 
 from mathutils import Vector
+import mathutils
 
 _LOG = LogService.get_logger("entities.vertexmatch")
 
 class VertexMatch:
-    def __init__(self, focus_obj, focus_vert_index, focus_crossref, target_obj, target_crossref, scale_factor=1.0):
+    def __init__(self, focus_obj, focus_vert_index, focus_crossref, target_obj, target_crossref, scale_factor=1.0, reference_scale=None):
         """Construct a VertexMatch object.
 
         Parameters:
@@ -29,6 +30,7 @@ class VertexMatch:
         self.target_obj = target_obj
         self.target_crossref = target_crossref
         self.scale_factor = scale_factor
+        self.reference_scale = reference_scale
 
         self.focus_vert_coord = self.focus_crossref.vertex_coordinates[self.focus_vert_index]
         self.focus_vert_group_name = None
@@ -110,30 +112,97 @@ class VertexMatch:
                 raise ValueError("Could not find closest vertex to %s" % str(fcoord))
             selected_verts.remove(furthest_idx)
 
-        total_dist = 0.0
-        self.best_three_verts = selected_verts
-        vert_info = dict()
+        # For now, use the original MC2 calculations:
+        self._legacy_bake(selected_verts)
+        #self._alternative_bake(selected_verts)
 
-        for vert in selected_verts:
-            vert_info[vert] = dict()
-            vert_info[vert]["tcoord"] = self.target_crossref.vertex_coordinates[vert]
-            vert_info[vert]["dist"] = self._distance(fcoord, vert_info[vert]["tcoord"])
-            total_dist += abs(vert_info[vert]["dist"])
+    def _legacy_bake(self, selected_verts):
+        # While this is the "understandable" version, it is completely incomprehensible to most people
+        # It should be rewritten with at least readable variable named and comments which explains the
+        # reasoning in layman terms. The comments below are the ones that came from the original MC2
 
-        barycentric_median = [0.0, 0.0, 0.0]
+        # To make the algorithm understandable I change our 3 vertices to triangle ABC and use Blender
+        # Vectors to be able to use internal functions like cross, dot, normal whatever you need
+        # For all vectors I use only capital letters, reading is simplified imho
+        mhclo_line = dict()
 
-        for vert in selected_verts:
-            vert_info[vert]["weight"] = abs(vert_info[vert]["dist"]) / total_dist
-            for i in range(3):
-                barycentric_median[i] += vert_info[vert]["weight"] * vert_info[vert]["tcoord"][i]
+        vidxa = selected_verts[0]
+        vidxb = selected_verts[1]
+        vidxc = selected_verts[2]
 
-        self.mhclo_line = dict()
-        self.mhclo_line["verts"] = selected_verts
-        self.mhclo_line["weights"] = []
-        for i in range(3):
-            self.mhclo_line["weights"].append(vert_info[selected_verts[i]]["weight"])
-        # TODO: Ensure XYZ order is valid for mhclo and that offset is in the right direction
-        self.mhclo_line["offsets"] = (Vector(list(fcoord)) - Vector(list(barycentric_median))) / self.scale_factor
+        mhclo_line["verts"] = [vidxa, vidxb, vidxc]
+
+        coorda = self.target_crossref.vertex_coordinates[vidxa]
+        coordb = self.target_crossref.vertex_coordinates[vidxb]
+        coordc = self.target_crossref.vertex_coordinates[vidxc]
+
+        A = Vector(coorda)
+        B = Vector(coordb)
+        C = Vector(coordc)
+
+        # The vertex on the clothes is the Vector Q
+        Q = Vector(self.focus_vert_coord)
+
+        # We need the normal for this triangle. Normally it is calculated with cross-product using the
+        # distance of e.g. B-A and C-A, but blender has a function implemented for that
+
+        N= mathutils.geometry.normal (A, B, C)
+        # print ("normal vector is " + str(N))
+
+        # transform normal vector to corner of triangle and recalculate length
+        # new vector is R (direction is the same)
+        QA = Q - A
+        R = Q - N * QA.dot(N)
+
+        # now weight the triangle multiplied with the normal
+        #
+        BA = B-A
+        BA.normalize()
+        NBA = N.cross(BA)
+        NBA.normalize()
+
+        AC = A-C
+        BC = B-C
+        RC = R-C
+
+        # we are using barycentric coordinates to determine the weights. Normally you have
+        # to do a projection. To get the values of all dimensions we can use the scalar or dot.product
+        # of our vectors. This is also called projection product ...
+        # the barycentric calculation now could be rewritten as
+        #
+        # WeightA = ( BC.NBA * RC.BA - BC.BA * RC.NBA) / (BA.AC * BC.NBA - BC.AC * AC.NBA)
+        # WeightB = (-AC.NBA * RC.BA + AC.BA * RC.NBA) / (BA.AC * BC.NBA - BC.AC * AC.NBA)
+        #
+        # WeightC = 1 - WeightA - WeightB
+
+        a00 = AC.dot(BA)
+        a01 = BC.dot(BA)
+        a10 = AC.dot(NBA)
+        a11 = BC.dot(NBA)
+        b0 = RC.dot(BA)
+        b1 = RC.dot(NBA)
+
+        det = a00*a11 - a01*a10
+
+        wa = (a11*b0 - a01*b1)/det
+        wb = (-a10*b0 + a00*b1)/det
+        wc = 1 - wa - wb
+
+        # calculate the distance with the weighted vectors and subtract that result from our point Q
+        D = Q - (wa * A + wb * B + wc * C)
+
+        # add the values
+        mhclo_line["weights"] = [wa, wb, wc]
+        mhclo_line["offsets"] = [D[0], D[2], -D[1]]
+        # TODO: Legacy also multiplies with scales -- [ D[0] * self.scales[0], D[1] * self.scales[1], D[2] * self.scales[2] ]
+
+        _LOG.debug("Legacy mhclo line", mhclo_line)
+
+        self.mhclo_line = mhclo_line
+
+    def _alternative_bake(self, selected_verts):
+        # Stub for rewritten bake
+        pass
 
     def _attempt_exact_match(self):
         """In the EXACT strategy, we look for a target vertex which is within 0.001 distance of the focus vertex.
