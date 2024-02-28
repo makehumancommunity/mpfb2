@@ -5,11 +5,21 @@ from mpfb.services.humanservice import HumanService
 from mpfb.services.meshservice import MeshService
 from mpfb.services.locationservice import LocationService
 from mpfb.entities.meshcrossref import MeshCrossRef
-from git.index.fun import write_cache
 
 def test_meshservice_exists():
     """MeshService"""
     assert MeshService is not None, "MeshService can be imported"
+
+def test_create_sample_object():
+    """MeshService.create_sample_object()"""
+    obj = MeshService.create_sample_object()
+    assert obj is not None
+    assert obj.data is not None
+    assert len(obj.data.vertices) == 9
+    assert len(obj.data.edges) == 12
+    assert len(obj.data.polygons) == 4
+    assert obj.vertex_groups.get("all")
+    ObjectService.delete_object(obj)
 
 def test_kdtree_from_human():
     """HumanService.create_human() -- defaults"""
@@ -59,12 +69,11 @@ def test_numpy_faces():
     ObjectService.delete_object(basemesh)
 
 def test_numpy_edges():
-    basemesh = HumanService.create_human()
-    assert basemesh is not None
-    edges = MeshService.get_edges_as_numpy_array(basemesh)
-    assert edges is not None
-    assert len(edges) == len(basemesh.data.edges)
-    ObjectService.delete_object(basemesh)
+    test_obj = MeshService.create_sample_object()
+    edges = MeshService.get_edges_as_numpy_array(test_obj)
+    assert len(edges) == 12
+    assert len(edges) == len(test_obj.data.edges)
+    ObjectService.delete_object(test_obj)
 
 def test_crossref_basemesh_before_modifiers():
     basemesh = HumanService.create_human()
@@ -84,6 +93,7 @@ def test_crossref_basemesh_after_modifiers():
     assert len(crossref.vertex_coordinates) == len(basemesh.data.vertices)
     assert len(crossref.faces_by_vertex) == len(basemesh.data.vertices)
     assert len(crossref.edges_by_vertex) == len(basemesh.data.vertices)
+
     ObjectService.delete_object(basemesh)
 
 def test_crossref_basemesh_cache():

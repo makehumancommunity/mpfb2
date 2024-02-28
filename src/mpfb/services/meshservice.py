@@ -6,9 +6,6 @@ from mpfb.services.objectservice import ObjectService
 _LOG = LogService.get_logger("services.meshservice")
 
 # Possible TODOs:
-# - create mesh
-# - add numpy array as verts to bmesh
-# - add numpy array as faces to bmesh
 # - create vertex group
 # - add verts to vertex group
 # - delete verts in vertex group
@@ -20,6 +17,55 @@ class MeshService:
 
     def __init__(self):
         raise RuntimeError("You should not instance MeshService. Use its static methods instead.")
+
+    @staticmethod
+    def create_mesh_object(vertices, edges, faces, vertex_groups=None, name="sample_object", link=True):
+        target_mesh = bpy.data.meshes.new(name + "_mesh")
+        target_mesh.from_pydata(vertices, edges, faces)
+        target_object = bpy.data.objects.new(name, target_mesh)
+        if vertex_groups:
+            for key in vertex_groups.keys():
+                MeshService.create_vertex_group(obj, str(key), vertex_groups[key], nuke_existing_group=True)
+        if link:
+            ObjectService.link_blender_object(target_object)
+        return target_object
+
+    @staticmethod
+    def create_sample_object(name="sample_object", link=True):
+        """Create a sample plane mesh with four faces."""
+        #  0   1   2
+        #  3   4   5
+        #  6   7   8
+
+        vertices = [
+            (-1, 0,  1), #  0
+            ( 0, 0,  1), #  1
+            ( 1, 0,  1), #  2
+            (-1, 0,  0), #  3
+            ( 0, 0,  0), #  4
+            ( 1, 0,  0), #  5
+            (-1, 0, -1), #  6
+            ( 0, 0, -1), #  7
+            ( 1, 0, -1)  #  8
+            ]
+
+        edges = []
+
+        faces = [
+            (0, 1, 4, 3),
+            (1, 2, 5, 4),
+            (3, 4, 7, 6),
+            (4, 5, 8, 7)
+            ]
+
+        vgroups = {
+            "left": [0, 1, 3, 4, 6, 7],
+            "right": [2, 2, 4, 5, 7, 8],
+            "mid": [1, 4, 7],
+            "all": range(9)
+            }
+
+        return MeshService.create_mesh_object(vertices, edges, faces, vertex_groups=vgroups, name=name, link=link)
 
     @staticmethod
     def find_vertices_in_vertex_group(mesh_object, vertex_group_name):
@@ -228,7 +274,7 @@ class MeshService:
                 raise ValueError("Edges must have the same number of vertices. Found both {} and {}".format(len(edge.vertices), verts_per_edge))
 
         edge_array = numpy.zeros((size, verts_per_edge), dtype=numpy.uint32)
-        for edge in mesh.polygons:
+        for edge in mesh.edges:
             for v in range(verts_per_edge):
                 edge_array[edge.index][v] = edge.vertices[v]
 
