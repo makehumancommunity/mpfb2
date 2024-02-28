@@ -608,6 +608,16 @@ class ClothesService:
 
         scale_factor = GeneralObjectProperties.get_value("scale_factor", entity_reference=basemesh)
 
+        max_pole = 0
+        _LOG.debug("edges by vertex", clothes_xref.edges_by_vertex)
+        for edges in clothes_xref.edges_by_vertex:
+            _LOG.debug("edges", edges)
+            if len(edges) > max_pole:
+                max_pole = len(edges)
+
+        if max_pole:
+            mhclo.max_pole = max_pole
+
         before = time.time()
         for vert in range(len(clothes_xref.vertex_coordinates)):
             vmatch = VertexMatch(clothes, vert, clothes_xref, basemesh, basemesh_xref, scale_factor=scale_factor, reference_scale=reference_scale)

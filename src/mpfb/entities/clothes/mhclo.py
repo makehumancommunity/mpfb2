@@ -34,6 +34,7 @@ class Mhclo:
         self.delete = False
         self.delete_group = "Delete"
         self.uuid = None
+        self.max_pole = None
 
     def load(self, mhclo_filename, *, only_metadata=False):
         """Populate settings from contents of a MHCLO file. This will not automatically load the
@@ -273,6 +274,12 @@ class Mhclo:
                 mhclo_file.write("z_scale {} {} {:.4f}\n".format(reference_scale["ymin"], reference_scale["ymax"], reference_scale["y_scale"]))
             else:
                 _LOG.warn("No scalings provided")
+
+            if self.max_pole:
+                mhclo_file.write("\nmax_pole {}\n".format(self.max_pole))
+
+            if self.zdepth:
+                mhclo_file.write("\nz_depth {}\n".format(self.zdepth))
 
             mhclo_file.write("\n# The following are matches between clothes vertices and body vertices:\nverts 0\n")
 
