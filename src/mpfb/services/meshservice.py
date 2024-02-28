@@ -25,7 +25,7 @@ class MeshService:
         target_object = bpy.data.objects.new(name, target_mesh)
         if vertex_groups:
             for key in vertex_groups.keys():
-                MeshService.create_vertex_group(obj, str(key), vertex_groups[key], nuke_existing_group=True)
+                MeshService.create_vertex_group(target_object, str(key), vertex_groups[key], nuke_existing_group=True)
         if link:
             ObjectService.link_blender_object(target_object)
         return target_object
@@ -59,11 +59,23 @@ class MeshService:
             ]
 
         vgroups = {
-            "left": [0, 1, 3, 4, 6, 7],
-            "right": [2, 2, 4, 5, 7, 8],
-            "mid": [1, 4, 7],
-            "all": range(9)
+            "left": [],
+            "right": [],
+            "mid": [],
+            "all": []
             }
+
+        for i in [0, 1, 3, 4, 6, 7]:
+            vgroups["left"].append([i, 1.0])
+
+        for i in [2, 2, 4, 5, 7, 8]:
+            vgroups["right"].append([i, 1.0])
+
+        for i in [1, 4, 7]:
+            vgroups["mid"].append([i, 1.0])
+
+        for i in range(9):
+            vgroups["all"].append([i, 1.0])
 
         return MeshService.create_mesh_object(vertices, edges, faces, vertex_groups=vgroups, name=name, link=link)
 
