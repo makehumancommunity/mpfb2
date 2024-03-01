@@ -67,6 +67,12 @@ class MPFB_OT_WriteClothesOperator(bpy.types.Operator, ExportHelper):
 
         _LOG.debug("basemesh, clothes", (basemesh, clothes))
 
+        check = ClothesService.mesh_is_valid_as_clothes(clothes)
+        if not check["all_checks_ok"]:
+            _LOG.error("Clothes check failed", check)
+            self.report({'ERROR'}, "The selected object is not valid as clothes")
+            return {'CANCELLED'}
+
         cache_dir = LocationService.get_user_cache("basemesh_xref")
         if not os.path.exists(cache_dir):
             self.report({'ERROR'}, "No basemesh xref cache available")

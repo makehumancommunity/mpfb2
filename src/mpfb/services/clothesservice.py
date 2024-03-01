@@ -569,11 +569,53 @@ class ClothesService:
         for property_name in properties:
             if hasattr(mhclo, property_name):
                 value = getattr(mhclo, property_name)
-                if not value is None:
+                if value is not None:
                     MakeClothesObjectProperties.set_value(property_name, value, entity_reference=clothes_object)
 
-        if not delete_group_name is None:
+        if delete_group_name is not None:
             MakeClothesObjectProperties.set_value("delete_group", delete_group_name, entity_reference=clothes_object)
+
+    @staticmethod
+    def mesh_is_valid_as_clothes(mesh_object):
+        """Check if the given mesh object is valid as a clothes object. Returns a dict with checks."""
+
+        report = {
+            "is_valid_object": False,
+            "has_any_vertices": False,
+            "has_any_vgroups": False,
+            "all_verts_have_max_one_vgroup": False,
+            "all_verts_have_min_one_vgroup": False,
+            "all_verts_belong_to_faces": True,
+            "all_checks_ok": False
+            }
+
+        if not mesh_object or mesh_object.type!= "MESH":
+            return report
+
+        report["is_valid_object"] = True
+
+        if not mesh_object.data.vertices or len(mesh_object.data.vertices) < 1:
+            return report
+
+        report["has_any_vertices"] = True
+
+        xref = MeshCrossRef(mesh_object)
+        report["has_any_vgroups"] = len(xref.group_index_to_group_name) > 0
+        report["all_verts_have_min_one_vgroup"] = len(xref.vertices_without_group) < 1
+        report["all_verts_have_max_one_vgroup"] = len(xref.vertices_with_multiple_groups) < 1
+
+        _LOG.debug("Faces by vertex", xref.faces_by_vertex)
+        for vert_index in range(len(xref.faces_by_vertex)):
+            faces = xref.faces_by_vertex[vert_index]
+            if len(faces) < 1:
+                _LOG.debug("Number of faces for vertex {} is less than 1".format(vert_index))
+                report["all_verts_belong_to_faces"] = False
+
+        all_ok = report["is_valid_object"] and report["has_any_vertices"] and report["has_any_vgroups"]
+        all_ok = all_ok and report["all_verts_have_max_one_vgroup"] and report["all_verts_have_min_one_vgroup"] and report["all_verts_belong_to_faces"]
+        report["all_checks_ok"] = all_ok
+
+        return report
 
     @staticmethod
     def create_mhclo_from_clothes_matching(basemesh, clothes, properties_dict=None):

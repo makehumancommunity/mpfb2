@@ -298,7 +298,3 @@ class MeshService:
         _LOG.enter()
         from mpfb.entities.meshcrossref import MeshCrossRef
         return MeshCrossRef(mesh_object, after_modifiers=after_modifiers, build_faces_by_group_reference=build_faces_by_group_reference)
-
-
-
-
