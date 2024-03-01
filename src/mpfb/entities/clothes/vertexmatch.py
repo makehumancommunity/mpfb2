@@ -75,6 +75,8 @@ class VertexMatch:
         if not self.final_strategy:
             _LOG.trace("------------------------ Extended face strategy ------------------------")
             self._attempt_extended_face_match()
+        if not self.final_strategy:
+            raise ValueError("Could not match vertex", focus_vert_index)
 
         _LOG.trace("======================== VERTEX MATCH SUMMARY ========================")
 
@@ -285,44 +287,21 @@ class VertexMatch:
         self.final_strategy = "SIMPLE_FACE"
 
     def _attempt_extended_face_match(self):
-        """In the EXTENDED_FACE strategy, we find the 25 target vertices which is closest to the focus vertex. We filter these
-        to keep the ones which belong to the relevant vertex group. From the remaining vertices, we find all faces they belong to.
-        These faces we filter to only keep the ones in which all four vertices are part of the relevant vertex group.
-        Finally we go through the faces in order of distance and pick the first one with an acceptable angle between normal and match vector."""
+        """In the EXTENDED_FACE strategy, we find the 20 closest faces which belong to the appropriate vertex group. Then we
+        go through the faces in order of distance and pick the first one with an acceptable angle between normal and match vector."""
 
-        _LOG.enter()
-        verts_to_find = 25
-        if verts_to_find > len(self.target_crossref.vertex_coordinates):
-            verts_to_find = len(self.target_crossref.vertex_coordinates)
+        relevant_face_indices = self.target_crossref.faces_by_group[self.target_group_idx]
 
-        closest = MeshService.closest_vertices(
-            self.focus_obj,
-            self.focus_vert_index,
-            self.target_obj,
-            self.target_crossref.vertex_coordinates_kdtree,
-            number_of_matches=verts_to_find)
-
-        _LOG.debug("Unfiltered EXTENDED_FACE verts", len(closest))
-
-        verts_to_keep = []
-        for (vector, index, distance) in closest:
-            if index in self.target_crossref.vertices_by_group[self.target_group_idx]:
-                verts_to_keep.append(index)
-
-        _LOG.debug("Filtered EXTENDED_FACE verts", len(verts_to_keep))
-
-        if len(verts_to_keep) < 3:
-            _LOG.debug("Not enough verts to match against EXTENDED_FACE")
+        if len(relevant_face_indices) == 0:
+            _LOG.debug("Relevant vgroup does not have any faces")
             return
 
         potential_faces = []
-        for vert_idx in verts_to_keep:
-            for face_idx in self.target_crossref.faces_by_vertex[vert_idx]:
-                if face_idx not in potential_faces:
-                    if face_idx in self.target_crossref.faces_by_group[self.target_group_idx]:
-                        potential_faces.append(face_idx)
+        kd = self.target_crossref.face_median_points_by_group_kdtrees[self.target_group_idx]
 
-        _LOG.debug("Remaining EXTENDED_FACE faces", len(potential_faces))
+        for (coord, index, dist) in kd.find_n(self.focus_vert_coord, 20):
+            _LOG.dump("(coord, index, dist)", (coord, index, dist))
+            potential_faces.append(index)
 
         if len(potential_faces) == 0:
             _LOG.debug("No potential faces for EXTENDED_FACE")

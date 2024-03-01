@@ -36,7 +36,6 @@ class MeshCrossRef:
     - group_index_to_group_name: list where position is group index and value is group name
     - group_name_to_group_index: dict where key is group name and value is group index
     - vertices_without_group: list with vertex indices of vertices which are not in any group
-    - vertices_without_group: list with vertex indices of vertices which are not in any group
     - vertices_with_multiple_groups: list with vertex indices of vertices which are in more than one group
     - faces_by_group: Row number is group index, cols is a list of face indices where at least three verts belong to the group.
 
@@ -105,6 +104,7 @@ class MeshCrossRef:
         self._potential_faces_by_group = []
         self.vertices_without_group = []
         self.vertices_with_multiple_groups = []
+        self.face_median_points_by_group_kdtrees = []
         self._build_vert_group_references(build_faces_by_group_reference=build_faces_by_group_reference)
         after = int(time.time() * 1000.0)
         _LOG.debug("Building vert_group_references took", (after - before))
@@ -113,6 +113,7 @@ class MeshCrossRef:
             before = int(time.time() * 1000.0)
             self.faces_by_group = []
             self._build_faces_by_group_table()
+            self._build_faces_by_group_kdtrees()
             after = int(time.time() * 1000.0)
             _LOG.debug("Building faces_by_group took", (after - before))
 
@@ -158,6 +159,16 @@ class MeshCrossRef:
 
         _LOG.debug("Wrote cache file", (absolute_file_path, type(numpy_array)))
 
+    def _build_faces_by_group_kdtrees(self):
+        _LOG.enter()
+        for group_index in range(len(self.group_index_to_group_name)):
+            relevant_faces = self.faces_by_group[group_index]
+            kd = mathutils.kdtree.KDTree(len(self.vertices_by_face))
+            for face_index in relevant_faces:
+                median_point = self.face_median_points[face_index]
+                kd.insert(median_point, face_index)
+            kd.balance()
+            self.face_median_points_by_group_kdtrees.append(kd)
 
     def _build_vert_group_references(self, build_faces_by_group_reference=False):
         _LOG.enter()
