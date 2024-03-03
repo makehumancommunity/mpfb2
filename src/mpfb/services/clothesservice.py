@@ -624,6 +624,8 @@ class ClothesService:
         mhclo.verts = dict()
         mhclo.clothes = clothes
 
+        _LOG.debug("Starting match process")
+
         reference_scale = ClothesService.get_reference_scale(basemesh)
 
         if properties_dict:
@@ -640,20 +642,20 @@ class ClothesService:
         basemesh_xref = MeshCrossRef(basemesh, after_modifiers=True, build_faces_by_group_reference=True, cache_dir=cache_dir, write_cache=False, read_cache=read_cache)
         after = time.time()
         duration = int((after - before) * 1000.0)
-        _LOG.debug("basemesh xref", (duration, basemesh_xref))
+        _LOG.debug("basemesh xref duration", duration)
 
         before = time.time()
         clothes_xref = MeshCrossRef(clothes, after_modifiers=True, build_faces_by_group_reference=True, cache_dir=None, write_cache=False, read_cache=False)
         after = time.time()
         duration = int((after - before) * 1000.0)
-        _LOG.debug("clothes xref", (duration, clothes_xref))
+        _LOG.debug("clothes xref duration", duration)
 
         scale_factor = GeneralObjectProperties.get_value("scale_factor", entity_reference=basemesh)
 
         max_pole = 0
-        _LOG.debug("edges by vertex", clothes_xref.edges_by_vertex)
+        _LOG.dump("edges by vertex", clothes_xref.edges_by_vertex)
         for edges in clothes_xref.edges_by_vertex:
-            _LOG.debug("edges", edges)
+            _LOG.dump("edges", edges)
             if len(edges) > max_pole:
                 max_pole = len(edges)
 
@@ -662,8 +664,11 @@ class ClothesService:
 
         before = time.time()
         for vert in range(len(clothes_xref.vertex_coordinates)):
+            before_internal = time.time()
             vmatch = VertexMatch(clothes, vert, clothes_xref, basemesh, basemesh_xref, scale_factor=scale_factor, reference_scale=reference_scale)
-            _LOG.debug("vmatch mhclo", vmatch.mhclo_line)
+            after_internal = time.time()
+            duration_internal = int((after_internal - before_internal) * 1000.0)
+            _LOG.dump("vmatch", (duration_internal, vmatch.final_strategy))
             mhclo.verts[vert] = vmatch.mhclo_line
         after = time.time()
         duration = int((after - before) * 1000.0)

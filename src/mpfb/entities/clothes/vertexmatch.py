@@ -195,8 +195,11 @@ class VertexMatch:
 
         # add the values
         mhclo_line["weights"] = [wa, wb, wc]
-        mhclo_line["offsets"] = [D[0], D[2], -D[1]]
+        mhclo_line["offsets"] = [D[0] / self.scale_factor, D[2] / self.scale_factor, -D[1] / self.scale_factor]
+
         # TODO: Legacy also multiplies with scales -- [ D[0] * self.scales[0], D[1] * self.scales[1], D[2] * self.scales[2] ]
+        # However, when debugging the original MC2, it seems the scale is always 1.0. Need to figure out if this is actually used.
+        # If needed, the corresponding scales are in self.reference_scales
 
         _LOG.debug("Legacy mhclo line", mhclo_line)
 
