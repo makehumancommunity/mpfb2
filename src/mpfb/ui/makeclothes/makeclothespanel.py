@@ -7,7 +7,9 @@ from mpfb.services.sceneconfigset import SceneConfigSet
 from mpfb.services.uiservice import UiService
 from mpfb.services.objectservice import ObjectService
 from mpfb.services.locationservice import LocationService
+from mpfb.services.materialservice import MaterialService
 from mpfb.ui.makeclothes import MakeClothesObjectProperties
+from mpfb.entities.objectproperties import GeneralObjectProperties
 from mpfb.ui.abstractpanel import Abstract_Panel
 
 # TODO:
@@ -17,7 +19,6 @@ from mpfb.ui.abstractpanel import Abstract_Panel
 # - specify body part to base scale reference on
 # - z-depth
 # - Ensure compat with obj props from old MakeClothes
-# - max pole check
 
 _LOC = os.path.dirname(__file__)
 MAKECLOTHES_PROPERTIES_DIR = os.path.join(_LOC, "properties")
@@ -79,6 +80,24 @@ class MPFB_PT_MakeClothes_Panel(Abstract_Panel):
         MAKECLOTHES_PROPERTIES.draw_properties(scene, box, props)
         box.operator('mpfb.mark_makeclothes_clothes')
 
+    def _material(self, blender_object, scene, layout):
+        box = self._create_box(layout, "Material", "MATERIAL_DATA")
+        if not MaterialService.has_materials(blender_object):
+            box.label(text="Object has no material")
+            box.label(text="See MakeSkin panel")
+            return
+        material = MaterialService.get_material(blender_object)
+        mat_type = MaterialService.identify_material(material)
+        if mat_type != "makeskin":
+            box.label(text="Only MakeSkin materials")
+            box.label(text="are supported")
+            return
+        props = [
+            "save_material"
+            ]
+        MAKECLOTHES_PROPERTIES.draw_properties(scene, box, props)
+
+
     def _write_clothes(self, blender_object, scene, layout):
         box = self._create_box(layout, "Write clothes", "MATERIAL_DATA")
 
@@ -109,11 +128,6 @@ class MPFB_PT_MakeClothes_Panel(Abstract_Panel):
             box.label(text="Need xref cache")
             return
 
-        props = [
-            "overwrite"
-            ]
-        MAKECLOTHES_PROPERTIES.draw_properties(scene, box, props)
-
         box.operator('mpfb.write_makeclothes_clothes')
 
     def _clothes_props(self, scene, layout):
@@ -137,10 +151,11 @@ class MPFB_PT_MakeClothes_Panel(Abstract_Panel):
             "license",
             "author",
             "homepage",
-            "username",
-            "uuid"
+            "username"
             ]
         MakeClothesObjectProperties.draw_properties(clothes, box, props)
+        props = ["uuid"]
+        GeneralObjectProperties.draw_properties(clothes, box, props)
         box.operator('mpfb.genuuid')
 
     def draw(self, context):
@@ -172,6 +187,7 @@ class MPFB_PT_MakeClothes_Panel(Abstract_Panel):
             self._bm_xref(scene, layout, basemesh)
         if clothes:
             self._clothes_props(scene, layout)
+            self._material(clothes, scene, layout)
 
         self._write_clothes(blender_object, scene, layout)
 

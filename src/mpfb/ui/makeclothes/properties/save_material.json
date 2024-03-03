@@ -1,0 +1,7 @@
+{
+    "type": "boolean",
+    "name": "save_material",
+    "description": "Also save a MHMAT material",
+    "label": "Save material",
+    "default": true
+}
