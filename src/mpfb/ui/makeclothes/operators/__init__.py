@@ -7,6 +7,7 @@ _LOG.trace("initializing makeclothes operators module")
 from .extractclothes import MPFB_OT_ExtractClothesOperator
 from .markclothes import MPFB_OT_MarkClothesOperator
 from .writeclothes import MPFB_OT_WriteClothesOperator
+from .writeclotheslibrary import MPFB_OT_WriteClothesLibraryOperator
 from .bmxref import MPFB_OT_BasemeshXrefOperator
 from .genuuid import MPFB_OT_GenerateUUIDOperator
 
@@ -14,6 +15,7 @@ __all__ = [
     "MPFB_OT_ExtractClothesOperator",
     "MPFB_OT_MarkClothesOperator",
     "MPFB_OT_WriteClothesOperator",
+    "MPFB_OT_WriteClothesLibraryOperator",
     "MPFB_OT_BasemeshXrefOperator",
-    "MPFB_OT_GenerateUUIDOperator",
+    "MPFB_OT_GenerateUUIDOperator"
 ]

@@ -128,6 +128,7 @@ class MPFB_PT_MakeClothes_Panel(Abstract_Panel):
             box.label(text="Need xref cache")
             return
 
+        box.operator('mpfb.write_makeclothes_library')
         box.operator('mpfb.write_makeclothes_clothes')
 
     def _clothes_props(self, scene, layout):
