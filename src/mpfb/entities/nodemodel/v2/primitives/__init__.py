@@ -1,3 +1,5 @@
+from mpfb.services.systemservice import SystemService
+
 from .abstractnodewrapper import AbstractNodeWrapper
 from .nodewrappershadernodeaddshader import snAddShader
 from .nodewrappershadernodeambientocclusion import snAmbientOcclusion
@@ -75,7 +77,8 @@ from .nodewrappershadernodetexgradient import snTexGradient
 from .nodewrappershadernodetexies import snTexIES
 from .nodewrappershadernodeteximage import snTexImage
 from .nodewrappershadernodetexmagic import snTexMagic
-from .nodewrappershadernodetexmusgrave import snTexMusgrave
+if not SystemService.is_blender_version_at_least(version=[4,1,0]):
+    from .nodewrappershadernodetexmusgrave import snTexMusgrave
 from .nodewrappershadernodetexnoise import snTexNoise
 from .nodewrappershadernodetexpointdensity import snTexPointDensity
 from .nodewrappershadernodetexsky import snTexSky
@@ -176,7 +179,10 @@ PRIMITIVE_NODE_WRAPPERS["ShaderNodeTexGradient"] = snTexGradient
 PRIMITIVE_NODE_WRAPPERS["ShaderNodeTexIES"] = snTexIES
 PRIMITIVE_NODE_WRAPPERS["ShaderNodeTexImage"] = snTexImage
 PRIMITIVE_NODE_WRAPPERS["ShaderNodeTexMagic"] = snTexMagic
-PRIMITIVE_NODE_WRAPPERS["ShaderNodeTexMusgrave"] = snTexMusgrave
+
+if not SystemService.is_blender_version_at_least(version=[4,1,0]):
+    PRIMITIVE_NODE_WRAPPERS["ShaderNodeTexMusgrave"] = snTexMusgrave
+
 PRIMITIVE_NODE_WRAPPERS["ShaderNodeTexNoise"] = snTexNoise
 PRIMITIVE_NODE_WRAPPERS["ShaderNodeTexPointDensity"] = snTexPointDensity
 PRIMITIVE_NODE_WRAPPERS["ShaderNodeTexSky"] = snTexSky
@@ -279,7 +285,6 @@ __all__ = [
     "snTexIES",
     "snTexImage",
     "snTexMagic",
-    "snTexMusgrave",
     "snTexNoise",
     "snTexPointDensity",
     "snTexSky",
@@ -303,3 +308,7 @@ __all__ = [
     "snWavelength",
     "snWireframe"
 ]
+
+if not SystemService.is_blender_version_at_least(version=[4,1,0]):
+    __all__.append("snTexMusgrave")
+

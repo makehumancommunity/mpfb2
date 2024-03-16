@@ -2,6 +2,8 @@ import bpy, os
 from pytest import approx
 from mpfb.services.objectservice import ObjectService
 from mpfb.services.nodeservice import NodeService
+from mpfb.services.systemservice import SystemService
+
 from mpfb.entities.nodemodel.v2 import *
 
 def test_primitives_are_available():
@@ -81,7 +83,8 @@ def test_primitives_are_available():
     assert snTexIES
     assert snTexImage
     assert snTexMagic
-    assert snTexMusgrave
+    if not SystemService.is_blender_version_at_least(version=[4,1,0]):
+        assert snTexMusgrave
     assert snTexNoise
     assert snTexPointDensity
     assert snTexSky
@@ -790,6 +793,8 @@ def test_can_create_sntexmagic():
     NodeService.destroy_node_tree(node_tree)
 
 def test_can_create_sntexmusgrave():
+    if SystemService.is_blender_version_at_least(version=[4,1,0]):
+        return
     node_tree_name = ObjectService.random_name()
     node_tree = NodeService.create_node_tree(node_tree_name)
     node = snTexMusgrave.create_instance(node_tree)
