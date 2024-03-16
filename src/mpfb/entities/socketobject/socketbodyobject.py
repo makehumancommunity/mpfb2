@@ -6,6 +6,7 @@ import numpy, bpy
 from mpfb.services.logservice import LogService
 from mpfb.services.socketservice import SocketService
 from mpfb.services.objectservice import ObjectService
+from mpfb.services.modifierservice import ModifierService
 from mpfb.services.rigservice import RigService
 from .socketmeshobject import SocketMeshObject
 from mpfb.entities.objectproperties import GeneralObjectProperties
@@ -218,12 +219,8 @@ class SocketBodyObject(SocketMeshObject):
                 obj_parent = parent
             ObjectService.link_blender_object(obj, collection=collection, parent=obj_parent)
 
-        if parent and obj:
-            if parent.type == "ARMATURE":
-                modifier = obj.modifiers.new("Armature", 'ARMATURE')
-                modifier.object = parent
-                while obj.modifiers.find(modifier.name) != 0:
-                    bpy.ops.object.modifier_move_up({'object': obj}, modifier=modifier.name)
+        if parent and obj and parent.type == "ARMATURE":
+            ModifierService.create_armature_modifier(obj, parent, "Armature")
 
         return (obj, parent)
 

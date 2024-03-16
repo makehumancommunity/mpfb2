@@ -36,6 +36,15 @@ class ModifierService:
         return modifier
 
     @staticmethod
+    def create_armature_modifier(blender_object, armature_object, modifier_name, show_in_editmode=True, show_on_cage=True, move_to_top=True):
+        """Create an armature modifier for an object. Optionally place it in the top of the stack."""
+        modifier = ModifierService.create_modifier(blender_object, modifier_name, 'ARMATURE', move_to_top=move_to_top)
+        modifier.object = armature_object
+        modifier.show_in_editmode = show_in_editmode
+        modifier.show_on_cage = show_on_cage
+        return modifier
+
+    @staticmethod
     def create_mask_modifier(blender_object, modifier_name, vertex_group, show_in_editmode=True, show_on_cage=True, move_to_top=False):
         """Create a mask modifier for blender_object, for the given vertex group. Optionally place it in the top of the stack."""
         modifier = ModifierService.create_modifier(blender_object, modifier_name, 'MASK', move_to_top=move_to_top)
