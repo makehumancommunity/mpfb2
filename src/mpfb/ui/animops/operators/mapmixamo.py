@@ -8,7 +8,31 @@ from mpfb.ui.mpfboperator import MpfbOperator
 import bpy, math
 
 _LOG = LogService.get_logger("animops.mapmixamo")
-_LOG.set_level(LogService.DEBUG)
+
+def _find_bone_by_name(armature, name):
+    """Find bone by name, taking into account that the name might have a different prefix"""
+
+    prefix = None
+
+    # Find prefix
+    for bone in armature.data.bones:
+        if ":" in bone.name:
+            prefix = bone.name.split(":")[0]
+            break
+
+    if not prefix:
+        raise ValueError("This does not look like a mixamo rig, it doesn't have prefixed bone names")
+
+    if not "mixamo" in prefix:
+        raise ValueError("This does not look like a mixamo rig, the bone name prefix does not contain 'mixamo'")
+
+    name_without_prefix = name.split(":")[1]
+
+    expected_name = prefix + ":" + name_without_prefix
+    if expected_name in armature.data.bones:
+        return armature.data.bones[expected_name]
+
+    return None
 
 class MPFB_OT_Map_Mixamo_Operator(MpfbOperator):
     """Add bone constraints to all mixamo bones in the target rig, making them copy the location and rotation of the bones in the source rig"""
@@ -51,24 +75,28 @@ class MPFB_OT_Map_Mixamo_Operator(MpfbOperator):
 
         bpy.ops.object.mode_set(mode='POSE', toggle=False)
 
-        if not "mixamorig:Hips" in dst.pose.bones:
-            self.report({"ERROR"}, "'mixamorig:Hips' bone not found in destination. Strange bone naming?")
+        dst_hips = _find_bone_by_name(dst, "mixamorig:Hips")
+        src_hips = _find_bone_by_name(src, "mixamorig:Hips")
+
+        if not dst_hips:
+            self.report({"ERROR"}, "Hips bone not found in destination. Is this a mixamo rig?")
             return {'CANCELLED'}
 
-        if not "mixamorig:Hips" in src.pose.bones:
-            self.report({"ERROR"}, "'mixamorig:Hips' bone not found in source. Strange bone naming?")
+        if not src_hips:
+            self.report({"ERROR"}, "Hips bone not found in source. Is this a mixamo rig?")
             return {'CANCELLED'}
 
         for bone in dst.data.bones:
-            if bone.name in src.data.bones:
-                _LOG.debug("Bone", bone.name)
-                constraint = RigService.add_bone_constraint_to_pose_bone(bone.name, dst, "COPY_ROTATION")
-                constraint.target = src
-                constraint.subtarget = bone.name
+            src_bone = _find_bone_by_name(src, bone.name)
+            _LOG.debug("Bone", src_bone.name)
+            constraint = RigService.add_bone_constraint_to_pose_bone(bone.name, dst, "COPY_ROTATION")
+            constraint.target = src
+            constraint.subtarget = src_bone.name
 
-        constraint = RigService.add_bone_constraint_to_pose_bone("mixamorig:Hips", dst, "COPY_LOCATION")
+
+        constraint = RigService.add_bone_constraint_to_pose_bone(dst_hips.name, dst, "COPY_LOCATION")
         constraint.target = src
-        constraint.subtarget = "mixamorig:Hips"
+        constraint.subtarget = src_hips.name
 
         self.report({"INFO"}, "Done")
 
