@@ -700,6 +700,7 @@ class RigService:
             ["oculi02.R", "default_no_toes"],
             ["oculi02.R", "toe2-1.L", "default"],
             ["thumb_01_l", "game_engine"],
+            ["thumb_01_l", "breast_l", "game_engine_with_breast"],
             ["RThumb", "cmu_mb"],
             ["mixamo:Hips", "mixamo"],
             ["brow.T.R.002", "rigify.human"],
