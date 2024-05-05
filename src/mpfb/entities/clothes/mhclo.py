@@ -298,5 +298,33 @@ class Mhclo:
                     mhclo_file.write("{:.4f} {:.4f} {:.4f} ".format(weights[0], weights[1], weights[2]))
                     mhclo_file.write("{:.4f} {:.4f} {:.4f}\n".format(offsets[0], offsets[1], offsets[2]))
 
+            mhclo_file.write("\n")
+            if self.delverts and len(self.delverts) > 0:
+                _LOG.debug("delverts", self.delverts)
+                mhclo_file.write("# The following are the vertices on the base mesh which should be hidden:\ndelete_verts\n")
+
+                current_range = None
+                for index in self.delverts:
+
+                    if index == 4396:
+                        _LOG.debug("\n\n XXXXXXXXXXXXXXX \n\n")
+                    if not current_range:
+                        _LOG.debug("START: Index, range", (index, current_range))
+                        current_range = [index, index]
+                    else:
+                        last_end = current_range[1]
+                        if index == current_range[1] + 1:
+                            _LOG.debug("EXTENDING", (index, current_range))
+                            current_range[1] = index
+                        else:
+                            _LOG.debug("BREAKING", (index, current_range))
+                            mhclo_file.write(" {} - {}".format(current_range[0], current_range[1]))
+                            current_range = [index, index]
+                mhclo_file.write(" {} - {}".format(current_range[0], current_range[1]))
+            else:
+                mhclo_file.write("# No delete_verts have been specified\n")
+
+
+
 
 

@@ -54,7 +54,9 @@ class ClothesCommon():
         for prop in ["uuid"]:
             props_dict[prop] = GeneralObjectProperties.get_value(prop, entity_reference=clothes)
 
-        mhclo = ClothesService.create_mhclo_from_clothes_matching(basemesh, clothes, properties_dict=props_dict)
+        delete_group = MakeClothesObjectProperties.get_value("delete_group", entity_reference=clothes)
+
+        mhclo = ClothesService.create_mhclo_from_clothes_matching(basemesh, clothes, properties_dict=props_dict, delete_group=delete_group)
         _LOG.debug("mhclo", mhclo)
 
         matbn = None

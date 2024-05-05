@@ -97,6 +97,35 @@ class MPFB_PT_MakeClothes_Panel(Abstract_Panel):
             ]
         MAKECLOTHES_PROPERTIES.draw_properties(scene, box, props)
 
+    def _generate_delete(self, blender_object, scene, layout):
+        box = self._create_box(layout, "Delete group", "MATERIAL_DATA")
+
+        if len(bpy.context.selected_objects) != 2:
+            box.label(text="Select exactly two objects")
+            return
+
+        basemesh = None
+        clothes = None
+        for obj in bpy.context.selected_objects:
+            if ObjectService.object_is_basemesh(obj):
+                basemesh = obj
+            else:
+                ot = ObjectService.get_object_type(obj)
+                if ot and ot != "Skeleton":
+                    clothes = obj
+
+        if not basemesh:
+            box.label(text="Select a base mesh")
+            return
+
+        if not clothes:
+            box.label(text="Select a clothes type mesh")
+            return
+
+        props = ["delete_group"]
+        MakeClothesObjectProperties.draw_properties(clothes, box, props)
+
+        box.operator('mpfb.makeclothes_gendelete')
 
     def _write_clothes(self, blender_object, scene, layout):
         box = self._create_box(layout, "Write clothes", "MATERIAL_DATA")
@@ -190,6 +219,7 @@ class MPFB_PT_MakeClothes_Panel(Abstract_Panel):
             self._clothes_props(scene, layout)
             self._material(clothes, scene, layout)
 
+        self._generate_delete(blender_object, scene, layout)
         self._write_clothes(blender_object, scene, layout)
 
 

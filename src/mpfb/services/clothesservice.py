@@ -1,12 +1,13 @@
 """This module contains utility functions for clothes."""
 
-import random, os, bpy, time, bmesh
+import random, os, bpy, time, bmesh, numpy
 
 from mathutils import Vector
 
 from mpfb.entities.rig import Rig
 from mpfb.entities.clothes.vertexmatch import VertexMatch
 from mpfb.services.objectservice import ObjectService
+from mpfb.services.meshservice import MeshService
 from mpfb.services.logservice import LogService
 from mpfb.services.locationservice import LocationService
 from mpfb.services.assetservice import AssetService
@@ -618,7 +619,7 @@ class ClothesService:
         return report
 
     @staticmethod
-    def create_mhclo_from_clothes_matching(basemesh, clothes, properties_dict=None):
+    def create_mhclo_from_clothes_matching(basemesh, clothes, properties_dict=None, delete_group=None):
         """Create a MHCLO object by matching vertices on the clothes to vertices on the basemesh."""
         mhclo = Mhclo()
         mhclo.verts = dict()
@@ -674,6 +675,20 @@ class ClothesService:
         duration = int((after - before) * 1000.0)
         _LOG.debug("vert matching total", duration)
 
+        _LOG.debug("delete group", delete_group)
+
+        if delete_group and delete_group in basemesh.vertex_groups:
+            mhclo.delete_group = delete_group
+            all_verts = []
+            for vert in MeshService.find_vertices_in_vertex_group(basemesh, delete_group):
+                all_verts.append(vert[0])
+            all_verts.sort()
+            _LOG.dump("All verts", all_verts)
+            mhclo.delverts = numpy.sort(numpy.unique(numpy.array(all_verts, dtype=numpy.int32))).tolist()
+            mhclo.delete = True
+        else:
+            _LOG.warn("Delete group not specified or not present", delete_group)
+
         return mhclo
 
     @staticmethod
@@ -726,3 +741,68 @@ class ClothesService:
         ObjectService.delete_object(mesh_object)
 
         return reference_scale
+
+    @staticmethod
+    def create_new_delete_group(basemesh, clothes, mhclo, group_name="Delete"):
+        """
+        Creates a new delete group on the given basemesh based on which vertices are covered by the clothes.
+
+        Args:
+            basemesh (bpy.types.Mesh): The basemesh object. This needs to be a valid MakeHuman basemesh object.
+            clothes (bpy.types.Mesh): The clothes object. This needs to match the mesh in the mhclo object
+            mhclo (mpfb.entities.clothes.mhclo.Mhclo): A mhclo object describing the matching between the clothes and the base mesh.
+
+        Returns:
+            bpy.types.VertexGroup: The new delete group.
+        """
+        if not basemesh or not clothes or not mhclo:
+            raise ValueError("basemesh, clothes and mhclo must be valid objects")
+
+        if basemesh.type != "MESH" or clothes.type != "MESH":
+            raise ValueError("basemesh and clothes must be mesh objects")
+
+        if not mhclo.verts or len(mhclo.verts.keys()) < 1:
+            raise ValueError("This MHCLO object does not seem to have been populated with matchings")
+
+        _LOG.dump("mhclo.verts", mhclo.verts)
+
+        if len(mhclo.verts.keys()) != len(clothes.data.vertices):
+            _LOG.error("len mhclo.verts", len(mhclo.verts))
+            _LOG.error("len clothes.data.vertices", len(clothes.data.vertices))
+            raise ValueError("The clothes mesh does not have the same number of vertices as the MHCLO object")
+
+        all_verts_raw = []
+        for vert_idx in mhclo.verts:
+            vert_match = mhclo.verts[vert_idx]
+            all_verts_raw.extend(vert_match["verts"])
+
+        all_verts = numpy.sort(numpy.unique(numpy.array(all_verts_raw, dtype=numpy.int32))).tolist()
+
+        _LOG.debug("Vertices belonging to a match", len(all_verts))
+
+        # At this point the "all_verts" list contains the indices of the vertices in the clothes mesh which have been
+        # matched by the MHCLO. This is likely to be patchy, especially where the base mesh is denser than the clothes.
+        #
+        # We will thus extend the list to also include all other verts which belong to a face which was touched by
+        # the first set
+
+        face_verts_raw = []
+
+        for vert in all_verts:
+            for polygon in basemesh.data.polygons:
+                if vert in polygon.vertices:
+                    face_verts_raw.extend(list(polygon.vertices))
+
+        face_verts = numpy.sort(numpy.unique(numpy.array(face_verts_raw, dtype=numpy.int32))).tolist()
+
+        _LOG.debug("Vertices belonging to a relevant face", len(face_verts))
+
+        if group_name in basemesh.vertex_groups:
+            _LOG.debug("Deleting existing group", group_name)
+            basemesh.vertex_groups.remove(basemesh.vertex_groups[group_name])
+
+        delete_group = basemesh.vertex_groups.new(name=group_name)
+        delete_group.add(face_verts, 1.0, "REPLACE")
+
+        _LOG.debug("delete_group", delete_group)
+
