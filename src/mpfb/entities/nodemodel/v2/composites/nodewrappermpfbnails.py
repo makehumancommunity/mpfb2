@@ -4,9 +4,9 @@ _ORIGINAL_NODE_DEF = json.loads("""
 {
     "class": "MpfbNails",
     "inputs": {
-        "Input_0": {
+        "Input_Socket_NailsColor": {
             "name": "NailsColor",
-            "identifier": "Input_0",
+            "identifier": "Socket_0",
             "class": "NodeSocketColor",
             "value_type": "RGBA",
             "default_value": [
@@ -16,54 +16,90 @@ _ORIGINAL_NODE_DEF = json.loads("""
                 1.0
             ]
         },
-        "Input_2": {
-            "name": "NailsSSSStrength",
-            "identifier": "Input_2",
-            "class": "NodeSocketFloatFactor",
+        "Input_Socket_SSSWeight": {
+            "name": "SSSWeight",
+            "identifier": "Socket_1",
+            "class": "NodeSocketFloat",
             "value_type": "VALUE",
             "default_value": 0.1,
             "min_value": 0.0,
             "max_value": 1.0
         },
-        "Input_5": {
-            "name": "NailsSSSIor",
-            "identifier": "Input_5",
-            "class": "NodeSocketFloatFactor",
-            "value_type": "VALUE",
-            "default_value": 1.4,
-            "min_value": 1.01,
-            "max_value": 3.8
-        },
-        "Input_6": {
-            "name": "NailsSSSRadiusMutiplier",
-            "identifier": "Input_6",
-            "class": "NodeSocketFloatFactor",
+        "Input_Socket_SSSRadiusMutiplier": {
+            "name": "SSSRadiusMutiplier",
+            "identifier": "Socket_3",
+            "class": "NodeSocketFloat",
             "value_type": "VALUE",
             "default_value": 0.7,
             "min_value": 0.0,
             "max_value": 1.0
         },
-        "Input_7": {
-            "name": "NailsMetallic",
-            "identifier": "Input_7",
-            "class": "NodeSocketFloatFactor",
+        "Input_Socket_SSSRadiusX": {
+            "name": "SSSRadiusX",
+            "identifier": "Socket_8",
+            "class": "NodeSocketFloat",
+            "value_type": "VALUE",
+            "default_value": 1.0,
+            "min_value": -10000.0,
+            "max_value": 10000.0
+        },
+        "Input_Socket_SSSRadiusY": {
+            "name": "SSSRadiusY",
+            "identifier": "Socket_9",
+            "class": "NodeSocketFloat",
+            "value_type": "VALUE",
+            "default_value": 0.2,
+            "min_value": -10000.0,
+            "max_value": 10000.0
+        },
+        "Input_Socket_SSSRadiusZ": {
+            "name": "SSSRadiusZ",
+            "identifier": "Socket_10",
+            "class": "NodeSocketFloat",
+            "value_type": "VALUE",
+            "default_value": 0.1,
+            "min_value": -10000.0,
+            "max_value": 10000.0
+        },
+        "Input_Socket_SSSIor": {
+            "name": "SSSIor",
+            "identifier": "Socket_2",
+            "class": "NodeSocketFloat",
+            "value_type": "VALUE",
+            "default_value": 1.4,
+            "min_value": 1.01,
+            "max_value": 3.8
+        },
+        "Input_Socket_SSSAnisotropy": {
+            "name": "SSSAnisotropy",
+            "identifier": "Socket_11",
+            "class": "NodeSocketFloat",
             "value_type": "VALUE",
             "default_value": 0.0,
             "min_value": 0.0,
             "max_value": 1.0
         },
-        "Input_10": {
+        "Input_Socket_NailsMetallic": {
+            "name": "NailsMetallic",
+            "identifier": "Socket_4",
+            "class": "NodeSocketFloat",
+            "value_type": "VALUE",
+            "default_value": 0.0,
+            "min_value": 0.0,
+            "max_value": 1.0
+        },
+        "Input_Socket_NailsRoughness": {
             "name": "NailsRoughness",
-            "identifier": "Input_10",
-            "class": "NodeSocketFloatFactor",
+            "identifier": "Socket_5",
+            "class": "NodeSocketFloat",
             "value_type": "VALUE",
             "default_value": 0.2,
             "min_value": 0.0,
             "max_value": 1.0
         },
-        "Input_23": {
+        "Input_Socket_Normal": {
             "name": "Normal",
-            "identifier": "Input_23",
+            "identifier": "Socket_6",
             "class": "NodeSocketVector",
             "value_type": "VECTOR",
             "default_value": [
@@ -74,9 +110,9 @@ _ORIGINAL_NODE_DEF = json.loads("""
         }
     },
     "outputs": {
-        "Output_1": {
+        "Output_Socket_BSDF": {
             "name": "BSDF",
-            "identifier": "Output_1",
+            "identifier": "Socket_7",
             "class": "NodeSocketShader",
             "value_type": "SHADER",
             "default_value": null
@@ -87,9 +123,9 @@ _ORIGINAL_NODE_DEF = json.loads("""
             "name": "color",
             "class": "Color",
             "value": [
-                0.608,
-                0.608,
-                0.608
+                0.4,
+                0.4,
+                0.5
             ]
         },
         "height": {
@@ -101,14 +137,14 @@ _ORIGINAL_NODE_DEF = json.loads("""
             "name": "location",
             "class": "Vector",
             "value": [
-                705.4062,
-                -841.0432
+                701.1013,
+                -1015.853
             ]
         },
         "use_custom_color": {
             "name": "use_custom_color",
             "class": "bool",
-            "value": false
+            "value": true
         },
         "width": {
             "name": "width",
@@ -126,12 +162,6 @@ _ORIGINAL_TREE_DEF = json.loads("""
             "from_socket": "NailsColor",
             "to_node": "Principled BSDF",
             "to_socket": "Base Color"
-        },
-        {
-            "from_node": "Principled BSDF",
-            "from_socket": "BSDF",
-            "to_node": "Group Output",
-            "to_socket": "BSDF"
         },
         {
             "from_node": "Group Input",
@@ -153,59 +183,89 @@ _ORIGINAL_TREE_DEF = json.loads("""
         },
         {
             "from_node": "Group Input",
-            "from_socket": "NailsColor",
+            "from_socket": "SSSWeight",
             "to_node": "SSS",
-            "to_socket": "SubsurfaceColor"
+            "to_socket": "SSSWeight"
+        },
+        {
+            "from_node": "Group Input",
+            "from_socket": "SSSRadiusMutiplier",
+            "to_node": "SSS",
+            "to_socket": "SSSScaleMultiplier"
+        },
+        {
+            "from_node": "Group Input",
+            "from_socket": "SSSIor",
+            "to_node": "SSS",
+            "to_socket": "SSSIor"
         },
         {
             "from_node": "SSS",
-            "from_socket": "SubsurfaceColor",
-            "to_node": "Principled BSDF",
-            "to_socket": "Subsurface Color"
-        },
-        {
-            "from_node": "Group Input",
-            "from_socket": "NailsSSSStrength",
-            "to_node": "SSS",
-            "to_socket": "SubsurfaceStrength"
-        },
-        {
-            "from_node": "Group Input",
-            "from_socket": "NailsSSSRadiusMutiplier",
-            "to_node": "SSS",
-            "to_socket": "SubsurfaceRadiusMultiplyer"
-        },
-        {
-            "from_node": "Group Input",
-            "from_socket": "NailsSSSIor",
-            "to_node": "SSS",
-            "to_socket": "SubsurfaceIor"
-        },
-        {
-            "from_node": "SSS",
-            "from_socket": "SubsurfaceRadius",
+            "from_socket": "SSSRadius",
             "to_node": "Principled BSDF",
             "to_socket": "Subsurface Radius"
         },
         {
             "from_node": "SSS",
-            "from_socket": "SubsurfaceStrength",
+            "from_socket": "SSSWeight",
             "to_node": "Principled BSDF",
-            "to_socket": "Subsurface"
+            "to_socket": "Subsurface Weight"
         },
         {
             "from_node": "SSS",
-            "from_socket": "SubsurfaceIor",
+            "from_socket": "SSSIor",
             "to_node": "Principled BSDF",
             "to_socket": "Subsurface IOR"
+        },
+        {
+            "from_node": "Principled BSDF",
+            "from_socket": "BSDF",
+            "to_node": "Group Output",
+            "to_socket": "BSDF"
+        },
+        {
+            "from_node": "SSS",
+            "from_socket": "SSSScale",
+            "to_node": "Principled BSDF",
+            "to_socket": "Subsurface Scale"
+        },
+        {
+            "from_node": "SSS",
+            "from_socket": "SSSAnisotropy",
+            "to_node": "Principled BSDF",
+            "to_socket": "Subsurface Anisotropy"
+        },
+        {
+            "from_node": "Group Input",
+            "from_socket": "SSSRadiusX",
+            "to_node": "SSS",
+            "to_socket": "SSSRadiusX"
+        },
+        {
+            "from_node": "Group Input",
+            "from_socket": "SSSRadiusY",
+            "to_node": "SSS",
+            "to_socket": "SSSRadiusY"
+        },
+        {
+            "from_node": "Group Input",
+            "from_socket": "SSSRadiusZ",
+            "to_node": "SSS",
+            "to_socket": "SSSRadiusZ"
+        },
+        {
+            "from_node": "Group Input",
+            "from_socket": "SSSAnisotropy",
+            "to_node": "SSS",
+            "to_socket": "SSSAnisotropy"
         }
     ],
     "nodes": [
         {
             "attribute_values": {
                 "location": [
-                    290.0,
-                    -0.0
+                    451.004,
+                    -6.028
                 ]
             },
             "class": "NodeGroupOutput",
@@ -215,7 +275,12 @@ _ORIGINAL_TREE_DEF = json.loads("""
             "output_socket_values": {}
         },
         {
-            "attribute_values": {},
+            "attribute_values": {
+                "location": [
+                    161.004,
+                    -6.028
+                ]
+            },
             "class": "ShaderNodeBsdfPrincipled",
             "input_socket_values": {},
             "label": "Principled BSDF",
@@ -225,21 +290,21 @@ _ORIGINAL_TREE_DEF = json.loads("""
         {
             "attribute_values": {
                 "color": [
-                    0.608,
-                    0.608,
-                    0.608
+                    0.4,
+                    0.4,
+                    0.5
                 ],
                 "height": 100.0,
                 "location": [
-                    -463.1018,
-                    64.6132
+                    -230.6362,
+                    -328.0659
                 ],
-                "use_custom_color": false,
+                "use_custom_color": true,
                 "width": 232.2694
             },
             "class": "MpfbSSSControl",
             "input_socket_values": {
-                "SubsurfaceRadiusMultiplyer": 1.0
+                "SSSScaleMultiplier": 1.0
             },
             "label": "SSS",
             "name": "SSS",
@@ -248,8 +313,8 @@ _ORIGINAL_TREE_DEF = json.loads("""
         {
             "attribute_values": {
                 "location": [
-                    -785.7612,
-                    -232.5622
+                    -740.9901,
+                    -254.0907
                 ]
             },
             "class": "NodeGroupInput",
@@ -275,24 +340,28 @@ class _NodeWrapperMpfbNails(AbstractGroupWrapper):
         def link(from_node, from_socket, to_node, to_socket):
             AbstractGroupWrapper.create_link(node_tree, nodes[from_node], from_socket, nodes[to_node], to_socket)
 
-        nodes["Group Output"].location = [290.0, -0.0]
-        nodes["Group Input"].location = [-785.7612, -232.5622]
+        nodes["Group Output"].location = [451.004, -6.028]
+        nodes["Group Input"].location = [-740.9901, -254.0907]
 
-        node("ShaderNodeBsdfPrincipled", "Principled BSDF")
-        node("MpfbSSSControl", "SSS", attribute_values={"color": [0.608, 0.608, 0.608], "height": 100.0, "location": [-463.1018, 64.6132], "use_custom_color": False, "width": 232.2694}, input_socket_values={"SubsurfaceRadiusMultiplyer": 1.0})
+        node("ShaderNodeBsdfPrincipled", "Principled BSDF", attribute_values={"location": [161.004, -6.028]})
+        node("MpfbSSSControl", "SSS", attribute_values={"color": [0.4, 0.4, 0.5], "height": 100.0, "location": [-230.6362, -328.0659], "use_custom_color": True, "width": 232.2694}, input_socket_values={"SSSScaleMultiplier": 1.0})
 
         link("Group Input", "NailsColor", "Principled BSDF", "Base Color")
         link("Group Input", "NailsMetallic", "Principled BSDF", "Metallic")
         link("Group Input", "NailsRoughness", "Principled BSDF", "Roughness")
         link("Group Input", "Normal", "Principled BSDF", "Normal")
-        link("Group Input", "NailsColor", "SSS", "SubsurfaceColor")
-        link("Group Input", "NailsSSSStrength", "SSS", "SubsurfaceStrength")
-        link("Group Input", "NailsSSSRadiusMutiplier", "SSS", "SubsurfaceRadiusMultiplyer")
-        link("Group Input", "NailsSSSIor", "SSS", "SubsurfaceIor")
-        link("SSS", "SubsurfaceColor", "Principled BSDF", "Subsurface Color")
-        link("SSS", "SubsurfaceRadius", "Principled BSDF", "Subsurface Radius")
-        link("SSS", "SubsurfaceStrength", "Principled BSDF", "Subsurface")
-        link("SSS", "SubsurfaceIor", "Principled BSDF", "Subsurface IOR")
+        link("Group Input", "SSSWeight", "SSS", "SSSWeight")
+        link("Group Input", "SSSRadiusMutiplier", "SSS", "SSSScaleMultiplier")
+        link("Group Input", "SSSIor", "SSS", "SSSIor")
+        link("Group Input", "SSSRadiusX", "SSS", "SSSRadiusX")
+        link("Group Input", "SSSRadiusY", "SSS", "SSSRadiusY")
+        link("Group Input", "SSSRadiusZ", "SSS", "SSSRadiusZ")
+        link("Group Input", "SSSAnisotropy", "SSS", "SSSAnisotropy")
+        link("SSS", "SSSRadius", "Principled BSDF", "Subsurface Radius")
+        link("SSS", "SSSWeight", "Principled BSDF", "Subsurface Weight")
+        link("SSS", "SSSIor", "Principled BSDF", "Subsurface IOR")
+        link("SSS", "SSSScale", "Principled BSDF", "Subsurface Scale")
+        link("SSS", "SSSAnisotropy", "Principled BSDF", "Subsurface Anisotropy")
         link("Principled BSDF", "BSDF", "Group Output", "BSDF")
 
 NodeWrapperMpfbNails = _NodeWrapperMpfbNails()

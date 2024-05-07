@@ -13,8 +13,8 @@ def test_composite_can_create_instance():
     node = NodeWrapperMpfbEars.create_instance(node_tree)
     assert node
     assert node.node_tree.name == "MpfbEars"
-    assert "Principled BSDF.001" in node.node_tree.nodes
     assert "Group Output" in node.node_tree.nodes
+    assert "Principled BSDF.001" in node.node_tree.nodes
     assert "earsskingroup" in node.node_tree.nodes
     assert "Group Input" in node.node_tree.nodes
     has_link_to_output = False

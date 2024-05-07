@@ -20,7 +20,10 @@ _ORIGINAL_NODE_DEF = json.loads("""
         "image": {
             "class": "image",
             "name": "image",
-            "value": ""
+            "value": {
+                "colorspace": "sRGB",
+                "filepath": ""
+            }
         },
         "interpolation": {
             "class": "str",

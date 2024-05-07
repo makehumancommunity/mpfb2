@@ -428,8 +428,9 @@ class ObjectService:
         if not blender_object or blender_object.type != "ARMATURE" or blender_object.data.get("rig_id"):
             return False
 
-        if blender_object.data.get("rigify_layers") and len(blender_object.data.rigify_layers) > 0\
-                or blender_object.data.get("rigify_target_rig"):
+        if (blender_object.data.get("rigify_target_rig") or
+                blender_object.data.get("rigify_colors") and len(blender_object.data.rigify_colors) > 0 or
+                any(bcoll.get("rigify_ui_row", 0) > 0 for bcoll in blender_object.data.collections)):
             return True
 
         if check_bones:
@@ -546,16 +547,29 @@ class ObjectService:
         if not os.path.exists(filepath):
             raise IOError('File does not exist: ' + filepath)
 
-        if SystemService.is_blender_version_at_least([3, 6, 0]):
-            bpy.ops.wm.obj_import(filepath=filepath, use_split_objects=False, use_split_groups=False)
-        else:
-            bpy.ops.import_scene.obj(filepath=filepath, use_split_objects=False, use_split_groups=False)
+        bpy.ops.wm.obj_import(filepath=filepath, use_split_objects=False, use_split_groups=False)
+
+        # previous blender operation: bpy.ops.import_scene.obj(filepath=filepath, use_split_objects=False, use_split_groups=False)
 
         # import_scene rotated object 90 degrees
         bpy.ops.object.transform_apply(location=False, rotation=True, scale=False)
 
         loaded_object = context.selected_objects[0] # pylint: disable=E1136
         return loaded_object
+
+    @staticmethod
+    def save_wavefront_file(filepath, mesh_object, context=None):
+        if context is None:
+            context = bpy.context
+        if filepath is None:
+            raise ValueError('Cannot load None filepath')
+        if not mesh_object or mesh_object.type != 'MESH':
+            raise ValueError('No valid mesh object was provided')
+
+        ObjectService.deselect_and_deactivate_all()
+        mesh_object.select_set(True)
+
+        bpy.ops.wm.obj_export(filepath=filepath, export_selected_objects=True, export_materials=False)
 
     @staticmethod
     def load_base_mesh(context=None, scale_factor=1.0, load_vertex_groups=True, exclude_vertex_groups=None):

@@ -1,0 +1,7 @@
+{
+    "type": "int",
+    "name": "resy",
+    "description": "Height of the target openpose canvas. This should be equal to the height of the image you intend to generate later on.",
+    "label": "Target height",
+    "default": 512
+}

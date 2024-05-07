@@ -26,6 +26,7 @@ class _LocationService():
 
         self._user_data = os.path.join(self._user_home, "data")
         self._user_config = os.path.join(self._user_home, "config")
+        self._user_cache = os.path.join(self._user_home, "cache")
 
         self._log_dir = os.path.join(self._user_home, "logs")
 
@@ -44,6 +45,7 @@ class _LocationService():
         self._relevant_directories.append(self._user_home)
         self._relevant_directories.append(self._user_data)
         self._relevant_directories.append(self._user_config)
+        self._relevant_directories.append(self._user_cache)
 
         self._relevant_directories.append(self._log_dir)
 
@@ -153,6 +155,10 @@ class _LocationService():
     def get_user_config(self, sub_path=None):
         _LOG.enter()
         return self._return_path(self._user_config, sub_path)
+
+    def get_user_cache(self, sub_path=None):
+        _LOG.enter()
+        return self._return_path(self._user_cache, sub_path)
 
     def get_mpfb_data(self, sub_path=None):
         _LOG.enter()

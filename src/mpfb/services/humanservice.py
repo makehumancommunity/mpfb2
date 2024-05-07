@@ -12,6 +12,7 @@ from mpfb.services.nodeservice import NodeService
 from mpfb.entities.clothes.mhclo import Mhclo
 from mpfb.entities.rig import Rig
 from mpfb.entities.material.makeskinmaterial import MakeSkinMaterial
+from mpfb.entities.material.mhmaterial import MhMaterial
 from mpfb.entities.material.enhancedskinmaterial import EnhancedSkinMaterial
 from mpfb.services.materialservice import MaterialService
 from mpfb.services.locationservice import LocationService
@@ -374,27 +375,39 @@ class HumanService:
         if not mhclo.material:
             _LOG.debug("Material is not set in mhclo")
 
-        if not mhclo.material is None and material_type == "MAKESKIN":
-            _LOG.debug("Setting up MAKESKIN material", mhclo.material)
+        if mhclo.material is not None:
+            _LOG.debug("Setting up material", (mhclo.material, material_type))
             MaterialService.delete_all_materials(clothes)
-            makeskin_material = MakeSkinMaterial()
-            material = mhclo.material
-            _LOG.debug("UUID, alternative_materials", (mhclo.uuid, alternative_materials))
-            if mhclo.uuid and alternative_materials and mhclo.uuid in alternative_materials:
-                material = AssetService.find_asset_absolute_path(alternative_materials[mhclo.uuid], str(asset_type).lower())
-                if not material or not os.path.exists(material):
-                    _LOG.warn("Failed to find full path to alternative material", alternative_materials[mhclo.uuid])
-                    material = mhclo.material
-                else:
-                    GeneralObjectProperties.set_value("alternative_material", alternative_materials[mhclo.uuid], entity_reference=clothes)
-            _LOG.debug("Actual material", material)
-            makeskin_material.populate_from_mhmat(material)
-            blender_material = MaterialService.create_empty_material(name, clothes)
-            makeskin_material.apply_node_tree(blender_material)
-            blender_material.diffuse_color = color
 
-            if mhclo.uuid and color_adjustments and mhclo.uuid in color_adjustments:
-                MaterialService.apply_color_adjustment(clothes, color_adjustments[mhclo.uuid])
+            material = mhclo.material
+
+            if material_type == "MAKESKIN":
+                makeskin_material = MakeSkinMaterial()
+                _LOG.debug("UUID, alternative_materials", (mhclo.uuid, alternative_materials))
+                if mhclo.uuid and alternative_materials and mhclo.uuid in alternative_materials:
+                    material = AssetService.find_asset_absolute_path(alternative_materials[mhclo.uuid], str(asset_type).lower())
+                    if not material or not os.path.exists(material):
+                        _LOG.warn("Failed to find full path to alternative material", alternative_materials[mhclo.uuid])
+                        material = mhclo.material
+                    else:
+                        GeneralObjectProperties.set_value("alternative_material", alternative_materials[mhclo.uuid], entity_reference=clothes)
+                _LOG.debug("Actual material", material)
+                makeskin_material.populate_from_mhmat(material)
+                blender_material = MaterialService.create_empty_material(name, clothes)
+                makeskin_material.apply_node_tree(blender_material)
+
+                if mhclo.uuid and color_adjustments and mhclo.uuid in color_adjustments:
+                    MaterialService.apply_color_adjustment(clothes, color_adjustments[mhclo.uuid])
+
+                blender_material.diffuse_color = color
+
+            if material_type == "GAMEENGINE":
+                from mpfb.entities.nodemodel.v2.materials.nodewrappergameengine import NodeWrapperGameEngine
+                blender_material = MaterialService.create_empty_material(name, clothes)
+                mhmat = MhMaterial()
+                mhmat.populate_from_mhmat(mhclo.material)
+                NodeWrapperGameEngine.create_instance(blender_material.node_tree, mhmat=mhmat)
+                blender_material.diffuse_color = color
 
         if material_type == "PROCEDURAL_EYES":
             MaterialService.delete_all_materials(clothes)
@@ -563,6 +576,14 @@ class HumanService:
             makeskin_material.populate_from_mhmat(mhmat_file)
             blender_material = MaterialService.create_empty_material(name, basemesh)
             makeskin_material.apply_node_tree(blender_material)
+
+        if skin_type == "GAMEENGINE":
+            _LOG.warn("Creating game engine skin material")
+            from mpfb.entities.nodemodel.v2.materials.nodewrappergameengine import NodeWrapperGameEngine
+            blender_material = MaterialService.create_empty_material(name, basemesh)
+            mhmat = MhMaterial()
+            mhmat.populate_from_mhmat(mhmat_file)
+            NodeWrapperGameEngine.create_instance(blender_material.node_tree, mhmat=mhmat)
 
         if skin_type == "LAYERED":
             blender_material = MaterialService.create_v2_skin_material(name, basemesh, mhmat_file)
@@ -1174,7 +1195,7 @@ class HumanService:
 
         # Type-specific handling
         if is_rigify:
-            assert len(armature_object.data.rigify_layers) > 0
+            assert len(armature_object.data.rigify_colors) > 0
 
             if hasattr(armature_object.data, 'rigify_rig_basename'):
                 armature_object.data.rigify_rig_basename = "Human.rigify"

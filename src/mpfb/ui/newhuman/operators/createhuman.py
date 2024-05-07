@@ -21,10 +21,6 @@ class MPFB_OT_CreateHumanOperator(MpfbOperator):
 
     def hardened_execute(self, context):
 
-        if not SystemService.check_for_obj_importer():
-            self.report({'ERROR'}, "The \"Import-Export Wavefront OBJ format\" addon seems to be disabled. You need to enable this in the preferences.")
-            return {'CANCELED'}
-
         from mpfb.ui.newhuman.newhumanpanel import NEW_HUMAN_PROPERTIES  # pylint: disable=C0415
 
         detailed_helpers = NEW_HUMAN_PROPERTIES.get_value("detailed_helpers", entity_reference=context.scene)

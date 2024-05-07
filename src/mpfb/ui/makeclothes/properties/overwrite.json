@@ -1,7 +1,0 @@
-{
-    "type": "boolean",
-    "name": "overwrite",
-    "description": "Overwrite existing clothes without asking",
-    "label": "Overwrite",
-    "default": false
-}

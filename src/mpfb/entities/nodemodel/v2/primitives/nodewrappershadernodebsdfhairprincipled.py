@@ -25,6 +25,11 @@ _ORIGINAL_NODE_DEF = json.loads("""
                 0.0
             ]
         },
+        "model": {
+            "class": "enum",
+            "name": "model",
+            "value": "HUANG"
+        },
         "parametrization": {
             "class": "enum",
             "name": "parametrization",
@@ -53,6 +58,13 @@ _ORIGINAL_NODE_DEF = json.loads("""
             "identifier": "Absorption Coefficient",
             "name": "Absorption Coefficient",
             "value_type": "VECTOR"
+        },
+        "Aspect Ratio": {
+            "class": "NodeSocketFloatFactor",
+            "default_value": 0.85,
+            "identifier": "Aspect Ratio",
+            "name": "Aspect Ratio",
+            "value_type": "VALUE"
         },
         "Coat": {
             "class": "NodeSocketFloatFactor",
@@ -101,6 +113,13 @@ _ORIGINAL_NODE_DEF = json.loads("""
             "name": "Offset",
             "value_type": "VALUE"
         },
+        "R lobe": {
+            "class": "NodeSocketFloatFactor",
+            "default_value": 1.0,
+            "identifier": "R lobe",
+            "name": "Reflection",
+            "value_type": "VALUE"
+        },
         "Radial Roughness": {
             "class": "NodeSocketFloatFactor",
             "default_value": 0.3,
@@ -134,6 +153,20 @@ _ORIGINAL_NODE_DEF = json.loads("""
             "default_value": 0.3,
             "identifier": "Roughness",
             "name": "Roughness",
+            "value_type": "VALUE"
+        },
+        "TRT lobe": {
+            "class": "NodeSocketFloatFactor",
+            "default_value": 1.0,
+            "identifier": "TRT lobe",
+            "name": "Secondary Reflection",
+            "value_type": "VALUE"
+        },
+        "TT lobe": {
+            "class": "NodeSocketFloatFactor",
+            "default_value": 1.0,
+            "identifier": "TT lobe",
+            "name": "Transmission",
             "value_type": "VALUE"
         },
         "Tint": {

@@ -82,7 +82,12 @@ _BLACKLISTED_ATTRIBUTE_TYPES = [
     'ImageUser'
     ]
 
-_KNOWN_SHADER_NODE_CLASSES = bpy.types.ShaderNode.__subclasses__()
+_KNOWN_SHADER_NODE_CLASSES = []
+
+for subc in dir(bpy.types):
+    obj = getattr(bpy.types, subc)
+    if hasattr(obj, "__bases__") and bpy.types.ShaderNode in obj.__bases__:
+        _KNOWN_SHADER_NODE_CLASSES.append(obj)
 
 # TODO: add extra nodes which are relevant, but not descendants of ShaderNode
 
@@ -140,17 +145,20 @@ class NodeService:
                 input_dict["class"] = input_socket.__class__.__name__
                 input_dict["value_type"] = input_socket.type
                 input_dict["default_value"] = None
-                if hasattr(input_socket, "default_value"):
-                    if input_socket.type in ["RGBA", "RGB", "VECTOR"]:
-                        input_dict["default_value"] = list(input_socket.default_value)
-                    else:
-                        input_dict["default_value"] = input_socket.default_value
+                if hasattr(input_socket, "default_value") and input_socket.default_value is not None:
+                    if "Euler" not in input_socket.default_value.__class__.__name__:  # TODO: Euler is not JSON serializable, need to find workaround
+                        if input_socket.type in ["RGBA", "RGB", "VECTOR"]:
+                            input_dict["default_value"] = list(input_socket.default_value)
+                        else:
+                            input_dict["default_value"] = input_socket.default_value
                 if "Float" in input_dict["class"] and hasattr(node, "node_tree"):
-                    tree_input = node.node_tree.inputs[input_socket.name]
+                    from mpfb.services.nodetreeservice import NodeTreeService
+                    _LOG.debug("input_socket", input_socket)
+                    tree_input = NodeTreeService.get_input_socket(node.node_tree, input_socket.name)
                     input_dict["min_value"] = tree_input.min_value
                     input_dict["max_value"] = tree_input.max_value
                 if not input_dict["class"] in _BLACKLISTED_ATTRIBUTE_TYPES:  # TODO: Should try to parse these instead of filtering them out
-                    node_info["inputs"][input_socket.identifier] = input_dict
+                    node_info["inputs"]["Input_Socket_" + input_socket.name] = input_dict
         if hasattr(node, "outputs"):
             for output_socket in node.outputs:
                 output_dict = dict()
@@ -159,13 +167,14 @@ class NodeService:
                 output_dict["class"] = output_socket.__class__.__name__
                 output_dict["value_type"] = output_socket.type
                 output_dict["default_value"] = None
-                if hasattr(output_socket, "default_value"):
-                    if output_socket.type in ["RGBA", "RGB", "VECTOR"]:
-                        output_dict["default_value"] = list(output_socket.default_value)
-                    else:
-                        output_dict["default_value"] = output_socket.default_value
+                if hasattr(output_socket, "default_value") and output_socket.default_value is not None:
+                    if "Euler" not in output_socket.default_value.__class__.__name__: # TODO: Euler is not JSON serializable, need to find workaround
+                        if output_socket.type in ["RGBA", "RGB", "VECTOR"]:
+                            output_dict["default_value"] = list(output_socket.default_value)
+                        else:
+                            output_dict["default_value"] = output_socket.default_value
                 if not output_dict["class"] in _BLACKLISTED_ATTRIBUTE_TYPES:  # TODO: Should try to parse these instead of filtering them out
-                    node_info["outputs"][output_socket.identifier] = output_dict
+                    node_info["outputs"]["Output_Socket_" + output_socket.name] = output_dict
         for item in dir(node):
             if not item in _INTERNAL_NODE_CLASS_ATTRIBUTES and not item in _BLACKLISTED_NODE_CLASS_ATTRIBUTES:
                 attribute = dict()
@@ -399,32 +408,28 @@ class NodeService:
             node_tree.nodes.remove(node)
 
     @staticmethod
-    def update_tex_image_with_settings_from_dict(node, node_info):
-        """Set file name and colorspace information in an image texture node based on
-        information in the provided dict. This will also load the file as an
-        image object if this had not already been done."""
-
-        file_name = os.path.basename(node_info["filename"])
-        if not str(file_name).strip():
+    def set_image_in_image_node(node, file_name, colorspace=None):
+        """Update an existing image node with the provided filename and colorspace."""
+        if not file_name or not str(file_name).strip():
             _LOG.error("Trying to load image with null/empty filename")
-            _LOG.error("node_info", node_info)
             return
-        if file_name in bpy.data.images:
-            _LOG.debug("image existed:", node_info["filename"])
-            image = bpy.data.images[file_name]
+        bn = os.path.basename(file_name)
+        if bn in bpy.data.images:
+            _LOG.debug("image existed:", bn)
+            image = bpy.data.images[bn]
         else:
-            _LOG.debug("Will attempt to load file", node_info["filename"])
-            if os.path.exists(node_info["filename"]):
-                image = bpy.data.images.load(node_info["filename"])
+            _LOG.debug("Will attempt to load file", file_name)
+            if os.path.exists(file_name):
+                image = bpy.data.images.load(file_name)
                 _LOG.debug("Image after loading file", image)
             else:
-                _LOG.error("File does not exist:", node_info["filename"])
+                _LOG.error("File does not exist:", file_name)
                 return
-        if "colorspace" in node_info:
+        if colorspace:
             try:
-                image.colorspace_settings.name = node_info["colorspace"]
+                image.colorspace_settings.name = colorspace
             except TypeError as e:
-                _LOG.error("Tried to set color space \"" + node_info["colorspace"] + "\" but blender says", e)
+                _LOG.error("Tried to set color space \"" + colorspace + "\" but blender says", e)
                 if image.colorspace_settings:
                     _LOG.error("Image colorspace defaults to", image.colorspace_settings.name)
                 else:
@@ -432,6 +437,21 @@ class NodeService:
         else:
             image.colorspace_settings.name = "sRGB"
         node.image = image
+
+    @staticmethod
+    def update_tex_image_with_settings_from_dict(node, node_info):
+        """Set file name and colorspace information in an image texture node based on
+        information in the provided dict. This will also load the file as an
+        image object if this had not already been done."""
+
+        file_name = node_info["filename"]
+        colorspace = None
+
+        if "colorspace" in node_info:
+            colorspace = node_info["colorspace"]
+
+        NodeService.set_image_in_image_node(node, file_name, colorspace)
+
 
     @staticmethod
     def update_node_with_settings_from_dict(node, node_info):
@@ -481,6 +501,10 @@ class NodeService:
         for value in node_info["values"]:
             if not value in node.inputs:
                 _LOG.error("Found an input name which didn't exist as socket:", value)
+                sockets = []
+                for inp in node.inputs:
+                    sockets.append((inp.name, inp.type))
+                _LOG.error("The following input sockets exist on node", (node, sockets))
             else:
                 try:
                     node.inputs[value].default_value = node_info["values"][value]
@@ -537,14 +561,15 @@ class NodeService:
 
             if "inputs" in group:
                 for input_name in group["inputs"].keys():
-                    if not input_name in node_tree.inputs:
+                    if not NodeService._has_socket(node_tree, input_name, in_out="INPUT"):
                         input_def = group["inputs"][input_name]
                         _LOG.debug("Missing input socket:", input_def)
                         create = True
                         if "create" in input_def:
                             create = input_def["create"]
                         if create:
-                            input_socket = node_tree.inputs.new(input_def["type"], input_name)
+                            input_socket = NodeService._create_socket(node_tree, input_name, input_def["type"], in_out="INPUT")
+                            _LOG.debug("Input socket created:", input_socket)
                             if not "Vector" in input_def["type"]:
                                 input_socket.default_value = input_def["value"]
                     else:
@@ -552,11 +577,27 @@ class NodeService:
 
             if "outputs" in group:
                 for output_name in group["outputs"].keys():
-                    if not output_name in node_tree.outputs:
+                    if not NodeService._has_socket(node_tree, output_name, in_out="OUTPUT"):
                         _LOG.debug("Missing output socket:", output_name)
-                        node_tree.outputs.new(name=output_name, type=group["outputs"][output_name])
+                        socket = NodeService._create_socket(node_tree, output_name, group["outputs"][output_name], in_out="OUTPUT")
+                        _LOG.debug("Output socket created:", socket)
                     else:
                         _LOG.debug("Output socket already existed:", output_name)
+
+    @staticmethod
+    def _has_socket(node_tree, socket_name, in_out="INPUT"):
+        _LOG.enter()
+        for item in node_tree.interface.items_tree:
+            if isinstance(item, bpy.types.NodeTreeInterfaceSocket):
+                if item.in_out == in_out:
+                    if item.name == socket_name:
+                        return True
+        return False
+
+    @staticmethod
+    def _create_socket(node_tree, socket_name, socket_type, in_out="INPUT"):
+        _LOG.enter()
+        return node_tree.interface.new_socket(socket_name, socket_type=socket_type, in_out=in_out);
 
     @staticmethod
     def apply_node_tree_from_dict(target_node_tree, dict_with_node_tree, wipe_node_tree=False):

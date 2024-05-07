@@ -1,5 +1,6 @@
 from mpfb.services.logservice import LogService
 from mpfb.services.materialservice import MaterialService
+from mpfb.services.modifierservice import ModifierService
 from mpfb.services.nodeservice import NodeService
 from mpfb.services.objectservice import ObjectService
 from mpfb.services.locationservice import LocationService
@@ -159,8 +160,7 @@ class MPFB_OT_Setup_Sculpt_Operator(bpy.types.Operator):
             self._clear_subdiv(context, obj)
             modifier = obj.modifiers.new('Sculpt multires', 'MULTIRES')
             if multires_first:
-                while obj.modifiers.find(modifier.name) != 0:
-                    bpy.ops.object.modifier_move_up({'object': obj}, modifier=modifier.name)
+                ModifierService.move_modifier_to_top(obj, modifier.name)
 
             if subdivisions > 0:
                 for n in range(subdivisions):

@@ -1,0 +1,7 @@
+{
+    "type": "float",
+    "name": "minz",
+    "description": "Minimum Z for the bounding box",
+    "label": "Min Z",
+    "default": 0.0
+}

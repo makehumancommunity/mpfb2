@@ -1,0 +1,12 @@
+{
+    "type": "enum",
+    "name": "mode",
+    "description": "Which should be used for mapping the pose to coordinates? Note that only the XZ Plane strategy is considered stable.",
+    "label": "Mode",
+    "default": "XZ",
+    "items": [
+        ["XZ", "XZ plane projection", "Map the frontal orthograpic view to openpose coordinates. You will get what you see in the front view viewport, independent of any camera.", 0],
+        ["PERSP", "Perspective projection", "Map the view of the first camera in the scene to openpose coordinates. You will get what you see in the camera view viewport. WARNING: This is approximate at best.", 1]
+    ]
+}
+

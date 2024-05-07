@@ -2,14 +2,15 @@
 
 import bpy
 from mpfb.services.logservice import LogService
+from mpfb.entities.objectproperties import GeneralObjectProperties
 from mpfb import ClassManager
 
 _LOG = LogService.get_logger("makeclothes.markclothes")
 
 class MPFB_OT_MarkClothesOperator(bpy.types.Operator):
-    """Set mesh type to clothes"""
+    """Set mesh type"""
     bl_idname = "mpfb.mark_makeclothes_clothes"
-    bl_label = "Mark as clothes"
+    bl_label = "Change type"
     bl_options = {'REGISTER'}
 
     @classmethod
@@ -24,9 +25,10 @@ class MPFB_OT_MarkClothesOperator(bpy.types.Operator):
         scene = context.scene
 
         from mpfb.ui.makeclothes.makeclothespanel import MAKECLOTHES_PROPERTIES # pylint: disable=C0415
-        from mpfb.ui.makeclothes import MakeClothesObjectProperties # pylint: disable=C0415
+        new_type = MAKECLOTHES_PROPERTIES.get_value("object_type", entity_reference=scene)
+        GeneralObjectProperties.set_value("object_type", new_type, entity_reference=blender_object)
 
-        self.report({'INFO'}, "Mesh type was set to clothes")
+        self.report({'INFO'}, "Mesh type was set to " + new_type)
         return {'FINISHED'}
 
 ClassManager.add_class(MPFB_OT_MarkClothesOperator)

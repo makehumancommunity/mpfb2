@@ -14,11 +14,9 @@ def test_composite_can_create_instance():
     assert node
     assert node.node_tree.name == "MpfbSSSControl"
     assert "Group.003" in node.node_tree.nodes
-    assert "Combine XYZ" in node.node_tree.nodes
     assert "Math" in node.node_tree.nodes
     assert "Combine XYZ.001" in node.node_tree.nodes
     assert "Group Output" in node.node_tree.nodes
-    assert "Vector Math" in node.node_tree.nodes
     assert "Group Input" in node.node_tree.nodes
     has_link_to_output = False
     for link in node.node_tree.links:

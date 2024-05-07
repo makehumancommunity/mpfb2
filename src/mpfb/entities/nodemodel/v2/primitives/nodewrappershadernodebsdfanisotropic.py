@@ -15,7 +15,7 @@ _ORIGINAL_NODE_DEF = json.loads("""
         "distribution": {
             "class": "enum",
             "name": "distribution",
-            "value": "GGX"
+            "value": "MULTI_GGX"
         },
         "height": {
             "class": "float",
@@ -45,7 +45,7 @@ _ORIGINAL_NODE_DEF = json.loads("""
     "inputs": {
         "Anisotropy": {
             "class": "NodeSocketFloat",
-            "default_value": 0.5,
+            "default_value": 0.0,
             "identifier": "Anisotropy",
             "name": "Anisotropy",
             "value_type": "VALUE"

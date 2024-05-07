@@ -28,7 +28,7 @@ class MPFB_PT_Node_Developer_Panel(Abstract_Panel):
 
     def _materials(self, scene, layout):
         box = self._create_box(layout, "Materials")
-        DEVELOPER_PROPERTIES.draw_properties(scene, box, ["output_material_name"])
+        DEVELOPER_PROPERTIES.draw_properties(scene, box, ["mhmat_based", "output_material_name"])
         box.operator("mpfb.write_material")
         box.operator("mpfb.replace_with_skin")
 

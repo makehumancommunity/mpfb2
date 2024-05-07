@@ -1,3 +1,5 @@
+from mpfb.services.systemservice import SystemService
+
 from .abstractnodewrapper import AbstractNodeWrapper
 from .nodewrappershadernodeaddshader import snAddShader
 from .nodewrappershadernodeambientocclusion import snAmbientOcclusion
@@ -9,19 +11,20 @@ from .nodewrappershadernodebrightcontrast import snBrightContrast
 from .nodewrappershadernodebsdfanisotropic import snBsdfAnisotropic
 from .nodewrappershadernodebsdfdiffuse import snBsdfDiffuse
 from .nodewrappershadernodebsdfglass import snBsdfGlass
-from .nodewrappershadernodebsdfglossy import snBsdfGlossy
 from .nodewrappershadernodebsdfhair import snBsdfHair
 from .nodewrappershadernodebsdfhairprincipled import snBsdfHairPrincipled
 from .nodewrappershadernodebsdfprincipled import snBsdfPrincipled
 from .nodewrappershadernodebsdfrefraction import snBsdfRefraction
+from .nodewrappershadernodebsdfsheen import snBsdfSheen
 from .nodewrappershadernodebsdftoon import snBsdfToon
 from .nodewrappershadernodebsdftranslucent import snBsdfTranslucent
 from .nodewrappershadernodebsdftransparent import snBsdfTransparent
-from .nodewrappershadernodebsdfvelvet import snBsdfVelvet
 from .nodewrappershadernodebump import snBump
 from .nodewrappershadernodecameradata import snCameraData
 from .nodewrappershadernodeclamp import snClamp
 from .nodewrappershadernodecombinecolor import snCombineColor
+from .nodewrappershadernodecombinehsv import snCombineHSV
+from .nodewrappershadernodecombinergb import snCombineRGB
 from .nodewrappershadernodecombinexyz import snCombineXYZ
 from .nodewrappershadernodedisplacement import snDisplacement
 from .nodewrappershadernodeeeveespecular import snEeveeSpecular
@@ -41,6 +44,7 @@ from .nodewrappershadernodemaprange import snMapRange
 from .nodewrappershadernodemapping import snMapping
 from .nodewrappershadernodemath import snMath
 from .nodewrappershadernodemix import snMix
+from .nodewrappershadernodemixrgb import snMixRGB
 from .nodewrappershadernodemixshader import snMixShader
 from .nodewrappershadernodenewgeometry import snNewGeometry
 from .nodewrappershadernodenormal import snNormal
@@ -58,8 +62,11 @@ from .nodewrappershadernodergbcurve import snRGBCurve
 from .nodewrappershadernodergbtobw import snRGBToBW
 from .nodewrappershadernodescript import snScript
 from .nodewrappershadernodeseparatecolor import snSeparateColor
+from .nodewrappershadernodeseparatehsv import snSeparateHSV
+from .nodewrappershadernodeseparatergb import snSeparateRGB
 from .nodewrappershadernodeseparatexyz import snSeparateXYZ
 from .nodewrappershadernodeshadertorgb import snShaderToRGB
+from .nodewrappershadernodesqueeze import snSqueeze
 from .nodewrappershadernodesubsurfacescattering import snSubsurfaceScattering
 from .nodewrappershadernodetangent import snTangent
 from .nodewrappershadernodetexbrick import snTexBrick
@@ -70,7 +77,8 @@ from .nodewrappershadernodetexgradient import snTexGradient
 from .nodewrappershadernodetexies import snTexIES
 from .nodewrappershadernodeteximage import snTexImage
 from .nodewrappershadernodetexmagic import snTexMagic
-from .nodewrappershadernodetexmusgrave import snTexMusgrave
+if not SystemService.is_blender_version_at_least(version=[4,1,0]):
+    from .nodewrappershadernodetexmusgrave import snTexMusgrave
 from .nodewrappershadernodetexnoise import snTexNoise
 from .nodewrappershadernodetexpointdensity import snTexPointDensity
 from .nodewrappershadernodetexsky import snTexSky
@@ -105,19 +113,20 @@ PRIMITIVE_NODE_WRAPPERS["ShaderNodeBrightContrast"] = snBrightContrast
 PRIMITIVE_NODE_WRAPPERS["ShaderNodeBsdfAnisotropic"] = snBsdfAnisotropic
 PRIMITIVE_NODE_WRAPPERS["ShaderNodeBsdfDiffuse"] = snBsdfDiffuse
 PRIMITIVE_NODE_WRAPPERS["ShaderNodeBsdfGlass"] = snBsdfGlass
-PRIMITIVE_NODE_WRAPPERS["ShaderNodeBsdfGlossy"] = snBsdfGlossy
 PRIMITIVE_NODE_WRAPPERS["ShaderNodeBsdfHair"] = snBsdfHair
 PRIMITIVE_NODE_WRAPPERS["ShaderNodeBsdfHairPrincipled"] = snBsdfHairPrincipled
 PRIMITIVE_NODE_WRAPPERS["ShaderNodeBsdfPrincipled"] = snBsdfPrincipled
 PRIMITIVE_NODE_WRAPPERS["ShaderNodeBsdfRefraction"] = snBsdfRefraction
+PRIMITIVE_NODE_WRAPPERS["ShaderNodeBsdfSheen"] = snBsdfSheen
 PRIMITIVE_NODE_WRAPPERS["ShaderNodeBsdfToon"] = snBsdfToon
 PRIMITIVE_NODE_WRAPPERS["ShaderNodeBsdfTranslucent"] = snBsdfTranslucent
 PRIMITIVE_NODE_WRAPPERS["ShaderNodeBsdfTransparent"] = snBsdfTransparent
-PRIMITIVE_NODE_WRAPPERS["ShaderNodeBsdfVelvet"] = snBsdfVelvet
 PRIMITIVE_NODE_WRAPPERS["ShaderNodeBump"] = snBump
 PRIMITIVE_NODE_WRAPPERS["ShaderNodeCameraData"] = snCameraData
 PRIMITIVE_NODE_WRAPPERS["ShaderNodeClamp"] = snClamp
 PRIMITIVE_NODE_WRAPPERS["ShaderNodeCombineColor"] = snCombineColor
+PRIMITIVE_NODE_WRAPPERS["ShaderNodeCombineHSV"] = snCombineHSV
+PRIMITIVE_NODE_WRAPPERS["ShaderNodeCombineRGB"] = snCombineRGB
 PRIMITIVE_NODE_WRAPPERS["ShaderNodeCombineXYZ"] = snCombineXYZ
 PRIMITIVE_NODE_WRAPPERS["ShaderNodeDisplacement"] = snDisplacement
 PRIMITIVE_NODE_WRAPPERS["ShaderNodeEeveeSpecular"] = snEeveeSpecular
@@ -137,6 +146,7 @@ PRIMITIVE_NODE_WRAPPERS["ShaderNodeMapRange"] = snMapRange
 PRIMITIVE_NODE_WRAPPERS["ShaderNodeMapping"] = snMapping
 PRIMITIVE_NODE_WRAPPERS["ShaderNodeMath"] = snMath
 PRIMITIVE_NODE_WRAPPERS["ShaderNodeMix"] = snMix
+PRIMITIVE_NODE_WRAPPERS["ShaderNodeMixRGB"] = snMixRGB
 PRIMITIVE_NODE_WRAPPERS["ShaderNodeMixShader"] = snMixShader
 PRIMITIVE_NODE_WRAPPERS["ShaderNodeNewGeometry"] = snNewGeometry
 PRIMITIVE_NODE_WRAPPERS["ShaderNodeNormal"] = snNormal
@@ -154,8 +164,11 @@ PRIMITIVE_NODE_WRAPPERS["ShaderNodeRGBCurve"] = snRGBCurve
 PRIMITIVE_NODE_WRAPPERS["ShaderNodeRGBToBW"] = snRGBToBW
 PRIMITIVE_NODE_WRAPPERS["ShaderNodeScript"] = snScript
 PRIMITIVE_NODE_WRAPPERS["ShaderNodeSeparateColor"] = snSeparateColor
+PRIMITIVE_NODE_WRAPPERS["ShaderNodeSeparateHSV"] = snSeparateHSV
+PRIMITIVE_NODE_WRAPPERS["ShaderNodeSeparateRGB"] = snSeparateRGB
 PRIMITIVE_NODE_WRAPPERS["ShaderNodeSeparateXYZ"] = snSeparateXYZ
 PRIMITIVE_NODE_WRAPPERS["ShaderNodeShaderToRGB"] = snShaderToRGB
+PRIMITIVE_NODE_WRAPPERS["ShaderNodeSqueeze"] = snSqueeze
 PRIMITIVE_NODE_WRAPPERS["ShaderNodeSubsurfaceScattering"] = snSubsurfaceScattering
 PRIMITIVE_NODE_WRAPPERS["ShaderNodeTangent"] = snTangent
 PRIMITIVE_NODE_WRAPPERS["ShaderNodeTexBrick"] = snTexBrick
@@ -166,7 +179,10 @@ PRIMITIVE_NODE_WRAPPERS["ShaderNodeTexGradient"] = snTexGradient
 PRIMITIVE_NODE_WRAPPERS["ShaderNodeTexIES"] = snTexIES
 PRIMITIVE_NODE_WRAPPERS["ShaderNodeTexImage"] = snTexImage
 PRIMITIVE_NODE_WRAPPERS["ShaderNodeTexMagic"] = snTexMagic
-PRIMITIVE_NODE_WRAPPERS["ShaderNodeTexMusgrave"] = snTexMusgrave
+
+if not SystemService.is_blender_version_at_least(version=[4,1,0]):
+    PRIMITIVE_NODE_WRAPPERS["ShaderNodeTexMusgrave"] = snTexMusgrave
+
 PRIMITIVE_NODE_WRAPPERS["ShaderNodeTexNoise"] = snTexNoise
 PRIMITIVE_NODE_WRAPPERS["ShaderNodeTexPointDensity"] = snTexPointDensity
 PRIMITIVE_NODE_WRAPPERS["ShaderNodeTexSky"] = snTexSky
@@ -203,19 +219,20 @@ __all__ = [
     "snBsdfAnisotropic",
     "snBsdfDiffuse",
     "snBsdfGlass",
-    "snBsdfGlossy",
     "snBsdfHair",
     "snBsdfHairPrincipled",
     "snBsdfPrincipled",
     "snBsdfRefraction",
+    "snBsdfSheen",
     "snBsdfToon",
     "snBsdfTranslucent",
     "snBsdfTransparent",
-    "snBsdfVelvet",
     "snBump",
     "snCameraData",
     "snClamp",
     "snCombineColor",
+    "snCombineHSV",
+    "snCombineRGB",
     "snCombineXYZ",
     "snDisplacement",
     "snEeveeSpecular",
@@ -235,6 +252,7 @@ __all__ = [
     "snMapping",
     "snMath",
     "snMix",
+    "snMixRGB",
     "snMixShader",
     "snNewGeometry",
     "snNormal",
@@ -252,8 +270,11 @@ __all__ = [
     "snRGBToBW",
     "snScript",
     "snSeparateColor",
+    "snSeparateHSV",
+    "snSeparateRGB",
     "snSeparateXYZ",
     "snShaderToRGB",
+    "snSqueeze",
     "snSubsurfaceScattering",
     "snTangent",
     "snTexBrick",
@@ -264,7 +285,6 @@ __all__ = [
     "snTexIES",
     "snTexImage",
     "snTexMagic",
-    "snTexMusgrave",
     "snTexNoise",
     "snTexPointDensity",
     "snTexSky",
@@ -288,3 +308,7 @@ __all__ = [
     "snWavelength",
     "snWireframe"
 ]
+
+if not SystemService.is_blender_version_at_least(version=[4,1,0]):
+    __all__.append("snTexMusgrave")
+

@@ -82,6 +82,13 @@ _ORIGINAL_NODE_DEF = json.loads("""
             "name": "A",
             "value_type": "VALUE"
         },
+        "A_Rotation": {
+            "class": "NodeSocketRotation",
+            "default_value": null,
+            "identifier": "A_Rotation",
+            "name": "A",
+            "value_type": "ROTATION"
+        },
         "A_Vector": {
             "class": "NodeSocketVector",
             "default_value": [
@@ -111,6 +118,13 @@ _ORIGINAL_NODE_DEF = json.loads("""
             "identifier": "B_Float",
             "name": "B",
             "value_type": "VALUE"
+        },
+        "B_Rotation": {
+            "class": "NodeSocketRotation",
+            "default_value": null,
+            "identifier": "B_Rotation",
+            "name": "B",
+            "value_type": "ROTATION"
         },
         "B_Vector": {
             "class": "NodeSocketVector",
@@ -161,6 +175,13 @@ _ORIGINAL_NODE_DEF = json.loads("""
             "identifier": "Result_Float",
             "name": "Result",
             "value_type": "VALUE"
+        },
+        "Result_Rotation": {
+            "class": "NodeSocketRotation",
+            "default_value": null,
+            "identifier": "Result_Rotation",
+            "name": "Result",
+            "value_type": "ROTATION"
         },
         "Result_Vector": {
             "class": "NodeSocketVector",

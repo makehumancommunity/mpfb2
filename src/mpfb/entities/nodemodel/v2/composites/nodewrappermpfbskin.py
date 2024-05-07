@@ -4,9 +4,9 @@ _ORIGINAL_NODE_DEF = json.loads("""
 {
     "class": "MpfbSkin",
     "inputs": {
-        "Input_0": {
+        "Input_Socket_SkinColor": {
             "name": "SkinColor",
-            "identifier": "Input_0",
+            "identifier": "Socket_0",
             "class": "NodeSocketColor",
             "value_type": "RGBA",
             "default_value": [
@@ -16,9 +16,9 @@ _ORIGINAL_NODE_DEF = json.loads("""
                 1.0
             ]
         },
-        "Input_10": {
+        "Input_Socket_SpotColor": {
             "name": "SpotColor",
-            "identifier": "Input_10",
+            "identifier": "Socket_1",
             "class": "NodeSocketColor",
             "value_type": "RGBA",
             "default_value": [
@@ -28,9 +28,9 @@ _ORIGINAL_NODE_DEF = json.loads("""
                 1.0
             ]
         },
-        "Input_12": {
+        "Input_Socket_VeinColor": {
             "name": "VeinColor",
-            "identifier": "Input_12",
+            "identifier": "Socket_2",
             "class": "NodeSocketColor",
             "value_type": "RGBA",
             "default_value": [
@@ -40,18 +40,18 @@ _ORIGINAL_NODE_DEF = json.loads("""
                 1.0
             ]
         },
-        "Input_30": {
+        "Input_Socket_Roughness": {
             "name": "Roughness",
-            "identifier": "Input_30",
+            "identifier": "Socket_3",
             "class": "NodeSocketFloat",
             "value_type": "VALUE",
             "default_value": 0.5,
             "min_value": 0.0,
             "max_value": 1.0
         },
-        "Input_1": {
+        "Input_Socket_Normal": {
             "name": "Normal",
-            "identifier": "Input_1",
+            "identifier": "Socket_4",
             "class": "NodeSocketVector",
             "value_type": "VECTOR",
             "default_value": [
@@ -60,262 +60,271 @@ _ORIGINAL_NODE_DEF = json.loads("""
                 0.0
             ]
         },
-        "Input_7": {
-            "name": "SSSStrength",
-            "identifier": "Input_7",
+        "Input_Socket_SSSWeight": {
+            "name": "SSSWeight",
+            "identifier": "Socket_5",
             "class": "NodeSocketFloat",
             "value_type": "VALUE",
             "default_value": 0.0,
-            "min_value": -3.4028234663852886e+38,
-            "max_value": 3.4028234663852886e+38
+            "min_value": 0.0,
+            "max_value": 10.0
         },
-        "Input_8": {
+        "Input_Socket_SSSRadiusMultiplyer": {
             "name": "SSSRadiusMultiplyer",
-            "identifier": "Input_8",
+            "identifier": "Socket_6",
             "class": "NodeSocketFloat",
             "value_type": "VALUE",
             "default_value": 0.5,
             "min_value": -10000.0,
             "max_value": 10000.0
         },
-        "Input_9": {
-            "name": "SSSIor",
-            "identifier": "Input_9",
-            "class": "NodeSocketFloat",
-            "value_type": "VALUE",
-            "default_value": 1.4,
-            "min_value": -3.4028234663852886e+38,
-            "max_value": 3.4028234663852886e+38
-        },
-        "Input_20": {
+        "Input_Socket_SSSRadiusX": {
             "name": "SSSRadiusX",
-            "identifier": "Input_20",
+            "identifier": "Socket_8",
             "class": "NodeSocketFloat",
             "value_type": "VALUE",
             "default_value": 1.0,
             "min_value": -10000.0,
             "max_value": 10000.0
         },
-        "Input_21": {
+        "Input_Socket_SSSRadiusY": {
             "name": "SSSRadiusY",
-            "identifier": "Input_21",
+            "identifier": "Socket_9",
             "class": "NodeSocketFloat",
             "value_type": "VALUE",
             "default_value": 0.2,
             "min_value": -10000.0,
             "max_value": 10000.0
         },
-        "Input_22": {
+        "Input_Socket_SSSRadiusZ": {
             "name": "SSSRadiusZ",
-            "identifier": "Input_22",
+            "identifier": "Socket_10",
             "class": "NodeSocketFloat",
             "value_type": "VALUE",
             "default_value": 0.1,
             "min_value": -10000.0,
             "max_value": 10000.0
         },
-        "Input_13": {
+        "Input_Socket_SSSIor": {
+            "name": "SSSIor",
+            "identifier": "Socket_7",
+            "class": "NodeSocketFloat",
+            "value_type": "VALUE",
+            "default_value": 1.4,
+            "min_value": -3.4028234663852886e+38,
+            "max_value": 3.4028234663852886e+38
+        },
+        "Input_Socket_SSSAnisotropy": {
+            "name": "SSSAnisotropy",
+            "identifier": "Socket_43",
+            "class": "NodeSocketFloat",
+            "value_type": "VALUE",
+            "default_value": 0.0,
+            "min_value": 0.0,
+            "max_value": 1.0
+        },
+        "Input_Socket_SpotStrength": {
             "name": "SpotStrength",
-            "identifier": "Input_13",
-            "class": "NodeSocketFloatFactor",
+            "identifier": "Socket_11",
+            "class": "NodeSocketFloat",
             "value_type": "VALUE",
             "default_value": 0.6,
             "min_value": 0.0,
             "max_value": 1.0
         },
-        "Input_14": {
+        "Input_Socket_SpotScaleMultiplier": {
             "name": "SpotScaleMultiplier",
-            "identifier": "Input_14",
+            "identifier": "Socket_12",
             "class": "NodeSocketFloat",
             "value_type": "VALUE",
             "default_value": 20.0,
             "min_value": 0.1,
             "max_value": 10000.0
         },
-        "Input_15": {
+        "Input_Socket_SpotDetail": {
             "name": "SpotDetail",
-            "identifier": "Input_15",
+            "identifier": "Socket_13",
             "class": "NodeSocketFloat",
             "value_type": "VALUE",
             "default_value": 1.0,
             "min_value": 0.0,
             "max_value": 15.0
         },
-        "Input_16": {
+        "Input_Socket_SpotDistortion": {
             "name": "SpotDistortion",
-            "identifier": "Input_16",
+            "identifier": "Socket_14",
             "class": "NodeSocketFloat",
             "value_type": "VALUE",
             "default_value": 0.0,
             "min_value": -1000.0,
             "max_value": 1000.0
         },
-        "Input_17": {
+        "Input_Socket_SpotRoughness": {
             "name": "SpotRoughness",
-            "identifier": "Input_17",
-            "class": "NodeSocketFloatFactor",
+            "identifier": "Socket_15",
+            "class": "NodeSocketFloat",
             "value_type": "VALUE",
             "default_value": 0.0,
             "min_value": 0.0,
             "max_value": 1.0
         },
-        "Input_18": {
+        "Input_Socket_SpotValley": {
             "name": "SpotValley",
-            "identifier": "Input_18",
+            "identifier": "Socket_16",
             "class": "NodeSocketFloat",
             "value_type": "VALUE",
             "default_value": 0.848,
             "min_value": 0.0,
             "max_value": 0.99
         },
-        "Input_19": {
+        "Input_Socket_SpotPeak": {
             "name": "SpotPeak",
-            "identifier": "Input_19",
+            "identifier": "Socket_17",
             "class": "NodeSocketFloat",
             "value_type": "VALUE",
             "default_value": 0.916,
             "min_value": 0.01,
             "max_value": 1.0
         },
-        "Input_23": {
+        "Input_Socket_UnevennessScaleMultiplier": {
             "name": "UnevennessScaleMultiplier",
-            "identifier": "Input_23",
+            "identifier": "Socket_18",
             "class": "NodeSocketFloat",
             "value_type": "VALUE",
             "default_value": 150.0,
             "min_value": -10000.0,
             "max_value": 10000.0
         },
-        "Input_24": {
+        "Input_Socket_UnevennessBumpStrength": {
             "name": "UnevennessBumpStrength",
-            "identifier": "Input_24",
-            "class": "NodeSocketFloatFactor",
+            "identifier": "Socket_19",
+            "class": "NodeSocketFloat",
             "value_type": "VALUE",
             "default_value": 0.1,
             "min_value": 0.0,
             "max_value": 1.0
         },
-        "Input_25": {
+        "Input_Socket_UnevennessDetail": {
             "name": "UnevennessDetail",
-            "identifier": "Input_25",
+            "identifier": "Socket_20",
             "class": "NodeSocketFloat",
             "value_type": "VALUE",
             "default_value": 3.0,
             "min_value": 0.0,
             "max_value": 15.0
         },
-        "Input_26": {
+        "Input_Socket_UnevennessDistortion": {
             "name": "UnevennessDistortion",
-            "identifier": "Input_26",
+            "identifier": "Socket_21",
             "class": "NodeSocketFloat",
             "value_type": "VALUE",
             "default_value": 1.5,
             "min_value": -1000.0,
             "max_value": 1000.0
         },
-        "Input_27": {
+        "Input_Socket_UnevennessRoughness": {
             "name": "UnevennessRoughness",
-            "identifier": "Input_27",
-            "class": "NodeSocketFloatFactor",
+            "identifier": "Socket_22",
+            "class": "NodeSocketFloat",
             "value_type": "VALUE",
             "default_value": 0.0,
             "min_value": 0.0,
             "max_value": 1.0
         },
-        "Input_28": {
+        "Input_Socket_DermalScaleMultiplier": {
             "name": "DermalScaleMultiplier",
-            "identifier": "Input_28",
+            "identifier": "Socket_23",
             "class": "NodeSocketFloat",
             "value_type": "VALUE",
             "default_value": 70.0,
             "min_value": -10000.0,
             "max_value": 10000.0
         },
-        "Input_29": {
+        "Input_Socket_DermalBumpStrength": {
             "name": "DermalBumpStrength",
-            "identifier": "Input_29",
-            "class": "NodeSocketFloatFactor",
+            "identifier": "Socket_24",
+            "class": "NodeSocketFloat",
             "value_type": "VALUE",
             "default_value": 0.15,
             "min_value": 0.0,
             "max_value": 1.0
         },
-        "Input_32": {
+        "Input_Socket_SmallVeinScaleMultiplier": {
             "name": "SmallVeinScaleMultiplier",
-            "identifier": "Input_32",
+            "identifier": "Socket_25",
             "class": "NodeSocketFloat",
             "value_type": "VALUE",
             "default_value": 1.1,
             "min_value": 0.0,
             "max_value": 100.0
         },
-        "Input_33": {
+        "Input_Socket_LargeVeinScaleMultiplier": {
             "name": "LargeVeinScaleMultiplier",
-            "identifier": "Input_33",
+            "identifier": "Socket_26",
             "class": "NodeSocketFloat",
             "value_type": "VALUE",
             "default_value": 0.6,
             "min_value": 0.0,
             "max_value": 100.0
         },
-        "Input_34": {
+        "Input_Socket_VeinStrength": {
             "name": "VeinStrength",
-            "identifier": "Input_34",
+            "identifier": "Socket_27",
             "class": "NodeSocketFloat",
             "value_type": "VALUE",
             "default_value": 0.08,
             "min_value": 0.0,
             "max_value": 1.0
         },
-        "Input_35": {
+        "Input_Socket_ColorVariationStrength": {
             "name": "ColorVariationStrength",
-            "identifier": "Input_35",
-            "class": "NodeSocketFloatFactor",
+            "identifier": "Socket_28",
+            "class": "NodeSocketFloat",
             "value_type": "VALUE",
             "default_value": 0.15,
             "min_value": 0.0,
             "max_value": 1.0
         },
-        "Input_36": {
+        "Input_Socket_ColorVariationScaleMultiplier": {
             "name": "ColorVariationScaleMultiplier",
-            "identifier": "Input_36",
+            "identifier": "Socket_29",
             "class": "NodeSocketFloat",
             "value_type": "VALUE",
             "default_value": 30.0,
             "min_value": 0.0,
             "max_value": 1000.0
         },
-        "Input_37": {
+        "Input_Socket_ColorVariationBrightness": {
             "name": "ColorVariationBrightness",
-            "identifier": "Input_37",
+            "identifier": "Socket_30",
             "class": "NodeSocketFloat",
             "value_type": "VALUE",
             "default_value": -0.5,
             "min_value": -1.0,
             "max_value": 1.0
         },
-        "Input_38": {
+        "Input_Socket_ColorVariationDetail": {
             "name": "ColorVariationDetail",
-            "identifier": "Input_38",
+            "identifier": "Socket_31",
             "class": "NodeSocketFloat",
             "value_type": "VALUE",
             "default_value": 1.0,
             "min_value": 0.0,
             "max_value": 15.0
         },
-        "Input_39": {
+        "Input_Socket_ColorVariationDistortion": {
             "name": "ColorVariationDistortion",
-            "identifier": "Input_39",
+            "identifier": "Socket_32",
             "class": "NodeSocketFloat",
             "value_type": "VALUE",
             "default_value": 0.5,
             "min_value": -1000.0,
             "max_value": 1000.0
         },
-        "Input_40": {
+        "Input_Socket_ColorVariationRoughness": {
             "name": "ColorVariationRoughness",
-            "identifier": "Input_40",
-            "class": "NodeSocketFloatFactor",
+            "identifier": "Socket_33",
+            "class": "NodeSocketFloat",
             "value_type": "VALUE",
             "default_value": 0.0,
             "min_value": 0.0,
@@ -323,9 +332,9 @@ _ORIGINAL_NODE_DEF = json.loads("""
         }
     },
     "outputs": {
-        "Output_11": {
+        "Output_Socket_Color": {
             "name": "Color",
-            "identifier": "Output_11",
+            "identifier": "Socket_34",
             "class": "NodeSocketColor",
             "value_type": "RGBA",
             "default_value": [
@@ -335,28 +344,23 @@ _ORIGINAL_NODE_DEF = json.loads("""
                 0.0
             ]
         },
-        "Output_3": {
-            "name": "SubsurfaceColor",
-            "identifier": "Output_3",
-            "class": "NodeSocketColor",
-            "value_type": "RGBA",
-            "default_value": [
-                0.5,
-                0.5,
-                0.5,
-                1.0
-            ]
-        },
-        "Output_31": {
+        "Output_Socket_Roughness": {
             "name": "Roughness",
-            "identifier": "Output_31",
+            "identifier": "Socket_36",
             "class": "NodeSocketFloat",
             "value_type": "VALUE",
             "default_value": 0.0
         },
-        "Output_4": {
+        "Output_Socket_SSSWeight": {
+            "name": "SSSWeight",
+            "identifier": "Socket_38",
+            "class": "NodeSocketFloat",
+            "value_type": "VALUE",
+            "default_value": 0.0
+        },
+        "Output_Socket_SSSRadius": {
             "name": "SSSRadius",
-            "identifier": "Output_4",
+            "identifier": "Socket_37",
             "class": "NodeSocketVector",
             "value_type": "VECTOR",
             "default_value": [
@@ -365,23 +369,30 @@ _ORIGINAL_NODE_DEF = json.loads("""
                 0.0
             ]
         },
-        "Output_5": {
-            "name": "SSSStrength",
-            "identifier": "Output_5",
+        "Output_Socket_SSSScale": {
+            "name": "SSSScale",
+            "identifier": "Socket_41",
             "class": "NodeSocketFloat",
             "value_type": "VALUE",
             "default_value": 0.0
         },
-        "Output_6": {
+        "Output_Socket_SSSIor": {
             "name": "SSSIor",
-            "identifier": "Output_6",
+            "identifier": "Socket_39",
             "class": "NodeSocketFloat",
             "value_type": "VALUE",
             "default_value": 1.4
         },
-        "Output_2": {
+        "Output_Socket_SSSAnisotropy": {
+            "name": "SSSAnisotropy",
+            "identifier": "Socket_42",
+            "class": "NodeSocketFloat",
+            "value_type": "VALUE",
+            "default_value": 0.0
+        },
+        "Output_Socket_Normal": {
             "name": "Normal",
-            "identifier": "Output_2",
+            "identifier": "Socket_40",
             "class": "NodeSocketVector",
             "value_type": "VECTOR",
             "default_value": [
@@ -396,9 +407,9 @@ _ORIGINAL_NODE_DEF = json.loads("""
             "name": "color",
             "class": "Color",
             "value": [
-                0.608,
-                0.608,
-                0.608
+                0.35,
+                0.0,
+                0.35
             ]
         },
         "height": {
@@ -417,7 +428,7 @@ _ORIGINAL_NODE_DEF = json.loads("""
         "use_custom_color": {
             "name": "use_custom_color",
             "class": "bool",
-            "value": false
+            "value": true
         },
         "width": {
             "name": "width",
@@ -443,64 +454,28 @@ _ORIGINAL_TREE_DEF = json.loads("""
             "to_socket": "Normal"
         },
         {
-            "from_node": "Dermal",
-            "from_socket": "Normal",
-            "to_node": "Group Output",
-            "to_socket": "Normal"
-        },
-        {
-            "from_node": "SSS",
-            "from_socket": "SubsurfaceColor",
-            "to_node": "Group Output",
-            "to_socket": "SubsurfaceColor"
-        },
-        {
-            "from_node": "SSS",
-            "from_socket": "SubsurfaceRadius",
-            "to_node": "Group Output",
-            "to_socket": "SSSRadius"
-        },
-        {
-            "from_node": "SSS",
-            "from_socket": "SubsurfaceStrength",
-            "to_node": "Group Output",
-            "to_socket": "SSSStrength"
-        },
-        {
-            "from_node": "SSS",
-            "from_socket": "SubsurfaceIor",
-            "to_node": "Group Output",
-            "to_socket": "SSSIor"
-        },
-        {
             "from_node": "Group Input",
-            "from_socket": "SSSStrength",
+            "from_socket": "SSSWeight",
             "to_node": "SSS",
-            "to_socket": "SubsurfaceStrength"
+            "to_socket": "SSSWeight"
         },
         {
             "from_node": "Group Input",
             "from_socket": "SSSRadiusMultiplyer",
             "to_node": "SSS",
-            "to_socket": "SubsurfaceRadiusMultiplyer"
+            "to_socket": "SSSScaleMultiplier"
         },
         {
             "from_node": "Group Input",
             "from_socket": "SSSIor",
             "to_node": "SSS",
-            "to_socket": "SubsurfaceIor"
+            "to_socket": "SSSIor"
         },
         {
             "from_node": "Group Input",
             "from_socket": "SpotColor",
             "to_node": "Spots",
             "to_socket": "SpotColor"
-        },
-        {
-            "from_node": "Spots",
-            "from_socket": "Color",
-            "to_node": "Group Output",
-            "to_socket": "Color"
         },
         {
             "from_node": "Group Input",
@@ -554,43 +529,19 @@ _ORIGINAL_TREE_DEF = json.loads("""
             "from_node": "Group Input",
             "from_socket": "SSSRadiusX",
             "to_node": "SSS",
-            "to_socket": "SubSurfaceRadiusX"
+            "to_socket": "SSSRadiusX"
         },
         {
             "from_node": "Group Input",
             "from_socket": "SSSRadiusY",
             "to_node": "SSS",
-            "to_socket": "SubSurfaceRadiusY"
+            "to_socket": "SSSRadiusY"
         },
         {
             "from_node": "Group Input",
             "from_socket": "SSSRadiusZ",
             "to_node": "SSS",
-            "to_socket": "SubSurfaceRadiusZ"
-        },
-        {
-            "from_node": "Unevenness",
-            "from_socket": "Normal",
-            "to_node": "Dermal",
-            "to_socket": "Normal"
-        },
-        {
-            "from_node": "Spots",
-            "from_socket": "Color",
-            "to_node": "SSS",
-            "to_socket": "SubsurfaceColor"
-        },
-        {
-            "from_node": "ColorVarian",
-            "from_socket": "Color",
-            "to_node": "Veins",
-            "to_socket": "SkinColor"
-        },
-        {
-            "from_node": "Veins",
-            "from_socket": "Color",
-            "to_node": "Spots",
-            "to_socket": "SkinColor"
+            "to_socket": "SSSRadiusZ"
         },
         {
             "from_node": "Group Input",
@@ -633,12 +584,6 @@ _ORIGINAL_TREE_DEF = json.loads("""
             "from_socket": "DermalBumpStrength",
             "to_node": "Dermal",
             "to_socket": "DermalBumpStrength"
-        },
-        {
-            "from_node": "Group Input",
-            "from_socket": "Roughness",
-            "to_node": "Group Output",
-            "to_socket": "Roughness"
         },
         {
             "from_node": "Group Input",
@@ -693,9 +638,186 @@ _ORIGINAL_TREE_DEF = json.loads("""
             "from_socket": "ColorVariationRoughness",
             "to_node": "ColorVarian",
             "to_socket": "ColorVariationRoughness"
+        },
+        {
+            "from_node": "Unevenness",
+            "from_socket": "Normal",
+            "to_node": "Dermal",
+            "to_socket": "Normal"
+        },
+        {
+            "from_node": "ColorVarian",
+            "from_socket": "Color",
+            "to_node": "Veins",
+            "to_socket": "SkinColor"
+        },
+        {
+            "from_node": "Veins",
+            "from_socket": "Color",
+            "to_node": "Spots",
+            "to_socket": "SkinColor"
+        },
+        {
+            "from_node": "Dermal",
+            "from_socket": "Normal",
+            "to_node": "Group Output",
+            "to_socket": "Normal"
+        },
+        {
+            "from_node": "Spots",
+            "from_socket": "Color",
+            "to_node": "Group Output",
+            "to_socket": "Color"
+        },
+        {
+            "from_node": "Group Input",
+            "from_socket": "Roughness",
+            "to_node": "Group Output",
+            "to_socket": "Roughness"
+        },
+        {
+            "from_node": "SSS",
+            "from_socket": "SSSWeight",
+            "to_node": "Group Output",
+            "to_socket": "SSSWeight"
+        },
+        {
+            "from_node": "SSS",
+            "from_socket": "SSSRadius",
+            "to_node": "Group Output",
+            "to_socket": "SSSRadius"
+        },
+        {
+            "from_node": "SSS",
+            "from_socket": "SSSScale",
+            "to_node": "Group Output",
+            "to_socket": "SSSScale"
+        },
+        {
+            "from_node": "SSS",
+            "from_socket": "SSSIor",
+            "to_node": "Group Output",
+            "to_socket": "SSSIor"
+        },
+        {
+            "from_node": "SSS",
+            "from_socket": "SSSAnisotropy",
+            "to_node": "Group Output",
+            "to_socket": "SSSAnisotropy"
+        },
+        {
+            "from_node": "Group Input",
+            "from_socket": "SSSAnisotropy",
+            "to_node": "SSS",
+            "to_socket": "SSSAnisotropy"
         }
     ],
     "nodes": [
+        {
+            "attribute_values": {
+                "color": [
+                    0.35,
+                    0.0,
+                    0.35
+                ],
+                "height": 100.0,
+                "location": [
+                    -960.8616,
+                    733.6772
+                ],
+                "use_custom_color": true,
+                "width": 245.2778
+            },
+            "class": "MpfbSkinColorVariation",
+            "input_socket_values": {},
+            "label": "Skin color variation",
+            "name": "ColorVarian",
+            "output_socket_values": {}
+        },
+        {
+            "attribute_values": {
+                "color": [
+                    0.35,
+                    0.0,
+                    0.35
+                ],
+                "height": 100.0,
+                "location": [
+                    -458.1821,
+                    638.4954
+                ],
+                "use_custom_color": true,
+                "width": 210.2823
+            },
+            "class": "MpfbSkinVeins",
+            "input_socket_values": {},
+            "label": "Veins",
+            "name": "Veins",
+            "output_socket_values": {}
+        },
+        {
+            "attribute_values": {
+                "color": [
+                    0.35,
+                    0.0,
+                    0.35
+                ],
+                "height": 100.0,
+                "location": [
+                    -32.5884,
+                    543.9255
+                ],
+                "use_custom_color": true,
+                "width": 190.1191
+            },
+            "class": "MpfbSkinSpot",
+            "input_socket_values": {},
+            "label": "Spots",
+            "name": "Spots",
+            "output_socket_values": {}
+        },
+        {
+            "attribute_values": {
+                "color": [
+                    0.35,
+                    0.0,
+                    0.35
+                ],
+                "height": 100.0,
+                "location": [
+                    -249.8333,
+                    -266.7137
+                ],
+                "use_custom_color": true,
+                "width": 289.2502
+            },
+            "class": "MpfbSkinNormalUnevenness",
+            "input_socket_values": {},
+            "label": "Unevenness",
+            "name": "Unevenness",
+            "output_socket_values": {}
+        },
+        {
+            "attribute_values": {
+                "color": [
+                    0.35,
+                    0.0,
+                    0.35
+                ],
+                "height": 100.0,
+                "location": [
+                    175.0831,
+                    -339.0752
+                ],
+                "use_custom_color": true,
+                "width": 320.8665
+            },
+            "class": "MpfbSkinNormalDermal",
+            "input_socket_values": {},
+            "label": "Dermal",
+            "name": "Dermal",
+            "output_socket_values": {}
+        },
         {
             "attribute_values": {
                 "location": [
@@ -712,121 +834,16 @@ _ORIGINAL_TREE_DEF = json.loads("""
         {
             "attribute_values": {
                 "color": [
-                    0.608,
-                    0.608,
-                    0.608
+                    0.4,
+                    0.4,
+                    0.5
                 ],
                 "height": 100.0,
                 "location": [
-                    -960.8616,
-                    733.6772
+                    330.434,
+                    97.355
                 ],
-                "use_custom_color": false,
-                "width": 245.2778
-            },
-            "class": "MpfbSkinColorVariation",
-            "input_socket_values": {},
-            "label": "Skin color variation",
-            "name": "ColorVarian",
-            "output_socket_values": {}
-        },
-        {
-            "attribute_values": {
-                "color": [
-                    0.608,
-                    0.608,
-                    0.608
-                ],
-                "height": 100.0,
-                "location": [
-                    -458.1821,
-                    638.4954
-                ],
-                "use_custom_color": false,
-                "width": 210.2823
-            },
-            "class": "MpfbSkinVeins",
-            "input_socket_values": {},
-            "label": "Veins",
-            "name": "Veins",
-            "output_socket_values": {}
-        },
-        {
-            "attribute_values": {
-                "color": [
-                    0.608,
-                    0.608,
-                    0.608
-                ],
-                "height": 100.0,
-                "location": [
-                    -32.5884,
-                    543.9255
-                ],
-                "use_custom_color": false,
-                "width": 190.1191
-            },
-            "class": "MpfbSkinSpot",
-            "input_socket_values": {},
-            "label": "Spots",
-            "name": "Spots",
-            "output_socket_values": {}
-        },
-        {
-            "attribute_values": {
-                "color": [
-                    0.608,
-                    0.608,
-                    0.608
-                ],
-                "height": 100.0,
-                "location": [
-                    -249.8333,
-                    -266.7137
-                ],
-                "use_custom_color": false,
-                "width": 289.2502
-            },
-            "class": "MpfbSkinNormalUnevenness",
-            "input_socket_values": {},
-            "label": "Unevenness",
-            "name": "Unevenness",
-            "output_socket_values": {}
-        },
-        {
-            "attribute_values": {
-                "color": [
-                    0.608,
-                    0.608,
-                    0.608
-                ],
-                "height": 100.0,
-                "location": [
-                    175.0831,
-                    -339.0752
-                ],
-                "use_custom_color": false,
-                "width": 320.8665
-            },
-            "class": "MpfbSkinNormalDermal",
-            "input_socket_values": {},
-            "label": "Dermal",
-            "name": "Dermal",
-            "output_socket_values": {}
-        },
-        {
-            "attribute_values": {
-                "color": [
-                    0.608,
-                    0.608,
-                    0.608
-                ],
-                "height": 100.0,
-                "location": [
-                    348.2335,
-                    172.3807
-                ],
-                "use_custom_color": false,
+                "use_custom_color": true,
                 "width": 140.0
             },
             "class": "MpfbSSSControl",
@@ -868,18 +885,18 @@ class _NodeWrapperMpfbSkin(AbstractGroupWrapper):
         nodes["Group Output"].location = [972.3653, 122.3487]
         nodes["Group Input"].location = [-1462.442, 434.9085]
 
-        node("MpfbSkinColorVariation", "ColorVarian", label="Skin color variation", attribute_values={"color": [0.608, 0.608, 0.608], "height": 100.0, "location": [-960.8616, 733.6772], "use_custom_color": False, "width": 245.2778})
-        node("MpfbSkinVeins", "Veins", attribute_values={"color": [0.608, 0.608, 0.608], "height": 100.0, "location": [-458.1821, 638.4954], "use_custom_color": False, "width": 210.2823})
-        node("MpfbSkinSpot", "Spots", attribute_values={"color": [0.608, 0.608, 0.608], "height": 100.0, "location": [-32.5884, 543.9255], "use_custom_color": False, "width": 190.1191})
-        node("MpfbSkinNormalUnevenness", "Unevenness", attribute_values={"color": [0.608, 0.608, 0.608], "height": 100.0, "location": [-249.8333, -266.7137], "use_custom_color": False, "width": 289.2502})
-        node("MpfbSkinNormalDermal", "Dermal", attribute_values={"color": [0.608, 0.608, 0.608], "height": 100.0, "location": [175.0831, -339.0752], "use_custom_color": False, "width": 320.8665})
-        node("MpfbSSSControl", "SSS", attribute_values={"color": [0.608, 0.608, 0.608], "height": 100.0, "location": [348.2335, 172.3807], "use_custom_color": False, "width": 140.0})
+        node("MpfbSkinColorVariation", "ColorVarian", label="Skin color variation", attribute_values={"color": [0.35, 0.0, 0.35], "height": 100.0, "location": [-960.8616, 733.6772], "use_custom_color": True, "width": 245.2778})
+        node("MpfbSkinVeins", "Veins", attribute_values={"color": [0.35, 0.0, 0.35], "height": 100.0, "location": [-458.1821, 638.4954], "use_custom_color": True, "width": 210.2823})
+        node("MpfbSkinSpot", "Spots", attribute_values={"color": [0.35, 0.0, 0.35], "height": 100.0, "location": [-32.5884, 543.9255], "use_custom_color": True, "width": 190.1191})
+        node("MpfbSkinNormalUnevenness", "Unevenness", attribute_values={"color": [0.35, 0.0, 0.35], "height": 100.0, "location": [-249.8333, -266.7137], "use_custom_color": True, "width": 289.2502})
+        node("MpfbSkinNormalDermal", "Dermal", attribute_values={"color": [0.35, 0.0, 0.35], "height": 100.0, "location": [175.0831, -339.0752], "use_custom_color": True, "width": 320.8665})
+        node("MpfbSSSControl", "SSS", attribute_values={"color": [0.4, 0.4, 0.5], "height": 100.0, "location": [330.434, 97.355], "use_custom_color": True, "width": 140.0})
 
         link("Group Input", "SkinColor", "ColorVarian", "Color")
         link("Group Input", "Normal", "Unevenness", "Normal")
-        link("Group Input", "SSSStrength", "SSS", "SubsurfaceStrength")
-        link("Group Input", "SSSRadiusMultiplyer", "SSS", "SubsurfaceRadiusMultiplyer")
-        link("Group Input", "SSSIor", "SSS", "SubsurfaceIor")
+        link("Group Input", "SSSWeight", "SSS", "SSSWeight")
+        link("Group Input", "SSSRadiusMultiplyer", "SSS", "SSSScaleMultiplier")
+        link("Group Input", "SSSIor", "SSS", "SSSIor")
         link("Group Input", "SpotColor", "Spots", "SpotColor")
         link("Group Input", "VeinColor", "Veins", "VeinColor")
         link("Group Input", "SpotStrength", "Spots", "SpotStrength")
@@ -889,9 +906,9 @@ class _NodeWrapperMpfbSkin(AbstractGroupWrapper):
         link("Group Input", "SpotRoughness", "Spots", "SpotRoughness")
         link("Group Input", "SpotValley", "Spots", "SpotValley")
         link("Group Input", "SpotPeak", "Spots", "SpotPeak")
-        link("Group Input", "SSSRadiusX", "SSS", "SubSurfaceRadiusX")
-        link("Group Input", "SSSRadiusY", "SSS", "SubSurfaceRadiusY")
-        link("Group Input", "SSSRadiusZ", "SSS", "SubSurfaceRadiusZ")
+        link("Group Input", "SSSRadiusX", "SSS", "SSSRadiusX")
+        link("Group Input", "SSSRadiusY", "SSS", "SSSRadiusY")
+        link("Group Input", "SSSRadiusZ", "SSS", "SSSRadiusZ")
         link("Group Input", "UnevennessScaleMultiplier", "Unevenness", "UnevennessScaleMultiplier")
         link("Group Input", "UnevennessBumpStrength", "Unevenness", "UnevennessBumpStrength")
         link("Group Input", "UnevennessDetail", "Unevenness", "UnevennessDetail")
@@ -899,7 +916,6 @@ class _NodeWrapperMpfbSkin(AbstractGroupWrapper):
         link("Group Input", "UnevennessRoughness", "Unevenness", "UnevennessRoughness")
         link("Group Input", "DermalScaleMultiplier", "Dermal", "DermalScaleMultiplier")
         link("Group Input", "DermalBumpStrength", "Dermal", "DermalBumpStrength")
-        link("Group Input", "Roughness", "Group Output", "Roughness")
         link("Group Input", "SmallVeinScaleMultiplier", "Veins", "SmallVeinScaleMultiplier")
         link("Group Input", "LargeVeinScaleMultiplier", "Veins", "LargeVeinScaleMultiplier")
         link("Group Input", "VeinStrength", "Veins", "VeinStrength")
@@ -909,16 +925,18 @@ class _NodeWrapperMpfbSkin(AbstractGroupWrapper):
         link("Group Input", "ColorVariationDetail", "ColorVarian", "ColorVariationDetail")
         link("Group Input", "ColorVariationDistortion", "ColorVarian", "ColorVariationDistortion")
         link("Group Input", "ColorVariationRoughness", "ColorVarian", "ColorVariationRoughness")
+        link("Group Input", "Roughness", "Group Output", "Roughness")
+        link("Group Input", "SSSAnisotropy", "SSS", "SSSAnisotropy")
         link("Unevenness", "Normal", "Dermal", "Normal")
-        link("Spots", "Color", "SSS", "SubsurfaceColor")
         link("ColorVarian", "Color", "Veins", "SkinColor")
         link("Veins", "Color", "Spots", "SkinColor")
         link("Dermal", "Normal", "Group Output", "Normal")
-        link("SSS", "SubsurfaceColor", "Group Output", "SubsurfaceColor")
-        link("SSS", "SubsurfaceRadius", "Group Output", "SSSRadius")
-        link("SSS", "SubsurfaceStrength", "Group Output", "SSSStrength")
-        link("SSS", "SubsurfaceIor", "Group Output", "SSSIor")
         link("Spots", "Color", "Group Output", "Color")
         link("Group Input", "Roughness", "Group Output", "Roughness")
+        link("SSS", "SSSWeight", "Group Output", "SSSWeight")
+        link("SSS", "SSSRadius", "Group Output", "SSSRadius")
+        link("SSS", "SSSScale", "Group Output", "SSSScale")
+        link("SSS", "SSSIor", "Group Output", "SSSIor")
+        link("SSS", "SSSAnisotropy", "Group Output", "SSSAnisotropy")
 
 NodeWrapperMpfbSkin = _NodeWrapperMpfbSkin()

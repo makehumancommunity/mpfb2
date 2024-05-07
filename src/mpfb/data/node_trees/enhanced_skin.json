@@ -47,11 +47,6 @@
                   "type": "NodeSocketFloat",
                   "value": 0.2
                 },
-                "SSS Color": {
-                  "type": "NodeSocketColor",
-                  "create": "$has_sss",
-                  "value": [1.0, 0.4, 0.4, 1.0]
-                },
                 "SSS strength": {
                   "type": "NodeSocketFloat",
                   "create": "$has_sss",
@@ -140,13 +135,13 @@
                     "from_node": "Group Input",
                     "from_socket": "Clearcoat Roughness",
                     "to_node": "Principled BSDF",
-                    "to_socket": "Clearcoat Roughness"
+                    "to_socket": "Coat Roughness"
                 },
                 {
                     "from_node": "Group Input",
                     "from_socket": "Clearcoat",
                     "to_node": "Principled BSDF",
-                    "to_socket": "Clearcoat"
+                    "to_socket": "Coat Weight"
                 },
                 {
                     "from_node": "DiffuseTexture",
@@ -308,13 +303,7 @@
                     "from_node": "SSSStrength",
                     "from_socket": "Value",
                     "to_node": "Principled BSDF",
-                    "to_socket": "Subsurface"
-                },
-                {
-                    "from_node": "Group Input",
-                    "from_socket": "SSS Color",
-                    "to_node": "Principled BSDF",
-                    "to_socket": "Subsurface Color"
+                    "to_socket": "Subsurface Weight"
                 }
             ],
             "nodes": {

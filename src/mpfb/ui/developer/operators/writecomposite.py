@@ -33,6 +33,7 @@ def _build_tree_def(node_tree):
     for node in node_tree.nodes:
         _LOG.debug("Evaluating node", node)
         node_class = node.__class__.__name__
+        orig_node_class = node_class
         if node_class == "ShaderNodeGroup":
             node_class = node.node_tree.name
 
@@ -50,7 +51,14 @@ def _build_tree_def(node_tree):
             node_def["output_socket_values"] = dict()
             node_def["attribute_values"]["location"] = list(node.location)
         else:
-            if not node_class in wrappers:
+            if node_class not in wrappers:
+                wrapperkeys = []
+                for key in wrappers.keys():
+                    wrapperkeys.append(str(key))
+                wrapperkeys.sort()
+                _LOG.error("Existing wrappers", wrapperkeys)
+                _LOG.error("Faulty tree", node_tree)
+                _LOG.error("Faulty node", (node, node_class, orig_node_class))
                 raise NotImplementedError('Could not find wrapper for ' + node_class)
             wrapper = wrappers[node_class]
             node_def.update(wrapper.find_non_default_settings(node))
@@ -141,7 +149,13 @@ class MPFB_OT_Write_Composite_Operator(bpy.types.Operator):
             pyfile.write("\"\"\")\n\n")
             pyfile.write("_ORIGINAL_TREE_DEF = json.loads(\"\"\"\n")
             #pprint.pprint(tree_def)
-            pyfile.write(json.dumps(tree_def, sort_keys=True, indent=4))
+            try:
+                pyfile.write(json.dumps(tree_def, sort_keys=True, indent=4))
+            except TypeError as e:
+                _LOG.error("JSON serialization failed", e)
+                _LOG.error("Struct", tree_def)
+                pprint.pprint(tree_def)
+                raise e
             pyfile.write("\"\"\")\n\n")
             pyfile.write("from .abstractgroupwrapper import AbstractGroupWrapper\n\n")
             pyfile.write("class _NodeWrapper" + output_name + "(AbstractGroupWrapper):\n")

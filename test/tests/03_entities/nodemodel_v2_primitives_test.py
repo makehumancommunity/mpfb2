@@ -3,6 +3,7 @@ from pytest import approx
 from mpfb.services.objectservice import ObjectService
 from mpfb.services.nodeservice import NodeService
 from mpfb.services.systemservice import SystemService
+
 from mpfb.entities.nodemodel.v2 import *
 
 def test_primitives_are_available():
@@ -16,19 +17,20 @@ def test_primitives_are_available():
     assert snBsdfAnisotropic
     assert snBsdfDiffuse
     assert snBsdfGlass
-    assert snBsdfGlossy
     assert snBsdfHair
     assert snBsdfHairPrincipled
     assert snBsdfPrincipled
     assert snBsdfRefraction
+    assert snBsdfSheen
     assert snBsdfToon
     assert snBsdfTranslucent
     assert snBsdfTransparent
-    assert snBsdfVelvet
     assert snBump
     assert snCameraData
     assert snClamp
     assert snCombineColor
+    assert snCombineHSV
+    assert snCombineRGB
     assert snCombineXYZ
     assert snDisplacement
     assert snEeveeSpecular
@@ -48,6 +50,7 @@ def test_primitives_are_available():
     assert snMapping
     assert snMath
     assert snMix
+    assert snMixRGB
     assert snMixShader
     assert snNewGeometry
     assert snNormal
@@ -65,8 +68,11 @@ def test_primitives_are_available():
     assert snRGBToBW
     assert snScript
     assert snSeparateColor
+    assert snSeparateHSV
+    assert snSeparateRGB
     assert snSeparateXYZ
     assert snShaderToRGB
+    assert snSqueeze
     assert snSubsurfaceScattering
     assert snTangent
     assert snTexBrick
@@ -77,7 +83,8 @@ def test_primitives_are_available():
     assert snTexIES
     assert snTexImage
     assert snTexMagic
-    assert snTexMusgrave
+    if not SystemService.is_blender_version_at_least(version=[4,1,0]):
+        assert snTexMusgrave
     assert snTexNoise
     assert snTexPointDensity
     assert snTexSky
@@ -191,20 +198,6 @@ def test_can_create_snbsdfglass():
     node_tree.nodes.remove(node)
     NodeService.destroy_node_tree(node_tree)
 
-def test_can_create_snbsdfglossy():
-    if SystemService.is_blender_version_at_least([4,0,0]):
-        # Per 2023-08-26 there is a bug in Blender 4.0.0 where an anisotropic
-        # node will be created when a glossy node is requested.
-        # TODO: Revisit when Blender 4.0.0 is released.
-        return
-    node_tree_name = ObjectService.random_name()
-    node_tree = NodeService.create_node_tree(node_tree_name)
-    node = snBsdfGlossy.create_instance(node_tree)
-    assert node
-    assert node.__class__.__name__ == "ShaderNodeBsdfGlossy"
-    node_tree.nodes.remove(node)
-    NodeService.destroy_node_tree(node_tree)
-
 def test_can_create_snbsdfhair():
     node_tree_name = ObjectService.random_name()
     node_tree = NodeService.create_node_tree(node_tree_name)
@@ -241,6 +234,15 @@ def test_can_create_snbsdfrefraction():
     node_tree.nodes.remove(node)
     NodeService.destroy_node_tree(node_tree)
 
+def test_can_create_snbsdfsheen():
+    node_tree_name = ObjectService.random_name()
+    node_tree = NodeService.create_node_tree(node_tree_name)
+    node = snBsdfSheen.create_instance(node_tree)
+    assert node
+    assert node.__class__.__name__ == "ShaderNodeBsdfSheen"
+    node_tree.nodes.remove(node)
+    NodeService.destroy_node_tree(node_tree)
+
 def test_can_create_snbsdftoon():
     node_tree_name = ObjectService.random_name()
     node_tree = NodeService.create_node_tree(node_tree_name)
@@ -265,19 +267,6 @@ def test_can_create_snbsdftransparent():
     node = snBsdfTransparent.create_instance(node_tree)
     assert node
     assert node.__class__.__name__ == "ShaderNodeBsdfTransparent"
-    node_tree.nodes.remove(node)
-    NodeService.destroy_node_tree(node_tree)
-
-def test_can_create_snbsdfvelvet():
-    if SystemService.is_blender_version_at_least([4,0,0]):
-        # Velvet node does not seem to exist in b4
-        # TODO: Revisit when Blender 4.0.0 is released.
-        return
-    node_tree_name = ObjectService.random_name()
-    node_tree = NodeService.create_node_tree(node_tree_name)
-    node = snBsdfVelvet.create_instance(node_tree)
-    assert node
-    assert node.__class__.__name__ == "ShaderNodeBsdfVelvet"
     node_tree.nodes.remove(node)
     NodeService.destroy_node_tree(node_tree)
 
@@ -314,6 +303,24 @@ def test_can_create_sncombinecolor():
     node = snCombineColor.create_instance(node_tree)
     assert node
     assert node.__class__.__name__ == "ShaderNodeCombineColor"
+    node_tree.nodes.remove(node)
+    NodeService.destroy_node_tree(node_tree)
+
+def test_can_create_sncombinehsv():
+    node_tree_name = ObjectService.random_name()
+    node_tree = NodeService.create_node_tree(node_tree_name)
+    node = snCombineHSV.create_instance(node_tree)
+    assert node
+    assert node.__class__.__name__ == "ShaderNodeCombineHSV"
+    node_tree.nodes.remove(node)
+    NodeService.destroy_node_tree(node_tree)
+
+def test_can_create_sncombinergb():
+    node_tree_name = ObjectService.random_name()
+    node_tree = NodeService.create_node_tree(node_tree_name)
+    node = snCombineRGB.create_instance(node_tree)
+    assert node
+    assert node.__class__.__name__ == "ShaderNodeCombineRGB"
     node_tree.nodes.remove(node)
     NodeService.destroy_node_tree(node_tree)
 
@@ -488,6 +495,15 @@ def test_can_create_snmix():
     node_tree.nodes.remove(node)
     NodeService.destroy_node_tree(node_tree)
 
+def test_can_create_snmixrgb():
+    node_tree_name = ObjectService.random_name()
+    node_tree = NodeService.create_node_tree(node_tree_name)
+    node = snMixRGB.create_instance(node_tree)
+    assert node
+    assert node.__class__.__name__ == "ShaderNodeMixRGB"
+    node_tree.nodes.remove(node)
+    NodeService.destroy_node_tree(node_tree)
+
 def test_can_create_snmixshader():
     node_tree_name = ObjectService.random_name()
     node_tree = NodeService.create_node_tree(node_tree_name)
@@ -641,6 +657,24 @@ def test_can_create_snseparatecolor():
     node_tree.nodes.remove(node)
     NodeService.destroy_node_tree(node_tree)
 
+def test_can_create_snseparatehsv():
+    node_tree_name = ObjectService.random_name()
+    node_tree = NodeService.create_node_tree(node_tree_name)
+    node = snSeparateHSV.create_instance(node_tree)
+    assert node
+    assert node.__class__.__name__ == "ShaderNodeSeparateHSV"
+    node_tree.nodes.remove(node)
+    NodeService.destroy_node_tree(node_tree)
+
+def test_can_create_snseparatergb():
+    node_tree_name = ObjectService.random_name()
+    node_tree = NodeService.create_node_tree(node_tree_name)
+    node = snSeparateRGB.create_instance(node_tree)
+    assert node
+    assert node.__class__.__name__ == "ShaderNodeSeparateRGB"
+    node_tree.nodes.remove(node)
+    NodeService.destroy_node_tree(node_tree)
+
 def test_can_create_snseparatexyz():
     node_tree_name = ObjectService.random_name()
     node_tree = NodeService.create_node_tree(node_tree_name)
@@ -656,6 +690,15 @@ def test_can_create_snshadertorgb():
     node = snShaderToRGB.create_instance(node_tree)
     assert node
     assert node.__class__.__name__ == "ShaderNodeShaderToRGB"
+    node_tree.nodes.remove(node)
+    NodeService.destroy_node_tree(node_tree)
+
+def test_can_create_snsqueeze():
+    node_tree_name = ObjectService.random_name()
+    node_tree = NodeService.create_node_tree(node_tree_name)
+    node = snSqueeze.create_instance(node_tree)
+    assert node
+    assert node.__class__.__name__ == "ShaderNodeSqueeze"
     node_tree.nodes.remove(node)
     NodeService.destroy_node_tree(node_tree)
 
@@ -750,6 +793,8 @@ def test_can_create_sntexmagic():
     NodeService.destroy_node_tree(node_tree)
 
 def test_can_create_sntexmusgrave():
+    if SystemService.is_blender_version_at_least(version=[4,1,0]):
+        return
     node_tree_name = ObjectService.random_name()
     node_tree = NodeService.create_node_tree(node_tree_name)
     node = snTexMusgrave.create_instance(node_tree)

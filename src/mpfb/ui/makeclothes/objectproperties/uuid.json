@@ -1,0 +1,8 @@
+{
+    "type": "string",
+    "name": "uuid",
+    "description": "The unique identifier for the asset",
+    "label": "UUID",
+    "default": "",
+    "aliases": ["MhClothesUUID"]
+}

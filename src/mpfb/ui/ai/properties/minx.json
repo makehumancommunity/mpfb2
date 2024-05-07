@@ -1,0 +1,7 @@
+{
+    "type": "float",
+    "name": "minx",
+    "description": "Minimum X for the bounding box",
+    "label": "Min X",
+    "default": -1.0
+}

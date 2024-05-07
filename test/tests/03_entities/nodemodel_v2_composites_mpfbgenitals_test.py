@@ -13,14 +13,14 @@ def test_composite_can_create_instance():
     node = NodeWrapperMpfbGenitals.create_instance(node_tree)
     assert node
     assert node.node_tree.name == "MpfbGenitals"
-    assert "Texture Coordinate.001" in node.node_tree.nodes
-    assert "Group Output" in node.node_tree.nodes
     assert "Mix" in node.node_tree.nodes
     assert "Math" in node.node_tree.nodes
     assert "Noise Texture" in node.node_tree.nodes
-    assert "Noise Texture.001" in node.node_tree.nodes
-    assert "Principled BSDF.001" in node.node_tree.nodes
     assert "Bump" in node.node_tree.nodes
+    assert "Noise Texture.001" in node.node_tree.nodes
+    assert "Texture Coordinate.001" in node.node_tree.nodes
+    assert "Group Output" in node.node_tree.nodes
+    assert "Principled BSDF.001" in node.node_tree.nodes
     assert "SSS" in node.node_tree.nodes
     assert "Group Input" in node.node_tree.nodes
     has_link_to_output = False

@@ -36,9 +36,9 @@ _ORIGINAL_NODE_DEF = json.loads("""
             "value": 140.0
         }
     },
-    "class": "ShaderNodeBsdfVelvet",
+    "class": "ShaderNodeSeparateRGB",
     "inputs": {
-        "Color": {
+        "Image": {
             "class": "NodeSocketColor",
             "default_value": [
                 0.8,
@@ -46,51 +46,40 @@ _ORIGINAL_NODE_DEF = json.loads("""
                 0.8,
                 1.0
             ],
-            "identifier": "Color",
-            "name": "Color",
+            "identifier": "Image",
+            "name": "Image",
             "value_type": "RGBA"
-        },
-        "Normal": {
-            "class": "NodeSocketVector",
-            "default_value": [
-                0.0,
-                0.0,
-                0.0
-            ],
-            "identifier": "Normal",
-            "name": "Normal",
-            "value_type": "VECTOR"
-        },
-        "Sigma": {
-            "class": "NodeSocketFloatFactor",
-            "default_value": 1.0,
-            "identifier": "Sigma",
-            "name": "Sigma",
-            "value_type": "VALUE"
-        },
-        "Weight": {
-            "class": "NodeSocketFloat",
-            "default_value": 0.0,
-            "identifier": "Weight",
-            "name": "Weight",
-            "value_type": "VALUE"
         }
     },
     "outputs": {
-        "BSDF": {
-            "class": "NodeSocketShader",
-            "default_value": null,
-            "identifier": "BSDF",
-            "name": "BSDF",
-            "value_type": "SHADER"
+        "B": {
+            "class": "NodeSocketFloat",
+            "default_value": 0.0,
+            "identifier": "B",
+            "name": "B",
+            "value_type": "VALUE"
+        },
+        "G": {
+            "class": "NodeSocketFloat",
+            "default_value": 0.0,
+            "identifier": "G",
+            "name": "G",
+            "value_type": "VALUE"
+        },
+        "R": {
+            "class": "NodeSocketFloat",
+            "default_value": 0.0,
+            "identifier": "R",
+            "name": "R",
+            "value_type": "VALUE"
         }
     }
 }""")
 
 from .abstractnodewrapper import AbstractNodeWrapper
 
-class _NodeWrapperShaderNodeBsdfVelvet(AbstractNodeWrapper):
+class _NodeWrapperShaderNodeSeparateRGB(AbstractNodeWrapper):
     def __init__(self):
         AbstractNodeWrapper.__init__(self, _ORIGINAL_NODE_DEF)
 
-snBsdfVelvet = _NodeWrapperShaderNodeBsdfVelvet()
+snSeparateRGB = _NodeWrapperShaderNodeSeparateRGB()

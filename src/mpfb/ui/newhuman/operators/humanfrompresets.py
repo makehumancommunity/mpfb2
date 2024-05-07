@@ -22,10 +22,6 @@ class MPFB_OT_HumanFromPresetsOperator(MpfbOperator):
 
     def hardened_execute(self, context):
 
-        if not SystemService.check_for_obj_importer():
-            self.report({'ERROR'}, "The \"Import-Export Wavefront OBJ format\" addon seems to be disabled. You need to enable this in the preferences.")
-            return {'FINISHED'}
-
         _LOG.reset_timer()
         from mpfb.ui.newhuman.frompresetspanel import PRESETS_HUMAN_PROPERTIES  # pylint: disable=C0415
 

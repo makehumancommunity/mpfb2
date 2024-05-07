@@ -4,6 +4,8 @@ import os, sys, subprocess, bpy, addon_utils, re
 from .logservice import LogService
 _LOG = LogService.get_logger("services.systemservice")
 
+LOWEST_FUNCTIONAL_BLENDER_VERSION = (4, 1, 0)
+
 class SystemService:
     """Utility functions for various system tasks."""
 
@@ -39,19 +41,16 @@ class SystemService:
         if platform == "WINDOWS":
             os.startfile(path) # pylint: disable=E1101
             return
+        if platform == "MACOS":
+            subprocess.call(["open", path])
+            return
         raise NotImplementedError("Opening a file browser is not supported for platform " + platform)
 
     @staticmethod
     def check_for_obj_importer():
         """Check if the Blender OBJ importer is installed."""
-        if SystemService.is_blender_version_at_least([3,6,0]):
-            # Blender 3.6.0+ has a native obj importer, but check anyway just to be sure
-            if hasattr(bpy.ops.wm, "obj_import"):
-                return True
-        if not hasattr(bpy.ops.import_scene, "obj"):
-            return False
-        (loaded_default, loaded_state) = addon_utils.check('io_scene_obj') # pylint: disable=W0612
-        return loaded_state
+        _LOG.warn("Doing superfluous check for Blender OBJ importer")
+        return True
 
     @staticmethod
     def check_for_rigify():
@@ -86,7 +85,7 @@ class SystemService:
 
     # Method for finding if the currently running blender version is at least the specified version
     @staticmethod
-    def is_blender_version_at_least(version=[3,6,0]):
+    def is_blender_version_at_least(version=LOWEST_FUNCTIONAL_BLENDER_VERSION):
         """Check if the currently running blender version is at least the specified version.
 
         Args:

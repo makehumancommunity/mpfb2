@@ -1,0 +1,7 @@
+{
+    "type": "string",
+    "name": "username",
+    "description": "Your username in the asset repositories. This is used when autogenerating a full asset name for the asset library. It will not be included in the mhclo asset",
+    "label": "Username",
+    "default": "anonymous"
+}

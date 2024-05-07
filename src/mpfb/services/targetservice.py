@@ -268,16 +268,18 @@ class TargetService:
         if not basis:
             raise ValueError("Object does not have a Basis shape key")
 
-        buffer = [0.0] * (len(shape_key.data) * 3)
-        basis.data.foreach_get('co', buffer)
+        sk_buffer = [0.0] * (len(shape_key.data) * 3)
+        basis.data.foreach_get('co', sk_buffer)
+
+        _LOG.debug("Shape key, len(sk_buffer), len(shape_key.data), len(vertices)", (shape_key, len(sk_buffer), len(shape_key.data), len(info["vertices"])))
 
         for i, x, y, z in info["vertices"]:
             base = i * 3
-            buffer[base] += x * scale_factor
-            buffer[base + 1] += y * scale_factor
-            buffer[base + 2] += z * scale_factor
-
-        shape_key.data.foreach_set('co', buffer)
+            if base < len(sk_buffer): # If we have deleted the helper verts, some coordinates will not exist
+                sk_buffer[base] += x * scale_factor
+                sk_buffer[base + 1] += y * scale_factor
+                sk_buffer[base + 2] += z * scale_factor
+        shape_key.data.foreach_set('co', sk_buffer)
 
     @staticmethod
     def shape_key_info_as_target_string(shape_key_info, include_header=True):

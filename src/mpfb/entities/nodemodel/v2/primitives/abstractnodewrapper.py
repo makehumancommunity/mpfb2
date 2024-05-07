@@ -2,11 +2,12 @@ import bpy, os
 from mpfb.services.logservice import LogService
 from mpfb.services.nodeservice import NodeService
 from mpfb.services.systemservice import SystemService
+from mathutils import Euler
 
 _LOG = LogService.get_logger("nodemodel.v2.abstractnodewrapper")
 
-_VALID_ARRAY_TYPES = ["tuple", "list", "array", "Vector", "Color", "NodeSocketColor", "NodeSocketVector"]
-_VALID_NUMERIC_TYPES = ["int", "float", "NodeSocketFloat", "NodeSocketFloatFactor", "NodeSocketInt", "NodeSocketIntFactor"]
+_VALID_ARRAY_TYPES = ["tuple", "list", "array", "Vector", "Color", "NodeSocketColor", "NodeSocketVector", "NodeSocketRotation"]
+_VALID_NUMERIC_TYPES = ["int", "float", "NodeSocketFloat", "NodeSocketFloatFactor", "NodeSocketInt", "NodeSocketIntFactor", "NodeSocketFloatDistance"]
 _VALID_STRING_TYPES = ["str", "enum"]
 
 class AbstractNodeWrapper():
@@ -123,7 +124,11 @@ class AbstractNodeWrapper():
                 _LOG.warn("Output socket did not have default_value attribute", output_socket)
 
     def _is_same(self, value_class, node_value, default_value):
+        if default_value is None:
+            return False
         try:
+            if isinstance(node_value, Euler):
+                node_value = [node_value.x, node_value.y, node_value.z]
             if node_value is None:
                 return True
             if value_class in _VALID_ARRAY_TYPES:
@@ -148,6 +153,8 @@ class AbstractNodeWrapper():
     def _cleanup(self, value):
         if type(value).__name__ in ["Vector", "Color"]:
             return list(value)
+        if type(value).__name__ == "Euler":
+            return [value.x, value.y, value.z]
         return value
 
     def find_non_default_settings(self, node):
@@ -172,7 +179,7 @@ class AbstractNodeWrapper():
 
             _LOG.trace("Found attribute", (key, node_value))
 
-            if value_class == "image":
+            if value_class == "image" and node.image is not None:
                 fp = NodeService.get_image_file_path(node)
                 if not default_value or fp != default_value["filepath"]:
                     comparison["attribute_values"][key] = dict()
@@ -180,7 +187,8 @@ class AbstractNodeWrapper():
                     comparison["attribute_values"][key]["colorspace"] = node.image.colorspace_settings.name
             else:
                 if nc == "ShaderNodeGroup" or not self._is_same(value_class, node_value, default_value):
-                    comparison["attribute_values"][key] = self._cleanup(node_value)
+                    if node_value is not None:
+                        comparison["attribute_values"][key] = self._cleanup(node_value)
 
         _LOG.debug("Attributes", comparison["attribute_values"])
 
@@ -196,7 +204,8 @@ class AbstractNodeWrapper():
                 if socket_type in ["RGB", "RGBA", "VECTOR"]:
                     node_value = list(socket.default_value)
                 else:
-                    node_value = socket.default_value
+                    if socket.default_value is not None:
+                        node_value = socket.default_value
             value_class = socket_def["class"]
             skip = False
             if SystemService.is_blender_version_at_least([4,0,0]) and socket_def["name"] == "Sheen Tint":
@@ -204,7 +213,7 @@ class AbstractNodeWrapper():
                 # intended and final, we'll just skip this particular socket.
                 # TODO: Revisit this when b4 is stable
                 skip = True
-            if not skip:
+            if not skip and node_value is not None:
                 if not self._is_same(value_class, node_value, default_value):
                     if isgroup:
                         comparison["input_socket_values"][socket_def["name"]] = self._cleanup(node_value)
@@ -220,13 +229,14 @@ class AbstractNodeWrapper():
                 node_value = socket.default_value
             value_class = socket_def["class"]
             if not self._is_same(value_class, node_value, default_value):
-                comparison["output_socket_values"][key] = self._cleanup(node_value)
+                if key != "BSDF":
+                    comparison["output_socket_values"][key] = self._cleanup(node_value)
 
         return comparison
 
-    def create_instance(self, node_tree, name=None, label=None, input_socket_values=None, attribute_values=None, output_socket_values=None):
+    def create_instance(self, node_tree, name=None, label=None, input_socket_values=None, attribute_values=None, output_socket_values=None, mhmat=None):
         from . import PRIMITIVE_NODE_WRAPPERS
-        self.pre_create_instance(node_tree)
+        self.pre_create_instance(node_tree, mhmat=mhmat)
         self._validate_names(input_socket_values, attribute_values, output_socket_values)
         if self.node_class_name in PRIMITIVE_NODE_WRAPPERS:
             node = node_tree.nodes.new(self.node_class_name)
@@ -249,5 +259,5 @@ class AbstractNodeWrapper():
                 node.label = name
         return node
 
-    def pre_create_instance(self, node_tree):
+    def pre_create_instance(self, node_tree, mhmat=None):
         pass

@@ -23,7 +23,7 @@ _MEAN_LENGTH_PENALTY = 1.0  # Higher penalizes distant vertex pairs more
 
 CLOSE_MEAN_SEARCH_RADIUS = _MAX_ALLOWED_DIST * 2
 
-CUR_VERSION = 100
+CUR_VERSION = 110
 
 
 class Rig:
@@ -96,6 +96,36 @@ class Rig:
         if version > CUR_VERSION:
             raise ValueError(f"The rig file format version is too high: {version}")
 
+        # Upgrade from layers to collections
+        if version < 110:
+            from mpfb.services.rigifyhelpers.rigifyhelpers import RigifyHelpers
+
+            coll_names = [f"Layer {i+1}" for i in range(32)]
+            coll_used = set()
+
+            # Upgrade Rigify UI data
+            if rigify_ui := self.rig_header.get("rigify_ui"):
+                RigifyHelpers.upgrade_rigify_ui_layers(rigify_ui, coll_names, coll_used)
+            else:
+                coll_names[0] = "Bones"
+
+            # Upgrade bone data
+            for bone_info in self.rig_definition.values():
+                # Layers the bone is assigned to
+                if layers := bone_info.get("layers"):
+                    used = set(i for i, v in enumerate(layers) if v)
+                    bone_info["collections"] = sorted(coll_names[i] for i in used)
+                    coll_used |= used
+                    del bone_info["layers"]
+
+                # Layer references in rigify parameters
+                if rigify := bone_info.get("rigify"):
+                    RigifyHelpers.upgrade_rigify_layer_refs(rigify, coll_names, coll_used)
+
+            # Build the list of used collections
+            if len(coll_used) > 0:
+                self.rig_header["collections"] = [coll_names[i] for i in sorted(coll_used)]
+
         self.rig_header["version"] = CUR_VERSION
         return True
 
@@ -140,6 +170,8 @@ class Rig:
 
         if empty:
             return rig
+
+        rig.rig_header["collections"] = [bcoll.name for bcoll in armature.data.collections]
 
         rig.add_data_bone_info()
 
@@ -196,6 +228,7 @@ class Rig:
 
         bpy.ops.object.mode_set(mode='OBJECT', toggle=False) # To commit removal of bones
 
+        self.create_bone_collections()
         self.create_bones()
         self.update_edit_bone_metadata()
         self.rigify_metadata()
@@ -267,6 +300,18 @@ class Rig:
 
         if matrix:
             bone.roll = bpy.types.Bone.AxisRollFromMatrix(matrix, axis=bone.y_axis)[1]
+
+    def create_bone_collections(self):
+        collections = self.armature_object.data.collections
+
+        if bcoll_names := self.rig_header.get("collections"):
+            for bcoll in list(collections):
+                collections.remove(bcoll)
+
+            for name in bcoll_names:
+                collections.new(name)
+
+        collections.active_index = 0
 
     def create_bones(self):
         """Create the actual bones in the armature object."""
@@ -368,18 +413,12 @@ class Rig:
             bone.use_local_location = bone_info["use_local_location"]
             bone.use_inherit_rotation = bone_info["use_inherit_rotation"]
             bone.inherit_scale = bone_info["inherit_scale"]
-            if "layers" in bone_info:
 
-                # Mask layers to allow deselection
-                i = 0
-                for layer in bone_info["layers"]:
-                    bone.layers[i] = True
-                    i = i + 1
-
-                i = 0
-                for layer in bone_info["layers"]:
-                    bone.layers[i] = layer
-                    i = i + 1
+            if coll_names := bone_info.get("collections"):
+                for name in coll_names:
+                    self.armature_object.data.collections[name].assign(bone)
+            else:
+                self.armature_object.data.collections.active.assign(bone)
 
             if "bendy_bone" in bone_info:
                 for field, val in bone_info["bendy_bone"].items():
@@ -410,10 +449,19 @@ class Rig:
                 for key in rigify["rigify_parameters"].keys():
                     value = rigify["rigify_parameters"][key]
                     _LOG.debug("Will attempt to set bone.parameters.", key)
-                    try:
-                        setattr(bone.rigify_parameters, str(key), value)
-                    except AttributeError:
-                        _LOG.error("Rigify bone parameter not found.", key)
+                    if key.endswith("_coll_refs"):
+                        ref_list = getattr(bone.rigify_parameters, key, None)
+                        if ref_list is not None and hasattr(ref_list, 'add'):
+                            for name in value:
+                                ref = ref_list.add()
+                                ref.name = name
+                        else:
+                            _LOG.error("Rigify bone collection reference list not found.", key)
+                    else:
+                        try:
+                            setattr(bone.rigify_parameters, str(key), value)
+                        except AttributeError:
+                            _LOG.error("Rigify bone parameter not found.", key)
 
         bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
 
@@ -835,12 +883,10 @@ class Rig:
             bone_info["use_inherit_rotation"] = bone.use_inherit_rotation
             bone_info["inherit_scale"] = bone.inherit_scale
 
-            if bone.bbone_segments > 1:
-                bone_info["bendy_bone"] = self._encode_bbone_info(bone)
+            if bbone_info := self._encode_bbone_info(bone):
+                bone_info["bendy_bone"] = bbone_info
 
-            bone_info["layers"] = []
-            for layer in bone.layers:
-                bone_info["layers"].append(layer)
+            bone_info["collections"] = list(sorted(bcoll.name for bcoll in bone.collections))
 
             self.rig_definition[bone.name] = bone_info
 
@@ -875,6 +921,7 @@ class Rig:
     def _encode_bbone_info(self, bone):
         defaults = {
             "segments": 1,
+            "mapping_mode": "STRAIGHT",
             "custom_handle_start": None, "custom_handle_end": None,
             "handle_type_start": "AUTO", "handle_type_end": "AUTO",
             "handle_use_ease_start": False, "handle_use_ease_end": False,
@@ -924,8 +971,11 @@ class Rig:
                     param_name = str(param)
                     value = getattr(bone.rigify_parameters, param_name)
                     _LOG.debug("param: ", (param_name, value, type(value)))
+
                     if isinstance(value, float) or isinstance(value, int) or isinstance(value, str):
                         rigify["rigify_parameters"][param_name] = value
+                    elif param_name.endswith("_coll_refs"):
+                        rigify["rigify_parameters"][param_name] = [ref.name for ref in value]
                     else:
                         # Assume this is a property array
                         props = []

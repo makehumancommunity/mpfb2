@@ -1,0 +1,7 @@
+{
+    "type": "boolean",
+    "name": "hands",
+    "description": "Also populate coordinated for hands",
+    "label": "Hands",
+    "default": true
+}
