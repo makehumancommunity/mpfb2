@@ -86,7 +86,7 @@
         "use_inherit_rotation": true,
         "use_local_location": true
     },
-	"breast_l": {
+    "breast_l": {
         "head": {
             "cube_name": "joint-spine-1",
             "default_position": [

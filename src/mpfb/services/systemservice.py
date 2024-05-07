@@ -4,6 +4,8 @@ import os, sys, subprocess, bpy, addon_utils, re
 from .logservice import LogService
 _LOG = LogService.get_logger("services.systemservice")
 
+LOWEST_FUNCTIONAL_BLENDER_VERSION = (4, 1, 0)
+
 class SystemService:
     """Utility functions for various system tasks."""
 
@@ -83,7 +85,7 @@ class SystemService:
 
     # Method for finding if the currently running blender version is at least the specified version
     @staticmethod
-    def is_blender_version_at_least(version=[3,6,0]):
+    def is_blender_version_at_least(version=LOWEST_FUNCTIONAL_BLENDER_VERSION):
         """Check if the currently running blender version is at least the specified version.
 
         Args:

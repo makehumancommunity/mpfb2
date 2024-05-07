@@ -5,7 +5,7 @@ bl_info = { # pylint: disable=C0103
     "name": "mpfb",
     "author": "Joel Palmius",
     "version": (2, 0, 4),
-    "blender": (4, 0, 0),
+    "blender": (4, 1, 0),
     "warning": "Plugin is in Alpha stage",
     "location": "View3D > Properties > MPFB",
     "description": "MakeHuman Plugin For Blender",
@@ -107,7 +107,6 @@ def register():
 
     _LOG.debug("About to import mpfb.services")
     import mpfb.services.locationservice
-    import mpfb.services.socketservice
     import mpfb.services.uiservice
 
     _LOG.debug("About to import mpfb.ui")
@@ -121,32 +120,25 @@ def register():
     _LOG.debug("About to request class registration")
     ClassManager.register_classes()
 
-    _LOG.debug("About to check if MakeHuman is online")
+    from mpfb.services.systemservice import SystemService
 
-    # Try to find out where the makehuman user data is at
-    from mpfb.services.locationservice import LocationService
-    from mpfb.services.socketservice import SocketService
-    if LocationService.is_mh_auto_user_data_enabled():
-        mh_user_dir = None
-        try:
-            mh_user_dir = SocketService.get_user_dir()
-            _LOG.info("Socket service says makeHuman user dir is at", mh_user_dir)
-            if mh_user_dir and os.path.exists(mh_user_dir):
-                mh_user_data = os.path.join(mh_user_dir, "data")
-                LocationService.update_mh_user_data_if_relevant(mh_user_data)
-        except ConnectionRefusedError as err:
-            _LOG.error("Could not read mh_user_dir. Maybe socket server is down? Error was:", err)
+    if SystemService.is_blender_version_at_least():
+        _LOG.debug("About to check if MakeHuman is online")
+        # Try to find out where the makehuman user data is at
+        import mpfb.services.socketservice
+        from mpfb.services.locationservice import LocationService
+        from mpfb.services.socketservice import SocketService
+        if LocationService.is_mh_auto_user_data_enabled():
             mh_user_dir = None
-
-    #===========================================================================
-    # mh_sys_dir = None
-    # try:
-    #     mh_sys_dir = SocketService.get_sys_dir()
-    #     _LOG.info("MakeHuman sys dir is", mh_sys_dir)
-    # except ConnectionRefusedError as err:
-    #     _LOG.error("Could not read mh_sys_dir. Maybe socket server is down? Error was:", err)
-    #     mh_sys_dir = None
-    #===========================================================================
+            try:
+                mh_user_dir = SocketService.get_user_dir()
+                _LOG.info("Socket service says makeHuman user dir is at", mh_user_dir)
+                if mh_user_dir and os.path.exists(mh_user_dir):
+                    mh_user_data = os.path.join(mh_user_dir, "data")
+                    LocationService.update_mh_user_data_if_relevant(mh_user_data)
+            except ConnectionRefusedError as err:
+                _LOG.error("Could not read mh_user_dir. Maybe socket server is down? Error was:", err)
+                mh_user_dir = None
 
     _LOG.time("Number of milliseconds to run entire register() method:")
     _LOG.info("MPFB initialization has finished.")
