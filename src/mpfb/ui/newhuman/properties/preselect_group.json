@@ -1,0 +1,7 @@
+{
+    "type": "string",
+    "name": "preselect_group",
+    "description": "The name of a a vertex group that should be selected per default in edit mode. This will come into effect for both base mesh and proxy",
+    "label": "Preselect group",
+    "default": ""
+}

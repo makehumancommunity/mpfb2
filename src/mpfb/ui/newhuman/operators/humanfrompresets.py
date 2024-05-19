@@ -5,11 +5,13 @@ from mpfb.services.logservice import LogService
 from mpfb.services.locationservice import LocationService
 from mpfb.services.humanservice import HumanService
 from mpfb.services.objectservice import ObjectService
+from mpfb.services.meshservice import MeshService
 from mpfb.services.systemservice import SystemService
 from mpfb.ui.mpfboperator import MpfbOperator
 from mpfb import ClassManager
 
 _LOG = LogService.get_logger("newhuman.humanfrompresets")
+
 
 class MPFB_OT_HumanFromPresetsOperator(MpfbOperator):
     """Create a new human from presets"""
@@ -62,15 +64,31 @@ class MPFB_OT_HumanFromPresetsOperator(MpfbOperator):
 
         _LOG.debug("Basemesh", basemesh)
 
+        preselect_group = PRESETS_HUMAN_PROPERTIES.get_value("preselect_group", entity_reference=context.scene)
+        if not preselect_group:
+            preselect_group = None
+
+        proxy = ObjectService.find_object_of_type_amongst_nearest_relatives(basemesh, "Proxymeshes")
+        if proxy:
+            bpy.context.view_layer.objects.active = proxy
+            proxy.select_set(True)
+            bpy.ops.object.mode_set(mode='EDIT', toggle=False)
+            MeshService.select_all_vertices_in_vertex_group_for_active_object(preselect_group, deselect_other=True)
+            bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
+
         bpy.ops.object.select_all(action='DESELECT')
         bpy.context.view_layer.objects.active = basemesh
         basemesh.select_set(True)
 
+        bpy.ops.object.mode_set(mode='EDIT', toggle=False)
+        MeshService.select_all_vertices_in_vertex_group_for_active_object(preselect_group, deselect_other=True)
+        bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
+
         rig = ObjectService.find_object_of_type_amongst_nearest_relatives(basemesh, mpfb_type_name="Skeleton")
         if rig:
-            bpy.context.view_layer.objects.active = rig
-            basemesh.select_set(False)
-            rig.select_set(True)
+           bpy.context.view_layer.objects.active = rig
+           basemesh.select_set(False)
+           rig.select_set(True)
 
         _LOG.time("Human created in")
 

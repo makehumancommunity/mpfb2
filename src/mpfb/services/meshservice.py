@@ -12,6 +12,7 @@ _LOG = LogService.get_logger("services.meshservice")
 # - delete verts
 # - recalculate_face_normals
 
+
 class MeshService:
     """MeshService contains various functions for working meshes, vertex groups, weights and similar."""
 
@@ -38,15 +39,15 @@ class MeshService:
         #  6   7   8
 
         vertices = [
-            (-1, 0,  1), #  0
-            ( 0, 0,  1), #  1
-            ( 1, 0,  1), #  2
-            (-1, 0,  0), #  3
-            ( 0, 0,  0), #  4
-            ( 1, 0,  0), #  5
-            (-1, 0, -1), #  6
-            ( 0, 0, -1), #  7
-            ( 1, 0, -1)  #  8
+            (-1, 0, 1),  #  0
+            (0, 0, 1),  #  1
+            (1, 0, 1),  #  2
+            (-1, 0, 0),  #  3
+            (0, 0, 0),  #  4
+            (1, 0, 0),  #  5
+            (-1, 0, -1),  #  6
+            (0, 0, -1),  #  7
+            (1, 0, -1)  #  8
             ]
 
         edges = []
@@ -206,8 +207,8 @@ class MeshService:
         if world_coordinates:
             coord = focus_obj.matrix_world @ coord
 
-        #shift_dist = focus_obj.location - target_obj.location
-        #if shift_dist.length > 0.0001:
+        # shift_dist = focus_obj.location - target_obj.location
+        # if shift_dist.length > 0.0001:
         #    coord.x = coord.x - shift_dist.x
         #    coord.y = coord.y - shift_dist.y
         #    coord.z = coord.z - shift_dist.z
@@ -298,3 +299,24 @@ class MeshService:
         _LOG.enter()
         from mpfb.entities.meshcrossref import MeshCrossRef
         return MeshCrossRef(mesh_object, after_modifiers=after_modifiers, build_faces_by_group_reference=build_faces_by_group_reference)
+
+    @staticmethod
+    def select_all_vertices_in_vertex_group_for_active_object(vertex_group_name, deselect_other=True):
+        """Select all vertices in a specific vertex group for the currently active object.
+        The object needs to be active."""
+        _LOG.enter()
+
+        mesh_object = bpy.context.active_object
+        _LOG.debug("Active object", mesh_object)
+
+        bpy.ops.mesh.select_mode(type="VERT")
+        if deselect_other:
+            bpy.ops.mesh.select_all(action='DESELECT')
+
+        if vertex_group_name:
+            for group in mesh_object.vertex_groups:
+                if group.name == vertex_group_name:
+                    mesh_object.vertex_groups.active_index = group.index
+
+            bpy.ops.object.vertex_group_select()
+

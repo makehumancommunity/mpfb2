@@ -5,10 +5,12 @@ from mpfb.services.logservice import LogService
 from mpfb.services.targetservice import TargetService
 from mpfb.services.humanservice import HumanService
 from mpfb.services.systemservice import SystemService
+from mpfb.services.meshservice import MeshService
 from mpfb.ui.mpfboperator import MpfbOperator
 from mpfb import ClassManager
 
 _LOG = LogService.get_logger("newhuman.createhuman")
+
 
 class MPFB_OT_CreateHumanOperator(MpfbOperator):
     """Create a new human"""
@@ -163,9 +165,17 @@ class MPFB_OT_CreateHumanOperator(MpfbOperator):
         # Otherwise all targets will be set to 100% when entering edit mode
         basemesh.use_shape_key_edit_mode = True
 
+        preselect_group = NEW_HUMAN_PROPERTIES.get_value("preselect_group", entity_reference=context.scene)
+        if not preselect_group:
+            preselect_group = None
+
         bpy.ops.object.select_all(action='DESELECT')
         bpy.context.view_layer.objects.active = basemesh
         basemesh.select_set(True)
+
+        bpy.ops.object.mode_set(mode='EDIT', toggle=False)
+        MeshService.select_all_vertices_in_vertex_group_for_active_object(preselect_group, deselect_other=True)
+        bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
 
         return {'FINISHED'}
 

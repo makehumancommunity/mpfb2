@@ -14,10 +14,12 @@ _LOC = os.path.dirname(__file__)
 PRESETS_HUMAN_PROPERTIES_DIR = os.path.join(_LOC, "properties")
 PRESETS_HUMAN_PROPERTIES = SceneConfigSet.from_definitions_in_json_directory(PRESETS_HUMAN_PROPERTIES_DIR, prefix="FPR_")
 
+
 def _populate_settings(self, context):
     _LOG.enter()
     _LOG.trace("Context is scene", isinstance(context, bpy.types.Scene))
     return HumanService.get_list_of_human_presets(use_cache=False)
+
 
 _SETTINGS_LIST_PROP = {
     "type": "enum",
@@ -27,6 +29,7 @@ _SETTINGS_LIST_PROP = {
     "default": None
 }
 PRESETS_HUMAN_PROPERTIES.add_property(_SETTINGS_LIST_PROP, _populate_settings)
+
 
 class MPFB_PT_From_Presets_Panel(Abstract_Panel):
     """Create human from preset main panel."""
@@ -44,6 +47,7 @@ class MPFB_PT_From_Presets_Panel(Abstract_Panel):
             "scale_factor",
             "override_rig",
             "override_skin_model",
+            "preselect_group",
             "detailed_helpers",
             "extra_vertex_groups",
             "mask_helpers",
@@ -62,5 +66,4 @@ class MPFB_PT_From_Presets_Panel(Abstract_Panel):
 
 
 ClassManager.add_class(MPFB_PT_From_Presets_Panel)
-
 
