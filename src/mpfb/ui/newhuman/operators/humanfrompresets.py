@@ -75,6 +75,9 @@ class MPFB_OT_HumanFromPresetsOperator(MpfbOperator):
             bpy.ops.object.mode_set(mode='EDIT', toggle=False)
             MeshService.select_all_vertices_in_vertex_group_for_active_object(preselect_group, deselect_other=True)
             bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
+            for slot in proxy.material_slots:
+                if str(slot.material.name).lower().endswith(str(preselect_group).lower()):
+                    proxy.active_material_index = slot.slot_index
 
         bpy.ops.object.select_all(action='DESELECT')
         bpy.context.view_layer.objects.active = basemesh
@@ -83,6 +86,10 @@ class MPFB_OT_HumanFromPresetsOperator(MpfbOperator):
         bpy.ops.object.mode_set(mode='EDIT', toggle=False)
         MeshService.select_all_vertices_in_vertex_group_for_active_object(preselect_group, deselect_other=True)
         bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
+
+        for slot in basemesh.material_slots:
+            if str(slot.material.name).lower().endswith(str(preselect_group).lower()):
+                basemesh.active_material_index = slot.slot_index
 
         rig = ObjectService.find_object_of_type_amongst_nearest_relatives(basemesh, mpfb_type_name="Skeleton")
         if rig:
