@@ -1,0 +1,7 @@
+{
+    "type": "boolean",
+    "name": "only_active",
+    "description": "Only show targets which are in use on the character",
+    "label": "Only active",
+    "default": false
+}

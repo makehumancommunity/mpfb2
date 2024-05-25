@@ -20,6 +20,7 @@ _LOG.debug("Target dir:", _TARGETS_DIR)
 _TARGETS_JSON = os.path.join(_TARGETS_DIR, "target.json")
 _LOG.debug("Targets json:", _TARGETS_JSON)
 
+
 class _Abstract_Model_Panel(bpy.types.Panel):
     """Human modeling panel"""
 
@@ -35,18 +36,10 @@ class _Abstract_Model_Panel(bpy.types.Panel):
     target_dir = "-"
 
     def _draw_category(self, scene, layout, category, basemesh):
-        box = layout.box()
-        box.label(text=category["label"])
 
         from mpfb.ui.model.modelpanel import MODEL_PROPERTIES
         hideimg = MODEL_PROPERTIES.get_value("hideimg", entity_reference=bpy.context.scene)
-
-        if not hideimg:
-            if category["name"] in MODELING_ICONS:
-                image = MODELING_ICONS[category["name"]]
-                box.template_icon(icon_value=image.icon_id, scale=6.0)
-            else:
-                _LOG.dump("No image for ", category["name"])
+        only_active = MODEL_PROPERTIES.get_value("only_active", entity_reference=bpy.context.scene)
 
         is_modified = False
         for target in category["targets"]:
@@ -55,19 +48,30 @@ class _Abstract_Model_Panel(bpy.types.Panel):
             if abs(value) > 0.001:
                 is_modified = True
                 _LOG.debug("Target value modified", (name, value))
-        box.alert = is_modified
 
-        if category["has_left_and_right"]:
-            box.prop(scene, UiService.as_valid_identifier(self.section_name + ".l-" + category["name"]), text="Left:")
-            box.prop(scene, UiService.as_valid_identifier(self.section_name + ".r-" + category["name"]), text="Right:")
-        else:
-            box.prop(scene, UiService.as_valid_identifier(self.section_name + "." + category["name"]), text="Value:")
+        if not only_active or is_modified:
+            box = layout.box()
+            box.label(text=category["label"])
+
+            if not hideimg:
+                if category["name"] in MODELING_ICONS:
+                    image = MODELING_ICONS[category["name"]]
+                    box.template_icon(icon_value=image.icon_id, scale=6.0)
+                else:
+                    _LOG.dump("No image for ", category["name"])
+
+            box.alert = is_modified
+
+            if category["has_left_and_right"]:
+                box.prop(scene, UiService.as_valid_identifier(self.section_name + ".l-" + category["name"]), text="Left:")
+                box.prop(scene, UiService.as_valid_identifier(self.section_name + ".r-" + category["name"]), text="Right:")
+            else:
+                box.prop(scene, UiService.as_valid_identifier(self.section_name + "." + category["name"]), text="Value:")
 
     def draw(self, context):
         _LOG.enter()
         layout = self.layout
         scene = context.scene
-
 
         basemesh = ObjectService.find_object_of_type_amongst_nearest_relatives(bpy.context.active_object, "Basemesh")
         if not basemesh:
@@ -88,6 +92,7 @@ class _Abstract_Model_Panel(bpy.types.Panel):
                 category = _CATEGORIES_BY_LABEL[self.section_name][category_name]
                 self._draw_category(scene, grid, category, basemesh)
 
+
 _sections = dict()
 with open(_TARGETS_JSON, "r") as _json_file:
     _sections = json.load(_json_file)
@@ -106,8 +111,8 @@ if len(custom_targets) > 0:
     for target in custom_targets:
         _sections["custom"]["categories"].append({
                 "has_left_and_right": False,
-                "label": os.path.basename(target).replace(".target","").replace("_", " "),
-                "name": os.path.basename(target).replace(".target",""),
+                "label": os.path.basename(target).replace(".target", "").replace("_", " "),
+                "name": os.path.basename(target).replace(".target", ""),
                 "targets": [target],
                 "full_path": target
                 })
@@ -127,19 +132,19 @@ if os.path.exists(user_targets_dir):
         _LOG.debug("section:", section)
         cat = {
                 "has_left_and_right": False,
-                "label": os.path.basename(target).replace(".target","").replace("_", " "),
-                "name": os.path.basename(target).replace(".target",""),
+                "label": os.path.basename(target).replace(".target", "").replace("_", " "),
+                "name": os.path.basename(target).replace(".target", ""),
                 "targets": [target],
                 "full_path": target
                 }
         _LOG.debug("cat", cat)
         section["categories"].append(cat)
-        bn = str(os.path.basename(target)).replace(".target","")
+        bn = str(os.path.basename(target)).replace(".target", "")
         img = None
-        png = os.path.join(os.path.dirname(target),bn + ".png")
+        png = os.path.join(os.path.dirname(target), bn + ".png")
         if os.path.exists(png):
             img = png
-        thumb = os.path.join(os.path.dirname(target),bn + ".thumb")
+        thumb = os.path.join(os.path.dirname(target), bn + ".thumb")
         if os.path.exists(thumb):
             img = thumb
         if img:
@@ -159,6 +164,7 @@ for key in _sections.keys():
         _SORTED_CATEGORIES[str(key)].append(cat["label"])
         _CATEGORIES_BY_LABEL[str(key)][cat["label"]] = cat
     _SORTED_CATEGORIES[str(key)].sort()
+
 
 def _set_simple_modifier_value(scene, blender_object, section, category, value, side="unsided", load_target_if_needed=True):
     """This modifier is not a combination of opposing targets ("decr-incr", "in-out"...)"""
@@ -185,6 +191,7 @@ def _set_simple_modifier_value(scene, blender_object, section, category, value, 
         prune = MODEL_PROPERTIES.get_value("prune", entity_reference=bpy.context.scene)
         TargetService.set_target_value(blender_object, name, value, delete_target_on_zero=prune)
 
+
 def _get_simple_modifier_value(scene, blender_object, section, category, side="unsided"):
     """This modifier is not a combination of opposing targets ("decr-incr", "in-out"...)"""
     name = category["name"]
@@ -193,6 +200,7 @@ def _get_simple_modifier_value(scene, blender_object, section, category, side="u
     if side == "left":
         name = "l-" + name
     return TargetService.get_target_value(blender_object, name)
+
 
 def _get_opposed_modifier_value(scene, blender_object, section, category, side="unsided"):
     """This modifier is a combination of opposing targets ("decr-incr", "in-out"...)"""
@@ -206,6 +214,7 @@ def _get_opposed_modifier_value(scene, blender_object, section, category, side="
         return -TargetService.get_target_value(blender_object, negative)
 
     return 0.0
+
 
 def _set_opposed_modifier_value(scene, blender_object, section, category, value, side="unsided"):
     """This modifier is a combination of opposing targets ("decr-incr", "in-out"...)"""
@@ -260,11 +269,13 @@ def _set_modifier_value(scene, blender_object, section, category, value, side="u
     if MODEL_PROPERTIES.get_value("refit", entity_reference=bpy.context.scene):
         HumanService.refit(blender_object)
 
+
 def _get_modifier_value(scene, blender_object, section, category, side="unsided"):
     _LOG.dump("enter _get_modifier_value", (blender_object, category, side))
     if "opposites" in category:
         return _get_opposed_modifier_value(scene, blender_object, section, category, side)
     return _get_simple_modifier_value(scene, blender_object, section, category, side)
+
 
 _section_names = list(_sections.keys())
 _section_names.sort()
@@ -363,10 +374,9 @@ for name in _section_names:
         "section_name": name
         }
 
-    sub_panel = type("MPFB_PT_Model_Sub_Panel_" + name, (_Abstract_Model_Panel, ), definition)
+    sub_panel = type("MPFB_PT_Model_Sub_Panel_" + name, (_Abstract_Model_Panel,), definition)
 
     _LOG.debug("sub_panel", sub_panel)
 
     ClassManager.add_class(sub_panel)
-
 
