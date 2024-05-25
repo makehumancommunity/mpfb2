@@ -1,7 +1,7 @@
 {
     "type": "boolean",
     "name": "only_active",
-    "description": "Only show targets which are in use on the character",
+    "description": "Only show detail targets which are in use on the character. Phenotype and custom targets are always listed independent of this",
     "label": "Only active",
     "default": false
 }
