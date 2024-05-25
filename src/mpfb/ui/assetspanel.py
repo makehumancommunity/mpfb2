@@ -23,6 +23,13 @@ FILTER_PROPERTIES = SceneConfigSet([
     "description": "Only list assets belonging to an asset pack matching this name",
     "label": "Pack name must contain",
     "default": ""
+    },
+    {
+    "type": "boolean",
+    "name": "only_equipped",
+    "description": "Only show assets which are currently equipped",
+    "label": "Only equipped",
+    "default": False
     }
     ], 'APAS_')
 
@@ -42,6 +49,7 @@ class MPFB_PT_Assets_Panel(Abstract_Panel):
             show_props.append("packname")
         else:
             _LOG.debug("There is no pack metadata")
+        show_props.append("only_equipped")
         FILTER_PROPERTIES.draw_properties(context.scene, box, show_props)
 
 

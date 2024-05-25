@@ -53,6 +53,7 @@ class _Abstract_Asset_Library_Panel(bpy.types.Panel):
 
         filter_term = str(FILTER_PROPERTIES.get_value("filter", entity_reference=scene)).strip().lower()
         pack_term = str(FILTER_PROPERTIES.get_value("packname", entity_reference=scene)).strip().lower()
+        only_equipped = FILTER_PROPERTIES.get_value("only_equipped", entity_reference=scene)
 
         pack_assets = []
         if pack_term:
@@ -81,46 +82,49 @@ class _Abstract_Asset_Library_Panel(bpy.types.Panel):
         grid = layout.grid_flow(columns=cols, even_columns=True, even_rows=False)
 
         for name in names:
-            box = grid.box()
-            box.label(text=name)
+
             asset = items[name]
             is_equipped = False
             for child in self.equipped:
                 if child in asset["fragment"]:
                     is_equipped = True
-                    box.alert = True
                     break
             _LOG.debug("Now checking asset", asset)
             _LOG.dump("Asset is equipped", is_equipped)
 
-            if "thumb" in asset and not asset["thumb"] is None:
-                box.template_icon(icon_value=asset["thumb"].icon_id, scale=6.0)
-            operator = None
-            if self.asset_type == "mhclo":
+            if not only_equipped or is_equipped:
+                box = grid.box()
+                box.label(text=name)
                 if is_equipped:
-                    operator = box.operator("mpfb.unload_library_clothes")
-                else:
-                    operator = box.operator("mpfb.load_library_clothes")
-            if self.asset_type == "proxy":
-                operator = box.operator("mpfb.load_library_proxy")
-            if self.asset_type == "mhmat" and self.skin_overrides:
-                operator = box.operator("mpfb.load_library_skin")
-            if operator is not None:
-                if not is_equipped:
-                    operator.filepath = asset["full_path"]
-                else:
-                    operator.filepath = asset["fragment"]
-                if hasattr(operator, "object_type") and self.object_type:
-                    operator.object_type = self.object_type
-                if hasattr(operator, "material_type"):
-                    operator.material_type = "MAKESKIN"
-                    if self.eye_overrides:
-                        operator.material_type  = ASSET_SETTINGS_PROPERTIES.get_value("eyes_type", entity_reference=scene)
+                    box.alert = True
+                if "thumb" in asset and not asset["thumb"] is None:
+                    box.template_icon(icon_value=asset["thumb"].icon_id, scale=6.0)
+                operator = None
+                if self.asset_type == "mhclo":
+                    if is_equipped:
+                        operator = box.operator("mpfb.unload_library_clothes")
                     else:
-                        operator.material_type  = ASSET_SETTINGS_PROPERTIES.get_value("clothes_type", entity_reference=scene)
-                    _LOG.debug("Operator material type is now", operator.material_type)
-                else:
-                    _LOG.debug("Operator does not have a material type")
+                        operator = box.operator("mpfb.load_library_clothes")
+                if self.asset_type == "proxy":
+                    operator = box.operator("mpfb.load_library_proxy")
+                if self.asset_type == "mhmat" and self.skin_overrides:
+                    operator = box.operator("mpfb.load_library_skin")
+                if operator is not None:
+                    if not is_equipped:
+                        operator.filepath = asset["full_path"]
+                    else:
+                        operator.filepath = asset["fragment"]
+                    if hasattr(operator, "object_type") and self.object_type:
+                        operator.object_type = self.object_type
+                    if hasattr(operator, "material_type"):
+                        operator.material_type = "MAKESKIN"
+                        if self.eye_overrides:
+                            operator.material_type = ASSET_SETTINGS_PROPERTIES.get_value("eyes_type", entity_reference=scene)
+                        else:
+                            operator.material_type = ASSET_SETTINGS_PROPERTIES.get_value("clothes_type", entity_reference=scene)
+                        _LOG.debug("Operator material type is now", operator.material_type)
+                    else:
+                        _LOG.debug("Operator does not have a material type")
 
     def draw(self, context):
         _LOG.enter()
