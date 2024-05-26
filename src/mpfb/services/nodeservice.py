@@ -85,11 +85,15 @@ _BLACKLISTED_ATTRIBUTE_TYPES = [
 _KNOWN_SHADER_NODE_CLASSES = []
 
 for subc in dir(bpy.types):
-    obj = getattr(bpy.types, subc)
-    if hasattr(obj, "__bases__") and bpy.types.ShaderNode in obj.__bases__:
-        _KNOWN_SHADER_NODE_CLASSES.append(obj)
+    try:
+        obj = getattr(bpy.types, subc)
+        if hasattr(obj, "__bases__") and bpy.types.ShaderNode in obj.__bases__:
+            _KNOWN_SHADER_NODE_CLASSES.append(obj)
+    except Exception as e:
+        _LOG.error("An unexpected error occurred while listing shader classes", (subc, e))
 
 # TODO: add extra nodes which are relevant, but not descendants of ShaderNode
+
 
 class NodeService:
 
@@ -168,7 +172,7 @@ class NodeService:
                 output_dict["value_type"] = output_socket.type
                 output_dict["default_value"] = None
                 if hasattr(output_socket, "default_value") and output_socket.default_value is not None:
-                    if "Euler" not in output_socket.default_value.__class__.__name__: # TODO: Euler is not JSON serializable, need to find workaround
+                    if "Euler" not in output_socket.default_value.__class__.__name__:  # TODO: Euler is not JSON serializable, need to find workaround
                         if output_socket.type in ["RGBA", "RGB", "VECTOR"]:
                             output_dict["default_value"] = list(output_socket.default_value)
                         else:
@@ -191,7 +195,7 @@ class NodeService:
                         attribute["value"].append(i)
                 if not attribute["class"] in _BLACKLISTED_ATTRIBUTE_TYPES:  # TODO: Should try to parse these instead of filtering them out
                     node_info["attributes"][item] = attribute
-                if attribute["name"] == "image": # Special case for shadernodeteximage
+                if attribute["name"] == "image":  # Special case for shadernodeteximage
                     attribute["class"] = "image"
                     attribute["value"] = dict()
                     attribute["value"]["filepath"] = ""
@@ -451,7 +455,6 @@ class NodeService:
             colorspace = node_info["colorspace"]
 
         NodeService.set_image_in_image_node(node, file_name, colorspace)
-
 
     @staticmethod
     def update_node_with_settings_from_dict(node, node_info):
