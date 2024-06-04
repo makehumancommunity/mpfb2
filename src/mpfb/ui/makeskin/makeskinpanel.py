@@ -15,6 +15,7 @@ MAKESKIN_PROPERTIES = SceneConfigSet.from_definitions_in_json_directory(MAKESKIN
 
 _LOG = LogService.get_logger("makeskin.makeskinpanel")
 
+
 class MPFB_PT_MakeSkin_Panel(Abstract_Panel):
     """MakeSkin main panel."""
 
@@ -26,8 +27,8 @@ class MPFB_PT_MakeSkin_Panel(Abstract_Panel):
     def _create_material(self, scene, layout):
         box = self._create_box(layout, "Create empty material", "TOOL_SETTINGS")
         props = [
-            #"overwrite",
-            #"create_node_visualization"
+            # "overwrite",
+            # "create_node_visualization"
             "create_diffuse",
             "create_normalmap",
             "create_bumpmap",
@@ -39,7 +40,7 @@ class MPFB_PT_MakeSkin_Panel(Abstract_Panel):
             "create_opacitymap",
             "create_roughnessmap",
             "create_specularmap",
-            "create_subsurfaceColorMap",
+            # "create_subsurfaceColorMap",
             "create_subsurfaceStrengthMap",
             "create_transmissionmap",
             "resolution"
@@ -90,7 +91,7 @@ class MPFB_PT_MakeSkin_Panel(Abstract_Panel):
 
     def _save_file(self, blender_object, layout):
         box = self._create_box(layout, "Save file", "MATERIAL_DATA")
-        #box.operator('mpfb.write_makeskin_to_library')
+        # box.operator('mpfb.write_makeskin_to_library')
         box.operator('mpfb.write_makeskin_material')
 
     def _save_library(self, blender_object, layout):
@@ -119,5 +120,4 @@ class MPFB_PT_MakeSkin_Panel(Abstract_Panel):
 
 
 ClassManager.add_class(MPFB_PT_MakeSkin_Panel)
-
 

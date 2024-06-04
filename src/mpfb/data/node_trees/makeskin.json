@@ -31,7 +31,7 @@
             "from_node": "transmissionmapTexture",
             "from_socket": "Color",
             "to_node": "Principled BSDF",
-            "to_socket": "Transmission"
+            "to_socket": "Transmission Weight"
         },
         {
             "from_node": "metallicmapTexture",
@@ -133,7 +133,7 @@
             "from_node": "emcTexture",
             "from_socket": "Color",
             "to_node": "Principled BSDF",
-            "to_socket": "Emission"
+            "to_socket": "Emission Color"
         },
         {
             "from_node": "emsTexture",
@@ -320,18 +320,6 @@
             "colorspace": "Non-Color",
             "type": "ShaderNodeTexImage",
             "filename": "$emissionStrengthMap_filename",
-            "values": {}
-        },
-        "subcTexture": {
-            "create": "$has_subsurfaceColorMap",
-            "label": "SSS Color Texture",
-            "location": [
-                -1500.0,
-                800.5057983398438
-            ],
-            "name": "subsurfaceColorMapTexture",
-            "type": "ShaderNodeTexImage",
-            "filename": "$subsurfaceColorMap_filename",
             "values": {}
         },
         "subsTexture": {

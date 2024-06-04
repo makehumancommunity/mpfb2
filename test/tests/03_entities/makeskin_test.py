@@ -5,6 +5,7 @@ from mpfb.services.objectservice import ObjectService
 from mpfb.services.materialservice import MaterialService
 from mpfb.services.nodeservice import NodeService
 
+
 def _create_object(with_material=False):
     name = ObjectService.random_name()
     mesh = bpy.data.meshes.new(name + "Mesh")
@@ -12,6 +13,7 @@ def _create_object(with_material=False):
     if with_material:
         MaterialService.create_empty_material(name + "Material", obj)
     return obj
+
 
 def test_load_mhmat_file():
     td = LocationService.get_mpfb_test("testdata")
@@ -25,6 +27,7 @@ def test_load_mhmat_file():
     assert col
     assert col[0] > 0.4
     assert col[0] < 0.6
+
 
 def test_basic_nodetree():
     td = LocationService.get_mpfb_test("testdata")
@@ -51,6 +54,7 @@ def test_basic_nodetree():
     assert col[0] < 0.6
     assert col[1] > 0.4
 
+
 def test_most_textures():
     td = LocationService.get_mpfb_test("testdata")
     matfile = os.path.join(td, "materials", "almost_all_textures.mhmat")
@@ -75,7 +79,7 @@ def test_most_textures():
         "bumpmapTexture",
         "normalmapTexture",
         "displacementmapTexture",
-        #"specularmapTexture",
+        # "specularmapTexture",
         "transmissionmapTexture",
         "opacitymapTexture",
         "roughnessmapTexture",
@@ -83,7 +87,7 @@ def test_most_textures():
         "aomapTexture",
         "emissionColorMapTexture",
         "emissionStrengthMapTexture",
-        "subsurfaceColorMapTexture",
+        # "subsurfaceColorMapTexture",
         "subsurfaceStrengthMapTexture",
         "bumpmap",
         "normalmap",
@@ -97,6 +101,7 @@ def test_most_textures():
         else:
             found_name = "not found"
         assert name == found_name
+
 
 def test_specularmap():
     td = LocationService.get_mpfb_test("testdata")
@@ -129,5 +134,4 @@ def test_specularmap():
         else:
             found_name = "not found"
         assert name == found_name
-
 

@@ -9,6 +9,10 @@ from mpfb.services.materialservice import MaterialService
 
 _LOG = LogService.get_logger("material.makeskinmaterial")
 
+_WARN_BL4_NAMES = [
+    "subsurfaceColorMap"
+    ]
+
 _TEXTURE_NAMES = [
     "aomap",
     "bumpmap",
@@ -21,7 +25,6 @@ _TEXTURE_NAMES = [
     "opacitymap",
     "roughnessmap",
     "specularmap",
-    "subsurfaceColorMap",
     "subsurfaceStrengthMap",
     "transmissionmap"
     ]
@@ -40,9 +43,9 @@ _NONCOLOR = [
     "transmissionmap"
     ]
 
-_NODE_SOCKET_VALUES = [] # key name, node name, socket name
-_NODE_SOCKET_VALUES.append(["diffuseColor", "Principled BSDF", "Base Color"]) # First pick up color from principled
-_NODE_SOCKET_VALUES.append(["diffuseColor", "diffuseIntensity", "Color1"]) # Then overwrite with intensity node if any
+_NODE_SOCKET_VALUES = []  # key name, node name, socket name
+_NODE_SOCKET_VALUES.append(["diffuseColor", "Principled BSDF", "Base Color"])  # First pick up color from principled
+_NODE_SOCKET_VALUES.append(["diffuseColor", "diffuseIntensity", "Color1"])  # Then overwrite with intensity node if any
 _NODE_SOCKET_VALUES.append(["diffuseIntensity", "diffuseIntensity", "Fac"])
 _NODE_SOCKET_VALUES.append(["bumpmapIntensity", "bumpmap", "Strength"])
 _NODE_SOCKET_VALUES.append(["normalmapIntensity", "normalmap", "Strength"])
@@ -50,6 +53,7 @@ _NODE_SOCKET_VALUES.append(["displacementmapIntensity", "displacementmap", "Scal
 _NODE_SOCKET_VALUES.append(["metallic", "Principled BSDF", "Metallic"])
 _NODE_SOCKET_VALUES.append(["ior", "Principled BSDF", "IOR"])
 _NODE_SOCKET_VALUES.append(["roughness", "Principled BSDF", "Roughness"])
+
 
 class MakeSkinMaterial(MhMaterial):
 
@@ -87,10 +91,13 @@ class MakeSkinMaterial(MhMaterial):
             self._template(template_values, "has_opacitymap", "opacitymap_filename", "opacityMapTexture")
             self._template(template_values, "has_roughnessmap", "roughnessmap_filename", "roughnessMapTexture")
             self._template(template_values, "has_specularmap", "specularmap_filename", "specularMapTexture")
-            self._template(template_values, "has_subsurfaceColorMap", "subsurfaceColorMap_filename", "subsurfaceColorMapTexture")
+            # self._template(template_values, "has_subsurfaceColorMap", "subsurfaceColorMap_filename", "subsurfaceColorMapTexture")
             self._template(template_values, "has_subsurfaceStrengthMap", "subsurfaceStrengthMap_filename", "subsurfaceStrengthMapTexture")
             self._template(template_values, "has_transmissionmap", "transmissionmap_filename", "transmissionMapTexture")
 
+        for key in _WARN_BL4_NAMES:
+            if self.get_value(key):
+                _LOG.warn("The " + key + " texture is not supported in Blender 4+")
 
         template_values["bump_or_normal"] = "false"
         if template_values["has_bumpmap"] == "true":
