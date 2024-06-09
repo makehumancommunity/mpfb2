@@ -1,6 +1,6 @@
 """Service for working with animations."""
 
-import bpy, os
+import bpy, os, math, mathutils
 from mathutils import Matrix, Vector
 from mpfb.services.locationservice import LocationService
 from mpfb.services.logservice import LogService
@@ -10,6 +10,8 @@ from bpy.types import PoseBone
 from mathutils import Vector
 
 _LOG = LogService.get_logger("services.animationservice")
+_LOG.set_level(LogService.DEBUG)
+
 
 class AnimationService:
     """Service with utility functions for working with animations. It only has static methods, so you don't
@@ -18,6 +20,54 @@ class AnimationService:
     def __init__(self):
         """Do not instance, there are only static methods in the class"""
         raise RuntimeError("You should not instance AnimationService. Use its static methods instead.")
+
+    @staticmethod
+    def import_bvh_file_as_pose(dest_rig, bvh_file_path):
+        """Import a bvh file as a pose for the given armature."""
+
+        if not os.path.exists(bvh_file_path):
+            _LOG.error("bvh_file_path does not exist", bvh_file_path)
+            raise IOError("BVH file does not exist " + bvh_file_path)
+
+        ObjectService.activate_blender_object(dest_rig, deselect_all=True)
+        bpy.ops.object.mode_set(mode='EDIT', toggle=False)
+
+        dest_rolls = dict()
+        source_rolls = dict()
+
+        for dest_edit_bone in dest_rig.data.edit_bones:
+            dest_rolls[dest_edit_bone.name] = dest_edit_bone.roll
+
+        bpy.ops.object.mode_set(mode='POSE', toggle=False)
+
+        bpy.ops.import_anim.bvh(filepath=bvh_file_path, axis_forward='Y', axis_up='Z', rotate_mode='XYZ')
+        source_rig = bpy.context.object
+        _LOG.debug("source_rig", source_rig)
+
+        ObjectService.activate_blender_object(source_rig, deselect_all=True)
+        bpy.ops.object.mode_set(mode='EDIT', toggle=False)
+
+        for source_edit_bone in source_rig.data.edit_bones:
+            source_rolls[source_edit_bone.name] = source_edit_bone.roll
+
+        bpy.ops.object.mode_set(mode='POSE', toggle=False)
+
+        for source_pose_bone in source_rig.pose.bones:
+            dest_pose_bone = RigService.find_pose_bone_by_name(source_pose_bone.name, dest_rig)
+
+            # _LOG.debug("Pose bones (bvh, armature)", (source_pose_bone, dest_pose_bone))
+
+            if dest_pose_bone:
+                source_roll = source_rolls[source_pose_bone.name]
+                dest_roll = dest_rolls[dest_pose_bone.name]
+
+                roll_difference = dest_roll - source_roll
+
+                _LOG.debug("Rolls (name, bvh, armature, difference)", (dest_pose_bone.name, source_roll, dest_roll, math.degrees(roll_difference)))
+
+                # -- NOW WHAT? --
+                # The source and dest bones have differences in bone roll, so copying the rotation from one to the other
+                # ends up wrong. My math is to sub par to figure out how to compensate for the roll difference.
 
     @staticmethod
     def get_max_keyframe(armature_object):
@@ -94,7 +144,7 @@ class AnimationService:
 
         scene = bpy.context.scene
 
-        for keyframe in range(start_keyframe, end_keyframe+1):
+        for keyframe in range(start_keyframe, end_keyframe + 1):
             scene.frame_set(keyframe)
             bone = RigService.find_pose_bone_by_name(bone_name, armature_object)
             if not bone:
@@ -111,7 +161,7 @@ class AnimationService:
             _LOG.error("armature_object is None")
             return
 
-        for source_keyframe in range(first_keyframe, last_keyframe+1):
+        for source_keyframe in range(first_keyframe, last_keyframe + 1):
             target_keyframe = start_duplicate_at + source_keyframe - first_keyframe
             _LOG.debug("Duplicating keyframe", (source_keyframe, target_keyframe))
             AnimationService.duplicate_keyframe(armature_object, source_keyframe, target_keyframe)
@@ -149,7 +199,7 @@ class AnimationService:
             # TODO: co.y and position in keyframe_points isn't necessarily the same.
             #       The following line should be expanded to check this and take measures
             #       if co.y does not match the intended keyframe.
-            old_keyframe = fcurve.keyframe_points[source_keyframe-1]
+            old_keyframe = fcurve.keyframe_points[source_keyframe - 1]
 
             new_keyframe = fcurve.keyframe_points.insert(target_keyframe, old_keyframe.co.y)
             new_keyframe.amplitude = old_keyframe.amplitude
@@ -161,7 +211,6 @@ class AnimationService:
             new_keyframe.period = old_keyframe.period
             new_keyframe.easing = old_keyframe.easing
             new_keyframe.back = old_keyframe.back
-
 
     @staticmethod
     def get_key_frames_as_dict(armature_object):
@@ -223,7 +272,7 @@ class AnimationService:
 
                 metadata = fdata[curve_type]["metadata"][curve_idx]
 
-                #_LOG.debug("metadata", (curve_idx, len(fdata[curve_type]["metadata"]), fdata[curve_type]["metadata"]))
+                # _LOG.debug("metadata", (curve_idx, len(fdata[curve_type]["metadata"]), fdata[curve_type]["metadata"]))
 
                 fdata[curve_type]["values"][curve_idx] = result
 
