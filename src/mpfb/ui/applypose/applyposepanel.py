@@ -11,6 +11,7 @@ _LOG = LogService.get_logger("applypose.applyposepanel")
 
 POSES_PROPERTIES = SceneConfigSet([], prefix="POSES_")
 
+
 def _populate_partials(self, context):
     _LOG.enter()
     if context.object is None or context.object.type != 'ARMATURE':
@@ -45,6 +46,7 @@ def _populate_partials(self, context):
         line = line + 1
 
     return poses
+
 
 def _populate_poses(self, context):
     _LOG.enter()
@@ -85,6 +87,7 @@ def _populate_poses(self, context):
 
     return poses
 
+
 _SETTINGS_LIST_PROP = {
     "type": "enum",
     "name": "available_poses",
@@ -104,6 +107,7 @@ _SETTINGS_PART_PROP = {
 POSES_PROPERTIES.add_property(_SETTINGS_PART_PROP, _populate_partials)
 
 _GLOBAL_POSES_SCANNED = False
+
 
 class MPFB_PT_ApplyPosePanel(Abstract_Panel):
     bl_label = "Load pose"
@@ -134,6 +138,7 @@ class MPFB_PT_ApplyPosePanel(Abstract_Panel):
         props = ["available_partials"]
         POSES_PROPERTIES.draw_properties(scene, layout, props)
         layout.operator('mpfb.load_partial')
+        layout.operator('mpfb.load_mhbvh_pose')
 
 
 ClassManager.add_class(MPFB_PT_ApplyPosePanel)

@@ -23,51 +23,65 @@ class AnimationService:
 
     @staticmethod
     def import_bvh_file_as_pose(dest_rig, bvh_file_path):
-        """Import a bvh file as a pose for the given armature."""
+        """Destructively import a bvh file as a pose for the given armature. This will ruin the roll values
+           of the bones in the dest_rig.
+        """
 
         if not os.path.exists(bvh_file_path):
             _LOG.error("bvh_file_path does not exist", bvh_file_path)
             raise IOError("BVH file does not exist " + bvh_file_path)
 
-        ObjectService.activate_blender_object(dest_rig, deselect_all=True)
-        bpy.ops.object.mode_set(mode='EDIT', toggle=False)
-
-        dest_rolls = dict()
-        source_rolls = dict()
-
-        for dest_edit_bone in dest_rig.data.edit_bones:
-            dest_rolls[dest_edit_bone.name] = dest_edit_bone.roll
-
-        bpy.ops.object.mode_set(mode='POSE', toggle=False)
-
+        # First, import the bvh file as an armature
         bpy.ops.import_anim.bvh(filepath=bvh_file_path, axis_forward='Y', axis_up='Z', rotate_mode='XYZ')
         source_rig = bpy.context.object
         _LOG.debug("source_rig", source_rig)
 
+        # Put the source armature in edit mode
         ObjectService.activate_blender_object(source_rig, deselect_all=True)
         bpy.ops.object.mode_set(mode='EDIT', toggle=False)
 
+        # Extract all the roll values from the source armature's edit bones
+        source_rolls = dict()
         for source_edit_bone in source_rig.data.edit_bones:
             source_rolls[source_edit_bone.name] = source_edit_bone.roll
 
+        # Finally set the source armature in pose mode
         bpy.ops.object.mode_set(mode='POSE', toggle=False)
 
+        # Then activate the destination armature and set it to edit mode
+        ObjectService.activate_blender_object(dest_rig, deselect_all=True)
+        bpy.ops.object.mode_set(mode='EDIT', toggle=False)
+
+        # Copy all the roll values from the source armature to the destination armature's edit bones'
+        for dest_edit_bone in dest_rig.data.edit_bones:
+            if dest_edit_bone.name in source_rolls:
+                dest_edit_bone.roll = source_rolls[dest_edit_bone.name]
+
+        # Finally set the destination armature in pose mode
+        bpy.ops.object.mode_set(mode='POSE', toggle=False)
+
+        # Now rotations will behave the same way as in the source armature, so we can just copy the rotations
         for source_pose_bone in source_rig.pose.bones:
             dest_pose_bone = RigService.find_pose_bone_by_name(source_pose_bone.name, dest_rig)
-
-            # _LOG.debug("Pose bones (bvh, armature)", (source_pose_bone, dest_pose_bone))
-
             if dest_pose_bone:
-                source_roll = source_rolls[source_pose_bone.name]
-                dest_roll = dest_rolls[dest_pose_bone.name]
+                dest_pose_bone.rotation_euler = source_pose_bone.rotation_euler.copy()
 
-                roll_difference = dest_roll - source_roll
+                # A suggested solution for compensating for roll values instead of overwriting them
+                # (as is done above) is the following. However, this fails for unknown readons. The
+                # character ends up in a distorted knot.
+                #
+                # roll_diff = source_rolls[source_pose_bone.name] - dest_rolls[dest_pose_bone.name]
+                # rotation_matrix = source_pose_bone.matrix.to_3x3() @ Matrix.Rotation(roll_diff, 3, 'Y')
+                # dest_pose_bone.rotation_euler = rotation_matrix.to_euler()
 
-                _LOG.debug("Rolls (name, bvh, armature, difference)", (dest_pose_bone.name, source_roll, dest_roll, math.degrees(roll_difference)))
+        # As we're finished, we can delete the source armature
+        ObjectService.activate_blender_object(source_rig, deselect_all=True)
+        bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
+        ObjectService.delete_object(source_rig)
 
-                # -- NOW WHAT? --
-                # The source and dest bones have differences in bone roll, so copying the rotation from one to the other
-                # ends up wrong. My math is to sub par to figure out how to compensate for the roll difference.
+        # Finally we can reactivate the destination armature and set it to object mode
+        ObjectService.activate_blender_object(dest_rig, deselect_all=True)
+        bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
 
     @staticmethod
     def get_max_keyframe(armature_object):
