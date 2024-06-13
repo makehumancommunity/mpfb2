@@ -25,6 +25,7 @@ _LOG = LogService.get_logger("services.humanservice")
 
 _EXISTING_PRESETS = None
 
+
 class HumanService:
     """High-level utility functions for various human tasks."""
 
@@ -131,7 +132,6 @@ class HumanService:
             if len(human_info["skin_material_settings"].keys()) > 0:
                 human_info["skin_material_type"] = "LAYERED"
 
-
     @staticmethod
     def _populate_human_info_with_eye_material_info(human_info, basemesh):
         eyes = ObjectService.find_object_of_type_amongst_nearest_relatives(basemesh, "Eyes")
@@ -173,7 +173,8 @@ class HumanService:
             if rig_type is None or rig_type == "unkown":
                 raise ValueError("Could not identify rig type. Custom rigs cannot be serialized.")
             if rig_type.startswith("rigify_generated"):
-                raise ValueError("Generated rigify rigs cannot be serialized. If you want to serialize the rig you have to do it before generating the final rig.")
+                _LOG.warn("Generated rigify should probably not be serialized. If you want to serialize the rig you should do it before generating the final rig.")
+                rig_type = "rigify.human_toes"
             human_info["rig"] = rig_type
 
     @staticmethod
@@ -335,7 +336,7 @@ class HumanService:
                         alternative_materials=None, color_adjustments=None,
                         set_up_rigging=True, interpolate_weights=True, import_subrig=True, import_weights=True):
         mhclo = Mhclo()
-        mhclo.load(mhclo_file) # pylint: disable=E1101
+        mhclo.load(mhclo_file)  # pylint: disable=E1101
         clothes = mhclo.load_mesh(bpy.context)
         clothes.location = (0.0, 0.0, 0.0)
 
@@ -426,14 +427,14 @@ class HumanService:
         ClothesService.fit_clothes_to_human(clothes, basemesh, mhclo)
         mhclo.set_scalings(bpy.context, basemesh)
 
-        delete_name = str(os.path.basename(mhclo_file)) # pylint: disable=E1101
+        delete_name = str(os.path.basename(mhclo_file))  # pylint: disable=E1101
         delete_name = delete_name.replace(".mhclo", "")
         delete_name = delete_name.replace(".MHCLO", "")
         delete_name = delete_name.replace(" ", "_")
         delete_name = "Delete." + delete_name
         ClothesService.update_delete_group(mhclo, basemesh, replace_delete_group=False, delete_group_name=delete_name)
 
-        if asset_type == "Clothes": # TODO: Maybe there are body parts with delete groups?
+        if asset_type == "Clothes":  # TODO: Maybe there are body parts with delete groups?
             proxymesh = ObjectService.find_object_of_type_amongst_nearest_relatives(basemesh, mpfb_type_name="Proxymeshes")
             if proxymesh:
                 ClothesService.interpolate_vertex_group_from_basemesh_to_clothes(basemesh, proxymesh, delete_name, mhclo_full_path=None)
@@ -467,7 +468,7 @@ class HumanService:
             _LOG.debug("Adding a standard rig:", rig_name)
             rig = HumanService.add_builtin_rig(basemesh, rig_name, import_weights=True)
         else:
-            _LOG.debug("Not adding a rig, since rig setting is empty")
+            _LOG.warn("Not adding a rig, since rig setting is empty")
 
         if rig and "name" in human_info and human_info["name"]:
             rig.name = human_info["name"]
@@ -488,7 +489,7 @@ class HumanService:
                     if "color_adjustments" in human_info:
                         colors = human_info["color_adjustments"]
                     bodypart_object = HumanService.add_mhclo_asset(asset_absolute_path, basemesh, asset_type=bodypart, subdiv_levels=subdiv_levels, material_type=material, alternative_materials=human_info["alternative_materials"], color_adjustments=colors)
-                    #if bodypart_object and "name" in human_info and human_info["name"]:
+                    # if bodypart_object and "name" in human_info and human_info["name"]:
                     #    bodypart_object.name = human_info["name"] + "." + bodypart_object.name
                 else:
                     _LOG.warn("Could not locate bodypart", (bodypart, asset_filename))
@@ -889,7 +890,6 @@ class HumanService:
         human_info["targets"].append(target)
         profiler.leave("_parse_mhm_modifier_line")
 
-
     @staticmethod
     def _check_parse_mhm_bodypart_line(human_info, line, perform_deep_search=True):
         profiler = PrimitiveProfiler("HumanService")
@@ -1012,7 +1012,6 @@ class HumanService:
 
         _LOG.warn("Asset was not found in assets list, it will take time to find it", name)
 
-
         # Find assets that only match UUID
         for asset_name in assets:
             asset = assets[asset_name]
@@ -1049,7 +1048,6 @@ class HumanService:
 
         # Give up
         return False
-
 
     @staticmethod
     def deserialize_from_mhm(filename, deserialization_settings):
@@ -1303,7 +1301,7 @@ class HumanService:
         if proxy:
             objs_with_delete.append(proxy)
 
-        delete_name = str(os.path.basename(source)) # pylint: disable=E1101
+        delete_name = str(os.path.basename(source))  # pylint: disable=E1101
         delete_name = delete_name.replace(".mhclo", "")
         delete_name = delete_name.replace(".MHCLO", "")
         delete_name = delete_name.replace(" ", "_")

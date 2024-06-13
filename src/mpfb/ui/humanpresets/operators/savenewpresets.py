@@ -5,6 +5,7 @@ from mpfb.services.objectservice import ObjectService
 from mpfb.services.nodeservice import NodeService
 from mpfb.services.materialservice import MaterialService
 from mpfb.services.humanservice import HumanService
+from mpfb.services.rigservice import RigService
 from mpfb.ui.humanpresets.humanpresetspanel import HUMAN_PRESETS_PROPERTIES
 from mpfb._classmanager import ClassManager
 import bpy, os, json
@@ -52,7 +53,12 @@ class MPFB_OT_Save_New_Presets_Operator(bpy.types.Operator):
             return {'FINISHED'}
 
         HumanService.serialize_to_json_file(basemesh, file_name, True)
-        self.report({'INFO'}, "Human saved as " + file_name)
+
+        rig = ObjectService.find_object_of_type_amongst_nearest_relatives(context.object, "Skeleton")
+        if rig and "generated" in RigService.identify_rig(rig):
+            self.report({'WARNING'}, "Serializing a generated rig might cause issues. The preset was saved, but you should load it and see if it is correct.")
+        else:
+            self.report({'INFO'}, "Human saved as " + file_name)
 
         return {'FINISHED'}
 
@@ -69,5 +75,6 @@ class MPFB_OT_Save_New_Presets_Operator(bpy.types.Operator):
             return True
 
         return False
+
 
 ClassManager.add_class(MPFB_OT_Save_New_Presets_Operator)
