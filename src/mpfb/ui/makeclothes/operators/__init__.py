@@ -11,6 +11,7 @@ from .writeclotheslibrary import MPFB_OT_WriteClothesLibraryOperator
 from .bmxref import MPFB_OT_BasemeshXrefOperator
 from .genuuid import MPFB_OT_GenerateUUIDOperator
 from .gendelete import MPFB_OT_GenDeleteOperator
+from .checkclothes import MPFB_OT_CheckClothesOperator, CLOTHES_CHECKS
 
 __all__ = [
     "MPFB_OT_ExtractClothesOperator",
@@ -19,5 +20,7 @@ __all__ = [
     "MPFB_OT_WriteClothesLibraryOperator",
     "MPFB_OT_BasemeshXrefOperator",
     "MPFB_OT_GenerateUUIDOperator",
-    "MPFB_OT_GenDeleteOperator"
+    "MPFB_OT_GenDeleteOperator",
+    "MPFB_OT_CheckClothesOperator",
+    "CLOTHES_CHECKS"
 ]
