@@ -13,6 +13,7 @@ from mpfb import ClassManager
 
 _LOG = LogService.get_logger("makeclothes.clothescommon")
 
+
 class ClothesCommon():
 
     def generic_execute(self, context, file_name):
@@ -40,7 +41,7 @@ class ClothesCommon():
         check = ClothesService.mesh_is_valid_as_clothes(clothes)
         if not check["all_checks_ok"]:
             _LOG.error("Clothes check failed", check)
-            self.report({'ERROR'}, "The selected object is not valid as clothes")
+            self.report({'ERROR'}, "The selected object is not valid as clothes. Perform clothes check?")
             return {'CANCELLED'}
 
         cache_dir = LocationService.get_user_cache("basemesh_xref")
@@ -94,7 +95,7 @@ class ClothesCommon():
             self.report({'ERROR'}, "Refusing to overwrite existing file without mhclo extension")
             return {'CANCELLED'}
 
-        reference_scale = ClothesService.get_reference_scale(basemesh) # TODO: ability to specify body part
+        reference_scale = ClothesService.get_reference_scale(basemesh)  # TODO: ability to specify body part
         _LOG.debug("reference_scale", reference_scale)
         mhclo.write_mhclo(file_name, reference_scale=reference_scale, also_export_mhmat=(matbn != None))
 

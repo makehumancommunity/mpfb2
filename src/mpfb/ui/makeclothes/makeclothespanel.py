@@ -15,7 +15,6 @@ from mpfb.ui.abstractpanel import Abstract_Panel
 # TODO:
 # - Nuke all vert groups
 # - Assign vert group
-# - Check clothes obj
 # - specify body part to base scale reference on
 # - z-depth
 # - Ensure compat with obj props from old MakeClothes
@@ -25,6 +24,7 @@ MAKECLOTHES_PROPERTIES_DIR = os.path.join(_LOC, "properties")
 MAKECLOTHES_PROPERTIES = SceneConfigSet.from_definitions_in_json_directory(MAKECLOTHES_PROPERTIES_DIR, prefix="MC_")
 
 _LOG = LogService.get_logger("makeclothes.makeclothespanel")
+
 
 def _populate_groups(self, context):
     _LOG.enter()
@@ -43,6 +43,7 @@ def _populate_groups(self, context):
         return groups
     return []
 
+
 _GROUPS_LIST_PROP = {
     "type": "enum",
     "name": "available_groups",
@@ -51,6 +52,7 @@ _GROUPS_LIST_PROP = {
     "default": None
 }
 MAKECLOTHES_PROPERTIES.add_property(_GROUPS_LIST_PROP, _populate_groups)
+
 
 class MPFB_PT_MakeClothes_Panel(Abstract_Panel):
     """MakeClothes main panel."""
@@ -160,6 +162,50 @@ class MPFB_PT_MakeClothes_Panel(Abstract_Panel):
         box.operator('mpfb.write_makeclothes_library')
         box.operator('mpfb.write_makeclothes_clothes')
 
+    def _check_clothes(self, blender_object, scene, layout):
+        box = self._create_box(layout, "Check clothes", "MATERIAL_DATA")
+
+        if len(bpy.context.selected_objects) != 2:
+            box.label(text="Select exactly two objects")
+            return
+
+        basemesh = None
+        clothes = None
+        for obj in bpy.context.selected_objects:
+            if ObjectService.object_is_basemesh(obj):
+                basemesh = obj
+            else:
+                ot = ObjectService.get_object_type(obj)
+                if ot and ot != "Skeleton":
+                    clothes = obj
+
+        if not basemesh:
+            box.label(text="Select a base mesh")
+            return
+
+        if not clothes:
+            box.label(text="Select a clothes type mesh")
+            return
+
+        from mpfb.ui.makeclothes.operators import CLOTHES_CHECKS
+
+        uuid_value = GeneralObjectProperties.get_value("uuid", entity_reference=clothes)
+        if not uuid_value:
+            box.label(text="Clothes need uuid")
+            return
+
+        if not CLOTHES_CHECKS or uuid_value not in CLOTHES_CHECKS:
+            box.label(text="No check performed yet")
+        else:
+            check = CLOTHES_CHECKS[uuid_value]
+            _LOG.debug("Valid clothes check", (uuid_value, check))
+            for check_label in ['is_valid_object', 'has_any_vertices', 'has_any_vgroups', 'all_verts_have_max_one_vgroup', 'all_verts_have_min_one_vgroup', 'all_verts_belong_to_faces', 'all_checks_ok']:
+                name = str(check_label).replace("_", " ").capitalize()
+                value = str(check[check_label]).upper()
+                box.label(text=name + ": " + value)
+
+        box.operator('mpfb.check_makeclothes_clothes')
+
     def _clothes_props(self, scene, layout):
         box = self._create_box(layout, "Clothes props", "MATERIAL_DATA")
 
@@ -220,9 +266,9 @@ class MPFB_PT_MakeClothes_Panel(Abstract_Panel):
             self._material(clothes, scene, layout)
 
         self._generate_delete(blender_object, scene, layout)
+        self._check_clothes(blender_object, scene, layout)
         self._write_clothes(blender_object, scene, layout)
 
 
 ClassManager.add_class(MPFB_PT_MakeClothes_Panel)
-
 
