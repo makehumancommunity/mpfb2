@@ -10,14 +10,15 @@ from mpfb import ClassManager
 
 _LOG = LogService.get_logger("assetlibrary.loadlibrarypose")
 
+
 class MPFB_OT_Load_Library_Pose_Operator(bpy.types.Operator):
-    """Load Pose from asset library"""
+    """Destructively load a pose from a MH BVH file. WARNING: This will change the bone rolls of all bones, making further posing a bit unpredictable"""
     bl_idname = "mpfb.load_library_pose"
     bl_label = "Load Pose"
     bl_options = {'REGISTER', 'UNDO'}
 
     filepath: StringProperty(name="filepath", description="Full path to asset", default="")
-    object_type: StringProperty(name="object_type", description="type of the object", default="Pose")
+    object_type: StringProperty(name="object_type", description="type of the object", default="bvh")
 
     def execute(self, context):
         _LOG.debug("filepath", self.filepath)
@@ -41,5 +42,6 @@ class MPFB_OT_Load_Library_Pose_Operator(bpy.types.Operator):
             return {'CANCELLED'}
 
         return {'FINISHED'}
+
 
 ClassManager.add_class(MPFB_OT_Load_Library_Pose_Operator)

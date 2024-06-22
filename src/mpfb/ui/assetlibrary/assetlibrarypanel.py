@@ -92,7 +92,7 @@ class _Abstract_Asset_Library_Panel(bpy.types.Panel):
             _LOG.debug("Now checking asset", asset)
             _LOG.dump("Asset is equipped", is_equipped)
 
-            if not only_equipped or is_equipped:
+            if not only_equipped or is_equipped or len(self.equipped) < 1:
                 box = grid.box()
                 box.label(text=name)
                 if is_equipped:
@@ -107,6 +107,8 @@ class _Abstract_Asset_Library_Panel(bpy.types.Panel):
                         operator = box.operator("mpfb.load_library_clothes")
                 if self.asset_type == "proxy":
                     operator = box.operator("mpfb.load_library_proxy")
+                if self.asset_type == "bvh":
+                    operator = box.operator("mpfb.load_library_pose")
                 if self.asset_type == "mhmat" and self.skin_overrides:
                     operator = box.operator("mpfb.load_library_skin")
                 if operator is not None:
@@ -141,6 +143,8 @@ class _Abstract_Asset_Library_Panel(bpy.types.Panel):
         if self.basemesh and self.asset_type in ["mhclo", "proxy"]:
             self.equipped = HumanService.get_asset_sources_of_equipped_mesh_assets(self.basemesh)
             _LOG.debug("Equipped assets", self.equipped)
+        else:
+            self.equipped = []
 
         self._draw_section(scene, layout)
 
