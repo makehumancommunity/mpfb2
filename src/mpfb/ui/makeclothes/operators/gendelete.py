@@ -15,6 +15,7 @@ from mpfb import ClassManager
 _LOG = LogService.get_logger("makeclothes.gendelete")
 _LOG.set_level(LogService.DEBUG)
 
+
 class MPFB_OT_GenDeleteOperator(bpy.types.Operator):
     """Create a (very) rough delete group on the base mesh based on which vertices are matched by the clothes. You will need to edit this manually afterwards as it is most likely patchy and too large"""
     bl_idname = "mpfb.makeclothes_gendelete"
@@ -47,6 +48,10 @@ class MPFB_OT_GenDeleteOperator(bpy.types.Operator):
             self.report({'ERROR'}, "No clothes selected")
             return {'CANCELLED'}
 
+        for modifier in clothes.modifiers:
+            self.report({'ERROR'}, "Interpolating does not work when clothes have modifiers")
+            return {'CANCELLED'}
+
         # The real clothes might match against helper mesh, but we want to hide the body mesh
         clothes_copy = clothes.copy()
         clothes_copy.data = clothes.data.copy()
@@ -70,5 +75,6 @@ class MPFB_OT_GenDeleteOperator(bpy.types.Operator):
 
         self.report({'INFO'}, "A very rough delete group has been created on the basemesh. You should check and edit this manually before using it.")
         return {'FINISHED'}
+
 
 ClassManager.add_class(MPFB_OT_GenDeleteOperator)
