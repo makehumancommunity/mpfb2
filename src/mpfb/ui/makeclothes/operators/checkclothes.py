@@ -18,7 +18,7 @@ CLOTHES_CHECKS = dict()
 
 
 class MPFB_OT_CheckClothesOperator(bpy.types.Operator):
-    """Perform basic sanity checks on the active object."""
+    """Perform basic sanity checks on the active object. You need to click this again if changing the clothes, the panel will not update automatically"""
     bl_idname = "mpfb.check_makeclothes_clothes"
     bl_label = "Check"
     bl_options = {'REGISTER'}
