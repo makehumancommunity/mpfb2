@@ -5,7 +5,6 @@ from pathlib import Path
 from mpfb.services.objectservice import ObjectService
 from mpfb.services.logservice import LogService
 from mpfb.services.locationservice import LocationService
-from mpfb.services.uiservice import UiService
 from mpfb.services.systemservice import SystemService
 
 _LOG = LogService.get_logger("services.assetservice")
@@ -84,6 +83,14 @@ ASSET_LIBRARY_SECTIONS = [
             "asset_subdir": "clothes",
             "asset_type": "mhclo",
             "object_type": "Clothes",
+            "eye_overrides": False,
+            "skin_overrides": False
+            },
+        {
+            "bl_label": "Poses library",
+            "asset_subdir": "poses",
+            "asset_type": "bvh",
+            "object_type": "Pose",
             "eye_overrides": False,
             "skin_overrides": False
             }
@@ -168,6 +175,12 @@ class AssetService:
         _LOG.enter()
         roots = AssetService.get_asset_roots(asset_subdir)
         return AssetService.find_asset_files_matching_pattern(roots, "*.mhmat")
+
+    @staticmethod
+    def list_bvh_assets(asset_subdir="poses"):
+        _LOG.enter()
+        roots = AssetService.get_asset_roots(asset_subdir)
+        return AssetService.find_asset_files_matching_pattern(roots, "*.bvh")
 
     @staticmethod
     def list_proxy_assets(asset_subdir="proxymeshes"):
