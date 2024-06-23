@@ -25,12 +25,21 @@ class MPFB_OT_Load_Library_Pose_Operator(bpy.types.Operator):
 
         blender_object = context.active_object
 
+        if blender_object.type != 'ARMATURE':
+            blender_object = ObjectService.find_object_of_type_amongst_nearest_relatives(blender_object, "Skeleton")
+
         if not blender_object or blender_object.type != 'ARMATURE':
             self.report({'ERROR'}, "Active object is not an armature")
             return {'CANCELLED'}
 
         if not ObjectService.object_is_skeleton(blender_object):
             self.report({'ERROR'}, "Active object is not identified as a skeleton")
+            return {'CANCELLED'}
+
+        skeleton = RigService.identify_rig(blender_object)
+
+        if "default" not in skeleton:
+            self.report({'ERROR'}, "BVH-style poses only work with default rig")
             return {'CANCELLED'}
 
         try:

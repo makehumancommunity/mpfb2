@@ -10,7 +10,7 @@ _LOG = LogService.get_logger("applypose.loadmhbvh")
 
 
 class MPFB_OT_Load_MH_BVH_Operator(MpfbOperator, ImportHelper):
-    """Destructively load a pose from a MH BVH file. WARNING: This will change the bone rolls of all bones, making further posing a bit unpredictable."""
+    """Destructively load a pose from a MH BVH file. WARNING: This will change the bone rolls of all bones, making further posing a bit unpredictable"""
     bl_idname = "mpfb.load_mhbvh_pose"
     bl_label = "Import MH BVH Pose"
     bl_options = {'REGISTER', 'UNDO'}
