@@ -1,0 +1,13 @@
+{
+    "type": "enum",
+    "name": "override_clothes_model",
+    "description": "What material model to use for the clothes (and most body parts such as hair and eyebrows)",
+    "label": "Clothes material",
+    "default": "PRESET",
+    "items": [
+        ["NONE", "No material", "Do not set a material at all, no matter what is said in the preset", 1],
+        ["PRESET", "From preset", "Use the material model specified in the preset", 2],
+        ["GAMEENGINE", "GameEngine (PBR)", "Use a simplistic PBR-style material for the clothes, without any procedural aspects at all. This is geared towards export to external applications", 3],
+        ["MAKESKIN", "MakeSkin (PBR)", "Use texture-based material for the clothes, without any particular procedural aspects. This is the material which is closest to the original MakeHuman materials", 4]
+    ]
+}

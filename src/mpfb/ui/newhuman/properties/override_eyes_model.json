@@ -1,0 +1,14 @@
+{
+    "type": "enum",
+    "name": "override_eyes_model",
+    "description": "What material model to use for the eyes",
+    "label": "Eyes material",
+    "default": "PRESET",
+    "items": [
+        ["NONE", "No material", "Do not set a material at all, no matter what is said in the preset", 1],
+        ["PRESET", "From preset", "Use the material model specified in the preset", 2],
+        ["GAMEENGINE", "GameEngine (PBR)", "Use a simplistic PBR-style material for the eyes, without any procedural aspects at all. This is geared towards export to external applications", 3],
+        ["MAKESKIN", "MakeSkin (PBR)", "Use texture-based material for the eyes, without any particular procedural aspects. This is the material which is closest to the original MakeHuman materials", 4],
+        ["PROCEDURAL_EYES", "Procedural", "Use a fully procedural material for the eyes. This allows controlling many aspects but might be unsuitable for animation", 5]
+    ]
+}

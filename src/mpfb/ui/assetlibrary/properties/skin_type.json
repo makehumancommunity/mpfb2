@@ -5,10 +5,10 @@
     "label": "Skin type",
     "default": "LAYERED",
     "items": [
-        ["GAMEENGINE", "GameEngine (PBR)", "Use a simplistic PBR-style material for the skin, without any procedural aspects at all. This is geared towards export to external applications.", 5],
-        ["MAKESKIN", "MakeSkin (PBR)", "Use a PBR-style material for the skin, relying mostly on image textures and with few procedural aspects. This supports more of the general PBR model than the GameEngine material.", 1],
-        ["ENHANCED", "Enhanced", "Use the enhanced skin, which adds a few procedural aspects and which has been the default in MPFB1/MPFB2 until mid 2023", 2],
-        ["ENHANCED_SSS", "Enhanced + SSS", "Use the enhanced skin, which adds a few procedural aspects and which has been the default in MPFB1/MPFB2 until mid 2023. Also add SSS aspects", 3],
-        ["LAYERED", "Multilayered", "Use the latest skin model, which adds many procedural aspects. This may be unsuitable for animation due to its complexity.", 4]
+        ["GAMEENGINE", "GameEngine (PBR)", "Use a simplistic PBR-style material for the skin, without any procedural aspects at all. This is geared towards export to external applications", 5],
+        ["MAKESKIN", "MakeSkin (PBR)", "Use a PBR-style material for the skin, relying mostly on image textures and with few procedural aspects. This supports more of the general PBR model than the GameEngine material. It is also the material which is most similar to the original MakeHuman material model", 1],
+        ["ENHANCED", "Enhanced", "Use the enhanced skin, which adds a few procedural aspects and which was the default in MPFB1/MPFB2 until mid 2023", 2],
+        ["ENHANCED_SSS", "Enhanced + SSS", "Use the enhanced skin, which adds a few procedural aspects and which was the default in MPFB1/MPFB2 until mid 2023. Also add SSS aspects", 3],
+        ["LAYERED", "Multilayered", "Use the most complex skin model, which adds many procedural aspects. This may be unsuitable for animation due to its complexity. It may also cause trouble on old graphics cards", 4]
     ]
 }

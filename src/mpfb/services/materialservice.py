@@ -9,6 +9,7 @@ from mpfb.entities.nodemodel.v2.materials import NodeWrapperSkin
 
 _LOG = LogService.get_logger("services.materialservice")
 
+
 class MaterialService():
     """Utility class for working with materials"""
 
@@ -71,11 +72,16 @@ class MaterialService():
                 if "NavelCenterOverride" in node_info["values"]:
                     return "layered_skin"
 
-        # Since we're not enhanced skin nor procedural eyes, next guess is makeskin
+        # Since we're not enhanced skin nor procedural eyes, next guess is makeskin. The
+        # diffuseIntensity node should always be there even if there is no diffuse texture.
+        if NodeService.find_node_by_name(material.node_tree, "diffuseIntensity"):
+            return "makeskin"
+
+        # The final guess is GameEngine.
         # This might give a false positive if someone added a material with a principled node
         # to a MH object
         if NodeService.find_node_by_name(material.node_tree, "Principled BSDF"):
-            return "makeskin"
+            return "gameengine"
 
         return "unknown"
 

@@ -90,11 +90,17 @@ class HumanService:
         material = slots[0].material
         material_type = MaterialService.identify_material(material)
 
+        _LOG.debug("Material type", material_type)
+
         if not material_type or material_type == "unknown":
             return
 
         if material_type == "makeskin":
             human_info["skin_material_type"] = "MAKESKIN"
+            return
+
+        if material_type == "gameengine":
+            human_info["skin_material_type"] = "GAMEENGINE"
             return
 
         if "enhanced" in material_type:
@@ -150,6 +156,18 @@ class HumanService:
         slot = eyes.material_slots[0]
 
         material = slot.material
+        material_type = MaterialService.identify_material(material)
+
+        _LOG.debug("Material type", material_type)
+
+        if material_type == "makeskin":
+            human_info["eyes_material_type"] = "MAKESKIN"
+            return
+
+        if material_type == "gameengine":
+            human_info["eyes_material_type"] = "GAMEENGINE"
+            return
+
         group_node = NodeService.find_first_node_by_type_name(material.node_tree, "ShaderNodeGroup")
         if group_node:
             material_settings = NodeService.get_socket_default_values(group_node)
@@ -323,11 +341,11 @@ class HumanService:
                         if (group_name.endswith(".r") or group_name.startswith("r-") or group_name.startswith("r_")) and vertex.co[0] > 0.0001:
                             # Vertex is on right side, but has a group weight for a left side bone. So nuke this weight.
                             group.weight = 0.0
-                            _LOG.debug("Nuked weight for vertex", (vertex.index, vertex.co, group_name))
+                            _LOG.trace("Nuked weight for vertex", (vertex.index, vertex.co, group_name))
                         if (group_name.endswith(".l") or group_name.startswith("l-") or group_name.startswith("l_")) and vertex.co[0] < -0.0001:
                             # Vertex is on left side, but has a group weight for a right side bone. So nuke this weight.
                             group.weight = 0.0
-                            _LOG.debug("Nuked weight for vertex", (vertex.index, vertex.co, group_name))
+                            _LOG.trace("Nuked weight for vertex", (vertex.index, vertex.co, group_name))
         else:
             _LOG.debug("There is no corrective information for", uuid)
 
@@ -474,28 +492,30 @@ class HumanService:
             rig.name = human_info["name"]
 
     @staticmethod
-    def _check_add_bodyparts(human_info, basemesh, subdiv_levels=1):
+    def _check_add_bodyparts(human_info, basemesh, subdiv_levels=1, material_model=None, eyes_material_model=None):
         for bodypart in ["eyes", "eyelashes", "eyebrows", "tongue", "teeth", "hair"]:
             if bodypart in human_info and not human_info[bodypart] is None and not str(human_info[bodypart]).strip() == "":
                 asset_filename = human_info[bodypart]
-                _LOG.debug("A bodypart was specified", (bodypart, asset_filename))
+                _LOG.debug("A bodypart was specified (bodypart, fn, matmod, eyematmod)", (bodypart, asset_filename, material_model, eyes_material_model))
                 asset_absolute_path = AssetService.find_asset_absolute_path(asset_filename, asset_subdir=bodypart)
                 _LOG.debug("Asset absolute path", asset_absolute_path)
                 material = "MAKESKIN"
                 if bodypart == "eyes" and "eyes_material_type" in human_info and human_info["eyes_material_type"]:
                     material = human_info["eyes_material_type"]
-                if not asset_absolute_path is None:
+                    if eyes_material_model:
+                        material = eyes_material_model
+                if bodypart != "eyes" and material_model:
+                    material = material_model
+                if asset_absolute_path is not None:
                     colors = None
                     if "color_adjustments" in human_info:
                         colors = human_info["color_adjustments"]
-                    bodypart_object = HumanService.add_mhclo_asset(asset_absolute_path, basemesh, asset_type=bodypart, subdiv_levels=subdiv_levels, material_type=material, alternative_materials=human_info["alternative_materials"], color_adjustments=colors)
-                    # if bodypart_object and "name" in human_info and human_info["name"]:
-                    #    bodypart_object.name = human_info["name"] + "." + bodypart_object.name
+                    HumanService.add_mhclo_asset(asset_absolute_path, basemesh, asset_type=bodypart, subdiv_levels=subdiv_levels, material_type=material, alternative_materials=human_info["alternative_materials"], color_adjustments=colors)
                 else:
                     _LOG.warn("Could not locate bodypart", (bodypart, asset_filename))
 
     @staticmethod
-    def _check_add_clothes(human_info, basemesh, subdiv_levels=1):
+    def _check_add_clothes(human_info, basemesh, subdiv_levels=1, material_model=None):
         profiler = PrimitiveProfiler("HumanService")
         profiler.enter("_check_add_clothes")
         if not "clothes" in human_info:
@@ -506,11 +526,13 @@ class HumanService:
             asset_absolute_path = AssetService.find_asset_absolute_path(asset_filename, asset_subdir="clothes")
             _LOG.debug("Asset absolute path", asset_absolute_path)
             material = "MAKESKIN"
-            if not asset_absolute_path is None:
+            if material_model:
+                material = material_model
+            if asset_absolute_path is not None:
                 colors = None
                 if "color_adjustments" in human_info:
                     colors = human_info["color_adjustments"]
-                clothes_object = HumanService.add_mhclo_asset(asset_absolute_path, basemesh, asset_type="clothes", subdiv_levels=subdiv_levels, material_type=material, alternative_materials=human_info["alternative_materials"], color_adjustments=colors)
+                HumanService.add_mhclo_asset(asset_absolute_path, basemesh, asset_type="clothes", subdiv_levels=subdiv_levels, material_type=material, alternative_materials=human_info["alternative_materials"], color_adjustments=colors)
             else:
                 _LOG.warn("Could not locate clothes", asset_filename)
         profiler.leave("_check_add_clothes")
@@ -612,12 +634,12 @@ class HumanService:
             blender_material = MaterialService.create_empty_material(name, basemesh)
             enhanced_material.apply_node_tree(blender_material)
 
-        if not material_instances and bodyproxy and basemesh:
+        if (not material_instances or skin_type == "GAMEENGINE") and bodyproxy and basemesh:
             material = MaterialService.get_material(basemesh)
             if material:
                 bodyproxy.data.materials.append(material)
 
-        if material_instances and skin_type != "LAYERED":
+        if material_instances and skin_type != "LAYERED" and skin_type != "GAMEENGINE":
             _LOG.debug("Will now attempt to create material slots for", (basemesh, bodyproxy))
             MaterialService.create_and_assign_material_slots(basemesh, bodyproxy)
 
@@ -700,7 +722,7 @@ class HumanService:
             HumanObjectProperties.set_value("material_source", human_info["skin_mhmat"], entity_reference=basemesh)
 
     @staticmethod
-    def _set_eyes(human_info, basemesh):
+    def _set_eyes(human_info, basemesh, material_model=None):
         _LOG.enter()
 
         eyes = ObjectService.find_object_of_type_amongst_nearest_relatives(basemesh, "Eyes")
@@ -718,6 +740,10 @@ class HumanService:
 
         if not "eyes_material_settings" in human_info or not human_info["eyes_material_settings"]:
             _LOG.debug("There are no eye material overrides, going with the default")
+            return
+
+        if not MaterialService.has_materials(eyes):
+            _LOG.debug("Eyes have not material at all")
             return
 
         settings = human_info["eyes_material_settings"]
@@ -769,6 +795,24 @@ class HumanService:
         if len(human_info.keys()) < 1:
             raise ValueError('The provided dict does not seem to be a valid human_info')
 
+        override_clothes_model = None
+        if "override_clothes_model" in deserialization_settings:
+            override_clothes_model = deserialization_settings["override_clothes_model"]
+        if override_clothes_model == "PRESET":
+            if "override_clothes_model" in human_info:
+                override_clothes_model = human_info["override_clothes_model"]
+            else:
+                override_clothes_model = None
+
+        override_eyes_model = None
+        if "override_eyes_model" in deserialization_settings:
+            override_eyes_model = deserialization_settings["override_eyes_model"]
+        if override_eyes_model == "PRESET":
+            if "override_eyes_model" in human_info:
+                override_eyes_model = human_info["override_eyes_model"]
+            else:
+                override_eyes_model = None
+
         _LOG.dump("human_info", human_info)
 
         if not "alternative_materials" in human_info:
@@ -802,10 +846,10 @@ class HumanService:
             bpy.ops.object.transform_apply(location=True, rotation=True, scale=True)
 
         HumanService._check_add_rig(human_info, basemesh)
-        HumanService._check_add_bodyparts(human_info, basemesh, subdiv_levels=subdiv_levels)
+        HumanService._check_add_bodyparts(human_info, basemesh, subdiv_levels=subdiv_levels, material_model=override_clothes_model, eyes_material_model=override_eyes_model)
         HumanService._check_add_proxy(human_info, basemesh, subdiv_levels=subdiv_levels)
         if load_clothes:
-            HumanService._check_add_clothes(human_info, basemesh, subdiv_levels=subdiv_levels)
+            HumanService._check_add_clothes(human_info, basemesh, subdiv_levels=subdiv_levels, material_model=override_clothes_model)
         HumanService._set_skin(human_info, basemesh)
         HumanService._set_eyes(human_info, basemesh)
 

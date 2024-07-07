@@ -47,6 +47,8 @@ class MPFB_PT_From_Presets_Panel(Abstract_Panel):
             "scale_factor",
             "override_rig",
             "override_skin_model",
+            "override_clothes_model",
+            "override_eyes_model",
             "preselect_group",
             "detailed_helpers",
             "extra_vertex_groups",
