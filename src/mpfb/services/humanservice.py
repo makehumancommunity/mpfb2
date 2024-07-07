@@ -214,6 +214,15 @@ class HumanService:
                         _LOG.debug("Color adjustment", (bodypart_obj, uuid, color_adjust))
                         if color_adjust and uuid:
                             human_info["color_adjustments"][uuid] = color_adjust
+                slots = bodypart_obj.material_slots
+                _LOG.debug("bodypart_obj slots", (bodypart_obj, slots))
+                if slots and len(slots) > 0:
+                    material = slots[0].material
+                    material_type = MaterialService.identify_material(material)
+                    _LOG.debug("material type", material_type)
+                    if material_type == "gameengine":
+                        # If any bodypart or clothes is of gameengine type, assume this is to be used for all such object
+                        human_info["clothes_material_type"] = "GAMEENGINE"
 
     @staticmethod
     def _populate_human_info_with_clothes_info(human_info, basemesh):
@@ -233,6 +242,13 @@ class HumanService:
                 _LOG.debug("Color adjustment", (clothes_obj, uuid, color_adjust))
                 if color_adjust and uuid:
                     human_info["color_adjustments"][uuid] = color_adjust
+                slots = bodypart_obj.material_slots
+                if slots and len(slots) > 0:
+                    material = slots[0].material
+                    material_type = MaterialService.identify_material(material)
+                    if material_type == "gameengine":
+                        # If any bodypart or clothes is of gameengine type, assume this is to be used for all such object
+                        human_info["clothes_material_type"] = "GAMEENGINE"
 
     @staticmethod
     def _populate_human_info_with_proxy_info(human_info, basemesh):
@@ -504,6 +520,8 @@ class HumanService:
                     material = human_info["eyes_material_type"]
                     if eyes_material_model:
                         material = eyes_material_model
+                if bodypart != "eyes" and "clothes_material_type" in human_info and human_info["clothes_material_type"]:
+                    material = human_info["clothes_material_type"]
                 if bodypart != "eyes" and material_model:
                     material = material_model
                 if asset_absolute_path is not None:
@@ -526,6 +544,8 @@ class HumanService:
             asset_absolute_path = AssetService.find_asset_absolute_path(asset_filename, asset_subdir="clothes")
             _LOG.debug("Asset absolute path", asset_absolute_path)
             material = "MAKESKIN"
+            if "clothes_material_type" in human_info and human_info["clothes_material_type"]:
+                material = human_info["clothes_material_type"]
             if material_model:
                 material = material_model
             if asset_absolute_path is not None:
