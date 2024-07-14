@@ -11,6 +11,7 @@ from mpfb.ui.maketarget import MakeTargetObjectProperties
 
 _LOG = LogService.get_logger("maketarget.maketargetpanel")
 
+
 class MPFB_PT_MakeTarget_Panel(Abstract_Panel):
     """MakeTarget main panel."""
 
@@ -28,9 +29,12 @@ class MPFB_PT_MakeTarget_Panel(Abstract_Panel):
         box.operator('mpfb.import_maketarget_ptarget')
 
     def _save_target(self, scene, layout):
-        box = self._create_box(layout, "Save target", "TOOL_SETTINGS")
+        box = self._create_box(layout, "Save as file", "TOOL_SETTINGS")
         box.operator('mpfb.write_maketarget_target')
         box.operator('mpfb.write_maketarget_ptarget')
+
+        box = self._create_box(layout, "Save to library", "TOOL_SETTINGS")
+        box.operator('mpfb.write_library_target')
 
     def _symmetrize_target(self, scene, layout):
         box = self._create_box(layout, "Symmetrize", "TOOL_SETTINGS")
@@ -53,7 +57,8 @@ class MPFB_PT_MakeTarget_Panel(Abstract_Panel):
         object_type = ObjectService.get_object_type(blender_object)
 
         if object_type and not object_type == "Skeleton":
-            if not blender_object.data.shape_keys or not TargetService.has_target(blender_object, "PrimaryTarget"):
+            expected_name = MakeTargetObjectProperties.get_value("name", entity_reference=blender_object)
+            if not blender_object.data.shape_keys or not TargetService.has_target(blender_object, expected_name):
                 self._initialize_target(blender_object, layout)
             else:
                 self._save_target(scene, layout)
@@ -63,5 +68,4 @@ class MPFB_PT_MakeTarget_Panel(Abstract_Panel):
 
 
 ClassManager.add_class(MPFB_PT_MakeTarget_Panel)
-
 

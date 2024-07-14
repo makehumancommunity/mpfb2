@@ -9,6 +9,7 @@ from mpfb import ClassManager
 
 _LOG = LogService.get_logger("maketarget.createtarget")
 
+
 class MPFB_OT_CreateTargetOperator(bpy.types.Operator):
     """Create primary target"""
     bl_idname = "mpfb.create_maketarget_target"
@@ -32,11 +33,21 @@ class MPFB_OT_CreateTargetOperator(bpy.types.Operator):
         if not context.active_object.data.shape_keys:
             _LOG.trace("No shape keys", object_type)
 
-        return not TargetService.has_target(blender_object, "PrimaryTarget")
+        expected_name = MakeTargetObjectProperties.get_value("name", entity_reference=blender_object)
+        if not expected_name:
+            return True
+
+        return not TargetService.has_target(blender_object, expected_name)
 
     def execute(self, context):
         blender_object = context.active_object
-        TargetService.create_shape_key(blender_object, "PrimaryTarget")
+
+        expected_name = MakeTargetObjectProperties.get_value("name", entity_reference=blender_object)
+        if not expected_name:
+            self.report({'ERROR'}, "Must specify the name of the target")
+            return {'FINISHED'}
+
+        TargetService.create_shape_key(blender_object, expected_name)
 
         # This might look strange, but it is to ensure the name attribute of the object
         # is not still null if left at its default

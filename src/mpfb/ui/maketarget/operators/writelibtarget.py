@@ -1,27 +1,23 @@
-"""Operator for writing a target file."""
+"""Operator for writing a target to the model library."""
 
-import bpy
+import bpy, os
 from bpy_extras.io_utils import ExportHelper
 from bpy.props import StringProperty
 from mpfb.services.logservice import LogService
 from mpfb.services.objectservice import ObjectService
 from mpfb.services.targetservice import TargetService
+from mpfb.services.locationservice import LocationService
 from mpfb.ui.maketarget import MakeTargetObjectProperties
 from mpfb import ClassManager
 
-_LOG = LogService.get_logger("maketarget.writetarget")
+_LOG = LogService.get_logger("maketarget.writelibtarget")
 
 
-class MPFB_OT_WriteTargetOperator(bpy.types.Operator, ExportHelper):
-    """Write target to target file. In order to do this, you must first have created a primary target on the mesh"""
-    bl_idname = "mpfb.write_maketarget_target"
+class MPFB_OT_WriteLibTargetOperator(bpy.types.Operator):
+    """Write target to model library. In order to do this, you must first have created a primary target on the mesh"""
+    bl_idname = "mpfb.write_library_target"
     bl_label = "Save target"
     bl_options = {'REGISTER'}
-
-    filename_ext = '.target'
-
-    filter_glob: StringProperty(default='*.target', options={'HIDDEN'})
-    filepath: StringProperty(name="File Path", description="Filepath used for exporting the file", maxlen=1024, subtype='FILE_PATH')
 
     @classmethod
     def poll(cls, context):
@@ -44,12 +40,6 @@ class MPFB_OT_WriteTargetOperator(bpy.types.Operator, ExportHelper):
 
         return TargetService.has_target(blender_object, expected_name)
 
-    def invoke(self, context, event):
-        blender_object = context.active_object
-        name = MakeTargetObjectProperties.get_value("name", entity_reference=blender_object)
-        self.filepath = bpy.path.clean_name(name, replace="-") + ".target"
-        return super().invoke(context, event)
-
     def execute(self, context):
         blender_object = context.active_object
 
@@ -66,11 +56,16 @@ class MPFB_OT_WriteTargetOperator(bpy.types.Operator, ExportHelper):
 
         _LOG.dump("Shape key", info)
 
-        with open(self.filepath, "w") as target_file:
+        data_dir = LocationService.get_user_data("custom")
+        if not os.path.exists(data_dir):
+            os.makedirs(data_dir)
+
+        file_path = os.path.join(data_dir, expected_name + ".target")
+        with open(file_path, "w") as target_file:
             target_file.write(TargetService.shape_key_info_as_target_string(info))
 
-        self.report({'INFO'}, "Target was saved as " + str(self.filepath))
+        self.report({'INFO'}, "Target was saved as custom target, but you need to restart Blender for it to be visible")
         return {'FINISHED'}
 
 
-ClassManager.add_class(MPFB_OT_WriteTargetOperator)
+ClassManager.add_class(MPFB_OT_WriteLibTargetOperator)
