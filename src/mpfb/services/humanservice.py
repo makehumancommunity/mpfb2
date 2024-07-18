@@ -27,7 +27,17 @@ _EXISTING_PRESETS = None
 
 
 class HumanService:
-    """High-level utility functions for various human tasks."""
+    """
+    The HumanService class provides high-level utility functions for various human-related tasks within the MPFB2 project.
+    This class is designed to handle operations such as updating and retrieving human presets, populating human information with
+    various attributes, and serializing human data to JSON format.
+
+    The HumanService class is composed of several static methods, each responsible for a specific task related to human models.
+    Through these methods, it provides a centralized and efficient way to manage human presets, populate human information,
+    and serialize human data.
+
+    As the class only contains static methods, it should not be instantiated.
+    """
 
     def __init__(self):
         """You should not instance HumanService. Use its static methods instead."""
@@ -35,6 +45,13 @@ class HumanService:
 
     @staticmethod
     def update_list_of_human_presets():
+        """
+        Updates the global list of human presets by scanning the user configuration directory for files
+        matching the pattern 'human.*.json'. The names of these files are extracted and stored in the
+        global variable _EXISTING_PRESETS.
+
+        This method is typically called internally to refresh the list of available human presets.
+        """
         global _EXISTING_PRESETS
         confdir = LocationService.get_user_config()
         _EXISTING_PRESETS = []
