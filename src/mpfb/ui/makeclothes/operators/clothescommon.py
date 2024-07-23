@@ -38,7 +38,7 @@ class ClothesCommon():
 
         _LOG.debug("basemesh, clothes", (basemesh, clothes))
 
-        check = ClothesService.mesh_is_valid_as_clothes(clothes)
+        check = ClothesService.mesh_is_valid_as_clothes(clothes, basemesh)
         if not check["all_checks_ok"]:
             _LOG.error("Clothes check failed", check)
             self.report({'ERROR'}, "The selected object is not valid as clothes. Perform clothes check?")

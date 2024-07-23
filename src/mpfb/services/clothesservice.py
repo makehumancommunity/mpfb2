@@ -101,6 +101,7 @@ CLOTHES_REFERENCE_SCALE = {
                         }
                     }
 
+
 class ClothesService:
     """Utility functions for clothes."""
 
@@ -139,7 +140,7 @@ class ClothesService:
                 raise ValueError('There is not enough info to refit this asset, at least asset source and object type is needed')
             mhclo.clothes = clothes
 
-        if not mhclo.verts or len(mhclo.verts.keys()) <1:
+        if not mhclo.verts or len(mhclo.verts.keys()) < 1:
             raise ValueError('There is no vertex info in the MHCLO!?')
 
         # We cannot rely on the vertex position data directly, since it represent positions
@@ -217,7 +218,7 @@ class ClothesService:
             if human_vertex1 >= human_vertices_count or human_vertex2 > human_vertices_count or human_vertex3 >= human_vertices_count:
                 continue
 
-            offset = [vertex_match_info["offsets"][0]*x_size, vertex_match_info["offsets"][1]*z_size, vertex_match_info["offsets"][2]*y_size]
+            offset = [vertex_match_info["offsets"][0] * x_size, vertex_match_info["offsets"][1] * z_size, vertex_match_info["offsets"][2] * y_size]
             clothes_vertex.co = \
                 vertex_match_info["weights"][0] * human_vertices[human_vertex1].co + \
                 vertex_match_info["weights"][1] * human_vertices[human_vertex2].co + \
@@ -383,7 +384,6 @@ class ClothesService:
         new_vert_group.add(relevant_clothes_vert_idxs, 1.0, 'ADD')
 
         return new_vert_group
-
 
     @staticmethod
     def interpolate_weights(basemesh, clothes, rig, mhclo):
@@ -577,8 +577,26 @@ class ClothesService:
             MakeClothesObjectProperties.set_value("delete_group", delete_group_name, entity_reference=clothes_object)
 
     @staticmethod
-    def mesh_is_valid_as_clothes(mesh_object):
-        """Check if the given mesh object is valid as a clothes object. Returns a dict with checks."""
+    def mesh_is_valid_as_clothes(mesh_object, basemesh):
+        """
+        Validates if the given mesh object can be used as clothes for the provided basemesh.
+
+        Args:
+            mesh_object (bpy.types.Object): The mesh object to be validated.
+            basemesh (bpy.types.Object): The base mesh object to compare against.
+
+        Returns:
+            dict: A report containing the validation results with the following keys:
+                - is_valid_object (bool): Whether the mesh object is a valid MESH type (and not none)
+                - has_any_vertices (bool): Whether the mesh object has any vertices.
+                - has_any_vgroups (bool): Whether the mesh object has any vertex groups.
+                - all_verts_have_max_one_vgroup (bool): Whether all vertices have at most one vertex group.
+                - all_verts_have_min_one_vgroup (bool): Whether all vertices have at least one vertex group.
+                - all_verts_belong_to_faces (bool): Whether all vertices belong to at least one face.
+                - all_checks_ok (bool): Whether all validation checks passed.
+                - clothes_groups_exist_on_basemesh (bool): Whether the clothes groups exist on the basemesh.
+                - warnings (list): A list of warnings encountered during validation.
+        """
 
         report = {
             "is_valid_object": False,
@@ -587,10 +605,12 @@ class ClothesService:
             "all_verts_have_max_one_vgroup": False,
             "all_verts_have_min_one_vgroup": False,
             "all_verts_belong_to_faces": True,
-            "all_checks_ok": False
+            "all_checks_ok": False,
+            "clothes_groups_exist_on_basemesh": True,
+            "warnings": []
             }
 
-        if not mesh_object or mesh_object.type!= "MESH":
+        if not mesh_object or mesh_object.type != "MESH":
             return report
 
         report["is_valid_object"] = True
@@ -612,9 +632,30 @@ class ClothesService:
                 _LOG.debug("Number of faces for vertex {} is less than 1".format(vert_index))
                 report["all_verts_belong_to_faces"] = False
 
+        paired_groups = []
+        basemesh_groups = {group.name for group in basemesh.vertex_groups}
+        for group_name in xref.group_index_to_group_name:
+            if group_name not in basemesh_groups:
+                report["clothes_groups_exist_on_basemesh"] = False
+                report["warnings"].append(f"Vertex group '{group_name}' does not exist on basemesh")
+            else:
+                paired_groups.append(group_name)
+
         all_ok = report["is_valid_object"] and report["has_any_vertices"] and report["has_any_vgroups"]
         all_ok = all_ok and report["all_verts_have_max_one_vgroup"] and report["all_verts_have_min_one_vgroup"] and report["all_verts_belong_to_faces"]
+        all_ok = all_ok and report["clothes_groups_exist_on_basemesh"]
         report["all_checks_ok"] = all_ok
+
+        cache_dir = LocationService.get_user_cache("basemesh_xref")
+        read_cache = os.path.exists(cache_dir)
+
+        basemesh_xref = MeshCrossRef(basemesh, after_modifiers=True, build_faces_by_group_reference=True, cache_dir=cache_dir, write_cache=False, read_cache=read_cache)
+
+        for group_name in paired_groups:
+            group_idx = basemesh_xref.group_name_to_group_index[group_name]
+            face_ref = basemesh_xref.faces_by_group[group_idx]
+            if len(face_ref) < 3:
+                report["warnings"].append(f"Basemesh vertex group '{group_name}' has very few faces ({len(face_ref)})")
 
         return report
 

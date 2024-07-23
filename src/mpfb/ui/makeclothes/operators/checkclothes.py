@@ -18,7 +18,7 @@ CLOTHES_CHECKS = dict()
 
 
 class MPFB_OT_CheckClothesOperator(bpy.types.Operator):
-    """Perform basic sanity checks on the active object. You need to click this again if changing the clothes, the panel will not update automatically"""
+    """Perform basic sanity checks on the active object. You need to click this again if changing the clothes, the panel will not update automatically. Note that this operation might a long time depending on the number of vertex groups and the number of vertices"""
     bl_idname = "mpfb.check_makeclothes_clothes"
     bl_label = "Check"
     bl_options = {'REGISTER'}
@@ -53,7 +53,7 @@ class MPFB_OT_CheckClothesOperator(bpy.types.Operator):
             self.report({'ERROR'}, "No UUID found for the selected clothes")
             return {'CANCELLED'}
 
-        CLOTHES_CHECKS[uuid_value] = ClothesService.mesh_is_valid_as_clothes(clothes)
+        CLOTHES_CHECKS[uuid_value] = ClothesService.mesh_is_valid_as_clothes(clothes, basemesh)
         self.report({'INFO'}, "Clothes check performed, see panel")
         return {'FINISHED'}
 

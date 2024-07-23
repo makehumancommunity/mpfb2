@@ -199,10 +199,15 @@ class MPFB_PT_MakeClothes_Panel(Abstract_Panel):
         else:
             check = CLOTHES_CHECKS[uuid_value]
             _LOG.debug("Valid clothes check", (uuid_value, check))
-            for check_label in ['is_valid_object', 'has_any_vertices', 'has_any_vgroups', 'all_verts_have_max_one_vgroup', 'all_verts_have_min_one_vgroup', 'all_verts_belong_to_faces', 'all_checks_ok']:
+            for check_label in ['is_valid_object', 'has_any_vertices', 'has_any_vgroups', 'all_verts_have_max_one_vgroup', 'all_verts_have_min_one_vgroup', 'all_verts_belong_to_faces', 'clothes_groups_exist_on_basemesh', 'all_checks_ok']:
                 name = str(check_label).replace("_", " ").capitalize()
                 value = str(check[check_label]).upper()
                 box.label(text=name + ": " + value)
+            if len(check['warnings']) > 0:
+                box.label(text='')
+                box.label(text='WARNINGS:')
+                for warning in check['warnings']:
+                    box.label(text=warning)
 
         box.operator('mpfb.check_makeclothes_clothes')
 
