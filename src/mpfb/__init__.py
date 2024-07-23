@@ -1,12 +1,11 @@
 """This is the MakeHuman Plugin For Blender (MPFB). For more information, see
 the README.md file in the zip."""
 
-bl_info = { # pylint: disable=C0103
+bl_info = {  # pylint: disable=C0103
     "name": "mpfb",
     "author": "Joel Palmius",
-    "version": (2, 0, 4),
+    "version": (2, 0, 5),
     "blender": (4, 1, 0),
-    "warning": "Plugin is in Alpha stage",
     "location": "View3D > Properties > MPFB",
     "description": "MakeHuman Plugin For Blender",
     "doc_url": "http://static.makehumancommunity.org/mpfb.html",
@@ -37,6 +36,7 @@ from bpy.utils import register_class
 
 _OLD_EXCEPTHOOK = None
 
+
 def log_crash(type, value, tb):
     global _OLD_EXCEPTHOOK
     stacktrace = "\n"
@@ -45,6 +45,7 @@ def log_crash(type, value, tb):
     _LOG.error("Unhandled crash", stacktrace + "\n" + str(value) + "\n")
     if _OLD_EXCEPTHOOK:
         _OLD_EXCEPTHOOK(type, value, tb)
+
 
 def get_preference(name):
     _LOG.enter()
@@ -66,7 +67,9 @@ def get_preference(name):
     _LOG.crash("The 'mpfb' addon does not exist!?")
     raise ValueError("I don't seem to exist")
 
+
 ClassManager = None
+
 
 def register():
     """At this point blender is ready enough for it to make sense to
@@ -79,8 +82,8 @@ def register():
     except:
         print("WARNING: Could not register preferences class. Maybe it was registered by an earlier version of MPFB?")
 
-    global _LOG # pylint: disable=W0603
-    global _OLD_EXCEPTHOOK # pylint: disable=W0603
+    global _LOG  # pylint: disable=W0603
+    global _OLD_EXCEPTHOOK  # pylint: disable=W0603
 
     from mpfb.services.logservice import LogService
     _LOG = LogService.get_logger("mpfb.init")
@@ -103,7 +106,7 @@ def register():
     ClassManager = _ClassManager
 
     if not ClassManager.isinitialized():
-        classmanager = ClassManager() # pylint: disable=W0612
+        classmanager = ClassManager()  # pylint: disable=W0612
 
     _LOG.debug("About to import mpfb.services")
     import mpfb.services.locationservice
@@ -147,7 +150,7 @@ def register():
 def unregister():
     """Deconstruct all loaded blenderish classes"""
 
-    global _LOG # pylint: disable=W0603
+    global _LOG  # pylint: disable=W0603
 
     _LOG.debug("About to unregister classes")
     global ClassManager

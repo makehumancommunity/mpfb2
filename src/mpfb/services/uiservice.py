@@ -14,14 +14,18 @@ class _UiService():
         _LOG.debug("Constructing ui service")
         self._state = dict()
         self.set_value("PROPERTYPREFIX", "MPFB_")
-        ui_prefix = "MPFB v%d.%d-a%d" % (VERSION[0], VERSION[1], VERSION[2])
+
+        # For beta version. Will change back for the next nightly build
+        ui_prefix = "MPFB v%d.%d-b1" % (VERSION[0], VERSION[1])
+
+        # ui_prefix = "MPFB v%d.%d-a%d" % (VERSION[0], VERSION[1], VERSION[2])
 
         label = get_preference("mpfb_shelf_label")
         _LOG.debug("Shelf label", label)
         if label and not str(label).strip() == "":
             ui_prefix = label
 
-        multi = False #get_preference("multi_panel")
+        multi = False  # get_preference("multi_panel")
         _LOG.debug("multi_panel", multi)
 
         self.set_value("UIPREFIX", ui_prefix)
@@ -169,6 +173,6 @@ class _UiService():
        return re.sub(r'[^a-zA-Z0-9_]', "_", raw_string)
 
 
-UiService = _UiService() # pylint: disable=C0103
+UiService = _UiService()  # pylint: disable=C0103
 UiService.rebuild_importer_presets_panel_list()
 UiService.rebuild_importer_panel_list()
