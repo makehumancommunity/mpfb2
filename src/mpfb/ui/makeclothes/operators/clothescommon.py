@@ -57,8 +57,15 @@ class ClothesCommon():
 
         delete_group = MakeClothesObjectProperties.get_value("delete_group", entity_reference=clothes)
 
-        mhclo = ClothesService.create_mhclo_from_clothes_matching(basemesh, clothes, properties_dict=props_dict, delete_group=delete_group)
-        _LOG.debug("mhclo", mhclo)
+        mhclo = None
+        try:
+            mhclo = ClothesService.create_mhclo_from_clothes_matching(basemesh, clothes, properties_dict=props_dict, delete_group=delete_group)
+            _LOG.debug("mhclo", mhclo)
+        except ValueError as e:
+            _LOG.error("Error creating MHCLO", e)
+            _LOG.error("Clothes check object", check)
+            self.report({'ERROR'}, "Error creating MHCLO. Do a clothes check and/or check the log for details.")
+            return {'CANCELLED'}
 
         matbn = None
 
