@@ -2,7 +2,6 @@
 
 import os, bpy, json
 from pathlib import Path
-from mpfb.services.objectservice import ObjectService
 from mpfb.services.logservice import LogService
 from mpfb.services.locationservice import LocationService
 from mpfb.services.systemservice import SystemService
@@ -97,13 +96,54 @@ ASSET_LIBRARY_SECTIONS = [
 
     ]
 
+
 class AssetService:
+    """
+    The AssetService class is designed to manage and facilitate operations related to assets within the MPFB2 project.
+    It provides various static methods to:
+
+    - Retrieve and update lists of assets from specified subdirectories.
+    - Find absolute paths of assets based on path fragments.
+    - List specific types of assets (e.g., .mhclo, .mhmat, .bvh, .proxy) within given subdirectories.
+    - Find alternative materials for a given asset.
+    - Retrieve available data roots and asset roots.
+    - Manage and rescan metadata for asset packs, and retrieve asset names from these packs based on specific patterns.
+
+    Overall, the AssetService class serves as a utility for handling asset-related tasks, ensuring that assets are correctly located,
+    listed, and managed within the project. To do this, a few global variables are used:
+
+    _ASSETS: This is a dictionary that stores the list of assets categorized by their subdirectories.
+    It acts as a cache to hold the asset data once it has been scanned and processed.
+
+    _ASSET_THUMBS: This variable is used to store thumbnail previews of assets. It is initialized as None and later set to a preview
+    collection from Blender's bpy.utils.previews.
+
+    _PACKS: This variable is used to store metadata about asset packs. It is initialized as None and is populated when pack metadata
+    is scanned and loaded.
+
+    ASSET_LIBRARY_SECTIONS: This is a list of dictionaries, each representing a section of the asset library. Each dictionary contains
+    metadata about a specific type of asset, including labels, subdirectory names, asset types, and override flags. This list is used
+    to define and manage different categories of assets within the project.
+    """
 
     def __init__(self):
         raise RuntimeError("You should not instance AssetService. Use its static methods instead.")
 
     @staticmethod
     def find_asset_files_matching_pattern(asset_roots, pattern="*.mhclo"):
+        """
+        Scan the given asset roots for files matching the specified pattern.
+
+        Args:
+            asset_roots (list): A list of root directories to scan for assets.
+            pattern (str): The file pattern to match (default is "*.mhclo").
+
+        Returns:
+            list: A list of paths to files that match the specified pattern.
+
+        Raises:
+            IOError: If the root directory is the root of the filesystem ("/"), to prevent scanning the entire hard drive.
+        """
         _LOG.enter()
         found_files = []
         for root in asset_roots:
@@ -126,6 +166,16 @@ class AssetService:
 
     @staticmethod
     def find_asset_absolute_path(asset_path_fragment, asset_subdir="clothes"):
+        """
+        Find the absolute path of an asset given a path fragment and an asset subdirectory.
+
+        Args:
+            asset_path_fragment (str): The fragment of the asset path to search for.
+            asset_subdir (str): The subdirectory under which to search for the asset (default is "clothes").
+
+        Returns:
+            str: The absolute path to the asset if found, otherwise None.
+        """
         _LOG.enter()
         roots = AssetService.get_asset_roots(asset_subdir)
         filename = asset_path_fragment
@@ -134,7 +184,7 @@ class AssetService:
         matches = []
         _LOG.debug("Searching for asset with basename", filename)
         for root in roots:
-            for dirpath, subdirs, files in os.walk(root):
+            for dirpath, subdirs, files in os.walk(root):  # pylint: disable=W0612
                 _LOG.trace("Looking in directory", dirpath)
                 if filename in files:
                     full_path = os.path.join(root, dirpath, filename)
@@ -163,33 +213,47 @@ class AssetService:
 
         return os.path.abspath(matches[0])
 
-
     @staticmethod
     def list_mhclo_assets(asset_subdir="clothes"):
+        """Convenience wrapper for finding all mhclo assets for a subdir."""
         _LOG.enter()
         roots = AssetService.get_asset_roots(asset_subdir)
         return AssetService.find_asset_files_matching_pattern(roots, "*.mhclo")
 
     @staticmethod
     def list_mhmat_assets(asset_subdir="skins"):
+        """Convenience wrapper for finding all mhmat assets for a subdir."""
         _LOG.enter()
         roots = AssetService.get_asset_roots(asset_subdir)
         return AssetService.find_asset_files_matching_pattern(roots, "*.mhmat")
 
     @staticmethod
     def list_bvh_assets(asset_subdir="poses"):
+        """Convenience wrapper for finding all bvh assets for a subdir."""
         _LOG.enter()
         roots = AssetService.get_asset_roots(asset_subdir)
         return AssetService.find_asset_files_matching_pattern(roots, "*.bvh")
 
     @staticmethod
     def list_proxy_assets(asset_subdir="proxymeshes"):
+        """Convenience wrapper for finding all proxy assets for a subdir."""
         _LOG.enter()
         roots = AssetService.get_asset_roots(asset_subdir)
         return AssetService.find_asset_files_matching_pattern(roots, "*.proxy")
 
     @staticmethod
     def alternative_materials_for_asset(asset_source, asset_subdir="clothes", exclude_default=True):
+        """
+        Find alternative materials for a given asset.
+
+        Args:
+            asset_source (str): The source path fragment of the asset.
+            asset_subdir (str): The subdirectory under which to search for the asset (default is "clothes").
+            exclude_default (bool): Whether to exclude the default material (default is True).
+
+        Returns:
+            list: A list of paths to alternative material files for the asset.
+        """
         _LOG.enter()
         _LOG.debug("starting scan for alternative materials for asset source", asset_source)
         if not asset_source:
@@ -211,14 +275,24 @@ class AssetService:
         _LOG.debug("alternative_materials_for_asset, possible materials", possible_materials)
         if len(possible_materials) < 2 and _LOG.debug_enabled():
             _LOG.warn("Debugging alternative materials")
-            dn = os.path.dirname(mhclo_path)
-            _LOG.debug("Dirname", dn)
-            for file in os.listdir(dn):
+            dir_name = os.path.dirname(mhclo_path)
+            _LOG.debug("Dirname", dir_name)
+            for file in os.listdir(dir_name):
                 _LOG.debug("File/dir in same folder", file)
         return possible_materials
 
     @staticmethod
     def get_available_data_roots():
+        """
+        Retrieve the available data roots from various locations.
+
+        A data root is a directory that contains asset data used by the application. This method checks multiple
+        locations for data roots, including user data, MakeHuman data, MPFB data, and a secondary root. It verifies
+        the existence of these directories and returns a list of valid data root paths.
+
+        Returns:
+            list: A list of valid data root paths.
+        """
         _LOG.enter()
         user_data = LocationService.get_user_data()
         mh_data = LocationService.get_mh_user_data()
@@ -241,6 +315,15 @@ class AssetService:
 
     @staticmethod
     def get_asset_roots(asset_subdir="clothes"):
+        """
+        Retrieve the available data roots from various locations.
+
+        This method checks multiple locations for the given asset subdir. These locations include user data, MakeHuman data,
+        MPFB data, and a secondary root.
+
+        Returns:
+            list: A list of valid data root paths.
+        """
         _LOG.enter()
         roots = AssetService.get_available_data_roots()
         asset_roots = []
@@ -255,6 +338,17 @@ class AssetService:
 
     @staticmethod
     def update_asset_list(asset_subdir="clothes", asset_type="mhclo"):
+        """
+        Update the list of assets for a given subdirectory and asset type.
+
+        This method scans the specified asset subdirectory for files matching the given asset type,
+        and updates the global asset list with the found assets. It also attempts to load thumbnail
+        images for the assets if available.
+
+        Args:
+            asset_subdir (str): The subdirectory under which to search for assets (default is "clothes").
+            asset_type (str): The type of assets to search for (default is "mhclo").
+        """
         _LOG.enter()
 
         global _ASSET_THUMBS
@@ -298,6 +392,7 @@ class AssetService:
 
     @staticmethod
     def update_all_asset_lists():
+        """Update the global asset list cache"""
         for section in ASSET_LIBRARY_SECTIONS:
             asset_subdir = section["asset_subdir"]
             asset_type = section["asset_type"]
@@ -305,21 +400,34 @@ class AssetService:
 
     @staticmethod
     def get_asset_list(asset_subdir="clothes", asset_type="mhclo"):
-        if not asset_subdir in _ASSETS:
+        """
+        Retrieve the list of assets for a given subdirectory and asset type.
+
+        If the asset list for the specified subdirectory is not already cached, this method will update the asset list
+        by scanning the subdirectory for files matching the given asset type.
+
+        Args:
+            asset_subdir (str): The subdirectory under which to search for assets (default is "clothes").
+            asset_type (str): The type of assets to search for (default is "mhclo").
+
+        Returns:
+            dict: A dictionary of assets found in the specified subdirectory and of the specified type.
+        """
+        if asset_subdir not in _ASSETS:
             AssetService.update_asset_list(asset_subdir, asset_type)
         return _ASSETS[asset_subdir]
 
     @staticmethod
     def path_to_fragment(asset_full_path, relative_to_fragment=None, asset_subdir="clothes"):
+        """Convert an absolute path of an assset to a fragment path."""
         if not relative_to_fragment:
             return os.path.basename(os.path.dirname(asset_full_path)) + "/" + os.path.basename(asset_full_path)
-        full = str(asset_full_path)
-        relative = AssetService.find_asset_absolute_path(relative_to_fragment, asset_subdir)
 
-        raise ValueError('Not finished')
+        raise NotImplementedError('Manually specified relative_to_fragment has not been implemented yet.')
 
     @staticmethod
     def have_any_pack_meta_data():
+        """Check if any asset pack at all as been installed."""
         packs_dir = LocationService.get_user_data("packs")
         _LOG.debug("Packs dir, exists", (packs_dir, os.path.exists(packs_dir)))
 
@@ -334,6 +442,11 @@ class AssetService:
 
     @staticmethod
     def rescan_pack_metadata():
+        """
+        Load pack metadata from JSON files in the packs directory.
+
+        If pack metadata is already loaded, this method does nothing.
+        """
         global _PACKS
         _PACKS = dict()
 
@@ -347,12 +460,21 @@ class AssetService:
             if ".json" in filename:
                 packname = filename.replace(".json", "")
                 _LOG.debug("Loading pack metadata", filename)
-                with open(os.path.join(packs_dir, filename), "r") as json_file:
+                with open(os.path.join(packs_dir, filename), "r", encoding="utf-8") as json_file:
                     _PACKS[packname] = json.load(json_file)
 
     @staticmethod
     def get_pack_names():
-        global _PACKS
+        """
+        Retrieve the names of all available asset packs.
+
+        This method rescans the pack metadata if it has not been loaded yet. If no pack metadata is found,
+        it returns an empty list.
+
+        Returns:
+            list: A sorted list of asset pack names.
+        """
+        global _PACKS  # pylint: disable=W0602
         if not _PACKS:
             AssetService.rescan_pack_metadata()
         if not AssetService.have_any_pack_meta_data():
@@ -363,7 +485,19 @@ class AssetService:
 
     @staticmethod
     def get_asset_names_in_pack(pack_name):
-        global _PACKS
+        """
+        Retrieve the names of all assets in a specified pack.
+
+        This method rescans the pack metadata if it has not been loaded yet. If no pack metadata is found,
+        it returns an empty list.
+
+        Args:
+            pack_name (str): The name of the pack to retrieve asset names from.
+
+        Returns:
+            list: A sorted list of asset names in the specified pack.
+        """
+        global _PACKS  # pylint: disable=W0602
         if not _PACKS:
             AssetService.rescan_pack_metadata()
         if not AssetService.have_any_pack_meta_data():
@@ -375,6 +509,18 @@ class AssetService:
 
     @staticmethod
     def get_asset_names_in_pack_pattern(pack_pattern):
+        """
+        Retrieve the names of all assets in packs that match a given pattern.
+
+        This method searches through all available asset packs and returns the names of assets in packs
+        whose names contain the specified pattern.
+
+        Args:
+            pack_pattern (str): The pattern to match against pack names.
+
+        Returns:
+            list: A sorted list of asset names in packs that match the specified pattern.
+        """
         pack_names = AssetService.get_pack_names()
         asset_names = []
         for name in pack_names:
