@@ -1,9 +1,8 @@
 """This module contains utility functions for clothes."""
 
-import random, os, bpy, time, bmesh, numpy
+import random, os, bpy, time, bmesh, numpy  # pylint: disable=C0412
 
 from mathutils import Vector
-
 from mpfb.entities.rig import Rig
 from mpfb.entities.clothes.vertexmatch import VertexMatch
 from mpfb.services.objectservice import ObjectService
@@ -103,7 +102,17 @@ CLOTHES_REFERENCE_SCALE = {
 
 
 class ClothesService:
-    """Utility functions for clothes."""
+    """
+    The ClothesService class provides static methods for managing and manipulating clothes objects in relation to a basemesh.
+    Its key responsibilities include:
+
+    - Loading MHCLO objects
+    - Fitting clothes to a basemesh by translating and scaling vertices.
+    - Interpolating vertex groups between basemesh and a given MHCLO.
+    - Generating MHCLO data from a basemesh and a clothes mesh
+
+    As the class only contains static methods, it should not be instantiated.
+    """
 
     def __init__(self):
         """You should not instance ClothesService. Use its static methods instead."""
@@ -342,6 +351,18 @@ class ClothesService:
 
     @staticmethod
     def find_clothes_absolute_path(clothes_object):
+        """
+        Find the absolute path to the clothes asset.
+
+        This method retrieves the asset source and object type for the given clothes object,
+        and then uses these to find the absolute path to the asset.
+
+        Args:
+            clothes_object (bpy.types.Object): The clothes object for which to find the asset path.
+
+        Returns:
+            str: The absolute path to the clothes asset, or None if the asset source or object type is not found.
+        """
         asset_source = GeneralObjectProperties.get_value("asset_source", entity_reference=clothes_object)
         object_type = ObjectService.get_object_type(clothes_object).lower()
         _LOG.debug("asset source, object type", (asset_source, object_type))
@@ -349,8 +370,26 @@ class ClothesService:
         if asset_source and object_type:
             return AssetService.find_asset_absolute_path(asset_source, object_type)
 
+        return None
+
     @staticmethod
     def interpolate_vertex_group_from_basemesh_to_clothes(basemesh, clothes_object, vertex_group_name, match_cutoff=0.3, mhclo_full_path=None):
+        """
+        Interpolate a vertex group from the base mesh to the clothes object.
+
+        This method creates a new vertex group on the clothes object by finding the relevant vertices
+        from the base mesh vertex group and mapping them to the corresponding vertices on the clothes object.
+
+        Args:
+            basemesh (bpy.types.Object): The base mesh object.
+            clothes_object (bpy.types.Object): The clothes object to which the vertex group will be added.
+            vertex_group_name (str): The name of the vertex group to interpolate.
+            match_cutoff (float, optional): The cutoff value for matching vertices. Defaults to 0.3.
+            mhclo_full_path (str, optional): The full path to the .mhclo file. If not provided, it will be determined automatically.
+
+        Returns:
+            bpy.types.VertexGroup: The newly created vertex group on the clothes object.
+        """
         _LOG.enter()
         relevant_basemesh_vert_idxs = ObjectService.get_vertex_indexes_for_vertex_group(basemesh, vertex_group_name)
         _LOG.debug("Number of relevant basemesh vertices:", len(relevant_basemesh_vert_idxs))
@@ -373,7 +412,6 @@ class ClothesService:
             _LOG.dump("mhclo_vert", (clothes_vert_idx, mhclo_vert))
             for match_vert in range(3):
                 basemesh_vert_idx = mhclo_vert["verts"][match_vert]
-                basemesh_vert_weight = mhclo_vert["weights"][match_vert]
                 if basemesh_vert_idx in relevant_basemesh_vert_idxs:
                     if clothes_vert_idx not in relevant_clothes_vert_idxs:
                         relevant_clothes_vert_idxs.append(clothes_vert_idx)
@@ -533,6 +571,8 @@ class ClothesService:
             if os.path.isfile(file_name):
                 RigService.load_weights(armatures, clothes, file_name, all=all, replace=True)
                 return True
+
+            return False
 
         # Load groups matching bones from the common file.
         try_load_weights(None)
@@ -844,6 +884,3 @@ class ClothesService:
 
         delete_group = basemesh.vertex_groups.new(name=group_name)
         delete_group.add(face_verts, 1.0, "REPLACE")
-
-        _LOG.debug("delete_group", delete_group)
-
