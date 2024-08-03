@@ -77,7 +77,7 @@ class HumanService:
 
         Returns: list of strings or tuples
         """
-        global _EXISTING_PRESETS
+        global _EXISTING_PRESETS  # pylint: disable=W0602
         if _EXISTING_PRESETS is None or not use_cache:
             HumanService.update_list_of_human_presets()
         if not as_list_enum:
@@ -92,7 +92,7 @@ class HumanService:
         proxymesh = ObjectService.find_object_of_type_amongst_nearest_relatives(basemesh, "Proxymeshes")
 
         bodyobject = basemesh
-        if proxymesh and not proxymesh is None:
+        if proxymesh and proxymesh is not None:
             bodyobject = proxymesh
 
         skin = HumanObjectProperties.get_value("material_source", entity_reference=bodyobject)
@@ -312,6 +312,19 @@ class HumanService:
 
     @staticmethod
     def serialize_to_json_string(basemesh, save_clothes=False):
+        """
+        Serializes the given human to a JSON string. Clothes, materials etc will be discovered from the given basemesh.
+
+        Args:
+            basemesh: The base mesh object to serialize.
+            save_clothes (bool): Whether to include clothes information in the serialization. Default is False.
+
+        Returns:
+            str: A JSON string representing the serialized basemesh.
+
+        Raises:
+            ValueError: If the basemesh is None or if the basemesh is not a human project created within MPFB.
+        """
         if basemesh is None:
             raise ValueError('Cannot serialize none basemesh')
 
@@ -334,11 +347,22 @@ class HumanService:
 
     @staticmethod
     def serialize_to_json_file(basemesh, filename, save_clothes=False):
+        """
+        Serializes the given basemesh to a JSON file. Clothes, materials etc will be discovered from the given basemesh.
+
+        Args:
+            basemesh: The base mesh object to serialize.
+            filename (str): The name of the file to write the JSON string to.
+            save_clothes (bool): Whether to include clothes information in the serialization. Default is False.
+
+        Raises:
+            ValueError: If the filename is None or an empty string.
+        """
         if filename is None or str(filename).strip() == "":
             raise ValueError('Must supply valid filename')
         json_string = HumanService.serialize_to_json_string(basemesh, save_clothes)
         _LOG.debug("Will try to write file", filename)
-        with open(filename, "w") as json_file:
+        with open(filename, "w", encoding="utf-8") as json_file:
             json_file.write(json_string)
         HumanService.update_list_of_human_presets()
 
@@ -356,7 +380,7 @@ class HumanService:
             _LOG.warn("File does not exist", corrective_path)
             return
 
-        with open(corrective_path, "r") as json_file:
+        with open(corrective_path, "r", encoding="utf-8") as json_file:
             corrective = json.load(json_file)
 
         if uuid in corrective:
@@ -370,7 +394,6 @@ class HumanService:
                 for vertex in proxymesh.data.vertices:
                     for group in vertex.groups:
                         group_name = group_names[group.group]
-                        is_sided = False
                         if (group_name.endswith(".r") or group_name.startswith("r-") or group_name.startswith("r_")) and vertex.co[0] > 0.0001:
                             # Vertex is on right side, but has a group weight for a left side bone. So nuke this weight.
                             group.weight = 0.0
@@ -386,6 +409,28 @@ class HumanService:
     def add_mhclo_asset(mhclo_file, basemesh, asset_type="Clothes", subdiv_levels=1, material_type="MAKESKIN",
                         alternative_materials=None, color_adjustments=None,
                         set_up_rigging=True, interpolate_weights=True, import_subrig=True, import_weights=True):
+        """
+        Adds an MHCLO asset to the given basemesh.
+
+        Args:
+            mhclo_file (str): The path to the MHCLO file to load.
+            basemesh: The base mesh object to which the asset will be added.
+            asset_type (str): The type of the asset (e.g., "Clothes"). Default is "Clothes".
+            subdiv_levels (int): The number of subdivision levels to apply. Default is 1.
+            material_type (str): The type of material to use (e.g., "MAKESKIN"). Default is "MAKESKIN".
+            alternative_materials (dict): A dictionary of alternative materials to use, keyed by UUID. Default is None.
+            color_adjustments (dict): A dictionary of color adjustments to apply, keyed by UUID. Default is None.
+            set_up_rigging (bool): Whether to set up rigging for the asset. Default is True.
+            interpolate_weights (bool): Whether to interpolate weights for the asset. Default is True.
+            import_subrig (bool): Whether to import sub-rigs for the asset. Default is True.
+            import_weights (bool): Whether to import weights for the asset. Default is True.
+
+        Returns:
+            The mhclo object that was added to the basemesh.
+
+        Raises:
+            IOError: If the mhclo obj fails to import.
+        """
         mhclo = Mhclo()
         mhclo.load(mhclo_file)  # pylint: disable=E1101
         clothes = mhclo.load_mesh(bpy.context)
@@ -466,7 +511,7 @@ class HumanService:
             _LOG.debug("Setting up procedural eyes")
             tree_dir = LocationService.get_mpfb_data("node_trees")
             json_file_name = os.path.join(tree_dir, "procedural_eyes.json")
-            with open(json_file_name, "r") as json_file:
+            with open(json_file_name, "r", encoding="utf-8") as json_file:
                 node_tree_dict = json.load(json_file)
             _LOG.dump("procedural_eyes", node_tree_dict)
             blender_material = MaterialService.create_empty_material(name, clothes)
@@ -485,7 +530,7 @@ class HumanService:
         delete_name = "Delete." + delete_name
         ClothesService.update_delete_group(mhclo, basemesh, replace_delete_group=False, delete_group_name=delete_name)
 
-        if asset_type == "Clothes":  # TODO: Maybe there are body parts with delete groups?
+        if asset_type == "Clothes":
             proxymesh = ObjectService.find_object_of_type_amongst_nearest_relatives(basemesh, mpfb_type_name="Proxymeshes")
             if proxymesh:
                 ClothesService.interpolate_vertex_group_from_basemesh_to_clothes(basemesh, proxymesh, delete_name, mhclo_full_path=None)
@@ -611,7 +656,20 @@ class HumanService:
 
     @staticmethod
     def set_character_skin(mhmat_file, basemesh, bodyproxy=None, skin_type="ENHANCED_SSS", material_instances=True, slot_overrides=None):
+        """
+        Sets the skin material for the given character basemesh and optional bodyproxy.
 
+        Args:
+            mhmat_file (str): The path to the MHMAT file to load.
+            basemesh: The base mesh object to which the skin material will be applied.
+            bodyproxy: The body proxy object to which the skin material will be applied. Default is None.
+            skin_type (str): The type of skin material to use (e.g., "ENHANCED_SSS", "MAKESKIN", "GAMEENGINE", "LAYERED"). Default is "ENHANCED_SSS".
+            material_instances (bool): Whether to create material instances for the skin material. Default is True.
+            slot_overrides (dict): A dictionary of slot overrides to apply, keyed by slot name. Default is None.
+
+        Raises:
+            ValueError: If the mhmat_file is not found or if the skin material type is invalid.
+        """
         if bodyproxy is None:
             bodyproxy = ObjectService.find_object_of_type_amongst_nearest_relatives(basemesh, "Proxymeshes")
 
@@ -689,7 +747,7 @@ class HumanService:
 
             settings = dict()
             _LOG.debug("Will attempt to load", file_name)
-            with open(file_name, "r") as json_file:
+            with open(file_name, "r", encoding="utf-8") as json_file:
                 settings = json.load(json_file)
 
             _LOG.dump("Settings before overrides", settings)
@@ -813,6 +871,19 @@ class HumanService:
 
     @staticmethod
     def deserialize_from_dict(human_info, deserialization_settings):
+        """
+        Deserializes a human character from a dictionary of human information and deserialization settings.
+
+        Args:
+            human_info (dict): A dictionary containing information about the human character to be deserialized.
+            deserialization_settings (dict): A dictionary containing settings for the deserialization process.
+
+        Returns:
+            The deserialized human basemesh object.
+
+        Raises:
+            ValueError: If human_info is None or if it does not contain valid data.
+        """
 
         _LOG.debug("Deserialization settings", deserialization_settings)
 
@@ -853,7 +924,7 @@ class HumanService:
         _LOG.dump("human_info", human_info)
 
         if not "alternative_materials" in human_info:
-            human_info["alternative_materials"] = dict();
+            human_info["alternative_materials"] = dict()
 
         if "override_rig" in deserialization_settings and deserialization_settings["override_rig"] and deserialization_settings["override_rig"] != "PRESET":
             if deserialization_settings["override_rig"] == "NONE":
@@ -899,6 +970,14 @@ class HumanService:
 
     @staticmethod
     def get_default_deserialization_settings():
+        """
+        Returns the default settings for deserializing a human character.
+
+        The settings include various options for helpers, vertex groups, scale, subdivision levels, and overrides for skin and rig models.
+
+        Returns:
+            dict: A dictionary containing the default deserialization settings.
+        """
         return {
             "mask_helpers": True,
             "detailed_helpers": True,
@@ -913,11 +992,24 @@ class HumanService:
 
     @staticmethod
     def deserialize_from_json_file(filename, deserialization_settings):
+        """
+        Deserializes a human character from a JSON file using the provided deserialization settings.
+
+        Args:
+            filename (str): The path to the JSON file containing the human character information.
+            deserialization_settings (dict): A dictionary containing settings for the deserialization process.
+
+        Returns:
+            The deserialized human basemesh object.
+
+        Raises:
+            IOError: If the specified file does not exist.
+        """
         _LOG.debug("Deserialization settings", deserialization_settings)
         if not os.path.exists(filename):
             raise IOError(str(filename) + " does not exist")
         human_info = None
-        with open(filename, "r") as json_file:
+        with open(filename, "r", encoding="utf-8") as json_file:
             human_info = json.load(json_file)
         match = re.search(r'human\.([^/\\]*)\.json$', filename)
         name = match.group(1)
@@ -1132,7 +1224,19 @@ class HumanService:
 
     @staticmethod
     def deserialize_from_mhm(filename, deserialization_settings):
+        """
+        Deserializes a human character from an MHM file using the provided deserialization settings.
 
+        Args:
+            filename (str): The path to the MHM file containing the human character information.
+            deserialization_settings (dict): A dictionary containing settings for the deserialization process, including options for deep searching clothes and body parts.
+
+        Returns:
+            The deserialized human basemesh object.
+
+        Raises:
+            IOError: If the specified file does not exist.
+        """
         clothes_deep_search = deserialization_settings["clothes_deep_search"]
         bodypart_deep_search = deserialization_settings["bodypart_deep_search"]
 
@@ -1152,13 +1256,12 @@ class HumanService:
             if line.startswith("modifier"):
                 HumanService._parse_mhm_modifier_line(human_info, line)
             else:
-                is_bodypart_line = False
                 if not HumanService._check_parse_mhm_bodypart_line(human_info, line, bodypart_deep_search):
                     _LOG.debug("line is neither modifier or bodypart")
                     if line.startswith("skinMaterial"):
-                        skinLine = line.replace("skinMaterial skins/", "")
-                        skinLine = skinLine.replace("skinMaterial", "")
-                        human_info["skin_mhmat"] = skinLine
+                        skin_line = line.replace("skinMaterial skins/", "")
+                        skin_line = skin_line.replace("skinMaterial", "")
+                        human_info["skin_mhmat"] = skin_line
                         human_info["skin_material_type"] = "ENHANCED_SSS"
                     if line.startswith("name "):
                         name = line.replace("name ", "")
@@ -1196,7 +1299,20 @@ class HumanService:
 
     @staticmethod
     def create_human(mask_helpers=True, detailed_helpers=True, extra_vertex_groups=True, feet_on_ground=True, scale=0.1, macro_detail_dict=None):
+        """
+        Creates a human mesh with specified settings and properties.
 
+        Args:
+            mask_helpers (bool): Whether to mask helper vertex groups. Default is True.
+            detailed_helpers (bool): Whether to include detailed helper vertex groups. Default is True.
+            extra_vertex_groups (bool): Whether to include extra vertex groups. Default is True.
+            feet_on_ground (bool): Whether to position the feet on the ground. Default is True.
+            scale (float): The scale factor for the basemesh. Default is 0.1.
+            macro_detail_dict (dict, optional): A dictionary containing macro detail settings. If None, default settings are used.
+
+        Returns:
+            bpy.types.Object: The created human basemesh object.
+        """
         profiler = PrimitiveProfiler("HumanService")
         profiler.enter("create_human")
 
@@ -1250,6 +1366,18 @@ class HumanService:
 
     @staticmethod
     def add_builtin_rig(basemesh, rig_name, *, import_weights=True, operator=None):
+        """
+        Adds a built-in rig to the given basemesh.
+
+        Args:
+            basemesh (bpy.types.Object): The basemesh object to which the rig will be added.
+            rig_name (str): The name of the rig to be added. If it starts with "rigify.", it will be treated as a Rigify rig.
+            import_weights (bool): Whether to import weights for the rig. Default is True.
+            operator (bpy.types.Operator, optional): The operator calling this function, used for reporting errors. Default is None.
+
+        Returns:
+            bpy.types.Object: The created armature object, or None if the rig file could not be found.
+        """
         is_rigify = rig_name.startswith("rigify.")
         rig_name_base = rig_name[7:] if is_rigify else rig_name
 
@@ -1309,6 +1437,15 @@ class HumanService:
 
     @staticmethod
     def refit(blender_object):
+        """
+        Refits the given blender object, adjusting its basemesh and rig, and refitting any related mesh assets.
+
+        Args:
+            blender_object (bpy.types.Object): The Blender object to be refitted.
+
+        Raises:
+            ValueError: If the basemesh cannot be found as a relative of the given object.
+        """
         _LOG.enter()
         basemesh = ObjectService.find_object_of_type_amongst_nearest_relatives(blender_object, "Basemesh")
         rig = ObjectService.find_object_of_type_amongst_nearest_relatives(blender_object, "Skeleton")
@@ -1354,6 +1491,15 @@ class HumanService:
 
     @staticmethod
     def get_asset_sources_of_equipped_mesh_assets(basemesh):
+        """
+        Retrieves the asset sources of all equipped mesh assets related to the given basemesh.
+
+        Args:
+            basemesh (bpy.types.Object): The basemesh object whose equipped mesh assets' sources are to be retrieved.
+
+        Returns:
+            list: A list of asset sources for the equipped mesh assets. If the basemesh is not provided, an empty list is returned.
+        """
         if not basemesh:
             return []
         _LOG.debug("Provided basemesh", basemesh)
@@ -1367,6 +1513,13 @@ class HumanService:
 
     @staticmethod
     def unload_mhclo_asset(basemesh, asset):
+        """
+        Unloads and removes the specified mhclo asset from the given basemesh.
+
+        Args:
+            basemesh (bpy.types.Object): The basemesh object from which the asset will be unloaded.
+            asset (bpy.types.Object): The mhclo asset to be unloaded and removed.
+        """
         _LOG.debug("basemesh, asset", (basemesh, asset))
 
         if not asset:
