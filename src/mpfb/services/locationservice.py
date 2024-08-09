@@ -98,6 +98,7 @@ class _LocationService():
         _LOG.enter()
         self._mh_user_data = None
         self._mh_auto_user_data = False
+        mh_user_data = None
         try:
             mh_user_data = get_preference("mh_user_data")
         except:

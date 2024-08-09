@@ -1,8 +1,8 @@
 """Service for working with animations and poses"""
 
 import bpy, os
-from mpfb.services.logservice import LogService
-from mpfb.services.rigservice import RigService
+from .logservice import LogService
+from .rigservice import RigService
 from .objectservice import ObjectService
 
 _LOG = LogService.get_logger("services.animationservice")

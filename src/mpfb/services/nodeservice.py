@@ -6,8 +6,8 @@ from bpy.types import NodeSocketColor, ShaderNodeGroup, NodeGroupInput, NodeGrou
 import os
 import inspect
 
-from mpfb.services.objectservice import ObjectService
-from mpfb.services.logservice import LogService
+from .objectservice import ObjectService
+from .logservice import LogService
 
 _LOG = LogService.get_logger("services.nodeservice")
 

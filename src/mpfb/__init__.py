@@ -36,6 +36,9 @@ from bpy.utils import register_class
 
 _OLD_EXCEPTHOOK = None
 
+# For printing output before _LOG has been initialized
+_DEBUG = False
+
 
 def log_crash(type, value, tb):
     global _OLD_EXCEPTHOOK
@@ -48,23 +51,26 @@ def log_crash(type, value, tb):
 
 
 def get_preference(name):
-    _LOG.enter()
+    global _DEBUG
+    if _DEBUG:
+        print("get_preference()")
     if "mpfb" in bpy.context.preferences.addons:
         mpfb = bpy.context.preferences.addons['mpfb']
         if hasattr(mpfb, "preferences"):
             prefs = mpfb.preferences
             if hasattr(prefs, name):
                 value = getattr(prefs, name)
-                _LOG.debug("Found addon preference", (name, value))
+                if _DEBUG:
+                    print("Found addon preference", (name, value))
                 return value
-            _LOG.error("There were addon preferences, but key did not exist:", name)
-            _LOG.error("preferences", dir(prefs))
-            _LOG.error("hasattr", hasattr(prefs, name))
-            _LOG.error("name in", name in prefs)
+            print("There were addon preferences, but key did not exist:", name)
+            print("preferences", dir(prefs))
+            print("hasattr", hasattr(prefs, name))
+            print("name in", name in prefs)
             return None
-        _LOG.crash("The 'mpfb' addon does not have any preferences")
+        print("The 'mpfb' addon does not have any preferences!?")
         raise ValueError("Preferences have not been initialized properly")
-    _LOG.crash("The 'mpfb' addon does not exist!?")
+    print("The 'mpfb' addon does not exist!?")
     raise ValueError("I don't seem to exist")
 
 
@@ -75,6 +81,9 @@ def register():
     """At this point blender is ready enough for it to make sense to
     start initializing python singletons"""
 
+    global _LOG  # pylint: disable=W0603
+    global _OLD_EXCEPTHOOK  # pylint: disable=W0603
+
     # Preferences will be needed before starting the rest of the addon
     from ._preferences import MpfbPreferences
     try:
@@ -82,14 +91,10 @@ def register():
     except:
         print("WARNING: Could not register preferences class. Maybe it was registered by an earlier version of MPFB?")
 
-    global _LOG  # pylint: disable=W0603
-    global _OLD_EXCEPTHOOK  # pylint: disable=W0603
-
-    from mpfb.services.logservice import LogService
+    from .services import LogService
     _LOG = LogService.get_logger("mpfb.init")
     _LOG.info("Build info", "FROM_SOURCE")
     _LOG.reset_timer()
-    _LOG.debug("We're in register() and about to start registering classes.")
 
     if get_preference("mpfb_excepthook"):
         _LOG.warn("Overriding the global exception handler. You should probably disable this when not needing it.")
@@ -107,10 +112,7 @@ def register():
 
     if not ClassManager.isinitialized():
         classmanager = ClassManager()  # pylint: disable=W0612
-
-    _LOG.debug("About to import mpfb.services")
-    import mpfb.services.locationservice
-    import mpfb.services.uiservice
+        _LOG.debug("classmanager", classmanager)
 
     _LOG.debug("About to import mpfb.ui")
     import mpfb.ui
@@ -123,14 +125,14 @@ def register():
     _LOG.debug("About to request class registration")
     ClassManager.register_classes()
 
-    from mpfb.services.systemservice import SystemService
+    from .services import SystemService
 
     if SystemService.is_blender_version_at_least():
         _LOG.debug("About to check if MakeHuman is online")
         # Try to find out where the makehuman user data is at
         import mpfb.services.socketservice
-        from mpfb.services.locationservice import LocationService
-        from mpfb.services.socketservice import SocketService
+        from .services import LocationService
+        from .services import SocketService
         if LocationService.is_mh_auto_user_data_enabled():
             mh_user_dir = None
             try:

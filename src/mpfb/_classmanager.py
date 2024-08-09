@@ -3,7 +3,7 @@
 
 from bpy.utils import register_class, unregister_class
 
-from mpfb.services import LogService
+from .services import LogService
 _LOG = LogService.get_logger("mpfb.classmanager")
 
 

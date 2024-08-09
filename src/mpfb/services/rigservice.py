@@ -4,15 +4,12 @@ import bpy, os, fnmatch, shutil, json, re, typing
 from bpy.types import PoseBone
 from collections import defaultdict
 from mathutils import Matrix, Vector
-from mathutils import Vector
-
+from .locationservice import LocationService
+from .logservice import LogService
+from .systemservice import SystemService
+from .targetservice import TargetService
+from .objectservice import ObjectService
 from mpfb.entities.objectproperties import SkeletonObjectProperties
-from mpfb.services.locationservice import LocationService
-from mpfb.services.logservice import LogService
-from mpfb.services.systemservice import SystemService
-from mpfb.services.targetservice import TargetService
-from mpfb.services.objectservice import ObjectService
-
 
 _LOG = LogService.get_logger("services.rigservice")
 
@@ -49,7 +46,6 @@ class RigService:
                         else:
                             _LOG.debug("Pose already exists in user dir", expected)
 
-
     @staticmethod
     def apply_pose_as_rest_pose(armature_object):
         """This will a) apply the pose modifier on each child mesh, b) apply the current pose as rest pose on the armature_object,
@@ -66,7 +62,7 @@ class RigService:
                 if modifier.type == 'ARMATURE':
                     _LOG.debug("Will apply modifier", modifier)
                     if not modifier.use_multi_modifier and modifier.object == armature_object:
-                        bpy.ops.object.modifier_apply( modifier = modifier.name )
+                        bpy.ops.object.modifier_apply(modifier=modifier.name)
 
         ObjectService.deselect_and_deactivate_all()
         ObjectService.activate_blender_object(armature_object)
@@ -82,7 +78,6 @@ class RigService:
 
         ObjectService.deselect_and_deactivate_all()
         ObjectService.activate_blender_object(armature_object)
-
 
     @staticmethod
     def ensure_armature_modifier(object, armature_object, *, move_to_top=True, subrig=None):
@@ -653,7 +648,7 @@ class RigService:
         bone_names = [name
                       for arm in armature_objects
                       for name in ([bone.name for bone in arm.data.bones if bone.use_deform]
-                                   + RigService.get_extra_bones(arm))]
+                                   +RigService.get_extra_bones(arm))]
         names = [name for bone in dict.fromkeys(bone_names) for name in bone_to_groups[bone]]
 
         assert len(names) == len(group_to_bone)
@@ -785,7 +780,7 @@ class RigService:
         for bone in armature_object.data.bones:
             if str(bone.name).lower().endswith(str(source_term).lower()):
                 _LOG.debug("Source side bone", bone.name)
-                neutral_name = str(bone.name)[0:len(bone.name)-len(source_term)]
+                neutral_name = str(bone.name)[0:len(bone.name) - len(source_term)]
                 destination_name = neutral_name + destination_term
                 RigService.mirror_bone_weights_to_other_side_bone(armature_object, str(bone.name), destination_name)
             else:
@@ -823,8 +818,8 @@ class RigService:
             left = RigService.find_pose_bone_by_name("shoulder01.L", armature_object).tail
             right = RigService.find_pose_bone_by_name("shoulder01.R", armature_object).tail
 
-            spine_length = abs( (top - bottom).length )
-            shoulder_width = abs( (left - right).length )
+            spine_length = abs((top - bottom).length)
+            shoulder_width = abs((left - right).length)
 
             if "original_spine_length" in pose and pose["original_spine_length"] > 0.0001:
                 trans_factor_z = spine_length / pose["original_spine_length"]
@@ -844,7 +839,6 @@ class RigService:
             bone = RigService.find_pose_bone_by_name(name, armature_object)
             if bone:
                 bone.rotation_euler = pose["bone_rotations"][name]
-
 
     @staticmethod
     def get_pose_as_dict(armature_object, root_bone_translation=True, ik_bone_translation=True, fk_bone_translation=False, onlyselected=False):
@@ -866,8 +860,8 @@ class RigService:
             left = RigService.find_pose_bone_by_name("shoulder01.L", armature_object).tail
             right = RigService.find_pose_bone_by_name("shoulder01.R", armature_object).tail
 
-            spine_length = abs( (top - bottom).length )
-            shoulder_width = abs( (left - right).length )
+            spine_length = abs((top - bottom).length)
+            shoulder_width = abs((left - right).length)
 
         pose["original_spine_length"] = spine_length
         pose["original_shoulder_width"] = shoulder_width

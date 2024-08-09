@@ -2,17 +2,15 @@
 
 import os, gzip, bpy, json, random, re
 from itertools import count
-
+from mathutils import Vector
 from pathlib import Path
-from mpfb.services.logservice import LogService
-from mpfb.services.assetservice import AssetService
-from mpfb.services.locationservice import LocationService
+from .logservice import LogService
+from .assetservice import AssetService
+from .locationservice import LocationService
+from .objectservice import ObjectService
 from mpfb.entities.objectproperties import GeneralObjectProperties
 from mpfb.entities.objectproperties import HumanObjectProperties
 from mpfb.entities.primitiveprofiler import PrimitiveProfiler
-from mpfb.services.objectservice import ObjectService
-
-from mathutils import Vector
 
 _LOG = LogService.get_logger("services.targetservice")
 
@@ -39,7 +37,7 @@ with open(_MACRO_FILE, "r") as json_file:
     _MACRO_CONFIG = json.load(json_file)
 
 _LOADER = LogService.get_logger("target loader")
-#_LOADER.set_level(LogService.DUMP)
+# _LOADER.set_level(LogService.DUMP)
 
 # This is very annoying, but the maximum length of a shape key name is 61 characters
 # in blender. The combinations used in MH filenames tend to be longer than that.
@@ -275,7 +273,7 @@ class TargetService:
 
         for i, x, y, z in info["vertices"]:
             base = i * 3
-            if base < len(sk_buffer): # If we have deleted the helper verts, some coordinates will not exist
+            if base < len(sk_buffer):  # If we have deleted the helper verts, some coordinates will not exist
                 sk_buffer[base] += x * scale_factor
                 sk_buffer[base + 1] += y * scale_factor
                 sk_buffer[base + 2] += z * scale_factor
@@ -385,7 +383,6 @@ class TargetService:
                     _MIRROR_RIGHT.append([from_idx, to_idx])
 
         profiler.leave("_load_mirror_table")
-
 
     @staticmethod
     def symmetrize_shape_key(blender_object, shape_key_name, copy_left_to_right=True):
@@ -629,13 +626,13 @@ class TargetService:
             lowest = parts["lowest"]
             low = parts["low"]
             high = parts["high"]
-            hlrange = highest-lowest
+            hlrange = highest - lowest
 
             _LOG.dump("(highest, lowest, high, low)", (highest, lowest, high, low))
 
             if value > lowest and value < highest:
-                position = value-lowest
-                position_pct = position/hlrange
+                position = value - lowest
+                position_pct = position / hlrange
                 lowweight = round(1 - position_pct, 4)
                 highweight = round(position_pct, 4)
 
@@ -649,7 +646,6 @@ class TargetService:
         profiler.leave("_interpolate_macro_components")
 
         return components
-
 
     @staticmethod
     def calculate_target_stack_from_macro_info_dict(macro_info, cutoff=0.01):
@@ -761,7 +757,7 @@ class TargetService:
                                     complete_name = complete_name + "-" + cup_component[0]
                                     complete_name = complete_name + "-" + firmness_component[0]
                                     weight = 1.0
-                                    #weight = weight * gender_component[1]    <-- there are no male complementary targets
+                                    # weight = weight * gender_component[1]    <-- there are no male complementary targets
                                     weight = weight * age_component[1]
                                     weight = weight * muscle_component[1]
                                     weight = weight * weight_component[1]
@@ -873,7 +869,6 @@ class TargetService:
 
         profiler.leave("reapply_macro_details")
 
-
     @staticmethod
     def encode_shapekey_name(original_name):
         name = str(original_name)
@@ -889,11 +884,11 @@ class TargetService:
         return name
 
     @staticmethod
-    def macrodetail_filename_to_shapekey_name(filename, encode_name: bool = False):
+    def macrodetail_filename_to_shapekey_name(filename, encode_name: bool=False):
         return TargetService.filename_to_shapekey_name(filename, macrodetail=True, encode_name=encode_name)
 
     @staticmethod
-    def filename_to_shapekey_name(filename, *, macrodetail: bool | None = False, encode_name: bool | None = None):
+    def filename_to_shapekey_name(filename, *, macrodetail: bool | None=False, encode_name: bool | None=None):
         name = os.path.basename(filename)
 
         name = re.sub(r'\.gz$', "", name, flags=re.IGNORECASE)
@@ -926,7 +921,7 @@ class TargetService:
         if keys is None or keys.key_blocks is None or len(keys.key_blocks) < 1:
             return
 
-        skip = True # First shapekey is Basis
+        skip = True  # First shapekey is Basis
 
         for shape_key in keys.key_blocks:
             if not skip and shape_key.value < cutoff and TargetService.shapekey_is_target(shape_key.name):

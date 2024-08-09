@@ -1,9 +1,9 @@
 """This module contains utility functions for working with objects."""
 
 import bpy, os, json, random, gzip, typing, string
-from mpfb.services.logservice import LogService
-from mpfb.services.locationservice import LocationService
-from mpfb.services.systemservice import SystemService
+from .logservice import LogService
+from .locationservice import LocationService
+from .systemservice import SystemService
 from mpfb.entities.objectproperties import GeneralObjectProperties
 from mpfb.entities.socketobject import BASEMESH_EXTRA_GROUPS
 
@@ -20,6 +20,7 @@ _MESH_ASSET_TYPES = ("Proxymeshes", "Clothes") + _BODY_PART_TYPES
 _MESH_TYPES = ("Basemesh",) + _MESH_ASSET_TYPES
 _SKELETON_TYPES = ("Skeleton", "Subrig")
 _ALL_TYPES = _SKELETON_TYPES + _MESH_TYPES
+
 
 class ObjectService:
     """ObjectService contains various functions for working with objects, such as creating a new object,
@@ -554,7 +555,7 @@ class ObjectService:
         # import_scene rotated object 90 degrees
         bpy.ops.object.transform_apply(location=False, rotation=True, scale=False)
 
-        loaded_object = context.selected_objects[0] # pylint: disable=E1136
+        loaded_object = context.selected_objects[0]  # pylint: disable=E1136
         return loaded_object
 
     @staticmethod
@@ -598,8 +599,8 @@ class ObjectService:
 
     @staticmethod
     def get_base_mesh_vertex_group_definition():
-        global _BASEMESH_VERTEX_GROUPS_EXPANDED # pylint: disable=W0603
-        global _BASEMESH_VERTEX_GROUPS_UNEXPANDED # pylint: disable=W0603
+        global _BASEMESH_VERTEX_GROUPS_EXPANDED  # pylint: disable=W0603
+        global _BASEMESH_VERTEX_GROUPS_UNEXPANDED  # pylint: disable=W0603
         if _BASEMESH_VERTEX_GROUPS_EXPANDED is None:
             meta_data_dir = LocationService.get_mpfb_data("mesh_metadata")
             definition_file = os.path.join(meta_data_dir, "basemesh_vertex_groups.json")
@@ -610,7 +611,7 @@ class ObjectService:
                 group_name = str(group)
                 _BASEMESH_VERTEX_GROUPS_EXPANDED[group_name] = []
                 for start_stop in _BASEMESH_VERTEX_GROUPS_UNEXPANDED[group]:
-                    _BASEMESH_VERTEX_GROUPS_EXPANDED[group_name].extend(range(start_stop[0], start_stop[1]+1))
+                    _BASEMESH_VERTEX_GROUPS_EXPANDED[group_name].extend(range(start_stop[0], start_stop[1] + 1))
             _BASEMESH_VERTEX_GROUPS_EXPANDED.update(BASEMESH_EXTRA_GROUPS)
         # Return a copy so it doesn't get accidentally modified
         return dict(_BASEMESH_VERTEX_GROUPS_EXPANDED)
@@ -641,7 +642,7 @@ class ObjectService:
 
     @staticmethod
     def get_face_to_vertex_table():
-        global _BASEMESH_FACE_TO_VERTEX_TABLE # pylint: disable=W0603
+        global _BASEMESH_FACE_TO_VERTEX_TABLE  # pylint: disable=W0603
 
         meta_data_dir = LocationService.get_mpfb_data("mesh_metadata")
         definition_file = os.path.join(meta_data_dir, "basemesh_face_to_vertex_table.json.gz")
@@ -654,7 +655,7 @@ class ObjectService:
 
     @staticmethod
     def get_vertex_to_face_table():
-        global _BASEMESH_VERTEX_TO_FACE_TABLE # pylint: disable=W0603
+        global _BASEMESH_VERTEX_TO_FACE_TABLE  # pylint: disable=W0603
 
         meta_data_dir = LocationService.get_mpfb_data("mesh_metadata")
         definition_file = os.path.join(meta_data_dir, "basemesh_vertex_to_face_table.json.gz")

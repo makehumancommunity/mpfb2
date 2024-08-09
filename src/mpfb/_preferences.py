@@ -1,14 +1,16 @@
-
 """This file handles addon preferences."""
 
 import bpy
 
+
 def update_second_root(self, context):
-    from mpfb.services.locationservice import LocationService
+    from .services import LocationService
+
 
 def update_mh_data(self, context):
-    from mpfb.services.locationservice import LocationService
+    from .services import LocationService
     LocationService.update_mh_data()
+
 
 class MpfbPreferences(bpy.types.AddonPreferences):
     """Preferences for MPFB"""

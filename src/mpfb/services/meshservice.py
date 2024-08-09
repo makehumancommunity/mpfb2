@@ -1,7 +1,7 @@
 import bpy, mathutils, numpy
 from mathutils import Vector
-from mpfb.services.logservice import LogService
-from mpfb.services.objectservice import ObjectService
+from .logservice import LogService
+from .objectservice import ObjectService
 
 _LOG = LogService.get_logger("services.meshservice")
 

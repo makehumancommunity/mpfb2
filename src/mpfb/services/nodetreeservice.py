@@ -3,9 +3,10 @@
 import bpy
 import bpy.types
 
-from mpfb.services.logservice import LogService
+from .logservice import LogService
 
 _LOG = LogService.get_logger("services.nodetreeservice")
+
 
 class NodeTreeService:
 

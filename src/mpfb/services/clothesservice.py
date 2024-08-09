@@ -1,19 +1,18 @@
 """This module contains utility functions for clothes."""
 
 import random, os, bpy, time, bmesh, numpy  # pylint: disable=C0412
-
+from .objectservice import ObjectService
+from .meshservice import MeshService
+from .logservice import LogService
+from .locationservice import LocationService
+from .assetservice import AssetService
+from .rigservice import RigService
 from mathutils import Vector
 from mpfb.entities.rig import Rig
 from mpfb.entities.clothes.vertexmatch import VertexMatch
-from mpfb.services.objectservice import ObjectService
-from mpfb.services.meshservice import MeshService
-from mpfb.services.logservice import LogService
-from mpfb.services.locationservice import LocationService
-from mpfb.services.assetservice import AssetService
 from mpfb.entities.objectproperties import GeneralObjectProperties
 from mpfb.entities.clothes.mhclo import Mhclo
 from mpfb.entities.meshcrossref import MeshCrossRef
-from mpfb.services.rigservice import RigService
 
 _LOG = LogService.get_logger("services.clothesservice")
 

@@ -2,9 +2,9 @@
 
 import os, bpy, json
 from pathlib import Path
-from mpfb.services.logservice import LogService
-from mpfb.services.locationservice import LocationService
-from mpfb.services.systemservice import SystemService
+from .logservice import LogService
+from .locationservice import LocationService
+from .systemservice import SystemService
 
 _LOG = LogService.get_logger("services.assetservice")
 

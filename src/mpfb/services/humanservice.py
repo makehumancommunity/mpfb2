@@ -2,23 +2,23 @@
 
 import os, json, fnmatch, re, bpy, shutil
 from pathlib import Path
+from .logservice import LogService
+from .objectservice import ObjectService
+from .targetservice import TargetService
+from .assetservice import AssetService
+from .clothesservice import ClothesService
+from .rigservice import RigService
+from .nodeservice import NodeService
+from .materialservice import MaterialService
+from .locationservice import LocationService
 from mpfb.entities.objectproperties import HumanObjectProperties
-from mpfb.services.objectservice import ObjectService
-from mpfb.services.targetservice import TargetService
-from mpfb.services.assetservice import AssetService
-from mpfb.services.clothesservice import ClothesService
-from mpfb.services.rigservice import RigService
-from mpfb.services.nodeservice import NodeService
 from mpfb.entities.clothes.mhclo import Mhclo
 from mpfb.entities.rig import Rig
 from mpfb.entities.material.makeskinmaterial import MakeSkinMaterial
 from mpfb.entities.material.mhmaterial import MhMaterial
 from mpfb.entities.material.enhancedskinmaterial import EnhancedSkinMaterial
-from mpfb.services.materialservice import MaterialService
-from mpfb.services.locationservice import LocationService
 from mpfb.entities.objectproperties import GeneralObjectProperties
 from mpfb.entities.socketobject import BASEMESH_EXTRA_GROUPS, ALL_EXTRA_GROUPS
-from .logservice import LogService
 from mpfb.entities.primitiveprofiler import PrimitiveProfiler
 
 _LOG = LogService.get_logger("services.humanservice")

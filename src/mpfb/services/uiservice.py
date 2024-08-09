@@ -66,7 +66,7 @@ class _UiService():
 
     def rebuild_importer_presets_panel_list(self):
         _LOG.enter()
-        _LOG.info("Rebuilding the list of available importer presets (for presets panel)")
+        _LOG.debug("Rebuilding the list of available importer presets (for presets panel)")
         presets = [
             ("default", "default", "the default presets", 0)
         ]
@@ -79,7 +79,7 @@ class _UiService():
 
     def rebuild_importer_panel_list(self):
         _LOG.enter()
-        _LOG.info("Rebuilding the list of available importer presets (for importer panel)")
+        _LOG.debug("Rebuilding the list of available importer presets (for importer panel)")
         presets = [
             ("FROM_UI", "Use ui settings", "use the settings currently set in the UI", 0),
             ("default", "Default", "the default presets", 1)
