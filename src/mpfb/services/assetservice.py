@@ -460,7 +460,7 @@ class AssetService:
             if ".json" in filename:
                 packname = filename.replace(".json", "")
                 _LOG.debug("Loading pack metadata", filename)
-                with open(os.path.join(packs_dir, filename), "r", encoding="utf-8") as json_file:
+                with open(os.path.join(packs_dir, filename), "r") as json_file:
                     _PACKS[packname] = json.load(json_file)
 
     @staticmethod
@@ -482,6 +482,13 @@ class AssetService:
         names = list(_PACKS.keys())
         names.sort()
         return names
+
+    @staticmethod
+    def system_assets_pack_is_installed():
+        """
+        Scan the list of pack names to determine if there is a pack makehuman_system_assets seems to be installed.
+        """
+        return "makehuman_system_assets" in AssetService.get_pack_names()
 
     @staticmethod
     def get_asset_names_in_pack(pack_name):
