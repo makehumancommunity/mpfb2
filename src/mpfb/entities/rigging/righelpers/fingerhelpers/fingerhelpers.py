@@ -8,6 +8,7 @@ _LOG = LogService.get_logger("fingerhelpers.fingerhelpers")
 from mpfb.services.rigservice import RigService
 from mpfb.ui.righelpers import RigHelpersProperties
 
+
 class FingerHelpers():
 
     """This is the abstract rig type independent base class for working with
@@ -24,8 +25,6 @@ class FingerHelpers():
         self.settings = settings
         self._bone_info = dict()
         _LOG.dump("settings", self.settings)
-
-
 
     # ---- METHODS FOR APPLYING AND CREATING
 
@@ -184,7 +183,6 @@ class FingerHelpers():
             pose_bone.custom_shape_scale_xyz = [scale, scale, scale]
             _LOG.debug("scale", pose_bone.custom_shape_scale_xyz)
 
-
     def _create_grip_bone(self, finger_number, armature_object):
         _LOG.enter()
 
@@ -291,7 +289,6 @@ class FingerHelpers():
             pose_bone.lock_location[i] = True
             pose_bone.lock_scale[i] = True
 
-
     # ---- METHODS FOR REMOVING AND RESETTING
 
     def remove_ik(self, armature_object):
@@ -317,7 +314,6 @@ class FingerHelpers():
 
         _LOG.debug("Done")
         bpy.ops.object.mode_set(mode='POSE', toggle=False)
-
 
     def _clear_finger_grip(self, finger_number, armature_object):
         bone_name = self._get_grip_bone_name_for_finger(finger_number)
@@ -371,8 +367,6 @@ class FingerHelpers():
             bones_to_show = self.get_reverse_list_of_bones_in_finger(finger_number)
             self._show_bones(armature_object, bones_to_show)
 
-
-
     # ---- BONE NAMES
 
     def _get_point_ik_bone_name_for_finger(self, finger_number):
@@ -386,8 +380,6 @@ class FingerHelpers():
 
     def _get_master_ik_bone_name(self):
         return self.which_hand + "_finger_master_ik"
-
-
 
     # ---- GENERAL METHODS
 
@@ -413,11 +405,9 @@ class FingerHelpers():
 
         _LOG.enter()
         if rigtype == "Default":
-            from mpfb.services.righelpers.fingerhelpers.defaultfingerhelpers import DefaultFingerHelpers  # pylint: disable=C0415
+            from mpfb.entities.rigging.righelpers.fingerhelpers.defaultfingerhelpers import DefaultFingerHelpers  # pylint: disable=C0415
             return DefaultFingerHelpers(which_hand, settings)
         return FingerHelpers(which_hand, settings)
-
-
 
     # ---- ABSTRACT METHODS INSTANCED PER RIG TYPE
 

@@ -2,11 +2,12 @@ from mpfb.services.logservice import LogService
 from mpfb.services.objectservice import ObjectService
 from mpfb.services.rigservice import RigService
 from mpfb._classmanager import ClassManager
-from mpfb.services.rigifyhelpers.rigifyhelpers import RigifyHelpers
+from mpfb.entities.rigging.rigifyhelpers.rigifyhelpers import RigifyHelpers
 from mpfb.services.systemservice import SystemService
 import bpy, json
 
 _LOG = LogService.get_logger("rigify.operators.converttorigify")
+
 
 class MPFB_OT_Convert_To_Rigify_Operator(bpy.types.Operator):
     """Convert rig to rigify"""

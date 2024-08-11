@@ -13,6 +13,7 @@ _LOG = LogService.get_logger("rigifyhelpers.rigifyhelpers")
 
 from mpfb.services.rigservice import RigService
 
+
 class RigifyHelpers():
 
     """This is the abstract rig type independent base class for working with
@@ -34,7 +35,7 @@ class RigifyHelpers():
         """Get an implementation instance matching the rig type."""
 
         _LOG.enter()
-        from mpfb.services.rigifyhelpers.gameenginerigifyhelpers import GameEngineRigifyHelpers  # pylint: disable=C0415
+        from .gameenginerigifyhelpers import GameEngineRigifyHelpers  # pylint: disable=C0415
         return GameEngineRigifyHelpers(settings)
 
     def convert_to_rigify(self, armature_object):
@@ -298,7 +299,7 @@ class RigifyHelpers():
         bpy.ops.object.mode_set(mode='EDIT', toggle=False)
 
         if exclude_first:
-            bone_names = list(bone_names) # to modify a copy rather than the source list
+            bone_names = list(bone_names)  # to modify a copy rather than the source list
             bone_names.pop(0)
 
         for bone_name in bone_names:
@@ -309,7 +310,7 @@ class RigifyHelpers():
 
     def _setup_spine(self, armature_object):
         _LOG.enter()
-        spine = self.get_list_of_spine_bones() # pylint: disable=E1111
+        spine = self.get_list_of_spine_bones()  # pylint: disable=E1111
         _LOG.dump("Spine", spine)
         self._set_use_connect_on_bones(armature_object, spine)
         bpy.ops.object.mode_set(mode='POSE', toggle=False)
@@ -322,18 +323,18 @@ class RigifyHelpers():
         _LOG.enter()
         bpy.ops.object.mode_set(mode='POSE', toggle=False)
         for side in [True, False]:
-            arm = self.get_list_of_arm_bones(side) # pylint: disable=E1111
+            arm = self.get_list_of_arm_bones(side)  # pylint: disable=E1111
             _LOG.dump("Arm", arm)
             self._set_use_connect_on_bones(armature_object, arm)
             first_arm_bone = RigService.find_pose_bone_by_name(arm[0], armature_object)
             first_arm_bone.rigify_type = 'limbs.arm'
-            #first_arm_bone.rigify_parameters.segments = len(arm)
+            # first_arm_bone.rigify_parameters.segments = len(arm)
         # TODO: change layers
 
     def _setup_legs(self, armature_object):
         _LOG.enter()
         for side in [True, False]:
-            leg = self.get_list_of_leg_bones(side) # pylint: disable=E1111
+            leg = self.get_list_of_leg_bones(side)  # pylint: disable=E1111
             _LOG.dump("Leg", leg)
             self._set_use_connect_on_bones(armature_object, leg)
             bpy.ops.object.mode_set(mode='POSE', toggle=False)
@@ -382,11 +383,10 @@ class RigifyHelpers():
             bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
             bpy.ops.object.mode_set(mode='POSE', toggle=False)
 
-
     def _setup_shoulders(self, armature_object):
         _LOG.enter()
         for side in [True, False]:
-            shoulder = self.get_list_of_shoulder_bones(side) # pylint: disable=E1111
+            shoulder = self.get_list_of_shoulder_bones(side)  # pylint: disable=E1111
             _LOG.dump("Shoulder", shoulder)
             self._set_use_connect_on_bones(armature_object, shoulder)
             bpy.ops.object.mode_set(mode='POSE', toggle=False)
@@ -395,7 +395,7 @@ class RigifyHelpers():
 
     def _setup_head(self, armature_object):
         _LOG.enter()
-        head = self.get_list_of_head_bones() # pylint: disable=E1111
+        head = self.get_list_of_head_bones()  # pylint: disable=E1111
         _LOG.dump("Head", head)
         self._set_use_connect_on_bones(armature_object, head)
         bpy.ops.object.mode_set(mode='POSE', toggle=False)
@@ -406,7 +406,7 @@ class RigifyHelpers():
         _LOG.enter()
         for side in [True, False]:
             for finger_number in range(5):
-                finger = self.get_list_of_finger_bones(finger_number, side) # pylint: disable=E1111
+                finger = self.get_list_of_finger_bones(finger_number, side)  # pylint: disable=E1111
                 _LOG.dump("Finger", finger)
                 self._set_use_connect_on_bones(armature_object, finger)
                 bpy.ops.object.mode_set(mode='POSE', toggle=False)

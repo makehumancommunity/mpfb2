@@ -59,14 +59,13 @@ class EyeHelpers():
         bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
         _LOG.debug("Done")
 
-
     @staticmethod
     def get_instance(settings, rigtype="Default"):
         """Get an implementation instance matching the rig type."""
 
         _LOG.enter()
         if rigtype == "Default":
-            from mpfb.services.righelpers.eyehelpers.defaulteyehelpers import DefaultEyeHelpers  # pylint: disable=C0415
+            from mpfb.entities.rigging.righelpers.eyehelpers.defaulteyehelpers import DefaultEyeHelpers  # pylint: disable=C0415
             return DefaultEyeHelpers(settings)
         return EyeHelpers(settings)
 
@@ -120,7 +119,6 @@ class EyeHelpers():
             for i in range(3):
                 pose_bone.lock_rotation[i] = True
                 pose_bone.lock_scale[i] = True
-
 
     def _apply_ik_constraint(self, armature_object):
         _LOG.enter()

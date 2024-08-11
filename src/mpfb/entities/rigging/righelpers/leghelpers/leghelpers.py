@@ -88,7 +88,7 @@ class LegHelpers():
 
         _LOG.enter()
         if rigtype == "Default":
-            from mpfb.services.righelpers.leghelpers.defaultleghelpers import DefaultLegHelpers  # pylint: disable=C0415
+            from mpfb.entities.rigging.righelpers.leghelpers.defaultleghelpers import DefaultLegHelpers  # pylint: disable=C0415
             return DefaultLegHelpers(which_leg, settings)
         return LegHelpers(which_leg, settings)
 
@@ -203,7 +203,6 @@ class LegHelpers():
         for i in range(3):
             pose_bone.lock_scale[i] = True
 
-
     def _create_hip_ik_bone(self, armature_object):
         _LOG.enter()
         bpy.ops.object.mode_set(mode='EDIT', toggle=False)
@@ -224,7 +223,6 @@ class LegHelpers():
         pose_bone = RigService.find_pose_bone_by_name(self.which_leg + "_hip_ik", armature_object)
         for i in range(3):
             pose_bone.lock_scale[i] = True
-
 
     def _set_lower_leg_ik_target(self, armature_object, chain_length):
         _LOG.enter()

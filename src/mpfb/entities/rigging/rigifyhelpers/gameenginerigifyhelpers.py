@@ -1,10 +1,10 @@
 """This module contains the gameengine rig's implementation of the rigify helpers class"""
 
-
 from mpfb.services.logservice import LogService
 _LOG = LogService.get_logger("rigifyhelpers.gameenginerigifyhelpers")
 
-from mpfb.services.rigifyhelpers.rigifyhelpers import RigifyHelpers
+from .rigifyhelpers import RigifyHelpers
+
 
 class GameEngineRigifyHelpers(RigifyHelpers):
 
@@ -28,7 +28,7 @@ class GameEngineRigifyHelpers(RigifyHelpers):
         _LOG.enter()
         bones = ["pelvis"]
         for i in range(3):
-            bones.append("spine_0" + str(i+1))
+            bones.append("spine_0" + str(i + 1))
         return bones
 
     def get_list_of_arm_bones(self, left_side=True):
@@ -80,5 +80,5 @@ class GameEngineRigifyHelpers(RigifyHelpers):
         finger_name = finger_names[finger_number]
         bones = []
         for i in range(3):
-            bones.append(finger_name + "_0" + str(i+1) + side)
+            bones.append(finger_name + "_0" + str(i + 1) + side)
         return bones

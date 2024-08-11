@@ -32,7 +32,7 @@ class Rig:
 
     armature_object: bpy.types.Object
 
-    def __init__(self, basemesh, armature=None, *, parent: typing.Optional['Rig'] = None):
+    def __init__(self, basemesh, armature=None, *, parent: typing.Optional['Rig']=None):
         """You might want to use one of the static methods rather than calling init directly."""
         self.basemesh = basemesh
         self.armature_object = armature
@@ -98,7 +98,7 @@ class Rig:
 
         # Upgrade from layers to collections
         if version < 110:
-            from mpfb.services.rigifyhelpers.rigifyhelpers import RigifyHelpers
+            from mpfb.entities.rigging.rigifyhelpers.rigifyhelpers import RigifyHelpers
 
             coll_names = [f"Layer {i+1}" for i in range(32)]
             coll_used = set()
@@ -131,7 +131,7 @@ class Rig:
 
     @staticmethod
     def from_given_armature_context(armature_object: bpy.types.Object | None, *,
-                                    is_subrig: bool | None = None, operator=None,
+                                    is_subrig: bool | None=None, operator=None,
                                     empty=False, fast_positions=False, rigify_ui=False):
         """Create an instance of Rig and populate it with information from the armature and related meshes."""
 
@@ -196,7 +196,7 @@ class Rig:
             rig.rig_header["extra_bones"] = extra_bones
 
         if rigify_ui:
-            from mpfb.services.rigifyhelpers.rigifyhelpers import RigifyHelpers
+            from mpfb.entities.rigging.rigifyhelpers.rigifyhelpers import RigifyHelpers
             rig.rig_header["rigify_ui"] = RigifyHelpers.get_rigify_ui(armature)
 
         return rig
@@ -226,7 +226,7 @@ class Rig:
         for bone in self.armature_object.data.edit_bones:
             self.armature_object.data.edit_bones.remove(bone)
 
-        bpy.ops.object.mode_set(mode='OBJECT', toggle=False) # To commit removal of bones
+        bpy.ops.object.mode_set(mode='OBJECT', toggle=False)  # To commit removal of bones
 
         self.create_bone_collections()
         self.create_bones()
@@ -239,7 +239,7 @@ class Rig:
         RigService.set_extra_bones(self.armature_object, self.rig_header.get("extra_bones"))
 
         if self.rig_header.get("rigify_ui"):
-            from mpfb.services.rigifyhelpers.rigifyhelpers import RigifyHelpers
+            from mpfb.entities.rigging.rigifyhelpers.rigifyhelpers import RigifyHelpers
             RigifyHelpers.load_rigify_ui(self.armature_object, self.rig_header["rigify_ui"])
 
         bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
@@ -270,7 +270,7 @@ class Rig:
                 indices = head_or_tail_info["vertex_indices"]
                 if len(indices) > 0:
                     vertices = [self.position_info["vertices"][i] for i in indices]
-                    location = [sum(v[i] for v in vertices)/len(vertices) for i in range(3)]
+                    location = [sum(v[i] for v in vertices) / len(vertices) for i in range(3)]
             elif strategy == "XYZ":
                 # Special strategy for Rigify heel marker.
                 # Uses different vertices for each coordinate channel.
@@ -294,9 +294,9 @@ class Rig:
         matrix = None
 
         if roll_strategy == "ALIGN_Z_WORLD_Z":
-            matrix = matrix_from_axis_pair(bone.y_axis, (0,0,1), 'z')
+            matrix = matrix_from_axis_pair(bone.y_axis, (0, 0, 1), 'z')
         elif roll_strategy == "ALIGN_X_WORLD_X":
-            matrix = matrix_from_axis_pair(bone.y_axis, (1,0,0), 'x')
+            matrix = matrix_from_axis_pair(bone.y_axis, (1, 0, 0), 'x')
 
         if matrix:
             bone.roll = bpy.types.Bone.AxisRollFromMatrix(matrix, axis=bone.y_axis)[1]
@@ -607,6 +607,7 @@ class Rig:
 
     def _find_parent_joint_chains_split(self, joint_head, joint_tail, head_tail):
         """Find chains of bones connecting two joint cubes, with automatic joint unsplitting."""
+
         def adjust_head_tail(cur_head_tail, head, mid, tail, replace_head):
             if cur_head_tail is not None:
                 head_pos = Vector(self.parent.position_info["cubes"][head])
@@ -694,7 +695,7 @@ class Rig:
                     BoneOpsBoneProperties.set_value("roll_strategy", roll_strategy, entity_reference=bone)
 
     @staticmethod
-    def assign_bone_end_strategy(bone, info, is_tail: bool, *, force=False, lock: bool | None = None):
+    def assign_bone_end_strategy(bone, info, is_tail: bool, *, force=False, lock: bool | None=None):
         from mpfb.ui.boneops import BoneOpsBoneProperties, BoneOpsEditBoneProperties
 
         properties = BoneOpsEditBoneProperties if isinstance(bone, bpy.types.EditBone) else BoneOpsBoneProperties
@@ -835,7 +836,7 @@ class Rig:
                 coords = shape_key.data
 
         for vertex in basemesh.data.vertices:
-            vertex_coords = list(coords[vertex.index].co) # Either actual vertex or the corresponding shape key point
+            vertex_coords = list(coords[vertex.index].co)  # Either actual vertex or the corresponding shape key point
             vertices.append(vertex_coords)
             for group in vertex.groups:
                 idx = int(group.group)
@@ -857,7 +858,6 @@ class Rig:
             for n in range(3):
                 sum_pos[n] = sum_pos[n] / float(len(group))
             cubes[name] = sum_pos
-
 
     def add_data_bone_info(self):
         """Extract bone information from the bone data."""
@@ -1277,7 +1277,7 @@ class Rig:
         sqr_pos = [0.0, 0.0, 0.0]
 
         for i in range(3):
-            sqr_pos[i] = abs(pos1[i]-pos2[i]) * abs(pos1[i]-pos2[i])
+            sqr_pos[i] = abs(pos1[i] - pos2[i]) * abs(pos1[i] - pos2[i])
         return math.sqrt(sqr_pos[0] + sqr_pos[1] + sqr_pos[2])
 
     def _get_cube_tree(self):
@@ -1299,7 +1299,7 @@ class Rig:
 
         return cube_tree, cube_list
 
-    def find_closest_cube(self, pos, max_allowed_dist: float | None = _MAX_ALLOWED_DIST
+    def find_closest_cube(self, pos, max_allowed_dist: float | None=_MAX_ALLOWED_DIST
                           ) -> tuple[str, float] | tuple[None, None]:
         cube_tree, cube_list = self._get_cube_tree()
 
@@ -1331,7 +1331,7 @@ class Rig:
 
         return vertex_tree
 
-    def find_closest_vertex(self, pos, max_allowed_dist: float | None = _MAX_ALLOWED_DIST
+    def find_closest_vertex(self, pos, max_allowed_dist: float | None=_MAX_ALLOWED_DIST
                             ) -> tuple[int, float] | tuple[None, None]:
         vertex_tree = self._get_vertex_tree()
 

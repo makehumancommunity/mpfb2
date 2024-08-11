@@ -3,12 +3,13 @@
 import bpy
 from mpfb.services.logservice import LogService
 from mpfb.services.objectservice import ObjectService
-from mpfb.services.rigifyhelpers.rigifyhelpers import RigifyHelpers
+from mpfb.entities.rigging.rigifyhelpers.rigifyhelpers import RigifyHelpers
 from mpfb.services.rigservice import RigService
 from mpfb.services.systemservice import SystemService
 from mpfb import ClassManager
 
 _LOG = LogService.get_logger("addrig.generate_rigify_rig")
+
 
 class MPFB_OT_GenerateRigifyRigOperator(bpy.types.Operator):
     """Generate a rigify rig from a meta-rig"""
@@ -37,7 +38,7 @@ class MPFB_OT_GenerateRigifyRigOperator(bpy.types.Operator):
             self.report({'ERROR'}, "The rigify addon isn't enabled. You need to enable it under preferences.")
             return {'FINISHED'}
 
-        from mpfb.ui.addrig.addrigpanel import ADD_RIG_PROPERTIES # pylint: disable=C0415
+        from mpfb.ui.addrig.addrigpanel import ADD_RIG_PROPERTIES  # pylint: disable=C0415
 
         armature_object = context.active_object
         delete_after_generate = ADD_RIG_PROPERTIES.get_value("delete_after_generate", entity_reference=scene)
@@ -90,7 +91,6 @@ class MPFB_OT_GenerateRigifyRigOperator(bpy.types.Operator):
 
         self.report({'INFO'}, "A rig was generated")
         return {'FINISHED'}
-
 
 
 ClassManager.add_class(MPFB_OT_GenerateRigifyRigOperator)

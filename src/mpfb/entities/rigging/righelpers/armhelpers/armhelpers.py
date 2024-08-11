@@ -101,7 +101,7 @@ class ArmHelpers():
         """Get an implementation instance matching the rig type."""
         _LOG.enter()
         if rigtype == "Default":
-            from mpfb.services.righelpers.armhelpers.defaultarmhelpers import DefaultArmHelpers  # pylint: disable=C0415
+            from mpfb.entities.rigging.righelpers.armhelpers.defaultarmhelpers import DefaultArmHelpers  # pylint: disable=C0415
             return DefaultArmHelpers(which_arm, settings)
         return ArmHelpers(which_arm, settings)
 
@@ -239,7 +239,6 @@ class ArmHelpers():
         pose_bone = RigService.find_pose_bone_by_name(self.which_arm + "_shoulder_ik", armature_object)
         for i in range(3):
             pose_bone.lock_scale[i] = True
-
 
     def _set_lower_arm_ik_target(self, armature_object, chain_length):
         _LOG.enter()

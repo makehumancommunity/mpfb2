@@ -2,9 +2,14 @@ from mpfb.services.logservice import LogService
 from mpfb.services.rigservice import RigService
 from mpfb.ui.righelpers import RigHelpersProperties
 from mpfb._classmanager import ClassManager
+from mpfb.entities.rigging.righelpers.armhelpers.armhelpers import ArmHelpers
+from mpfb.entities.rigging.righelpers.leghelpers.leghelpers import LegHelpers
+from mpfb.entities.rigging.righelpers.fingerhelpers.fingerhelpers import FingerHelpers
+from mpfb.entities.rigging.righelpers.eyehelpers.eyehelpers import EyeHelpers
 import bpy
 
 _LOG = LogService.get_logger("setupikoperators.fingerfk")
+
 
 class MPFB_OT_AddHelpersOperator(bpy.types.Operator):
     """This will add all selected helpers to the active armature"""
@@ -13,28 +18,25 @@ class MPFB_OT_AddHelpersOperator(bpy.types.Operator):
     bl_options = {'REGISTER', 'UNDO'}
 
     def _arm_helpers(self, armature_object, settings):
-        from mpfb.services.righelpers.armhelpers.armhelpers import ArmHelpers
         for side in ["left", "right"]:
             helpers = ArmHelpers.get_instance(side, settings)
             helpers.apply_ik(armature_object)
         RigHelpersProperties.set_value("arm_mode", settings["arm_helpers_type"], entity_reference=armature_object)
 
     def _leg_helpers(self, armature_object, settings):
-        from mpfb.services.righelpers.leghelpers.leghelpers import LegHelpers
         for side in ["left", "right"]:
             helpers = LegHelpers.get_instance(side, settings)
             helpers.apply_ik(armature_object)
         RigHelpersProperties.set_value("leg_mode", settings["leg_helpers_type"], entity_reference=armature_object)
 
     def _finger_helpers(self, armature_object, settings):
-        from mpfb.services.righelpers.fingerhelpers.fingerhelpers import FingerHelpers
         for side in ["left", "right"]:
             helpers = FingerHelpers.get_instance(side, settings)
             helpers.apply_ik(armature_object)
         RigHelpersProperties.set_value("finger_mode", settings["finger_helpers_type"], entity_reference=armature_object)
 
     def _eye_helpers(self, armature_object, settings):
-        from mpfb.services.righelpers.eyehelpers.eyehelpers import EyeHelpers
+
         helpers = EyeHelpers.get_instance(settings)
         helpers.apply_ik(armature_object)
         RigHelpersProperties.set_value("eye_mode", "IK", entity_reference=armature_object)
@@ -51,7 +53,7 @@ class MPFB_OT_AddHelpersOperator(bpy.types.Operator):
             self.report({'ERROR'}, "Only the \"Default\" and \"Default no toes\" skeletons are supported so far")
             return {'FINISHED'}
 
-        from mpfb.ui.righelpers.righelperspanel import SETUP_HELPERS_PROPERTIES # pylint: disable=C0415
+        from mpfb.ui.righelpers.righelperspanel import SETUP_HELPERS_PROPERTIES  # pylint: disable=C0415
         settings = SETUP_HELPERS_PROPERTIES.as_dict(entity_reference=context.scene)
 
         if "arm_helpers_type" in settings and settings["arm_helpers_type"] and settings["arm_helpers_type"] != "NONE":
@@ -91,5 +93,6 @@ class MPFB_OT_AddHelpersOperator(bpy.types.Operator):
             return False
         # TODO: check current mode
         return True
+
 
 ClassManager.add_class(MPFB_OT_AddHelpersOperator)

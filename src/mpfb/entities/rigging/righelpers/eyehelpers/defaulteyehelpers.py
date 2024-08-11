@@ -6,7 +6,7 @@ from mpfb.services.logservice import LogService
 _LOG = LogService.get_logger("eyehelpers.defaulteyehelpers")
 
 from mpfb.services.rigservice import RigService
-from mpfb.services.righelpers.eyehelpers.eyehelpers import EyeHelpers
+from mpfb.entities.rigging.righelpers.eyehelpers.eyehelpers import EyeHelpers
 
 _ROTATION_LIMITS = {
         "lowereye01": {
@@ -44,6 +44,7 @@ _ROTATION_LOCKS = {
             "Z": True
             }
     }
+
 
 class DefaultEyeHelpers(EyeHelpers):
 

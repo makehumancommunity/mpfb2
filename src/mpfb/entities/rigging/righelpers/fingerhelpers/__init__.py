@@ -6,3 +6,8 @@ from mpfb.services.logservice import LogService
 
 _LOG = LogService.get_logger("fingerhelpers.init")
 _LOG.trace("initializing fingerhelpers module")
+
+from .fingerhelpers import FingerHelpers
+from .defaultfingerhelpers import DefaultFingerHelpers
+
+__all__ = ["FingerHelpers", "DefaultFingerHelpers"]

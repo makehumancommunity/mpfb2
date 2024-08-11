@@ -6,3 +6,8 @@ from mpfb.services.logservice import LogService
 
 _LOG = LogService.get_logger("armhelpers.init")
 _LOG.trace("initializing armhelpers module")
+
+from .armhelpers import ArmHelpers
+from .defaultarmhelpers import DefaultArmHelpers
+
+__all__ = ["ArmHelpers", "DefaultArmHelpers"]

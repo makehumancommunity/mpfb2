@@ -6,7 +6,7 @@ from mpfb.services.logservice import LogService
 _LOG = LogService.get_logger("leghelpers.defaultleghelpers")
 
 from mpfb.services.rigservice import RigService
-from mpfb.services.righelpers.leghelpers.leghelpers import LegHelpers
+from mpfb.entities.rigging.righelpers.leghelpers.leghelpers import LegHelpers
 
 _ROTATION_LIMITS = {
         "lowerleg01": {
@@ -50,6 +50,7 @@ _ROTATION_LOCKS = {
             "Z": True
             }
     }
+
 
 class DefaultLegHelpers(LegHelpers):
 
