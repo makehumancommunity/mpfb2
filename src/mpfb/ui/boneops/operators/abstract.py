@@ -4,7 +4,7 @@ import bpy
 import typing
 from mathutils import Vector
 
-from mpfb.entities.rig import Rig
+from ....entities.rig import Rig
 from ....services import LogService
 from ....services import ObjectService
 

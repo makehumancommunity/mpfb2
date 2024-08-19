@@ -2,10 +2,10 @@ from ....services import LogService
 from ....services import RigService
 from ...righelpers import RigHelpersProperties
 from .... import ClassManager
-from mpfb.entities.rigging.righelpers.armhelpers.armhelpers import ArmHelpers
-from mpfb.entities.rigging.righelpers.leghelpers.leghelpers import LegHelpers
-from mpfb.entities.rigging.righelpers.fingerhelpers.fingerhelpers import FingerHelpers
-from mpfb.entities.rigging.righelpers.eyehelpers.eyehelpers import EyeHelpers
+from ....entities.rigging.righelpers.armhelpers.armhelpers import ArmHelpers
+from ....entities.rigging.righelpers.leghelpers.leghelpers import LegHelpers
+from ....entities.rigging.righelpers.fingerhelpers.fingerhelpers import FingerHelpers
+from ....entities.rigging.righelpers.eyehelpers.eyehelpers import EyeHelpers
 import bpy
 
 _LOG = LogService.get_logger("setupikoperators.fingerfk")

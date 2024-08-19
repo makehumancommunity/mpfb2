@@ -9,7 +9,7 @@ from ...services import ObjectService
 from ...services import HumanService
 from ...services import TargetService
 from ...services import UiService
-from mpfb.entities.objectproperties import HumanObjectProperties
+from ...entities.objectproperties import HumanObjectProperties
 
 _LOG = LogService.get_logger("model.macrosubpanel")
 

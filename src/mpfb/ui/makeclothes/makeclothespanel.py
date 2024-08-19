@@ -9,7 +9,7 @@ from ...services import ObjectService
 from ...services import LocationService
 from ...services import MaterialService
 from ..makeclothes import MakeClothesObjectProperties
-from mpfb.entities.objectproperties import GeneralObjectProperties
+from ...entities.objectproperties import GeneralObjectProperties
 from ..abstractpanel import Abstract_Panel
 
 # TODO:

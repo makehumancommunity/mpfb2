@@ -3,7 +3,7 @@
 import bpy
 from bpy_extras.io_utils import ImportHelper
 from bpy.props import StringProperty
-from mpfb.entities.material.makeskinmaterial import MakeSkinMaterial
+from ....entities.material.makeskinmaterial import MakeSkinMaterial
 from ....services import LogService
 from ....services import ObjectService
 from ....services import RigService

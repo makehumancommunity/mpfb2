@@ -6,7 +6,7 @@ from bpy.props import StringProperty
 from ....services import LogService
 from ....services import LocationService
 from ....services import ObjectService
-from mpfb.entities.meshcrossref import MeshCrossRef
+from ....entities.meshcrossref import MeshCrossRef
 from .... import ClassManager
 
 _LOG = LogService.get_logger("makeclothes.basemesh_xref")

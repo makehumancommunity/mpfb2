@@ -5,7 +5,7 @@ from bpy.props import StringProperty
 from ....services import LogService
 from ....services import ObjectService
 from ....services import HumanService
-from mpfb.entities.objectproperties import GeneralObjectProperties
+from ....entities.objectproperties import GeneralObjectProperties
 from .... import ClassManager
 
 _LOG = LogService.get_logger("assetlibrary.unloadlibraryclothes")

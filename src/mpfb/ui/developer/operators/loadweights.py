@@ -2,7 +2,7 @@ from ....services import LogService
 from ....services import MaterialService
 from ....services import ObjectService
 from ....services import RigService
-from mpfb.entities.rig import Rig
+from ....entities.rig import Rig
 from .... import ClassManager
 import bpy, json, math
 from bpy.types import StringProperty

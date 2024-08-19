@@ -2,7 +2,7 @@
 
 import bpy
 
-from mpfb.entities.rig import Rig, CLOSE_MEAN_SEARCH_RADIUS
+from ....entities.rig import Rig, CLOSE_MEAN_SEARCH_RADIUS
 from ....services import LogService
 from .... import ClassManager
 

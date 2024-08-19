@@ -1,4 +1,4 @@
-from mpfb.entities.objectproperties import GeneralObjectProperties
+from ....entities.objectproperties import GeneralObjectProperties
 from ....services import LogService
 from ....services import ObjectService
 from ....services import RigService

@@ -7,7 +7,7 @@ from ...services import UiService
 from ...services import AssetService
 from ...services import SceneConfigSet
 from ..abstractpanel import Abstract_Panel
-from mpfb.entities.objectproperties import GeneralObjectProperties
+from ...entities.objectproperties import GeneralObjectProperties
 import os, bpy
 
 _LOG = LogService.get_logger("assetlibrary.alternativematerials")

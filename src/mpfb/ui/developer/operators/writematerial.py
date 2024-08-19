@@ -3,8 +3,8 @@
 from ....services import LocationService
 from ....services import LogService
 from ....services import NodeService
-from mpfb.entities.nodemodel.v2.primitives import *
-from mpfb.entities.nodemodel.v2.composites import *
+from ....entities.nodemodel.v2.primitives import *
+from ....entities.nodemodel.v2.composites import *
 from .... import ClassManager
 from ...developer.developerpanel import DEVELOPER_PROPERTIES
 from .rewritenodetypes import shorten_name, round_floats

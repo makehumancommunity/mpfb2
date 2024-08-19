@@ -3,7 +3,7 @@
 import bpy
 from ....services import LogService
 from ....services import MaterialService
-from mpfb.entities.material.makeskinmaterial import MakeSkinMaterial
+from ....entities.material.makeskinmaterial import MakeSkinMaterial
 from ...makeskin.makeskinpanel import MAKESKIN_PROPERTIES
 from .... import ClassManager
 

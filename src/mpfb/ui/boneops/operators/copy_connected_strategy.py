@@ -1,6 +1,6 @@
 """Operator for recomputing bone head or tail position from strategy."""
 
-from mpfb.entities.rig import Rig
+from ....entities.rig import Rig
 from ....services import LogService
 from .... import ClassManager
 

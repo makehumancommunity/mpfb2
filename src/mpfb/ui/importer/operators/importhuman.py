@@ -10,10 +10,10 @@ from ...importer.importerpanel import IMPORTER_PROPERTIES
 from ...importerpresets.importerpresetspanel import IMPORTER_PRESETS_PROPERTIES
 from ...mpfboperator import MpfbOperator
 from .... import ClassManager
-from mpfb.entities.socketobject.socketbodyobject import SocketBodyObject
-from mpfb.entities.socketobject.socketproxyobject import SocketProxyObject
-from mpfb.entities.material.makeskinmaterial import MakeSkinMaterial
-from mpfb.entities.material.enhancedskinmaterial import EnhancedSkinMaterial
+from ....entities.socketobject.socketbodyobject import SocketBodyObject
+from ....entities.socketobject.socketproxyobject import SocketProxyObject
+from ....entities.material.makeskinmaterial import MakeSkinMaterial
+from ....entities.material.enhancedskinmaterial import EnhancedSkinMaterial
 import bpy, os, json
 
 _LOG = LogService.get_logger("newhuman.importhuman")

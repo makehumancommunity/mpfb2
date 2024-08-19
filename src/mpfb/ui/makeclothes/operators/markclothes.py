@@ -2,7 +2,7 @@
 
 import bpy
 from ....services import LogService
-from mpfb.entities.objectproperties import GeneralObjectProperties
+from ....entities.objectproperties import GeneralObjectProperties
 from .... import ClassManager
 
 _LOG = LogService.get_logger("makeclothes.markclothes")

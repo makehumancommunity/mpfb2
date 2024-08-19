@@ -6,7 +6,7 @@ from bpy.props import StringProperty
 from ....services import LogService
 from ....services import MaterialService
 from .... import ClassManager
-from mpfb.entities.material.makeskinmaterial import MakeSkinMaterial
+from ....entities.material.makeskinmaterial import MakeSkinMaterial
 
 _LOG = LogService.get_logger("makeskin.writematerial")
 

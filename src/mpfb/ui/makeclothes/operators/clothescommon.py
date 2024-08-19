@@ -7,8 +7,8 @@ from ....services import ObjectService
 from ....services import ClothesService
 from ....services import MaterialService
 from ...makeclothes import MakeClothesObjectProperties
-from mpfb.entities.objectproperties import GeneralObjectProperties
-from mpfb.entities.material.makeskinmaterial import MakeSkinMaterial
+from ....entities.objectproperties import GeneralObjectProperties
+from ....entities.material.makeskinmaterial import MakeSkinMaterial
 from .... import ClassManager
 
 _LOG = LogService.get_logger("makeclothes.clothescommon")

@@ -3,7 +3,7 @@
 import bpy
 from ....services import LogService
 from ....services import ObjectService
-from mpfb.entities.rigging.rigifyhelpers.rigifyhelpers import RigifyHelpers
+from ....entities.rigging.rigifyhelpers.rigifyhelpers import RigifyHelpers
 from ....services import RigService
 from ....services import SystemService
 from .... import ClassManager

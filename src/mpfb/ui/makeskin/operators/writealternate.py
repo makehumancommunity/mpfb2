@@ -8,9 +8,9 @@ from ....services import AssetService
 from ....services import LocationService
 from ....services import MaterialService
 from ....services import ObjectService
-from mpfb.entities.objectproperties import GeneralObjectProperties
+from ....entities.objectproperties import GeneralObjectProperties
 from .... import ClassManager
-from mpfb.entities.material.makeskinmaterial import MakeSkinMaterial
+from ....entities.material.makeskinmaterial import MakeSkinMaterial
 
 _LOG = LogService.get_logger("makeskin.writealternate")
 
