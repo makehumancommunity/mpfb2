@@ -1,13 +1,12 @@
-"""This is the MakeHuman Plugin For Blender (MPFB). For more information, see
-the README.md file in the zip."""
+"""This is the main file for MPFB. For more information, see the README.md file in the zip."""
 
 bl_info = {  # pylint: disable=C0103
     "name": "mpfb",
     "author": "Joel Palmius",
     "version": (2, 0, 5),
-    "blender": (4, 1, 0),
+    "blender": (4, 2, 0),
     "location": "View3D > Properties > MPFB",
-    "description": "MakeHuman Plugin For Blender",
+    "description": "Free and open source human character editor",
     "doc_url": "http://static.makehumancommunity.org/mpfb.html",
     "tracker_url": "https://github.com/makehumancommunity/mpfb2/issues",
     "category": "MakeHuman"}
@@ -54,8 +53,8 @@ def get_preference(name):
     global _DEBUG
     if _DEBUG:
         print("get_preference()")
-    if "mpfb" in bpy.context.preferences.addons:
-        mpfb = bpy.context.preferences.addons['mpfb']
+    if __package__ in bpy.context.preferences.addons:
+        mpfb = bpy.context.preferences.addons[__package__]
         if hasattr(mpfb, "preferences"):
             prefs = mpfb.preferences
             if hasattr(prefs, name):
@@ -68,9 +67,9 @@ def get_preference(name):
             print("hasattr", hasattr(prefs, name))
             print("name in", name in prefs)
             return None
-        print("The 'mpfb' addon does not have any preferences!?")
+        print("The '" + __package__ + "' addon does not have any preferences!?")
         raise ValueError("Preferences have not been initialized properly")
-    print("The 'mpfb' addon does not exist!?")
+    print("The '" + __package__ + "' addon does not exist!?")
     raise ValueError("I don't seem to exist")
 
 
@@ -91,7 +90,7 @@ def register():
     except:
         print("WARNING: Could not register preferences class. Maybe it was registered by an earlier version of MPFB?")
 
-    from .services import LogService
+    from .services import LogService  # This will also cascade import the other services
     _LOG = LogService.get_logger("mpfb.init")
     _LOG.info("Build info", "FROM_SOURCE")
     _LOG.reset_timer()
@@ -129,10 +128,9 @@ def register():
 
     if SystemService.is_blender_version_at_least():
         _LOG.debug("About to check if MakeHuman is online")
+
         # Try to find out where the makehuman user data is at
-        import mpfb.services.socketservice
-        from .services import LocationService
-        from .services import SocketService
+        from .services import LocationService, SocketService
         if LocationService.is_mh_auto_user_data_enabled():
             mh_user_dir = None
             try:
@@ -159,4 +157,5 @@ def unregister():
     ClassManager.unregister_classes()
 
 
-__all__ = ["VERSION"]
+__all__ = ["VERSION", "BUILD_INFO", "ClassManager"]
+

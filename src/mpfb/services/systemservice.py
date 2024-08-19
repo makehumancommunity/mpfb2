@@ -4,7 +4,8 @@ import os, sys, subprocess, bpy, addon_utils, re
 from .logservice import LogService
 _LOG = LogService.get_logger("services.systemservice")
 
-LOWEST_FUNCTIONAL_BLENDER_VERSION = (4, 1, 0)
+LOWEST_FUNCTIONAL_BLENDER_VERSION = (4, 2, 0)
+
 
 class SystemService:
     """Utility functions for various system tasks."""
@@ -39,7 +40,7 @@ class SystemService:
             subprocess.call(["xdg-open", path])
             return
         if platform == "WINDOWS":
-            os.startfile(path) # pylint: disable=E1101
+            os.startfile(path)  # pylint: disable=E1101
             return
         if platform == "MACOS":
             subprocess.call(["open", path])
@@ -57,7 +58,7 @@ class SystemService:
         """Check if the Blender Rigify addon is installed."""
         if not hasattr(bpy.ops.pose, "rigify_generate"):
             return False
-        (loaded_default, loaded_state) = addon_utils.check('rigify') # pylint: disable=W0612
+        (loaded_default, loaded_state) = addon_utils.check('rigify')  # pylint: disable=W0612
         return loaded_state
 
     @staticmethod

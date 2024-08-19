@@ -1,4 +1,4 @@
-"""This file handles addon preferences."""
+"""This file handles addon preferences for MPFB."""
 
 import bpy
 
