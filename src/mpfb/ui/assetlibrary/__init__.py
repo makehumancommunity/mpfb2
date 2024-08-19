@@ -1,7 +1,7 @@
 """This module contains functionality for loading assets from the library."""
 
-from mpfb.services import LogService as _LogService
-_LOG = _LogService.get_logger("assetlibrary.init")
+from ...services import LogService
+_LOG = LogService.get_logger("assetlibrary.init")
 _LOG.trace("initializing asset library module")
 
 from .operators import *

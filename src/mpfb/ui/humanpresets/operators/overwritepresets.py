@@ -1,8 +1,8 @@
-from mpfb.services.logservice import LogService
-from mpfb.services.locationservice import LocationService
-from mpfb.services.objectservice import ObjectService
-from mpfb.services.humanservice import HumanService
-from mpfb.services.rigservice import RigService
+from ....services import LogService
+from ....services import LocationService
+from ....services import ObjectService
+from ....services import HumanService
+from ....services import RigService
 from mpfb.ui.humanpresets.humanpresetspanel import HUMAN_PRESETS_PROPERTIES
 from mpfb._classmanager import ClassManager
 import bpy, os

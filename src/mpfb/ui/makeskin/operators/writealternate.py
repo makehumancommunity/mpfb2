@@ -3,11 +3,11 @@
 import bpy, os
 from bpy_extras.io_utils import ExportHelper
 from bpy.props import StringProperty
-from mpfb.services.logservice import LogService
-from mpfb.services.assetservice import AssetService
-from mpfb.services.locationservice import LocationService
-from mpfb.services.materialservice import MaterialService
-from mpfb.services.objectservice import ObjectService
+from ....services import LogService
+from ....services import AssetService
+from ....services import LocationService
+from ....services import MaterialService
+from ....services import ObjectService
 from mpfb.entities.objectproperties import GeneralObjectProperties
 from mpfb import ClassManager
 from mpfb.entities.material.makeskinmaterial import MakeSkinMaterial

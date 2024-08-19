@@ -1,7 +1,7 @@
-from mpfb.services.logservice import LogService
-from mpfb.services.materialservice import MaterialService
-from mpfb.services.objectservice import ObjectService
-from mpfb.services.rigservice import RigService
+from ....services import LogService
+from ....services import MaterialService
+from ....services import ObjectService
+from ....services import RigService
 from mpfb.entities.rig import Rig
 from mpfb._classmanager import ClassManager
 import bpy, json, math, re

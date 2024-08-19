@@ -1,11 +1,11 @@
 """Operator for Generating a rigify rig."""
 
 import bpy
-from mpfb.services.logservice import LogService
-from mpfb.services.objectservice import ObjectService
+from ....services import LogService
+from ....services import ObjectService
 from mpfb.entities.rigging.rigifyhelpers.rigifyhelpers import RigifyHelpers
-from mpfb.services.rigservice import RigService
-from mpfb.services.systemservice import SystemService
+from ....services import RigService
+from ....services import SystemService
 from mpfb import ClassManager
 
 _LOG = LogService.get_logger("addrig.generate_rigify_rig")

@@ -4,9 +4,9 @@ import bpy
 from bpy_extras.io_utils import ImportHelper
 from bpy.props import StringProperty
 from mpfb.entities.material.makeskinmaterial import MakeSkinMaterial
-from mpfb.services.logservice import LogService
-from mpfb.services.rigservice import RigService
-from mpfb.services.objectservice import ObjectService
+from ....services import LogService
+from ....services import RigService
+from ....services import ObjectService
 from mpfb import ClassManager
 
 _LOG = LogService.get_logger("poseops.copy_pose")

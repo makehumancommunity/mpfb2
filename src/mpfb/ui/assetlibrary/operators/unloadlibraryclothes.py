@@ -2,9 +2,9 @@
 
 import bpy
 from bpy.props import StringProperty
-from mpfb.services.logservice import LogService
-from mpfb.services.objectservice import ObjectService
-from mpfb.services.humanservice import HumanService
+from ....services import LogService
+from ....services import ObjectService
+from ....services import HumanService
 from mpfb.entities.objectproperties import GeneralObjectProperties
 from mpfb import ClassManager
 

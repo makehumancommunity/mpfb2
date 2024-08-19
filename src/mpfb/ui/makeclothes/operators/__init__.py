@@ -1,7 +1,7 @@
 """Operators for MakeClothes."""
 
-from mpfb.services import LogService as _LogService
-_LOG = _LogService.get_logger("makeclothes.operators")
+from ....services import LogService
+_LOG = LogService.get_logger("makeclothes.operators")
 _LOG.trace("initializing makeclothes operators module")
 
 from .extractclothes import MPFB_OT_ExtractClothesOperator

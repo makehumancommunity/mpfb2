@@ -2,10 +2,10 @@
 
 import os, bpy
 
-from mpfb.services import LogService as _LogService
-from mpfb.services.blenderconfigset import BlenderConfigSet
+from ...services import LogService
+from ...services import BlenderConfigSet
 
-_LOG = _LogService.get_logger("makeclothes.init")
+_LOG = LogService.get_logger("makeclothes.init")
 _LOG.trace("initializing makeclothes module")
 
 _ROOT = os.path.dirname(__file__)

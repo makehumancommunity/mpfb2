@@ -1,11 +1,11 @@
 """Operator for creating a new human object."""
 
 import bpy
-from mpfb.services.logservice import LogService
-from mpfb.services.targetservice import TargetService
-from mpfb.services.humanservice import HumanService
-from mpfb.services.systemservice import SystemService
-from mpfb.services.meshservice import MeshService
+from ....services import LogService
+from ....services import TargetService
+from ....services import HumanService
+from ....services import SystemService
+from ....services import MeshService
 from mpfb.ui.mpfboperator import MpfbOperator
 from mpfb import ClassManager
 

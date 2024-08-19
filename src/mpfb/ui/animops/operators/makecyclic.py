@@ -1,9 +1,9 @@
-from mpfb.services.logservice import LogService
-from mpfb.services.locationservice import LocationService
-from mpfb.services.materialservice import MaterialService
-from mpfb.services.objectservice import ObjectService
-from mpfb.services.animationservice import AnimationService
-from mpfb.services.rigservice import RigService
+from ....services import LogService
+from ....services import LocationService
+from ....services import MaterialService
+from ....services import ObjectService
+from ....services import AnimationService
+from ....services import RigService
 from mpfb._classmanager import ClassManager
 from mpfb.ui.mpfboperator import MpfbOperator
 import bpy, json, math, os

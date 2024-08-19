@@ -1,7 +1,7 @@
 """Operators for new human."""
 
-from mpfb.services import LogService as _LogService
-_LOG = _LogService.get_logger("newhuman.operators")
+from ....services import LogService
+_LOG = LogService.get_logger("newhuman.operators")
 _LOG.trace("initializing new human operators module")
 
 from .createhuman import MPFB_OT_CreateHumanOperator

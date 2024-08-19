@@ -1,9 +1,9 @@
 """Functionality for reconstructing the shade node type v2 model."""
 
-from mpfb.services.locationservice import LocationService
-from mpfb.services.logservice import LogService
-from mpfb.services.nodeservice import NodeService
-from mpfb.services.objectservice import ObjectService
+from ....services import LocationService
+from ....services import LogService
+from ....services import NodeService
+from ....services import ObjectService
 from mpfb._classmanager import ClassManager
 from mpfb.ui.developer.developerpanel import DEVELOPER_PROPERTIES
 import bpy, os, json
@@ -84,8 +84,8 @@ class MPFB_OT_Rewrite_Node_Types_Operator(bpy.types.Operator):
         with open(v2test, "w") as pyfile:
             pyfile.write("import bpy, os\n")
             pyfile.write("from pytest import approx\n")
-            pyfile.write("from mpfb.services.objectservice import ObjectService\n")
-            pyfile.write("from mpfb.services.nodeservice import NodeService\n")
+            pyfile.write("from ....services import ObjectService\n")
+            pyfile.write("from ....services import NodeService\n")
             pyfile.write("from mpfb.entities.nodemodel.v2 import *\n\n")
             pyfile.write("def test_primitives_are_available():\n")
             for node_class in valid_node_class_names:

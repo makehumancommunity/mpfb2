@@ -1,9 +1,9 @@
 """This file contains the developer panel."""
 
 from mpfb._classmanager import ClassManager
-from mpfb.services.logservice import LogService
-from mpfb.services.uiservice import UiService
-from mpfb.services.sceneconfigset import SceneConfigSet
+from ...services import LogService
+from ...services import UiService
+from ...services import SceneConfigSet
 import bpy, os
 
 _LOG = LogService.get_logger("ui.developerpanel")

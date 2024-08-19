@@ -2,12 +2,13 @@
 
 import bpy, platform, sys, traceback
 from datetime import date
-from mpfb.services.logservice import LogService
-from mpfb.services.locationservice import LocationService
-from mpfb.services.objectservice import ObjectService
+from ..services import LogService
+from ..services import LocationService
+from ..services import ObjectService
 from mpfb import VERSION, BUILD_INFO
 
 _LOG = LogService.get_logger("uiactions")
+
 
 class MpfbOperator(bpy.types.Operator):
     """Abstract wrapper for UI operators, providing help for writing error summaries"""
@@ -68,7 +69,7 @@ class MpfbOperator(bpy.types.Operator):
         out = out + tb
 
         dt = date.today()
-        fn = LocationService.get_log_dir("error_report_" + dt.strftime('%Y%m%d') +".txt")
+        fn = LocationService.get_log_dir("error_report_" + dt.strftime('%Y%m%d') + ".txt")
 
         with open(fn, "w") as f:
             f.write(out)
@@ -84,12 +85,12 @@ class MpfbOperator(bpy.types.Operator):
         """The excute method called by blender. This will wrap the actual execute method in a try/except block. If an exception is raised, it will be logged
         and a summary of the error will be written to a log file."""
         self.LOG.enter()
-        _LOG.info("Executing %s" % self.__class__.__name__)
+        _LOG.debug("Executing %s" % self.__class__.__name__)
         try:
             return self.hardened_execute(context)
         except Exception as e:
             self.LOG.crash("Execution caused an exception", self._generate_error_information(context, e, traceback.format_exc()))
-            #print(traceback.format_exc())
+            # print(traceback.format_exc())
             self.report({'ERROR'}, "An unhandled exception was encountered: %s. See console or log for information to provide in error report." % e)
             return {'CANCELLED'}
 

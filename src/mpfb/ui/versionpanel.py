@@ -1,8 +1,8 @@
 import bpy, sys
 from mpfb._classmanager import ClassManager
-from mpfb.services.logservice import LogService
-from mpfb.services.systemservice import SystemService
-from mpfb.services.systemservice import LOWEST_FUNCTIONAL_BLENDER_VERSION
+from ..services import LogService
+from ..services import SystemService
+from ..services import LOWEST_FUNCTIONAL_BLENDER_VERSION
 from mpfb.ui.abstractpanel import Abstract_Panel
 from mpfb import BUILD_INFO, VERSION
 

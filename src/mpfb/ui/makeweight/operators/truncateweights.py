@@ -4,8 +4,8 @@ import bpy
 from pathlib import Path
 from bpy_extras.io_utils import ImportHelper
 from bpy.props import StringProperty
-from mpfb.services.logservice import LogService
-from mpfb.services.objectservice import ObjectService
+from ....services import LogService
+from ....services import ObjectService
 from mpfb.ui.makeweight.makeweightpanel import MAKEWEIGHT_PROPERTIES
 from mpfb import ClassManager
 

@@ -1,8 +1,8 @@
 """File containing the base class for UI panels"""
 
 import bpy
-from mpfb.services.logservice import LogService
-from mpfb.services.uiservice import UiService
+from ..services import LogService
+from ..services import UiService
 
 _LOG = LogService.get_logger("ui.abstractpanel")
 

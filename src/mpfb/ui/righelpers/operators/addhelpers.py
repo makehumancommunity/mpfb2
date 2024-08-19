@@ -1,5 +1,5 @@
-from mpfb.services.logservice import LogService
-from mpfb.services.rigservice import RigService
+from ....services import LogService
+from ....services import RigService
 from mpfb.ui.righelpers import RigHelpersProperties
 from mpfb._classmanager import ClassManager
 from mpfb.entities.rigging.righelpers.armhelpers.armhelpers import ArmHelpers

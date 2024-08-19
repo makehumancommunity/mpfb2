@@ -1,5 +1,5 @@
-from mpfb.services.logservice import LogService
-from mpfb.services.systemservice import SystemService
+from ..services import LogService
+from ..services import SystemService
 
 _LOG = LogService.get_logger("ui.init")
 _LOG.trace("initializing ui module")

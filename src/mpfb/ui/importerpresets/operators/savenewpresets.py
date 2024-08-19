@@ -1,7 +1,7 @@
 
-from mpfb.services.logservice import LogService
-from mpfb.services.uiservice import UiService
-from mpfb.services.locationservice import LocationService
+from ....services import LogService
+from ....services import UiService
+from ....services import LocationService
 from mpfb.ui.importerpresets.importerpresetspanel import IMPORTER_PRESETS_PROPERTIES
 from mpfb._classmanager import ClassManager
 import bpy, os

@@ -1,6 +1,6 @@
 """Functionality for listing log levels"""
 
-from mpfb.services.logservice import LogService
+from ....services import LogService
 from mpfb._classmanager import ClassManager
 from mpfb.ui.mpfboperator import MpfbOperator
 import bpy

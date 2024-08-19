@@ -2,11 +2,11 @@
 
 import os, bpy
 from mpfb import ClassManager
-from mpfb.services.logservice import LogService
-from mpfb.services.sceneconfigset import SceneConfigSet
-from mpfb.services.uiservice import UiService
+from ...services import LogService
+from ...services import SceneConfigSet
+from ...services import UiService
 from mpfb.ui.makeskin import MakeSkinObjectProperties
-from mpfb.services.materialservice import MaterialService
+from ...services import MaterialService
 from mpfb.ui.abstractpanel import Abstract_Panel
 
 _LOC = os.path.dirname(__file__)

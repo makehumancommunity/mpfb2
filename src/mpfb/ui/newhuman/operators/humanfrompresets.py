@@ -1,12 +1,12 @@
 """Operator for creating a new human object from presets."""
 
 import bpy
-from mpfb.services.logservice import LogService
-from mpfb.services.locationservice import LocationService
-from mpfb.services.humanservice import HumanService
-from mpfb.services.objectservice import ObjectService
-from mpfb.services.meshservice import MeshService
-from mpfb.services.systemservice import SystemService
+from ....services import LogService
+from ....services import LocationService
+from ....services import HumanService
+from ....services import ObjectService
+from ....services import MeshService
+from ....services import SystemService
 from mpfb.ui.mpfboperator import MpfbOperator
 from mpfb import ClassManager
 

@@ -1,5 +1,5 @@
-from mpfb.services import LogService as _LogService
-_LOG = _LogService.get_logger("ui.humanpresets")
+from ...services import LogService
+_LOG = LogService.get_logger("ui.humanpresets")
 _LOG.trace("initializing save nodes module")
 
 from .humanpresetspanel import MPFB_PT_Human_Presets_Panel

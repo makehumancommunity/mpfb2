@@ -3,8 +3,8 @@
 import bpy, os
 from bpy_extras.io_utils import ExportHelper
 from bpy.props import StringProperty
-from mpfb.services.logservice import LogService
-from mpfb.services.materialservice import MaterialService
+from ....services import LogService
+from ....services import MaterialService
 from mpfb import ClassManager
 from mpfb.entities.material.makeskinmaterial import MakeSkinMaterial
 

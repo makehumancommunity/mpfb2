@@ -1,8 +1,8 @@
 """Functionality for writing a node group to v2 model composite directory"""
 
-from mpfb.services.locationservice import LocationService
-from mpfb.services.logservice import LogService
-from mpfb.services.nodeservice import NodeService
+from ....services import LocationService
+from ....services import LogService
+from ....services import NodeService
 from mpfb.entities.nodemodel.v2.primitives import *
 from mpfb.entities.nodemodel.v2.composites import *
 from mpfb._classmanager import ClassManager
@@ -212,8 +212,8 @@ class MPFB_OT_Write_Composite_Operator(bpy.types.Operator):
         with open(v2test, "w") as pyfile:
             pyfile.write("import bpy, os\n")
             pyfile.write("from pytest import approx\n")
-            pyfile.write("from mpfb.services.objectservice import ObjectService\n")
-            pyfile.write("from mpfb.services.nodeservice import NodeService\n")
+            pyfile.write("from ....services import ObjectService\n")
+            pyfile.write("from ....services import NodeService\n")
             pyfile.write("from mpfb.entities.nodemodel.v2.composites.nodewrapper" + output_name.lower() + " import NodeWrapper" + output_name + "\n\n")
             pyfile.write("def test_composite_is_available():\n")
             pyfile.write("    assert NodeWrapper" + output_name + "\n\n")

@@ -3,9 +3,9 @@
 import bpy, os, shutil
 from bpy_extras.io_utils import ExportHelper
 from bpy.props import StringProperty
-from mpfb.services.logservice import LogService
-from mpfb.services.locationservice import LocationService
-from mpfb.services.objectservice import ObjectService
+from ....services import LogService
+from ....services import LocationService
+from ....services import ObjectService
 from mpfb.entities.meshcrossref import MeshCrossRef
 from mpfb import ClassManager
 

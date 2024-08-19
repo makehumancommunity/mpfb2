@@ -1,8 +1,8 @@
 
-from mpfb.services import LogService as _LogService
-from mpfb.services.blenderconfigset import BlenderConfigSet
+from ...services import LogService
+from ...services import BlenderConfigSet
 
-_LOG = _LogService.get_logger("righelpers.init")
+_LOG = LogService.get_logger("righelpers.init")
 _LOG.trace("initializing setup rig helpers module")
 
 import os, bpy

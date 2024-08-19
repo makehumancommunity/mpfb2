@@ -1,12 +1,12 @@
 import os, bpy
 from mpfb._classmanager import ClassManager
-from mpfb.services.logservice import LogService
-from mpfb.services.locationservice import LocationService
-from mpfb.services.objectservice import ObjectService
-from mpfb.services.sceneconfigset import SceneConfigSet
-from mpfb.services.uiservice import UiService
-from mpfb.services.materialservice import MaterialService
-from mpfb.services.rigservice import RigService
+from ...services import LogService
+from ...services import LocationService
+from ...services import ObjectService
+from ...services import SceneConfigSet
+from ...services import UiService
+from ...services import MaterialService
+from ...services import RigService
 from mpfb.ui.abstractpanel import Abstract_Panel
 
 _LOG = LogService.get_logger("animops.animopspanel")

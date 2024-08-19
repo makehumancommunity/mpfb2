@@ -2,10 +2,10 @@
 
 import bpy, os
 from mpfb import ClassManager
-from mpfb.services.logservice import LogService
-from mpfb.services.uiservice import UiService
-from mpfb.services.humanservice import HumanService
-from mpfb.services.sceneconfigset import SceneConfigSet
+from ...services import LogService
+from ...services import UiService
+from ...services import HumanService
+from ...services import SceneConfigSet
 from mpfb.ui.abstractpanel import Abstract_Panel
 
 _LOG = LogService.get_logger("newhuman.frompresetspanel")

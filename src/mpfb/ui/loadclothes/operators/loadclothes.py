@@ -3,11 +3,11 @@
 import bpy, os
 from bpy_extras.io_utils import ImportHelper
 from bpy.props import StringProperty
-from mpfb.services.logservice import LogService
-from mpfb.services.objectservice import ObjectService
-from mpfb.services.materialservice import MaterialService
-from mpfb.services.clothesservice import ClothesService
-from mpfb.services.humanservice import HumanService
+from ....services import LogService
+from ....services import ObjectService
+from ....services import MaterialService
+from ....services import ClothesService
+from ....services import HumanService
 from mpfb.entities.clothes.mhclo import Mhclo
 from mpfb.entities.objectproperties import GeneralObjectProperties
 from mpfb.entities.material.makeskinmaterial import MakeSkinMaterial

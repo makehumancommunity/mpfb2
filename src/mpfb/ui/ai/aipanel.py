@@ -1,9 +1,9 @@
 """This file contains the AI panel."""
 
 from mpfb._classmanager import ClassManager
-from mpfb.services.logservice import LogService
-from mpfb.services.uiservice import UiService
-from mpfb.services.sceneconfigset import SceneConfigSet
+from ...services import LogService
+from ...services import UiService
+from ...services import SceneConfigSet
 from mpfb.ui.abstractpanel import Abstract_Panel
 import bpy, os
 

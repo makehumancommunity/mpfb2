@@ -1,9 +1,9 @@
 """This file contains the dir resources panel."""
 
 from mpfb._classmanager import ClassManager
-from mpfb.services.logservice import LogService
-from mpfb.services.locationservice import LocationService
-from mpfb.services.uiservice import UiService
+from ...services import LogService
+from ...services import LocationService
+from ...services import UiService
 from mpfb.ui.abstractpanel import Abstract_Panel
 
 _LOG = LogService.get_logger("dirresources.dirresourcespanel")

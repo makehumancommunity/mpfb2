@@ -3,12 +3,12 @@
 import bpy, os, json
 from bpy.props import FloatProperty
 from mpfb import ClassManager
-from mpfb.services.logservice import LogService
-from mpfb.services.locationservice import LocationService
-from mpfb.services.objectservice import ObjectService
-from mpfb.services.humanservice import HumanService
-from mpfb.services.targetservice import TargetService
-from mpfb.services.uiservice import UiService
+from ...services import LogService
+from ...services import LocationService
+from ...services import ObjectService
+from ...services import HumanService
+from ...services import TargetService
+from ...services import UiService
 from mpfb.entities.objectproperties import HumanObjectProperties
 
 _LOG = LogService.get_logger("model.macrosubpanel")

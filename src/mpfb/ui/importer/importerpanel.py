@@ -1,8 +1,8 @@
 import os, bpy
 from mpfb._classmanager import ClassManager
-from mpfb.services.logservice import LogService
-from mpfb.services.sceneconfigset import SceneConfigSet
-from mpfb.services.uiservice import UiService
+from ...services import LogService
+from ...services import SceneConfigSet
+from ...services import UiService
 from mpfb.ui.abstractpanel import Abstract_Panel
 
 _LOG = LogService.get_logger("importer.importerpanel")

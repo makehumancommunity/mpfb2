@@ -1,7 +1,7 @@
 """Operator for saving new eye material settings."""
 
-from mpfb.services.logservice import LogService
-from mpfb.services.locationservice import LocationService
+from ....services import LogService
+from ....services import LocationService
 from mpfb.ui.eyesettings.eyesettingspanel import EYE_SETTINGS_PROPERTIES
 from mpfb._classmanager import ClassManager
 import bpy, os

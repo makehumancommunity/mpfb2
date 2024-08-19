@@ -2,11 +2,11 @@
 
 import bpy, os
 from bpy.props import StringProperty
-from mpfb.services.logservice import LogService
-from mpfb.services.objectservice import ObjectService
-from mpfb.services.materialservice import MaterialService
-from mpfb.services.clothesservice import ClothesService
-from mpfb.services.rigservice import RigService
+from ....services import LogService
+from ....services import ObjectService
+from ....services import MaterialService
+from ....services import ClothesService
+from ....services import RigService
 from mpfb.entities.clothes.mhclo import Mhclo
 from mpfb.entities.socketobject import ALL_EXTRA_GROUPS
 from mpfb.entities.objectproperties import GeneralObjectProperties

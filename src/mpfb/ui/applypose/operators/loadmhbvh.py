@@ -1,7 +1,7 @@
 import bpy, json, math, os
 from bpy.props import StringProperty
-from mpfb.services.logservice import LogService
-from mpfb.services.animationservice import AnimationService
+from ....services import LogService
+from ....services import AnimationService
 from mpfb.ui.mpfboperator import MpfbOperator
 from mpfb._classmanager import ClassManager
 from bpy_extras.io_utils import ImportHelper

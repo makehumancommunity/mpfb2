@@ -2,12 +2,12 @@
 
 import bpy, math
 from mpfb import ClassManager
-from mpfb.services.logservice import LogService
-from mpfb.services.assetservice import AssetService, ASSET_LIBRARY_SECTIONS
-from mpfb.services.humanservice import HumanService
-from mpfb.services.objectservice import ObjectService
+from ...services import LogService
+from ...services import AssetService, ASSET_LIBRARY_SECTIONS
+from ...services import HumanService
+from ...services import ObjectService
 from mpfb.ui.assetlibrary.assetsettingspanel import ASSET_SETTINGS_PROPERTIES
-from mpfb.services.uiservice import UiService
+from ...services import UiService
 from mpfb.ui.assetspanel import FILTER_PROPERTIES
 
 _LOG = LogService.get_logger("assetlibrary.assetlibrarypanel")

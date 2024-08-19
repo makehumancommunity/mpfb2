@@ -1,7 +1,7 @@
 """Icons for the modeling panels"""
 
-from mpfb.services.locationservice import LocationService
-from mpfb.services.logservice import LogService
+from ...services import LocationService
+from ...services import LogService
 import bpy.utils.previews
 import os, re
 

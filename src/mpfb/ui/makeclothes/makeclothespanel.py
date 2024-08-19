@@ -2,12 +2,12 @@
 
 import os, bpy
 from mpfb import ClassManager
-from mpfb.services.logservice import LogService
-from mpfb.services.sceneconfigset import SceneConfigSet
-from mpfb.services.uiservice import UiService
-from mpfb.services.objectservice import ObjectService
-from mpfb.services.locationservice import LocationService
-from mpfb.services.materialservice import MaterialService
+from ...services import LogService
+from ...services import SceneConfigSet
+from ...services import UiService
+from ...services import ObjectService
+from ...services import LocationService
+from ...services import MaterialService
 from mpfb.ui.makeclothes import MakeClothesObjectProperties
 from mpfb.entities.objectproperties import GeneralObjectProperties
 from mpfb.ui.abstractpanel import Abstract_Panel

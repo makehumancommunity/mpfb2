@@ -1,8 +1,8 @@
 """Operator for creating a template MakeSkin material."""
 
 import bpy
-from mpfb.services.logservice import LogService
-from mpfb.services.materialservice import MaterialService
+from ....services import LogService
+from ....services import MaterialService
 from mpfb.entities.material.makeskinmaterial import MakeSkinMaterial
 from mpfb.ui.makeskin.makeskinpanel import MAKESKIN_PROPERTIES
 from mpfb import ClassManager

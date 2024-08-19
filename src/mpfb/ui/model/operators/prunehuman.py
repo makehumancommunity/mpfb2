@@ -1,9 +1,9 @@
 """Operator for pruning shapekeys."""
 
 import bpy
-from mpfb.services.logservice import LogService
-from mpfb.services.targetservice import TargetService
-from mpfb.services.objectservice import ObjectService
+from ....services import LogService
+from ....services import TargetService
+from ....services import ObjectService
 from mpfb import ClassManager
 
 _LOG = LogService.get_logger("model.prunehuman")

@@ -2,9 +2,9 @@
 
 import bpy
 
-from mpfb.services.humanservice import HumanService
-from mpfb.services.logservice import LogService
-from mpfb.services.objectservice import ObjectService
+from ....services import HumanService
+from ....services import LogService
+from ....services import ObjectService
 from mpfb import ClassManager
 
 _LOG = LogService.get_logger("addrig.add_standard_rig")

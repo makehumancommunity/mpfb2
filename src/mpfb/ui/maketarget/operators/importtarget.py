@@ -4,9 +4,9 @@ import bpy
 from pathlib import Path
 from bpy_extras.io_utils import ImportHelper
 from bpy.props import StringProperty
-from mpfb.services.logservice import LogService
-from mpfb.services.objectservice import ObjectService
-from mpfb.services.targetservice import TargetService
+from ....services import LogService
+from ....services import ObjectService
+from ....services import TargetService
 from mpfb.ui.maketarget import MakeTargetObjectProperties
 from mpfb import ClassManager
 

@@ -1,4 +1,4 @@
-from mpfb.services.logservice import LogService
+from ....services import LogService
 _LOG = LogService.get_logger("humanpresets.operators.init")
 _LOG.trace("initializing human presets operators")
 

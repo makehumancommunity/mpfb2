@@ -1,8 +1,8 @@
 """Operator for creating template clothes from base mesh helpers."""
 
 import bpy
-from mpfb.services.logservice import LogService
-from mpfb.services.objectservice import ObjectService
+from ....services import LogService
+from ....services import ObjectService
 from mpfb import ClassManager
 
 _LOG = LogService.get_logger("makeclothes.extractclothes")

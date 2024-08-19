@@ -1,7 +1,7 @@
 """Operators for modeling."""
 
-from mpfb.services import LogService as _LogService
-_LOG = _LogService.get_logger("model.operators")
+from ....services import LogService
+_LOG = LogService.get_logger("model.operators")
 _LOG.trace("initializing model operators module")
 
 from .refithuman import MPFB_OT_RefitHumanOperator

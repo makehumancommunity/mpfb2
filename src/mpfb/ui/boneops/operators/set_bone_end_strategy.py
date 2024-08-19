@@ -3,7 +3,7 @@
 import bpy
 
 from mpfb.entities.rig import Rig, CLOSE_MEAN_SEARCH_RADIUS
-from mpfb.services.logservice import LogService
+from ....services import LogService
 from mpfb import ClassManager
 
 from .abstract import AbstractBoneOperator

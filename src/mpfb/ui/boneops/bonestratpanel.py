@@ -3,8 +3,8 @@ import bpy
 from rna_prop_ui import rna_idprop_quote_path
 
 from mpfb._classmanager import ClassManager
-from mpfb.services.logservice import LogService
-from mpfb.services.objectservice import ObjectService
+from ...services import LogService
+from ...services import ObjectService
 from mpfb.ui.abstractpanel import Abstract_Panel
 
 from . import BOP_PROPERTIES, BoneOpsEditBoneProperties, BoneOpsBoneProperties, BoneOpsArmatureProperties

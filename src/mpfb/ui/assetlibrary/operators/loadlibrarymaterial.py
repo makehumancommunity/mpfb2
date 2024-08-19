@@ -2,11 +2,11 @@
 
 import bpy, os
 from bpy.props import StringProperty
-from mpfb.services.logservice import LogService
-from mpfb.services.objectservice import ObjectService
-from mpfb.services.humanservice import HumanService
-from mpfb.services.materialservice import MaterialService
-from mpfb.services.assetservice import AssetService
+from ....services import LogService
+from ....services import ObjectService
+from ....services import HumanService
+from ....services import MaterialService
+from ....services import AssetService
 from mpfb.entities.material.makeskinmaterial import MakeSkinMaterial
 from mpfb import ClassManager
 

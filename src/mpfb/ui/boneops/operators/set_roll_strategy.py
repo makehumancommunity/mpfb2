@@ -3,7 +3,7 @@
 import bpy
 
 from mpfb.entities.rig import Rig
-from mpfb.services.logservice import LogService
+from ....services import LogService
 from mpfb import ClassManager
 
 from .. import BoneOpsEditBoneProperties

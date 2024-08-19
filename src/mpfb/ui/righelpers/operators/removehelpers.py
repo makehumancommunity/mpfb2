@@ -1,4 +1,4 @@
-from mpfb.services.logservice import LogService
+from ....services import LogService
 # from mpfb.entities.fingerik.fingerik import FingerIk
 from mpfb.ui.righelpers import RigHelpersProperties
 from mpfb._classmanager import ClassManager

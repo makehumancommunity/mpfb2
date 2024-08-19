@@ -4,8 +4,8 @@ import bpy
 from bpy_extras.io_utils import ImportHelper
 from bpy.props import StringProperty
 from mpfb.entities.material.makeskinmaterial import MakeSkinMaterial
-from mpfb.services.logservice import LogService
-from mpfb.services.materialservice import MaterialService
+from ....services import LogService
+from ....services import MaterialService
 from mpfb import ClassManager
 
 _LOG = LogService.get_logger("matops.setnormalmap")

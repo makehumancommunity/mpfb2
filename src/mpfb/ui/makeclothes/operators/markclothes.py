@@ -1,7 +1,7 @@
 """Operator for setting mesh as clothes."""
 
 import bpy
-from mpfb.services.logservice import LogService
+from ....services import LogService
 from mpfb.entities.objectproperties import GeneralObjectProperties
 from mpfb import ClassManager
 

@@ -1,7 +1,7 @@
 """Functionality for adjusting location of edit bone"""
 
-from mpfb.services.logservice import LogService
-from mpfb.services.objectservice import ObjectService
+from ....services import LogService
+from ....services import ObjectService
 from mpfb._classmanager import ClassManager
 from mpfb.ui.mpfboperator import MpfbOperator
 import bpy, math

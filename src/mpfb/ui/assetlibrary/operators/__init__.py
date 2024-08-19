@@ -1,6 +1,6 @@
 """Operators for asset library"""
 
-from mpfb.services.logservice import LogService
+from ....services import LogService
 _LOG = LogService.get_logger("assetlibrary.operators.init")
 _LOG.trace("initializing asset library operators")
 

@@ -2,9 +2,9 @@
 
 import bpy
 from mpfb import ClassManager
-from mpfb.services.logservice import LogService
-from mpfb.services.objectservice import ObjectService
-from mpfb.services.uiservice import UiService
+from ...services import LogService
+from ...services import ObjectService
+from ...services import UiService
 from mpfb.ui.abstractpanel import Abstract_Panel
 
 _LOG = LogService.get_logger("makerig.bonespanel")
