@@ -2,7 +2,7 @@
 
 from ....services import LogService
 from ....services import LocationService
-from mpfb._classmanager import ClassManager
+from .... import ClassManager
 import bpy
 
 _LOG = LogService.get_logger("developer.unittests")

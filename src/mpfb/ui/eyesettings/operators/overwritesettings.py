@@ -3,7 +3,7 @@
 from ....services import LogService
 from ....services import LocationService
 from ...eyesettings.eyesettingspanel import EYE_SETTINGS_PROPERTIES
-from mpfb._classmanager import ClassManager
+from .... import ClassManager
 import bpy, os
 
 from ._savematerial import _save_material

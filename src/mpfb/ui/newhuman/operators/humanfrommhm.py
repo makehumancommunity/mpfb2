@@ -8,7 +8,7 @@ from ....services import HumanService
 from ....services import ObjectService
 from ....services import SystemService
 from ...mpfboperator import MpfbOperator
-from mpfb import ClassManager
+from .... import ClassManager
 
 _LOG = LogService.get_logger("newhuman.humanfrommhm")
 

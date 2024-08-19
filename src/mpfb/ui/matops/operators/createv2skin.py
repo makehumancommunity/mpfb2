@@ -6,7 +6,7 @@ from ....services import MaterialService
 from ....services import NodeService
 from ....services import ObjectService
 from mpfb.entities.nodemodel.v2.materials import NodeWrapperSkin
-from mpfb._classmanager import ClassManager
+from .... import ClassManager
 from ...developer.developerpanel import DEVELOPER_PROPERTIES
 import bpy, os, json, pprint
 

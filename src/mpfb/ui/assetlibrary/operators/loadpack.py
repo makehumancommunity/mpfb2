@@ -7,7 +7,7 @@ from ....services import LogService
 from ....services import LocationService
 from ....services import AssetService
 import zipfile
-from mpfb import ClassManager
+from .... import ClassManager
 
 _LOG = LogService.get_logger("assetlibrary.loadpack")
 

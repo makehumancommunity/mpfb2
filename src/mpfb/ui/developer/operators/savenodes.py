@@ -2,7 +2,7 @@
 from ....services import LogService
 from ....services import MaterialService
 from ....services import NodeService
-from mpfb._classmanager import ClassManager
+from .... import ClassManager
 import bpy, json
 from bpy.types import StringProperty
 from bpy_extras.io_utils import ExportHelper

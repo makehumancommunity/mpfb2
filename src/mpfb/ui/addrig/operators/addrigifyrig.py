@@ -6,7 +6,7 @@ from ....services import HumanService
 from ....services import LogService
 from ....services import ObjectService
 from ....services import SystemService
-from mpfb import ClassManager
+from .... import ClassManager
 
 _LOG = LogService.get_logger("addrig.add_rigify_rig")
 

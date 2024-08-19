@@ -3,7 +3,7 @@
 from ....services import LogService
 from ....services import ObjectService
 from ....services import MeshService
-from mpfb._classmanager import ClassManager
+from .... import ClassManager
 from ...mpfboperator import MpfbOperator
 import bpy, math
 

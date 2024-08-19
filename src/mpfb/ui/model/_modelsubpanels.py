@@ -2,7 +2,7 @@
 
 import bpy, os, json, math
 from bpy.props import FloatProperty
-from mpfb import ClassManager
+from ... import ClassManager
 from ...services import LogService
 from ...services import LocationService
 from ...services import ObjectService

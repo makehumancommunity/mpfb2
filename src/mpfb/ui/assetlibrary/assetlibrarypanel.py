@@ -1,7 +1,7 @@
 """Asset library subpanels"""
 
 import bpy, math
-from mpfb import ClassManager
+from ... import ClassManager
 from ...services import LogService
 from ...services import AssetService, ASSET_LIBRARY_SECTIONS
 from ...services import HumanService

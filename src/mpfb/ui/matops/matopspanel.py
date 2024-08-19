@@ -1,5 +1,5 @@
 import os, bpy
-from mpfb._classmanager import ClassManager
+from ... import ClassManager
 from ...services import LogService
 from ...services import LocationService
 from ...services import ObjectService

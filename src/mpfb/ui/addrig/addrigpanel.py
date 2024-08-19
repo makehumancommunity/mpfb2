@@ -1,7 +1,7 @@
 """File containing main UI for modeling humans"""
 
 import os
-from mpfb import ClassManager
+from ... import ClassManager
 from ...services import LogService
 from ...services import RigService
 from ...services import UiService

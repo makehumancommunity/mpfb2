@@ -7,7 +7,7 @@ from ....services import MaterialService
 from ....services import HumanService
 from ....services import RigService
 from ...humanpresets.humanpresetspanel import HUMAN_PRESETS_PROPERTIES
-from mpfb._classmanager import ClassManager
+from .... import ClassManager
 import bpy, os, json
 
 _LOG = LogService.get_logger("humanpresets.savenewpresets")

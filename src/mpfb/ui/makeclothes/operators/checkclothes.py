@@ -10,7 +10,7 @@ from ...makeclothes import MakeClothesObjectProperties
 from mpfb.entities.objectproperties import GeneralObjectProperties
 from mpfb.entities.material.makeskinmaterial import MakeSkinMaterial
 from ...makeclothes.operators.clothescommon import ClothesCommon
-from mpfb import ClassManager
+from .... import ClassManager
 
 _LOG = LogService.get_logger("makeclothes.checkclothes")
 

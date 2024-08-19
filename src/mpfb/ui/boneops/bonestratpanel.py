@@ -2,7 +2,7 @@ import bpy
 
 from rna_prop_ui import rna_idprop_quote_path
 
-from mpfb._classmanager import ClassManager
+from ... import ClassManager
 from ...services import LogService
 from ...services import ObjectService
 from ..abstractpanel import Abstract_Panel

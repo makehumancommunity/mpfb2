@@ -3,7 +3,7 @@
 from ....services import LocationService
 from ....services import LogService
 from ....services import NodeService
-from mpfb._classmanager import ClassManager
+from .... import ClassManager
 from ...developer.developerpanel import DEVELOPER_PROPERTIES
 import bpy, os, json, pprint
 from string import Template

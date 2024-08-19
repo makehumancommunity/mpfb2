@@ -5,7 +5,7 @@ from ....services import LogService
 from ....services import NodeService
 from mpfb.entities.nodemodel.v2.primitives import *
 from mpfb.entities.nodemodel.v2.composites import *
-from mpfb._classmanager import ClassManager
+from .... import ClassManager
 from ...developer.developerpanel import DEVELOPER_PROPERTIES
 from .rewritenodetypes import shorten_name, round_floats
 from .writecomposite import _identify_socket, _build_tree_def

@@ -2,7 +2,7 @@
 
 from ....services import LogService
 from ....services import NodeService
-from mpfb._classmanager import ClassManager
+from .... import ClassManager
 import bpy
 from string import Template
 

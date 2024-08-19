@@ -2,7 +2,7 @@
 from ....services import LogService
 from ....services import LocationService
 from ...importerpresets.importerpresetspanel import IMPORTER_PRESETS_PROPERTIES
-from mpfb._classmanager import ClassManager
+from .... import ClassManager
 import bpy
 
 _LOG = LogService.get_logger("importeroperators.loadpresets")

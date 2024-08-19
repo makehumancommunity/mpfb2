@@ -6,7 +6,7 @@ from ....services import ObjectService
 from ....services import NodeService
 from ....services import MaterialService
 from ...enhancedsettings.enhancedsettingspanel import ENHANCED_SETTINGS_PROPERTIES
-from mpfb._classmanager import ClassManager
+from .... import ClassManager
 import bpy, os, json
 
 from ._savematerial import _save_material

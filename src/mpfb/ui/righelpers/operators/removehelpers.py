@@ -1,7 +1,7 @@
 from ....services import LogService
 # from mpfb.entities.fingerik.fingerik import FingerIk
 from ...righelpers import RigHelpersProperties
-from mpfb._classmanager import ClassManager
+from .... import ClassManager
 from mpfb.entities.rigging.righelpers.armhelpers.armhelpers import ArmHelpers
 from mpfb.entities.rigging.righelpers.leghelpers.leghelpers import LegHelpers
 from mpfb.entities.rigging.righelpers.fingerhelpers.fingerhelpers import FingerHelpers

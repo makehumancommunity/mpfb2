@@ -9,7 +9,7 @@ from ....services import UiService
 from ...importer.importerpanel import IMPORTER_PROPERTIES
 from ...importerpresets.importerpresetspanel import IMPORTER_PRESETS_PROPERTIES
 from ...mpfboperator import MpfbOperator
-from mpfb._classmanager import ClassManager
+from .... import ClassManager
 from mpfb.entities.socketobject.socketbodyobject import SocketBodyObject
 from mpfb.entities.socketobject.socketproxyobject import SocketProxyObject
 from mpfb.entities.material.makeskinmaterial import MakeSkinMaterial

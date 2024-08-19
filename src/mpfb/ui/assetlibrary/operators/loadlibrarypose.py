@@ -6,7 +6,7 @@ from ....services import LogService
 from ....services import ObjectService
 from ....services import RigService
 from ....services import AnimationService
-from mpfb import ClassManager
+from .... import ClassManager
 
 _LOG = LogService.get_logger("assetlibrary.loadlibrarypose")
 

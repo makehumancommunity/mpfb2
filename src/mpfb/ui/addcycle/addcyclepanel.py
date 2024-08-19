@@ -1,7 +1,7 @@
 """File containing deprecated UI for adding a walk cycle"""
 
 import os, bpy
-from mpfb import ClassManager
+from ... import ClassManager
 from ...services import LogService
 from ...services import LocationService
 from ...services import UiService

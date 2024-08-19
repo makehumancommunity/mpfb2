@@ -3,7 +3,7 @@ from bpy.props import StringProperty
 from ....services import LogService
 from ....services import AnimationService
 from ...mpfboperator import MpfbOperator
-from mpfb._classmanager import ClassManager
+from .... import ClassManager
 from bpy_extras.io_utils import ImportHelper
 
 _LOG = LogService.get_logger("applypose.loadmhbvh")

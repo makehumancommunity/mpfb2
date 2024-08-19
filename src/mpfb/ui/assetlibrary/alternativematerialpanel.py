@@ -1,6 +1,6 @@
 """This file contains the alternative material panel."""
 
-from mpfb._classmanager import ClassManager
+from ... import ClassManager
 from ...services import LogService
 from ...services import ObjectService
 from ...services import UiService

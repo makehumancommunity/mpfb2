@@ -1,7 +1,7 @@
 from ....services import LogService
 from ....services import ObjectService
 from ....services import RigService
-from mpfb._classmanager import ClassManager
+from .... import ClassManager
 from mpfb.entities.rigging.rigifyhelpers.rigifyhelpers import RigifyHelpers
 from ....services import SystemService
 import bpy, json

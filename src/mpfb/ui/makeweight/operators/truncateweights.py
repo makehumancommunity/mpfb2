@@ -7,7 +7,7 @@ from bpy.props import StringProperty
 from ....services import LogService
 from ....services import ObjectService
 from ...makeweight.makeweightpanel import MAKEWEIGHT_PROPERTIES
-from mpfb import ClassManager
+from .... import ClassManager
 
 _LOG = LogService.get_logger("makeweight.truncateweights")
 

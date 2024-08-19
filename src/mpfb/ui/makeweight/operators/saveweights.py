@@ -5,7 +5,7 @@ from bpy_extras.io_utils import ExportHelper
 from bpy.props import StringProperty
 from ....services import LogService
 from ....services import ObjectService
-from mpfb import ClassManager
+from .... import ClassManager
 
 _LOG = LogService.get_logger("makeweight.writeweights")
 

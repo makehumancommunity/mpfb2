@@ -1,6 +1,6 @@
 """This file contains the dir resources panel."""
 
-from mpfb._classmanager import ClassManager
+from ... import ClassManager
 from ...services import LogService
 from ...services import LocationService
 from ...services import UiService

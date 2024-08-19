@@ -4,7 +4,7 @@ from ....services import LocationService
 from ....services import LogService
 from ....services import NodeService
 from ....services import ObjectService
-from mpfb._classmanager import ClassManager
+from .... import ClassManager
 from ...developer.developerpanel import DEVELOPER_PROPERTIES
 import bpy, os, json
 from string import Template

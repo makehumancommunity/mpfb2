@@ -1,7 +1,7 @@
 """File containing main UI for makeclothes"""
 
 import os, bpy
-from mpfb import ClassManager
+from ... import ClassManager
 from ...services import LogService
 from ...services import SceneConfigSet
 from ...services import UiService

@@ -3,7 +3,7 @@ from ....services import LogService
 from ....services import UiService
 from ....services import LocationService
 from ...importerpresets.importerpresetspanel import IMPORTER_PRESETS_PROPERTIES
-from mpfb._classmanager import ClassManager
+from .... import ClassManager
 import bpy, os
 
 _LOG = LogService.get_logger("importeroperators.savenewpresets")

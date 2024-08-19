@@ -3,7 +3,7 @@
 import webbrowser, bpy
 from bpy.props import StringProperty
 from ....services import LogService
-from mpfb import ClassManager
+from .... import ClassManager
 
 _LOG = LogService.get_logger("webresources.webresource")
 

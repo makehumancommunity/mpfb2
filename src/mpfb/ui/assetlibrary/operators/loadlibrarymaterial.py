@@ -8,7 +8,7 @@ from ....services import HumanService
 from ....services import MaterialService
 from ....services import AssetService
 from mpfb.entities.material.makeskinmaterial import MakeSkinMaterial
-from mpfb import ClassManager
+from .... import ClassManager
 
 _LOG = LogService.get_logger("assetlibrary.loadlibraryskin")
 

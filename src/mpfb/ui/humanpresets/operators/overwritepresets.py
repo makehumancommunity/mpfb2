@@ -4,7 +4,7 @@ from ....services import ObjectService
 from ....services import HumanService
 from ....services import RigService
 from ...humanpresets.humanpresetspanel import HUMAN_PRESETS_PROPERTIES
-from mpfb._classmanager import ClassManager
+from .... import ClassManager
 import bpy, os
 
 _LOG = LogService.get_logger("humanpresets.overwritepresets")

@@ -5,7 +5,7 @@ from ....services import LogService
 from ....services import MaterialService
 from mpfb.entities.material.makeskinmaterial import MakeSkinMaterial
 from ...makeskin.makeskinpanel import MAKESKIN_PROPERTIES
-from mpfb import ClassManager
+from .... import ClassManager
 
 _LOG = LogService.get_logger("makeskin.creatematerial")
 

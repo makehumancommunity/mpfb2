@@ -2,7 +2,7 @@ from mpfb.entities.objectproperties import GeneralObjectProperties
 from ....services import LogService
 from ....services import ObjectService
 from ....services import RigService
-from mpfb._classmanager import ClassManager
+from .... import ClassManager
 import bpy, json, math
 from mathutils import Vector, Matrix
 

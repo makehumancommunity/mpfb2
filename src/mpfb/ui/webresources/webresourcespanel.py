@@ -1,6 +1,6 @@
 """This file contains the web resources panel."""
 
-from mpfb._classmanager import ClassManager
+from ... import ClassManager
 from ...services import LogService
 from ...services import UiService
 from ..abstractpanel import Abstract_Panel

@@ -11,7 +11,7 @@ from ....services import HumanService
 from mpfb.entities.clothes.mhclo import Mhclo
 from mpfb.entities.objectproperties import GeneralObjectProperties
 from mpfb.entities.material.makeskinmaterial import MakeSkinMaterial
-from mpfb import ClassManager
+from .... import ClassManager
 
 _LOG = LogService.get_logger("loadclothes.loadclothes")
 

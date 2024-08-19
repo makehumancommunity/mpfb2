@@ -1,6 +1,6 @@
 """This is the UI for the convert to rigify functionality."""
 
-from mpfb._classmanager import ClassManager
+from ... import ClassManager
 from ...services import LogService
 from ...services import ObjectService
 from ...services import UiService

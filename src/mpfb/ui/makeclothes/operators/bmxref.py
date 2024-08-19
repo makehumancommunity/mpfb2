@@ -7,7 +7,7 @@ from ....services import LogService
 from ....services import LocationService
 from ....services import ObjectService
 from mpfb.entities.meshcrossref import MeshCrossRef
-from mpfb import ClassManager
+from .... import ClassManager
 
 _LOG = LogService.get_logger("makeclothes.basemesh_xref")
 _LOG.set_level(LogService.DEBUG)

@@ -1,7 +1,7 @@
 """File containing main UI for makerig"""
 
 import bpy
-from mpfb import ClassManager
+from ... import ClassManager
 from ...services import LogService
 from ...services import ObjectService
 from ...services import UiService

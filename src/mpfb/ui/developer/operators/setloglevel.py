@@ -1,7 +1,7 @@
 """Functionality for setting log levels"""
 
 from ....services import LogService
-from mpfb._classmanager import ClassManager
+from .... import ClassManager
 import bpy
 
 _LOG = LogService.get_logger("loglevels.operators.setloglevel")

@@ -6,7 +6,7 @@ from bpy.props import StringProperty
 from mpfb.entities.material.makeskinmaterial import MakeSkinMaterial
 from ....services import LogService
 from ....services import MaterialService
-from mpfb import ClassManager
+from .... import ClassManager
 
 _LOG = LogService.get_logger("matops.setnormalmap")
 

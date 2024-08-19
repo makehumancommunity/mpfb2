@@ -1,6 +1,6 @@
 
 import os, bpy
-from mpfb._classmanager import ClassManager
+from ... import ClassManager
 from ...services import LogService
 from ...services import SceneConfigSet
 from ...services import UiService

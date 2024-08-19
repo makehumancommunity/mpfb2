@@ -2,7 +2,7 @@
 
 from mpfb.entities.rig import Rig
 from ....services import LogService
-from mpfb import ClassManager
+from .... import ClassManager
 
 from .abstract import AbstractBoneOperator
 

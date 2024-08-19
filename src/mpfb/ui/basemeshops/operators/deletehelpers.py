@@ -4,7 +4,7 @@ from ....services import NodeService
 from ....services import ObjectService
 from ....services import LocationService
 from ....services import TargetService
-from mpfb._classmanager import ClassManager
+from .... import ClassManager
 import bpy, json, math, os
 from bpy.types import StringProperty
 from bpy_extras.io_utils import ImportHelper

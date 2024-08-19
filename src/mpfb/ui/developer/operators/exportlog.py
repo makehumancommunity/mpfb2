@@ -1,7 +1,7 @@
 """Functionality for exporting log files"""
 
 from ....services import LogService
-from mpfb._classmanager import ClassManager
+from .... import ClassManager
 from bpy_extras.io_utils import ExportHelper
 import bpy, shutil
 

@@ -7,7 +7,7 @@ from mpfb.entities.material.makeskinmaterial import MakeSkinMaterial
 from ....services import LogService
 from ....services import ObjectService
 from ....services import RigService
-from mpfb import ClassManager
+from .... import ClassManager
 
 _LOG = LogService.get_logger("poseops.apply_pose")
 

@@ -1,5 +1,5 @@
 import bpy, sys
-from mpfb._classmanager import ClassManager
+from .. import ClassManager
 from ..services import LogService
 from ..services import SystemService
 from ..services import LOWEST_FUNCTIONAL_BLENDER_VERSION

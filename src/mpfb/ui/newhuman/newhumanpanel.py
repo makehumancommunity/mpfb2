@@ -1,7 +1,7 @@
 """File containing main UI for creating new humans"""
 
 import bpy, os
-from mpfb import ClassManager
+from ... import ClassManager
 from ...services import LogService
 from ...services import UiService
 from ...services import SceneConfigSet

@@ -6,7 +6,7 @@ from ....services import ObjectService
 from ....services import NodeService
 from ....services import MaterialService
 from ...eyesettings.eyesettingspanel import EYE_SETTINGS_PROPERTIES
-from mpfb._classmanager import ClassManager
+from .... import ClassManager
 import bpy, os, json
 
 _LOG = LogService.get_logger("eyesettings.applysettings")
