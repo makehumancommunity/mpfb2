@@ -1,7 +1,7 @@
 import bpy, importlib
-from mpfb.services.logservice import LogService
-from mpfb.services.nodeservice import NodeService
-from mpfb.services.nodetreeservice import NodeTreeService
+from .....services import LogService
+from .....services import NodeService
+from .....services import NodeTreeService
 from mpfb.entities.nodemodel.v2.primitives import *
 
 _LOG = LogService.get_logger("nodemodel.v2.abstractgroupwrapper")

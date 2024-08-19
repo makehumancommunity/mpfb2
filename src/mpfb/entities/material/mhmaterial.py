@@ -2,8 +2,8 @@
 import re, os
 from .mhmatkeys import MHMAT_KEY_GROUPS, MHMAT_NAME_TO_KEY, parse_alias
 from .mhmatkeytypes import MhMatFileKey
-from mpfb.services.socketservice import SocketService
-from mpfb.services.logservice import LogService
+from ...services import SocketService
+from ...services import LogService
 
 _LOG = LogService.get_logger("material.mhmaterial")
 

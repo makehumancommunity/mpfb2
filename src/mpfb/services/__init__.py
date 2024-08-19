@@ -26,7 +26,7 @@ from .systemservice import SystemService
 from .uiservice import UiService
 
 # Services only depending on the standalone services
-from .assetservice import AssetService
+from .assetservice import AssetService, ASSET_LIBRARY_SECTIONS
 from .materialservice import MaterialService
 from .meshservice import MeshService
 
@@ -60,5 +60,6 @@ __all__ = [
     "RigService",
     "AnimationService",
     "ClothesService",
-    "HumanService"
+    "HumanService",
+    "ASSET_LIBRARY_SECTIONS"
     ]

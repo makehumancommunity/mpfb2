@@ -5,13 +5,13 @@ The code is based on an approach suggested by Andrea Rossato in https://www.yout
 
 import bpy, json
 
-from mpfb.services.logservice import LogService
-from mpfb.services.objectservice import ObjectService
-from mpfb.services.systemservice import SystemService
+from ....services import LogService
+from ....services import ObjectService
+from ....services import SystemService
 
 _LOG = LogService.get_logger("rigifyhelpers.rigifyhelpers")
 
-from mpfb.services.rigservice import RigService
+from ....services import RigService
 
 
 class RigifyHelpers():

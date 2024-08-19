@@ -1,5 +1,5 @@
 import bpy, json, os, copy
-from mpfb.services.locationservice import LocationService
+from .....services import LocationService
 
 _ORIGINAL_NODE_DEF = json.loads("""
 {

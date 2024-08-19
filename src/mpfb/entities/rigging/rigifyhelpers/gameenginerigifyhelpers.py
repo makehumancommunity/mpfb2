@@ -1,6 +1,6 @@
 """This module contains the gameengine rig's implementation of the rigify helpers class"""
 
-from mpfb.services.logservice import LogService
+from ....services import LogService
 _LOG = LogService.get_logger("rigifyhelpers.gameenginerigifyhelpers")
 
 from .rigifyhelpers import RigifyHelpers

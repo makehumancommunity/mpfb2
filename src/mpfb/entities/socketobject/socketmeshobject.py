@@ -3,7 +3,7 @@
 for more info."""
 
 import gc, numpy
-from mpfb.services.logservice import LogService
+from ...services import LogService
 
 _LOG = LogService.get_logger("socketobject.socketmeshobject")
 

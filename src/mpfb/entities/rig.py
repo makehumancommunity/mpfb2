@@ -2,9 +2,9 @@
 
 import bmesh
 
-from mpfb.services.logservice import LogService
-from mpfb.services.objectservice import ObjectService
-from mpfb.services.rigservice import RigService
+from ..services import LogService
+from ..services import ObjectService
+from ..services import RigService
 from mpfb.entities.objectproperties import GeneralObjectProperties
 
 import bpy, math, json, random, typing, re
@@ -830,7 +830,7 @@ class Rig:
                 bm = bmesh.from_edit_mesh(basemesh.data)
                 coords = bm.verts
             else:
-                from mpfb.services.targetservice import TargetService
+                from ..services import TargetService
                 key_name = "temporary_fit_rig_key." + str(random.randrange(1000, 9999))
                 shape_key = TargetService.create_shape_key(basemesh, key_name, also_create_basis=True, create_from_mix=True)
                 coords = shape_key.data

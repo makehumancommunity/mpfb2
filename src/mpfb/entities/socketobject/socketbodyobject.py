@@ -3,11 +3,11 @@
 for more info."""
 
 import numpy, bpy
-from mpfb.services.logservice import LogService
-from mpfb.services.socketservice import SocketService
-from mpfb.services.objectservice import ObjectService
-from mpfb.services.modifierservice import ModifierService
-from mpfb.services.rigservice import RigService
+from ...services import LogService
+from ...services import SocketService
+from ...services import ObjectService
+from ...services import ModifierService
+from ...services import RigService
 from .socketmeshobject import SocketMeshObject
 from mpfb.entities.objectproperties import GeneralObjectProperties
 from ._extra_vertex_groups import vertex_group_information

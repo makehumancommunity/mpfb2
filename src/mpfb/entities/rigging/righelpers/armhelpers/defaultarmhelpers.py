@@ -2,10 +2,10 @@
 
 import bpy
 
-from mpfb.services.logservice import LogService
+from .....services import LogService
 _LOG = LogService.get_logger("armhelpers.defaultarmhelpers")
 
-from mpfb.services.rigservice import RigService
+from .....services import RigService
 from mpfb.entities.rigging.righelpers.armhelpers.armhelpers import ArmHelpers
 
 _ROTATION_LIMITS = {

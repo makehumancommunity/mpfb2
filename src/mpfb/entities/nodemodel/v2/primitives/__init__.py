@@ -1,4 +1,4 @@
-from mpfb.services.systemservice import SystemService
+from .....services import SystemService
 
 from .abstractnodewrapper import AbstractNodeWrapper
 from .nodewrappershadernodeaddshader import snAddShader

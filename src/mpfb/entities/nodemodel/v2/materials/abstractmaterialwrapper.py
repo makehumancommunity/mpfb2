@@ -1,6 +1,6 @@
 import bpy, importlib
-from mpfb.services.logservice import LogService
-from mpfb.services.nodeservice import NodeService
+from .....services import LogService
+from .....services import NodeService
 from mpfb.entities.nodemodel.v2.primitives import *
 from mpfb.entities.nodemodel.v2.composites import *
 

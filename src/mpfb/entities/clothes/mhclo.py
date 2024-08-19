@@ -2,9 +2,9 @@
 
 import bpy, os, sys, json
 from mathutils import Vector
-from mpfb.services.objectservice import ObjectService
-from mpfb.services.logservice import LogService
-from mpfb.services.locationservice import LocationService
+from ...services import ObjectService
+from ...services import LogService
+from ...services import LocationService
 
 _LOG = LogService.get_logger("entities.mhclo")
 

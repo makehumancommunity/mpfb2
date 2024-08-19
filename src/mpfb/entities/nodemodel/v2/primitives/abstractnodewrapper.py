@@ -1,7 +1,7 @@
 import bpy, os
-from mpfb.services.logservice import LogService
-from mpfb.services.nodeservice import NodeService
-from mpfb.services.systemservice import SystemService
+from .....services import LogService
+from .....services import NodeService
+from .....services import SystemService
 from mathutils import Euler
 
 _LOG = LogService.get_logger("nodemodel.v2.abstractnodewrapper")

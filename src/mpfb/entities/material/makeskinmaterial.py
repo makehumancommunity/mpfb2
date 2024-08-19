@@ -2,10 +2,10 @@ import os, json, shutil, bpy
 from pathlib import Path
 from .mhmaterial import MhMaterial
 from .mhmatkeys import MHMAT_KEYS
-from mpfb.services.logservice import LogService
-from mpfb.services.locationservice import LocationService
-from mpfb.services.nodeservice import NodeService
-from mpfb.services.materialservice import MaterialService
+from ...services import LogService
+from ...services import LocationService
+from ...services import NodeService
+from ...services import MaterialService
 
 _LOG = LogService.get_logger("material.makeskinmaterial")
 

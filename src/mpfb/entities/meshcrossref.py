@@ -1,9 +1,9 @@
 """Contains a class for cross-referencing data in a mesh."""
 
 import numpy, time, mathutils, os
-from mpfb.services.meshservice import MeshService
-from mpfb.services.objectservice import ObjectService
-from mpfb.services.logservice import LogService
+from ..services import MeshService
+from ..services import ObjectService
+from ..services import LogService
 
 _LOG = LogService.get_logger("entities.meshcrossref")
 
