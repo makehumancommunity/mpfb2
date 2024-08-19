@@ -5,7 +5,7 @@ import os, bpy
 from .logservice import LogService
 from .objectservice import ObjectService
 from .nodeservice import NodeService
-from mpfb.entities.nodemodel.v2.materials import NodeWrapperSkin
+from ..entities.nodemodel.v2.materials import NodeWrapperSkin
 
 _LOG = LogService.get_logger("services.materialservice")
 

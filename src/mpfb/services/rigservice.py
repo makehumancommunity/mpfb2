@@ -9,7 +9,7 @@ from .logservice import LogService
 from .systemservice import SystemService
 from .targetservice import TargetService
 from .objectservice import ObjectService
-from mpfb.entities.objectproperties import SkeletonObjectProperties
+from ..entities.objectproperties import SkeletonObjectProperties
 
 _LOG = LogService.get_logger("services.rigservice")
 

@@ -4,8 +4,8 @@ import bpy, os, json, random, gzip, typing, string
 from .logservice import LogService
 from .locationservice import LocationService
 from .systemservice import SystemService
-from mpfb.entities.objectproperties import GeneralObjectProperties
-from mpfb.entities.socketobject import BASEMESH_EXTRA_GROUPS
+from ..entities.objectproperties import GeneralObjectProperties
+from ..entities.socketobject import BASEMESH_EXTRA_GROUPS
 
 _LOG = LogService.get_logger("services.objectservice")
 

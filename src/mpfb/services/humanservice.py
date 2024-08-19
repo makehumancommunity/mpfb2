@@ -11,15 +11,15 @@ from .rigservice import RigService
 from .nodeservice import NodeService
 from .materialservice import MaterialService
 from .locationservice import LocationService
-from mpfb.entities.objectproperties import HumanObjectProperties
-from mpfb.entities.clothes.mhclo import Mhclo
-from mpfb.entities.rig import Rig
-from mpfb.entities.material.makeskinmaterial import MakeSkinMaterial
-from mpfb.entities.material.mhmaterial import MhMaterial
-from mpfb.entities.material.enhancedskinmaterial import EnhancedSkinMaterial
-from mpfb.entities.objectproperties import GeneralObjectProperties
-from mpfb.entities.socketobject import BASEMESH_EXTRA_GROUPS, ALL_EXTRA_GROUPS
-from mpfb.entities.primitiveprofiler import PrimitiveProfiler
+from ..entities.objectproperties import HumanObjectProperties
+from ..entities.clothes.mhclo import Mhclo
+from ..entities.rig import Rig
+from ..entities.material.makeskinmaterial import MakeSkinMaterial
+from ..entities.material.mhmaterial import MhMaterial
+from ..entities.material.enhancedskinmaterial import EnhancedSkinMaterial
+from ..entities.objectproperties import GeneralObjectProperties
+from ..entities.socketobject import BASEMESH_EXTRA_GROUPS, ALL_EXTRA_GROUPS
+from ..entities.primitiveprofiler import PrimitiveProfiler
 
 _LOG = LogService.get_logger("services.humanservice")
 

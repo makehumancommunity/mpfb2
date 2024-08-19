@@ -8,11 +8,11 @@ from .locationservice import LocationService
 from .assetservice import AssetService
 from .rigservice import RigService
 from mathutils import Vector
-from mpfb.entities.rig import Rig
-from mpfb.entities.clothes.vertexmatch import VertexMatch
-from mpfb.entities.objectproperties import GeneralObjectProperties
-from mpfb.entities.clothes.mhclo import Mhclo
-from mpfb.entities.meshcrossref import MeshCrossRef
+from ..entities.rig import Rig
+from ..entities.clothes.vertexmatch import VertexMatch
+from ..entities.objectproperties import GeneralObjectProperties
+from ..entities.clothes.mhclo import Mhclo
+from ..entities.meshcrossref import MeshCrossRef
 
 _LOG = LogService.get_logger("services.clothesservice")
 

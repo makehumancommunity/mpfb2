@@ -8,9 +8,9 @@ from .logservice import LogService
 from .assetservice import AssetService
 from .locationservice import LocationService
 from .objectservice import ObjectService
-from mpfb.entities.objectproperties import GeneralObjectProperties
-from mpfb.entities.objectproperties import HumanObjectProperties
-from mpfb.entities.primitiveprofiler import PrimitiveProfiler
+from ..entities.objectproperties import GeneralObjectProperties
+from ..entities.objectproperties import HumanObjectProperties
+from ..entities.primitiveprofiler import PrimitiveProfiler
 
 _LOG = LogService.get_logger("services.targetservice")
 
