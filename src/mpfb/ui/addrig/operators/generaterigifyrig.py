@@ -84,7 +84,7 @@ class MPFB_OT_GenerateRigifyRigOperator(bpy.types.Operator):
         context.view_layer.objects.active = rigify_object
         bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
 
-        from mpfb.entities.objectproperties import GeneralObjectProperties
+        from ....entities.objectproperties import GeneralObjectProperties
 
         object_type = ObjectService.get_object_type(armature_object)
         GeneralObjectProperties.set_value("object_type", object_type, entity_reference=rigify_object)

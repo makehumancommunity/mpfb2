@@ -12,6 +12,7 @@ from .... import ClassManager
 
 _LOG = LogService.get_logger("assetlibrary.loadlibraryskin")
 
+
 class MPFB_OT_Load_Library_Material_Operator(bpy.types.Operator):
     """Replace the current material with the selected alternative material"""
     bl_idname = "mpfb.load_library_material"
@@ -20,7 +21,7 @@ class MPFB_OT_Load_Library_Material_Operator(bpy.types.Operator):
 
     def execute(self, context):
 
-        from ...assetlibrary.alternativematerialpanel import ALTMAT_PROPERTIES # pylint: disable=C0415
+        from ...assetlibrary.alternativematerialpanel import ALTMAT_PROPERTIES  # pylint: disable=C0415
 
         scene = context.scene
         obj = context.object
@@ -31,7 +32,7 @@ class MPFB_OT_Load_Library_Material_Operator(bpy.types.Operator):
             pass
         else:
             asset_type = ObjectService.get_object_type(context.object)
-            from mpfb.entities.objectproperties import GeneralObjectProperties
+            from ....entities.objectproperties import GeneralObjectProperties
             source = GeneralObjectProperties.get_value("asset_source", entity_reference=context.object)
             altmats = AssetService.alternative_materials_for_asset(source, str(asset_type).lower())
             found_material = None
@@ -70,10 +71,11 @@ class MPFB_OT_Load_Library_Material_Operator(bpy.types.Operator):
             fragment = AssetService.path_to_fragment(selected_material, relative_to_fragment=False, asset_subdir=str(object_type).lower())
             _LOG.debug("Fragment", fragment)
 
-            from mpfb.entities.objectproperties import GeneralObjectProperties
+            from ....entities.objectproperties import GeneralObjectProperties
             GeneralObjectProperties.set_value("alternative_material", fragment, entity_reference=obj)
 
         self.report({'INFO'}, "Material was loaded: " + selected_material)
         return {'FINISHED'}
+
 
 ClassManager.add_class(MPFB_OT_Load_Library_Material_Operator)

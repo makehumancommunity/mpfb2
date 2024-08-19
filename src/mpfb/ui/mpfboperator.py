@@ -5,7 +5,7 @@ from datetime import date
 from ..services import LogService
 from ..services import LocationService
 from ..services import ObjectService
-from mpfb import VERSION, BUILD_INFO
+from .. import VERSION, BUILD_INFO
 
 _LOG = LogService.get_logger("uiactions")
 

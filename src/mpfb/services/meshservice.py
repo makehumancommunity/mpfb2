@@ -297,7 +297,7 @@ class MeshService:
     def get_mesh_cross_references(mesh_object, after_modifiers=True, build_faces_by_group_reference=False):
         """Build a cross reference container for the mesh object."""
         _LOG.enter()
-        from mpfb.entities.meshcrossref import MeshCrossRef
+        from ..entities.meshcrossref import MeshCrossRef
         return MeshCrossRef(mesh_object, after_modifiers=after_modifiers, build_faces_by_group_reference=build_faces_by_group_reference)
 
     @staticmethod

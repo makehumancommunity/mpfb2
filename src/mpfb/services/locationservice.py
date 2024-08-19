@@ -270,7 +270,7 @@ class _LocationService():
         sr = self._second_root
 
         if bpy.context and hasattr(bpy.context, "scene") and bpy.context.scene:
-            from mpfb.ui.assetlibrary.assetsettingspanel import ASSET_SETTINGS_PROPERTIES
+            from ..ui.assetlibrary.assetsettingspanel import ASSET_SETTINGS_PROPERTIES
             src = ASSET_SETTINGS_PROPERTIES.get_value("second_root", entity_reference=bpy.context.scene)
             if str(src).strip():
                 sr = str(src).strip()

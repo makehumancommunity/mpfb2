@@ -226,7 +226,7 @@ class MaterialService():
             _LOG.warn("Could not find master color control in v2 skin")
 
         if mhmat_file:
-            from mpfb.entities.material.makeskinmaterial import MakeSkinMaterial
+            from ..entities.material.makeskinmaterial import MakeSkinMaterial
             makeskin_material = MakeSkinMaterial()
             makeskin_material.populate_from_mhmat(mhmat_file)
 

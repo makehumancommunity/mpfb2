@@ -953,7 +953,7 @@ class RigService:
 
     @staticmethod
     def refit_existing_subrig(armature_object, parent_rig):
-        from mpfb.entities.objectproperties import GeneralObjectProperties
+        from ..entities.objectproperties import GeneralObjectProperties
 
         assert not ObjectService.object_is_generated_rigify_rig(armature_object)
 
@@ -990,7 +990,7 @@ class RigService:
 
     @staticmethod
     def _do_refit_existing_armature(armature_object, basemesh, rig_file, parent_rig=None):
-        from mpfb.entities.rig import Rig
+        from ..entities.rig import Rig
         _LOG.reset_timer()
 
         current_active_object = bpy.context.view_layer.objects.active

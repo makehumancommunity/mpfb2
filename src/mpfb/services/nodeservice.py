@@ -117,7 +117,7 @@ class NodeService:
     @staticmethod
     def ensure_v2_node_groups_exist(fail_on_validation=False):
         """Iterate over all v2 node groups and check them, creating them if they haven't been initialized."""
-        from mpfb.entities.nodemodel.v2 import COMPOSITE_NODE_WRAPPERS
+        from ..entities.nodemodel.v2 import COMPOSITE_NODE_WRAPPERS
         for group_name in COMPOSITE_NODE_WRAPPERS.keys():
             group = COMPOSITE_NODE_WRAPPERS[group_name]
             _LOG.debug("Ensuring group exists", (group_name, group, group.node_class_name))

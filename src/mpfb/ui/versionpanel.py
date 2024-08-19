@@ -4,9 +4,10 @@ from ..services import LogService
 from ..services import SystemService
 from ..services import LOWEST_FUNCTIONAL_BLENDER_VERSION
 from .abstractpanel import Abstract_Panel
-from mpfb import BUILD_INFO, VERSION
+from .. import BUILD_INFO, VERSION
 
 _LOG = LogService.get_logger("ui.versionpanel")
+
 
 class MPFB_PT_Version_Panel(bpy.types.Panel):
 
@@ -24,5 +25,6 @@ class MPFB_PT_Version_Panel(bpy.types.Panel):
         layout.label(text="Blender Version: %s" % str(bpy.app.version))
         pyver = [sys.version_info[0], sys.version_info[1], sys.version_info[2]]
         layout.label(text="Python Version: %s" % str(pyver))
+
 
 ClassManager.add_class(MPFB_PT_Version_Panel)

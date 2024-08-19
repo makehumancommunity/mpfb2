@@ -499,7 +499,7 @@ class HumanService:
                 blender_material.diffuse_color = color
 
             if material_type == "GAMEENGINE":
-                from mpfb.entities.nodemodel.v2.materials.nodewrappergameengine import NodeWrapperGameEngine
+                from ..entities.nodemodel.v2.materials.nodewrappergameengine import NodeWrapperGameEngine
                 blender_material = MaterialService.create_empty_material(name, clothes)
                 mhmat = MhMaterial()
                 mhmat.populate_from_mhmat(mhclo.material)
@@ -697,7 +697,7 @@ class HumanService:
 
         if skin_type == "GAMEENGINE":
             _LOG.warn("Creating game engine skin material")
-            from mpfb.entities.nodemodel.v2.materials.nodewrappergameengine import NodeWrapperGameEngine
+            from ..entities.nodemodel.v2.materials.nodewrappergameengine import NodeWrapperGameEngine
             blender_material = MaterialService.create_empty_material(name, basemesh)
             mhmat = MhMaterial()
             mhmat.populate_from_mhmat(mhmat_file)
