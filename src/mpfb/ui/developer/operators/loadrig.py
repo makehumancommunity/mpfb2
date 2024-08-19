@@ -7,7 +7,7 @@ import bpy, json, math
 from bpy.types import StringProperty
 from bpy_extras.io_utils import ImportHelper
 
-from mpfb.ui.developer.developerpanel import DEVELOPER_PROPERTIES
+from ...developer.developerpanel import DEVELOPER_PROPERTIES
 
 _LOG = LogService.get_logger("developer.operators.loadrig")
 

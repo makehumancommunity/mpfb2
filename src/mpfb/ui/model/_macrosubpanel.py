@@ -52,7 +52,7 @@ class MPFB_PT_Macro_Sub_Panel(bpy.types.Panel):
         box = layout.box()
         box.label(text=category_name)
 
-        from mpfb.ui.model.modelpanel import MODEL_PROPERTIES
+        from ..model.modelpanel import MODEL_PROPERTIES
         filter = MODEL_PROPERTIES.get_value("filter", entity_reference=bpy.context.scene)
 
         for target in targets:
@@ -80,7 +80,7 @@ def _general_set_target_value(name, value):
     _LOG.trace("_general_set_target_value", (name, value))
     basemesh = ObjectService.find_object_of_type_amongst_nearest_relatives(bpy.context.active_object, "Basemesh")
     HumanObjectProperties.set_value(name, value, entity_reference=basemesh)
-    from mpfb.ui.model.modelpanel import MODEL_PROPERTIES
+    from ..model.modelpanel import MODEL_PROPERTIES
     prune = MODEL_PROPERTIES.get_value("prune", entity_reference=bpy.context.scene)
     ObjectService.activate_blender_object(basemesh)
     TargetService.reapply_macro_details(basemesh, remove_zero_weight_targets=prune)

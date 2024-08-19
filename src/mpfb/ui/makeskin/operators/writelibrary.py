@@ -26,7 +26,7 @@ class MPFB_OT_WriteLibraryOperator(bpy.types.Operator):
 
         blender_object = context.active_object
 
-        from mpfb.ui.makeskin import MakeSkinObjectProperties
+        from ...makeskin import MakeSkinObjectProperties
         name = MakeSkinObjectProperties.get_value("name", entity_reference=blender_object)
 
         if not name:

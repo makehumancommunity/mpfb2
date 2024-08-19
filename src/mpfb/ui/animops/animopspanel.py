@@ -7,7 +7,7 @@ from ...services import SceneConfigSet
 from ...services import UiService
 from ...services import MaterialService
 from ...services import RigService
-from mpfb.ui.abstractpanel import Abstract_Panel
+from ..abstractpanel import Abstract_Panel
 
 _LOG = LogService.get_logger("animops.animopspanel")
 

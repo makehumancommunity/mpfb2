@@ -4,7 +4,7 @@ from ....services import LogService
 from ....services import ObjectService
 from ....services import RigService
 from mpfb._classmanager import ClassManager
-from mpfb.ui.mpfboperator import MpfbOperator
+from ...mpfboperator import MpfbOperator
 import bpy, math
 
 _LOG = LogService.get_logger("animops.reduceddoll")
@@ -83,7 +83,7 @@ class MPFB_OT_Reduced_Doll_Operator(MpfbOperator):
         else:
             self.report({"INFO"}, "Done")
 
-        from mpfb.ui.animops.animopspanel import ANIMOPS_PROPERTIES
+        from ...animops.animopspanel import ANIMOPS_PROPERTIES
         if ANIMOPS_PROPERTIES.get_value("call_fbx", entity_reference=context.scene):
             bpy.ops.export_scene.fbx('INVOKE_DEFAULT', use_selection=True)
 

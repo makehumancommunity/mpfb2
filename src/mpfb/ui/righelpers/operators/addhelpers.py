@@ -1,6 +1,6 @@
 from ....services import LogService
 from ....services import RigService
-from mpfb.ui.righelpers import RigHelpersProperties
+from ...righelpers import RigHelpersProperties
 from mpfb._classmanager import ClassManager
 from mpfb.entities.rigging.righelpers.armhelpers.armhelpers import ArmHelpers
 from mpfb.entities.rigging.righelpers.leghelpers.leghelpers import LegHelpers
@@ -53,7 +53,7 @@ class MPFB_OT_AddHelpersOperator(bpy.types.Operator):
             self.report({'ERROR'}, "Only the \"Default\" and \"Default no toes\" skeletons are supported so far")
             return {'FINISHED'}
 
-        from mpfb.ui.righelpers.righelperspanel import SETUP_HELPERS_PROPERTIES  # pylint: disable=C0415
+        from ...righelpers.righelperspanel import SETUP_HELPERS_PROPERTIES  # pylint: disable=C0415
         settings = SETUP_HELPERS_PROPERTIES.as_dict(entity_reference=context.scene)
 
         if "arm_helpers_type" in settings and settings["arm_helpers_type"] and settings["arm_helpers_type"] != "NONE":

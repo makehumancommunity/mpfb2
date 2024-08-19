@@ -8,7 +8,7 @@ from ....services import LocationService
 from ....services import ObjectService
 from ....services import ClothesService
 from ....services import AssetService
-from mpfb.ui.makeclothes import MakeClothesObjectProperties
+from ...makeclothes import MakeClothesObjectProperties
 from mpfb.entities.objectproperties import GeneralObjectProperties
 from mpfb import ClassManager
 

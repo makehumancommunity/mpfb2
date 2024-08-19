@@ -25,8 +25,8 @@ class MPFB_OT_Load_Clothes_Operator(bpy.types.Operator, ImportHelper):
 
     def execute(self, context):
 
-        from mpfb.ui.loadclothes.loadclothespanel import LOAD_CLOTHES_PROPERTIES # pylint: disable=C0415
-        from mpfb.ui.assetlibrary.assetsettingspanel import ASSET_SETTINGS_PROPERTIES # pylint: disable=C0415
+        from ...loadclothes.loadclothespanel import LOAD_CLOTHES_PROPERTIES # pylint: disable=C0415
+        from ...assetlibrary.assetsettingspanel import ASSET_SETTINGS_PROPERTIES # pylint: disable=C0415
 
         scene = context.scene
 

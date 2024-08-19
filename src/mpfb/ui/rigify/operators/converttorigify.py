@@ -41,7 +41,7 @@ class MPFB_OT_Convert_To_Rigify_Operator(bpy.types.Operator):
 
         bpy.ops.object.transform_apply(location=True, scale=False, rotation=False)
 
-        from mpfb.ui.rigify.rigifypanel import RIGIFY_PROPERTIES
+        from ...rigify.rigifypanel import RIGIFY_PROPERTIES
         settings = RIGIFY_PROPERTIES.as_dict(entity_reference=context.scene)
 
         helpers = RigifyHelpers.get_instance(settings)

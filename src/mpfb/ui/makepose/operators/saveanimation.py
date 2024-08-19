@@ -34,7 +34,7 @@ class MPFB_OT_Save_Animation_Operator(bpy.types.Operator):
 
         armature_object = context.object
 
-        from mpfb.ui.makepose import MakePoseProperties
+        from ...makepose import MakePoseProperties
 
         overwrite = MakePoseProperties.get_value('overwrite', entity_reference=context.scene)
         roottrans = MakePoseProperties.get_value('roottrans', entity_reference=context.scene)

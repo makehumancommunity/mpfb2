@@ -2,7 +2,7 @@
 
 from ....services import LogService
 from mpfb._classmanager import ClassManager
-from mpfb.ui.mpfboperator import MpfbOperator
+from ...mpfboperator import MpfbOperator
 import bpy
 
 _LOG = LogService.get_logger("developer.listloglevels")

@@ -5,7 +5,7 @@ from ....services import LogService
 from ....services import NodeService
 from ....services import ObjectService
 from mpfb._classmanager import ClassManager
-from mpfb.ui.developer.developerpanel import DEVELOPER_PROPERTIES
+from ...developer.developerpanel import DEVELOPER_PROPERTIES
 import bpy, os, json
 from string import Template
 from pprint import pprint

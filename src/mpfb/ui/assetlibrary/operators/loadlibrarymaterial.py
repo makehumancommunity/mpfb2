@@ -20,7 +20,7 @@ class MPFB_OT_Load_Library_Material_Operator(bpy.types.Operator):
 
     def execute(self, context):
 
-        from mpfb.ui.assetlibrary.alternativematerialpanel import ALTMAT_PROPERTIES # pylint: disable=C0415
+        from ...assetlibrary.alternativematerialpanel import ALTMAT_PROPERTIES # pylint: disable=C0415
 
         scene = context.scene
         obj = context.object

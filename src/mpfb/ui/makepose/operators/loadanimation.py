@@ -34,7 +34,7 @@ class MPFB_OT_Load_Animation_Operator(bpy.types.Operator):
 
         armature_object = context.object
 
-        from mpfb.ui.makepose import MakePoseProperties
+        from ...makepose import MakePoseProperties
 
         #name = MakePoseProperties.get_value('name', entity_reference=context.scene)
         #pose_type = MakePoseProperties.get_value('pose_type', entity_reference=context.scene)

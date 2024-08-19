@@ -34,7 +34,7 @@ class MPFB_OT_Load_Partial_Operator(bpy.types.Operator):
 
         armature_object = context.object
 
-        from mpfb.ui.applypose.applyposepanel import POSES_PROPERTIES
+        from ...applypose.applyposepanel import POSES_PROPERTIES
         name = POSES_PROPERTIES.get_value("available_partials", entity_reference=context.scene)
 
         if not name:

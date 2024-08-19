@@ -4,7 +4,7 @@ from mpfb._classmanager import ClassManager
 from ..services import LogService
 from ..services import UiService
 from ..services import AssetService
-from mpfb.ui.abstractpanel import Abstract_Panel
+from .abstractpanel import Abstract_Panel
 from ..services import SceneConfigSet
 
 _LOG = LogService.get_logger("ui.assetspanel")

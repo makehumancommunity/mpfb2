@@ -6,7 +6,7 @@ from ....services import LocationService
 from ....services import ObjectService
 from ....services import ClothesService
 from ....services import MaterialService
-from mpfb.ui.makeclothes import MakeClothesObjectProperties
+from ...makeclothes import MakeClothesObjectProperties
 from mpfb.entities.objectproperties import GeneralObjectProperties
 from mpfb.entities.material.makeskinmaterial import MakeSkinMaterial
 from mpfb import ClassManager
@@ -69,7 +69,7 @@ class ClothesCommon():
 
         matbn = None
 
-        from mpfb.ui.makeclothes.makeclothespanel import MAKECLOTHES_PROPERTIES
+        from ...makeclothes.makeclothespanel import MAKECLOTHES_PROPERTIES
         save_material = MAKECLOTHES_PROPERTIES.get_value("save_material", entity_reference=context.scene)
 
         mat_type = None

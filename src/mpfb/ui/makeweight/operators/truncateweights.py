@@ -6,7 +6,7 @@ from bpy_extras.io_utils import ImportHelper
 from bpy.props import StringProperty
 from ....services import LogService
 from ....services import ObjectService
-from mpfb.ui.makeweight.makeweightpanel import MAKEWEIGHT_PROPERTIES
+from ...makeweight.makeweightpanel import MAKEWEIGHT_PROPERTIES
 from mpfb import ClassManager
 
 _LOG = LogService.get_logger("makeweight.truncateweights")

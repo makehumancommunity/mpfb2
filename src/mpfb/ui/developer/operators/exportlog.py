@@ -21,7 +21,7 @@ class MPFB_OT_Export_Log_Operator(bpy.types.Operator, ExportHelper):
         loggers = LogService.get_loggers()
 
         scene = context.scene
-        from mpfb.ui.developer.developerpanel import DEVELOPER_PROPERTIES # pylint: disable=C0415
+        from ...developer.developerpanel import DEVELOPER_PROPERTIES # pylint: disable=C0415
 
         logger_name = DEVELOPER_PROPERTIES.get_value("available_loggers", entity_reference=scene)
 

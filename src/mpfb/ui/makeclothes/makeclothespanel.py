@@ -8,9 +8,9 @@ from ...services import UiService
 from ...services import ObjectService
 from ...services import LocationService
 from ...services import MaterialService
-from mpfb.ui.makeclothes import MakeClothesObjectProperties
+from ..makeclothes import MakeClothesObjectProperties
 from mpfb.entities.objectproperties import GeneralObjectProperties
-from mpfb.ui.abstractpanel import Abstract_Panel
+from ..abstractpanel import Abstract_Panel
 
 # TODO:
 # - Nuke all vert groups
@@ -187,7 +187,7 @@ class MPFB_PT_MakeClothes_Panel(Abstract_Panel):
             box.label(text="Select a clothes type mesh")
             return
 
-        from mpfb.ui.makeclothes.operators import CLOTHES_CHECKS
+        from ..makeclothes.operators import CLOTHES_CHECKS
 
         uuid_value = GeneralObjectProperties.get_value("uuid", entity_reference=clothes)
         if not uuid_value:

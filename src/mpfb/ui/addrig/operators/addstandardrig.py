@@ -31,7 +31,7 @@ class MPFB_OT_AddStandardRigOperator(bpy.types.Operator):
 
         basemesh = context.active_object
 
-        from mpfb.ui.addrig.addrigpanel import ADD_RIG_PROPERTIES # pylint: disable=C0415
+        from ...addrig.addrigpanel import ADD_RIG_PROPERTIES # pylint: disable=C0415
 
         import_weights = ADD_RIG_PROPERTIES.get_value("import_weights", entity_reference=scene)
         standard_rig = ADD_RIG_PROPERTIES.get_value("standard_rig", entity_reference=scene)

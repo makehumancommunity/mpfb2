@@ -41,7 +41,7 @@ class MPFB_OT_Save_Openpose_Operator(bpy.types.Operator, ExportHelper):
         return [cam_coord[0] * resx, (1.0 - cam_coord[1]) * resy]
 
     def _as_xz_projection(self, scene, resx, resy, keypoint):
-        from mpfb.ui.ai.aipanel import AI_PROPERTIES
+        from ...ai.aipanel import AI_PROPERTIES
         minx = AI_PROPERTIES.get_value("minx", entity_reference=scene)
         maxx = AI_PROPERTIES.get_value("maxx", entity_reference=scene)
         minz = AI_PROPERTIES.get_value("minz", entity_reference=scene)
@@ -59,7 +59,7 @@ class MPFB_OT_Save_Openpose_Operator(bpy.types.Operator, ExportHelper):
 
     def _get_keypoints_2d(self, armature_object, bm, scene, camera, resx, resy, mapper):
 
-        from mpfb.ui.ai.aipanel import AI_PROPERTIES
+        from ...ai.aipanel import AI_PROPERTIES
         low = AI_PROPERTIES.get_value("lowconfidence", entity_reference=scene)
         medium = AI_PROPERTIES.get_value("mediumconfidence", entity_reference=scene)
         high = AI_PROPERTIES.get_value("highconfidence", entity_reference=scene)
@@ -158,7 +158,7 @@ class MPFB_OT_Save_Openpose_Operator(bpy.types.Operator, ExportHelper):
             self.report({'ERROR'}, "Could not find a camera in the scene")
             return {'FINISHED'}
 
-        from mpfb.ui.ai.aipanel import AI_PROPERTIES
+        from ...ai.aipanel import AI_PROPERTIES
         hands = AI_PROPERTIES.get_value("hands", entity_reference=context.scene)
         #face = AI_PROPERTIES.get_value("face", entity_reference=context.scene)
         mode = AI_PROPERTIES.get_value("mode", entity_reference=context.scene)

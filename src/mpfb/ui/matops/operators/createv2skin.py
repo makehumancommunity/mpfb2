@@ -7,7 +7,7 @@ from ....services import NodeService
 from ....services import ObjectService
 from mpfb.entities.nodemodel.v2.materials import NodeWrapperSkin
 from mpfb._classmanager import ClassManager
-from mpfb.ui.developer.developerpanel import DEVELOPER_PROPERTIES
+from ...developer.developerpanel import DEVELOPER_PROPERTIES
 import bpy, os, json, pprint
 
 _LOG = LogService.get_logger("matops.createv2skin")
@@ -65,7 +65,7 @@ class MPFB_OT_Create_V2_Skin_Operator(bpy.types.Operator):
         scene = context.scene
         object = context.object
 
-        from mpfb.ui.matops.matopspanel import MATOPS_PROPERTIES
+        from ...matops.matopspanel import MATOPS_PROPERTIES
         recreate_groups = MATOPS_PROPERTIES.get_value("recreate_groups", entity_reference=scene)
         reuse_textures = MATOPS_PROPERTIES.get_value("reuse_textures", entity_reference=scene)
 

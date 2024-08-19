@@ -7,7 +7,7 @@ from ....services import LogService
 from ....services import HumanService
 from ....services import ObjectService
 from ....services import SystemService
-from mpfb.ui.mpfboperator import MpfbOperator
+from ...mpfboperator import MpfbOperator
 from mpfb import ClassManager
 
 _LOG = LogService.get_logger("newhuman.humanfrommhm")
@@ -28,7 +28,7 @@ class MPFB_OT_HumanFromMHMOperator(MpfbOperator, ImportHelper):
 
         _LOG.reset_timer()
 
-        from mpfb.ui.newhuman.frompresetspanel import PRESETS_HUMAN_PROPERTIES  # pylint: disable=C0415
+        from ...newhuman.frompresetspanel import PRESETS_HUMAN_PROPERTIES  # pylint: disable=C0415
 
         _LOG.debug("filepath", self.filepath)
 

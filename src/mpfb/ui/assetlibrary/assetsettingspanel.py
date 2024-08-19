@@ -6,7 +6,7 @@ from ...services import LocationService
 from ...services import UiService
 from ...services import AssetService
 from ...services import SceneConfigSet
-from mpfb.ui.abstractpanel import Abstract_Panel
+from ..abstractpanel import Abstract_Panel
 import os, bpy
 
 _LOG = LogService.get_logger("assetlibrary.assetsettingspanel")

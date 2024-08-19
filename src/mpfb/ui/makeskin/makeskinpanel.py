@@ -5,9 +5,9 @@ from mpfb import ClassManager
 from ...services import LogService
 from ...services import SceneConfigSet
 from ...services import UiService
-from mpfb.ui.makeskin import MakeSkinObjectProperties
+from ..makeskin import MakeSkinObjectProperties
 from ...services import MaterialService
-from mpfb.ui.abstractpanel import Abstract_Panel
+from ..abstractpanel import Abstract_Panel
 
 _LOC = os.path.dirname(__file__)
 MAKESKIN_PROPERTIES_DIR = os.path.join(_LOC, "properties")

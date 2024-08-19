@@ -3,7 +3,7 @@ from mpfb._classmanager import ClassManager
 from ...services import LogService
 from ...services import SceneConfigSet
 from ...services import UiService
-from mpfb.ui.abstractpanel import Abstract_Panel
+from ..abstractpanel import Abstract_Panel
 
 _LOG = LogService.get_logger("importer.importerpanel")
 
@@ -77,7 +77,7 @@ class MPFB_PT_Importer_Panel(Abstract_Panel):
         layout = self.layout
         scn = context.scene
 
-        from mpfb.ui.eyesettings.eyesettingspanel import ensure_eye_settings_default_exists
+        from ..eyesettings.eyesettingspanel import ensure_eye_settings_default_exists
         ensure_eye_settings_default_exists()
 
         if UiService.get_importer_panel_list() is None:

@@ -5,7 +5,7 @@ from ...services import LogService
 from ...services import ObjectService
 from ...services import UiService
 from ...services import SceneConfigSet
-from mpfb.ui.abstractpanel import Abstract_Panel
+from ..abstractpanel import Abstract_Panel
 import bpy, os
 
 _LOG = LogService.get_logger("ui.rigifypanel")

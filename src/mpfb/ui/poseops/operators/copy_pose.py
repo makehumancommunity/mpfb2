@@ -28,7 +28,7 @@ class MPFB_OT_Copy_Pose_Operator(bpy.types.Operator):
         active = context.active_object
         scn = context.scene
 
-        from mpfb.ui.poseops.poseopspanel import POP_PROPERTIES
+        from ...poseops.poseopspanel import POP_PROPERTIES
         only_rotation = POP_PROPERTIES.get_value("only_rotation", entity_reference=scn)
 
         bpy.ops.object.mode_set(mode='OBJECT', toggle=False)

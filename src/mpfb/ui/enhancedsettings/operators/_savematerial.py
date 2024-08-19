@@ -4,7 +4,7 @@ from ....services import LocationService
 from ....services import ObjectService
 from ....services import NodeService
 from ....services import MaterialService
-from mpfb.ui.enhancedsettings.enhancedsettingspanel import ENHANCED_SETTINGS_PROPERTIES
+from ...enhancedsettings.enhancedsettingspanel import ENHANCED_SETTINGS_PROPERTIES
 #from mpfb import CLASSMANAGER
 import bpy, os, json
 

@@ -34,7 +34,7 @@ class MPFB_OT_Load_Pose_Operator(bpy.types.Operator):
 
         armature_object = context.object
 
-        from mpfb.ui.applypose.applyposepanel import POSES_PROPERTIES
+        from ...applypose.applyposepanel import POSES_PROPERTIES
         name = POSES_PROPERTIES.get_value("available_poses", entity_reference=context.scene)
 
         name = str(name).strip()

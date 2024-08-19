@@ -37,7 +37,7 @@ class _Abstract_Model_Panel(bpy.types.Panel):
 
     def _draw_category(self, scene, layout, category, basemesh):
 
-        from mpfb.ui.model.modelpanel import MODEL_PROPERTIES
+        from ..model.modelpanel import MODEL_PROPERTIES
         hideimg = MODEL_PROPERTIES.get_value("hideimg", entity_reference=bpy.context.scene)
         only_active = MODEL_PROPERTIES.get_value("only_active", entity_reference=bpy.context.scene)
 
@@ -77,7 +77,7 @@ class _Abstract_Model_Panel(bpy.types.Panel):
         if not basemesh:
             return
 
-        from mpfb.ui.model.modelpanel import MODEL_PROPERTIES
+        from ..model.modelpanel import MODEL_PROPERTIES
         filter = MODEL_PROPERTIES.get_value("filter", entity_reference=bpy.context.scene)
 
         tot_width = bpy.context.region.width
@@ -187,7 +187,7 @@ def _set_simple_modifier_value(scene, blender_object, section, category, value, 
         _LOG.debug("Will implicitly attempt a load of a target", target_path)
         TargetService.load_target(blender_object, target_path, weight=value, name=name)
     else:
-        from mpfb.ui.model.modelpanel import MODEL_PROPERTIES
+        from ..model.modelpanel import MODEL_PROPERTIES
         prune = MODEL_PROPERTIES.get_value("prune", entity_reference=bpy.context.scene)
         TargetService.set_target_value(blender_object, name, value, delete_target_on_zero=prune)
 
@@ -220,7 +220,7 @@ def _set_opposed_modifier_value(scene, blender_object, section, category, value,
     """This modifier is a combination of opposing targets ("decr-incr", "in-out"...)"""
     _LOG.debug("_set_opposed_modifier_value", (section, category, value, side))
 
-    from mpfb.ui.model.modelpanel import MODEL_PROPERTIES
+    from ..model.modelpanel import MODEL_PROPERTIES
     prune = MODEL_PROPERTIES.get_value("prune", entity_reference=bpy.context.scene)
     symmetry = MODEL_PROPERTIES.get_value("symmetry", entity_reference=bpy.context.scene)
 
@@ -265,7 +265,7 @@ def _set_modifier_value(scene, blender_object, section, category, value, side="u
         _set_opposed_modifier_value(scene, blender_object, section, category, value, side)
     else:
         _set_simple_modifier_value(scene, blender_object, section, category, value, side)
-    from mpfb.ui.model.modelpanel import MODEL_PROPERTIES
+    from ..model.modelpanel import MODEL_PROPERTIES
     if MODEL_PROPERTIES.get_value("refit", entity_reference=bpy.context.scene):
         HumanService.refit(blender_object)
 

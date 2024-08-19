@@ -4,7 +4,7 @@ import bpy
 from ....services import LogService
 from ....services import ObjectService
 from ....services import TargetService
-from mpfb.ui.maketarget import MakeTargetObjectProperties
+from ...maketarget import MakeTargetObjectProperties
 from mpfb import ClassManager
 
 _LOG = LogService.get_logger("maketarget.createtarget")

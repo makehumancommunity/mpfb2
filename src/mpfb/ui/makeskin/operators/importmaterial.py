@@ -30,7 +30,7 @@ class MPFB_OT_ImportMaterialOperator(bpy.types.Operator, ImportHelper):
         obj = context.active_object
         scn = context.scene
 
-        from mpfb.ui.makeskin.makeskinpanel import MAKESKIN_PROPERTIES
+        from ...makeskin.makeskinpanel import MAKESKIN_PROPERTIES
 
         if MaterialService.has_materials(obj):
             if not MAKESKIN_PROPERTIES.get_value("overwrite", entity_reference=scn):

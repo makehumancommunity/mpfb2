@@ -11,7 +11,7 @@ from .loadlibraryskin import MPFB_OT_Load_Library_Skin_Operator
 from .loadlibrarymaterial import MPFB_OT_Load_Library_Material_Operator
 from .loadlibrarypose import MPFB_OT_Load_Library_Pose_Operator
 from .loadpack import MPFB_OT_Load_Pack_Operator
-from mpfb.ui.assetlibrary.operators.installtarget import MPFB_OT_Install_Target_Operator
+from ...assetlibrary.operators.installtarget import MPFB_OT_Install_Target_Operator
 
 __all__ = [
     "MPFB_OT_Load_Library_Clothes_Operator",

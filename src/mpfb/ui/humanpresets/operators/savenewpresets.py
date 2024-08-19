@@ -6,7 +6,7 @@ from ....services import NodeService
 from ....services import MaterialService
 from ....services import HumanService
 from ....services import RigService
-from mpfb.ui.humanpresets.humanpresetspanel import HUMAN_PRESETS_PROPERTIES
+from ...humanpresets.humanpresetspanel import HUMAN_PRESETS_PROPERTIES
 from mpfb._classmanager import ClassManager
 import bpy, os, json
 

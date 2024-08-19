@@ -1,6 +1,6 @@
 from ....services import LogService
 # from mpfb.entities.fingerik.fingerik import FingerIk
-from mpfb.ui.righelpers import RigHelpersProperties
+from ...righelpers import RigHelpersProperties
 from mpfb._classmanager import ClassManager
 from mpfb.entities.rigging.righelpers.armhelpers.armhelpers import ArmHelpers
 from mpfb.entities.rigging.righelpers.leghelpers.leghelpers import LegHelpers
@@ -44,7 +44,7 @@ class MPFB_OT_RemoveHelpersOperator(bpy.types.Operator):
         _LOG.enter()
         armature_object = context.object
 
-        from mpfb.ui.righelpers.righelperspanel import SETUP_HELPERS_PROPERTIES  # pylint: disable=C0415
+        from ...righelpers.righelperspanel import SETUP_HELPERS_PROPERTIES  # pylint: disable=C0415
         settings = SETUP_HELPERS_PROPERTIES.as_dict(entity_reference=context.scene)
 
         finger_mode = RigHelpersProperties.get_value("finger_mode", entity_reference=armature_object)

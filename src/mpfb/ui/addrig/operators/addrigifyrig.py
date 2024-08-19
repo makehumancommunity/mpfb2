@@ -37,7 +37,7 @@ class MPFB_OT_AddRigifyRigOperator(bpy.types.Operator):
 
         basemesh = context.active_object
 
-        from mpfb.ui.addrig.addrigpanel import ADD_RIG_PROPERTIES # pylint: disable=C0415
+        from ...addrig.addrigpanel import ADD_RIG_PROPERTIES # pylint: disable=C0415
 
         rigify_rig = ADD_RIG_PROPERTIES.get_value("rigify_rig", entity_reference=scene)
         import_weights = ADD_RIG_PROPERTIES.get_value("import_weights_rigify", entity_reference=scene)

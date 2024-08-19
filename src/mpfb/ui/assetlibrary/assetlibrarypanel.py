@@ -6,9 +6,9 @@ from ...services import LogService
 from ...services import AssetService, ASSET_LIBRARY_SECTIONS
 from ...services import HumanService
 from ...services import ObjectService
-from mpfb.ui.assetlibrary.assetsettingspanel import ASSET_SETTINGS_PROPERTIES
+from ..assetlibrary.assetsettingspanel import ASSET_SETTINGS_PROPERTIES
 from ...services import UiService
-from mpfb.ui.assetspanel import FILTER_PROPERTIES
+from ..assetspanel import FILTER_PROPERTIES
 
 _LOG = LogService.get_logger("assetlibrary.assetlibrarypanel")
 

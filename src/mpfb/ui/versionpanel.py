@@ -3,7 +3,7 @@ from mpfb._classmanager import ClassManager
 from ..services import LogService
 from ..services import SystemService
 from ..services import LOWEST_FUNCTIONAL_BLENDER_VERSION
-from mpfb.ui.abstractpanel import Abstract_Panel
+from .abstractpanel import Abstract_Panel
 from mpfb import BUILD_INFO, VERSION
 
 _LOG = LogService.get_logger("ui.versionpanel")

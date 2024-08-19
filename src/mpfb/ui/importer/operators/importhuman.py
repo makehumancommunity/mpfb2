@@ -6,9 +6,9 @@ from ....services import ObjectService
 from ....services import MaterialService
 from ....services import NodeService
 from ....services import UiService
-from mpfb.ui.importer.importerpanel import IMPORTER_PROPERTIES
-from mpfb.ui.importerpresets.importerpresetspanel import IMPORTER_PRESETS_PROPERTIES
-from mpfb.ui.mpfboperator import MpfbOperator
+from ...importer.importerpanel import IMPORTER_PROPERTIES
+from ...importerpresets.importerpresetspanel import IMPORTER_PRESETS_PROPERTIES
+from ...mpfboperator import MpfbOperator
 from mpfb._classmanager import ClassManager
 from mpfb.entities.socketobject.socketbodyobject import SocketBodyObject
 from mpfb.entities.socketobject.socketproxyobject import SocketProxyObject

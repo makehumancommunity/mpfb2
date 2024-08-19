@@ -24,7 +24,7 @@ class MPFB_OT_MarkClothesOperator(bpy.types.Operator):
         blender_object = context.active_object
         scene = context.scene
 
-        from mpfb.ui.makeclothes.makeclothespanel import MAKECLOTHES_PROPERTIES # pylint: disable=C0415
+        from ...makeclothes.makeclothespanel import MAKECLOTHES_PROPERTIES # pylint: disable=C0415
         new_type = MAKECLOTHES_PROPERTIES.get_value("object_type", entity_reference=scene)
         GeneralObjectProperties.set_value("object_type", new_type, entity_reference=blender_object)
 

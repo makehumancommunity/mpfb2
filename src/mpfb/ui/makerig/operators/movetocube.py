@@ -3,7 +3,7 @@
 from ....services import LogService
 from ....services import ObjectService
 from mpfb._classmanager import ClassManager
-from mpfb.ui.mpfboperator import MpfbOperator
+from ...mpfboperator import MpfbOperator
 import bpy, math
 
 _LOG = LogService.get_logger("makerig.movetocube")
@@ -101,7 +101,7 @@ class MPFB_OT_Move_To_Cube_Operator(MpfbOperator):
 
         _LOG.debug("Head, tail", (head, tail))
 
-        from mpfb.ui.makerig import MakeRigProperties
+        from ...makerig import MakeRigProperties
         head_cube = MakeRigProperties.get_value("head_cube", entity_reference=scene)
         tail_cube = MakeRigProperties.get_value("tail_cube", entity_reference=scene)
 

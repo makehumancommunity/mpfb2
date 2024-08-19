@@ -6,8 +6,8 @@ from ...services import LogService
 from ...services import ObjectService
 from ...services import UiService
 from ...services import TargetService
-from mpfb.ui.abstractpanel import Abstract_Panel
-from mpfb.ui.maketarget import MakeTargetObjectProperties
+from ..abstractpanel import Abstract_Panel
+from ..maketarget import MakeTargetObjectProperties
 
 _LOG = LogService.get_logger("maketarget.maketargetpanel")
 

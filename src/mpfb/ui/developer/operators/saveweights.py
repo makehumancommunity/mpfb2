@@ -61,7 +61,7 @@ class MPFB_OT_Save_Weights_Operator(bpy.types.Operator, ExportHelper):
                 self.report({'ERROR'}, "Could not find related basemesh. It should have been parent or child of armature object.")
                 return {'FINISHED'}
 
-        from mpfb.ui.developer.developerpanel import DEVELOPER_PROPERTIES  # pylint: disable=C0415
+        from ...developer.developerpanel import DEVELOPER_PROPERTIES  # pylint: disable=C0415
 
         weights_mask = DEVELOPER_PROPERTIES.get_value("weights_mask", entity_reference=context.scene)
         save_evaluated = DEVELOPER_PROPERTIES.get_value("save_evaluated", entity_reference=context.scene)

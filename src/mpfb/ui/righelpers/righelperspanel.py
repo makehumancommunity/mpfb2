@@ -4,8 +4,8 @@ from mpfb._classmanager import ClassManager
 from ...services import LogService
 from ...services import SceneConfigSet
 from ...services import UiService
-from mpfb.ui.righelpers import RigHelpersProperties
-from mpfb.ui.abstractpanel import Abstract_Panel
+from ..righelpers import RigHelpersProperties
+from ..abstractpanel import Abstract_Panel
 
 _LOG = LogService.get_logger("righelpers.righelperspanel")
 

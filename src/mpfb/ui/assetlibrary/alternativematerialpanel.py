@@ -6,7 +6,7 @@ from ...services import ObjectService
 from ...services import UiService
 from ...services import AssetService
 from ...services import SceneConfigSet
-from mpfb.ui.abstractpanel import Abstract_Panel
+from ..abstractpanel import Abstract_Panel
 from mpfb.entities.objectproperties import GeneralObjectProperties
 import os, bpy
 

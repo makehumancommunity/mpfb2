@@ -4,7 +4,7 @@ from ....services import LogService
 from ....services import ObjectService
 from ....services import RigService
 from mpfb._classmanager import ClassManager
-from mpfb.ui.mpfboperator import MpfbOperator
+from ...mpfboperator import MpfbOperator
 import bpy, math
 
 _LOG = LogService.get_logger("animops.mapmixamo")

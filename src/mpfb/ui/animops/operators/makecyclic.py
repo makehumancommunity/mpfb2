@@ -5,7 +5,7 @@ from ....services import ObjectService
 from ....services import AnimationService
 from ....services import RigService
 from mpfb._classmanager import ClassManager
-from mpfb.ui.mpfboperator import MpfbOperator
+from ...mpfboperator import MpfbOperator
 import bpy, json, math, os
 from bpy.types import StringProperty
 from bpy_extras.io_utils import ExportHelper
@@ -37,7 +37,7 @@ class MPFB_OT_Make_Cyclic_Operator(MpfbOperator):
 
         armature_object = context.object
 
-        from mpfb.ui.animops.animopspanel import ANIMOPS_PROPERTIES
+        from ...animops.animopspanel import ANIMOPS_PROPERTIES
 
         shiftroot = ANIMOPS_PROPERTIES.get_value("shiftroot", entity_reference=context.scene)
         rootbone = ANIMOPS_PROPERTIES.get_value('rootbone', entity_reference=context.scene)

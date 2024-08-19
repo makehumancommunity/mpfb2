@@ -6,10 +6,10 @@ from ....services import LocationService
 from ....services import ObjectService
 from ....services import ClothesService
 from ....services import MaterialService
-from mpfb.ui.makeclothes import MakeClothesObjectProperties
+from ...makeclothes import MakeClothesObjectProperties
 from mpfb.entities.objectproperties import GeneralObjectProperties
 from mpfb.entities.material.makeskinmaterial import MakeSkinMaterial
-from mpfb.ui.makeclothes.operators.clothescommon import ClothesCommon
+from ...makeclothes.operators.clothescommon import ClothesCommon
 from mpfb import ClassManager
 
 _LOG = LogService.get_logger("makeclothes.checkclothes")

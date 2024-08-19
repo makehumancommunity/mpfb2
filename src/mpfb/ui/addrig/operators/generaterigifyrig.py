@@ -38,7 +38,7 @@ class MPFB_OT_GenerateRigifyRigOperator(bpy.types.Operator):
             self.report({'ERROR'}, "The rigify addon isn't enabled. You need to enable it under preferences.")
             return {'FINISHED'}
 
-        from mpfb.ui.addrig.addrigpanel import ADD_RIG_PROPERTIES  # pylint: disable=C0415
+        from ...addrig.addrigpanel import ADD_RIG_PROPERTIES  # pylint: disable=C0415
 
         armature_object = context.active_object
         delete_after_generate = ADD_RIG_PROPERTIES.get_value("delete_after_generate", entity_reference=scene)

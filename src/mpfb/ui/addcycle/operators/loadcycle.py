@@ -34,7 +34,7 @@ class MPFB_OT_Load_Walk_Cycle_Operator(bpy.types.Operator):
 
         armature_object = context.object
 
-        from mpfb.ui.addcycle.addcyclepanel import ADD_CYCLE_PROPERTIES
+        from ...addcycle.addcyclepanel import ADD_CYCLE_PROPERTIES
 
         iterations = ADD_CYCLE_PROPERTIES.get_value('iterations', entity_reference=context.scene)
         cycle = ADD_CYCLE_PROPERTIES.get_value('available_cycles', entity_reference=context.scene)

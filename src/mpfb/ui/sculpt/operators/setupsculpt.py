@@ -184,7 +184,7 @@ class MPFB_OT_Setup_Sculpt_Operator(bpy.types.Operator):
         context.view_layer.objects.active = obj
         bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
 
-        from mpfb.ui.sculpt.sculptpanel import SCULPT_PROPERTIES
+        from ...sculpt.sculptpanel import SCULPT_PROPERTIES
 
         adjust_settings = SCULPT_PROPERTIES.get_value("adjust_settings", entity_reference=context.scene)
         apply_armature = SCULPT_PROPERTIES.get_value("apply_armature", entity_reference=context.scene)

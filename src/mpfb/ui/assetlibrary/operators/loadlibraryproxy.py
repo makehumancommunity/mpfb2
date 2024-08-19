@@ -28,7 +28,7 @@ class MPFB_OT_Load_Library_Proxy_Operator(bpy.types.Operator):
 
         _LOG.debug("filepath", self.filepath)
 
-        from mpfb.ui.assetlibrary.assetsettingspanel import ASSET_SETTINGS_PROPERTIES # pylint: disable=C0415
+        from ...assetlibrary.assetsettingspanel import ASSET_SETTINGS_PROPERTIES # pylint: disable=C0415
 
         scene = context.scene
 

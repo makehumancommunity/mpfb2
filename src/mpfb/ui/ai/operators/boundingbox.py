@@ -48,7 +48,7 @@ class MPFB_OT_Boundingbox_Operator(bpy.types.Operator):
             if maxz is None or world_coord.z > maxz:
                 maxz = world_coord.z
 
-        from mpfb.ui.ai.aipanel import AI_PROPERTIES
+        from ...ai.aipanel import AI_PROPERTIES
 
         AI_PROPERTIES.set_value("minx", minx, entity_reference=context.scene)
         AI_PROPERTIES.set_value("maxx", maxx, entity_reference=context.scene)
