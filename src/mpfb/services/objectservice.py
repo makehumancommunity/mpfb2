@@ -694,7 +694,7 @@ class ObjectService:
         bpy.ops.mesh.delete(type='VERT')
         bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
 
-        from mpfb.services.materialservice import MaterialService
+        from .materialservice import MaterialService  # To avoid circular import
         MaterialService.delete_all_materials(clothes_obj)
 
         GeneralObjectProperties.set_value("asset_source", "", entity_reference=clothes_obj)

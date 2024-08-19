@@ -8,7 +8,7 @@ _LOG = LogService.get_logger("services.init")
 _LOG.trace("initializing services module")
 
 # LocationService only depends on LogService.
-from.locationservice import LocationService
+from .locationservice import LocationService
 
 # Utility classes
 from .jsoncall import JsonCall

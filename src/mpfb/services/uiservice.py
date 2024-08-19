@@ -4,7 +4,7 @@ import os, re
 from fnmatch import fnmatch
 from .logservice import LogService
 from .locationservice import LocationService
-from mpfb import VERSION, get_preference
+from .. import VERSION, get_preference
 
 _LOG = LogService.get_logger("services.uiservice")
 

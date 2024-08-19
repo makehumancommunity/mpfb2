@@ -8,6 +8,7 @@ import inspect
 
 from .objectservice import ObjectService
 from .logservice import LogService
+from .nodetreeservice import NodeTreeService
 
 _LOG = LogService.get_logger("services.nodeservice")
 
@@ -156,7 +157,6 @@ class NodeService:
                         else:
                             input_dict["default_value"] = input_socket.default_value
                 if "Float" in input_dict["class"] and hasattr(node, "node_tree"):
-                    from mpfb.services.nodetreeservice import NodeTreeService
                     _LOG.debug("input_socket", input_socket)
                     tree_input = NodeTreeService.get_input_socket(node.node_tree, input_socket.name)
                     input_dict["min_value"] = tree_input.min_value

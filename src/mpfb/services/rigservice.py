@@ -977,7 +977,7 @@ class RigService:
         else:
             raise ValueError("Could not find subrig asset mesh")
 
-        from mpfb.services.clothesservice import ClothesService
+        from .clothesservice import ClothesService  # To avoid a circular import
 
         asset_file = ClothesService.find_clothes_absolute_path(asset_mesh)
 

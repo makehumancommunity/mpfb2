@@ -1,7 +1,7 @@
 """Module for resolving various locations as paths."""
 
 import os, bpy
-from mpfb import get_preference
+from .. import get_preference
 from .logservice import LogService
 from pathlib import Path
 
