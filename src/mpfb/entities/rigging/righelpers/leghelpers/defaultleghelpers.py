@@ -6,7 +6,7 @@ from .....services import LogService
 _LOG = LogService.get_logger("leghelpers.defaultleghelpers")
 
 from .....services import RigService
-from mpfb.entities.rigging.righelpers.leghelpers.leghelpers import LegHelpers
+from .leghelpers import LegHelpers
 
 _ROTATION_LIMITS = {
         "lowerleg01": {

@@ -7,10 +7,11 @@ from ...services import SocketService
 from ...services import ObjectService
 from ...services import ModifierService
 from .socketmeshobject import SocketMeshObject
-from mpfb.entities.objectproperties import GeneralObjectProperties
+from ..objectproperties import GeneralObjectProperties
 from ._extra_vertex_groups import vertex_group_information
 
 _LOG = LogService.get_logger("socketobject.socketbodyobject")
+
 
 class SocketProxyObject(SocketMeshObject):
     """This is a helper object for importing proxies (bodyproxies, clothes...)
@@ -72,7 +73,7 @@ class SocketProxyObject(SocketMeshObject):
     def get_lowest_point(self):
         """Find the vertex coordinate with the lowest Z value"""
         _LOG.enter()
-        return numpy.amin(self._vertices[:, 2]) # minimum value in Z column
+        return numpy.amin(self._vertices[:, 2])  # minimum value in Z column
 
     def arrange_extra_vertex_groups(self):
         """Take information from the _extra_vertex_groups dict and use it to create extra vertex
@@ -125,7 +126,7 @@ class SocketProxyObject(SocketMeshObject):
 
         if self._importer_presets["add_subdiv_modifier"]:
             modifier = obj.modifiers.new("Subdivision", 'SUBSURF')
-            modifier.levels = 0 # viewport level
+            modifier.levels = 0  # viewport level
             modifier.render_levels = self._importer_presets["subdiv_levels"]
 
         _LOG.debug("parent", parent)

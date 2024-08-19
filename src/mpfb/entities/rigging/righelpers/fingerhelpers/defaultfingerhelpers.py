@@ -6,7 +6,7 @@ from .....services import LogService
 _LOG = LogService.get_logger("fingerhelpers.defaultfingerhelpers")
 
 from .....services import RigService
-from mpfb.entities.rigging.righelpers.fingerhelpers.fingerhelpers import FingerHelpers
+from .fingerhelpers import FingerHelpers
 
 _ROTATION_LIMITS = {
         "finger_first_segment": {

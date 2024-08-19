@@ -6,7 +6,7 @@ from .....services import LogService
 _LOG = LogService.get_logger("eyehelpers.defaulteyehelpers")
 
 from .....services import RigService
-from mpfb.entities.rigging.righelpers.eyehelpers.eyehelpers import EyeHelpers
+from .eyehelpers import EyeHelpers
 
 _ROTATION_LIMITS = {
         "lowereye01": {

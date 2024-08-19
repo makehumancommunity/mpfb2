@@ -41,7 +41,7 @@ class RigifyHelpers():
     def convert_to_rigify(self, armature_object):
         _LOG.enter()
 
-        from mpfb.entities.objectproperties import GeneralObjectProperties
+        from ...objectproperties import GeneralObjectProperties
         scale_factor = GeneralObjectProperties.get_value("scale_factor", entity_reference=armature_object)
 
         self._setup_spine(armature_object)
@@ -99,7 +99,7 @@ class RigifyHelpers():
         if child_rig == rigify_object or child_rig == old_armature:
             return
 
-        from mpfb.entities.rig import Rig
+        from ...rig import Rig
 
         for bone in child_rig.pose.bones:
             for con in bone.constraints:

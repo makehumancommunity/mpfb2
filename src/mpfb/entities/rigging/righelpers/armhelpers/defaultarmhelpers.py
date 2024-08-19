@@ -6,7 +6,7 @@ from .....services import LogService
 _LOG = LogService.get_logger("armhelpers.defaultarmhelpers")
 
 from .....services import RigService
-from mpfb.entities.rigging.righelpers.armhelpers.armhelpers import ArmHelpers
+from .armhelpers import ArmHelpers
 
 _ROTATION_LIMITS = {
         "lowerarm01": {

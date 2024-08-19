@@ -5,7 +5,7 @@ import bmesh
 from ..services import LogService
 from ..services import ObjectService
 from ..services import RigService
-from mpfb.entities.objectproperties import GeneralObjectProperties
+from .objectproperties import GeneralObjectProperties
 
 import bpy, math, json, random, typing, re
 
@@ -98,7 +98,7 @@ class Rig:
 
         # Upgrade from layers to collections
         if version < 110:
-            from mpfb.entities.rigging.rigifyhelpers.rigifyhelpers import RigifyHelpers
+            from .rigging.rigifyhelpers.rigifyhelpers import RigifyHelpers
 
             coll_names = [f"Layer {i+1}" for i in range(32)]
             coll_used = set()
@@ -196,7 +196,7 @@ class Rig:
             rig.rig_header["extra_bones"] = extra_bones
 
         if rigify_ui:
-            from mpfb.entities.rigging.rigifyhelpers.rigifyhelpers import RigifyHelpers
+            from .rigging.rigifyhelpers.rigifyhelpers import RigifyHelpers
             rig.rig_header["rigify_ui"] = RigifyHelpers.get_rigify_ui(armature)
 
         return rig
@@ -239,7 +239,7 @@ class Rig:
         RigService.set_extra_bones(self.armature_object, self.rig_header.get("extra_bones"))
 
         if self.rig_header.get("rigify_ui"):
-            from mpfb.entities.rigging.rigifyhelpers.rigifyhelpers import RigifyHelpers
+            from .rigging.rigifyhelpers.rigifyhelpers import RigifyHelpers
             RigifyHelpers.load_rigify_ui(self.armature_object, self.rig_header["rigify_ui"])
 
         bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
@@ -680,7 +680,7 @@ class Rig:
     def save_strategies(self, refit=False):
         """Save strategy data in the pose bones for development."""
 
-        from mpfb.ui.boneops import BoneOpsArmatureProperties, BoneOpsBoneProperties
+        from ..ui.boneops import BoneOpsArmatureProperties, BoneOpsBoneProperties
         BoneOpsArmatureProperties.set_value("developer_mode", True, entity_reference=self.armature_object.data)
 
         for bone_name, bone_info in self.rig_definition.items():
@@ -696,7 +696,7 @@ class Rig:
 
     @staticmethod
     def assign_bone_end_strategy(bone, info, is_tail: bool, *, force=False, lock: bool | None=None):
-        from mpfb.ui.boneops import BoneOpsBoneProperties, BoneOpsEditBoneProperties
+        from ..ui.boneops import BoneOpsBoneProperties, BoneOpsEditBoneProperties
 
         properties = BoneOpsEditBoneProperties if isinstance(bone, bpy.types.EditBone) else BoneOpsBoneProperties
         prefix = "tail" if is_tail else "head"
@@ -725,7 +725,7 @@ class Rig:
     @staticmethod
     def get_bone_end_strategy(bone, is_tail):
         """Retrieve head or tail strategy settings from a bone."""
-        from mpfb.ui.boneops import BoneOpsBoneProperties, BoneOpsEditBoneProperties
+        from ..ui.boneops import BoneOpsBoneProperties, BoneOpsEditBoneProperties
 
         properties = BoneOpsEditBoneProperties if isinstance(bone, bpy.types.EditBone) else BoneOpsBoneProperties
         prefix = "tail" if is_tail else "head"
