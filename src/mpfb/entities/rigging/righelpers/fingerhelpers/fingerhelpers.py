@@ -6,7 +6,7 @@ from .....services import LogService
 _LOG = LogService.get_logger("fingerhelpers.fingerhelpers")
 
 from .....services import RigService
-from mpfb.ui.righelpers import RigHelpersProperties
+from .....ui.righelpers import RigHelpersProperties
 
 
 class FingerHelpers():
@@ -405,7 +405,7 @@ class FingerHelpers():
 
         _LOG.enter()
         if rigtype == "Default":
-            from mpfb.entities.rigging.righelpers.fingerhelpers.defaultfingerhelpers import DefaultFingerHelpers  # pylint: disable=C0415
+            from .defaultfingerhelpers import DefaultFingerHelpers  # pylint: disable=C0415
             return DefaultFingerHelpers(which_hand, settings)
         return FingerHelpers(which_hand, settings)
 

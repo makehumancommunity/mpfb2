@@ -1,10 +1,11 @@
 import bpy, importlib
 from .....services import LogService
 from .....services import NodeService
-from mpfb.entities.nodemodel.v2.primitives import *
-from mpfb.entities.nodemodel.v2.composites import *
+from ..primitives import *
+from ..composites import *
 
 _LOG = LogService.get_logger("nodemodel.v2.abstractmaterialwrapper")
+
 
 class AbstractMaterialWrapper(AbstractGroupWrapper):
 

@@ -6,7 +6,7 @@ from .....services import LogService
 _LOG = LogService.get_logger("eyehelpers.eyehelpers")
 
 from .....services import RigService
-from mpfb.ui.righelpers import RigHelpersProperties
+from .....ui.righelpers import RigHelpersProperties
 
 
 class EyeHelpers():
@@ -65,7 +65,7 @@ class EyeHelpers():
 
         _LOG.enter()
         if rigtype == "Default":
-            from mpfb.entities.rigging.righelpers.eyehelpers.defaulteyehelpers import DefaultEyeHelpers  # pylint: disable=C0415
+            from .defaulteyehelpers import DefaultEyeHelpers  # pylint: disable=C0415
             return DefaultEyeHelpers(settings)
         return EyeHelpers(settings)
 

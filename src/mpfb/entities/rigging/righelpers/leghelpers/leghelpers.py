@@ -6,7 +6,7 @@ from .....services import LogService
 _LOG = LogService.get_logger("leghelpers.leghelpers")
 
 from .....services import RigService
-from mpfb.ui.righelpers import RigHelpersProperties
+from .....ui.righelpers import RigHelpersProperties
 
 
 class LegHelpers():
@@ -88,7 +88,7 @@ class LegHelpers():
 
         _LOG.enter()
         if rigtype == "Default":
-            from mpfb.entities.rigging.righelpers.leghelpers.defaultleghelpers import DefaultLegHelpers  # pylint: disable=C0415
+            from .defaultleghelpers import DefaultLegHelpers  # pylint: disable=C0415
             return DefaultLegHelpers(which_leg, settings)
         return LegHelpers(which_leg, settings)
 

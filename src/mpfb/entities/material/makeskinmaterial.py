@@ -158,7 +158,7 @@ class MakeSkinMaterial(MhMaterial):
             _LOG.debug("Could not find a node for", name)
 
     def _set_config_value(self, blender_object, expected_name):
-        from mpfb.ui.makeskin import MakeSkinObjectProperties
+        from ...ui.makeskin import MakeSkinObjectProperties
         if MakeSkinObjectProperties.has_key(expected_name):
             self._settings[expected_name] = MakeSkinObjectProperties.get_value(expected_name, entity_reference=blender_object)
 
@@ -187,7 +187,7 @@ class MakeSkinMaterial(MhMaterial):
                 if socket_values and socket_name in socket_values:
                     self._settings[setting_name] = socket_values[socket_name]
 
-        from mpfb.ui.makeskin import MakeSkinObjectProperties
+        from ...ui.makeskin import MakeSkinObjectProperties
         if MakeSkinObjectProperties.get_value("sss_enable", entity_reference=blender_object):
             self._settings["sssEnabled"] = True
             node = NodeService.find_node_by_name(blender_material.node_tree, "Principled BSDF")
@@ -260,7 +260,7 @@ class MakeSkinMaterial(MhMaterial):
     @staticmethod
     def create_makeskin_template_material(blender_object, scene, name="MakeSkinMaterial"):
 
-        from mpfb.ui.makeskin.makeskinpanel import MAKESKIN_PROPERTIES
+        from ...ui.makeskin.makeskinpanel import MAKESKIN_PROPERTIES
 
         if blender_object is None:
             raise ValueError('Must provide an object')

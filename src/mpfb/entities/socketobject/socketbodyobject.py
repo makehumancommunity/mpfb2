@@ -9,10 +9,11 @@ from ...services import ObjectService
 from ...services import ModifierService
 from ...services import RigService
 from .socketmeshobject import SocketMeshObject
-from mpfb.entities.objectproperties import GeneralObjectProperties
+from ..objectproperties import GeneralObjectProperties
 from ._extra_vertex_groups import vertex_group_information
 
 _LOG = LogService.get_logger("socketobject.socketbodyobject")
+
 
 class SocketBodyObject(SocketMeshObject):
     """This is a helper object for importing the base mesh (ie the base human)
@@ -67,7 +68,7 @@ class SocketBodyObject(SocketMeshObject):
         _LOG.dump("joint_verts", joint_verts)
         z_column = joint_verts[:, 2]
         _LOG.dump("z_column", z_column)
-        combined = numpy.sum(z_column) # sum of values in Z column
+        combined = numpy.sum(z_column)  # sum of values in Z column
         average = combined / joint.size
         return average
 
@@ -119,7 +120,7 @@ class SocketBodyObject(SocketMeshObject):
             # TODO: this entire section is buggy and should be reviewd
             last_body_vertex = numpy.max(self._vertex_groups_by_name["body"]) + 1
             _LOG.debug("last_body", last_body_vertex)
-            vertices_to_add = self._vertices[0:last_body_vertex, :]
+            vertices_to_add = self._vertices[0:last_body_vertex,:]
             _LOG.dump("verts", vertices_to_add)
 
             last_body_face = 0
@@ -128,7 +129,7 @@ class SocketBodyObject(SocketMeshObject):
                     start_stop = face_group["fgStartStops"][0]
                     last_body_face = start_stop[1]
 
-            faces_to_add = self._faces[0:last_body_face, :]
+            faces_to_add = self._faces[0:last_body_face,:]
 
         # Next most efficient available way to convert a set of numpy arrays to a mesh.
         # The most efficient way listed online causes segfaults for me and is hard to

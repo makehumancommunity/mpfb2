@@ -6,7 +6,7 @@ from .....services import LogService
 _LOG = LogService.get_logger("armhelpers.armhelpers")
 
 from .....services import RigService
-from mpfb.ui.righelpers import RigHelpersProperties
+from .....ui.righelpers import RigHelpersProperties
 
 
 class ArmHelpers():
@@ -101,7 +101,7 @@ class ArmHelpers():
         """Get an implementation instance matching the rig type."""
         _LOG.enter()
         if rigtype == "Default":
-            from mpfb.entities.rigging.righelpers.armhelpers.defaultarmhelpers import DefaultArmHelpers  # pylint: disable=C0415
+            from .defaultarmhelpers import DefaultArmHelpers  # pylint: disable=C0415
             return DefaultArmHelpers(which_arm, settings)
         return ArmHelpers(which_arm, settings)
 
