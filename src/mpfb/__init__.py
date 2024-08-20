@@ -116,7 +116,7 @@ def register():
         _LOG.debug("classmanager", classmanager)
 
     _LOG.debug("About to import mpfb.ui")
-    import mpfb.ui
+    from .ui import UI_DUMMY_VALUE  # pylint: disable=W0612
 
     _LOG.debug("After imports")
 
