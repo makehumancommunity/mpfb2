@@ -1,8 +1,9 @@
 import bpy, os
 from pytest import approx
-from mpfb.services.humanservice import HumanService
-from mpfb.services.objectservice import ObjectService
-from mpfb.entities.objectproperties import GeneralObjectProperties
+from .. import dynamic_import
+from .. import HumanService
+from .. import ObjectService
+GeneralObjectProperties = dynamic_import("mpfb.entities.objectproperties", "GeneralObjectProperties")
 
 def test_getset_object_type():
     """GeneralObjectProperties.get/set_value -- object_type"""

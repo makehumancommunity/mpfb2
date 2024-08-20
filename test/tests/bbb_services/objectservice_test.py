@@ -1,25 +1,32 @@
 import bpy, os
-from mpfb.services.objectservice import ObjectService
-from mpfb.entities.objectproperties import GeneralObjectProperties
+
+from .. import ObjectService
+from .. import dynamic_import
+
+GeneralObjectProperties = dynamic_import("mpfb.entities.objectproperties", "GeneralObjectProperties")
 
 _MESH_TYPES = ("Eyes", "Eyelashes", "Eyebrows", "Tongue", "Teeth", "Hair", "Proxymeshes", "Clothes", "Basemesh")
+
 
 def test_objectservice_exists():
     """ObjectService"""
     assert ObjectService is not None, "ObjectService can be imported"
 
+
 def test_random_name():
     """ObjectService.random_name()"""
     assert len(ObjectService.random_name()) == 15
 
+
 def test_delete_object_by_name():
     """ObjectService.delete_object_by_name()"""
     name = ObjectService.random_name()
-    ObjectService.delete_object_by_name(name) # Should not crash even when name does not exist yet
+    ObjectService.delete_object_by_name(name)  # Should not crash even when name does not exist yet
     mesh = bpy.data.meshes.new(name + "Mesh")
     obj = bpy.data.objects.new(name, mesh)
     ObjectService.delete_object_by_name(name)
     assert not ObjectService.object_name_exists(name), "Named object should not exist after deletion"
+
 
 def test_delete_object():
     """ObjectService.delete_object_by_name()"""
@@ -28,7 +35,8 @@ def test_delete_object():
     obj = bpy.data.objects.new(name, mesh)
     ObjectService.delete_object(obj)
     assert not ObjectService.object_name_exists(name), "Named object should not exist after deletion"
-    ObjectService.delete_object(None) # Ok as long as it doesn't crash
+    ObjectService.delete_object(None)  # Ok as long as it doesn't crash
+
 
 def test_object_name_exists():
     """ObjectService.name_exists()"""
@@ -41,6 +49,7 @@ def test_object_name_exists():
     ObjectService.delete_object_by_name(name)
     assert not ObjectService.object_name_exists(name), "Named object should not exist after deletion"
 
+
 def test_ensure_unique_name():
     """ObjectService.ensure_unique_name()"""
     name = ObjectService.random_name()
@@ -49,6 +58,7 @@ def test_ensure_unique_name():
     obj = bpy.data.objects.new(name, mesh)
     assert ObjectService.ensure_unique_name(name) != name
     ObjectService.delete_object_by_name(name)
+
 
 def test_activate_blender_object():
     """ObjectService.activate_blender_object()"""
@@ -68,6 +78,7 @@ def test_activate_blender_object():
     assert bpy.context.view_layer.objects.active is not None
     assert not obj2.select_get()
 
+
 def test_deselect_and_deactivate_all():
     """ObjectService.deselect_and_deactivate_all()"""
     name = ObjectService.random_name()
@@ -82,6 +93,7 @@ def test_deselect_and_deactivate_all():
 # TODO: has_vertex_group
 # TODO: get_vertex_indexes_for_vertex_group
 
+
 def test_create_blender_object_with_mesh():
     """ObjectService.create_blender_object_with_mesh()"""
     name = ObjectService.random_name()
@@ -89,6 +101,7 @@ def test_create_blender_object_with_mesh():
     assert obj is not None
     assert obj.type == "MESH"
     assert obj.name == name
+
 
 def test_create_empty():
     """ObjectService.create_empty"""
@@ -98,6 +111,7 @@ def test_create_empty():
     assert obj.name == name, "Empty object should have received the given name"
     assert obj.empty_display_type == "SPHERE", "Empty object should be of display type SPHERE"
     ObjectService.delete_object_by_name(name)
+
 
 def test_link_blender_object():
     """ObjectService.link_blender_object()"""
@@ -116,6 +130,7 @@ def test_link_blender_object():
     ObjectService.delete_object_by_name(name)
     ObjectService.delete_object_by_name(parent_name)
     bpy.data.collections.remove(collection)
+
 
 def test_get_list_of_children():
     """ObjectService.get_list_of_children()"""
@@ -138,6 +153,7 @@ def test_get_list_of_children():
 
 # TODO: find_by_data
 
+
 def test_get_object_type():
     assert ObjectService.get_object_type(None) == ""
     name = ObjectService.random_name()
@@ -147,6 +163,7 @@ def test_get_object_type():
     GeneralObjectProperties.set_value("object_type", "yadayada", obj)
     assert ObjectService.get_object_type(obj) == "yadayada"
     ObjectService.delete_object(obj)
+
 
 def test_object_is():
     name = ObjectService.random_name()
@@ -164,6 +181,7 @@ def test_object_is():
     ObjectService.delete_object(obj)
 
 # TODO: object_is_skeleton, subrig, any skeleton
+
 
 def test_object_is_submethods():
     name = ObjectService.random_name()
@@ -204,6 +222,7 @@ def test_object_is_submethods():
     assert ObjectService.object_is_any_makehuman_object(obj)
     ObjectService.delete_object(obj)
 
+
 def test_find_object_of_type_amongst_nearest_relatives():
     basemesh = ObjectService.create_blender_object_with_mesh(ObjectService.random_name())
     GeneralObjectProperties.set_value("object_type", "Basemesh", basemesh)
@@ -233,12 +252,14 @@ def test_find_object_of_type_amongst_nearest_relatives():
     ObjectService.delete_object(clothes2)
     ObjectService.delete_object(rig)
 
+
 def test_load_base_mesh():
     basemesh = ObjectService.load_base_mesh()
     assert basemesh is not None
     assert ObjectService.object_is_basemesh(basemesh)
     # TODO: Tests for scale, vertex groups
     ObjectService.delete_object(basemesh)
+
 
 def test_get_selected_objects():
     non_mh_mesh_1 = ObjectService.create_blender_object_with_mesh(ObjectService.random_name())

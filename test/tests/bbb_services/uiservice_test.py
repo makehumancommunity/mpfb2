@@ -1,7 +1,7 @@
 import bpy, os
 
-from mpfb.services.uiservice import UiService
-from mpfb.services.locationservice import LocationService
+from .. import UiService
+from .. import LocationService
 
 
 def test_uiservice_exists():

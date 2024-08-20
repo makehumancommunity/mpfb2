@@ -1,6 +1,6 @@
 import bpy, os
 
-from mpfb.services.locationservice import LocationService
+from .. import LocationService
 
 
 def test_locationservice_exists():

@@ -1,10 +1,13 @@
 import bpy, os
 from pytest import approx
-from mpfb.services.locationservice import LocationService
+from .. import dynamic_import
+from .. import LocationService
+
 
 def test_mhmat_texture_keys():
     """MHMAT texture keys"""
-    from mpfb.entities.material.mhmatkeys import MHMAT_KEYS, MHMAT_NAME_TO_KEY
+    MHMAT_KEYS = dynamic_import("mpfb.entities.material.mhmatkeys", "MHMAT_KEYS")
+    MHMAT_NAME_TO_KEY = dynamic_import("mpfb.entities.material.mhmatkeys", "MHMAT_NAME_TO_KEY")
     assert MHMAT_KEYS
 
     texture_keys = [
@@ -33,11 +36,12 @@ def test_mhmat_texture_keys():
         assert key in known_keys
         assert key.lower() in MHMAT_NAME_TO_KEY
 
+
 def test_load_mhmat_file():
     td = LocationService.get_mpfb_test("testdata")
     matfile = os.path.join(td, "materials", "notextures.mhmat")
     assert os.path.exists(matfile)
-    from mpfb.entities.material.mhmaterial import MhMaterial
+    MhMaterial = dynamic_import("mpfb.entities.material.mhmaterial", "MhMaterial")
     mhmat = MhMaterial()
     assert mhmat
     mhmat.populate_from_mhmat(matfile)
@@ -45,5 +49,4 @@ def test_load_mhmat_file():
     assert col
     assert col[0] > 0.4
     assert col[0] < 0.6
-
 

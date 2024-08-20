@@ -1,21 +1,26 @@
 import bpy, os
 from pytest import approx
-from mpfb.services.objectservice import ObjectService
-from mpfb.services.locationservice import LocationService
-from mpfb.ui.assetlibrary.operators import MPFB_OT_Install_Target_Operator
+from .. import ObjectService
+from .. import LocationService
+from .. import dynamic_import
+MPFB_OT_Install_Target_Operator = dynamic_import("mpfb.ui.assetlibrary.operators", "MPFB_OT_Install_Target_Operator")
+
 
 class MockSelf:
     filepath = ""
+
     def report(self, reporttype, reportmessage):
         rep = next(iter(reporttype))
         print(str(rep) + " -- " + str(reportmessage))
         if rep == 'ERROR':
             raise ValueError(reportmessage)
 
+
 def test_operators_exist():
     """Operators are not none"""
     assert bpy.ops.mpfb.install_target is not None
     assert MPFB_OT_Install_Target_Operator is not None
+
 
 def test_install_target():
     testdata = LocationService.get_mpfb_test("testdata")

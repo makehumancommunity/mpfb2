@@ -1,11 +1,20 @@
 import bpy, os, pytest
 from pytest import approx
-from mpfb.services.objectservice import ObjectService
-from mpfb.services.nodeservice import NodeService
-from mpfb.entities.nodemodel.v2 import *
+from .. import dynamic_import
+from .. import ObjectService
+from .. import NodeService
+
+AbstractNodeWrapper = dynamic_import("mpfb.entities.nodemodel.v2", "AbstractNodeWrapper")
+snBsdfPrincipled = dynamic_import("mpfb.entities.nodemodel.v2", "snBsdfPrincipled")
+snAttribute = dynamic_import("mpfb.entities.nodemodel.v2", "snAttribute")
+snMath = dynamic_import("mpfb.entities.nodemodel.v2", "snMath")
+snValue = dynamic_import("mpfb.entities.nodemodel.v2", "snValue")
+snRGB = dynamic_import("mpfb.entities.nodemodel.v2", "snRGB")
+
 
 def test_abstractnodewrapper_is_available():
     assert AbstractNodeWrapper
+
 
 def test_is_valid_assignment():
     obj = AbstractNodeWrapper({"class": "test"})
@@ -18,6 +27,7 @@ def test_is_valid_assignment():
     assert obj._check_is_valid_assignment(0.1, "NodeSocketFloatFactor")
     assert not obj._check_is_valid_assignment("a", "NodeSocketFloatFactor")
 
+
 def test_can_create_normal_shader_with_defaults():
     node_tree_name = ObjectService.random_name()
     node_tree = NodeService.create_node_tree(node_tree_name)
@@ -26,6 +36,7 @@ def test_can_create_normal_shader_with_defaults():
     assert node.__class__.__name__ == "ShaderNodeBsdfPrincipled"
     node_tree.nodes.remove(node)
     NodeService.destroy_node_tree(node_tree)
+
 
 def test_can_set_name_and_label():
     node_tree_name = ObjectService.random_name()
@@ -42,6 +53,7 @@ def test_can_set_name_and_label():
     node_tree.nodes.remove(node)
     NodeService.destroy_node_tree(node_tree)
 
+
 def test_can_create_normal_shader_with_no_inputs():
     node_tree_name = ObjectService.random_name()
     node_tree = NodeService.create_node_tree(node_tree_name)
@@ -50,6 +62,7 @@ def test_can_create_normal_shader_with_no_inputs():
     assert node.__class__.__name__ == "ShaderNodeAttribute"
     node_tree.nodes.remove(node)
     NodeService.destroy_node_tree(node_tree)
+
 
 def test_will_not_accept_illegal_attribute_name():
     node_tree_name = ObjectService.random_name()
@@ -61,6 +74,7 @@ def test_will_not_accept_illegal_attribute_name():
         node_tree.nodes.remove(node)
     NodeService.destroy_node_tree(node_tree)
 
+
 def test_will_not_accept_illegal_attribute_value():
     node_tree_name = ObjectService.random_name()
     node_tree = NodeService.create_node_tree(node_tree_name)
@@ -70,6 +84,7 @@ def test_will_not_accept_illegal_attribute_value():
     if node:
         node_tree.nodes.remove(node)
     NodeService.destroy_node_tree(node_tree)
+
 
 def test_can_set_array_attribute():
     node_tree_name = ObjectService.random_name()
@@ -81,6 +96,7 @@ def test_can_set_array_attribute():
     node_tree.nodes.remove(node)
     NodeService.destroy_node_tree(node_tree)
 
+
 def test_can_set_enum_attribute():
     node_tree_name = ObjectService.random_name()
     node_tree = NodeService.create_node_tree(node_tree_name)
@@ -90,6 +106,7 @@ def test_can_set_enum_attribute():
     assert node.operation == "MULTIPLY"
     node_tree.nodes.remove(node)
     NodeService.destroy_node_tree(node_tree)
+
 
 def test_can_set_color_attribute():
     node_tree_name = ObjectService.random_name()
@@ -101,6 +118,7 @@ def test_can_set_color_attribute():
     node_tree.nodes.remove(node)
     NodeService.destroy_node_tree(node_tree)
 
+
 def test_will_not_accept_illegal_input_socket_name():
     node_tree_name = ObjectService.random_name()
     node_tree = NodeService.create_node_tree(node_tree_name)
@@ -111,6 +129,7 @@ def test_will_not_accept_illegal_input_socket_name():
         node_tree.nodes.remove(node)
     NodeService.destroy_node_tree(node_tree)
 
+
 def test_will_not_accept_illegal_input_socket_value():
     node_tree_name = ObjectService.random_name()
     node_tree = NodeService.create_node_tree(node_tree_name)
@@ -120,6 +139,7 @@ def test_will_not_accept_illegal_input_socket_value():
     if node:
         node_tree.nodes.remove(node)
     NodeService.destroy_node_tree(node_tree)
+
 
 def test_can_set_color_input_socket():
     node_tree_name = ObjectService.random_name()
@@ -132,6 +152,7 @@ def test_can_set_color_input_socket():
     node_tree.nodes.remove(node)
     NodeService.destroy_node_tree(node_tree)
 
+
 def test_can_set_float_factor_input_socket():
     node_tree_name = ObjectService.random_name()
     node_tree = NodeService.create_node_tree(node_tree_name)
@@ -141,6 +162,7 @@ def test_can_set_float_factor_input_socket():
     assert input.default_value == approx(0.5)
     node_tree.nodes.remove(node)
     NodeService.destroy_node_tree(node_tree)
+
 
 def test_can_set_vector_input_socket():
     node_tree_name = ObjectService.random_name()
@@ -152,6 +174,7 @@ def test_can_set_vector_input_socket():
     node_tree.nodes.remove(node)
     NodeService.destroy_node_tree(node_tree)
 
+
 def test_can_set_float_input_socket():
     node_tree_name = ObjectService.random_name()
     node_tree = NodeService.create_node_tree(node_tree_name)
@@ -161,6 +184,7 @@ def test_can_set_float_input_socket():
     assert input.default_value == approx(0.1)
     node_tree.nodes.remove(node)
     NodeService.destroy_node_tree(node_tree)
+
 
 def test_can_set_input_socket_by_identifier():
     node_tree_name = ObjectService.random_name()
@@ -176,6 +200,7 @@ def test_can_set_input_socket_by_identifier():
     node_tree.nodes.remove(node)
     NodeService.destroy_node_tree(node_tree)
 
+
 def test_can_set_float_output_socket():
     node_tree_name = ObjectService.random_name()
     node_tree = NodeService.create_node_tree(node_tree_name)
@@ -186,6 +211,7 @@ def test_can_set_float_output_socket():
     node_tree.nodes.remove(node)
     NodeService.destroy_node_tree(node_tree)
 
+
 def test_can_set_color_output_socket():
     node_tree_name = ObjectService.random_name()
     node_tree = NodeService.create_node_tree(node_tree_name)
@@ -195,6 +221,7 @@ def test_can_set_color_output_socket():
     assert output.default_value[1] == approx(0.1)
     node_tree.nodes.remove(node)
     NodeService.destroy_node_tree(node_tree)
+
 
 def test_compare_attributes():
     node_tree_name = ObjectService.random_name()
@@ -211,6 +238,7 @@ def test_compare_attributes():
     assert comparison["attribute_values"]["operation"] == "MULTIPLY"
     node_tree.nodes.remove(node)
     NodeService.destroy_node_tree(node_tree)
+
 
 def test_compare_inputs():
     node_tree_name = ObjectService.random_name()
@@ -229,6 +257,7 @@ def test_compare_inputs():
     assert comparison["input_socket_values"]["Roughness"] == approx(0.3)
     node_tree.nodes.remove(node)
     NodeService.destroy_node_tree(node_tree)
+
 
 def test_compare_outputs():
     node_tree_name = ObjectService.random_name()

@@ -1,10 +1,13 @@
 import bpy, os, pytest
-from mpfb.services.objectservice import ObjectService
-from mpfb.services.modifierservice import ModifierService
+
+from .. import ObjectService
+from .. import ModifierService
+
 
 def test_modifierservice_exists():
     """ModifierService"""
     assert ModifierService is not None, "ModifierService can be imported"
+
 
 def test_create_modifier():
     """ModifierService.create_modifier()"""
@@ -27,6 +30,7 @@ def test_create_modifier():
 
 # TODO: Test create mask modifier
 
+
 def test_create_subsurf_modifier():
     """ModifierService.create_subsurf_modifier()"""
     obj = ObjectService.create_blender_object_with_mesh()
@@ -41,6 +45,7 @@ def test_create_subsurf_modifier():
     assert modifier.render_levels == 2
     assert not modifier.show_in_editmode
 
+
 def test_find_modifiers_of_type():
     """ModifierService.find_modifiers_of_type()"""
     obj = ObjectService.create_blender_object_with_mesh()
@@ -54,6 +59,7 @@ def test_find_modifiers_of_type():
     modifiers = ModifierService.find_modifiers_of_type(None, None)
     assert modifiers is not None
     assert len(modifiers) == 0
+
 
 def test_find_modifier():
     """ModifierService.find_modifiers_of_type()"""

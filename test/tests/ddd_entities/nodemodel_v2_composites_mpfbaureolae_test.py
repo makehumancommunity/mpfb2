@@ -1,8 +1,9 @@
 import bpy, os
 from pytest import approx
-from mpfb.services.objectservice import ObjectService
-from mpfb.services.nodeservice import NodeService
-from mpfb.entities.nodemodel.v2.composites.nodewrappermpfbaureolae import NodeWrapperMpfbAureolae
+from .. import dynamic_import
+from .. import ObjectService
+from .. import NodeService
+NodeWrapperMpfbAureolae = dynamic_import("mpfb.entities.nodemodel.v2.composites.nodewrappermpfbaureolae", "NodeWrapperMpfbAureolae")
 
 def test_composite_is_available():
     assert NodeWrapperMpfbAureolae

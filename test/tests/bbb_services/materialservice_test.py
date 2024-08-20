@@ -1,9 +1,13 @@
 import bpy, os
-from mpfb.services.objectservice import ObjectService
-from mpfb.services.materialservice import MaterialService
-from mpfb.services.nodeservice import NodeService
-from mpfb.services.humanservice import HumanService
-from mpfb.entities.objectproperties import GeneralObjectProperties
+
+from .. import ObjectService
+from .. import MaterialService
+from .. import NodeService
+from .. import HumanService
+from .. import dynamic_import
+
+GeneralObjectProperties = dynamic_import("mpfb.entities.objectproperties", "GeneralObjectProperties")
+
 
 def _create_object(with_material=False):
     name = ObjectService.random_name()
@@ -13,9 +17,11 @@ def _create_object(with_material=False):
         MaterialService.create_empty_material(name + "Material", obj)
     return obj
 
+
 def test_materialservice_exists():
     """MaterialService"""
     assert MaterialService is not None, "MaterialService can be imported"
+
 
 def test_create_empty_material():
     """MaterialService.create_empty_material()"""
@@ -28,8 +34,10 @@ def test_create_empty_material():
     assert MaterialService.get_material(obj) is None
     name = ObjectService.random_name()
     material = MaterialService.create_empty_material(name, obj)
+    assert material
     assert MaterialService.get_material(obj)
     ObjectService.delete_object(obj)
+
 
 def test_create_v2_skin_material():
     """MaterialService.create_v2_skin_material()"""

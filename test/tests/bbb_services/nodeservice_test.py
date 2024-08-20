@@ -1,10 +1,13 @@
 import bpy, os, pytest, pprint
-from mpfb.services.objectservice import ObjectService
-from mpfb.services.nodeservice import NodeService
+
+from .. import ObjectService
+from .. import NodeService
+
 
 def test_nodeservice_exists():
     """NodeService"""
     assert NodeService is not None, "NodeService can be imported"
+
 
 def test_create_and_destroy_tree():
     name = ObjectService.random_name()
@@ -13,6 +16,7 @@ def test_create_and_destroy_tree():
     assert name in bpy.data.node_groups
     NodeService.destroy_node_tree(node_tree)
     assert name not in bpy.data.node_groups
+
 
 def test_get_node_info_basic():
     """NodeService.get_v2_node_class_info (basics)"""
@@ -30,6 +34,7 @@ def test_get_node_info_basic():
 
     node_tree.nodes.remove(node)
     NodeService.destroy_node_tree(node_tree)
+
 
 def test_get_node_info_inputs():
     """NodeService.get_v2_node_class_info (inputs)"""
@@ -67,6 +72,7 @@ def test_get_node_info_inputs():
 #     node_tree.nodes.remove(node)
 #     NodeService.destroy_node_tree(node_tree)
 #===============================================================================
+
 
 def test_get_known_shader_node_classes():
     """NodeService.get_known_shader_node_classes()"""

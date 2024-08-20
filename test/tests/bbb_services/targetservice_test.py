@@ -1,13 +1,15 @@
 import bpy, os
 from pytest import approx
-from mpfb.services.objectservice import ObjectService
-from mpfb.services.humanservice import HumanService
-from mpfb.services.locationservice import LocationService
-from mpfb.services.targetservice import TargetService
+from .. import ObjectService
+from .. import HumanService
+from .. import LocationService
+from .. import TargetService
+
 
 def test_targetservice_exists():
     """TargetService"""
     assert TargetService is not None, "TargetService can be imported"
+
 
 def test_shapekey_is_target_common():
     """HumanService.shapekey_is_target() -- common cases"""
@@ -16,6 +18,7 @@ def test_shapekey_is_target_common():
 
     for name in ["hip-waist-up", "l-foot-scale-incr", "$md-yadayada"]:
         assert TargetService.shapekey_is_target(name)
+
 
 def test_shapekey_is_target_human():
     """HumanService.shapekey_is_target() -- loaded targets"""
@@ -26,6 +29,7 @@ def test_shapekey_is_target_human():
             assert TargetService.shapekey_is_target(shapekey.name)
         else:
             assert not TargetService.shapekey_is_target(shapekey.name)
+
 
 def test_prune_shapekeys():
     """HumanService.prune_shapekeys()"""

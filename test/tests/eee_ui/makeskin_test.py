@@ -1,8 +1,9 @@
 import bpy, os
 from pytest import approx
-from mpfb.services.objectservice import ObjectService
-from mpfb.ui.makeskin.makeskinpanel import MAKESKIN_PROPERTIES
-from mpfb.ui.makeskin.operators import MPFB_OT_CreateMaterialOperator
+from .. import ObjectService
+from .. import dynamic_import
+MAKESKIN_PROPERTIES = dynamic_import("mpfb.ui.makeskin.makeskinpanel", "MAKESKIN_PROPERTIES")
+MPFB_OT_CreateMaterialOperator = dynamic_import("mpfb.ui.makeskin.operators", "MPFB_OT_CreateMaterialOperator")
 
 
 class MockSelf:

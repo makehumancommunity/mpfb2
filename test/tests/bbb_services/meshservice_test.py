@@ -1,14 +1,18 @@
 import bpy, os, bmesh, shutil, tempfile, time
 from pytest import approx
-from mpfb.services.objectservice import ObjectService
-from mpfb.services.humanservice import HumanService
-from mpfb.services.meshservice import MeshService
-from mpfb.services.locationservice import LocationService
-from mpfb.entities.meshcrossref import MeshCrossRef
+from .. import ObjectService
+from .. import HumanService
+from .. import MeshService
+from .. import LocationService
+from .. import dynamic_import
+
+MeshCrossRef = dynamic_import("mpfb.entities.meshcrossref", "MeshCrossRef")
+
 
 def test_meshservice_exists():
     """MeshService"""
     assert MeshService is not None, "MeshService can be imported"
+
 
 def test_create_sample_object():
     """MeshService.create_sample_object()"""
@@ -21,6 +25,7 @@ def test_create_sample_object():
     assert obj.vertex_groups.get("all")
     ObjectService.delete_object(obj)
 
+
 def test_kdtree_from_human():
     """HumanService.create_human() -- defaults"""
     obj = HumanService.create_human()
@@ -28,6 +33,7 @@ def test_kdtree_from_human():
     kdtree = MeshService.get_kdtree(obj)
     assert kdtree is not None
     ObjectService.delete_object(obj)
+
 
 def test_find_closest_vert():
     target_obj = HumanService.create_human()
@@ -52,6 +58,7 @@ def test_find_closest_vert():
     ObjectService.delete_object(focus_obj)
     ObjectService.delete_object(target_obj)
 
+
 def test_numpy_vert_coords():
     basemesh = HumanService.create_human()
     assert basemesh is not None
@@ -59,6 +66,7 @@ def test_numpy_vert_coords():
     assert coords is not None
     assert len(coords) == len(basemesh.data.vertices)
     ObjectService.delete_object(basemesh)
+
 
 def test_numpy_faces():
     basemesh = HumanService.create_human()
@@ -68,12 +76,14 @@ def test_numpy_faces():
     assert len(faces) == len(basemesh.data.polygons)
     ObjectService.delete_object(basemesh)
 
+
 def test_numpy_edges():
     test_obj = MeshService.create_sample_object()
     edges = MeshService.get_edges_as_numpy_array(test_obj)
     assert len(edges) == 12
     assert len(edges) == len(test_obj.data.edges)
     ObjectService.delete_object(test_obj)
+
 
 def test_crossref_basemesh_before_modifiers():
     basemesh = HumanService.create_human()
@@ -85,6 +95,7 @@ def test_crossref_basemesh_before_modifiers():
     assert len(crossref.edges_by_vertex) == len(basemesh.data.vertices)
     ObjectService.delete_object(basemesh)
 
+
 def test_crossref_basemesh_after_modifiers():
     basemesh = HumanService.create_human()
     assert basemesh is not None
@@ -95,6 +106,7 @@ def test_crossref_basemesh_after_modifiers():
     assert len(crossref.edges_by_vertex) == len(basemesh.data.vertices)
 
     ObjectService.delete_object(basemesh)
+
 
 def test_crossref_basemesh_cache():
 

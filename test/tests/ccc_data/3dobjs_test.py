@@ -1,9 +1,11 @@
 import os, hashlib
-from mpfb.services.locationservice import LocationService
+from .. import LocationService
+
 
 def test_3dobjs_dir_exists():
     """3dobjs dir"""
     assert os.path.exists(LocationService.get_mpfb_data("3dobjs"))
+
 
 def test_baseobj():
     """base.obj"""

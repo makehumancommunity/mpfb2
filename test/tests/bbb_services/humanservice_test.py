@@ -1,13 +1,15 @@
 import bpy, os
 from pytest import approx
-from mpfb.services.objectservice import ObjectService
-from mpfb.services.humanservice import HumanService
-from mpfb.services.materialservice import MaterialService
-from mpfb.services.locationservice import LocationService
+from .. import ObjectService
+from .. import HumanService
+from .. import MaterialService
+from .. import LocationService
+
 
 def test_humanservice_exists():
     """HumanService"""
     assert HumanService is not None, "HumanService can be imported"
+
 
 def test_create_human_defaults():
     """HumanService.create_human() -- defaults"""
@@ -16,6 +18,7 @@ def test_create_human_defaults():
     assert getattr(obj, 'MPFB_GEN_object_type') == "Basemesh"
     assert getattr(obj, 'MPFB_GEN_scale_factor') == approx(0.1)
     ObjectService.delete_object(obj)
+
 
 def test_add_mhclo_asset_without_rig():
     """HumanService.add_mhclo_asset() -- without rig"""
@@ -29,6 +32,7 @@ def test_add_mhclo_asset_without_rig():
     assert clothes.parent == basemesh
     ObjectService.delete_object(clothes)
     ObjectService.delete_object(basemesh)
+
 
 def test_add_mhclo_asset_with_rig():
     """HumanService.add_mhclo_asset() -- with rig"""
@@ -46,6 +50,7 @@ def test_add_mhclo_asset_with_rig():
     ObjectService.delete_object(basemesh)
     ObjectService.delete_object(rig)
 
+
 def test_add_builtin_rig_standard():
     """HumanService.add_builtin_rig() -- standard rig"""
     basemesh = HumanService.create_human()
@@ -55,6 +60,7 @@ def test_add_builtin_rig_standard():
     assert basemesh.parent == rig
     ObjectService.delete_object(basemesh)
     ObjectService.delete_object(rig)
+
 
 def test_serialize_v2_skin():
     """HumanService.serialize_to_json_string() -- v2 skin"""
@@ -77,6 +83,7 @@ def test_serialize_v2_skin():
 
     ObjectService.delete_object(basemesh)
 
+
 def test_deserialize_from_dict():
     """HumanService.deserialize_from_dict()"""
     name = ObjectService.random_name()
@@ -91,6 +98,7 @@ def test_deserialize_from_dict():
     assert basemesh.name == name + ".body"
 
     ObjectService.delete_object(basemesh)
+
 
 def test_deserialize_from_mhm():
     """HumanService.deserialize_from_mhm()"""
@@ -108,6 +116,7 @@ def test_deserialize_from_mhm():
     assert basemesh.name == "testchar.body"
 
     ObjectService.delete_object(basemesh)
+
 
 def test_serialize_to_json_string():
     """HumanService.serialize_to_json_string()"""

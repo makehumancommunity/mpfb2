@@ -1,10 +1,11 @@
 import bpy, os, bmesh
 from pytest import approx
-from mpfb.services.objectservice import ObjectService
-from mpfb.services.humanservice import HumanService
-from mpfb.services.meshservice import MeshService
-from mpfb.services.locationservice import LocationService
-from mpfb.entities.clothes.vertexmatch import VertexMatch
+from .. import dynamic_import
+from .. import ObjectService
+from .. import HumanService
+from .. import MeshService
+from .. import LocationService
+VertexMatch = dynamic_import("mpfb.entities.clothes.vertexmatch", "VertexMatch")
 
 # Crossref target front verts:
 #

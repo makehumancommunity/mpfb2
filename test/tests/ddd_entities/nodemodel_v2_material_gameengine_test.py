@@ -1,13 +1,16 @@
 import bpy, os
 from pytest import approx
-from mpfb.services.objectservice import ObjectService
-from mpfb.services.nodeservice import NodeService
-from mpfb.services.locationservice import LocationService
-from mpfb.entities.material.mhmaterial import MhMaterial
-from mpfb.entities.nodemodel.v2.materials.nodewrappergameengine import NodeWrapperGameEngine
+from .. import dynamic_import
+from .. import ObjectService
+from .. import NodeService
+from .. import LocationService
+MhMaterial = dynamic_import("mpfb.entities.material.mhmaterial", "MhMaterial")
+NodeWrapperGameEngine = dynamic_import("mpfb.entities.nodemodel.v2.materials.nodewrappergameengine", "NodeWrapperGameEngine")
+
 
 def test_composite_is_available():
     assert NodeWrapperGameEngine
+
 
 def test_composite_can_create_instance():
     node_tree_name = ObjectService.random_name()
@@ -25,6 +28,7 @@ def test_composite_can_create_instance():
             has_link_to_output = True
     assert has_link_to_output
     NodeService.destroy_node_tree(node_tree)
+
 
 def test_composite_validate_tree():
     node_tree_name = ObjectService.random_name()

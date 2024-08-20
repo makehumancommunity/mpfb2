@@ -1,8 +1,9 @@
 import bpy, os
 from pytest import approx
-from mpfb.services.objectservice import ObjectService
-from mpfb.services.nodeservice import NodeService
-from mpfb.entities.nodemodel.v2.composites.nodewrappermpfbsystemvaluetexturelips import NodeWrapperMpfbSystemValueTextureLips
+from .. import dynamic_import
+from .. import ObjectService
+from .. import NodeService
+NodeWrapperMpfbSystemValueTextureLips = dynamic_import("mpfb.entities.nodemodel.v2.composites.nodewrappermpfbsystemvaluetexturelips", "NodeWrapperMpfbSystemValueTextureLips")
 
 def test_composite_is_available():
     assert NodeWrapperMpfbSystemValueTextureLips

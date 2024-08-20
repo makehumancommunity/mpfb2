@@ -1,10 +1,111 @@
 import bpy, os
 from pytest import approx
-from mpfb.services.objectservice import ObjectService
-from mpfb.services.nodeservice import NodeService
-from mpfb.services.systemservice import SystemService
+from .. import dynamic_import
+from .. import ObjectService
+from .. import NodeService
+from .. import SystemService
 
-from mpfb.entities.nodemodel.v2 import *
+snAddShader = dynamic_import("mpfb.entities.nodemodel.v2", "snAddShader")
+snAmbientOcclusion = dynamic_import("mpfb.entities.nodemodel.v2", "snAmbientOcclusion")
+snAttribute = dynamic_import("mpfb.entities.nodemodel.v2", "snAttribute")
+snBackground = dynamic_import("mpfb.entities.nodemodel.v2", "snBackground")
+snBevel = dynamic_import("mpfb.entities.nodemodel.v2", "snBevel")
+snBlackbody = dynamic_import("mpfb.entities.nodemodel.v2", "snBlackbody")
+snBrightContrast = dynamic_import("mpfb.entities.nodemodel.v2", "snBrightContrast")
+snBsdfAnisotropic = dynamic_import("mpfb.entities.nodemodel.v2", "snBsdfAnisotropic")
+snBsdfDiffuse = dynamic_import("mpfb.entities.nodemodel.v2", "snBsdfDiffuse")
+snBsdfGlass = dynamic_import("mpfb.entities.nodemodel.v2", "snBsdfGlass")
+snBsdfHair = dynamic_import("mpfb.entities.nodemodel.v2", "snBsdfHair")
+snBsdfHairPrincipled = dynamic_import("mpfb.entities.nodemodel.v2", "snBsdfHairPrincipled")
+snBsdfPrincipled = dynamic_import("mpfb.entities.nodemodel.v2", "snBsdfPrincipled")
+snBsdfRefraction = dynamic_import("mpfb.entities.nodemodel.v2", "snBsdfRefraction")
+snBsdfSheen = dynamic_import("mpfb.entities.nodemodel.v2", "snBsdfSheen")
+snBsdfToon = dynamic_import("mpfb.entities.nodemodel.v2", "snBsdfToon")
+snBsdfTranslucent = dynamic_import("mpfb.entities.nodemodel.v2", "snBsdfTranslucent")
+snBsdfTransparent = dynamic_import("mpfb.entities.nodemodel.v2", "snBsdfTransparent")
+snBump = dynamic_import("mpfb.entities.nodemodel.v2", "snBump")
+snCameraData = dynamic_import("mpfb.entities.nodemodel.v2", "snCameraData")
+snClamp = dynamic_import("mpfb.entities.nodemodel.v2", "snClamp")
+snCombineColor = dynamic_import("mpfb.entities.nodemodel.v2", "snCombineColor")
+snCombineHSV = dynamic_import("mpfb.entities.nodemodel.v2", "snCombineHSV")
+snCombineRGB = dynamic_import("mpfb.entities.nodemodel.v2", "snCombineRGB")
+snCombineXYZ = dynamic_import("mpfb.entities.nodemodel.v2", "snCombineXYZ")
+snDisplacement = dynamic_import("mpfb.entities.nodemodel.v2", "snDisplacement")
+snEeveeSpecular = dynamic_import("mpfb.entities.nodemodel.v2", "snEeveeSpecular")
+snEmission = dynamic_import("mpfb.entities.nodemodel.v2", "snEmission")
+snFloatCurve = dynamic_import("mpfb.entities.nodemodel.v2", "snFloatCurve")
+snFresnel = dynamic_import("mpfb.entities.nodemodel.v2", "snFresnel")
+snGamma = dynamic_import("mpfb.entities.nodemodel.v2", "snGamma")
+snGroup = dynamic_import("mpfb.entities.nodemodel.v2", "snGroup")
+snHairInfo = dynamic_import("mpfb.entities.nodemodel.v2", "snHairInfo")
+snHoldout = dynamic_import("mpfb.entities.nodemodel.v2", "snHoldout")
+snHueSaturation = dynamic_import("mpfb.entities.nodemodel.v2", "snHueSaturation")
+snInvert = dynamic_import("mpfb.entities.nodemodel.v2", "snInvert")
+snLayerWeight = dynamic_import("mpfb.entities.nodemodel.v2", "snLayerWeight")
+snLightFalloff = dynamic_import("mpfb.entities.nodemodel.v2", "snLightFalloff")
+snLightPath = dynamic_import("mpfb.entities.nodemodel.v2", "snLightPath")
+snMapRange = dynamic_import("mpfb.entities.nodemodel.v2", "snMapRange")
+snMapping = dynamic_import("mpfb.entities.nodemodel.v2", "snMapping")
+snMath = dynamic_import("mpfb.entities.nodemodel.v2", "snMath")
+snMix = dynamic_import("mpfb.entities.nodemodel.v2", "snMix")
+snMixRGB = dynamic_import("mpfb.entities.nodemodel.v2", "snMixRGB")
+snMixShader = dynamic_import("mpfb.entities.nodemodel.v2", "snMixShader")
+snNewGeometry = dynamic_import("mpfb.entities.nodemodel.v2", "snNewGeometry")
+snNormal = dynamic_import("mpfb.entities.nodemodel.v2", "snNormal")
+snNormalMap = dynamic_import("mpfb.entities.nodemodel.v2", "snNormalMap")
+snObjectInfo = dynamic_import("mpfb.entities.nodemodel.v2", "snObjectInfo")
+snOutputAOV = dynamic_import("mpfb.entities.nodemodel.v2", "snOutputAOV")
+snOutputLight = dynamic_import("mpfb.entities.nodemodel.v2", "snOutputLight")
+snOutputLineStyle = dynamic_import("mpfb.entities.nodemodel.v2", "snOutputLineStyle")
+snOutputMaterial = dynamic_import("mpfb.entities.nodemodel.v2", "snOutputMaterial")
+snOutputWorld = dynamic_import("mpfb.entities.nodemodel.v2", "snOutputWorld")
+snParticleInfo = dynamic_import("mpfb.entities.nodemodel.v2", "snParticleInfo")
+snPointInfo = dynamic_import("mpfb.entities.nodemodel.v2", "snPointInfo")
+snRGB = dynamic_import("mpfb.entities.nodemodel.v2", "snRGB")
+snRGBCurve = dynamic_import("mpfb.entities.nodemodel.v2", "snRGBCurve")
+snRGBToBW = dynamic_import("mpfb.entities.nodemodel.v2", "snRGBToBW")
+snScript = dynamic_import("mpfb.entities.nodemodel.v2", "snScript")
+snSeparateColor = dynamic_import("mpfb.entities.nodemodel.v2", "snSeparateColor")
+snSeparateHSV = dynamic_import("mpfb.entities.nodemodel.v2", "snSeparateHSV")
+snSeparateRGB = dynamic_import("mpfb.entities.nodemodel.v2", "snSeparateRGB")
+snSeparateXYZ = dynamic_import("mpfb.entities.nodemodel.v2", "snSeparateXYZ")
+snShaderToRGB = dynamic_import("mpfb.entities.nodemodel.v2", "snShaderToRGB")
+snSqueeze = dynamic_import("mpfb.entities.nodemodel.v2", "snSqueeze")
+snSubsurfaceScattering = dynamic_import("mpfb.entities.nodemodel.v2", "snSubsurfaceScattering")
+snTangent = dynamic_import("mpfb.entities.nodemodel.v2", "snTangent")
+snTexBrick = dynamic_import("mpfb.entities.nodemodel.v2", "snTexBrick")
+snTexChecker = dynamic_import("mpfb.entities.nodemodel.v2", "snTexChecker")
+snTexCoord = dynamic_import("mpfb.entities.nodemodel.v2", "snTexCoord")
+snTexEnvironment = dynamic_import("mpfb.entities.nodemodel.v2", "snTexEnvironment")
+snTexGradient = dynamic_import("mpfb.entities.nodemodel.v2", "snTexGradient")
+snTexIES = dynamic_import("mpfb.entities.nodemodel.v2", "snTexIES")
+snTexImage = dynamic_import("mpfb.entities.nodemodel.v2", "snTexImage")
+snTexMagic = dynamic_import("mpfb.entities.nodemodel.v2", "snTexMagic")
+if not SystemService.is_blender_version_at_least(version=[4, 1, 0]):
+    snTexMusgrave = dynamic_import("mpfb.entities.nodemodel.v2", "snTexMusgrave")
+snTexNoise = dynamic_import("mpfb.entities.nodemodel.v2", "snTexNoise")
+snTexPointDensity = dynamic_import("mpfb.entities.nodemodel.v2", "snTexPointDensity")
+snTexSky = dynamic_import("mpfb.entities.nodemodel.v2", "snTexSky")
+snTexVoronoi = dynamic_import("mpfb.entities.nodemodel.v2", "snTexVoronoi")
+snTexWave = dynamic_import("mpfb.entities.nodemodel.v2", "snTexWave")
+snTexWhiteNoise = dynamic_import("mpfb.entities.nodemodel.v2", "snTexWhiteNoise")
+snUVAlongStroke = dynamic_import("mpfb.entities.nodemodel.v2", "snUVAlongStroke")
+snUVMap = dynamic_import("mpfb.entities.nodemodel.v2", "snUVMap")
+snValToRGB = dynamic_import("mpfb.entities.nodemodel.v2", "snValToRGB")
+snValue = dynamic_import("mpfb.entities.nodemodel.v2", "snValue")
+snVectorCurve = dynamic_import("mpfb.entities.nodemodel.v2", "snVectorCurve")
+snVectorDisplacement = dynamic_import("mpfb.entities.nodemodel.v2", "snVectorDisplacement")
+snVectorMath = dynamic_import("mpfb.entities.nodemodel.v2", "snVectorMath")
+snVectorRotate = dynamic_import("mpfb.entities.nodemodel.v2", "snVectorRotate")
+snVectorTransform = dynamic_import("mpfb.entities.nodemodel.v2", "snVectorTransform")
+snVertexColor = dynamic_import("mpfb.entities.nodemodel.v2", "snVertexColor")
+snVolumeAbsorption = dynamic_import("mpfb.entities.nodemodel.v2", "snVolumeAbsorption")
+snVolumeInfo = dynamic_import("mpfb.entities.nodemodel.v2", "snVolumeInfo")
+snVolumePrincipled = dynamic_import("mpfb.entities.nodemodel.v2", "snVolumePrincipled")
+snVolumeScatter = dynamic_import("mpfb.entities.nodemodel.v2", "snVolumeScatter")
+snWavelength = dynamic_import("mpfb.entities.nodemodel.v2", "snWavelength")
+snWireframe = dynamic_import("mpfb.entities.nodemodel.v2", "snWireframe")
+
 
 def test_primitives_are_available():
     assert snAddShader
@@ -83,7 +184,7 @@ def test_primitives_are_available():
     assert snTexIES
     assert snTexImage
     assert snTexMagic
-    if not SystemService.is_blender_version_at_least(version=[4,1,0]):
+    if not SystemService.is_blender_version_at_least(version=[4, 1, 0]):
         assert snTexMusgrave
     assert snTexNoise
     assert snTexPointDensity
@@ -108,6 +209,7 @@ def test_primitives_are_available():
     assert snWavelength
     assert snWireframe
 
+
 def test_can_create_snaddshader():
     node_tree_name = ObjectService.random_name()
     node_tree = NodeService.create_node_tree(node_tree_name)
@@ -116,6 +218,7 @@ def test_can_create_snaddshader():
     assert node.__class__.__name__ == "ShaderNodeAddShader"
     node_tree.nodes.remove(node)
     NodeService.destroy_node_tree(node_tree)
+
 
 def test_can_create_snambientocclusion():
     node_tree_name = ObjectService.random_name()
@@ -126,6 +229,7 @@ def test_can_create_snambientocclusion():
     node_tree.nodes.remove(node)
     NodeService.destroy_node_tree(node_tree)
 
+
 def test_can_create_snattribute():
     node_tree_name = ObjectService.random_name()
     node_tree = NodeService.create_node_tree(node_tree_name)
@@ -134,6 +238,7 @@ def test_can_create_snattribute():
     assert node.__class__.__name__ == "ShaderNodeAttribute"
     node_tree.nodes.remove(node)
     NodeService.destroy_node_tree(node_tree)
+
 
 def test_can_create_snbackground():
     node_tree_name = ObjectService.random_name()
@@ -144,6 +249,7 @@ def test_can_create_snbackground():
     node_tree.nodes.remove(node)
     NodeService.destroy_node_tree(node_tree)
 
+
 def test_can_create_snbevel():
     node_tree_name = ObjectService.random_name()
     node_tree = NodeService.create_node_tree(node_tree_name)
@@ -152,6 +258,7 @@ def test_can_create_snbevel():
     assert node.__class__.__name__ == "ShaderNodeBevel"
     node_tree.nodes.remove(node)
     NodeService.destroy_node_tree(node_tree)
+
 
 def test_can_create_snblackbody():
     node_tree_name = ObjectService.random_name()
@@ -162,6 +269,7 @@ def test_can_create_snblackbody():
     node_tree.nodes.remove(node)
     NodeService.destroy_node_tree(node_tree)
 
+
 def test_can_create_snbrightcontrast():
     node_tree_name = ObjectService.random_name()
     node_tree = NodeService.create_node_tree(node_tree_name)
@@ -170,6 +278,7 @@ def test_can_create_snbrightcontrast():
     assert node.__class__.__name__ == "ShaderNodeBrightContrast"
     node_tree.nodes.remove(node)
     NodeService.destroy_node_tree(node_tree)
+
 
 def test_can_create_snbsdfanisotropic():
     node_tree_name = ObjectService.random_name()
@@ -180,6 +289,7 @@ def test_can_create_snbsdfanisotropic():
     node_tree.nodes.remove(node)
     NodeService.destroy_node_tree(node_tree)
 
+
 def test_can_create_snbsdfdiffuse():
     node_tree_name = ObjectService.random_name()
     node_tree = NodeService.create_node_tree(node_tree_name)
@@ -188,6 +298,7 @@ def test_can_create_snbsdfdiffuse():
     assert node.__class__.__name__ == "ShaderNodeBsdfDiffuse"
     node_tree.nodes.remove(node)
     NodeService.destroy_node_tree(node_tree)
+
 
 def test_can_create_snbsdfglass():
     node_tree_name = ObjectService.random_name()
@@ -198,6 +309,7 @@ def test_can_create_snbsdfglass():
     node_tree.nodes.remove(node)
     NodeService.destroy_node_tree(node_tree)
 
+
 def test_can_create_snbsdfhair():
     node_tree_name = ObjectService.random_name()
     node_tree = NodeService.create_node_tree(node_tree_name)
@@ -206,6 +318,7 @@ def test_can_create_snbsdfhair():
     assert node.__class__.__name__ == "ShaderNodeBsdfHair"
     node_tree.nodes.remove(node)
     NodeService.destroy_node_tree(node_tree)
+
 
 def test_can_create_snbsdfhairprincipled():
     node_tree_name = ObjectService.random_name()
@@ -216,6 +329,7 @@ def test_can_create_snbsdfhairprincipled():
     node_tree.nodes.remove(node)
     NodeService.destroy_node_tree(node_tree)
 
+
 def test_can_create_snbsdfprincipled():
     node_tree_name = ObjectService.random_name()
     node_tree = NodeService.create_node_tree(node_tree_name)
@@ -224,6 +338,7 @@ def test_can_create_snbsdfprincipled():
     assert node.__class__.__name__ == "ShaderNodeBsdfPrincipled"
     node_tree.nodes.remove(node)
     NodeService.destroy_node_tree(node_tree)
+
 
 def test_can_create_snbsdfrefraction():
     node_tree_name = ObjectService.random_name()
@@ -234,6 +349,7 @@ def test_can_create_snbsdfrefraction():
     node_tree.nodes.remove(node)
     NodeService.destroy_node_tree(node_tree)
 
+
 def test_can_create_snbsdfsheen():
     node_tree_name = ObjectService.random_name()
     node_tree = NodeService.create_node_tree(node_tree_name)
@@ -242,6 +358,7 @@ def test_can_create_snbsdfsheen():
     assert node.__class__.__name__ == "ShaderNodeBsdfSheen"
     node_tree.nodes.remove(node)
     NodeService.destroy_node_tree(node_tree)
+
 
 def test_can_create_snbsdftoon():
     node_tree_name = ObjectService.random_name()
@@ -252,6 +369,7 @@ def test_can_create_snbsdftoon():
     node_tree.nodes.remove(node)
     NodeService.destroy_node_tree(node_tree)
 
+
 def test_can_create_snbsdftranslucent():
     node_tree_name = ObjectService.random_name()
     node_tree = NodeService.create_node_tree(node_tree_name)
@@ -260,6 +378,7 @@ def test_can_create_snbsdftranslucent():
     assert node.__class__.__name__ == "ShaderNodeBsdfTranslucent"
     node_tree.nodes.remove(node)
     NodeService.destroy_node_tree(node_tree)
+
 
 def test_can_create_snbsdftransparent():
     node_tree_name = ObjectService.random_name()
@@ -270,6 +389,7 @@ def test_can_create_snbsdftransparent():
     node_tree.nodes.remove(node)
     NodeService.destroy_node_tree(node_tree)
 
+
 def test_can_create_snbump():
     node_tree_name = ObjectService.random_name()
     node_tree = NodeService.create_node_tree(node_tree_name)
@@ -278,6 +398,7 @@ def test_can_create_snbump():
     assert node.__class__.__name__ == "ShaderNodeBump"
     node_tree.nodes.remove(node)
     NodeService.destroy_node_tree(node_tree)
+
 
 def test_can_create_sncameradata():
     node_tree_name = ObjectService.random_name()
@@ -288,6 +409,7 @@ def test_can_create_sncameradata():
     node_tree.nodes.remove(node)
     NodeService.destroy_node_tree(node_tree)
 
+
 def test_can_create_snclamp():
     node_tree_name = ObjectService.random_name()
     node_tree = NodeService.create_node_tree(node_tree_name)
@@ -296,6 +418,7 @@ def test_can_create_snclamp():
     assert node.__class__.__name__ == "ShaderNodeClamp"
     node_tree.nodes.remove(node)
     NodeService.destroy_node_tree(node_tree)
+
 
 def test_can_create_sncombinecolor():
     node_tree_name = ObjectService.random_name()
@@ -306,6 +429,7 @@ def test_can_create_sncombinecolor():
     node_tree.nodes.remove(node)
     NodeService.destroy_node_tree(node_tree)
 
+
 def test_can_create_sncombinehsv():
     node_tree_name = ObjectService.random_name()
     node_tree = NodeService.create_node_tree(node_tree_name)
@@ -314,6 +438,7 @@ def test_can_create_sncombinehsv():
     assert node.__class__.__name__ == "ShaderNodeCombineHSV"
     node_tree.nodes.remove(node)
     NodeService.destroy_node_tree(node_tree)
+
 
 def test_can_create_sncombinergb():
     node_tree_name = ObjectService.random_name()
@@ -324,6 +449,7 @@ def test_can_create_sncombinergb():
     node_tree.nodes.remove(node)
     NodeService.destroy_node_tree(node_tree)
 
+
 def test_can_create_sncombinexyz():
     node_tree_name = ObjectService.random_name()
     node_tree = NodeService.create_node_tree(node_tree_name)
@@ -332,6 +458,7 @@ def test_can_create_sncombinexyz():
     assert node.__class__.__name__ == "ShaderNodeCombineXYZ"
     node_tree.nodes.remove(node)
     NodeService.destroy_node_tree(node_tree)
+
 
 def test_can_create_sndisplacement():
     node_tree_name = ObjectService.random_name()
@@ -342,6 +469,7 @@ def test_can_create_sndisplacement():
     node_tree.nodes.remove(node)
     NodeService.destroy_node_tree(node_tree)
 
+
 def test_can_create_sneeveespecular():
     node_tree_name = ObjectService.random_name()
     node_tree = NodeService.create_node_tree(node_tree_name)
@@ -350,6 +478,7 @@ def test_can_create_sneeveespecular():
     assert node.__class__.__name__ == "ShaderNodeEeveeSpecular"
     node_tree.nodes.remove(node)
     NodeService.destroy_node_tree(node_tree)
+
 
 def test_can_create_snemission():
     node_tree_name = ObjectService.random_name()
@@ -360,6 +489,7 @@ def test_can_create_snemission():
     node_tree.nodes.remove(node)
     NodeService.destroy_node_tree(node_tree)
 
+
 def test_can_create_snfloatcurve():
     node_tree_name = ObjectService.random_name()
     node_tree = NodeService.create_node_tree(node_tree_name)
@@ -368,6 +498,7 @@ def test_can_create_snfloatcurve():
     assert node.__class__.__name__ == "ShaderNodeFloatCurve"
     node_tree.nodes.remove(node)
     NodeService.destroy_node_tree(node_tree)
+
 
 def test_can_create_snfresnel():
     node_tree_name = ObjectService.random_name()
@@ -378,6 +509,7 @@ def test_can_create_snfresnel():
     node_tree.nodes.remove(node)
     NodeService.destroy_node_tree(node_tree)
 
+
 def test_can_create_sngamma():
     node_tree_name = ObjectService.random_name()
     node_tree = NodeService.create_node_tree(node_tree_name)
@@ -386,6 +518,7 @@ def test_can_create_sngamma():
     assert node.__class__.__name__ == "ShaderNodeGamma"
     node_tree.nodes.remove(node)
     NodeService.destroy_node_tree(node_tree)
+
 
 def test_can_create_sngroup():
     node_tree_name = ObjectService.random_name()
@@ -396,6 +529,7 @@ def test_can_create_sngroup():
     node_tree.nodes.remove(node)
     NodeService.destroy_node_tree(node_tree)
 
+
 def test_can_create_snhairinfo():
     node_tree_name = ObjectService.random_name()
     node_tree = NodeService.create_node_tree(node_tree_name)
@@ -404,6 +538,7 @@ def test_can_create_snhairinfo():
     assert node.__class__.__name__ == "ShaderNodeHairInfo"
     node_tree.nodes.remove(node)
     NodeService.destroy_node_tree(node_tree)
+
 
 def test_can_create_snholdout():
     node_tree_name = ObjectService.random_name()
@@ -414,6 +549,7 @@ def test_can_create_snholdout():
     node_tree.nodes.remove(node)
     NodeService.destroy_node_tree(node_tree)
 
+
 def test_can_create_snhuesaturation():
     node_tree_name = ObjectService.random_name()
     node_tree = NodeService.create_node_tree(node_tree_name)
@@ -422,6 +558,7 @@ def test_can_create_snhuesaturation():
     assert node.__class__.__name__ == "ShaderNodeHueSaturation"
     node_tree.nodes.remove(node)
     NodeService.destroy_node_tree(node_tree)
+
 
 def test_can_create_sninvert():
     node_tree_name = ObjectService.random_name()
@@ -432,6 +569,7 @@ def test_can_create_sninvert():
     node_tree.nodes.remove(node)
     NodeService.destroy_node_tree(node_tree)
 
+
 def test_can_create_snlayerweight():
     node_tree_name = ObjectService.random_name()
     node_tree = NodeService.create_node_tree(node_tree_name)
@@ -440,6 +578,7 @@ def test_can_create_snlayerweight():
     assert node.__class__.__name__ == "ShaderNodeLayerWeight"
     node_tree.nodes.remove(node)
     NodeService.destroy_node_tree(node_tree)
+
 
 def test_can_create_snlightfalloff():
     node_tree_name = ObjectService.random_name()
@@ -450,6 +589,7 @@ def test_can_create_snlightfalloff():
     node_tree.nodes.remove(node)
     NodeService.destroy_node_tree(node_tree)
 
+
 def test_can_create_snlightpath():
     node_tree_name = ObjectService.random_name()
     node_tree = NodeService.create_node_tree(node_tree_name)
@@ -458,6 +598,7 @@ def test_can_create_snlightpath():
     assert node.__class__.__name__ == "ShaderNodeLightPath"
     node_tree.nodes.remove(node)
     NodeService.destroy_node_tree(node_tree)
+
 
 def test_can_create_snmaprange():
     node_tree_name = ObjectService.random_name()
@@ -468,6 +609,7 @@ def test_can_create_snmaprange():
     node_tree.nodes.remove(node)
     NodeService.destroy_node_tree(node_tree)
 
+
 def test_can_create_snmapping():
     node_tree_name = ObjectService.random_name()
     node_tree = NodeService.create_node_tree(node_tree_name)
@@ -476,6 +618,7 @@ def test_can_create_snmapping():
     assert node.__class__.__name__ == "ShaderNodeMapping"
     node_tree.nodes.remove(node)
     NodeService.destroy_node_tree(node_tree)
+
 
 def test_can_create_snmath():
     node_tree_name = ObjectService.random_name()
@@ -486,6 +629,7 @@ def test_can_create_snmath():
     node_tree.nodes.remove(node)
     NodeService.destroy_node_tree(node_tree)
 
+
 def test_can_create_snmix():
     node_tree_name = ObjectService.random_name()
     node_tree = NodeService.create_node_tree(node_tree_name)
@@ -494,6 +638,7 @@ def test_can_create_snmix():
     assert node.__class__.__name__ == "ShaderNodeMix"
     node_tree.nodes.remove(node)
     NodeService.destroy_node_tree(node_tree)
+
 
 def test_can_create_snmixrgb():
     node_tree_name = ObjectService.random_name()
@@ -504,6 +649,7 @@ def test_can_create_snmixrgb():
     node_tree.nodes.remove(node)
     NodeService.destroy_node_tree(node_tree)
 
+
 def test_can_create_snmixshader():
     node_tree_name = ObjectService.random_name()
     node_tree = NodeService.create_node_tree(node_tree_name)
@@ -512,6 +658,7 @@ def test_can_create_snmixshader():
     assert node.__class__.__name__ == "ShaderNodeMixShader"
     node_tree.nodes.remove(node)
     NodeService.destroy_node_tree(node_tree)
+
 
 def test_can_create_snnewgeometry():
     node_tree_name = ObjectService.random_name()
@@ -522,6 +669,7 @@ def test_can_create_snnewgeometry():
     node_tree.nodes.remove(node)
     NodeService.destroy_node_tree(node_tree)
 
+
 def test_can_create_snnormal():
     node_tree_name = ObjectService.random_name()
     node_tree = NodeService.create_node_tree(node_tree_name)
@@ -530,6 +678,7 @@ def test_can_create_snnormal():
     assert node.__class__.__name__ == "ShaderNodeNormal"
     node_tree.nodes.remove(node)
     NodeService.destroy_node_tree(node_tree)
+
 
 def test_can_create_snnormalmap():
     node_tree_name = ObjectService.random_name()
@@ -540,6 +689,7 @@ def test_can_create_snnormalmap():
     node_tree.nodes.remove(node)
     NodeService.destroy_node_tree(node_tree)
 
+
 def test_can_create_snobjectinfo():
     node_tree_name = ObjectService.random_name()
     node_tree = NodeService.create_node_tree(node_tree_name)
@@ -548,6 +698,7 @@ def test_can_create_snobjectinfo():
     assert node.__class__.__name__ == "ShaderNodeObjectInfo"
     node_tree.nodes.remove(node)
     NodeService.destroy_node_tree(node_tree)
+
 
 def test_can_create_snoutputaov():
     node_tree_name = ObjectService.random_name()
@@ -558,6 +709,7 @@ def test_can_create_snoutputaov():
     node_tree.nodes.remove(node)
     NodeService.destroy_node_tree(node_tree)
 
+
 def test_can_create_snoutputlight():
     node_tree_name = ObjectService.random_name()
     node_tree = NodeService.create_node_tree(node_tree_name)
@@ -566,6 +718,7 @@ def test_can_create_snoutputlight():
     assert node.__class__.__name__ == "ShaderNodeOutputLight"
     node_tree.nodes.remove(node)
     NodeService.destroy_node_tree(node_tree)
+
 
 def test_can_create_snoutputlinestyle():
     node_tree_name = ObjectService.random_name()
@@ -576,6 +729,7 @@ def test_can_create_snoutputlinestyle():
     node_tree.nodes.remove(node)
     NodeService.destroy_node_tree(node_tree)
 
+
 def test_can_create_snoutputmaterial():
     node_tree_name = ObjectService.random_name()
     node_tree = NodeService.create_node_tree(node_tree_name)
@@ -584,6 +738,7 @@ def test_can_create_snoutputmaterial():
     assert node.__class__.__name__ == "ShaderNodeOutputMaterial"
     node_tree.nodes.remove(node)
     NodeService.destroy_node_tree(node_tree)
+
 
 def test_can_create_snoutputworld():
     node_tree_name = ObjectService.random_name()
@@ -594,6 +749,7 @@ def test_can_create_snoutputworld():
     node_tree.nodes.remove(node)
     NodeService.destroy_node_tree(node_tree)
 
+
 def test_can_create_snparticleinfo():
     node_tree_name = ObjectService.random_name()
     node_tree = NodeService.create_node_tree(node_tree_name)
@@ -602,6 +758,7 @@ def test_can_create_snparticleinfo():
     assert node.__class__.__name__ == "ShaderNodeParticleInfo"
     node_tree.nodes.remove(node)
     NodeService.destroy_node_tree(node_tree)
+
 
 def test_can_create_snpointinfo():
     node_tree_name = ObjectService.random_name()
@@ -612,6 +769,7 @@ def test_can_create_snpointinfo():
     node_tree.nodes.remove(node)
     NodeService.destroy_node_tree(node_tree)
 
+
 def test_can_create_snrgb():
     node_tree_name = ObjectService.random_name()
     node_tree = NodeService.create_node_tree(node_tree_name)
@@ -620,6 +778,7 @@ def test_can_create_snrgb():
     assert node.__class__.__name__ == "ShaderNodeRGB"
     node_tree.nodes.remove(node)
     NodeService.destroy_node_tree(node_tree)
+
 
 def test_can_create_snrgbcurve():
     node_tree_name = ObjectService.random_name()
@@ -630,6 +789,7 @@ def test_can_create_snrgbcurve():
     node_tree.nodes.remove(node)
     NodeService.destroy_node_tree(node_tree)
 
+
 def test_can_create_snrgbtobw():
     node_tree_name = ObjectService.random_name()
     node_tree = NodeService.create_node_tree(node_tree_name)
@@ -638,6 +798,7 @@ def test_can_create_snrgbtobw():
     assert node.__class__.__name__ == "ShaderNodeRGBToBW"
     node_tree.nodes.remove(node)
     NodeService.destroy_node_tree(node_tree)
+
 
 def test_can_create_snscript():
     node_tree_name = ObjectService.random_name()
@@ -648,6 +809,7 @@ def test_can_create_snscript():
     node_tree.nodes.remove(node)
     NodeService.destroy_node_tree(node_tree)
 
+
 def test_can_create_snseparatecolor():
     node_tree_name = ObjectService.random_name()
     node_tree = NodeService.create_node_tree(node_tree_name)
@@ -656,6 +818,7 @@ def test_can_create_snseparatecolor():
     assert node.__class__.__name__ == "ShaderNodeSeparateColor"
     node_tree.nodes.remove(node)
     NodeService.destroy_node_tree(node_tree)
+
 
 def test_can_create_snseparatehsv():
     node_tree_name = ObjectService.random_name()
@@ -666,6 +829,7 @@ def test_can_create_snseparatehsv():
     node_tree.nodes.remove(node)
     NodeService.destroy_node_tree(node_tree)
 
+
 def test_can_create_snseparatergb():
     node_tree_name = ObjectService.random_name()
     node_tree = NodeService.create_node_tree(node_tree_name)
@@ -674,6 +838,7 @@ def test_can_create_snseparatergb():
     assert node.__class__.__name__ == "ShaderNodeSeparateRGB"
     node_tree.nodes.remove(node)
     NodeService.destroy_node_tree(node_tree)
+
 
 def test_can_create_snseparatexyz():
     node_tree_name = ObjectService.random_name()
@@ -684,6 +849,7 @@ def test_can_create_snseparatexyz():
     node_tree.nodes.remove(node)
     NodeService.destroy_node_tree(node_tree)
 
+
 def test_can_create_snshadertorgb():
     node_tree_name = ObjectService.random_name()
     node_tree = NodeService.create_node_tree(node_tree_name)
@@ -692,6 +858,7 @@ def test_can_create_snshadertorgb():
     assert node.__class__.__name__ == "ShaderNodeShaderToRGB"
     node_tree.nodes.remove(node)
     NodeService.destroy_node_tree(node_tree)
+
 
 def test_can_create_snsqueeze():
     node_tree_name = ObjectService.random_name()
@@ -702,6 +869,7 @@ def test_can_create_snsqueeze():
     node_tree.nodes.remove(node)
     NodeService.destroy_node_tree(node_tree)
 
+
 def test_can_create_snsubsurfacescattering():
     node_tree_name = ObjectService.random_name()
     node_tree = NodeService.create_node_tree(node_tree_name)
@@ -710,6 +878,7 @@ def test_can_create_snsubsurfacescattering():
     assert node.__class__.__name__ == "ShaderNodeSubsurfaceScattering"
     node_tree.nodes.remove(node)
     NodeService.destroy_node_tree(node_tree)
+
 
 def test_can_create_sntangent():
     node_tree_name = ObjectService.random_name()
@@ -720,6 +889,7 @@ def test_can_create_sntangent():
     node_tree.nodes.remove(node)
     NodeService.destroy_node_tree(node_tree)
 
+
 def test_can_create_sntexbrick():
     node_tree_name = ObjectService.random_name()
     node_tree = NodeService.create_node_tree(node_tree_name)
@@ -728,6 +898,7 @@ def test_can_create_sntexbrick():
     assert node.__class__.__name__ == "ShaderNodeTexBrick"
     node_tree.nodes.remove(node)
     NodeService.destroy_node_tree(node_tree)
+
 
 def test_can_create_sntexchecker():
     node_tree_name = ObjectService.random_name()
@@ -738,6 +909,7 @@ def test_can_create_sntexchecker():
     node_tree.nodes.remove(node)
     NodeService.destroy_node_tree(node_tree)
 
+
 def test_can_create_sntexcoord():
     node_tree_name = ObjectService.random_name()
     node_tree = NodeService.create_node_tree(node_tree_name)
@@ -746,6 +918,7 @@ def test_can_create_sntexcoord():
     assert node.__class__.__name__ == "ShaderNodeTexCoord"
     node_tree.nodes.remove(node)
     NodeService.destroy_node_tree(node_tree)
+
 
 def test_can_create_sntexenvironment():
     node_tree_name = ObjectService.random_name()
@@ -756,6 +929,7 @@ def test_can_create_sntexenvironment():
     node_tree.nodes.remove(node)
     NodeService.destroy_node_tree(node_tree)
 
+
 def test_can_create_sntexgradient():
     node_tree_name = ObjectService.random_name()
     node_tree = NodeService.create_node_tree(node_tree_name)
@@ -764,6 +938,7 @@ def test_can_create_sntexgradient():
     assert node.__class__.__name__ == "ShaderNodeTexGradient"
     node_tree.nodes.remove(node)
     NodeService.destroy_node_tree(node_tree)
+
 
 def test_can_create_sntexies():
     node_tree_name = ObjectService.random_name()
@@ -774,6 +949,7 @@ def test_can_create_sntexies():
     node_tree.nodes.remove(node)
     NodeService.destroy_node_tree(node_tree)
 
+
 def test_can_create_snteximage():
     node_tree_name = ObjectService.random_name()
     node_tree = NodeService.create_node_tree(node_tree_name)
@@ -782,6 +958,7 @@ def test_can_create_snteximage():
     assert node.__class__.__name__ == "ShaderNodeTexImage"
     node_tree.nodes.remove(node)
     NodeService.destroy_node_tree(node_tree)
+
 
 def test_can_create_sntexmagic():
     node_tree_name = ObjectService.random_name()
@@ -792,8 +969,9 @@ def test_can_create_sntexmagic():
     node_tree.nodes.remove(node)
     NodeService.destroy_node_tree(node_tree)
 
+
 def test_can_create_sntexmusgrave():
-    if SystemService.is_blender_version_at_least(version=[4,1,0]):
+    if SystemService.is_blender_version_at_least(version=[4, 1, 0]):
         return
     node_tree_name = ObjectService.random_name()
     node_tree = NodeService.create_node_tree(node_tree_name)
@@ -802,6 +980,7 @@ def test_can_create_sntexmusgrave():
     assert node.__class__.__name__ == "ShaderNodeTexMusgrave"
     node_tree.nodes.remove(node)
     NodeService.destroy_node_tree(node_tree)
+
 
 def test_can_create_sntexnoise():
     node_tree_name = ObjectService.random_name()
@@ -812,6 +991,7 @@ def test_can_create_sntexnoise():
     node_tree.nodes.remove(node)
     NodeService.destroy_node_tree(node_tree)
 
+
 def test_can_create_sntexpointdensity():
     node_tree_name = ObjectService.random_name()
     node_tree = NodeService.create_node_tree(node_tree_name)
@@ -820,6 +1000,7 @@ def test_can_create_sntexpointdensity():
     assert node.__class__.__name__ == "ShaderNodeTexPointDensity"
     node_tree.nodes.remove(node)
     NodeService.destroy_node_tree(node_tree)
+
 
 def test_can_create_sntexsky():
     node_tree_name = ObjectService.random_name()
@@ -830,6 +1011,7 @@ def test_can_create_sntexsky():
     node_tree.nodes.remove(node)
     NodeService.destroy_node_tree(node_tree)
 
+
 def test_can_create_sntexvoronoi():
     node_tree_name = ObjectService.random_name()
     node_tree = NodeService.create_node_tree(node_tree_name)
@@ -838,6 +1020,7 @@ def test_can_create_sntexvoronoi():
     assert node.__class__.__name__ == "ShaderNodeTexVoronoi"
     node_tree.nodes.remove(node)
     NodeService.destroy_node_tree(node_tree)
+
 
 def test_can_create_sntexwave():
     node_tree_name = ObjectService.random_name()
@@ -848,6 +1031,7 @@ def test_can_create_sntexwave():
     node_tree.nodes.remove(node)
     NodeService.destroy_node_tree(node_tree)
 
+
 def test_can_create_sntexwhitenoise():
     node_tree_name = ObjectService.random_name()
     node_tree = NodeService.create_node_tree(node_tree_name)
@@ -856,6 +1040,7 @@ def test_can_create_sntexwhitenoise():
     assert node.__class__.__name__ == "ShaderNodeTexWhiteNoise"
     node_tree.nodes.remove(node)
     NodeService.destroy_node_tree(node_tree)
+
 
 def test_can_create_snuvalongstroke():
     node_tree_name = ObjectService.random_name()
@@ -866,6 +1051,7 @@ def test_can_create_snuvalongstroke():
     node_tree.nodes.remove(node)
     NodeService.destroy_node_tree(node_tree)
 
+
 def test_can_create_snuvmap():
     node_tree_name = ObjectService.random_name()
     node_tree = NodeService.create_node_tree(node_tree_name)
@@ -874,6 +1060,7 @@ def test_can_create_snuvmap():
     assert node.__class__.__name__ == "ShaderNodeUVMap"
     node_tree.nodes.remove(node)
     NodeService.destroy_node_tree(node_tree)
+
 
 def test_can_create_snvaltorgb():
     node_tree_name = ObjectService.random_name()
@@ -884,6 +1071,7 @@ def test_can_create_snvaltorgb():
     node_tree.nodes.remove(node)
     NodeService.destroy_node_tree(node_tree)
 
+
 def test_can_create_snvalue():
     node_tree_name = ObjectService.random_name()
     node_tree = NodeService.create_node_tree(node_tree_name)
@@ -892,6 +1080,7 @@ def test_can_create_snvalue():
     assert node.__class__.__name__ == "ShaderNodeValue"
     node_tree.nodes.remove(node)
     NodeService.destroy_node_tree(node_tree)
+
 
 def test_can_create_snvectorcurve():
     node_tree_name = ObjectService.random_name()
@@ -902,6 +1091,7 @@ def test_can_create_snvectorcurve():
     node_tree.nodes.remove(node)
     NodeService.destroy_node_tree(node_tree)
 
+
 def test_can_create_snvectordisplacement():
     node_tree_name = ObjectService.random_name()
     node_tree = NodeService.create_node_tree(node_tree_name)
@@ -910,6 +1100,7 @@ def test_can_create_snvectordisplacement():
     assert node.__class__.__name__ == "ShaderNodeVectorDisplacement"
     node_tree.nodes.remove(node)
     NodeService.destroy_node_tree(node_tree)
+
 
 def test_can_create_snvectormath():
     node_tree_name = ObjectService.random_name()
@@ -920,6 +1111,7 @@ def test_can_create_snvectormath():
     node_tree.nodes.remove(node)
     NodeService.destroy_node_tree(node_tree)
 
+
 def test_can_create_snvectorrotate():
     node_tree_name = ObjectService.random_name()
     node_tree = NodeService.create_node_tree(node_tree_name)
@@ -928,6 +1120,7 @@ def test_can_create_snvectorrotate():
     assert node.__class__.__name__ == "ShaderNodeVectorRotate"
     node_tree.nodes.remove(node)
     NodeService.destroy_node_tree(node_tree)
+
 
 def test_can_create_snvectortransform():
     node_tree_name = ObjectService.random_name()
@@ -938,6 +1131,7 @@ def test_can_create_snvectortransform():
     node_tree.nodes.remove(node)
     NodeService.destroy_node_tree(node_tree)
 
+
 def test_can_create_snvertexcolor():
     node_tree_name = ObjectService.random_name()
     node_tree = NodeService.create_node_tree(node_tree_name)
@@ -946,6 +1140,7 @@ def test_can_create_snvertexcolor():
     assert node.__class__.__name__ == "ShaderNodeVertexColor"
     node_tree.nodes.remove(node)
     NodeService.destroy_node_tree(node_tree)
+
 
 def test_can_create_snvolumeabsorption():
     node_tree_name = ObjectService.random_name()
@@ -956,6 +1151,7 @@ def test_can_create_snvolumeabsorption():
     node_tree.nodes.remove(node)
     NodeService.destroy_node_tree(node_tree)
 
+
 def test_can_create_snvolumeinfo():
     node_tree_name = ObjectService.random_name()
     node_tree = NodeService.create_node_tree(node_tree_name)
@@ -964,6 +1160,7 @@ def test_can_create_snvolumeinfo():
     assert node.__class__.__name__ == "ShaderNodeVolumeInfo"
     node_tree.nodes.remove(node)
     NodeService.destroy_node_tree(node_tree)
+
 
 def test_can_create_snvolumeprincipled():
     node_tree_name = ObjectService.random_name()
@@ -974,6 +1171,7 @@ def test_can_create_snvolumeprincipled():
     node_tree.nodes.remove(node)
     NodeService.destroy_node_tree(node_tree)
 
+
 def test_can_create_snvolumescatter():
     node_tree_name = ObjectService.random_name()
     node_tree = NodeService.create_node_tree(node_tree_name)
@@ -983,6 +1181,7 @@ def test_can_create_snvolumescatter():
     node_tree.nodes.remove(node)
     NodeService.destroy_node_tree(node_tree)
 
+
 def test_can_create_snwavelength():
     node_tree_name = ObjectService.random_name()
     node_tree = NodeService.create_node_tree(node_tree_name)
@@ -991,6 +1190,7 @@ def test_can_create_snwavelength():
     assert node.__class__.__name__ == "ShaderNodeWavelength"
     node_tree.nodes.remove(node)
     NodeService.destroy_node_tree(node_tree)
+
 
 def test_can_create_snwireframe():
     node_tree_name = ObjectService.random_name()

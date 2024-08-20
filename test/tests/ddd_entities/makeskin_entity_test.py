@@ -1,9 +1,10 @@
 import bpy, os
 from pytest import approx
-from mpfb.services.locationservice import LocationService
-from mpfb.services.objectservice import ObjectService
-from mpfb.services.materialservice import MaterialService
-from mpfb.services.nodeservice import NodeService
+from .. import dynamic_import
+from .. import LocationService
+from .. import ObjectService
+from .. import MaterialService
+from .. import NodeService
 
 
 def _create_object(with_material=False):
@@ -19,7 +20,7 @@ def test_load_mhmat_file():
     td = LocationService.get_mpfb_test("testdata")
     matfile = os.path.join(td, "materials", "notextures.mhmat")
     assert os.path.exists(matfile)
-    from mpfb.entities.material.makeskinmaterial import MakeSkinMaterial
+    MakeSkinMaterial = dynamic_import("mpfb.entities.material.makeskinmaterial", "MakeSkinMaterial")
     mhmat = MakeSkinMaterial()
     assert mhmat
     mhmat.populate_from_mhmat(matfile)
@@ -32,7 +33,7 @@ def test_load_mhmat_file():
 def test_basic_nodetree():
     td = LocationService.get_mpfb_test("testdata")
     matfile = os.path.join(td, "materials", "notextures.mhmat")
-    from mpfb.entities.material.makeskinmaterial import MakeSkinMaterial
+    MakeSkinMaterial = dynamic_import("mpfb.entities.material.makeskinmaterial", "MakeSkinMaterial")
     mhmat = MakeSkinMaterial()
     mhmat.populate_from_mhmat(matfile)
 
@@ -58,7 +59,7 @@ def test_basic_nodetree():
 def test_most_textures():
     td = LocationService.get_mpfb_test("testdata")
     matfile = os.path.join(td, "materials", "almost_all_textures.mhmat")
-    from mpfb.entities.material.makeskinmaterial import MakeSkinMaterial
+    MakeSkinMaterial = dynamic_import("mpfb.entities.material.makeskinmaterial", "MakeSkinMaterial")
     mhmat = MakeSkinMaterial()
     mhmat.populate_from_mhmat(matfile)
 
@@ -106,7 +107,7 @@ def test_most_textures():
 def test_specularmap():
     td = LocationService.get_mpfb_test("testdata")
     matfile = os.path.join(td, "materials", "specularmap.mhmat")
-    from mpfb.entities.material.makeskinmaterial import MakeSkinMaterial
+    MakeSkinMaterial = dynamic_import("mpfb.entities.material.makeskinmaterial", "MakeSkinMaterial")
     mhmat = MakeSkinMaterial()
     mhmat.populate_from_mhmat(matfile)
 
