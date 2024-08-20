@@ -1,7 +1,7 @@
 import bpy, os
 
-from mpfb.services.assetservice import AssetService
-from mpfb.services.locationservice import LocationService
+from .. import AssetService
+from .. import LocationService
 
 
 def test_assetservice_exists():
