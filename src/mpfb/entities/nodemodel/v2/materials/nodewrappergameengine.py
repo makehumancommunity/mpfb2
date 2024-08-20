@@ -122,7 +122,9 @@ from .....services import LogService
 _LOG = LogService.get_logger("material.gameengine")
 _LOG.set_level(LogService.DEBUG)
 
+
 class _NodeWrapperGameEngine(AbstractMaterialWrapper):
+
     def __init__(self):
         AbstractMaterialWrapper.__init__(self, "GameEngine", _ORIGINAL_TREE_DEF)
 
