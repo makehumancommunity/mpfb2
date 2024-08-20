@@ -75,6 +75,8 @@ def get_preference(name):
 
 ClassManager = None
 
+MPFB_CONTEXTUAL_INFORMATION = None
+
 
 def register():
     """At this point blender is ready enough for it to make sense to
@@ -142,6 +144,27 @@ def register():
             except ConnectionRefusedError as err:
                 _LOG.error("Could not read mh_user_dir. Maybe socket server is down? Error was:", err)
                 mh_user_dir = None
+
+    # To allow other code structures (primarily the unit test code) access to MPFB's logic without knowing
+    # anything about the module structure, we will provide some contextual information.
+    global MPFB_CONTEXTUAL_INFORMATION
+    MPFB_CONTEXTUAL_INFORMATION = dict()
+    MPFB_CONTEXTUAL_INFORMATION["__package__"] = __package__
+    MPFB_CONTEXTUAL_INFORMATION["__file__"] = __file__
+
+    from .services import SERVICES
+    MPFB_CONTEXTUAL_INFORMATION["SERVICES"] = SERVICES
+
+    # One might have assumed that bpy.app.driver_namespace would be good place to store this, but that gets wiped
+    # when loading a new blend file. Instead something like the following is needed:
+    #
+    # import importlib
+    # for amod in sys.modules:
+    #    if amod.endswith("mpfb"):
+    #        mpfb_mod = importlib.import_module(amod)
+    #        print(mpfb_mod.MPFB_CONTEXTUAL_INFORMATION)
+    #
+    # Sample usage of this can be seen in test/tests/__init__.py
 
     _LOG.time("Number of milliseconds to run entire register() method:")
     _LOG.info("MPFB initialization has finished.")

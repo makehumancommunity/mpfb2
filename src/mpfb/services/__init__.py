@@ -39,6 +39,26 @@ from .animationservice import AnimationService
 from .clothesservice import ClothesService
 from .humanservice import HumanService
 
+SERVICES = {
+    "AnimationService": AnimationService,
+    "AssetService": AssetService,
+    "ClothesService": ClothesService,
+    "HumanService": HumanService,
+    "LocationService": LocationService,
+    "LogService": LogService,
+    "MaterialService": MaterialService,
+    "MeshService": MeshService,
+    "ModifierService": ModifierService,
+    "NodeService": NodeService,
+    "NodeTreeService": NodeTreeService,
+    "ObjectService": ObjectService,
+    "RigService": RigService,
+    "SocketService": SocketService,
+    "SystemService": SystemService,
+    "TargetService": TargetService,
+    "UiService": UiService
+}
+
 __all__ = [
     "LogService",
     "LocationService",
@@ -61,5 +81,6 @@ __all__ = [
     "AnimationService",
     "ClothesService",
     "HumanService",
-    "ASSET_LIBRARY_SECTIONS"
+    "ASSET_LIBRARY_SECTIONS",
+    "SERVICES"
     ]
