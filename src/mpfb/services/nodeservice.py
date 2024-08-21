@@ -4,9 +4,7 @@ import bpy
 import bpy.types
 from bpy.types import NodeSocketColor, ShaderNodeGroup, NodeGroupInput, NodeGroupOutput
 import os
-import inspect
 
-from .objectservice import ObjectService
 from .logservice import LogService
 from .nodetreeservice import NodeTreeService
 
@@ -93,13 +91,20 @@ for subc in dir(bpy.types):
     except Exception as e:
         _LOG.error("An unexpected error occurred while listing shader classes", (subc, e))
 
-# TODO: add extra nodes which are relevant, but not descendants of ShaderNode
-
 
 class NodeService:
 
-    """Service with utility functions for working with shader nodes. It only has static methods, so you don't
-    need to instance it."""
+    """The NodeService class provides a collection of static methods for managing and manipulating node trees and nodes within 
+    Blender's shader node system. It includes functionalities for:
+
+    - Creating and destroying nodes and node trees
+    - Retrieving information about nodes and sockets
+    - Managing node groups
+    - Creating, finding and setting the value for sockets
+    - Finding and linking nodes within a node tree
+
+    In summary, the NodeService class is designed to facilitate the manipulation and querying of Blender's node-based shader 
+    system programmatically."""
 
     def __init__(self):
         """Do not instance, there are only static methods in the class"""
@@ -107,11 +112,28 @@ class NodeService:
 
     @staticmethod
     def create_node_tree(node_tree_name, inputs=None, outputs=None):
+        """
+        Create a new shader node tree with the given name.
+
+        Parameters:
+        - node_tree_name: The name of the new node tree.
+        - inputs: Optional list of input sockets to add to the node tree.
+        - outputs: Optional list of output sockets to add to the node tree.
+
+        Returns:
+        - The created shader node tree.
+        """
         node_tree = bpy.data.node_groups.new(node_tree_name, 'ShaderNodeTree')
         return node_tree
 
     @staticmethod
     def destroy_node_tree(node_tree):
+        """
+        Remove the specified shader node tree from Blender's data.
+
+        Parameters:
+        - node_tree: The shader node tree to be removed.
+        """
         bpy.data.node_groups.remove(node_tree)
 
     @staticmethod
@@ -211,6 +233,12 @@ class NodeService:
 
     @staticmethod
     def get_known_shader_node_classes():
+        """
+        Retrieve a list of known shader node classes.
+
+        Returns:
+        - A list of known shader node class names.
+        """
         return list(_KNOWN_SHADER_NODE_CLASSES)
 
     @staticmethod
@@ -371,11 +399,15 @@ class NodeService:
             if isinstance(node, ShaderNodeGroup) and recurse_groups:
                 group_name = node.node_tree.name
                 for_output["nodes"][name]["group_name"] = group_name
-                if not group_name in group_dict:
+                if group_name not in group_dict:
                     if not recurse_groups:
                         group_dict[group_name] = dict()
                     else:
-                        group_dict[group_name] = NodeService.get_node_tree_as_dict(node.node_tree, recurse_groups=True, group_dict=group_dict, recursion_level=recursion_level + 1)
+                        group_dict[group_name] = NodeService.get_node_tree_as_dict(
+                            node.node_tree,
+                            recurse_groups=True,
+                            group_dict=group_dict,
+                            recursion_level=recursion_level + 1)
                 group_dict[group_name]["inputs"] = {}
                 group_dict[group_name]["outputs"] = {}
                 for input_socket in node.node_tree.inputs:
@@ -600,7 +632,7 @@ class NodeService:
     @staticmethod
     def _create_socket(node_tree, socket_name, socket_type, in_out="INPUT"):
         _LOG.enter()
-        return node_tree.interface.new_socket(socket_name, socket_type=socket_type, in_out=in_out);
+        return node_tree.interface.new_socket(socket_name, socket_type=socket_type, in_out=in_out)
 
     @staticmethod
     def apply_node_tree_from_dict(target_node_tree, dict_with_node_tree, wipe_node_tree=False):
@@ -639,8 +671,7 @@ class NodeService:
                     if node_by_name[node_name] is None:
                         _LOG.error("Broken group I/O:", node_info)
                         raise ValueError('Could not find referenced group I/O')
-                    else:
-                        NodeService.update_node_with_settings_from_dict(node_by_name[node_name], node_info)
+                    NodeService.update_node_with_settings_from_dict(node_by_name[node_name], node_info)
                 else:
                     new_node = NodeService.create_node_from_dict(target_node_tree, node_info)
                     _LOG.dump("Created node", new_node)
