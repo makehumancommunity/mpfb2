@@ -1,4 +1,36 @@
-"""This is the main file for MPFB. For more information, see the README.md file in the zip."""
+"""This is the main file for MPFB. For more information about MPFB as a whole, see the README.md file in the zip.
+
+The MPFB code is organized into several key directories, each serving a distinct purpose:
+
+src/mpfb/entities: This directory contains the core data models and logic for different entities used in the project.
+Entities represent the main objects or concepts within the application, such as materials, rigs, helpers, and other
+domain-specific objects.
+
+src/mpfb/services: The services directory contains the core logic of the project. The files contain utility classes and functions
+that provide various services to the rest of the application. These services are typically stateless and provide reusable
+functionality. Examples of services include logging, node management, location services, and system services. These services help in
+abstracting and encapsulating common operations that can be used across different parts of the application.
+
+src/mpfb/ui:
+The ui directory is responsible for defining the user interface elements of the add-on. This includes panels, operators, and other
+UI components that are integrated into Blender's interface. The UI components interact with the rest of the application, allowing
+users to perform actions and configure settings through Blender's graphical interface.
+
+src/mpfb/data:
+The data directory contains static resources and data files used by the project. This can include 3D object files, textures, configuration
+files, and other assets required for the add-on to function. These resources are typically loaded and used by the entities and services to
+provide the necessary functionality within Blender.
+
+The root of the project (ie this file) is the entry point for the Blender add-on. It loads and initializes the necessary modules and services.
+It also exposes a few important functions and objects:
+
+- get_preference(): Return a preference key from the MPFB preference panel
+- VERSION: A tuple representing the version of MPFB
+- BUILD_INFO: Build information of MPFB. It defaults to "FROM_SOURCE" if not a build, otherwise it contains the build date
+- DEBUG: A boolean indicating whether debug mode is enabled. If DEBUG is True, some early initialization info is printed to the console
+- MPFB_CONTEXTUAL_INFORMATION: A dictionary containing contextual information of the addon, such as in which package it was loaded
+- ClassManager: A singleton object that manages the registration and unregistering of classes such as panels and operators
+"""
 
 fake_bl_info = {  # pylint: disable=C0103
     "name": "mpfb",
@@ -36,30 +68,47 @@ from bpy.utils import register_class
 _OLD_EXCEPTHOOK = None
 
 # For printing output before _LOG has been initialized
-_DEBUG = False
+DEBUG = False
 
 
-def log_crash(type, value, tb):
-    global _OLD_EXCEPTHOOK
+def log_crash(atype, value, tb):
+    global _OLD_EXCEPTHOOK  # pylint: disable=W0602
     stacktrace = "\n"
     for line in traceback.extract_tb(tb).format():
         stacktrace = stacktrace + line
     _LOG.error("Unhandled crash", stacktrace + "\n" + str(value) + "\n")
     if _OLD_EXCEPTHOOK:
-        _OLD_EXCEPTHOOK(type, value, tb)
+        _OLD_EXCEPTHOOK(atype, value, tb)
 
 
 def get_preference(name):
-    global _DEBUG
-    if _DEBUG:
-        print("get_preference()")
+    """
+    Retrieve a preference value from the MPFB preference panel.
+
+    This function looks up a preference value by its name from the MPFB add-on's preferences.
+    If the preference is found, its value is returned. If the preference is not found, an error
+    message is printed, and None is returned. If the add-on or its preferences are not properly
+    initialized, a ValueError is raised.
+
+    Args:
+        name (str): The name of the preference to retrieve.
+
+    Returns:
+        The value of the preference if found, otherwise None.
+
+    Raises:
+        ValueError: If the add-on or its preferences are not properly initialized.
+    """
+    global DEBUG  # pylint: disable=W0602
+    if DEBUG:
+        print("get_preference(\"" + name + "\")")
     if __package__ in bpy.context.preferences.addons:
         mpfb = bpy.context.preferences.addons[__package__]
         if hasattr(mpfb, "preferences"):
             prefs = mpfb.preferences
             if hasattr(prefs, name):
                 value = getattr(prefs, name)
-                if _DEBUG:
+                if DEBUG:
                     print("Found addon preference", (name, value))
                 return value
             print("There were addon preferences, but key did not exist:", name)
@@ -173,12 +222,11 @@ def register():
 def unregister():
     """Deconstruct all loaded blenderish classes"""
 
-    global _LOG  # pylint: disable=W0603
+    global _LOG  # pylint: disable=W0603,W0602
 
     _LOG.debug("About to unregister classes")
-    global ClassManager
+    global ClassManager  # pylint: disable=W0603,W0602
     ClassManager.unregister_classes()
 
 
-__all__ = ["VERSION", "BUILD_INFO", "ClassManager"]
-
+__all__ = ["VERSION", "DEBUG", "BUILD_INFO", "ClassManager", "MPFB_CONTEXTUAL_INFORMATION"]

@@ -12,15 +12,15 @@ _LOG = LogService.get_logger("services.uiservice")
 class _UiService():
 
     """The _UiService class is designed to handle various user interface (UI) related tasks within the MPFB2 project.
-    It manages the state and configuration of different UI elements and panels, ensuring that they are properly set 
-    up and updated as needed. 
-    
-    Some key responsibilities and functionalities of the _UiService class are: 
+    It manages the state and configuration of different UI elements and panels, ensuring that they are properly set
+    up and updated as needed.
+
+    Some key responsibilities and functionalities of the _UiService class are:
 
     Initialization and State Management: The class initializes with a default state and sets up various UI-related values,
     such as prefixes and categories for different panels.
 
-    Preset and Settings Management: The class provides methods to rebuild and retrieve lists of available presets and settings 
+    Preset and Settings Management: The class provides methods to rebuild and retrieve lists of available presets and settings
     for different panels, such as importer presets, enhanced settings, and eye settings. It scans the user configuration directory
     for relevant JSON files and adds them to the appropriate lists.
 

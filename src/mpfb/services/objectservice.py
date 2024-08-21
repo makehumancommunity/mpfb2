@@ -3,7 +3,6 @@
 import bpy, os, json, random, gzip, typing, string
 from .logservice import LogService
 from .locationservice import LocationService
-from .systemservice import SystemService
 from ..entities.objectproperties import GeneralObjectProperties
 from ..entities.socketobject import BASEMESH_EXTRA_GROUPS
 
@@ -23,8 +22,18 @@ _ALL_TYPES = _SKELETON_TYPES + _MESH_TYPES
 
 
 class ObjectService:
-    """ObjectService contains various functions for working with objects, such as creating a new object,
-    identifying an object, finding an object an so forth."""
+    """The ObjectService class provides a collection of static utility methods for managing and manipulating Blender objects.
+    The class is designed to be used without instantiation, as ut only provides static methods.
+
+    Its key responsibilities include:
+
+    - Creating, linking, selecting, activating and removing objects
+    - Finding and identifying objects from, for example, parent/child relationships
+    - Loading and saving objects to and from JSON and OBJ files
+    - Getting information about vertex groups
+
+    Note that most logic related to vertex groups and meshes are located in the MeshService class, rather then in ObjectService.
+    """
 
     def __init__(self):
         raise RuntimeError("You should not instance ObjectService. Use its static methods instead.")
@@ -40,7 +49,7 @@ class ObjectService:
         """Safely delete an object with a given name. Will gracefully skip doing anything if the object does not exist."""
         if not name:
             return
-        if not name in bpy.data.objects:
+        if name not in bpy.data.objects:
             return
         ObjectService.delete_object(bpy.data.objects[name])
 
@@ -98,6 +107,16 @@ class ObjectService:
 
     @staticmethod
     def has_vertex_group(blender_object, vertex_group_name):
+        """
+        Check if a given Blender object has a specified vertex group.
+
+        Args:
+            blender_object (bpy.types.Object): The Blender object to check.
+            vertex_group_name (str): The name of the vertex group to look for.
+
+        Returns:
+            bool: True if the vertex group exists in the object, False otherwise.
+        """
         if not blender_object or not vertex_group_name:
             return False
         for group in blender_object.vertex_groups:
@@ -107,6 +126,17 @@ class ObjectService:
 
     @staticmethod
     def get_vertex_indexes_for_vertex_group(blender_object, vertex_group_name):
+        """
+        Get the indexes of vertices that belong to a specified vertex group in a given Blender object.
+
+        Args:
+            blender_object (bpy.types.Object): The Blender object to check.
+            vertex_group_name (str): The name of the vertex group to look for.
+
+        Returns:
+            list: A list of vertex indexes that belong to the specified vertex group.
+                  Returns an empty list if the vertex group does not exist or if the object is invalid.
+        """
         if not blender_object or not vertex_group_name:
             return []
         group_index = None
@@ -170,6 +200,15 @@ class ObjectService:
 
     @staticmethod
     def find_by_data(id_data):
+        """
+        Find a Blender object that uses the specified data block.
+
+        Args:
+            id_data (bpy.types.ID): The data block to search for (e.g., mesh, armature).
+
+        Returns:
+            bpy.types.Object: The Blender object that uses the specified data block, or None if no such object is found.
+        """
         for obj in bpy.data.objects:
             if obj.data == id_data:
                 return obj
@@ -179,36 +218,36 @@ class ObjectService:
     def get_selected_objects(exclude_non_mh_objects=False, exclude_mesh_objects=False, exclude_armature_objects=False, exclude_meta_objects=True):
         """Find all selected objects, but optionally exclude non-MH objects, mesh objects, armature objects, and meta objects."""
         objects = []
-        for object in bpy.context.selected_objects:
+        for obj in bpy.context.selected_objects:
             include = True
-            if object.type == "MESH" and exclude_mesh_objects:
+            if obj.type == "MESH" and exclude_mesh_objects:
                 include = False
-            if object.type == "ARMATURE" and exclude_armature_objects:
+            if obj.type == "ARMATURE" and exclude_armature_objects:
                 include = False
-            if object.type not in ["MESH", "ARMATURE"] and exclude_meta_objects:
+            if obj.type not in ["MESH", "ARMATURE"] and exclude_meta_objects:
                 include = False
-            if not ObjectService.get_object_type(object) and exclude_non_mh_objects:
+            if not ObjectService.get_object_type(obj) and exclude_non_mh_objects:
                 include = False
             if include:
-                objects.append(object)
+                objects.append(obj)
         return objects
 
     @staticmethod
     def get_selected_armature_objects():
         """Find all selected armature objects."""
         objects = []
-        for object in bpy.context.selected_objects:
-            if object.type == "ARMATURE":
-                objects.append(object)
+        for obj in bpy.context.selected_objects:
+            if obj.type == "ARMATURE":
+                objects.append(obj)
         return objects
 
     @staticmethod
     def get_selected_mesh_objects():
         """Find all selected mesh objects."""
         objects = []
-        for object in bpy.context.selected_objects:
-            if object.type == "MESH":
-                objects.append(object)
+        for obj in bpy.context.selected_objects:
+            if obj.type == "MESH":
+                objects.append(obj)
         return objects
 
     @staticmethod
@@ -263,14 +302,41 @@ class ObjectService:
 
     @staticmethod
     def object_is_skeleton(blender_object):
+        """
+        Check if the given object is of type 'Skeleton'.
+
+        Args:
+            blender_object (bpy.types.Object): The Blender object to check.
+
+        Returns:
+            bool: True if the object is of type 'Skeleton', False otherwise.
+        """
         return ObjectService.object_is(blender_object, "Skeleton")
 
     @staticmethod
     def object_is_subrig(blender_object):
+        """
+        Check if the given object is of type 'Subrig'.
+
+        Args:
+            blender_object (bpy.types.Object): The Blender object to check.
+
+        Returns:
+            bool: True if the object is of type 'Subrig', False otherwise.
+        """
         return ObjectService.object_is(blender_object, "Subrig")
 
     @staticmethod
     def object_is_any_skeleton(blender_object):
+        """
+        Check if the given object is of any skeleton type.
+
+        Args:
+            blender_object (bpy.types.Object): The Blender object to check.
+
+        Returns:
+            bool: True if the object is of any skeleton type, False otherwise.
+        """
         return ObjectService.object_is(blender_object, _SKELETON_TYPES)
 
     @staticmethod
@@ -384,31 +450,90 @@ class ObjectService:
 
     @staticmethod
     def find_related_objects(blender_object, **kwargs):
+        """
+        Find related objects of any type among the nearest relatives of the given object.
+
+        Args:
+            blender_object (bpy.types.Object): The Blender object to start the search from.
+            **kwargs: Additional keyword arguments to filter the search.
+
+        Yields:
+            bpy.types.Object: Related objects of any type.
+        """
         yield from ObjectService.find_all_objects_of_type_amongst_nearest_relatives(
             blender_object, _ALL_TYPES, **kwargs)
 
     @staticmethod
     def find_related_skeletons(blender_object, **kwargs):
+        """
+        Find related skeleton objects among the nearest relatives of the given object.
+
+        Args:
+            blender_object (bpy.types.Object): The Blender object to start the search from.
+            **kwargs: Additional keyword arguments to filter the search.
+
+        Yields:
+            bpy.types.Object: Related skeleton objects.
+        """
         yield from ObjectService.find_all_objects_of_type_amongst_nearest_relatives(
             blender_object, _SKELETON_TYPES, **kwargs)
 
     @staticmethod
     def find_related_mesh_base_or_assets(blender_object, **kwargs):
+        """
+        Find related mesh base or asset objects among the nearest relatives of the given object.
+
+        Args:
+            blender_object (bpy.types.Object): The Blender object to start the search from.
+            **kwargs: Additional keyword arguments to filter the search.
+
+        Yields:
+            bpy.types.Object: Related mesh base or asset objects.
+        """
         yield from ObjectService.find_all_objects_of_type_amongst_nearest_relatives(
             blender_object, _MESH_TYPES, **kwargs)
 
     @staticmethod
     def find_related_mesh_assets(blender_object, **kwargs):
+        """
+        Find related mesh asset objects among the nearest relatives of the given object.
+
+        Args:
+            blender_object (bpy.types.Object): The Blender object to start the search from.
+            **kwargs: Additional keyword arguments to filter the search.
+
+        Yields:
+            bpy.types.Object: Related mesh asset objects.
+        """
         yield from ObjectService.find_all_objects_of_type_amongst_nearest_relatives(
             blender_object, _MESH_ASSET_TYPES, **kwargs)
 
     @staticmethod
     def find_related_body_part_assets(blender_object, **kwargs):
+        """
+        Find related body part asset objects among the nearest relatives of the given object.
+
+        Args:
+            blender_object (bpy.types.Object): The Blender object to start the search from.
+            **kwargs: Additional keyword arguments to filter the search.
+
+        Yields:
+            bpy.types.Object: Related body part asset objects.
+        """
         yield from ObjectService.find_all_objects_of_type_amongst_nearest_relatives(
             blender_object, _BODY_PART_TYPES, **kwargs)
 
     @staticmethod
     def find_deformed_child_meshes(armature_object) -> typing.Generator[bpy.types.Object, None, None]:
+        """
+        Find and yield all mesh objects that are deformed by the given armature object.
+
+        Args:
+            armature_object (bpy.types.Object): The armature object to search for deformed child meshes.
+
+        Yields:
+            bpy.types.Object: Mesh objects that are deformed by the given armature object.
+        """
         if not armature_object:
             return
 
@@ -422,10 +547,29 @@ class ObjectService:
 
     @staticmethod
     def object_is_generated_rigify_rig(blender_object):
+        """
+        Check if the given Blender object is a generated Rigify rig.
+
+        Args:
+            blender_object (bpy.types.Object): The Blender object to check.
+
+        Returns:
+            bool: True if the object is a generated Rigify rig, False otherwise.
+        """
         return blender_object and blender_object.type == "ARMATURE" and blender_object.data.get("rig_id")
 
     @staticmethod
     def object_is_rigify_metarig(blender_object, *, check_bones=False):
+        """
+        Check if the given Blender object is a Rigify metarig.
+
+        Args:
+            blender_object (bpy.types.Object): The Blender object to check.
+            check_bones (bool, optional): Whether to check the bones for Rigify types. Defaults to False.
+
+        Returns:
+            bool: True if the object is a Rigify metarig, False otherwise.
+        """
         if not blender_object or blender_object.type != "ARMATURE" or blender_object.data.get("rig_id"):
             return False
 
@@ -443,6 +587,15 @@ class ObjectService:
 
     @staticmethod
     def find_rigify_metarig_by_rig(blender_object):
+        """
+        Find the Rigify metarig associated with the given Rigify rig.
+
+        Args:
+            blender_object (bpy.types.Object): The Rigify rig object to find the metarig for.
+
+        Returns:
+            bpy.types.Object or None: The associated Rigify metarig, or None if not found.
+        """
         if not ObjectService.object_is_generated_rigify_rig(blender_object):
             return None
 
@@ -453,6 +606,15 @@ class ObjectService:
 
     @staticmethod
     def find_rigify_rig_by_metarig(blender_object):
+        """
+        Find the Rigify rig associated with the given Rigify metarig.
+
+        Args:
+            blender_object (bpy.types.Object): The Rigify metarig object to find the rig for.
+
+        Returns:
+            bpy.types.Object or None: The associated Rigify rig, or None if not found.
+        """
         if not blender_object or blender_object.type != "ARMATURE" or blender_object.data.get("rig_id"):
             return None
 
@@ -541,6 +703,20 @@ class ObjectService:
 
     @staticmethod
     def load_wavefront_file(filepath, context=None):
+        """
+        Load a Wavefront (.obj) file into Blender.
+
+        Args:
+            filepath (str): The path to the .obj file to load.
+            context (bpy.types.Context, optional): The Blender context to use. Defaults to None.
+
+        Raises:
+            ValueError: If the filepath is None.
+            IOError: If the file does not exist.
+
+        Returns:
+            bpy.types.Object: The loaded Blender object.
+        """
         if context is None:
             context = bpy.context
         if filepath is None:
@@ -560,6 +736,17 @@ class ObjectService:
 
     @staticmethod
     def save_wavefront_file(filepath, mesh_object, context=None):
+        """
+        Save a Blender mesh object to a Wavefront (.obj) file.
+
+        Args:
+            filepath (str): The path to save the .obj file to.
+            mesh_object (bpy.types.Object): The Blender mesh object to save.
+            context (bpy.types.Context, optional): The Blender context to use. Defaults to None.
+
+        Raises:
+            ValueError: If the filepath is None or if no valid mesh object is provided.
+        """
         if context is None:
             context = bpy.context
         if filepath is None:
@@ -574,6 +761,18 @@ class ObjectService:
 
     @staticmethod
     def load_base_mesh(context=None, scale_factor=1.0, load_vertex_groups=True, exclude_vertex_groups=None):
+        """
+        Load the base mesh from a Wavefront (.obj) file and apply transformations.
+
+        Args:
+            context (bpy.types.Context, optional): The Blender context to use. Defaults to None.
+            scale_factor (float, optional): The scale factor to apply to the base mesh. Defaults to 1.0.
+            load_vertex_groups (bool, optional): Whether to load vertex groups. Defaults to True.
+            exclude_vertex_groups (list, optional): List of vertex groups to exclude. Defaults to None.
+
+        Returns:
+            bpy.types.Object: The loaded base mesh object.
+        """
         objsdir = LocationService.get_mpfb_data("3dobjs")
         filepath = os.path.join(objsdir, "base.obj")
         basemesh = ObjectService.load_wavefront_file(filepath, context)
@@ -590,6 +789,14 @@ class ObjectService:
 
     @staticmethod
     def assign_vertex_groups(blender_object, vertex_group_definition, exclude_groups=None):
+        """
+        Assign vertex groups to a Blender object based on a given definition.
+
+        Args:
+            blender_object (bpy.types.Object): The Blender object to assign vertex groups to.
+            vertex_group_definition (dict): A dictionary defining the vertex groups and their corresponding vertices.
+            exclude_groups (list, optional): A list of vertex groups to exclude from assignment. Defaults to None.
+        """
         if exclude_groups is None:
             exclude_groups = []
         for group_name in vertex_group_definition.keys():
@@ -599,12 +806,18 @@ class ObjectService:
 
     @staticmethod
     def get_base_mesh_vertex_group_definition():
+        """
+        Get the vertex group definition for the base mesh.
+
+        Returns:
+            dict: A dictionary where keys are group names and values are lists of vertex indices.
+        """
         global _BASEMESH_VERTEX_GROUPS_EXPANDED  # pylint: disable=W0603
         global _BASEMESH_VERTEX_GROUPS_UNEXPANDED  # pylint: disable=W0603
         if _BASEMESH_VERTEX_GROUPS_EXPANDED is None:
             meta_data_dir = LocationService.get_mpfb_data("mesh_metadata")
             definition_file = os.path.join(meta_data_dir, "basemesh_vertex_groups.json")
-            with open(definition_file, "r") as json_file:
+            with open(definition_file, "r", encoding="utf-8") as json_file:
                 _BASEMESH_VERTEX_GROUPS_UNEXPANDED = json.load(json_file)
             _BASEMESH_VERTEX_GROUPS_EXPANDED = dict()
             for group in _BASEMESH_VERTEX_GROUPS_UNEXPANDED.keys():
@@ -618,6 +831,16 @@ class ObjectService:
 
     @staticmethod
     def get_lowest_point(basemesh, take_shape_keys_into_account=True):
+        """
+        Get the lowest point (minimum Z-coordinate) of a base mesh.
+
+        Args:
+            basemesh (bpy.types.Object): The base mesh object to evaluate.
+            take_shape_keys_into_account (bool, optional): Whether to consider shape keys in the evaluation. Defaults to True.
+
+        Returns:
+            float: The lowest Z-coordinate value of the base mesh.
+        """
         lowest_point = 1000.0
         vertex_data = basemesh.data.vertices
         shape_key = None
@@ -642,6 +865,12 @@ class ObjectService:
 
     @staticmethod
     def get_face_to_vertex_table():
+        """
+        Get the face-to-vertex mapping table for the base mesh.
+
+        Returns:
+            dict: A dictionary where keys are face indices and values are lists of vertex indices.
+        """
         global _BASEMESH_FACE_TO_VERTEX_TABLE  # pylint: disable=W0603
 
         meta_data_dir = LocationService.get_mpfb_data("mesh_metadata")
@@ -655,6 +884,12 @@ class ObjectService:
 
     @staticmethod
     def get_vertex_to_face_table():
+        """
+        Get the vertex-to-face mapping table for the base mesh.
+
+        Returns:
+            dict: A dictionary where keys are vertex indices and values are lists of face indices.
+        """
         global _BASEMESH_VERTEX_TO_FACE_TABLE  # pylint: disable=W0603
 
         meta_data_dir = LocationService.get_mpfb_data("mesh_metadata")
@@ -668,6 +903,16 @@ class ObjectService:
 
     @staticmethod
     def extract_vertex_group_to_new_object(existing_object, vertex_group_name):
+        """
+        Extract a the vertices of a vertex group from an existing object and use those to form a new mesh object.
+
+        Args:
+            existing_object (bpy.types.Object): The existing Blender object containing the vertex group.
+            vertex_group_name (str): The name of the vertex group to extract.
+
+        Returns:
+            bpy.types.Object: The new Blender object containing only the extracted vertices.
+        """
 
         clothes_obj = existing_object.copy()
         clothes_obj.data = clothes_obj.data.copy()

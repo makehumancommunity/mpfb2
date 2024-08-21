@@ -1,18 +1,17 @@
-# MPFB2
+# MPFB
 
-MPFB2 is a free and open source human generator for Blender. For documentation and FAQ, see  
+MPFB is a free and open source human generator for Blender. For documentation and FAQ, see  
 [home page](http://static.makehumancommunity.org/mpfb.html)
 
 In order to get up and running quickly, see the [quick start](http://static.makehumancommunity.org/mpfb/docs/getting_started.html) guide. 
 The quick start guide is also where you can find download links. There is also a [getting started video tutorial](https://www.youtube.com/watch?v=9jmTdhVjAsI) on youtube.
 
-Note that MPFB 2 requires a Blender version of at least 3.0.
+Note that MPFB 2.x requires a Blender version of at least 4.2.
 
-## MPFB2 vs MPFB1
+## MPFB vs MakeHuman, MPFB vs MHX
 
-MPFB2 is a complete rewrite of MPFB1 with an entirely different code structure, which is why it is in a separate git repository. 
-For a list of new features, see [the change log](http://static.makehumancommunity.org/mpfb/releases/release_20a1.html).
+If you have previous experience with MakeHuman and/or MHX, you might be interested in the FAQs explaining the similarities and differences:
 
-MPFB 2 should peacefully co-exist with MPFB 1, so there should be no problem with checking it out to see if it 
-works for you.
+- [What are the differences between MPFB2 and MakeHuman](https://static.makehumancommunity.org/mpfb/faq/differences_between_mpfb2_and_makehuman.html)
+- [What are the differences between MPFB2 and MHX](https://static.makehumancommunity.org/mpfb/faq/differences_between_mpfb2_and_mhx2.html)
 
