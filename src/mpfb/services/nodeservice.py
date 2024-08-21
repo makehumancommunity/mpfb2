@@ -94,7 +94,7 @@ for subc in dir(bpy.types):
 
 class NodeService:
 
-    """The NodeService class provides a collection of static methods for managing and manipulating node trees and nodes within 
+    """The NodeService class provides a collection of static methods for managing and manipulating node trees and nodes within
     Blender's shader node system. It includes functionalities for:
 
     - Creating and destroying nodes and node trees
@@ -103,7 +103,7 @@ class NodeService:
     - Creating, finding and setting the value for sockets
     - Finding and linking nodes within a node tree
 
-    In summary, the NodeService class is designed to facilitate the manipulation and querying of Blender's node-based shader 
+    In summary, the NodeService class is designed to facilitate the manipulation and querying of Blender's node-based shader
     system programmatically."""
 
     def __init__(self):
