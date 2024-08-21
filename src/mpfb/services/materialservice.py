@@ -11,7 +11,19 @@ _LOG = LogService.get_logger("services.materialservice")
 
 
 class MaterialService():
-    """Utility class for working with materials"""
+    """The MaterialService class is a utility class designed to handle various operations related to MPFB materials in Blender. 
+    It provides a collection of static methods that facilitate the creation, modification, and management of materials assigned
+    to Blender objects. The class is not meant to be instantiated; instead, its static methods should be used directly.
+
+    Its key responsibilities are:
+
+    - Creating, adding and removing materials
+    - Identifying material
+    - Checking the validity of materials
+    - I/O operations for loading and saving materials
+
+    Overall, the MaterialService class provides a comprehensive set of tools for managing MPFB materials in Blender, 
+    making it easier to work with complex material setups and ensuring consistency across different objects and scenes."""
 
     def __init__(self):
         """You should not instance MaterialService. Use its static methods instead."""
