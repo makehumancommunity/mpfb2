@@ -36,7 +36,7 @@ from bpy.utils import register_class
 _OLD_EXCEPTHOOK = None
 
 # For printing output before _LOG has been initialized
-_DEBUG = False
+DEBUG = False
 
 
 def log_crash(type, value, tb):
@@ -50,16 +50,16 @@ def log_crash(type, value, tb):
 
 
 def get_preference(name):
-    global _DEBUG
-    if _DEBUG:
-        print("get_preference()")
+    global DEBUG
+    if DEBUG:
+        print("get_preference(\"" + name + "\")")
     if __package__ in bpy.context.preferences.addons:
         mpfb = bpy.context.preferences.addons[__package__]
         if hasattr(mpfb, "preferences"):
             prefs = mpfb.preferences
             if hasattr(prefs, name):
                 value = getattr(prefs, name)
-                if _DEBUG:
+                if DEBUG:
                     print("Found addon preference", (name, value))
                 return value
             print("There were addon preferences, but key did not exist:", name)
@@ -180,5 +180,5 @@ def unregister():
     ClassManager.unregister_classes()
 
 
-__all__ = ["VERSION", "BUILD_INFO", "ClassManager"]
+__all__ = ["VERSION", "DEBUG", "BUILD_INFO", "ClassManager"]
 
