@@ -1,3 +1,5 @@
+"""Utility functions for working with meshes"""
+
 import bpy, mathutils, numpy
 from mathutils import Vector
 from .logservice import LogService
@@ -5,22 +7,41 @@ from .objectservice import ObjectService
 
 _LOG = LogService.get_logger("services.meshservice")
 
-# Possible TODOs:
-# - create vertex group
-# - add verts to vertex group
-# - delete verts in vertex group
-# - delete verts
-# - recalculate_face_normals
-
 
 class MeshService:
-    """MeshService contains various functions for working meshes, vertex groups, weights and similar."""
+    """The MeshService class is a utility class designed to provide various functions for working with meshes, vertex groups, weights,
+    and related operations in Blender. It is structured to offer a collection of static methods that facilitate the creation,
+    manipulation, and querying of mesh data. The class is not intended to be instantiated; instead, its static methods should be used directly.
+
+    Its key responsibilities are:
+
+    - Mesh creation
+    - Vertex group management
+    - Handling of spatial data structures (KDTree)
+    - Data extraction (getting mesh info as numpy structures)
+    - Various utility methods
+
+    Note that some mesh operations are also available in ObjectService, for example loading wavefront files."""
 
     def __init__(self):
         raise RuntimeError("You should not instance MeshService. Use its static methods instead.")
 
     @staticmethod
     def create_mesh_object(vertices, edges, faces, vertex_groups=None, name="sample_object", link=True):
+        """
+        Create a new mesh object from given vertices, edges, and faces, and optionally assign vertex groups.
+
+        Parameters:
+        - vertices: A list of vertex coordinates.
+        - edges: A list of edges, where each edge is defined by a pair of vertex indices.
+        - faces: A list of faces, where each face is defined by a list of vertex indices.
+        - vertex_groups: A dictionary where keys are group names and values are lists of [vertex index, weight] pairs.
+        - name: The name of the new mesh object.
+        - link: Whether to link the new object to the current Blender scene.
+
+        Returns:
+        - The created mesh object.
+        """
         target_mesh = bpy.data.meshes.new(name + "_mesh")
         target_mesh.from_pydata(vertices, edges, faces)
         target_object = bpy.data.objects.new(name, target_mesh)
@@ -238,8 +259,8 @@ class MeshService:
             coord = v.co
             if world_coordinates:
                 coord = mesh_object.matrix_world @ coord
-            for d in range(3):
-                vert_array[i][d] = float(coord[d])
+            for axis in range(3):
+                vert_array[i][axis] = float(coord[axis])
 
         if after_modifiers:
             evaluated_mesh.to_mesh_clear()
@@ -319,4 +340,3 @@ class MeshService:
                     mesh_object.vertex_groups.active_index = group.index
 
             bpy.ops.object.vertex_group_select()
-

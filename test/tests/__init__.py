@@ -6,9 +6,9 @@ an absolute import could be done from anywhere. For example you could run this p
 
     from mpfb.entities.material.mhmaterial import MhMaterial
     material = MhMaterial()
-    
+
 In the new extension format, this is no longer possible. Unfortunately, this means that the unit test modules have no knowledge of the
-package structure. It will be different on different machines, as the first few parts of the module name will be constructed from 
+package structure. It will be different on different machines, as the first few parts of the module name will be constructed from
 the "repository" the extension is installed in. This makes it impossible to do a direct import like the one above.
 
 Instead, there are some utilities provided below:
@@ -17,22 +17,22 @@ dynamic_import(absolute_package_str, key): This function will search through all
 with the given package string. It will then check if that module exposes something with the given key. If so, it will return that object.
 So, in order to do the same thing as above, you would do:
 
-    MhMaterial = dynamic_import("mpfb.entities.material.mhmaterial", "MhMaterial")  
+    MhMaterial = dynamic_import("mpfb.entities.material.mhmaterial", "MhMaterial")
     material = MhMaterial()
-    
+
 MPFB_CONTEXTUAL_INFORMATION: This is a dictionary containing all the services and other useful information, such as the full absolute
 package name of MPFB and the location of MPFB's __init__.py file. For example:
 
-    print("MPFB's full package name is: " + MPFB_CONTEXTUAL_INFORMATION["__package__"])    
+    print("MPFB's full package name is: " + MPFB_CONTEXTUAL_INFORMATION["__package__"])
     print("MPFB's __init__.py file is located at: " + MPFB_CONTEXTUAL_INFORMATION["__file__"])
-    
+
 Finally, for convenience, all service classes are exposed directly through this module. A unit test further down in the hierachy can thus
 do simplified relative import to get access to it. For example:
 
     from .. import ObjectService
     basemesh = ObjectService.load_base_mesh()
     assert basemesh is not None, "Failed to load base mesh"
-    
+
 Regarding the test suite, it is organized into four sub modules. Since pytest discovers the modules in alphabetical order, they have been
 given prefixes so that the core logic is tested first. The modules containing the actual unit tests are:
 

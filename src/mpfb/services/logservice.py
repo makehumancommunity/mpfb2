@@ -39,8 +39,8 @@ _START = int(time.time() * 1000.0)
 
 class Logger():
 
-    """The Logger class is used to create log channels that can log messages at different severity levels. 
-    Each log channel writes messages to its own file and also to a combined log file. The log levels allow 
+    """The Logger class is used to create log channels that can log messages at different severity levels.
+    Each log channel writes messages to its own file and also to a combined log file. The log levels allow
     filtering of messages so that only those of a certain severity or higher are logged. This is useful for
     debugging and monitoring the behavior of the application."""
 
@@ -230,7 +230,7 @@ class _LogService():
 
     def reset_log_levels(self):
         """Reset all log levels to their default values.
-        
+
         This method sets the default log level to INFO and clears any level overrides.
         It also updates the log configuration file and resets the log level for all existing loggers.
         """
@@ -244,8 +244,8 @@ class _LogService():
 
     def rewrite_json(self):
         """Rewrite the log configuration file with the current level overrides.
-        
-        This method updates the log configuration file (_CONFIG) with the current state of the 
+
+        This method updates the log configuration file (_CONFIG) with the current state of the
         level overrides (_level_overrides) in JSON format.
         """
         print("Will rewrite log config " + _CONFIG)
@@ -254,14 +254,14 @@ class _LogService():
 
     def get_or_create_log_channel(self, name):
         """Get an existing log channel or create a new one if it doesn't exist.
-        
-        This method checks if a log channel with the specified name exists. If it does not, 
-        it creates a new log channel with the default log level. If there is a level override 
+
+        This method checks if a log channel with the specified name exists. If it does not,
+        it creates a new log channel with the default log level. If there is a level override
         for the specified name, it sets the log level to the overridden value.
-        
+
         Args:
             name (str): The name of the log channel.
-        
+
         Returns:
             Logger: The log channel with the specified name.
         """
@@ -273,11 +273,11 @@ class _LogService():
 
     def set_default_log_level(self, level):
         """Set the default log level for all log channels.
-        
-        This method updates the default log level and applies it to all existing log channels 
-        that do not have an overridden log level. It also updates the log configuration file 
+
+        This method updates the default log level and applies it to all existing log channels
+        that do not have an overridden log level. It also updates the log configuration file
         with the new default log level.
-        
+
         Args:
             level (int): The log level to set as the default.
         """
@@ -290,10 +290,10 @@ class _LogService():
 
     def set_level_override(self, logger_name, level):
         """Set a specific log level for a given log channel, overriding the default level.
-        
-        This method sets a custom log level for the specified log channel and updates the 
+
+        This method sets a custom log level for the specified log channel and updates the
         log configuration file with the new level override.
-        
+
         Args:
             logger_name (str): The name of the log channel.
             level (int): The log level to set for the specified log channel.
@@ -305,14 +305,14 @@ class _LogService():
 
     def get_loggers_list_as_property_enum(self, log_filter=""):
         """Return a list of loggers in a format suitable for UI property enums.
-        
-        This method generates a list of loggers, which can be used to select loggers 
-        in the UI. Each logger is represented as a tuple containing the logger name 
+
+        This method generates a list of loggers, which can be used to select loggers
+        in the UI. Each logger is represented as a tuple containing the logger name
         and a description. The list can be filtered by a prefix.
-        
+
         Args:
             log_filter (str): A prefix to filter the loggers by name. If "ALL" is provided, no filtering is applied.
-        
+
         Returns:
             list: A list of tuples representing loggers for UI property enums.
         """
@@ -330,11 +330,11 @@ class _LogService():
 
     def get_loggers_categories_as_property_enum(self):
         """Return a list of logger categories in a format suitable for UI property enums.
-        
-        This method generates a list of logger categories, which can be used to filter loggers 
-        in the UI. Each category is represented as a tuple containing the category name and 
+
+        This method generates a list of logger categories, which can be used to filter loggers
+        in the UI. Each category is represented as a tuple containing the category name and
         a description. The list includes an option to show all loggers without filtering.
-        
+
         Returns:
             list: A list of tuples representing logger categories for UI property enums.
         """
@@ -356,11 +356,11 @@ class _LogService():
 
     def get_loggers(self):
         """Return the dictionary of currently defined loggers.
-        
-        This method provides access to the internal dictionary that holds all the loggers 
-        created by the LogService. The dictionary keys are the logger names, and the values 
+
+        This method provides access to the internal dictionary that holds all the loggers
+        created by the LogService. The dictionary keys are the logger names, and the values
         are the Logger instances.
-        
+
         Returns:
             dict: A dictionary of logger names and their corresponding Logger instances.
         """
