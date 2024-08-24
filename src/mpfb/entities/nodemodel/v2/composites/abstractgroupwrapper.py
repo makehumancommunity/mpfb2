@@ -83,11 +83,13 @@ class AbstractGroupWrapper(AbstractNodeWrapper):
     def get_wrapper(node_class_name):
         _LOG.enter()
         wrapper = None
+        from ..... import MPFB_CONTEXTUAL_INFORMATION
+        pkg = MPFB_CONTEXTUAL_INFORMATION["__package__"]
         if node_class_name in PRIMITIVE_NODE_WRAPPERS:
             wrapper = PRIMITIVE_NODE_WRAPPERS[node_class_name]
         else:
             try:
-                mod = importlib.import_module(".nodewrapper" + node_class_name.lower(), package="mpfb.entities.nodemodel.v2.composites")
+                mod = importlib.import_module(".nodewrapper" + node_class_name.lower(), package=pkg + ".entities.nodemodel.v2.composites")
                 if mod and hasattr(mod, "NodeWrapper" + node_class_name):
                     wrapper = getattr(mod, "NodeWrapper" + node_class_name)
             except Exception as e:
