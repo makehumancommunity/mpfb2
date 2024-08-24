@@ -1,27 +1,16 @@
 schema_version = "1.0.0"
-
-# Example of manifest file for a Blender extension
-# Change the values according to your extension
 id = "mpfb"
 version = "2.0.5"
 name = "MPFB"
-tagline = "Free and open source human character editor"
-maintainer = "Developer name <email@address.com>"
-# Supported types: "add-on", "theme"
+tagline = "Human character generator and editor"
+maintainer = "Joel Palmius"
 type = "add-on"
-
-# Optional link to documentation, support, source files, etc
 website = "http://static.makehumancommunity.org/mpfb.html"
-
-# Optional list defined by Blender and server, see:
-# https://docs.blender.org/manual/en/dev/advanced/extensions/tags.html
 tags = ["Add mesh", "Modeling", "Rigging"]
-
 blender_version_min = "4.2.0"
-
 license = [
   "SPDX:GPL-2.0-or-later",
 ]
-
-# [permissions]
 files = "Load and save data"
+network = "Interact with local instance of MakeHuman"
+
