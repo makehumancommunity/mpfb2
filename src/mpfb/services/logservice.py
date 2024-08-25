@@ -126,6 +126,18 @@ class Logger():
             message = "Now entering {}.{}():{}".format(info["caller_name"], info["caller_method"], info["line_number"])
             self._log_message(LogService.TRACE, message)
 
+    def leave(self):
+        """Report that a method is about to be exited, if the log level is at least trace."""
+        if self.level >= LogService.TRACE:
+            info = dict()
+            stack = inspect.currentframe().f_back
+            info["line_number"] = str(stack.f_lineno)
+            info["caller_name"] = stack.f_globals["__name__"]
+            info["file_name"] = stack.f_globals["__file__"]
+            info["caller_method"] = inspect.stack()[1][3]
+            message = "Now leaving {}.{}():{}".format(info["caller_name"], info["caller_method"], info["line_number"])
+            self._log_message(LogService.TRACE, message)
+
     def get_current_time(self):
         """Return the number of millisections which has passed since time was last reset for this channel."""
         return int(time.time() * 1000.0) - self.time_stamp
