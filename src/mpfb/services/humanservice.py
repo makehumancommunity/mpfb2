@@ -52,6 +52,7 @@ class HumanService:
 
         This method is typically called internally to refresh the list of available human presets.
         """
+        _LOG.enter()
         global _EXISTING_PRESETS
         confdir = LocationService.get_user_config()
         _EXISTING_PRESETS = []
@@ -77,6 +78,7 @@ class HumanService:
 
         Returns: list of strings or tuples
         """
+        _LOG.enter()
         global _EXISTING_PRESETS  # pylint: disable=W0602
         if _EXISTING_PRESETS is None or not use_cache:
             HumanService.update_list_of_human_presets()
@@ -89,6 +91,7 @@ class HumanService:
 
     @staticmethod
     def _populate_human_info_with_skin_info(human_info, basemesh):
+        _LOG.enter()
         proxymesh = ObjectService.find_object_of_type_amongst_nearest_relatives(basemesh, "Proxymeshes")
 
         bodyobject = basemesh
@@ -157,6 +160,7 @@ class HumanService:
 
     @staticmethod
     def _populate_human_info_with_eye_material_info(human_info, basemesh):
+        _LOG.enter()
         eyes = ObjectService.find_object_of_type_amongst_nearest_relatives(basemesh, "Eyes")
 
         if not eyes:
@@ -197,11 +201,13 @@ class HumanService:
 
     @staticmethod
     def _populate_human_info_with_basemesh_info(human_info, basemesh):
+        _LOG.enter()
         human_info["phenotype"] = TargetService.get_macro_info_dict_from_basemesh(basemesh)
         human_info["targets"] = TargetService.get_target_stack(basemesh, exclude_starts_with="$md-")
 
     @staticmethod
     def _populate_human_info_with_rig_info(human_info, basemesh):
+        _LOG.enter()
         armature_object = ObjectService.find_object_of_type_amongst_nearest_relatives(basemesh, "Skeleton")
         if not armature_object is None:
             rig_type = RigService.identify_rig(armature_object)
@@ -214,6 +220,7 @@ class HumanService:
 
     @staticmethod
     def _populate_human_info_with_bodyparts_info(human_info, basemesh):
+        _LOG.enter()
         if not "color_adjustments" in human_info:
             human_info["color_adjustments"] = dict()
         for bodypart in ["Eyes", "Eyelashes", "Eyebrows", "Tongue", "Teeth", "Hair"]:
@@ -243,6 +250,7 @@ class HumanService:
 
     @staticmethod
     def _populate_human_info_with_clothes_info(human_info, basemesh):
+        _LOG.enter()
         if not "color_adjustments" in human_info:
             human_info["color_adjustments"] = dict()
         if not "clothes" in human_info:
@@ -269,6 +277,7 @@ class HumanService:
 
     @staticmethod
     def _populate_human_info_with_proxy_info(human_info, basemesh):
+        _LOG.enter()
         proxy = ObjectService.find_object_of_type_amongst_nearest_relatives(basemesh, "Proxymeshes")
         if not proxy:
             return
@@ -278,6 +287,7 @@ class HumanService:
 
     @staticmethod
     def _populate_alternative_material(human_info, obj):
+        _LOG.enter()
         if not obj:
             return
         alternative_material = GeneralObjectProperties.get_value("alternative_material", entity_reference=obj)
@@ -290,6 +300,7 @@ class HumanService:
 
     @staticmethod
     def _create_default_human_info_dict():
+        _LOG.enter()
         human_info = dict()
         human_info["phenotype"] = TargetService.get_default_macro_info_dict()
         human_info["rig"] = ""
@@ -325,6 +336,7 @@ class HumanService:
         Raises:
             ValueError: If the basemesh is None or if the basemesh is not a human project created within MPFB.
         """
+        _LOG.enter()
         if basemesh is None:
             raise ValueError('Cannot serialize none basemesh')
 
@@ -358,6 +370,7 @@ class HumanService:
         Raises:
             ValueError: If the filename is None or an empty string.
         """
+        _LOG.enter()
         if filename is None or str(filename).strip() == "":
             raise ValueError('Must supply valid filename')
         json_string = HumanService.serialize_to_json_string(basemesh, save_clothes)
@@ -368,6 +381,7 @@ class HumanService:
 
     @staticmethod
     def _proxy_corrective(proxymesh):
+        _LOG.enter()
         uuid = GeneralObjectProperties.get_value("uuid", entity_reference=proxymesh)
         if not uuid:
             _LOG.warn("Tried to do proxy corrective for an object without uuid", proxymesh)
@@ -431,6 +445,7 @@ class HumanService:
         Raises:
             IOError: If the mhclo obj fails to import.
         """
+        _LOG.enter()
         mhclo = Mhclo()
         mhclo.load(mhclo_file)  # pylint: disable=E1101
         clothes = mhclo.load_mesh(bpy.context)
