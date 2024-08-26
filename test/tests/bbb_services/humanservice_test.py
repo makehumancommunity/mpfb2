@@ -1,9 +1,50 @@
-import bpy, os
+import bpy, os, json
 from pytest import approx
 from .. import ObjectService
 from .. import HumanService
 from .. import MaterialService
 from .. import LocationService
+
+HUMAN_PRESET_DICT = {
+        "clothes": [
+            "female_casualsuit01/female_casualsuit01.mhclo"
+        ],
+        "color_adjustments": {},
+        "eyebrows": "eyebrow001/eyebrow001.mhclo",
+        "eyelashes": "eyelashes01/eyelashes01.mhclo",
+        "eyes": "high-poly/high-poly.mhclo",
+        "eyes_material_settings": {},
+        "eyes_material_type": "PROCEDURAL_EYES",
+        "hair": "long01/long01.mhclo",
+        "phenotype": {
+            "age": 0.5,
+            "cupsize": 0.550000011920929,
+            "firmness": 0.550000011920929,
+            "gender": 0.0,
+            "height": 0.5,
+            "muscle": 0.5,
+            "proportions": 0.5,
+            "race": {
+                "african": 0.0,
+                "asian": 0.0,
+                "caucasian": 1.0
+            },
+            "weight": 0.5
+        },
+        "proxy": "",
+        "rig": "default",
+        "skin_material_settings": {},
+        "skin_material_type": "ENHANCED_SSS",
+        "skin_mhmat": "middleage_caucasian_female/middleage_caucasian_female.mhmat",
+        "targets": [
+            {
+                "target": "head-age-decr",
+                "value": 1.0
+            }
+        ],
+        "teeth": "",
+        "tongue": ""
+    }
 
 
 def test_humanservice_exists():
@@ -132,3 +173,20 @@ def test_serialize_to_json_string():
 
     ObjectService.delete_object(obj)
 
+
+def test_preset_lists():
+    """HumanService.get_list_of_human_presets"""
+    HumanService.update_list_of_human_presets()  # Mostly to see it does not crash
+    presets = HumanService.get_list_of_human_presets()
+    assert presets is not None  # It is probably empty though
+
+
+def test_serialization():
+    """HumanService.deserialize_from_json_string()"""
+    deserialization_settings = HumanService.get_default_deserialization_settings()
+    basemesh = HumanService.deserialize_from_dict(HUMAN_PRESET_DICT, deserialization_settings)
+    assert basemesh
+    HumanService.refit(basemesh)
+    serialization_json = HumanService.serialize_to_json_string(basemesh)
+    serilized_dict = json.loads(serialization_json)
+    assert serilized_dict["hair"] == HUMAN_PRESET_DICT["hair"]
