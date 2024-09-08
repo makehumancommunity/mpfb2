@@ -118,6 +118,100 @@ class MeshService:
         return result
 
     @staticmethod
+    def find_faces_in_vertex_group(mesh_object, vertex_group_name):
+        """
+        Find all faces where all vertices are in the given vertex group.
+
+        Parameters:
+        - mesh_object: The mesh object to find faces in.
+        - vertex_group_name: The name of the vertex group to check.
+
+        Returns:
+        - A list of face indices where all vertices are in the given vertex group.
+        """
+        _LOG.enter()
+        result = []
+
+        vertex_group = mesh_object.vertex_groups.get(vertex_group_name)
+        if not vertex_group:
+            return result
+
+        for face in mesh_object.data.polygons:
+            if all(group.group == vertex_group.index for group in face.groups):
+                result.append(face.index)
+        return result
+
+    @staticmethod
+    def get_uv_map_names(mesh_object):
+        """List all UV map names in the mesh object."""
+        _LOG.enter()
+        return [uv_map.name for uv_map in mesh_object.data.uv_layers]
+
+    @staticmethod
+    def get_uv_map_as_dict(mesh_object, uv_map_name, only_include_vertex_group=None):
+        """
+        Return a dict where the key is the face index and the value is a dict where the key is the loop index and the value the uv coordinates.
+        Optionally only include faces where all vertices are in the given vertex group.
+
+        Parameters:
+        - mesh_object: The mesh object to get the UV map from.
+        - uv_map_name: The name of the UV map to get.
+        - only_include_vertex_group: The name of the vertex group to check. If not provided, all faces will be included.
+
+        Returns:
+        - A dict where the key is the face index and the value is a dict where the key is the loop index and the value the uv coordinates.
+        """
+        _LOG.enter()
+        uv_map = mesh_object.data.uv_layers.get(uv_map_name)
+        if not uv_map:
+            return {}
+
+        faces_to_include = []
+        if only_include_vertex_group:
+            faces_to_include = MeshService.find_faces_in_vertex_group(mesh_object, only_include_vertex_group)
+        else:
+            for face in mesh_object.data.polygons:
+                faces_to_include.append(face.index)
+
+        result = {}
+
+        for face_index in faces_to_include:
+            face_uvs = {}
+            for loop_index in mesh_object.data.polygons[face_index].loop_indices:
+                uv = uv_map.data[loop_index].uv
+                face_uvs[loop_index] = [uv[0], uv[1]]
+            result[face_index] = face_uvs
+
+        return result
+
+    @staticmethod
+    def add_uv_map_from_dict(mesh_object, uv_map_name, uv_map_as_dict):
+        """
+        Create a new UV map from a given dict and add it to the mesh object. If an UV map with the same name already exists, it will be replaced.
+        Otherwise, it will be created with the given name.
+
+        Parameters:
+        - mesh_object: The mesh object on which to add the UV map.
+        - uv_map_name: The name of the new UV map.
+        - uv_map_as_dict: A dict where the key is the face index and the value is a dict where the key is the loop index and the value the uv coordinates.
+        """
+        _LOG.enter()
+        _LOG.debug("Adding UV map from dict", {"mesh_object": mesh_object,
+                                                 "uv_map_name": uv_map_name,
+                                                 "uv_map_as_dict": uv_map_as_dict})
+        uv_map = mesh_object.data.uv_layers.get(uv_map_name)
+        if uv_map:
+            _LOG.debug("Replacing existing UV map", {"uv_map_name": uv_map_name})
+            mesh_object.data.uv_layers.remove(uv_map)
+            uv_map = None
+
+        uv_map = mesh_object.data.uv_layers.new(name=uv_map_name)
+
+        for face_index, uv_info in uv_map_as_dict.items():
+            for loop_index, uv_coords in uv_info.items():
+                uv_map.data[loop_index].uv = uv_coords
+
+    @staticmethod
     def create_vertex_group(mesh_object, vertex_group_name, verts_and_weights, nuke_existing_group=False):
         """Create a new vertex group and add verts and weights to it."""
         _LOG.enter()
