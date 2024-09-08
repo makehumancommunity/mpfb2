@@ -47,3 +47,26 @@ def test_get_asset_names_in_pack():
     expected_assets = ["afro01", "eyebrow001"]  # Replace with actual expected asset names
     for expected_asset in expected_assets:
         assert expected_asset in asset_names, f"Expected asset {expected_asset} should be in the list of asset names"
+
+
+def test_list_mhclo_assets():
+    mhclo_assets = AssetService.list_mhclo_assets()
+    assert mhclo_assets, "The list of mhclo assets should not be empty"
+    assert len(mhclo_assets), "The list of mhclo assets should not be empty"
+
+
+def test_find_asset_absolute_path():
+    path_fragment = "shoes01/shoes01.mhclo"
+    absolute_path = AssetService.find_asset_absolute_path(path_fragment)
+
+    assert absolute_path is not None, "The absolute path should not be None"
+    assert os.path.isabs(absolute_path), "The path should be an absolute path"
+    assert os.path.exists(absolute_path), f"The path {absolute_path} should exist"
+
+
+def test_asset_lists():
+    AssetService.update_all_asset_lists()  # Largely to make sure it does not crash
+    alist = AssetService.get_asset_list()
+    assert alist, "The asset list should not be empty"
+    assert len(alist) > 0, "The asset list should not be empty"
+
