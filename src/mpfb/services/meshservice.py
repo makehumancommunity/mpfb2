@@ -6,6 +6,7 @@ from .logservice import LogService
 from .objectservice import ObjectService
 
 _LOG = LogService.get_logger("services.meshservice")
+_LOG.set_level(LogService.DEBUG)
 
 
 class MeshService:
@@ -115,6 +116,7 @@ class MeshService:
             for group in vert.groups:
                 if group.group == vertex_group.index:
                     result.append([vert.index, group.weight])
+
         return result
 
     @staticmethod
@@ -137,8 +139,17 @@ class MeshService:
             return result
 
         for face in mesh_object.data.polygons:
-            if all(group.group == vertex_group.index for group in face.groups):
+            all_vertices_belong_to_group = True
+            for vertex_index in face.vertices:
+                vertex = mesh_object.data.vertices[vertex_index]
+                if vertex_group.index not in [group.group for group in vertex.groups]:
+                    all_vertices_belong_to_group = False
+                    break
+            if all_vertices_belong_to_group:
                 result.append(face.index)
+
+        _LOG.debug("Found {} faces in vertex group {}".format(len(result), vertex_group_name))
+
         return result
 
     @staticmethod
@@ -164,7 +175,10 @@ class MeshService:
         _LOG.enter()
         uv_map = mesh_object.data.uv_layers.get(uv_map_name)
         if not uv_map:
+            _LOG.debug("UV map not found in mesh object", uv_map_name)
             return {}
+
+        _LOG.debug("UV map, UV map data, UV map data length", (uv_map, uv_map.data, len(uv_map.data)))
 
         faces_to_include = []
         if only_include_vertex_group:
@@ -176,8 +190,10 @@ class MeshService:
         result = {}
 
         for face_index in faces_to_include:
+            _LOG.debug("Getting UV map for face", face_index)
             face_uvs = {}
             for loop_index in mesh_object.data.polygons[face_index].loop_indices:
+                _LOG.debug("-- loop_index", loop_index)
                 uv = uv_map.data[loop_index].uv
                 face_uvs[loop_index] = [uv[0], uv[1]]
             result[face_index] = face_uvs
@@ -205,11 +221,16 @@ class MeshService:
             mesh_object.data.uv_layers.remove(uv_map)
             uv_map = None
 
-        uv_map = mesh_object.data.uv_layers.new(name=uv_map_name)
+        uv_map = mesh_object.data.uv_layers.new(name=uv_map_name, do_init=False)
 
         for face_index, uv_info in uv_map_as_dict.items():
             for loop_index, uv_coords in uv_info.items():
-                uv_map.data[loop_index].uv = uv_coords
+                _LOG.debug("Setting UV coords", {
+                    "face_index": face_index,
+                    "loop_index": loop_index,
+                    "uv_coords": uv_coords})
+
+                uv_map.data[int(loop_index)].uv = uv_coords
 
     @staticmethod
     def create_vertex_group(mesh_object, vertex_group_name, verts_and_weights, nuke_existing_group=False):

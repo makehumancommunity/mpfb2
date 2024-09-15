@@ -8,6 +8,7 @@ from .nodeservice import NodeService
 from ..entities.nodemodel.v2.materials import NodeWrapperSkin
 
 _LOG = LogService.get_logger("services.materialservice")
+_LOG.set_level(LogService.DEBUG)
 
 
 class MaterialService():
@@ -450,6 +451,60 @@ class MaterialService():
         mix = NodeService.find_node_linked_to_socket(material.node_tree, principled, "Base Color")
 
         NodeService.set_socket_default_values(mix, color_adjustment)
+
+    @staticmethod
+    def add_focus_nodes(material, focus_filename, texture_filename=None, texture_size=4096):
+        """Add a node setup for a focus. If no texture filename is provided, a new empty image
+        will be created."""
+
+        if not material:
+            raise ValueError("A material must be provided")
+
+        if MaterialService.identify_material(material) != "makeskin":
+            raise ValueError("The material must be a makeskin material")
+
+        _LOG.debug("material, focus_filename, texture_filename, texture_size", (material, focus_filename, texture_filename, texture_size))
+
+        # First find the principled node
+        principled = NodeService.find_first_node_by_type_name(material.node_tree, "ShaderNodeBsdfPrincipled")
+        if not principled:
+            raise ValueError("The material did not have a principled node, maybe not a makeskin material?")
+
+        # Figure out which node that connects to the base color socket
+        connected_node = NodeService.find_node_linked_to_socket(material.node_tree, principled, "Base Color")
+        _LOG.debug("Connected node", connected_node)
+        if connected_node is None:
+            _LOG.debug("The principled node did not have a connected node to the Base Color socket")
+        else:
+            _LOG.debug("The principled node did have a connected node", connected_node)
+
+        if connected_node.name == "diffuseIntensity":
+            _LOG.debug("The principled node is connected to from diffuseIntensity")
+        else:
+            raise ValueError("Expected the principled node to be connected to from diffuseIntensity")
+
+        # Remove the link between the principled node and the diffuseIntensity node
+        NodeService.remove_link(material.node_tree, principled, "Base Color")
+
+        # Create a mix rgb node
+        mix_node = NodeService.create_mix_rgb_node(material.node_tree, "inkLayer1mix", "Ink Layer 1 Mix", xpos=-300, ypos=1000)
+
+        # Create an image texture node
+        texture = NodeService.create_image_texture_node(material.node_tree, "inkLayer1tex", "Ink layer 1 Texture", xpos=-700, ypos=1100)
+
+        # Create an uv map node
+        uvmap = NodeService.create_node(material.node_tree, "ShaderNodeUVMap", name="inkLayer1uv", label="Ink Layer 1 UV", xpos=-1000, ypos=1000)
+
+        # Add links
+        NodeService.add_link(material.node_tree, mix_node, principled, "Color", "Base Color")
+        NodeService.add_link(material.node_tree, connected_node, mix_node, "Color", "Color1")
+        NodeService.add_link(material.node_tree, texture, mix_node, "Color", "Color2")
+        NodeService.add_link(material.node_tree, texture, mix_node, "Alpha", "Fac")
+        NodeService.add_link(material.node_tree, uvmap, texture, "UV", "Vector")
+
+        # TODO:
+        # - Set UVMap on default texture
+        # - Set active UV map to ink layer
 
     @staticmethod
     def get_skin_diffuse_color():
