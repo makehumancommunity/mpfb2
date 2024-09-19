@@ -1,0 +1,7 @@
+{
+    "type": "boolean",
+    "name": "create_ink",
+    "description": "Create an ink layer image",
+    "label": "Ink layer image",
+    "default": true
+}

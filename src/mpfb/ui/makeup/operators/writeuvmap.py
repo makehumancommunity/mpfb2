@@ -14,7 +14,7 @@ _LOG = LogService.get_logger("makeup.writeuvmap")
 
 
 class MPFB_OT_WriteUvMapOperator(bpy.types.Operator, ExportHelper):
-    """Write a UV map to a JSON file. If there are multiple UV maps on the active object, use the one which matches 
+    """Write a UV map to a JSON file. If there are multiple UV maps on the active object, use the one which matches
     the name set in the Makeup Properties. If no match is found, use active UV map."""
 
     bl_idname = "mpfb.write_uv_map"

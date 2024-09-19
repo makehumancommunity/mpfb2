@@ -56,9 +56,9 @@ class MPFB_PT_MakeUp_Panel(Abstract_Panel):
     bl_options = {'DEFAULT_CLOSED'}
     bl_parent_id = "MPFB_PT_Create_Panel"
 
-    def _add_focus(self, scene, layout):
-        box = self.create_box(layout, "Add focus")
-        MAKEUP_PROPERTIES.draw_properties(scene, box, ["focus_name"])
+    def _add_ink_layer(self, scene, layout):
+        box = self.create_box(layout, "Add ink layer")
+        MAKEUP_PROPERTIES.draw_properties(scene, box, ["focus_name", "create_ink", "resolution"])
         box.operator("mpfb.add_focus")
 
     def _developer(self, scene, layout):
@@ -72,7 +72,7 @@ class MPFB_PT_MakeUp_Panel(Abstract_Panel):
         _LOG.enter()
         layout = self.layout
         scene = context.scene
-        self._add_focus(scene, layout)
+        self._add_ink_layer(scene, layout)
         self._developer(scene, layout)
 
 

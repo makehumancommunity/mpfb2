@@ -14,7 +14,7 @@ _LOG = LogService.get_logger("makeup.importuvmap")
 
 
 class MPFB_OT_ImportUvMapOperator(bpy.types.Operator, ImportHelper):
-    """Import a UV map from a JSON file. Use the UV map data to create a new UV map on the active object, 
+    """Import a UV map from a JSON file. Use the UV map data to create a new UV map on the active object,
     using the name set in MakeUp properties."""
 
     bl_idname = "mpfb.import_uv_map"
