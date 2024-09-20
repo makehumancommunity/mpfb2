@@ -1,4 +1,4 @@
-"""Operator for adding a makeup focus to a material."""
+"""Operator for adding an empty ink layer to a material."""
 
 import bpy, os, json, gzip
 from ....services import LocationService
@@ -11,15 +11,15 @@ from ..makeuppanel import MAKEUP_PROPERTIES
 
 from .... import ClassManager
 
-_LOG = LogService.get_logger("makeup.addfocus")
+_LOG = LogService.get_logger("makeup.createink")
 _LOG.set_level(LogService.DEBUG)
 
 
-class MPFB_OT_AddFocusOperator(bpy.types.Operator):
-    """Add a new focus to the mesh's existing material. Only MakeSkin materials are supported."""
+class MPFB_OT_CreateInkOperator(bpy.types.Operator):
+    """Add a new empty ink layer to the mesh's existing material. Only MakeSkin materials are supported."""
 
-    bl_idname = "mpfb.add_focus"
-    bl_label = "Add focus"
+    bl_idname = "mpfb.create_ink"
+    bl_label = "Create ink"
     bl_options = {'REGISTER', 'UNDO'}
 
     @classmethod
@@ -28,7 +28,7 @@ class MPFB_OT_AddFocusOperator(bpy.types.Operator):
         return context.active_object is not None and context.active_object.type == 'MESH'
 
     def execute(self, context):
-        """Create a new UV map on the selected object, using the name set in the Makeup Properties."""
+        """Create a new empty ink layer on the selected object, optionally importing a specific UV map."""
         mesh_object = context.active_object
 
         # Ensure the active object is a basemesh
@@ -110,4 +110,4 @@ class MPFB_OT_AddFocusOperator(bpy.types.Operator):
         return {'FINISHED'}
 
 
-ClassManager.add_class(MPFB_OT_AddFocusOperator)
+ClassManager.add_class(MPFB_OT_CreateInkOperator)

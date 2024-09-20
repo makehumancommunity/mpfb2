@@ -57,9 +57,9 @@ class MPFB_PT_MakeUp_Panel(Abstract_Panel):
     bl_parent_id = "MPFB_PT_Create_Panel"
 
     def _add_ink_layer(self, scene, layout):
-        box = self.create_box(layout, "Add ink layer")
+        box = self.create_box(layout, "Create ink layer")
         MAKEUP_PROPERTIES.draw_properties(scene, box, ["focus_name", "create_ink", "resolution"])
-        box.operator("mpfb.add_focus")
+        box.operator("mpfb.create_ink")
 
     def _developer(self, scene, layout):
         box = self.create_box(layout, "MakeUP Developer")

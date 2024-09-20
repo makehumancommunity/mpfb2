@@ -9,7 +9,6 @@ from .logservice import LogService
 from .nodetreeservice import NodeTreeService
 
 _LOG = LogService.get_logger("services.nodeservice")
-_LOG.set_level(LogService.DEBUG)
 
 _NODETYPETOCLASS = dict()
 _NODETYPETOCLASS["BOOLEAN"] = "NodeSocketBool"
