@@ -6,7 +6,6 @@ from .logservice import LogService
 from .objectservice import ObjectService
 
 _LOG = LogService.get_logger("services.meshservice")
-_LOG.set_level(LogService.DEBUG)
 
 
 class MeshService:

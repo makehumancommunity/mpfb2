@@ -6,7 +6,7 @@ from ...services import LogService
 from ...services import UiService
 from ...services import SceneConfigSet
 from ..abstractpanel import Abstract_Panel
-import bpy, os
+import os
 
 _LOG = LogService.get_logger("ui.makeuppanel")
 _LOG.set_level(LogService.DEBUG)
@@ -20,7 +20,7 @@ _FOCUS_LIST_PROP = {
     "name": "focus_name",
     "description": "Which focus to add",
     "label": "Focus",
-    "default": None
+    "default": 0
 }
 
 
@@ -34,10 +34,12 @@ def _populate_list(self, context):
 
     names.sort()
 
-    list_index = 0
-    output_list = []
+    list_index = 1
+    output_list = [("NONE", "full body focus", "Do not use a specific UV map, instead use the default full body one", 0)]
     for name in names:
-        output_list.append((name, str(name).replace(".json.gz", "").replace("_", " "), str(name).replace(".json.gz", "").replace("_", " "), list_index))
+        list_name = str(name).replace(".json.gz", "").replace("_", " ")
+        list_desc = "Use the specific UV map '" + list_name + "' for the ink layer"
+        output_list.append((name, list_name, list_desc, list_index))
         list_index += 1
 
     return output_list
@@ -57,11 +59,13 @@ class MPFB_PT_MakeUp_Panel(Abstract_Panel):
     bl_parent_id = "MPFB_PT_Create_Panel"
 
     def _add_ink_layer(self, scene, layout):
+        """create_assets -> makeup -> create ink layer"""
         box = self.create_box(layout, "Create ink layer")
         MAKEUP_PROPERTIES.draw_properties(scene, box, ["focus_name", "create_ink", "resolution"])
         box.operator("mpfb.create_ink")
 
     def _developer(self, scene, layout):
+        """create_assets -> makeup -> developer"""
         box = self.create_box(layout, "MakeUP Developer")
         MAKEUP_PROPERTIES.draw_properties(scene, box, ["uv_map_name"])
         box.operator("mpfb.create_uv_map")
@@ -69,6 +73,7 @@ class MPFB_PT_MakeUp_Panel(Abstract_Panel):
         box.operator("mpfb.import_uv_map")
 
     def draw(self, context):
+        """Draw the create_assets -> makeup panel hierarcy"""
         _LOG.enter()
         layout = self.layout
         scene = context.scene
@@ -77,4 +82,3 @@ class MPFB_PT_MakeUp_Panel(Abstract_Panel):
 
 
 ClassManager.add_class(MPFB_PT_MakeUp_Panel)
-

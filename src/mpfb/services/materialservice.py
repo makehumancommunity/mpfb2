@@ -526,7 +526,7 @@ class MaterialService():
         if uv_map_name is not None:
             uvmap_node.uv_map = uv_map_name
 
-        return uvmap_node, texture_node
+        return uvmap_node, texture_node, 1
 
     @staticmethod
     def get_skin_diffuse_color():
