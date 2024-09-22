@@ -27,10 +27,20 @@ _FOCUS_LIST_PROP = {
 def _populate_list(self, context):
     _LOG.enter()
     names = []
-    for file_name in os.listdir(LocationService.get_mpfb_data("makeup")):
-        _LOG.trace("file name", file_name)
-        if file_name.endswith(".gz"):
-            names.append(file_name)
+
+    sys_uv_layers_path = LocationService.get_mpfb_data("uv_layers")
+    if os.path.exists(sys_uv_layers_path):
+        for file_name in os.listdir(sys_uv_layers_path):
+            _LOG.trace("file name", file_name)
+            if file_name.endswith(".gz"):
+                names.append(file_name)
+
+    user_uv_layers_path = LocationService.get_user_data("uv_layers")
+    if os.path.exists(user_uv_layers_path):
+        for file_name in os.listdir(user_uv_layers_path):
+            _LOG.trace("file name", file_name)
+            if file_name.endswith(".gz"):
+                names.append(file_name)
 
     names.sort()
 

@@ -62,7 +62,9 @@ class MPFB_OT_CreateInkOperator(bpy.types.Operator):
             _LOG.debug("Adding focus:", focus_name)
 
             # focus_filename is the absolute path to the json file containing serialized UV map
-            focus_filename = os.path.join(LocationService.get_mpfb_data("makeup"), focus_name)
+            focus_filename = os.path.join(LocationService.get_user_data("uv_layers"), focus_name)
+            if not os.path.exists(focus_filename):
+                focus_filename = os.path.join(LocationService.get_mpfb_data("uv_layers"), focus_name)
 
             focus_name = str(focus_name).replace(".gz", "").replace(".json", "").replace("_", " ")
 

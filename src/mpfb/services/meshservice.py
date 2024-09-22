@@ -220,7 +220,12 @@ class MeshService:
             mesh_object.data.uv_layers.remove(uv_map)
             uv_map = None
 
-        uv_map = mesh_object.data.uv_layers.new(name=uv_map_name, do_init=False)
+        uv_map = mesh_object.data.uv_layers.new(name=uv_map_name, do_init=True)
+
+        for face in mesh_object.data.polygons:
+            for loop_index in face.loop_indices:
+                uv = uv_map.data[loop_index].uv
+                uv_map.data[loop_index].uv = [ uv[0] * 0.01, uv[1] * 0.01 ]
 
         for face_index, uv_info in uv_map_as_dict.items():
             for loop_index, uv_coords in uv_info.items():
