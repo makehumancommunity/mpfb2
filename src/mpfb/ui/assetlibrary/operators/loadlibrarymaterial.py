@@ -10,7 +10,7 @@ from ....services import AssetService
 from ....entities.material.makeskinmaterial import MakeSkinMaterial
 from .... import ClassManager
 
-_LOG = LogService.get_logger("assetlibrary.loadlibraryskin")
+_LOG = LogService.get_logger("assetlibrary.loadlibrarymaterial")
 
 
 class MPFB_OT_Load_Library_Material_Operator(bpy.types.Operator):
