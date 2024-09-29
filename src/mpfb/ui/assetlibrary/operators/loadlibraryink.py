@@ -41,7 +41,12 @@ class MPFB_OT_Load_Library_Ink_Operator(bpy.types.Operator):
             return {'CANCELLED'}
 
         MaterialService.load_ink_layer(basemesh, self.filepath)
-        self.report({'INFO'}, "Ink layer was loaded: " + str(self.filepath))
+
+        proxy = ObjectService.find_object_of_type_amongst_nearest_relatives(obj, "Proxymeshes")
+        if proxy:
+            self.report({'WARNING'}, "The ink layer was loaded, but it will not be visible on a proxy/topology mesh.")
+        else:
+            self.report({'INFO'}, "Ink layer was loaded: " + str(self.filepath))
 
         return {'FINISHED'}
 

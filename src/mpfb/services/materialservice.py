@@ -473,7 +473,7 @@ class MaterialService():
         return principled, connected_node
 
     @staticmethod
-    def _insert_first_ink_layer_nodes(node_tree, principled, diffuse_intensity):
+    def _makeskin_first_ink_layer_nodes(node_tree, principled, diffuse_intensity):
         """Break the link between the principled node and the diffuseIntensity node, then add new nodes for ink layer 1."""
 
         # Remove the link between the principled node and the diffuseIntensity node
@@ -498,37 +498,107 @@ class MaterialService():
         return uvmap, texture
 
     @staticmethod
+    def _layered_first_ink_layer_nodes(node_tree):
+        """Add new nodes for ink layer 1, linked to color control"""
+
+        color_control = None
+        for node in node_tree.nodes:
+            _LOG.debug("node", (node, node.name, node.type))
+            if node.type == "GROUP" and node.name == "colorgroup":
+                color_control = node
+                break
+
+        if color_control is None:
+            raise ValueError("Could not find a color control group in the material")
+
+        # Create a mix rgb node
+        mix_node = NodeService.create_mix_rgb_node(node_tree, "inkLayer1mix", "Ink Layer 1 Mix", xpos=-500, ypos=1200)
+        NodeService.set_socket_default_values(mix_node, {"Color1": (0.0, 0.0, 0.0, 0.0), "Color2": (0.0, 0.0, 0.0, 1.0), "Fac": 1.0})
+
+        alpha_mix = NodeService.create_node(node_tree, "ShaderNodeMath", name="inkLayer1alpha", label="Ink Layer 1 Alpha", xpos=-500, ypos=1000)
+        alpha_mix.inputs[0].default_value = 0.0
+        alpha_mix.inputs[1].default_value = 1.0
+        alpha_mix.operation = "MAXIMUM"
+
+        # Create an image texture node
+        texture = NodeService.create_image_texture_node(node_tree, "inkLayer1tex", "Ink layer 1 Texture", xpos=-900, ypos=1100)
+
+        # Create an uv map node
+        uvmap = NodeService.create_node(node_tree, "ShaderNodeUVMap", name="inkLayer1uv", label="Ink Layer 1 UV", xpos=-1200, ypos=1000)
+
+        # Add links
+        NodeService.add_link(node_tree, mix_node, color_control, "Color", "InkLayerColor")
+        NodeService.add_link(node_tree, alpha_mix, color_control, "Value", "InkLayerStrength")
+
+        NodeService.add_link(node_tree, texture, mix_node, "Color", "Color2")
+        NodeService.add_link(node_tree, uvmap, texture, "UV", "Vector")
+
+        NodeService.add_link(node_tree, texture, alpha_mix, "Alpha", "Value_001")
+
+        return uvmap, texture
+
+    @staticmethod
     def add_focus_nodes(material, uv_map_name=None):
         """Add a node setup for a focus."""
 
         if not material:
             raise ValueError("A material must be provided")
 
-        if MaterialService.identify_material(material) != "makeskin":
-            raise ValueError("The material must be a makeskin material")
+        material_type = MaterialService.identify_material(material)
+
+        if material_type not in ["makeskin", "layered_skin"]:
+            raise ValueError("The material must be makeskin or layered skin")
 
         _LOG.debug("material", material)
 
-        principled, connected_node = MaterialService._find_principled_and_connected_color_node(material.node_tree)
+        number_of_layers = MaterialService.get_number_of_ink_layers(material)
+        _LOG.debug("Number of layers", number_of_layers)
 
-        if not principled:
-            raise ValueError("The material did not have a principled node, maybe not a makeskin material?")
+        if material_type == "makeskin" and number_of_layers == 0:
+            principled, connected_node = MaterialService._find_principled_and_connected_color_node(material.node_tree)
 
-        if not connected_node:
-            raise ValueError("The material did not have anything connected to the principled node base color, maybe not a makeskin material?")
+            if not principled:
+                raise ValueError("The material did not have a principled node, maybe not a makeskin material?")
 
-        if connected_node.name == "diffuseIntensity":
-            _LOG.debug("The principled node is connected to from diffuseIntensity", connected_node)
-        else:
-            _LOG.debug("The principled node is connected to from something other than diffuseIntensity", connected_node)
-            raise NotImplementedError("Only one ink layer is supported at the moment")
+            if not connected_node:
+                raise ValueError("The material did not have anything connected to the principled node base color, maybe not a makeskin material?")
 
-        uvmap_node, texture_node = MaterialService._insert_first_ink_layer_nodes(material.node_tree, principled, connected_node)
+            if connected_node.name == "diffuseIntensity":
+                _LOG.debug("The principled node is connected to from diffuseIntensity", connected_node)
+            else:
+                _LOG.debug("The principled node is connected to from something other than diffuseIntensity", connected_node)
+                raise NotImplementedError("Only one ink layer is supported at the moment")
 
-        if uv_map_name is not None:
-            uvmap_node.uv_map = uv_map_name
+            uvmap_node, texture_node = MaterialService._makeskin_first_ink_layer_nodes(material.node_tree, principled, connected_node)
 
-        return uvmap_node, texture_node, 1
+        if material_type == "layered_skin" and number_of_layers == 0:
+            uvmap_node, texture_node = MaterialService._layered_first_ink_layer_nodes(material.node_tree)
+
+        if uv_map_name is not None and uvmap_node is not None:
+                uvmap_node.uv_map = uv_map_name
+
+        return uvmap_node, texture_node, number_of_layers + 1
+
+    @staticmethod
+    def get_number_of_ink_layers(material):
+        """Return information about how many ink layers are present in the material."""
+
+        if not material:
+            raise ValueError("A material must be provided")
+
+        if MaterialService.identify_material(material) not in ["makeskin", "layered_skin"]:
+            raise ValueError("The material must be makeskin or layered_skin")
+
+        max_layer_number = 0
+
+        for node in material.node_tree.nodes:
+            if isinstance(node, bpy.types.ShaderNodeTexImage) and node.name.startswith("inkLayer"):
+                _LOG.debug("Found a node named", node.name)
+                layer_number = int(node.name.split("inkLayer")[1].split("tex")[0])
+                if layer_number > max_layer_number:
+                    max_layer_number = layer_number
+
+        return max_layer_number
 
     @staticmethod
     def get_ink_layer_info(mesh_object, ink_layer=1):
@@ -591,8 +661,13 @@ class MaterialService():
             raise ValueError(f"The image file '{image_name}' does not exist at '{ink_dirname}'")
 
         uv_map = mesh_object.data.uv_layers[0]
+        uv_map_name = uv_map.name
+
+        material = MaterialService.get_material(mesh_object)
 
         if focus_name:
+            ink_layer_number = MaterialService.get_number_of_ink_layers(material) + 1
+            uv_map_name = f"inkLayer{ink_layer_number}"
             focus_name_full = str(focus_name).replace(" ", "_") + ".json.gz"
             focus_filename = os.path.join(LocationService.get_user_data("uv_layers"), focus_name_full)
             if not os.path.exists(focus_filename):
@@ -603,11 +678,9 @@ class MaterialService():
             with gzip.open(focus_filename, 'rt') as f:
                 uv_map_dict = json.load(f)
 
-            MeshService.add_uv_map_from_dict(mesh_object, ink_layer_name, uv_map_dict)
-            uv_map = mesh_object.data.uv_layers.get(ink_layer_name)
+            MeshService.add_uv_map_from_dict(mesh_object, uv_map_name, uv_map_dict)
 
-        material = MaterialService.get_material(mesh_object)
-        uvmap_node, texture_node, ink_layer_id = MaterialService.add_focus_nodes(material, uv_map_name=uv_map.name)
+        uvmap_node, texture_node, ink_layer_id = MaterialService.add_focus_nodes(material, uv_map_name=uv_map_name)
         texture_node.image = bpy.data.images.load(image_path)
 
         return uvmap_node, texture_node, ink_layer_id
