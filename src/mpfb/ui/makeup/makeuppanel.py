@@ -74,6 +74,12 @@ class MPFB_PT_MakeUp_Panel(Abstract_Panel):
         MAKEUP_PROPERTIES.draw_properties(scene, box, ["focus_name", "create_ink", "resolution"])
         box.operator("mpfb.create_ink")
 
+    def _write_ink_layer(self, scene, layout):
+        """create_assets -> makeup -> write ink layer"""
+        box = self.create_box(layout, "Write ink layer")
+        MAKEUP_PROPERTIES.draw_properties(scene, box, ["ink_layer_name"])
+        box.operator("mpfb.write_ink_layer")
+
     def _developer(self, scene, layout):
         """create_assets -> makeup -> developer"""
         box = self.create_box(layout, "MakeUP Developer")
@@ -88,6 +94,7 @@ class MPFB_PT_MakeUp_Panel(Abstract_Panel):
         layout = self.layout
         scene = context.scene
         self._add_ink_layer(scene, layout)
+        self._write_ink_layer(scene, layout)
         self._developer(scene, layout)
 
 
