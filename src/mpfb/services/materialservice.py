@@ -529,6 +529,37 @@ class MaterialService():
         return uvmap_node, texture_node, 1
 
     @staticmethod
+    def get_ink_layer_info(mesh_object, ink_layer=1):
+        """Return information about UV map and texture name for a specific ink layer."""
+
+        material = MaterialService.get_material(mesh_object)
+
+        if not material:
+            raise ValueError("A material must be provided")
+
+        if MaterialService.identify_material(material) != "makeskin":
+            raise ValueError("The material must be a makeskin material")
+
+        tex_name = f"inkLayer{ink_layer}tex"
+        uv_name = f"inkLayer{ink_layer}uv"
+
+        tex_node = NodeService.find_node_by_name(material.node_tree, tex_name)
+        if tex_node is None:
+            raise ValueError(f"The material does not have a node named {tex_name}")
+
+        uv_node = NodeService.find_node_by_name(material.node_tree, uv_name)
+        if uv_node is None:
+            raise ValueError(f"The material does not have a node named {uv_name}")
+
+        deduced_uv_name = uv_node.uv_map
+        if "focus" not in deduced_uv_name:
+            deduced_uv_name = ""  # This is assumed to be the basemesh standard UV map
+
+        decuced_image_texture_name = tex_node.image.name
+
+        return deduced_uv_name, decuced_image_texture_name
+
+    @staticmethod
     def get_skin_diffuse_color():
         """Return a static color for the skin material, for example to be used in the viewport."""
         return [0.721, 0.568, 0.431, 1.0]
