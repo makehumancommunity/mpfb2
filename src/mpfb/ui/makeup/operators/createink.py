@@ -12,7 +12,6 @@ from ..makeuppanel import MAKEUP_PROPERTIES
 from .... import ClassManager
 
 _LOG = LogService.get_logger("makeup.createink")
-_LOG.set_level(LogService.DEBUG)
 
 
 class MPFB_OT_CreateInkOperator(bpy.types.Operator):

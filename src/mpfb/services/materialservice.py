@@ -1,10 +1,12 @@
 """Various functions for working with materials"""
 
-import os, bpy
+import os, bpy, json, gzip
 
+from .locationservice import LocationService
 from .logservice import LogService
 from .objectservice import ObjectService
 from .nodeservice import NodeService
+from .meshservice import MeshService
 from ..entities.nodemodel.v2.materials import NodeWrapperSkin
 
 _LOG = LogService.get_logger("services.materialservice")
@@ -558,6 +560,57 @@ class MaterialService():
         decuced_image_texture_name = tex_node.image.name
 
         return deduced_uv_name, decuced_image_texture_name
+
+    @staticmethod
+    def load_ink_layer(mesh_object, ink_layer_json_path):
+        """Load an ink layer from a JSON file. This will also add a new UV map to the mesh object if needed."""
+
+        _LOG.debug("Loading ink layer from", ink_layer_json_path)
+
+        with open(ink_layer_json_path, 'r') as file:
+            ink_layer_data = json.load(file)
+
+        _LOG.debug("ink_layer_data", ink_layer_data)
+
+        if "name" not in ink_layer_data or not ink_layer_data["name"]:
+            ink_layer_name = os.path.basename(ink_layer_json_path)
+            ink_layer_name = ink_layer_name.replace(".json", "").replace("_", " ")
+        else:
+            ink_layer_name = ink_layer_data["name"]
+
+        focus_name = ink_layer_data["focus"]
+        image_name = ink_layer_data["image_name"]
+
+        if not image_name:
+            raise ValueError("The ink layer definition must refer to an image file")
+
+        ink_dirname = os.path.dirname(ink_layer_json_path)
+        image_path = os.path.join(ink_dirname, image_name)
+
+        if not os.path.isfile(image_path):
+            raise ValueError(f"The image file '{image_name}' does not exist at '{ink_dirname}'")
+
+        uv_map = mesh_object.data.uv_layers[0]
+
+        if focus_name:
+            focus_name_full = str(focus_name).replace(" ", "_") + ".json.gz"
+            focus_filename = os.path.join(LocationService.get_user_data("uv_layers"), focus_name_full)
+            if not os.path.exists(focus_filename):
+                focus_filename = os.path.join(LocationService.get_mpfb_data("uv_layers"), focus_name_full)
+                if not os.path.exists(focus_filename):
+                    raise ValueError(f"The focus file '{focus_name_full}' does not exist")
+
+            with gzip.open(focus_filename, 'rt') as f:
+                uv_map_dict = json.load(f)
+
+            MeshService.add_uv_map_from_dict(mesh_object, ink_layer_name, uv_map_dict)
+            uv_map = mesh_object.data.uv_layers.get(ink_layer_name)
+
+        material = MaterialService.get_material(mesh_object)
+        uvmap_node, texture_node, ink_layer_id = MaterialService.add_focus_nodes(material, uv_map_name=uv_map.name)
+        texture_node.image = bpy.data.images.load(image_path)
+
+        return uvmap_node, texture_node, ink_layer_id
 
     @staticmethod
     def get_skin_diffuse_color():

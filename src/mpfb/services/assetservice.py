@@ -30,6 +30,15 @@ ASSET_LIBRARY_SECTIONS = [
             "skin_overrides": True
             },
         {
+            "bl_label": "Ink layers",
+            "asset_subdir": "ink_layers",
+            "asset_type": "json",
+            "object_type": "Other",
+            "eye_overrides": False,
+            "skin_overrides": False,
+            "ink_overrides": True
+            },
+        {
             "bl_label": "Eyes library",
             "asset_subdir": "eyes",
             "asset_type": "mhclo",
@@ -233,6 +242,13 @@ class AssetService:
         _LOG.enter()
         roots = AssetService.get_asset_roots(asset_subdir)
         return AssetService.find_asset_files_matching_pattern(roots, "*.bvh")
+
+    @staticmethod
+    def list_ink_layer_assets(asset_subdir="ink_layers"):
+        """Convenience wrapper for finding all ink layers."""
+        _LOG.enter()
+        roots = AssetService.get_asset_roots(asset_subdir)
+        return AssetService.find_asset_files_matching_pattern(roots, "*.json")
 
     @staticmethod
     def list_proxy_assets(asset_subdir="proxymeshes"):
