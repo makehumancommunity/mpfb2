@@ -483,10 +483,10 @@ class MaterialService():
         mix_node = NodeService.create_mix_rgb_node(node_tree, "inkLayer1mix", "Ink Layer 1 Mix", xpos=-300, ypos=1000)
 
         # Create an image texture node
-        texture = NodeService.create_image_texture_node(node_tree, "inkLayer1tex", "Ink layer 1 Texture", xpos=-700, ypos=1100)
+        texture = NodeService.create_image_texture_node(node_tree, "inkLayer1tex", "Ink layer 1 Texture", xpos=-900, ypos=1100)
 
         # Create an uv map node
-        uvmap = NodeService.create_node(node_tree, "ShaderNodeUVMap", name="inkLayer1uv", label="Ink Layer 1 UV", xpos=-1000, ypos=1000)
+        uvmap = NodeService.create_node(node_tree, "ShaderNodeUVMap", name="inkLayer1uv", label="Ink Layer 1 UV", xpos=-1200, ypos=1000)
 
         # Add links
         NodeService.add_link(node_tree, mix_node, principled, "Color", "Base Color")
@@ -494,6 +494,67 @@ class MaterialService():
         NodeService.add_link(node_tree, texture, mix_node, "Color", "Color2")
         NodeService.add_link(node_tree, texture, mix_node, "Alpha", "Fac")
         NodeService.add_link(node_tree, uvmap, texture, "UV", "Vector")
+
+        return uvmap, texture
+
+    @staticmethod
+    def _makeskin_secondary_ink_layer_nodes(material):
+        """Add an additional ink layer, stacking it over the pre-existing ones."""
+
+        if not material:
+            raise ValueError("A material must be provided")
+
+        material_type = MaterialService.identify_material(material)
+
+        if material_type != "makeskin":
+            raise ValueError("This method only works with makeskin materials")
+
+        _LOG.debug("material", material)
+
+        number_of_layers = MaterialService.get_number_of_ink_layers(material)
+        _LOG.debug("Number of layers", number_of_layers)
+
+        node_tree = material.node_tree
+
+        last_mix_node = NodeService.find_node_by_name(node_tree, f"inkLayer{number_of_layers}mix")
+        last_tex_node = NodeService.find_node_by_name(node_tree, f"inkLayer{number_of_layers}tex")
+        last_alp_node = NodeService.find_node_by_name(node_tree, f"inkLayer{number_of_layers - 1}alpha")
+
+        _LOG.debug("pre-existing nodes", (last_mix_node, last_tex_node, last_alp_node))
+
+        # Remove the link between the principled node and the diffuseIntensity node
+        NodeService.remove_link(material.node_tree, last_mix_node, "Color2")
+        NodeService.remove_link(material.node_tree, last_mix_node, "Fac")
+
+        alpha_mix = NodeService.create_node(node_tree, "ShaderNodeMath", name=f"inkLayer{number_of_layers}alpha", label=f"Ink Layer {number_of_layers} Alpha", xpos=-550, ypos=(800 + number_of_layers * 400))
+        alpha_mix.operation = "ADD"
+        alpha_mix.use_clamp = True
+
+        new_layer = number_of_layers + 1
+
+        # Create a mix rgb node
+        mix_node = NodeService.create_mix_rgb_node(node_tree, f"inkLayer{new_layer}mix", f"Ink Layer {new_layer} Mix", xpos=-550, ypos=(1000 + number_of_layers * 400))
+
+        # Create an image texture node
+        texture = NodeService.create_image_texture_node(node_tree, f"inkLayer{new_layer}tex", f"Ink layer {new_layer} Texture", xpos=-900, ypos=(1000 + number_of_layers * 400))
+
+        # Create an uv map node
+        uvmap = NodeService.create_node(node_tree, "ShaderNodeUVMap", name=f"inkLayer{new_layer}uv", label=f"Ink Layer {new_layer} UV", xpos=-1200, ypos=(800 + number_of_layers * 400))
+
+        # Add links
+        NodeService.add_link(node_tree, mix_node, last_mix_node, "Color", "Color2")
+        NodeService.add_link(node_tree, last_tex_node, mix_node, "Color", "Color1")
+        NodeService.add_link(node_tree, last_tex_node, alpha_mix, "Alpha", "Value")
+        NodeService.add_link(node_tree, texture, mix_node, "Color", "Color2")
+        NodeService.add_link(node_tree, texture, mix_node, "Alpha", "Fac")
+        NodeService.add_link(node_tree, texture, alpha_mix, "Alpha", "Value_001")
+        NodeService.add_link(node_tree, alpha_mix, last_mix_node, "Value", "Fac")
+        NodeService.add_link(node_tree, uvmap, texture, "UV", "Vector")
+
+        if last_alp_node is None:
+            NodeService.add_link(node_tree, texture, alpha_mix, "Alpha", "Value_001")
+        else:
+            NodeService.add_link(node_tree, alpha_mix, last_alp_node, "Value", "Value_001")
 
         return uvmap, texture
 
@@ -571,11 +632,15 @@ class MaterialService():
 
             uvmap_node, texture_node = MaterialService._makeskin_first_ink_layer_nodes(material.node_tree, principled, connected_node)
 
+        if material_type == "makeskin" and number_of_layers > 0:
+            _LOG.debug("Adding a secondary ink layer")
+            uvmap_node, texture_node = MaterialService._makeskin_secondary_ink_layer_nodes(material)
+
         if material_type == "layered_skin" and number_of_layers == 0:
             uvmap_node, texture_node = MaterialService._layered_first_ink_layer_nodes(material.node_tree)
 
         if uv_map_name is not None and uvmap_node is not None:
-                uvmap_node.uv_map = uv_map_name
+            uvmap_node.uv_map = uv_map_name
 
         return uvmap_node, texture_node, number_of_layers + 1
 
