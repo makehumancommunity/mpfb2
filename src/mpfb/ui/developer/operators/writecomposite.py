@@ -13,6 +13,7 @@ from string import Template
 
 _LOG = LogService.get_logger("developer.operators.writecomposite")
 
+
 def _identify_socket(all_sockets, socket):
     name_count = 0
     for s in all_sockets:
@@ -21,6 +22,7 @@ def _identify_socket(all_sockets, socket):
     if name_count < 2:
         return socket.name
     return socket.identifier
+
 
 def _build_tree_def(node_tree):
     wrappers = dict(PRIMITIVE_NODE_WRAPPERS)
@@ -75,6 +77,7 @@ def _build_tree_def(node_tree):
         tree_def["links"].append(link_def)
 
     return round_floats(tree_def)
+
 
 class MPFB_OT_Write_Composite_Operator(bpy.types.Operator):
     """Generate the code representing a selected node group to the composite directory"""
@@ -138,7 +141,7 @@ class MPFB_OT_Write_Composite_Operator(bpy.types.Operator):
         entities = LocationService.get_mpfb_root("entities")
         test = LocationService.get_mpfb_test("tests")
         v2 = os.path.join(entities, "nodemodel", "v2", "composites")
-        v2test = os.path.join(test, "03_entities", "nodemodel_v2_composites_" + output_name.lower() + "_test.py")
+        v2test = os.path.join(test, "ddd_entities", "nodemodel_v2_composites_" + output_name.lower() + "_test.py")
 
         tree_def = _build_tree_def(node_tree)
 
@@ -148,13 +151,15 @@ class MPFB_OT_Write_Composite_Operator(bpy.types.Operator):
             pyfile.write(json.dumps(node_info, sort_keys=False, indent=4))
             pyfile.write("\"\"\")\n\n")
             pyfile.write("_ORIGINAL_TREE_DEF = json.loads(\"\"\"\n")
-            #pprint.pprint(tree_def)
+            # pprint.pprint(tree_def)
             try:
                 pyfile.write(json.dumps(tree_def, sort_keys=True, indent=4))
             except TypeError as e:
                 _LOG.error("JSON serialization failed", e)
                 _LOG.error("Struct", tree_def)
+                print("\n\n\n TREE DEF:\n\n")
                 pprint.pprint(tree_def)
+                print("\n\n\n")
                 raise e
             pyfile.write("\"\"\")\n\n")
             pyfile.write("from .abstractgroupwrapper import AbstractGroupWrapper\n\n")
@@ -207,14 +212,18 @@ class MPFB_OT_Write_Composite_Operator(bpy.types.Operator):
                     pyfile.write("\"" + link["to_node"] + "\", ")
                     pyfile.write("\"" + link["to_socket"] + "\")\n")
 
-            pyfile.write("\n" + shorten_name("NodeWrapper" + output_name) + " = _NodeWrapper" + output_name+ "()\n")
+            pyfile.write("\n" + shorten_name("NodeWrapper" + output_name) + " = _NodeWrapper" + output_name + "()\n")
 
         with open(v2test, "w") as pyfile:
             pyfile.write("import bpy, os\n")
             pyfile.write("from pytest import approx\n")
-            pyfile.write("from ....services import ObjectService\n")
-            pyfile.write("from ....services import NodeService\n")
-            pyfile.write("from mpfb.entities.nodemodel.v2.composites.nodewrapper" + output_name.lower() + " import NodeWrapper" + output_name + "\n\n")
+            pyfile.write("from .. import dynamic_import\n")
+            pyfile.write("from .. import ObjectService\n")
+            pyfile.write("from .. import NodeService\n")
+            pyfile.write(f"NodeWrapper{output_name} = dynamic_import(\"mpfb.entities.nodemodel.v2.composites.nodewrapper{output_name.lower()}\", \"NodeWrapper{output_name}\")\n")
+            # pyfile.write("from ....services import ObjectService\n")
+            # pyfile.write("from ....services import NodeService\n")
+            # pyfile.write("from mpfb.entities.nodemodel.v2.composites.nodewrapper" + output_name.lower() + " import NodeWrapper" + output_name + "\n\n")
             pyfile.write("def test_composite_is_available():\n")
             pyfile.write("    assert NodeWrapper" + output_name + "\n\n")
             pyfile.write("def test_composite_can_create_instance():\n")
@@ -242,5 +251,6 @@ class MPFB_OT_Write_Composite_Operator(bpy.types.Operator):
             pyfile.write("    NodeService.destroy_node_tree(node_tree)\n")
 
         return {'FINISHED'}
+
 
 ClassManager.add_class(MPFB_OT_Write_Composite_Operator)

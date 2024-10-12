@@ -31,6 +31,7 @@ if SystemService.is_blender_version_at_least():
     from .makeweight import *
     from .makepose import *
     from .makerig import *
+    from .makeup import *
 
     # Rig panels
     from .addrig import *

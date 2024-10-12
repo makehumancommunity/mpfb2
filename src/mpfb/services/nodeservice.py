@@ -856,11 +856,63 @@ class NodeService:
         if not node_which_is_linked_to or not name_of_socket:
             raise ValueError('Cannot find values on None node or socket')
         source_side_of_link = None
+        _LOG.debug("Looking for node linked to socket", (node_which_is_linked_to, name_of_socket))
         for link in node_tree.links:
-            if link.to_node == node_which_is_linked_to:
+            _LOG.debug("-- Link", {
+                "from_node": link.from_node.name,
+                "to_node": link.to_node.name,
+                "from_socket": link.from_socket.name,
+                "to_socket": link.to_socket.name})
+            if link.to_node.name == node_which_is_linked_to.name:
+                _LOG.debug("Found link to correct node")
                 if link.to_socket.name == name_of_socket:
                     source_side_of_link = link.from_node
+                    _LOG.debug("Found linking node", source_side_of_link)
+                    break
+                else:
+                    _LOG.debug("Socket name does not match", (link.to_socket.name, name_of_socket))
         return source_side_of_link
+
+    @staticmethod
+    def remove_link(node_tree, node_which_is_linked_to, name_of_socket):
+        """Remove a link that links to an input socket in the given node, if any"""
+        _LOG.enter()
+        if not node_which_is_linked_to or not name_of_socket:
+            raise ValueError('Cannot find values on None node or socket')
+        _LOG.debug("Looking for node linked to socket", (node_which_is_linked_to, name_of_socket))
+        for link in node_tree.links:
+            _LOG.debug("-- Link", {
+                "from_node": link.from_node.name,
+                "to_node": link.to_node.name,
+                "from_socket": link.from_socket.name,
+                "to_socket": link.to_socket.name})
+            if link.to_node.name == node_which_is_linked_to.name:
+                _LOG.debug("Found link to correct node")
+                if link.to_socket.name == name_of_socket:
+                    source_side_of_link = link.from_node
+                    _LOG.debug("Found linking node", source_side_of_link)
+                    node_tree.links.remove(link)
+                    break
+                else:
+                    _LOG.debug("Socket name does not match", (link.to_socket.name, name_of_socket))
+
+    @staticmethod
+    def add_link(node_tree, from_node, to_node, from_socket_name, to_socket_name):
+        """Add a link between two nodes."""
+        _LOG.enter()
+        _LOG.debug("Creating link", {
+            "from_node": from_node.name,
+            "to_node": to_node.name,
+            "from_socket": from_socket_name,
+            "to_socket": to_socket_name
+            })
+        from_socket = NodeService.find_output_socket_by_identifier_or_name(from_node, from_socket_name, from_socket_name)
+        to_socket = NodeService.find_input_socket_by_identifier_or_name(to_node, to_socket_name, to_socket_name)
+        _LOG.debug("Creating link", {
+            "from_socket": from_socket,
+            "to_socket": to_socket
+            })
+        node_tree.links.new(from_socket, to_socket)
 
     @staticmethod
     def get_image_file_path(image_texture_node):

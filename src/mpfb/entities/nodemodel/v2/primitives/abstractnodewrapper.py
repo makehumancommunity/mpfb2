@@ -10,6 +10,7 @@ _VALID_ARRAY_TYPES = ["tuple", "list", "array", "Vector", "Color", "NodeSocketCo
 _VALID_NUMERIC_TYPES = ["int", "float", "NodeSocketFloat", "NodeSocketFloatFactor", "NodeSocketInt", "NodeSocketIntFactor", "NodeSocketFloatDistance"]
 _VALID_STRING_TYPES = ["str", "enum"]
 
+
 class AbstractNodeWrapper():
 
     def __init__(self, node_def):
@@ -208,7 +209,7 @@ class AbstractNodeWrapper():
                         node_value = socket.default_value
             value_class = socket_def["class"]
             skip = False
-            if SystemService.is_blender_version_at_least([4,0,0]) and socket_def["name"] == "Sheen Tint":
+            if SystemService.is_blender_version_at_least([4, 0, 0]) and socket_def["name"] == "Sheen Tint":
                 # Socket has changed type from float to color in blender 4. Until we know that this is
                 # intended and final, we'll just skip this particular socket.
                 # TODO: Revisit this when b4 is stable
@@ -220,17 +221,23 @@ class AbstractNodeWrapper():
                     else:
                         comparison["input_socket_values"][key] = self._cleanup(node_value)
 
-        for key in self.node_def["outputs"]:
-            socket_def = self.node_def["outputs"][key]
-            default_value = socket_def["default_value"]
-            socket = NodeService.find_output_socket_by_identifier_or_name(node, socket_def["identifier"], socket_def["name"])
-            node_value = None
-            if hasattr(socket, "default_value"):
-                node_value = socket.default_value
-            value_class = socket_def["class"]
-            if not self._is_same(value_class, node_value, default_value):
-                if key != "BSDF":
-                    comparison["output_socket_values"][key] = self._cleanup(node_value)
+        # This is broken... need to figure out why
+        #=======================================================================
+        # for key in self.node_def["outputs"]:
+        #     socket_def = self.node_def["outputs"][key]
+        #     default_value = socket_def["default_value"]
+        #     socket = NodeService.find_output_socket_by_identifier_or_name(node, socket_def["identifier"], socket_def["name"])
+        #     node_value = None
+        #     value_class = socket_def["class"]
+        #     if hasattr(socket, "default_value"):
+        #         node_value = socket.default_value
+        #         if hasattr(node, "data_type") and node.data_type == "RGBA":
+        #             node_value = None  # No point in setting output color defaults
+        #     if not self._is_same(value_class, node_value, default_value):
+        #         if key != "BSDF":
+        #             comparison["output_socket_values"][key] = self._cleanup(node_value)
+        #=======================================================================
+        comparison["output_socket_values"] = dict()
 
         return comparison
 

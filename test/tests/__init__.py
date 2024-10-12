@@ -55,6 +55,7 @@ def dynamic_import(absolute_package_str, key):
                 raise AttributeError(f"Module {amod} does not have attribute {key}")
 
             return getattr(mpfb_mod, key)
+    raise ValueError(f"No module found with name ending in {absolute_package_str}")
 
 
 MPFB_CONTEXTUAL_INFORMATION = dynamic_import("mpfb", "MPFB_CONTEXTUAL_INFORMATION")
