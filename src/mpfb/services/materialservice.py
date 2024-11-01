@@ -803,8 +803,8 @@ class MaterialService():
 
         _LOG.debug("Loading ink layer from", ink_layer_json_path)
 
-        with open(ink_layer_json_path, 'r') as file:
-            ink_layer_data = json.load(file)
+        with open(ink_layer_json_path, 'r', encoding="utf-8") as json_file:
+            ink_layer_data = json.load(json_file)
 
         _LOG.debug("ink_layer_data", ink_layer_data)
 
@@ -841,8 +841,8 @@ class MaterialService():
                 if not os.path.exists(focus_filename):
                     raise ValueError(f"The focus file '{focus_name_full}' does not exist")
 
-            with gzip.open(focus_filename, 'rt') as f:
-                uv_map_dict = json.load(f)
+            with gzip.open(focus_filename, 'rt') as json_file:
+                uv_map_dict = json.load(json_file)
 
             MeshService.add_uv_map_from_dict(mesh_object, uv_map_name, uv_map_dict)
 

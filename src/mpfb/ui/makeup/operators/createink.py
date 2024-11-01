@@ -71,20 +71,20 @@ class MPFB_OT_CreateInkOperator(bpy.types.Operator):
             try:
                 _LOG.debug("Loading UV map from file:", focus_filename)
                 if focus_filename.endswith(".gz"):
-                    with gzip.open(focus_filename, 'rt') as f:
-                        uv_map_as_dict = json.load(f)
+                    with gzip.open(focus_filename, 'rt') as json_file:
+                        uv_map_as_dict = json.load(json_file)
                 else:
-                    with open(focus_filename, 'r') as f:
-                        uv_map_as_dict = json.load(f)
-            except Exception as e:
-                self.report({'ERROR'}, f"Failed to load UV map from file: {e}")
+                    with open(focus_filename, 'r', encoding="utf-8") as json_file:
+                        uv_map_as_dict = json.load(json_file)
+            except Exception as excp:
+                self.report({'ERROR'}, f"Failed to load UV map from file: {excp}")
                 return {'CANCELLED'}
 
             # Add the UV map to the active object
             try:
                 MeshService.add_uv_map_from_dict(mesh_object, focus_name, uv_map_as_dict)
-            except Exception as e:
-                self.report({'ERROR'}, f"Failed to add UV map to mesh: {e}")
+            except Exception as excp:
+                self.report({'ERROR'}, f"Failed to add UV map to mesh: {excp}")
                 return {'CANCELLED'}
 
             # Set the new UV map as active

@@ -1,6 +1,6 @@
 """Operator for writing an ink layer to the library."""
 
-import bpy, os, json, gzip
+import bpy, os, json
 from ....services import LocationService
 from ....services import LogService
 from ....services import ObjectService
@@ -84,8 +84,8 @@ class MPFB_OT_WriteInkOperator(bpy.types.Operator):
 
         bpy.data.images[image_name].save(filepath=image_fn)
 
-        with open(ink_layer_fn, 'w') as f:
-            json.dump(ink_info, f, indent=4)
+        with open(ink_layer_fn, 'w', encoding="utf-8") as json_file:
+            json.dump(ink_info, json_file, indent=4)
 
         self.report({'INFO'}, f"Ink layer '{ink_layer_name}' written to library at {ink_layer_fn}.")
         return {'FINISHED'}

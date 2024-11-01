@@ -4,7 +4,6 @@ import bpy
 from bpy_extras.io_utils import ExportHelper
 import json
 from ....services import LogService
-from ....services import ObjectService
 from ....services import MeshService
 from ..makeuppanel import MAKEUP_PROPERTIES
 
@@ -55,8 +54,8 @@ class MPFB_OT_WriteUvMapOperator(bpy.types.Operator, ExportHelper):
 
         uv_map_data = MeshService.get_uv_map_as_dict(mesh_object, uv_layer.name, only_include_vertex_group="uvmap")
 
-        with open(self.filepath, 'w') as f:
-            json.dump(uv_map_data, f, indent=4)
+        with open(self.filepath, 'w', encoding="utf-8") as json_file:
+            json.dump(uv_map_data, json_file, indent=4)
 
         self.report({'INFO'}, f"UV map '{uv_layer.name}' written to '{self.filepath}'.")
         return {'FINISHED'}

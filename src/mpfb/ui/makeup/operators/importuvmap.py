@@ -4,7 +4,6 @@ import bpy
 from bpy_extras.io_utils import ImportHelper
 import json
 from ....services import LogService
-from ....services import ObjectService
 from ....services import MeshService
 from ..makeuppanel import MAKEUP_PROPERTIES
 
@@ -38,10 +37,10 @@ class MPFB_OT_ImportUvMapOperator(bpy.types.Operator, ImportHelper):
         uv_map_name = MAKEUP_PROPERTIES.get_value("uv_map_name", entity_reference=context.scene)
 
         try:
-            with open(self.filepath, 'r') as f:
-                uv_map_data = json.load(f)
-        except Exception as e:
-            self.report({'ERROR'}, f"Failed to read UV map file: {e}")
+            with open(self.filepath, 'r', encoding="utf-8") as json_file:
+                uv_map_data = json.load(json_file)
+        except Exception as excp:
+            self.report({'ERROR'}, f"Failed to read UV map file: {excp}")
             return {'CANCELLED'}
 
         MeshService.add_uv_map_from_dict(mesh_object, uv_map_name, uv_map_data)

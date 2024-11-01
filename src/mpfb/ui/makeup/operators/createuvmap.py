@@ -2,8 +2,6 @@
 
 import bpy
 from ....services import LogService
-from ....services import ObjectService
-from ....services import MeshService
 from ..makeuppanel import MAKEUP_PROPERTIES
 
 from .... import ClassManager
