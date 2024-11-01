@@ -221,23 +221,22 @@ class AbstractNodeWrapper():
                     else:
                         comparison["input_socket_values"][key] = self._cleanup(node_value)
 
-        # This is broken... need to figure out why
-        #=======================================================================
-        # for key in self.node_def["outputs"]:
-        #     socket_def = self.node_def["outputs"][key]
-        #     default_value = socket_def["default_value"]
-        #     socket = NodeService.find_output_socket_by_identifier_or_name(node, socket_def["identifier"], socket_def["name"])
-        #     node_value = None
-        #     value_class = socket_def["class"]
-        #     if hasattr(socket, "default_value"):
-        #         node_value = socket.default_value
-        #         if hasattr(node, "data_type") and node.data_type == "RGBA":
-        #             node_value = None  # No point in setting output color defaults
-        #     if not self._is_same(value_class, node_value, default_value):
-        #         if key != "BSDF":
-        #             comparison["output_socket_values"][key] = self._cleanup(node_value)
-        #=======================================================================
         comparison["output_socket_values"] = dict()
+
+        for key in self.node_def["outputs"]:
+            socket_def = self.node_def["outputs"][key]
+            default_value = socket_def["default_value"]
+            socket = NodeService.find_output_socket_by_identifier_or_name(node, socket_def["identifier"], socket_def["name"])
+            node_value = None
+            value_class = socket_def["class"]
+            if hasattr(socket, "default_value"):
+                node_value = socket.default_value
+                if hasattr(node, "data_type") and node.data_type in ["RGBA"]:
+                    node_value = None  # No point in setting output defaults for these types
+            if not self._is_same(value_class, node_value, default_value):
+                if key != "BSDF":
+                    comparison["output_socket_values"][key] = self._cleanup(node_value)
+                    _LOG.debug("Comparison", (key, comparison["output_socket_values"][key]))
 
         return comparison
 
