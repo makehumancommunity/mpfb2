@@ -1,21 +1,18 @@
 {
     "Root": {
         "head": {
+            "cube_name": "joint-ground",
             "default_position": [
                 0.0,
-                0.026746699586510658,
-                -0.8183050155639648
+                0.0,
+                0.0
             ],
-            "strategy": "MEAN",
-            "vertex_indices": [
-                19151,
-                19156
-            ]
+            "strategy": "CUBE"
         },
         "inherit_scale": "FULL",
         "parent": "",
         "rigify": {},
-        "roll": -1.5707963705062866,
+        "roll": 0,
         "tail": {
             "default_position": [
                 0.0,
@@ -24,8 +21,8 @@
             ],
             "strategy": "MEAN",
             "vertex_indices": [
-                15445,
-                16752
+                19152,
+                19155
             ]
         },
         "use_connect": false,
