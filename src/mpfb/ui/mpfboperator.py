@@ -13,14 +13,14 @@ _LOG = LogService.get_logger("uiactions")
 class MpfbOperator(bpy.types.Operator):
     """Abstract wrapper for UI operators, providing help for writing error summaries"""
 
-    def __init__(self, logname, default_log_level=None):
+    def __init__(self, *args, **kwargs):
         """Initialize the operator. You will normally not need to call this manually."""
 
-        bpy.types.Operator.__init__(self)
+        super().__init__(*args, **kwargs)
 
-        self.LOG = LogService.get_logger(logname)
-        if default_log_level is not None:
-            self.LOG.set_level(default_log_level)
+        self.LOG = _LOG
+        # if default_log_level is not None:
+        #    self.LOG.set_level(default_log_level)
 
     def _generate_error_information(self, context, error, tb=""):
         """Generate an error information hash, providing information about the error and the state of the context."""

@@ -18,8 +18,8 @@ class MPFB_OT_CreateHumanOperator(MpfbOperator):
     bl_label = "Create human"
     bl_options = {'REGISTER', 'UNDO'}
 
-    def __init__(self):
-        MpfbOperator.__init__(self, "newhuman.createhuman")
+    def __init__(self, *args, **kwargs):
+        super().__init__(yada=hey, *args, **kwargs)
 
     def hardened_execute(self, context):
 
