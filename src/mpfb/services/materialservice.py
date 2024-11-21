@@ -890,6 +890,12 @@ class MaterialService():
                 if diffuse_tex:
                     NodeService.add_link(material.node_tree, diffuse_tex, principled, "Color", "Base Color")
 
+        if basemesh:
+            for uv_layer in basemesh.data.uv_layers:
+                _LOG.debug("Uv layer:", uv_layer.name)
+                if uv_layer.name.startswith("inkLayer"):
+                    basemesh.data.uv_layers.remove(uv_layer)
+
     @staticmethod
     def get_skin_diffuse_color():
         """Return a static color for the skin material, for example to be used in the viewport."""
