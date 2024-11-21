@@ -852,6 +852,45 @@ class MaterialService():
         return uvmap_node, texture_node, ink_layer_id
 
     @staticmethod
+    def remove_all_makeup(material, basemesh=None):
+        """Remove all ink layers from a material, and optionally remove ink layer UVs from the corresponding basemesh"""
+        _LOG.debug("Removing all makeup")
+        if not material:
+            _LOG.debug("No material provided")
+            return
+
+        material_type = MaterialService.identify_material(material)
+        _LOG.debug("Material type:", material_type)
+
+        if material_type not in ["makeskin", "layered_skin"]:
+            _LOG.warn("Not a compatible material type")
+            return
+
+        inks = MaterialService.get_number_of_ink_layers(material)
+
+        if inks < 1:
+            _LOG.warn("No ink layers found")
+            return
+
+        for node in material.node_tree.nodes:
+            if node.name.startswith("inkLayer"):
+                _LOG.debug("Removing node", node.name)
+                material.node_tree.nodes.remove(node)
+
+        if material_type == "makeskin":
+            principled = NodeService.find_first_node_by_type_name(material.node_tree, "ShaderNodeBsdfPrincipled")
+            _LOG.debug("Principled node:", principled)
+            diffuse_intensity = NodeService.find_node_by_name(material.node_tree, "diffuseIntensity")
+            _LOG.debug("Connected color node:", diffuse_intensity)
+            if principled and diffuse_intensity:
+                NodeService.add_link(material.node_tree, diffuse_intensity, principled, "Color", "Base Color")
+            else:
+                diffuse_tex = NodeService.find_node_by_name(material.node_tree, "diffuseTexture")
+                _LOG.debug("Diffuse texture", diffuse_tex)
+                if diffuse_tex:
+                    NodeService.add_link(material.node_tree, diffuse_tex, principled, "Color", "Base Color")
+
+    @staticmethod
     def get_skin_diffuse_color():
         """Return a static color for the skin material, for example to be used in the viewport."""
         return [0.721, 0.568, 0.431, 1.0]

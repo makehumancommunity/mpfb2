@@ -14,11 +14,16 @@ _LOC = os.path.dirname(__file__)
 MATOPS_PROPERTIES_DIR = os.path.join(_LOC, "properties")
 MATOPS_PROPERTIES = SceneConfigSet.from_definitions_in_json_directory(MATOPS_PROPERTIES_DIR, prefix="MATO_")
 
+
 class MPFB_PT_MatopsPanel(Abstract_Panel):
     bl_label = "Material"
     bl_category = UiService.get_value("OPERATIONSCATEGORY")
     bl_options = {'DEFAULT_CLOSED'}
     bl_parent_id = "MPFB_PT_Operations_Panel"
+
+    def _makeup(self, scene, layout):
+        box = self.create_box(layout, "Makeup")
+        box.operator("mpfb.remove_makeup")
 
     def _adjust(self, scene, layout):
         box = self.create_box(layout, "Adjust material")
@@ -43,9 +48,10 @@ class MPFB_PT_MatopsPanel(Abstract_Panel):
         if not objtype or objtype == "Skeleton":
             return
 
-        #material = MaterialService.get_material(context.object)
-        #_LOG.dump("Material", (material, MaterialService.identify_material(material)))
+        # material = MaterialService.get_material(context.object)
+        # _LOG.dump("Material", (material, MaterialService.identify_material(material)))
 
+        self._makeup(scene, layout)
         self._adjust(scene, layout)
         self._experimental(scene, layout)
 
