@@ -35,7 +35,7 @@ It also exposes a few important functions and objects:
 fake_bl_info = {  # pylint: disable=C0103
     "name": "mpfb",
     "author": "Joel Palmius",
-    "version": (2, 0, 5),
+    "version": (2, 0, 6),
     "blender": (4, 2, 0),
     "location": "View3D > Properties > MPFB",
     "description": "Free and open source human character editor",

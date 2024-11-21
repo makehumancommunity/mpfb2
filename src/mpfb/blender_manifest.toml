@@ -1,6 +1,6 @@
 schema_version = "1.0.0"
 id = "mpfb"
-version = "2.0.5"
+version = "2.0.6"
 name = "MPFB"
 tagline = "Human character generator and editor"
 maintainer = "Joel Palmius"
@@ -9,7 +9,7 @@ website = "http://static.makehumancommunity.org/mpfb.html"
 tags = ["Add mesh", "Modeling", "Rigging"]
 blender_version_min = "4.2.0"
 license = [
-  "SPDX:GPL-2.0-or-later",
+  "SPDX:GPL-3.0-or-later",
 ]
 files = "Load and save data"
 network = "Interact with local instance of MakeHuman"
