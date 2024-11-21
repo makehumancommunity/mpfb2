@@ -41,6 +41,9 @@ class MPFB_OT_Load_Makeup_Presets_Operator(generic_makeup_presets):
             ink_layers = json.load(json_file)
 
         basemesh = context.object
+        material = MaterialService.get_material(basemesh)
+
+        MaterialService.remove_all_makeup(material, basemesh)
 
         for ink_layer in ink_layers:
             ink_path = AssetService.find_asset_absolute_path(ink_layer, asset_subdir="ink_layers")
