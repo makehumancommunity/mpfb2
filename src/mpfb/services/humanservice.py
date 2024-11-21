@@ -90,6 +90,30 @@ class HumanService:
         return out
 
     @staticmethod
+    def _populate_human_info_with_makeup_info(human_info, basemesh):
+        _LOG.enter()
+        human_info["makeup"] = []
+        material = MaterialService.get_material(basemesh)
+        if material is None:
+            return
+        material_type = MaterialService.identify_material(material)
+        _LOG.debug("Material type", material_type)
+        if material_type not in ["layered_skin", "makeskin"]:
+            return
+        if MaterialService.get_number_of_ink_layers(material) < 1:
+            return
+        for layer in range(MaterialService.get_number_of_ink_layers(material)):
+            ink_info = MaterialService.get_ink_layer_info(basemesh, ink_layer=layer + 1)
+            image_name = ink_info[1]
+            json_name = os.path.splitext(image_name)[0] + ".json"  # Possibly we should have a better way than to infer from image name
+            json_path = os.path.join(LocationService.get_user_data("ink_layers"), json_name)
+            _LOG.debug("Ink layer", (layer + 1, ink_info, image_name, json_path))
+            if os.path.isfile(json_path):
+                human_info["makeup"].append(json_name)
+            else:
+                _LOG.warn("Could not find ink layer info JSON file", json_path)
+
+    @staticmethod
     def _populate_human_info_with_skin_info(human_info, basemesh):
         _LOG.enter()
         proxymesh = ObjectService.find_object_of_type_amongst_nearest_relatives(basemesh, "Proxymeshes")
@@ -352,6 +376,7 @@ class HumanService:
         HumanService._populate_human_info_with_clothes_info(human_info, basemesh)
         HumanService._populate_human_info_with_proxy_info(human_info, basemesh)
         HumanService._populate_human_info_with_skin_info(human_info, basemesh)
+        HumanService._populate_human_info_with_makeup_info(human_info, basemesh)
         HumanService._populate_human_info_with_eye_material_info(human_info, basemesh)
 
         _LOG.dump("Human info", human_info)
@@ -975,6 +1000,18 @@ class HumanService:
             HumanService._check_add_clothes(human_info, basemesh, subdiv_levels=subdiv_levels, material_model=override_clothes_model)
         HumanService._set_skin(human_info, basemesh)
         HumanService._set_eyes(human_info, basemesh)
+
+        makeup = []
+        if "makeup" in human_info:
+            makeup = human_info["makeup"]
+        material = MaterialService.get_material(basemesh)
+        if material is not None and len(makeup) > 0:
+            material_type = MaterialService.identify_material(material)
+            _LOG.debug("Material type", material_type)
+            if material_type in ["layered_skin", "makeskin"]:
+                for ink_layer in makeup:
+                    ink_path = AssetService.find_asset_absolute_path(ink_layer, asset_subdir="ink_layers")
+                    MaterialService.load_ink_layer(basemesh, ink_path)
 
         # Otherwise all targets will be set to 100% when entering edit mode
         basemesh.use_shape_key_edit_mode = True
