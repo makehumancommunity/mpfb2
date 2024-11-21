@@ -775,8 +775,8 @@ class MaterialService():
         if not material:
             raise ValueError("A material must be provided")
 
-        if MaterialService.identify_material(material) != "makeskin":
-            raise ValueError("The material must be a makeskin material")
+        if MaterialService.identify_material(material) not in ["makeskin", "layered_skin"]:
+            raise ValueError("The material must be makeskin or layered skin material")
 
         tex_name = f"inkLayer{ink_layer}tex"
         uv_name = f"inkLayer{ink_layer}uv"
