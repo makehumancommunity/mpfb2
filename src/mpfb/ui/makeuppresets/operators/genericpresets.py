@@ -8,7 +8,6 @@ from ..makeuppresetspanel import MAKEUP_PRESETS_PROPERTIES
 import bpy, os, json
 
 _LOG = LogService.get_logger("makeuppresets.genericpresets")
-_LOG.set_level(LogService.DEBUG)
 
 
 class generic_makeup_presets(bpy.types.Operator):

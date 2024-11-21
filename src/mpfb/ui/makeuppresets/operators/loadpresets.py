@@ -8,7 +8,6 @@ from .... import ClassManager
 import json
 
 _LOG = LogService.get_logger("makeuppresets.loadpresets")
-_LOG.set_level(LogService.DEBUG)
 
 
 class MPFB_OT_Load_Makeup_Presets_Operator(generic_makeup_presets):
