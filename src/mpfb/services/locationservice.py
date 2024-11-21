@@ -2,6 +2,7 @@
 
 import os, bpy
 from .. import get_preference
+from .. import MPFB_CONTEXTUAL_INFORMATION
 from .logservice import LogService
 from pathlib import Path
 
@@ -25,7 +26,10 @@ class _LocationService():
         _LOG.debug("Constructing location service")
         self._bpy_home = os.path.abspath(bpy.utils.resource_path('USER'))
 
-        self._user_home = os.path.join(self._bpy_home, "mpfb")
+        _LOG.debug("self._bpy_home", self._bpy_home)
+        self._user_home = os.path.join(self._bpy_home, MPFB_CONTEXTUAL_INFORMATION["__package_short__"])
+        _LOG.debug("self._user_home", self._user_home)
+
         overriden_user_home = None
         try:
             overriden_user_home = get_preference("mpfb_user_data")
@@ -39,20 +43,33 @@ class _LocationService():
         self._check_set_mh_user_dir()
 
         self._user_data = os.path.join(self._user_home, "data")
+        _LOG.debug("self._user_data", self._user_data)
+
         self._user_config = os.path.join(self._user_home, "config")
+        _LOG.debug("self._user_config", self._user_config)
+
         self._user_cache = os.path.join(self._user_home, "cache")
+        _LOG.debug("self._user_cache", self._user_cache)
 
         self._log_dir = os.path.join(self._user_home, "logs")
+        _LOG.debug("self._log_dir", self._log_dir)
 
         script_location = os.path.dirname(__file__)
 
         self._mpfb_root = Path(os.path.join(script_location, "..")).resolve()
+        _LOG.debug("self._mpfb_root", self._mpfb_root)
 
         self._repo_src = os.path.abspath(os.path.realpath(os.path.join(self._mpfb_root, '..')))
+        _LOG.debug("self._repo_src", self._repo_src)
+
         self._repo_root = os.path.abspath(os.path.join(self._repo_src, '..'))
+        _LOG.debug("self._repo_root", self._repo_root)
+
         self._test_root = os.path.abspath(os.path.join(self._repo_root, 'test'))
+        _LOG.debug("self._test_root", self._test_root)
 
         self._mpfb_data = os.path.join(self._mpfb_root, "data")
+        _LOG.debug("self._mpfb_data", self._mpfb_data)
 
         self._relevant_directories = []
         self._relevant_directories.append(self._bpy_home)

@@ -124,6 +124,8 @@ def get_preference(name):
 
 ClassManager = None
 
+# To get around the limitation where the extension platform only allows us to use relative imports, we will populate a
+# structure with information about the root package, and references to some of the most important classes.
 MPFB_CONTEXTUAL_INFORMATION = None
 
 
@@ -133,6 +135,14 @@ def register():
 
     global _LOG  # pylint: disable=W0603
     global _OLD_EXCEPTHOOK  # pylint: disable=W0603
+
+    # To allow other code structures (primarily the unit test code) access to MPFB's logic without knowing
+    # anything about the module structure, store info about the package and the location of the root py.
+    global MPFB_CONTEXTUAL_INFORMATION
+    MPFB_CONTEXTUAL_INFORMATION = dict()
+    MPFB_CONTEXTUAL_INFORMATION["__package__"] = str(__package__)
+    MPFB_CONTEXTUAL_INFORMATION["__package_short__"] = str(__package__).split(".")[-1]
+    MPFB_CONTEXTUAL_INFORMATION["__file__"] = str(__file__)
 
     # Preferences will be needed before starting the rest of the addon
     from ._preferences import MpfbPreferences
@@ -193,13 +203,6 @@ def register():
             except ConnectionRefusedError as err:
                 _LOG.error("Could not read mh_user_dir. Maybe socket server is down? Error was:", err)
                 mh_user_dir = None
-
-    # To allow other code structures (primarily the unit test code) access to MPFB's logic without knowing
-    # anything about the module structure, we will provide some contextual information.
-    global MPFB_CONTEXTUAL_INFORMATION
-    MPFB_CONTEXTUAL_INFORMATION = dict()
-    MPFB_CONTEXTUAL_INFORMATION["__package__"] = __package__
-    MPFB_CONTEXTUAL_INFORMATION["__file__"] = __file__
 
     from .services import SERVICES
     MPFB_CONTEXTUAL_INFORMATION["SERVICES"] = SERVICES

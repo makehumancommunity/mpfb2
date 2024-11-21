@@ -1,7 +1,7 @@
 """Functionality for logging and profiling"""
 
 import os, bpy, time, pprint, inspect, json
-from .. import get_preference, DEBUG
+from .. import get_preference, DEBUG, MPFB_CONTEXTUAL_INFORMATION
 
 # There's a catch 22 where paths should be read from the location
 # service, but the location service is dependent on the log service
@@ -15,7 +15,7 @@ except:
 
 _BPYHOME = bpy.utils.resource_path('USER')  # pylint: disable=E1111
 if _OVERRIDDEN_HOME is None or not _OVERRIDDEN_HOME:
-    _MPFBHOME = os.path.join(_BPYHOME, "mpfb")
+    _MPFBHOME = os.path.join(_BPYHOME, MPFB_CONTEXTUAL_INFORMATION["__package_short__"])
 else:
     _MPFBHOME = _OVERRIDDEN_HOME
 
