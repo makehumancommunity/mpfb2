@@ -1,0 +1,7 @@
+{
+    "type": "string",
+    "name": "name",
+    "description": "Name of the makeup presets to save",
+    "label": "Presets name",
+    "default": ""
+}

@@ -44,6 +44,7 @@ if SystemService.is_blender_version_at_least():
     from .humanpresets import *
     from .enhancedsettings import *
     from .eyesettings import *
+    from .makeuppresets import *
 
     # Assets
     from .assetlibrary import *
