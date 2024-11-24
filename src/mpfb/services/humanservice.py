@@ -570,8 +570,9 @@ class HumanService:
         delete_name = "Delete." + delete_name
         ClothesService.update_delete_group(mhclo, basemesh, replace_delete_group=False, delete_group_name=delete_name)
 
-        if asset_type == "Clothes":
+        if str(asset_type).lower() == "clothes":
             proxymesh = ObjectService.find_object_of_type_amongst_nearest_relatives(basemesh, mpfb_type_name="Proxymeshes")
+            _LOG.debug("About to interpolate delete group, proxy is", proxymesh)
             if proxymesh:
                 ClothesService.interpolate_vertex_group_from_basemesh_to_clothes(basemesh, proxymesh, delete_name, mhclo_full_path=None)
                 modifier = proxymesh.modifiers.new(name=delete_name, type="MASK")
@@ -995,7 +996,11 @@ class HumanService:
 
         HumanService._check_add_rig(human_info, basemesh)
         HumanService._check_add_bodyparts(human_info, basemesh, subdiv_levels=subdiv_levels, material_model=override_clothes_model, eyes_material_model=override_eyes_model)
+        if "proxy" in human_info:
+            _LOG.debug("Proxy found, adding to basemesh", human_info["proxy"])
         HumanService._check_add_proxy(human_info, basemesh, subdiv_levels=subdiv_levels)
+        proxy = ObjectService.find_object_of_type_amongst_nearest_relatives(basemesh, "Proxymeshes")
+        _LOG.debug("Proxy found after adding", proxy)
         if load_clothes:
             HumanService._check_add_clothes(human_info, basemesh, subdiv_levels=subdiv_levels, material_model=override_clothes_model)
         HumanService._set_skin(human_info, basemesh)
