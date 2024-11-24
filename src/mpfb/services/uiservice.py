@@ -35,9 +35,7 @@ class _UiService():
         self._state = dict()
         self.set_value("PROPERTYPREFIX", "MPFB_")
 
-        # For beta version. Will change back to major.minor.patch format at release.
-        # ui_prefix = "MPFB v%d.%d-a%d" % (VERSION[0], VERSION[1], VERSION[2])
-        ui_prefix = "MPFB v%d.%d-b2" % (VERSION[0], VERSION[1])
+        ui_prefix = "MPFB v%d.%d.%d" % (VERSION[0], VERSION[1], VERSION[2])
 
         label = get_preference("mpfb_shelf_label")
         _LOG.debug("Shelf label", label)
