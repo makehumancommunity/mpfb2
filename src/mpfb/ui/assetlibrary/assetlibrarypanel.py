@@ -6,6 +6,7 @@ from ...services import LogService
 from ...services import AssetService, ASSET_LIBRARY_SECTIONS
 from ...services import HumanService
 from ...services import ObjectService
+from ...services import TargetService
 from ..assetlibrary.assetsettingspanel import ASSET_SETTINGS_PROPERTIES
 from ...services import UiService
 from ..assetspanel import FILTER_PROPERTIES
@@ -144,6 +145,10 @@ class _Abstract_Asset_Library_Panel(bpy.types.Panel):
             _LOG.debug("basemesh", self.basemesh)
 
         if self.basemesh and self.asset_type in ["mhclo", "proxy"]:
+            if not TargetService.has_any_shapekey(self.basemesh):
+                layout.label(text="Cannot equip on baked mesh")
+                layout.label(text="See docs for alternatives")
+                return
             self.equipped = HumanService.get_asset_sources_of_equipped_mesh_assets(self.basemesh)
             _LOG.debug("Equipped assets", self.equipped)
         else:

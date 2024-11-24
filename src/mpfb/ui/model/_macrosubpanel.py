@@ -38,6 +38,7 @@ _MACROTARGETS = {
             ]
     }
 
+
 class MPFB_PT_Macro_Sub_Panel(bpy.types.Panel):
     """Human macro modeling panel."""
 
@@ -72,9 +73,20 @@ class MPFB_PT_Macro_Sub_Panel(bpy.types.Panel):
             targets = _MACROTARGETS[category_name]
             self._draw_category(scene, layout, category_name, targets, basemesh)
 
+    @classmethod
+    def poll(cls, context):
+        if not context.active_object:
+            return False
+        basemesh = ObjectService.find_object_of_type_amongst_nearest_relatives(context.active_object, "Basemesh")
+        if basemesh is None:
+            return False
+        return TargetService.has_any_shapekey(basemesh)
+
+
 ClassManager.add_class(MPFB_PT_Macro_Sub_Panel)
 
 _PROPS_DIR = os.path.join(LocationService.get_mpfb_root("entities"), "objectproperties", "humanproperties")
+
 
 def _general_set_target_value(name, value):
     _LOG.trace("_general_set_target_value", (name, value))
@@ -87,11 +99,13 @@ def _general_set_target_value(name, value):
     if MODEL_PROPERTIES.get_value("refit", entity_reference=bpy.context.scene):
         HumanService.refit(basemesh)
 
+
 def _general_get_target_value(name):
     basemesh = ObjectService.find_object_of_type_amongst_nearest_relatives(bpy.context.active_object, "Basemesh")
     value = HumanObjectProperties.get_value(name, entity_reference=basemesh)
     _LOG.trace("_general_get_target_value", (name, value))
     return value
+
 
 for _main in _MACROTARGETS.keys():
     for _target in _MACROTARGETS[_main]:

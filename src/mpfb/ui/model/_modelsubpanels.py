@@ -92,6 +92,15 @@ class _Abstract_Model_Panel(bpy.types.Panel):
                 category = _CATEGORIES_BY_LABEL[self.section_name][category_name]
                 self._draw_category(scene, grid, category, basemesh)
 
+    @classmethod
+    def poll(cls, context):
+        if not context.active_object:
+            return False
+        basemesh = ObjectService.find_object_of_type_amongst_nearest_relatives(context.active_object, "Basemesh")
+        if basemesh is None:
+            return False
+        return TargetService.has_any_shapekey(basemesh)
+
 
 _sections = dict()
 with open(_TARGETS_JSON, "r") as _json_file:
