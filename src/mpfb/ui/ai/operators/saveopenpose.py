@@ -36,7 +36,7 @@ class MPFB_OT_Save_Openpose_Operator(bpy.types.Operator, ExportHelper):
         # Due to limitations in world_to_camera_view(), this ends up distorted. A world coordinate is
         # not matched to what the camera actually sees in an exact manner, as the method does not take
         # all camera settings into account. The final results are unpredictable and often depressing.
-        cam_coord = world_to_camera_view(scene, camera, keypoint)
+        cam_coord = world_to_camera_view(scene, camera, Vector(keypoint))
         _LOG.debug("Cam projection", (keypoint, cam_coord))
         return [cam_coord[0] * resx, (1.0 - cam_coord[1]) * resy]
 
