@@ -9,14 +9,15 @@ from ....services import MaterialService
 from ...makeclothes import MakeClothesObjectProperties
 from ....entities.objectproperties import GeneralObjectProperties
 from ....entities.material.makeskinmaterial import MakeSkinMaterial
-from .... import ClassManager
 
 _LOG = LogService.get_logger("makeclothes.clothescommon")
 
 
-class ClothesCommon():
+class ClothesCommon(bpy.types.Operator):
+    """Common functionality for saving a MHCLO file."""
 
     def generic_execute(self, context, file_name):
+        """Write mhclo and obj"""
 
         basemesh = None
         clothes = None
@@ -77,7 +78,7 @@ class ClothesCommon():
             obj_mat = MaterialService.get_material(clothes)
             mat_type = MaterialService.identify_material(obj_mat)
 
-        if save_material and mat_type == "makeskin":
+        if save_material and mat_type == "makeskin" and not ".proxy" in file_name:
             material = MakeSkinMaterial()
             material.populate_from_object(clothes)
 
@@ -98,13 +99,13 @@ class ClothesCommon():
         mhclo.material = matbn
 
         file_name = os.path.abspath(file_name)
-        if not str(file_name).endswith(".mhclo") and os.path.exists(file_name):
+        if (not (str(file_name).endswith(".mhclo") or str(file_name).endswith(".proxy"))) and os.path.exists(file_name):
             self.report({'ERROR'}, "Refusing to overwrite existing file without mhclo extension")
             return {'CANCELLED'}
 
         reference_scale = ClothesService.get_reference_scale(basemesh)  # TODO: ability to specify body part
         _LOG.debug("reference_scale", reference_scale)
-        mhclo.write_mhclo(file_name, reference_scale=reference_scale, also_export_mhmat=(matbn != None))
+        mhclo.write_mhclo(file_name, reference_scale=reference_scale, also_export_mhmat=matbn is not None)
 
-        self.report({'INFO'}, "The MHCLO file was written as " + file_name)
+        self.report({'INFO'}, "The asset file was written as " + file_name)
         return {'FINISHED'}

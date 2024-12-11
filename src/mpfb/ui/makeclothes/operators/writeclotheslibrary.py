@@ -1,12 +1,10 @@
 """Operator for saving a MHCLO file."""
 
 import bpy, os, re
-from bpy_extras.io_utils import ExportHelper
 from bpy.props import StringProperty
 from ....services import LogService
 from ....services import LocationService
 from ....services import ObjectService
-from ....services import ClothesService
 from ....services import AssetService
 from ...makeclothes import MakeClothesObjectProperties
 from ....entities.objectproperties import GeneralObjectProperties
@@ -16,7 +14,7 @@ from .... import ClassManager
 
 _LOG = LogService.get_logger("makeclothes.writeclotheslibrary")
 
-class MPFB_OT_WriteClothesLibraryOperator(bpy.types.Operator, ClothesCommon):
+class MPFB_OT_WriteClothesLibraryOperator(ClothesCommon):
     """Export the asset to the relevant section in the asset library. The file name will be based on the 'name' text box"""
     bl_idname = "mpfb.write_makeclothes_library"
     bl_label = "Store in library"
@@ -57,6 +55,11 @@ class MPFB_OT_WriteClothesLibraryOperator(bpy.types.Operator, ClothesCommon):
             self.report({'ERROR'}, "No object type set for this asset")
             return {'CANCELLED'}
 
+        ext = ".mhclo"
+        if "proxymesh" in str(obj_type).lower():
+            obj_type = "proxymeshes"
+            ext = ".proxy"
+
         root = LocationService.get_user_data(str(obj_type).lower())
         cleaned_name = str(name).strip().replace(" ", "_")
         cleaned_name = re.sub(r'[^a-zA-Z0-9_]', '_', cleaned_name)
@@ -66,7 +69,7 @@ class MPFB_OT_WriteClothesLibraryOperator(bpy.types.Operator, ClothesCommon):
         if not os.path.exists(asset_dir):
             os.makedirs(asset_dir)
 
-        file_name = bpy.path.abspath(os.path.join(asset_dir, cleaned_name + ".mhclo"))
+        file_name = bpy.path.abspath(os.path.join(asset_dir, cleaned_name + ext))
 
         result = self.generic_execute(context, file_name)
         if result != {'FINISHED'}:

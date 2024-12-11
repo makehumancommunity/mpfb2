@@ -90,7 +90,8 @@ class MPFB_PT_MakeClothes_Panel(Abstract_Panel):
             return
         material = MaterialService.get_material(blender_object)
         mat_type = MaterialService.identify_material(material)
-        if mat_type != "makeskin":
+        _LOG.debug("Material type", mat_type)
+        if mat_type not in ["makeskin", "gameengine"]:
             box.label(text="Only MakeSkin materials")
             box.label(text="are supported")
             return
@@ -130,11 +131,6 @@ class MPFB_PT_MakeClothes_Panel(Abstract_Panel):
         box.operator('mpfb.makeclothes_gendelete')
 
     def _write_clothes(self, blender_object, scene, layout):
-        box = self._create_box(layout, "Write clothes", "MATERIAL_DATA")
-
-        if len(bpy.context.selected_objects) != 2:
-            box.label(text="Select exactly two objects")
-            return
 
         basemesh = None
         clothes = None
@@ -145,6 +141,17 @@ class MPFB_PT_MakeClothes_Panel(Abstract_Panel):
                 ot = ObjectService.get_object_type(obj)
                 if ot and ot != "Skeleton":
                     clothes = obj
+
+        label = "Write clothes"
+        if basemesh and clothes:
+            obj_type = GeneralObjectProperties.get_value("object_type", entity_reference=clothes)
+            label = "Write " + obj_type
+
+        box = self._create_box(layout, label, "MATERIAL_DATA")
+
+        if len(bpy.context.selected_objects) != 2:
+            box.label(text="Select exactly two objects")
+            return
 
         if not basemesh:
             box.label(text="Select a base mesh")

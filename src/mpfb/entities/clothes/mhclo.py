@@ -230,6 +230,8 @@ class Mhclo:
         dn = os.path.dirname(filename)
         mhmat_filename = os.path.join(dn, bn.replace(".mhclo", ".mhmat"))
         obj_filename = os.path.join(dn, bn.replace(".mhclo", ".obj"))
+        if str(bn).endswith(".proxy"):
+            obj_filename = os.path.join(dn, bn.replace(".proxy", ".obj"))
 
         if also_export_mhmat:
             _LOG.debug("Will export MHMAT to", mhmat_filename)

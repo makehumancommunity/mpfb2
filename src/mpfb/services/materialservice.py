@@ -88,7 +88,7 @@ class MaterialService():
                     return "layered_skin"
 
         # Since we're not enhanced skin nor procedural eyes, next guess is makeskin. The
-        # diffuseIntensity node should always be there even if there is no diffuse texture.
+        # diffuseIntensity is there in most cases.
         if NodeService.find_node_by_name(material.node_tree, "diffuseIntensity"):
             return "makeskin"
 
