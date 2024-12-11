@@ -159,7 +159,7 @@ if os.path.exists(user_targets_dir):
         if img:
             MODELING_ICONS.load(bn, img, 'IMAGE')
         else:
-            _LOG.warn("No image for ", str(target))
+            _LOG.debug("No image for ", str(target))
 else:
     _LOG.debug("User targets dir does not exist", user_targets_dir)
 

@@ -5,6 +5,7 @@ from .. import get_preference
 from .. import MPFB_CONTEXTUAL_INFORMATION
 from .logservice import LogService
 from pathlib import Path
+from typing import Optional
 
 _LOG = LogService.get_logger("services.locationservice")
 
@@ -132,7 +133,6 @@ class _LocationService():
                 _LOG.warn("Could not read preference mh_auto_user_data")
 
             if mh_auto_user_data:
-                _LOG.warn("mh_user_dir is not explicitly set, and autodiscovery is enabled")
                 self._mh_auto_user_data = True
                 _LOG.info("Will attempt to autodiscover mh user data via local paths")
                 home = str(Path.home())
@@ -151,7 +151,7 @@ class _LocationService():
 
                         _LOG.debug("Mh user data is not at", full_path)
             else:
-                _LOG.info("mh_user_dir is not explicitly set but autodiscovery is disabled")
+                _LOG.info("Not adding link to MakeHuman user data, since neither explicit path nor auto-discovery is set in preferences.")
         else:
             _LOG.info("mh_user_data explicitly set to", mh_user_data)
             self._mh_user_data = mh_user_data
@@ -187,7 +187,7 @@ class _LocationService():
                 _LOG.error("Was not able to create relevant directory:", dir_path)
                 raise IOError('Could not create ' + dir_path)
 
-    def _return_path(self, path, sub_path=None):
+    def _return_path(self, path, sub_path: Optional[str] = None) -> str:
         _LOG.enter()
         _LOG.trace("_return_path, path is", path)
         _LOG.trace("_return_path, sub_path is", sub_path)
@@ -195,7 +195,7 @@ class _LocationService():
             return path
         return os.path.join(path, sub_path)
 
-    def get_user_home(self, sub_path=None):
+    def get_user_home(self, sub_path: Optional[str] = None) -> str:
         """
         Returns the path to the user home directory, optionally appending a sub-path.
 
@@ -208,7 +208,7 @@ class _LocationService():
         _LOG.enter()
         return self._return_path(self._user_home, sub_path)
 
-    def get_user_data(self, sub_path=None):
+    def get_user_data(self, sub_path: Optional[str] = None) -> str:
         """
         Returns the path to the user data directory, optionally appending a sub-path.
 
@@ -221,7 +221,7 @@ class _LocationService():
         _LOG.enter()
         return self._return_path(self._user_data, sub_path)
 
-    def get_user_config(self, sub_path=None):
+    def get_user_config(self, sub_path: Optional[str] = None) -> str:
         """
         Returns the path to the user config directory, optionally appending a sub-path.
 
@@ -234,7 +234,7 @@ class _LocationService():
         _LOG.enter()
         return self._return_path(self._user_config, sub_path)
 
-    def get_user_cache(self, sub_path=None):
+    def get_user_cache(self, sub_path: Optional[str] = None) -> str:
         """
         Returns the path to the user cache directory, optionally appending a sub-path.
 
@@ -247,7 +247,7 @@ class _LocationService():
         _LOG.enter()
         return self._return_path(self._user_cache, sub_path)
 
-    def get_mpfb_data(self, sub_path=None):
+    def get_mpfb_data(self, sub_path: Optional[str] = None) -> str:
         """
         Returns the path to the MPFB data directory, optionally appending a sub-path.
 
@@ -260,7 +260,7 @@ class _LocationService():
         _LOG.enter()
         return self._return_path(self._mpfb_data, sub_path)
 
-    def get_mpfb_root(self, sub_path=None):
+    def get_mpfb_root(self, sub_path: Optional[str] = None) -> str:
         """
         Returns the path to the MPFB root directory, optionally appending a sub-path.
 
@@ -273,7 +273,7 @@ class _LocationService():
         _LOG.enter()
         return self._return_path(self._mpfb_root, sub_path)
 
-    def get_second_root(self, sub_path=None):
+    def get_second_root(self, sub_path: Optional[str] = None) -> str:
         """
         Returns the path to the second root directory, optionally appending a sub-path.
 
@@ -299,7 +299,7 @@ class _LocationService():
 
         return self._return_path(sr, sub_path)
 
-    def get_log_dir(self, sub_path=None):
+    def get_log_dir(self, sub_path: Optional[str] = None) -> str:
         """
         Returns the path to the log directory, optionally appending a sub-path.
 
@@ -312,7 +312,7 @@ class _LocationService():
         _LOG.enter()
         return self._return_path(self._log_dir, sub_path)
 
-    def get_mh_user_data(self, sub_path=None):
+    def get_mh_user_data(self, sub_path: Optional[str] = None) -> str:
         """
         Returns the path to the MakeHuman user data directory, optionally appending a sub-path.
 
@@ -327,7 +327,7 @@ class _LocationService():
             return None
         return self._return_path(self._mh_user_data, sub_path)
 
-    def get_mpfb_test(self, sub_path=None):
+    def get_mpfb_test(self, sub_path: Optional[str] = None) -> str:
         """
         Returns the path to the MPFB test directory, optionally appending a sub-path.
 
