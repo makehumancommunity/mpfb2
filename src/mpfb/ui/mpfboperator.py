@@ -7,7 +7,7 @@ from ..services import LocationService
 from ..services import ObjectService
 from .. import VERSION, BUILD_INFO
 
-_LOG = LogService.get_logger("uiactions")
+_LOG = LogService.get_logger("MpfbOperator")
 
 
 class MpfbOperator(bpy.types.Operator):
