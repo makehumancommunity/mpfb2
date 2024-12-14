@@ -69,6 +69,7 @@ class RigifyHelpers():
                 armature_object.name = target_name
 
         if self.produce:
+            bpy.ops.armature.rigify_collection_set_ui_row(index=0, row=1)
             bpy.ops.pose.rigify_generate()
 
             rigify_object = bpy.context.active_object
