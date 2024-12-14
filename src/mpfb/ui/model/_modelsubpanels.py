@@ -10,6 +10,7 @@ from ...services import TargetService
 from ...services import AssetService
 from ...services import HumanService
 from ...services import UiService
+from ..abstractpanel import Abstract_Panel
 
 from ._modelingicons import MODELING_ICONS
 
@@ -21,7 +22,7 @@ _TARGETS_JSON = os.path.join(_TARGETS_DIR, "target.json")
 _LOG.debug("Targets json:", _TARGETS_JSON)
 
 
-class _Abstract_Model_Panel(bpy.types.Panel):
+class _Abstract_Model_Panel(Abstract_Panel):
     """Human modeling panel"""
 
     bl_label = "SHOULD BE OVERRIDDEN"
@@ -50,8 +51,7 @@ class _Abstract_Model_Panel(bpy.types.Panel):
                 _LOG.debug("Target value modified", (name, value))
 
         if not only_active or is_modified:
-            box = layout.box()
-            box.label(text=category["label"])
+            box = self.create_box(layout, category["label"])
 
             if not hideimg:
                 if category["name"] in MODELING_ICONS:
@@ -94,12 +94,7 @@ class _Abstract_Model_Panel(bpy.types.Panel):
 
     @classmethod
     def poll(cls, context):
-        if not context.active_object:
-            return False
-        basemesh = ObjectService.find_object_of_type_amongst_nearest_relatives(context.active_object, "Basemesh")
-        if basemesh is None:
-            return False
-        return TargetService.has_any_shapekey(basemesh)
+        return cls.active_object_is_basemesh(context, also_check_relatives=True, also_check_for_shapekeys=True)
 
 
 _sections = dict()
@@ -383,9 +378,9 @@ for name in _section_names:
         "section_name": name
         }
 
-    sub_panel = type("MPFB_PT_Model_Sub_Panel_" + name, (_Abstract_Model_Panel,), definition)
+    sub_panel = type("MPFB_PT_Model_Sub_Panel_" + name, (_Abstract_Model_Panel, Abstract_Panel), definition)
+    _LOG.debug("sub_panel", (sub_panel, sub_panel.__bases__))
 
-    _LOG.debug("sub_panel", sub_panel)
 
     ClassManager.add_class(sub_panel)
 
