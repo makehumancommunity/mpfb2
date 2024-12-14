@@ -12,6 +12,7 @@ from .bmxref import MPFB_OT_BasemeshXrefOperator
 from .genuuid import MPFB_OT_GenerateUUIDOperator
 from .gendelete import MPFB_OT_GenDeleteOperator
 from .checkclothes import MPFB_OT_CheckClothesOperator, CLOTHES_CHECKS
+from .legacyimport import MPFB_OT_LegacyImportOperator
 
 __all__ = [
     "MPFB_OT_ExtractClothesOperator",
@@ -22,5 +23,6 @@ __all__ = [
     "MPFB_OT_GenerateUUIDOperator",
     "MPFB_OT_GenDeleteOperator",
     "MPFB_OT_CheckClothesOperator",
+    "MPFB_OT_LegacyImportOperator",
     "CLOTHES_CHECKS"
 ]

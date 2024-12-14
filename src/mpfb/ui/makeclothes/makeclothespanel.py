@@ -66,6 +66,10 @@ class MPFB_PT_MakeClothes_Panel(Abstract_Panel):
         box = self._create_box(layout, "Basemesh xref", "TOOL_SETTINGS")
         box.operator('mpfb.basemesh_xref')
 
+    def _import_legacy(self, scene, layout):
+        box = self._create_box(layout, "Import legacy", "TOOL_SETTINGS")
+        box.operator('mpfb.legacy_makeclothes_import')
+
     def _extract_clothes(self, scene, layout, blender_object):
         box = self._create_box(layout, "Extract clothes", "TOOL_SETTINGS")
         props = ["available_groups"]
@@ -270,6 +274,9 @@ class MPFB_PT_MakeClothes_Panel(Abstract_Panel):
                 ot = ObjectService.get_object_type(obj)
                 if ot and ot != "Skeleton":
                     clothes = obj
+
+        if blender_object:
+            self._import_legacy(scene, layout)
 
         if basemesh:
             self._bm_xref(scene, layout, basemesh)
