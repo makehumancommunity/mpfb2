@@ -57,6 +57,12 @@ class MpfbPreferences(bpy.types.AddonPreferences):
         default=False
     )
 
+    mpfb_codechecks: bpy.props.BoolProperty(
+        name="Dynamically perform code checks on startup",
+        description="This is mainly geared towards developers. Enable this to output warnings to the log for when an operator or a panel does not use code robustness wrappers",
+        default=False
+    )
+
     mpfb_shelf_label: bpy.props.StringProperty(
         name="Shelf label",
         description="If you want to use a different name for the MPFB shelf tab, you can enter any non-empty string here",
@@ -71,6 +77,7 @@ class MpfbPreferences(bpy.types.AddonPreferences):
         layout.prop(self, 'mpfb_user_data')
         layout.prop(self, 'mpfb_second_root')
         layout.prop(self, 'mpfb_excepthook')
+        layout.prop(self, 'mpfb_codechecks')
         layout.prop(self, 'mpfb_shelf_label')
         layout.prop(self, 'mh_user_data')
         layout.prop(self, 'mh_auto_user_data')

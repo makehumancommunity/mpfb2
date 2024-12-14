@@ -1,11 +1,42 @@
-
 """This module provides a class for managing blender classes"""
 
+import bpy
 from bpy.utils import register_class, unregister_class
-
 from .services import LogService
+from . import get_preference
+
 _LOG = LogService.get_logger("mpfb.classmanager")
 
+def _codecheck(cls):
+    """Try to perform code quality checks on classes that are about to be registered."""
+
+    _LOG.enter()
+    _LOG.debug("Performing code quality checks on", str(cls))
+
+    if issubclass(cls, bpy.types.Operator):
+        if not hasattr(cls, "bl_idname") or not cls.bl_idname.startswith("mpfb."):
+            _LOG.warn("Operator name does not start with mpfb", str(cls))
+        is_mpfb_operator = False
+        for c in cls.__bases__:
+            if "MpfbOperator" in c.__name__:
+                is_mpfb_operator = True
+                break
+        if not is_mpfb_operator:
+            _LOG.warn("Operator does not inherit from MpfbOperator", str(cls))
+
+    if issubclass(cls, bpy.types.Panel):
+        for att in ["bl_label", "bl_space_type", "bl_region_type", "bl_category"]:
+            if not hasattr(cls, att):
+                _LOG.warn("Panel is missing required attribute", (att, str(cls)))
+        is_mpfb_panel = False
+        for c in cls.__bases__:
+            if "Abstract_Panel" in c.__name__:
+                is_mpfb_panel = True
+                break
+        if not is_mpfb_panel:
+            _LOG.warn("Panel does not inherit from Abstract_Panel", str(cls))
+
+    _LOG.leave()
 
 class ClassManager:
 
@@ -38,6 +69,8 @@ class ClassManager:
             raise RuntimeError("ClassManager is not initialized!")
         else:
             _LOG.debug("Adding class", str(append_class))
+            if get_preference("mpfb_codechecks"):
+                _codecheck(append_class)
             cls.__stack.append(append_class)
 
     @classmethod
