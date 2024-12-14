@@ -16,8 +16,8 @@ class MPFB_OT_Reduced_Doll_Operator(MpfbOperator):
     bl_label = "Mixamo reduced doll"
     bl_options = {'REGISTER', 'UNDO'}
 
-    def __init__(self):
-        MpfbOperator.__init__(self, "animops.reduceddoll")
+    def get_logger(self):
+        return _LOG
 
     @classmethod
     def poll(cls, context):

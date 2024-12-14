@@ -26,8 +26,8 @@ class MPFB_OT_LegacyImportOperator(MpfbOperator):
     bl_label = "Import legacy props"
     bl_options = {'REGISTER'}
 
-    def __init__(self):
-        MpfbOperator.__init__(self, "makeclothes.legacyimport")
+    def get_logger(self):
+        return _LOG
 
     @classmethod
     def poll(cls, context):

@@ -13,14 +13,16 @@ _LOG = LogService.get_logger("MpfbOperator")
 class MpfbOperator(bpy.types.Operator):
     """Abstract wrapper for UI operators, providing help for writing error summaries"""
 
-    def __init__(self, logname, default_log_level=None):
+    def __init__(self, *args, **kwargs):
         """Initialize the operator. You will normally not need to call this manually."""
 
-        bpy.types.Operator.__init__(self)
+        super().__init__(*args, **kwargs)
+        self.LOG = self.get_logger()
 
-        self.LOG = LogService.get_logger(logname)
-        if default_log_level is not None:
-            self.LOG.set_level(default_log_level)
+    def get_logger(self):
+        """Return the logger associated with this operator. This should be overriden by subclasses."""
+        _LOG.warn("Subclass of MpfbOperator did not override the get_logger() method.", self.__class__.__name__)
+        return _LOG
 
     def _generate_error_information(self, context, error, tb=""):
         """Generate an error information hash, providing information about the error and the state of the context."""

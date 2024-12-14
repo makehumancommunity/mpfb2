@@ -18,8 +18,8 @@ class MPFB_OT_Repeat_Animation_Operator(MpfbOperator):
     bl_label = "Repeat animation"
     bl_options = {'REGISTER', 'UNDO'}
 
-    def __init__(self):
-        MpfbOperator.__init__(self, "animops.repeatanim")
+    def get_logger(self):
+        return _LOG
 
     @classmethod
     def poll(cls, context):

@@ -21,8 +21,8 @@ class MPFB_OT_HumanFromMHMOperator(MpfbOperator, ImportHelper):
 
     filter_glob: StringProperty(default='*.mhm', options={'HIDDEN'})
 
-    def __init__(self):
-        MpfbOperator.__init__(self, "newhuman.humanfrommhm")
+    def get_logger(self):
+        return _LOG
 
     def hardened_execute(self, context):
 

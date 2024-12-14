@@ -24,8 +24,8 @@ class MPFB_OT_ImportHumanOperator(MpfbOperator):
     bl_label = "Import human"
     bl_options = {'REGISTER', 'UNDO'}
 
-    def __init__(self):
-        MpfbOperator.__init__(self, "newhuman.importhuman")
+    def get_logger(self):
+        return _LOG
 
     def _get_settings_from_ui(self, context):
         _LOG.enter()

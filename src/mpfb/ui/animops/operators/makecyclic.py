@@ -18,8 +18,8 @@ class MPFB_OT_Make_Cyclic_Operator(MpfbOperator):
     bl_label = "Make cyclic"
     bl_options = {'REGISTER', 'UNDO'}
 
-    def __init__(self):
-        MpfbOperator.__init__(self, "animops.makecyclic")
+    def get_logger(self):
+        return _LOG
 
     @classmethod
     def poll(cls, context):

@@ -17,8 +17,8 @@ class MPFB_OT_Move_To_Cube_Operator(MpfbOperator):
     bl_label = "Move to cubes"
     bl_options = {'REGISTER'}
 
-    def __init__(self):
-        MpfbOperator.__init__(self, "makerig.movetocube")
+    def get_logger(self):
+        return _LOG
 
     def _move(self, item, move_to, basemesh):
         _LOG.debug("Location before", item)

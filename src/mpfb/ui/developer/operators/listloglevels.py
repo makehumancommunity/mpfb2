@@ -14,8 +14,8 @@ class MPFB_OT_List_Log_Levels_Operator(MpfbOperator):
     bl_label = "List log levels"
     bl_options = {'REGISTER'}
 
-    def __init__(self):
-        MpfbOperator.__init__(self, "developer.listloglevels")
+    def get_logger(self):
+        return _LOG
 
     def hardened_execute(self, context):
         _LOG.enter()
