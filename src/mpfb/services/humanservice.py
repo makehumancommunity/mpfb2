@@ -1237,7 +1237,7 @@ class HumanService:
                     return True
 
         if not perform_deep_search:
-            _LOG.warn("Giving up since asset could not be found: ", name)
+            _LOG.warn("Giving up since asset could not be found: ", (name, line))
             return False
 
         _LOG.warn("Asset was not found in assets list, it will take time to find it", name)
@@ -1336,7 +1336,7 @@ class HumanService:
 
         for line in mhm_string.splitlines():
             _LOG.debug("line", line)
-            if line.startswith("clothes"):
+            if line.startswith("clothes") and not line.startswith("clothesHideFaces"):
                 HumanService._check_parse_mhm_clothes_line(human_info, line, clothes_deep_search)
 
         if "rig" not in human_info or not human_info["rig"]:
