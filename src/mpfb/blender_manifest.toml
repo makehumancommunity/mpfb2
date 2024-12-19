@@ -11,6 +11,8 @@ blender_version_min = "4.2.0"
 license = [
   "SPDX:GPL-3.0-or-later",
 ]
+
+[permissions]
 files = "Load and save data"
-network = "Interact with local instance of MakeHuman"
+network = "(optional) Interact with local instance of MakeHuman"
 
