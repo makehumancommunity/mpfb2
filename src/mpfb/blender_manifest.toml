@@ -6,7 +6,7 @@ tagline = "Human character generator and editor"
 maintainer = "Joel Palmius"
 type = "add-on"
 website = "http://static.makehumancommunity.org/mpfb.html"
-tags = ["Add mesh", "Modeling", "Rigging"]
+tags = ["Add Mesh", "Modeling", "Rigging"]
 blender_version_min = "4.2.0"
 license = [
   "SPDX:GPL-3.0-or-later",
