@@ -65,7 +65,7 @@ class MPFB_OT_GenerateRigifyRigOperator(bpy.types.Operator):
         if bpy.ops.pose.rigify_upgrade_face.poll():
             bpy.ops.pose.rigify_upgrade_face()
 
-        bpy.ops.pose.rigify_generate()
+        bpy.ops.pose.rigify_generate() # Rigify availability checked above
 
         rigify_object = context.active_object
         rigify_object.show_in_front = True

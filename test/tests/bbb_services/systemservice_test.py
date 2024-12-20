@@ -45,12 +45,12 @@ def test_check_for_rigify():
     (loaded_default, loaded_state) = addon_utils.check('rigify')
     if not loaded_state:
         addon_utils.enable('rigify')
-        
+
     assert SystemService.check_for_rigify()
-        
+
     addon_utils.disable('rigify')
     assert not SystemService.check_for_rigify()
-    
+
     addon_utils.enable('rigify')
     assert SystemService.check_for_rigify()
-    
+
