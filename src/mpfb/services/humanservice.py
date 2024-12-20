@@ -11,6 +11,7 @@ from .rigservice import RigService
 from .nodeservice import NodeService
 from .materialservice import MaterialService
 from .locationservice import LocationService
+from .systemservice import SystemService
 from ..entities.objectproperties import HumanObjectProperties
 from ..entities.clothes.mhclo import Mhclo
 from ..entities.rig import Rig
@@ -1436,6 +1437,8 @@ class HumanService:
             bpy.types.Object: The created armature object, or None if the rig file could not be found.
         """
         is_rigify = rig_name.startswith("rigify.")
+        if is_rigify and not SystemService.check_for_rigify():
+            raise NotImplementedError("Rigify is not available, please enable it to use rigify rigs")
         rig_name_base = rig_name[7:] if is_rigify else rig_name
 
         # Determine the rig file name
