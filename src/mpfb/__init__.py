@@ -62,23 +62,11 @@ _LOG = None
 # importing here is to just make sure everything is up and running
 # pylint: disable=W0611
 
-import bpy, os, sys, traceback
+import bpy, os
 from bpy.utils import register_class
-
-_OLD_EXCEPTHOOK = None
 
 # For printing output before _LOG has been initialized
 DEBUG = False
-
-
-def log_crash(atype, value, tb):
-    global _OLD_EXCEPTHOOK  # pylint: disable=W0602
-    stacktrace = "\n"
-    for line in traceback.extract_tb(tb).format():
-        stacktrace = stacktrace + line
-    _LOG.error("Unhandled crash", stacktrace + "\n" + str(value) + "\n")
-    if _OLD_EXCEPTHOOK:
-        _OLD_EXCEPTHOOK(atype, value, tb)
 
 
 def get_preference(name):
@@ -134,10 +122,20 @@ def register():
     start initializing python singletons"""
 
     global _LOG  # pylint: disable=W0603
-    global _OLD_EXCEPTHOOK  # pylint: disable=W0603
 
     # To allow other code structures (primarily the unit test code) access to MPFB's logic without knowing
     # anything about the module structure, store info about the package and the location of the root py.
+    #
+    # One might have assumed that bpy.app.driver_namespace would be good place to store this, but that gets wiped
+    # when loading a new blend file. Instead something like the following is needed:
+    #
+    # import importlib
+    # for amod in sys.modules:
+    #    if amod.endswith("mpfb"):
+    #        mpfb_mod = importlib.import_module(amod)
+    #        print(mpfb_mod.MPFB_CONTEXTUAL_INFORMATION)
+    #
+    # Sample usage of this can be seen in test/tests/__init__.py
     global MPFB_CONTEXTUAL_INFORMATION
     MPFB_CONTEXTUAL_INFORMATION = dict()
     MPFB_CONTEXTUAL_INFORMATION["__package__"] = str(__package__)
@@ -155,11 +153,6 @@ def register():
     _LOG = LogService.get_logger("mpfb.init")
     _LOG.info("Build info", "FROM_SOURCE")
     _LOG.reset_timer()
-
-    if get_preference("mpfb_excepthook"):
-        _LOG.warn("Overriding the global exception handler. You should probably disable this when not needing it.")
-        _OLD_EXCEPTHOOK = sys.excepthook
-        sys.excepthook = log_crash
 
     # ClassManager is a singleton to which all modules can add their
     # Blender classes, preferably when the module is imported the first
@@ -206,17 +199,6 @@ def register():
 
     from .services import SERVICES
     MPFB_CONTEXTUAL_INFORMATION["SERVICES"] = SERVICES
-
-    # One might have assumed that bpy.app.driver_namespace would be good place to store this, but that gets wiped
-    # when loading a new blend file. Instead something like the following is needed:
-    #
-    # import importlib
-    # for amod in sys.modules:
-    #    if amod.endswith("mpfb"):
-    #        mpfb_mod = importlib.import_module(amod)
-    #        print(mpfb_mod.MPFB_CONTEXTUAL_INFORMATION)
-    #
-    # Sample usage of this can be seen in test/tests/__init__.py
 
     _LOG.time("Number of milliseconds to run entire register() method:")
     _LOG.info("MPFB initialization has finished.")
