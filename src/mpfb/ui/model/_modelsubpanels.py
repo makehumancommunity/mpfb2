@@ -48,7 +48,7 @@ class _Abstract_Model_Panel(Abstract_Panel):
             value = TargetService.get_target_value(basemesh, name)
             if abs(value) > 0.001:
                 is_modified = True
-                _LOG.debug("Target value modified", (name, value))
+                _LOG.trace("Target value considered modified", (name, value))
 
         if not only_active or is_modified:
             box = self.create_box(layout, category["label"])
@@ -284,6 +284,42 @@ def _get_modifier_value(scene, blender_object, section, category, side="unsided"
 _section_names = list(_sections.keys())
 _section_names.sort()
 
+def _unsided_getter_factory(section_name, unsided_name, category_index):
+    _LOG.debug("Constructing unsided getter for", unsided_name)
+    def _get_wrapper_unsided(self):
+        obj = ObjectService.find_object_of_type_amongst_nearest_relatives(bpy.context.active_object, "Basemesh")
+        cat = _sections[section_name]["categories"][category_index]
+        _LOG.trace("_get_wrapper_unsided for", unsided_name)
+        return _get_modifier_value(self, obj, section_name, cat)
+    return _get_wrapper_unsided
+
+def _sided_getter_factory(section_name, sided_name, category_index, side):
+    _LOG.debug("Constructing sided getter for", (sided_name, side))
+    def _get_wrapper_sided(self):
+        obj = ObjectService.find_object_of_type_amongst_nearest_relatives(bpy.context.active_object, "Basemesh")
+        cat = _sections[section_name]["categories"][category_index]
+        _LOG.trace("_get_wrapper_unsided for", (sided_name, side))
+        return _get_modifier_value(self, obj, section_name, cat, side)
+    return _get_wrapper_sided
+
+def _unsided_setter_factory(section_name, unsided_name, category_index):
+    _LOG.debug("Constructing unsided setter for", unsided_name)
+    def _set_wrapper_unsided(self, value):
+        obj = ObjectService.find_object_of_type_amongst_nearest_relatives(bpy.context.active_object, "Basemesh")
+        cat = _sections[section_name]["categories"][category_index]
+        _LOG.trace("_set_wrapper_unsided", (unsided_name, value))
+        _set_modifier_value(self, obj, section_name, cat, value)
+    return _set_wrapper_unsided
+
+def _sided_setter_factory(section_name, sided_name, category_index, side):
+    _LOG.debug("Constructing sided setter for", (sided_name, side))
+    def _set_wrapper_sided(self, value):
+        obj = ObjectService.find_object_of_type_amongst_nearest_relatives(bpy.context.active_object, "Basemesh")
+        cat = _sections[section_name]["categories"][category_index]
+        _LOG.trace("_set_wrapper_sided", (sided_name, side, value))
+        _set_modifier_value(self, obj, section_name, cat, value, side)
+    return _set_wrapper_sided
+
 for name in _section_names:
     _section = _sections[name]
     _i = 0
@@ -296,78 +332,27 @@ for name in _section_names:
 
         _LOG.debug("names", (_unsided_name, _left_name, _right_name))
 
-        # This is so ugly it makes me want to cry, but there doesn't seem to be any clean way to get both
-        # dynamically created properties AND getter/setter methods
-        #
-        # Anyway, we can keep creating functions with the same name here. When we feed the property with the
-        # reference to a function, what it gets is a function pointer. This is independent of name.
-
-        _function_str_general = ""
-        _function_str_general = _function_str_general + "    obj = ObjectService.find_object_of_type_amongst_nearest_relatives(bpy.context.active_object, \"Basemesh\")\n"
-        _function_str_general = _function_str_general + "    secname = \"" + name + "\"\n"
-        _function_str_general = _function_str_general + "    cat = _sections[secname][\"categories\"][" + str(_i) + "]\n"
-
-        _function_str = "def _get_wrapper_unsided(self):\n"
-        _function_str = _function_str + _function_str_general
-        _function_str = _function_str + "    modif = \"" + _unsided_name + "\"\n"
-        _function_str = _function_str + "    _LOG.trace(\"_get_wrapper_unsided for\", modif)\n"
-        _function_str = _function_str + "    return _get_modifier_value(self, obj, secname, cat)\n"
-        exec(_function_str)
-
-        _function_str = "def _set_wrapper_unsided(self, value):\n"
-        _function_str = _function_str + _function_str_general
-        _function_str = _function_str + "    modif = \"" + _unsided_name + "\"\n"
-        _function_str = _function_str + "    _LOG.trace(\"_set_wrapper_unsided for\", modif)\n"
-        _function_str = _function_str + "    _set_modifier_value(self, obj, secname, cat, value)\n"
-        exec(_function_str)
-
-        _function_str = "def _get_wrapper_left(self):\n"
-        _function_str = _function_str + _function_str_general
-        _function_str = _function_str + "    modif = \"" + _left_name + "\"\n"
-        _function_str = _function_str + "    side = \"left\"\n"
-        _function_str = _function_str + "    _LOG.trace(\"_get_wrapper_left for\", modif)\n"
-        _function_str = _function_str + "    return _get_modifier_value(self, obj, secname, cat, side)\n"
-        exec(_function_str)
-
-        _function_str = "def _set_wrapper_left(self, value):\n"
-        _function_str = _function_str + _function_str_general
-        _function_str = _function_str + "    modif = \"" + _left_name + "\"\n"
-        _function_str = _function_str + "    side = \"left\"\n"
-        _function_str = _function_str + "    _LOG.trace(\"_set_wrapper_left for\", modif)\n"
-        _function_str = _function_str + "    _set_modifier_value(self, obj, secname, cat, value, side)\n"
-        exec(_function_str)
-
-        _function_str = "def _get_wrapper_right(self):\n"
-        _function_str = _function_str + _function_str_general
-        _function_str = _function_str + "    modif = \"" + _right_name + "\"\n"
-        _function_str = _function_str + "    side = \"right\"\n"
-        _function_str = _function_str + "    _LOG.trace(\"_get_wrapper_right for\", modif)\n"
-        _function_str = _function_str + "    return _get_modifier_value(self, obj, secname, cat, side)\n"
-        exec(_function_str)
-
-        _function_str = "def _set_wrapper_right(self, value):\n"
-        _function_str = _function_str + _function_str_general
-        _function_str = _function_str + "    modif = \"" + _right_name + "\"\n"
-        _function_str = _function_str + "    side = \"right\"\n"
-        _function_str = _function_str + "    _LOG.trace(\"_set_wrapper_right for\", modif)\n"
-        _function_str = _function_str + "    _set_modifier_value(self, obj, secname, cat, value, side)\n"
-        exec(_function_str)
-
         _min_val = 0.0
         if "opposites" in _category:
             _min_val = -1.0
 
         if _category["has_left_and_right"]:
+            _get_wrapper_left = _sided_getter_factory(name, _left_name, _i, "left")
+            _get_wrapper_right = _sided_getter_factory(name, _right_name, _i, "right")
+            _set_wrapper_left = _sided_setter_factory(name, _left_name, _i, "left")
+            _set_wrapper_right = _sided_setter_factory(name, _right_name, _i, "right")
             prop = FloatProperty(name=_left_name, get=_get_wrapper_left, set=_set_wrapper_left, description="Set target value", max=1.0, min=_min_val)
             setattr(bpy.types.Scene, _left_name, prop)
-            _LOG.debug("property", prop)
+            _LOG.debug("property left", prop)
             prop = FloatProperty(name=_right_name, get=_get_wrapper_right, set=_set_wrapper_right, description="Set target value", max=1.0, min=_min_val)
             setattr(bpy.types.Scene, _right_name, prop)
-            _LOG.debug("property", prop)
+            _LOG.debug("property right", prop)
         else:
+            _get_wrapper_unsided = _unsided_getter_factory(name, _unsided_name, _i)
+            _set_wrapper_unsided = _unsided_setter_factory(name, _unsided_name, _i)
             prop = FloatProperty(name=_unsided_name, get=_get_wrapper_unsided, set=_set_wrapper_unsided, description="Set target value", max=1.0, min=_min_val)
             setattr(bpy.types.Scene, _unsided_name, prop)
-            _LOG.debug("property", prop)
+            _LOG.debug("property unsided", prop)
 
         _i = _i + 1
 
