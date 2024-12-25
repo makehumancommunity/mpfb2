@@ -41,6 +41,10 @@ class RigifyHelpers():
     def convert_to_rigify(self, armature_object):
         _LOG.enter()
 
+        if not SystemService.check_for_rigify():
+            _LOG.error("Rigify is not installed/enabled")
+            raise NotImplementedError('Rigify is not available. Download from extensions platform?')
+
         from ...objectproperties import GeneralObjectProperties
         scale_factor = GeneralObjectProperties.get_value("scale_factor", entity_reference=armature_object)
 
@@ -69,7 +73,8 @@ class RigifyHelpers():
                 armature_object.name = target_name
 
         if self.produce:
-            bpy.ops.armature.rigify_collection_set_ui_row(index=0, row=1)
+
+            bpy.ops.armature.rigify_collection_set_ui_row(index=0, row=1) # Rigify availability checked above
             bpy.ops.pose.rigify_generate()
 
             rigify_object = bpy.context.active_object
@@ -165,10 +170,14 @@ class RigifyHelpers():
     def load_rigify_ui(armature_object, rigify_ui):
         assert armature_object == bpy.context.active_object
 
-        if not rigify_ui or not SystemService.check_for_rigify():
+        if not SystemService.check_for_rigify():
+            _LOG.error("Rigify is not installed/enabled")
+            raise NotImplementedError('Rigify is not available. Download from extensions platform?')
+
+        if not rigify_ui:
             return
 
-        bpy.ops.armature.rigify_add_color_sets()
+        bpy.ops.armature.rigify_add_color_sets() # Rigify availability checked above
 
         armature_object.data.rigify_colors_lock = rigify_ui["rigify_colors_lock"]
         armature_object.data.rigify_selection_colors.select = rigify_ui["selection_colors"]["select"]

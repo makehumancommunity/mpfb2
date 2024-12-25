@@ -1,4 +1,4 @@
-import bpy, os
+import bpy, os, addon_utils
 from pytest import approx
 from .. import ObjectService
 from .. import HumanService
@@ -39,3 +39,18 @@ def test_is_blender_version_at_least():
 def test_check_for_obj_importer():
     """check_for_obj_importer"""
     assert SystemService.check_for_obj_importer()
+
+def test_check_for_rigify():
+    """check for rigify addon"""
+    (loaded_default, loaded_state) = addon_utils.check('rigify')
+    if not loaded_state:
+        addon_utils.enable('rigify')
+
+    assert SystemService.check_for_rigify()
+
+    addon_utils.disable('rigify')
+    assert not SystemService.check_for_rigify()
+
+    addon_utils.enable('rigify')
+    assert SystemService.check_for_rigify()
+
