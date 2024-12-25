@@ -51,12 +51,6 @@ class MpfbPreferences(bpy.types.AddonPreferences):
         default=False
     )
 
-    mpfb_excepthook: bpy.props.BoolProperty(
-        name="Globally log all uncaught exceptions",
-        description="In order to log unhandled exceptions, MPFB can override the global exception handler. This might cause problems when reloading and/or together with other modules. However, if you run into a crash and need a proper log, you can enable this temporarily",
-        default=False
-    )
-
     mpfb_codechecks: bpy.props.BoolProperty(
         name="Dynamically perform code checks on startup",
         description="This is mainly geared towards developers. Enable this to output warnings to the log for when an operator or a panel does not use code robustness wrappers",
@@ -76,7 +70,6 @@ class MpfbPreferences(bpy.types.AddonPreferences):
 #        layout.prop(self, 'multi_panel')
         layout.prop(self, 'mpfb_user_data')
         layout.prop(self, 'mpfb_second_root')
-        layout.prop(self, 'mpfb_excepthook')
         layout.prop(self, 'mpfb_codechecks')
         layout.prop(self, 'mpfb_shelf_label')
         layout.prop(self, 'mh_user_data')
