@@ -5,6 +5,7 @@ from ...services import LogService
 from ...services import ObjectService
 from ...services import UiService
 from ...services import SceneConfigSet
+from ...services import SystemService
 from ..abstractpanel import Abstract_Panel
 import bpy, os
 
@@ -27,7 +28,10 @@ class MPFB_PT_Rigify_Panel(Abstract_Panel):
         layout = self.layout
         if ObjectService.object_is_skeleton(context.active_object):
             scene = context.scene
-            RIGIFY_PROPERTIES.draw_properties(scene, layout, ["name", "produce", "keep_meta"])
-            layout.operator("mpfb.convert_to_rigify")
+            if not SystemService.check_for_rigify():
+                layout.label(text="Rigify is not enabled")
+            else:
+                RIGIFY_PROPERTIES.draw_properties(scene, layout, ["name", "produce", "keep_meta"])
+                layout.operator("mpfb.convert_to_rigify")
 
 ClassManager.add_class(MPFB_PT_Rigify_Panel)
