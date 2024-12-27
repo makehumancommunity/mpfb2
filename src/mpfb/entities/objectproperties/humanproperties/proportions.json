@@ -1,7 +1,7 @@
 {
     "type": "float",
     "name": "proportions",
-    "description": "The proportions of the character, where 0.0 is uncommon proportions and 1.0 is ideal proportions",
+    "description": "The proportions of the character, where 0.0 is wide hips + narrow shoulders and 1.0 is wide shoulders + narrow hips",
     "label": "Proportions",
     "default": 0.5
 }
