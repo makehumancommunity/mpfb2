@@ -1,6 +1,6 @@
 schema_version = "1.0.0"
 id = "mpfb"
-version = "2.0.7"
+version = "2.0.8"
 name = "MPFB"
 tagline = "Human character generator and editor"
 maintainer = "Joel Palmius"
