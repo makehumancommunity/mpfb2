@@ -25,10 +25,8 @@ class _LocationService():
 
     def __init__(self):
         _LOG.debug("Constructing location service")
-        self._bpy_home = os.path.abspath(bpy.utils.resource_path('USER'))
 
-        _LOG.debug("self._bpy_home", self._bpy_home)
-        self._user_home = os.path.join(self._bpy_home, MPFB_CONTEXTUAL_INFORMATION["__package_short__"])
+        self._user_home = bpy.utils.extension_path_user(MPFB_CONTEXTUAL_INFORMATION["__package__"])
         _LOG.debug("self._user_home", self._user_home)
 
         overriden_user_home = None
@@ -73,7 +71,6 @@ class _LocationService():
         _LOG.debug("self._mpfb_data", self._mpfb_data)
 
         self._relevant_directories = []
-        self._relevant_directories.append(self._bpy_home)
         self._relevant_directories.append(self._user_home)
         self._relevant_directories.append(self._user_data)
         self._relevant_directories.append(self._user_config)
