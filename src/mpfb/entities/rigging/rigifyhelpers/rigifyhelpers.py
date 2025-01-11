@@ -41,9 +41,10 @@ class RigifyHelpers():
     def convert_to_rigify(self, armature_object):
         _LOG.enter()
 
+        # This should never happen as we check for rigify in the operators, but it is here as a fallback.
         if not SystemService.check_for_rigify():
             _LOG.error("Rigify is not installed/enabled")
-            raise NotImplementedError('Rigify is not available. Download from extensions platform?')
+            raise NotImplementedError('Rigify is not enabled. Enable it to use this feature.')
 
         from ...objectproperties import GeneralObjectProperties
         scale_factor = GeneralObjectProperties.get_value("scale_factor", entity_reference=armature_object)
@@ -170,9 +171,10 @@ class RigifyHelpers():
     def load_rigify_ui(armature_object, rigify_ui):
         assert armature_object == bpy.context.active_object
 
+        # This should never happen as we check for rigify in the operators, but it is here as a fallback.
         if not SystemService.check_for_rigify():
             _LOG.error("Rigify is not installed/enabled")
-            raise NotImplementedError('Rigify is not available. Download from extensions platform?')
+            raise NotImplementedError('Rigify is not enabled. Enable it to use this feature.')
 
         if not rigify_ui:
             return
