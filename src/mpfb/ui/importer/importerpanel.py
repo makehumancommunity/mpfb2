@@ -77,6 +77,12 @@ class MPFB_PT_Importer_Panel(Abstract_Panel):
         layout = self.layout
         scn = context.scene
 
+        if not bpy.app.online_access:
+            layout.label(text="This feature requires")
+            layout.label(text="that the 'allow online access'")
+            layout.label(text="preference is enabled.")
+            return
+
         from ..eyesettings.eyesettingspanel import ensure_eye_settings_default_exists
         ensure_eye_settings_default_exists()
 

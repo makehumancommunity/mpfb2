@@ -24,6 +24,10 @@ class MPFB_OT_ImportHumanOperator(MpfbOperator):
     bl_label = "Import human"
     bl_options = {'REGISTER', 'UNDO'}
 
+    @classmethod
+    def poll(cls, context):
+        return bpy.app.online_access
+
     def get_logger(self):
         return _LOG
 
