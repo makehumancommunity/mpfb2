@@ -183,19 +183,22 @@ def register():
     if SystemService.is_blender_version_at_least():
         _LOG.debug("About to check if MakeHuman is online")
 
-        # Try to find out where the makehuman user data is at
-        from .services import LocationService, SocketService
-        if LocationService.is_mh_auto_user_data_enabled():
-            mh_user_dir = None
-            try:
-                mh_user_dir = SocketService.get_user_dir()
-                _LOG.info("Socket service says makeHuman user dir is at", mh_user_dir)
-                if mh_user_dir and os.path.exists(mh_user_dir):
-                    mh_user_data = os.path.join(mh_user_dir, "data")
-                    LocationService.update_mh_user_data_if_relevant(mh_user_data)
-            except ConnectionRefusedError as err:
-                _LOG.error("Could not read mh_user_dir. Maybe socket server is down? Error was:", err)
+        if bpy.app.online_access:
+            # Try to find out where the makehuman user data is at
+            from .services import LocationService, SocketService
+            if LocationService.is_mh_auto_user_data_enabled():
                 mh_user_dir = None
+                try:
+                    mh_user_dir = SocketService.get_user_dir()
+                    _LOG.info("Socket service says makeHuman user dir is at", mh_user_dir)
+                    if mh_user_dir and os.path.exists(mh_user_dir):
+                        mh_user_data = os.path.join(mh_user_dir, "data")
+                        LocationService.update_mh_user_data_if_relevant(mh_user_data)
+                except ConnectionRefusedError as err:
+                    _LOG.error("Could not read mh_user_dir. Maybe socket server is down? Error was:", err)
+                    mh_user_dir = None
+        else:
+            _LOG.info("Online access preference is not enabled. Not checking if MakeHuman is online.")
 
     from .services import SERVICES
     MPFB_CONTEXTUAL_INFORMATION["SERVICES"] = SERVICES

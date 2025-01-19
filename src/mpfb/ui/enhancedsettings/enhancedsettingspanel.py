@@ -33,7 +33,7 @@ _SETTINGS_LIST_PROP = {
 ENHANCED_SETTINGS_PROPERTIES.add_property(_SETTINGS_LIST_PROP, _populate_settings)
 
 class MPFB_PT_Enhanced_Settings_Panel(Abstract_Panel):
-    bl_label = "Skin material presets"
+    bl_label = "Skin material save files"
     bl_category = UiService.get_value("MATERIALSCATEGORY")
     bl_options = {'DEFAULT_CLOSED'}
     bl_parent_id = "MPFB_PT_Presets_Panel"

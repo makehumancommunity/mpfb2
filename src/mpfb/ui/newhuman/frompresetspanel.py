@@ -24,8 +24,8 @@ def _populate_settings(self, context):
 _SETTINGS_LIST_PROP = {
     "type": "enum",
     "name": "available_presets",
-    "description": "These are the currently available saved humans. You can additional humans to this list on the \"manage presets\" panel",
-    "label": "Preset",
+    "description": "These are the currently available saved characters. You can additional characters to this list on the \"manage save files\" panel",
+    "label": "Saved character",
     "default": None
 }
 PRESETS_HUMAN_PROPERTIES.add_property(_SETTINGS_LIST_PROP, _populate_settings)
@@ -34,7 +34,7 @@ PRESETS_HUMAN_PROPERTIES.add_property(_SETTINGS_LIST_PROP, _populate_settings)
 class MPFB_PT_From_Presets_Panel(Abstract_Panel):
     """Create human from preset main panel."""
 
-    bl_label = "From presets"
+    bl_label = "From save file"
     bl_space_type = "VIEW_3D"
     bl_region_type = "UI"
     bl_category = UiService.get_value("MODELCATEGORY")

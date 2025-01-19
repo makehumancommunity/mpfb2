@@ -13,7 +13,6 @@ _LOG = LogService.get_logger("rigifyhelpers.rigifyhelpers")
 
 from ....services import RigService
 
-
 class RigifyHelpers():
 
     """This is the abstract rig type independent base class for working with
@@ -271,7 +270,14 @@ class RigifyHelpers():
 
     @staticmethod
     def upgrade_rigify_ui_layers(rigify_ui, coll_names, coll_used):
-        from rigify.utils.rig import resolve_layer_names
+
+        if SystemService.check_for_rigify():
+            # This workaround is only here in the hope that VSCode will stop complaining about the import.
+            # The code always worked, but VSCode does not seem to recognize the module, even though
+            # the "rigify.utils.rig" module is available under scripts/addons_core/rigify after having
+            # installed an official version of Blender
+            import rigify  # type: ignore
+            from rigify.utils.rig import resolve_layer_names  # type: ignore
 
         resolved_names = resolve_layer_names(rigify_ui["rigify_layers"])
 
