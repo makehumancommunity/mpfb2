@@ -36,7 +36,7 @@ EYE_SETTINGS_PROPERTIES.add_property(_SETTINGS_LIST_PROP, _populate_settings)
 class MPFB_PT_Eye_Settings_Panel(Abstract_Panel):
     """Panel for saving/loading eye material settings."""
 
-    bl_label = "Eye material presets"
+    bl_label = "Eye material save files"
     bl_category = UiService.get_value("MATERIALSCATEGORY")
     bl_options = {'DEFAULT_CLOSED'}
     bl_parent_id = "MPFB_PT_Presets_Panel"
