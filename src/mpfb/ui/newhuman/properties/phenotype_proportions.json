@@ -5,8 +5,8 @@
     "label": "Proportions",
     "default": "average",
     "items": [
-        ["min", "Uncommon", "Uncommon", 1],
+        ["min", "Inverted V-shape", "This represents a character with wide hips but narrow shoulders", 1],
         ["average", "Average", "Average", 2],
-        ["max", "Ideal", "Ideal", 3]
+        ["max", "V-shape", "This represents a character with wide shoulders but narrow hips", 3]
     ]
 }
