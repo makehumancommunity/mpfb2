@@ -52,6 +52,11 @@ class MPFB_PT_Asset_Settings_Panel(Abstract_Panel):
             "material_instances"
             ])
 
+    def _advanced(self, scene, layout):
+        box = layout.box()
+        box.label(text="Advanced")
+        ASSET_SETTINGS_PROPERTIES.draw_properties(scene, box, ["override_bake_check"])
+
     def _second_root(self, scene, layout):
         box = layout.box()
         box.label(text="Asset roots")
@@ -82,6 +87,8 @@ class MPFB_PT_Asset_Settings_Panel(Abstract_Panel):
             _LOG.debug("Second root changed", sr)
             AssetService.update_all_asset_lists()
             _CURRENT_SECOND_ROOT = sr
+
+        self._advanced(scene, layout)
 
 ClassManager.add_class(MPFB_PT_Asset_Settings_Panel)
 

@@ -137,6 +137,8 @@ class _Abstract_Asset_Library_Panel(bpy.types.Panel):
         layout = self.layout
         scene = context.scene
 
+        override_bake_check = ASSET_SETTINGS_PROPERTIES.get_value("override_bake_check", entity_reference=scene)
+
         if context.object:
             if ObjectService.object_is_basemesh(context.object):
                 self.basemesh = context.object
@@ -145,7 +147,7 @@ class _Abstract_Asset_Library_Panel(bpy.types.Panel):
             _LOG.debug("basemesh", self.basemesh)
 
         if self.basemesh and self.asset_type in ["mhclo", "proxy"]:
-            if not TargetService.has_any_shapekey(self.basemesh):
+            if not TargetService.has_any_shapekey(self.basemesh) and not override_bake_check:
                 layout.label(text="Cannot equip on baked mesh")
                 layout.label(text="See docs for alternatives")
                 return

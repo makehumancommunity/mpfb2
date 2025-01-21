@@ -1,0 +1,7 @@
+{
+    "type": "boolean",
+    "name": "override_bake_check",
+    "description": "MPFB will per default prevent you from performing certain operations (such as equipping clothes) on baked human meshes. This is because such operations often end up in strange results or confusing behavior. However, there are situations where it might still make sense to perform such operations. If you know what you are doing, you can disable the bake check and gain access to operations which would otherwise be prevented",
+    "label": "Override bake check",
+    "default": false
+}
