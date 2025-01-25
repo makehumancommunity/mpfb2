@@ -10,7 +10,6 @@ from ....entities.meshcrossref import MeshCrossRef
 from .... import ClassManager
 
 _LOG = LogService.get_logger("makeclothes.basemesh_xref")
-_LOG.set_level(LogService.DEBUG)
 
 class MPFB_OT_BasemeshXrefOperator(bpy.types.Operator):
     """Create a cache with cross-reference tables for the base mesh. This is generic for all base meshes, irregardless of shape and normally only needs to be done once. Note that this can take a long time, up towards 30 seconds"""

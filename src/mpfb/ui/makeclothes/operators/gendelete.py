@@ -13,7 +13,6 @@ from ....entities.objectproperties import GeneralObjectProperties
 from .... import ClassManager
 
 _LOG = LogService.get_logger("makeclothes.gendelete")
-_LOG.set_level(LogService.DEBUG)
 
 
 class MPFB_OT_GenDeleteOperator(bpy.types.Operator):

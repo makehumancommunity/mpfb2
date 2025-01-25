@@ -11,7 +11,6 @@ from ..abstractpanel import Abstract_Panel
 import os
 
 _LOG = LogService.get_logger("ui.makeuppanel")
-_LOG.set_level(LogService.DEBUG)
 
 _LOC = os.path.dirname(__file__)
 MAKEUP_PROPERTIES_DIR = os.path.join(_LOC, "properties")

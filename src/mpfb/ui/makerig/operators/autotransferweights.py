@@ -8,7 +8,6 @@ from ...mpfboperator import MpfbOperator
 import bpy, math
 
 _LOG = LogService.get_logger("makerig.autotransferweights")
-_LOG.set_level(LogService.DEBUG)
 
 MAX_DIST = 0.001
 

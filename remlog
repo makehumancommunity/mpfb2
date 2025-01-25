@@ -1,0 +1,11 @@
+vim src/mpfb/entities/rigging/righelpers/abstractrighelper.py
+vim src/mpfb/ui/ai/operators/saveopenpose.py
+vim src/mpfb/ui/ai/operators/boundingbox.py
+vim src/mpfb/ui/makerig/operators/movetocube.py
+vim src/mpfb/ui/makerig/operators/autotransferweights.py
+vim src/mpfb/ui/developer/operators/setloglevel.py
+vim src/mpfb/ui/makeup/makeuppanel.py
+vim src/mpfb/ui/makeclothes/operators/gendelete.py
+vim src/mpfb/ui/makeclothes/operators/bmxref.py
+vim src/mpfb/ui/animops/operators/reduceddoll.py
+vim src/mpfb/services/targetservice.py

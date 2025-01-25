@@ -7,7 +7,6 @@ import bpy, json, math
 from mathutils import Vector, Matrix
 
 _LOG = LogService.get_logger("ai.operators.boundingbox")
-_LOG.set_level(LogService.DEBUG)
 
 class MPFB_OT_Boundingbox_Operator(bpy.types.Operator):
     """Populate the bounding box settings from the active mesh object"""

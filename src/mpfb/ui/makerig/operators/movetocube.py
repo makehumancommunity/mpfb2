@@ -7,7 +7,6 @@ from ...mpfboperator import MpfbOperator
 import bpy, math
 
 _LOG = LogService.get_logger("makerig.movetocube")
-_LOG.set_level(LogService.DEBUG)
 
 _CUBE_CENTER_CACHE = {}
 

@@ -11,7 +11,6 @@ from bpy_extras.object_utils import world_to_camera_view
 from ._openposeconstants import COCO, LEFT_HAND, RIGHT_HAND
 
 _LOG = LogService.get_logger("ai.operators.saveopenpose")
-_LOG.set_level(LogService.DEBUG)
 
 _CREATE_DEBUG_EMPTIES = False
 

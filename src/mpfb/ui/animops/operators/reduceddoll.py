@@ -8,7 +8,6 @@ from ...mpfboperator import MpfbOperator
 import bpy, math
 
 _LOG = LogService.get_logger("animops.reduceddoll")
-_LOG.set_level(LogService.DEBUG)
 
 class MPFB_OT_Reduced_Doll_Operator(MpfbOperator):
     """Create a reduced copy of the character. The copy will have all clothes and body parts removed, the the helper geometry deleted and all shape keys baked"""

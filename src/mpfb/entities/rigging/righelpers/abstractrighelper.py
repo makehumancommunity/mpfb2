@@ -4,7 +4,6 @@ import bpy
 
 from ....services import LogService
 _LOG = LogService.get_logger("abstractrighelper")
-_LOG.set_level(LogService.DEBUG)
 
 class AbstractRigHelper():
     """
