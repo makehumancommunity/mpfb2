@@ -1,11 +1,8 @@
 """This module contains the default rig's implementation of the eye helpers class"""
 
-import bpy
-
 from .....services import LogService
 _LOG = LogService.get_logger("eyehelpers.defaulteyehelpers")
 
-from .....services import RigService
 from .eyehelpers import EyeHelpers
 
 _ROTATION_LIMITS = {

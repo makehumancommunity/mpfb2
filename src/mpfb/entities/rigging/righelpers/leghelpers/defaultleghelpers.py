@@ -1,7 +1,5 @@
 """This module constains the rig specific implementation for the default rig."""
 
-import bpy
-
 from .....services import LogService
 _LOG = LogService.get_logger("leghelpers.defaultleghelpers")
 
@@ -93,7 +91,7 @@ class DefaultLegHelpers(LegHelpers):
         return "root"
 
     def _sided_rotation_limit(self, unsided_name, armature_object):
-        bpy.ops.object.mode_set(mode='POSE', toggle=False)
+        self.pose_mode()
         if unsided_name in _ROTATION_LIMITS:
             for axis_name in _ROTATION_LIMITS[unsided_name].keys():
                 name = self._sided(unsided_name)
@@ -105,7 +103,7 @@ class DefaultLegHelpers(LegHelpers):
                 RigService.set_ik_rotation_limits(name, armature_object, axis=axis_name, min_angle=limits[0], max_angle=limits[1])
 
     def _sided_rotation_lock(self, unsided_name, armature_object):
-        bpy.ops.object.mode_set(mode='POSE', toggle=False)
+        self.pose_mode()
         if unsided_name in _ROTATION_LOCKS:
             locks = _ROTATION_LOCKS[unsided_name]
             x = "X" in locks and _ROTATION_LOCKS[unsided_name]["X"]
@@ -123,8 +121,6 @@ class DefaultLegHelpers(LegHelpers):
         self._sided_rotation_limit("upperleg01", armature_object)
 
     def add_hip_rotation_constraints(self, armature_object):
-        bpy.ops.object.mode_set(mode='POSE', toggle=False)
-
         self._sided_rotation_limit("pelvis", armature_object)
         self._sided_rotation_limit("clavicle", armature_object)
 

@@ -64,6 +64,8 @@ class MPFB_OT_RemoveHelpersOperator(bpy.types.Operator):
         if eye_mode:
             self._eye_helpers(armature_object, settings)
 
+        bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
+
         self.report({'INFO'}, "Helpers were removed")
         return {'FINISHED'}
 

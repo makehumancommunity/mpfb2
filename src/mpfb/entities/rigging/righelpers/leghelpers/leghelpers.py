@@ -1,15 +1,14 @@
 """This module provides functionality for adding helpers to hip/legs/feet."""
 
-import bpy
-
 from .....services import LogService
 _LOG = LogService.get_logger("leghelpers.leghelpers")
 
 from .....services import RigService
 from .....ui.righelpers import RigHelpersProperties
+from ..abstractrighelper import AbstractRigHelper
 
 
-class LegHelpers():
+class LegHelpers(AbstractRigHelper):
 
     """This is the abstract rig type independent base class for working with
     helpers for hips, legs and feet. You will want to call the static get_instance()
@@ -42,7 +41,6 @@ class LegHelpers():
             self._apply_lower_upper_hip(armature_object)
             self._set_parent(armature_object, True, True)
 
-        bpy.ops.object.mode_set(mode='POSE', toggle=False)
 
     def remove_ik(self, armature_object):
         """Remove rig helpers for hips, legs and feet based on the settings that were provided
@@ -56,7 +54,7 @@ class LegHelpers():
 
         include_hip = mode == "LOWERUPPERHIP"
 
-        bpy.ops.object.mode_set(mode='POSE', toggle=False)
+        self.pose_mode()
         bones_to_clear = self.get_reverse_list_of_bones_in_leg(True, True, True, include_hip)
 
         for bone_name in bones_to_clear:
@@ -65,7 +63,7 @@ class LegHelpers():
 
         self._show_bones(armature_object, bones_to_clear)
 
-        bpy.ops.object.mode_set(mode='EDIT', toggle=False)
+        self.edit_mode()
 
         ik_bones = [
             self.which_leg + "_foot_ik",
@@ -78,7 +76,7 @@ class LegHelpers():
             if bone:
                 armature_object.data.edit_bones.remove(bone)
 
-        bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
+        self.object_mode()
 
         _LOG.debug("Done")
 
@@ -94,8 +92,7 @@ class LegHelpers():
 
     def _set_parent(self, armature_object, has_knee_ik=False, has_hip_ik=False):
 
-        bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
-        bpy.ops.object.mode_set(mode='EDIT', toggle=False)
+        self.edit_mode()
 
         if not "leg_parenting_strategy" in self.settings:
             return
@@ -135,12 +132,11 @@ class LegHelpers():
                 if hip_ik:
                     knee_ik.parent = hip_ik
 
-        bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
 
     def _create_foot_ik_bone(self, armature_object):
         _LOG.enter()
 
-        bpy.ops.object.mode_set(mode='EDIT', toggle=False)
+        self.edit_mode()
         foot_name = self.get_foot_name()
 
         bones = armature_object.data.edit_bones
@@ -150,10 +146,8 @@ class LegHelpers():
         bone.roll = self._bone_info["edit_bones"][foot_name]["roll"]
         bone.matrix = self._bone_info["pose_bones"][foot_name]["matrix"]
 
-        # Needed to save bone
-        bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
+        self.pose_mode()
 
-        bpy.ops.object.mode_set(mode='POSE', toggle=False)
         RigService.display_pose_bone_as_empty(armature_object, self.which_leg + "_foot_ik", empty_type="CIRCLE")
         pose_bone = RigService.find_pose_bone_by_name(self.which_leg + "_foot_ik", armature_object)
 
@@ -164,7 +158,6 @@ class LegHelpers():
             pose_bone.custom_shape_scale_xyz = [scale, scale, scale]
 
         if self.settings["leg_target_rotates_foot"]:
-            bpy.ops.object.mode_set(mode='POSE', toggle=False)
             constraint = RigService.add_bone_constraint_to_pose_bone(self.get_foot_name(), armature_object, "COPY_ROTATION")
             constraint.target = armature_object
             constraint.subtarget = self.which_leg + "_foot_ik"
@@ -184,7 +177,7 @@ class LegHelpers():
 
     def _create_knee_ik_bone(self, armature_object):
         _LOG.enter()
-        bpy.ops.object.mode_set(mode='EDIT', toggle=False)
+        self.edit_mode()
         bones = armature_object.data.edit_bones
         bone = bones.new(self.which_leg + "_knee_ik")
 
@@ -195,8 +188,7 @@ class LegHelpers():
         bone.tail = bone.tail + length / 5
         bone.head = bone.head + length
 
-        bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
-        bpy.ops.object.mode_set(mode='POSE', toggle=False)
+        self.pose_mode()
         RigService.display_pose_bone_as_empty(armature_object, self.which_leg + "_knee_ik", empty_type="SPHERE")
 
         pose_bone = RigService.find_pose_bone_by_name(self.which_leg + "_knee_ik", armature_object)
@@ -205,7 +197,7 @@ class LegHelpers():
 
     def _create_hip_ik_bone(self, armature_object):
         _LOG.enter()
-        bpy.ops.object.mode_set(mode='EDIT', toggle=False)
+        self.edit_mode()
         bones = armature_object.data.edit_bones
         bone = bones.new(self.which_leg + "_hip_ik")
 
@@ -216,8 +208,7 @@ class LegHelpers():
         bone.tail = bone.tail + length / 2
         bone.head = bone.head + length
 
-        bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
-        bpy.ops.object.mode_set(mode='POSE', toggle=False)
+        self.pose_mode()
         RigService.display_pose_bone_as_empty(armature_object, self.which_leg + "_hip_ik", empty_type="SPHERE")
 
         pose_bone = RigService.find_pose_bone_by_name(self.which_leg + "_hip_ik", armature_object)
@@ -226,7 +217,7 @@ class LegHelpers():
 
     def _set_lower_leg_ik_target(self, armature_object, chain_length):
         _LOG.enter()
-        bpy.ops.object.mode_set(mode='POSE', toggle=False)
+        self.pose_mode()
         lower_leg_name = self.get_lower_leg_name()
         foot_name = self.which_leg + "_foot_ik"
         foot_bone = RigService.find_pose_bone_by_name(foot_name, armature_object)
@@ -235,7 +226,7 @@ class LegHelpers():
 
     def _set_upper_leg_ik_target(self, armature_object, chain_length):
         _LOG.enter()
-        bpy.ops.object.mode_set(mode='POSE', toggle=False)
+        self.pose_mode()
         upper_leg_name = self.get_upper_leg_name()
         knee_name = self.which_leg + "_knee_ik"
         knee_bone = RigService.find_pose_bone_by_name(knee_name, armature_object)
@@ -244,7 +235,7 @@ class LegHelpers():
 
     def _set_hip_ik_target(self, armature_object, chain_length):
         _LOG.enter()
-        bpy.ops.object.mode_set(mode='POSE', toggle=False)
+        self.pose_mode()
         hip_name = self.get_hip_name()
         hip_ik_name = self.which_leg + "_hip_ik"
         hip_bone = RigService.find_pose_bone_by_name(hip_ik_name, armature_object)
@@ -253,7 +244,6 @@ class LegHelpers():
 
     def _hide_bones(self, armature_object, bone_list):
         _LOG.enter()
-        bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
         for name in bone_list:
             _LOG.debug("Will attempt to hide bone", name)
             bone = armature_object.data.bones.get(name)
@@ -261,7 +251,6 @@ class LegHelpers():
 
     def _show_bones(self, armature_object, bone_list):
         _LOG.enter()
-        bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
         for name in bone_list:
             _LOG.debug("Will attempt to show bone", name)
             bone = armature_object.data.bones.get(name)

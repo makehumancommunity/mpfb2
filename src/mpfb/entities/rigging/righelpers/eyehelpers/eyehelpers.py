@@ -1,15 +1,13 @@
 """This module provides functionality for adding helpers to eyes."""
 
-import bpy
-
 from .....services import LogService
 _LOG = LogService.get_logger("eyehelpers.eyehelpers")
 
 from .....services import RigService
-from .....ui.righelpers import RigHelpersProperties
+from ..abstractrighelper import AbstractRigHelper
 
 
-class EyeHelpers():
+class EyeHelpers(AbstractRigHelper):
 
     """This is the abstract rig type independent base class for working with
     helpers for eyes. You will want to call the static get_instance()
@@ -36,7 +34,7 @@ class EyeHelpers():
         self._create_eye_ik_bones(armature_object)
         self._apply_ik_constraint(armature_object)
 
-        bpy.ops.object.mode_set(mode='POSE', toggle=False)
+        #pose_mode()
 
     def remove_ik(self, armature_object):
         """Remove rig helpers for eyes based on the settings that were provided
@@ -44,19 +42,17 @@ class EyeHelpers():
         armature object."""
 
         _LOG.enter()
-
-        bpy.ops.object.mode_set(mode='POSE', toggle=False)
+        self.pose_mode()
 
         for bone_name in [self.get_eye_name(True), self.get_eye_name(False)]:
             RigService.remove_all_constraints_from_pose_bone(bone_name, armature_object)
 
-        bpy.ops.object.mode_set(mode='EDIT', toggle=False)
+        self.edit_mode()
 
         for bone_name in ["left_eye_ik", "right_eye_ik", "eye_ik"]:
             bone = RigService.find_edit_bone_by_name(bone_name, armature_object)
             armature_object.data.edit_bones.remove(bone)
 
-        bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
         _LOG.debug("Done")
 
     @staticmethod
@@ -72,7 +68,7 @@ class EyeHelpers():
     def _create_eye_ik_bones(self, armature_object):
         _LOG.enter()
 
-        bpy.ops.object.mode_set(mode='EDIT', toggle=False)
+        self.edit_mode()
 
         bones = armature_object.data.edit_bones
 
@@ -106,9 +102,7 @@ class EyeHelpers():
         if self.settings["eye_parenting_strategy"] == "ROOT":
             bone.parent = RigService.find_edit_bone_by_name(self.get_root_name(), armature_object)
 
-        # Needed to save bone
-        bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
-        bpy.ops.object.mode_set(mode='POSE', toggle=False)
+        self.pose_mode()
 
         RigService.display_pose_bone_as_empty(armature_object, "left_eye_ik", "CIRCLE", scale=0.5)
         RigService.display_pose_bone_as_empty(armature_object, "right_eye_ik", "CIRCLE", scale=0.5)

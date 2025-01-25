@@ -1,15 +1,14 @@
 """This module provides functionality for adding helpers to fingers."""
 
-import bpy
-
 from .....services import LogService
 _LOG = LogService.get_logger("fingerhelpers.fingerhelpers")
 
 from .....services import RigService
 from .....ui.righelpers import RigHelpersProperties
+from ..abstractrighelper import AbstractRigHelper
 
 
-class FingerHelpers():
+class FingerHelpers(AbstractRigHelper):
 
     """This is the abstract rig type independent base class for working with
     helpers for fingers. You will want to call the static get_instance()
@@ -48,7 +47,6 @@ class FingerHelpers():
         if self.settings["finger_helpers_type"] == "POINT":
             self._apply_point(armature_object)
 
-        bpy.ops.object.mode_set(mode='POSE', toggle=False)
 
     def _apply_master_without_individual_for_finger(self, armature_object, finger_number):
         master_name = self._get_master_grip_bone_name()
@@ -91,7 +89,7 @@ class FingerHelpers():
             self._create_grip_bone(finger_number, armature_object)
             grip_name = self._get_grip_bone_name_for_finger(finger_number)
 
-            bpy.ops.object.mode_set(mode='EDIT', toggle=False)
+            self.edit_mode()
 
             parent_name = self.get_immediate_parent_name_of_finger(finger_number)
             parent_bone = RigService.find_edit_bone_by_name(parent_name, armature_object)
@@ -99,8 +97,7 @@ class FingerHelpers():
             grip_bone = RigService.find_edit_bone_by_name(grip_name, armature_object)
             grip_bone.parent = parent_bone
 
-            bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
-            bpy.ops.object.mode_set(mode='POSE', toggle=False)
+            self.pose_mode()
 
             finger_segments = self.get_reverse_list_of_bones_in_finger(finger_number)
 
@@ -121,7 +118,7 @@ class FingerHelpers():
             self._create_point_ik_bone(finger_number, armature_object)
             ik_name = self._get_point_ik_bone_name_for_finger(finger_number)
 
-            bpy.ops.object.mode_set(mode='EDIT', toggle=False)
+            self.edit_mode()
 
             parent_name = self.get_immediate_parent_name_of_finger(finger_number)
             parent_bone = RigService.find_edit_bone_by_name(parent_name, armature_object)
@@ -137,7 +134,7 @@ class FingerHelpers():
 
     def _set_finger_ik_target(self, finger_number, armature_object, chain_length):
         _LOG.enter()
-        bpy.ops.object.mode_set(mode='POSE', toggle=False)
+        self.pose_mode()
         tip_name = self.get_last_segment_name_of_finger(finger_number)
         ik_name = self._get_point_ik_bone_name_for_finger(finger_number)
         ik_bone = RigService.find_pose_bone_by_name(ik_name, armature_object)
@@ -147,7 +144,7 @@ class FingerHelpers():
     def _create_point_ik_bone(self, finger_number, armature_object):
         _LOG.enter()
 
-        bpy.ops.object.mode_set(mode='EDIT', toggle=False)
+        self.edit_mode()
 
         tip_name = self.get_last_segment_name_of_finger(finger_number)
 
@@ -166,10 +163,8 @@ class FingerHelpers():
         bone.tail = tail
         bone.roll = roll
 
-        # Needed to save bone
-        bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
+        self.pose_mode()
 
-        bpy.ops.object.mode_set(mode='POSE', toggle=False)
         RigService.display_pose_bone_as_empty(armature_object, bone_name, empty_type="SPHERE")
         pose_bone = RigService.find_pose_bone_by_name(bone_name, armature_object)
 
@@ -186,7 +181,7 @@ class FingerHelpers():
     def _create_grip_bone(self, finger_number, armature_object):
         _LOG.enter()
 
-        bpy.ops.object.mode_set(mode='EDIT', toggle=False)
+        self.edit_mode()
 
         tip_name = self.get_last_segment_name_of_finger(finger_number)
         root_name = self.get_first_segment_name_of_finger(finger_number)
@@ -202,10 +197,7 @@ class FingerHelpers():
         bone.tail = tail
         bone.roll = roll
 
-        # Needed to save bone
-        bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
-
-        bpy.ops.object.mode_set(mode='POSE', toggle=False)
+        self.pose_mode()
 
         bone_name = self._get_grip_bone_name_for_finger(finger_number)
         pose_bone = RigService.find_pose_bone_by_name(bone_name, armature_object)
@@ -233,7 +225,7 @@ class FingerHelpers():
     def _create_master_grip_bone(self, armature_object):
         _LOG.enter()
 
-        bpy.ops.object.mode_set(mode='EDIT', toggle=False)
+        self.edit_mode()
 
         finger3_tip_name = self.get_last_segment_name_of_finger(3)
         finger4_tip_name = self.get_last_segment_name_of_finger(4)
@@ -264,9 +256,7 @@ class FingerHelpers():
 
         bone.parent = parent_bone
 
-        # Needed to save bone
-        bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
-        bpy.ops.object.mode_set(mode='POSE', toggle=False)
+        self.pose_mode()
 
         pose_bone = RigService.find_pose_bone_by_name(bone_name, armature_object)
 
@@ -313,29 +303,26 @@ class FingerHelpers():
             self._remove_point(armature_object)
 
         _LOG.debug("Done")
-        bpy.ops.object.mode_set(mode='POSE', toggle=False)
 
     def _clear_finger_grip(self, finger_number, armature_object):
         bone_name = self._get_grip_bone_name_for_finger(finger_number)
-        bpy.ops.object.mode_set(mode='EDIT', toggle=False)
+        self.edit_mode()
         bone = RigService.find_edit_bone_by_name(bone_name, armature_object)
         _LOG.debug("Grip bone to remove, if any", bone)
         if bone:
             armature_object.data.edit_bones.remove(bone)
-        bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
 
     def _clear_master_grip(self, armature_object):
         bone_name = self._get_master_grip_bone_name()
-        bpy.ops.object.mode_set(mode='EDIT', toggle=False)
+        self.edit_mode()
         bone = RigService.find_edit_bone_by_name(bone_name, armature_object)
         _LOG.debug("Master grip bone to remove, if any", bone)
         if bone:
             armature_object.data.edit_bones.remove(bone)
-        bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
 
     def _clear_finger_ik(self, finger_number, armature_object):
         _LOG.enter()
-        bpy.ops.object.mode_set(mode='EDIT', toggle=False)
+        self.edit_mode()
         bone_name = self._get_point_ik_bone_name_for_finger(finger_number)
         bone = RigService.find_edit_bone_by_name(bone_name, armature_object)
         _LOG.debug("Point bone to remove, if any", bone)
@@ -343,7 +330,7 @@ class FingerHelpers():
             armature_object.data.edit_bones.remove(bone)
 
     def _clear_all_finger_constraints(self, armature_object):
-        bpy.ops.object.mode_set(mode='POSE', toggle=False)
+        self.pose_mode()
         for finger_number in [1, 2, 3, 4, 5]:
             bones_to_clear = self.get_reverse_list_of_bones_in_finger(finger_number)
             for bone_name in bones_to_clear:
@@ -352,18 +339,18 @@ class FingerHelpers():
     def _remove_grip(self, armature_object):
         _LOG.enter()
         for finger_number in [1, 2, 3, 4, 5]:
-            bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
+            self.object_mode()
             self._clear_finger_grip(finger_number, armature_object)
-            bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
+            self.object_mode()
             bones_to_show = self.get_reverse_list_of_bones_in_finger(finger_number)
             self._show_bones(armature_object, bones_to_show)
 
     def _remove_point(self, armature_object):
         _LOG.enter()
         for finger_number in [1, 2, 3, 4, 5]:
-            bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
+            self.object_mode()
             self._clear_finger_ik(finger_number, armature_object)
-            bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
+            self.object_mode()
             bones_to_show = self.get_reverse_list_of_bones_in_finger(finger_number)
             self._show_bones(armature_object, bones_to_show)
 
@@ -385,7 +372,6 @@ class FingerHelpers():
 
     def _hide_bones(self, armature_object, bone_list):
         _LOG.enter()
-        bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
         for name in bone_list:
             _LOG.debug("Will attempt to hide bone", name)
             bone = armature_object.data.bones.get(name)
@@ -393,7 +379,6 @@ class FingerHelpers():
 
     def _show_bones(self, armature_object, bone_list):
         _LOG.enter()
-        bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
         for name in bone_list:
             _LOG.debug("Will attempt to show bone", name)
             bone = armature_object.data.bones.get(name)

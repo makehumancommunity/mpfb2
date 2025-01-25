@@ -1,7 +1,5 @@
 """This module contains the default rig's implementation of the finger helpers class"""
 
-import bpy
-
 from .....services import LogService
 _LOG = LogService.get_logger("fingerhelpers.defaultfingerhelpers")
 
@@ -66,7 +64,7 @@ class DefaultFingerHelpers(FingerHelpers):
         return name + ".L"
 
     def _sided_rotation_limits(self, finger_number, armature_object):
-        bpy.ops.object.mode_set(mode='POSE', toggle=False)
+        self.pose_mode()
         for segment_number in [1, 2, 3]:
             limits = {}
             if finger_number == 1:
@@ -86,7 +84,7 @@ class DefaultFingerHelpers(FingerHelpers):
                 RigService.set_ik_rotation_limits(name, armature_object, axis=axis_name, min_angle=angles[0], max_angle=angles[1])
 
     def _sided_rotation_locks(self, finger_number, armature_object):
-        bpy.ops.object.mode_set(mode='POSE', toggle=False)
+        self.pose_mode()
         for segment_number in [1, 2, 3]:
             locks = {}
             if finger_number == 1:
@@ -107,7 +105,7 @@ class DefaultFingerHelpers(FingerHelpers):
             RigService.add_ik_rotation_lock_to_pose_bone(name, armature_object, lock_x=x, lock_y=y, lock_z=z)
 
     def add_finger_rotation_constraints(self, finger_number, armature_object):
-        bpy.ops.object.mode_set(mode='POSE', toggle=False)
+        self.pose_mode()
         self._sided_rotation_limits(finger_number, armature_object)
         self._sided_rotation_locks(finger_number, armature_object)
 

@@ -1,15 +1,13 @@
 """This module provides functionality for adding helpers to arms/hands."""
 
-import bpy
-
 from .....services import LogService
 _LOG = LogService.get_logger("armhelpers.armhelpers")
 
 from .....services import RigService
 from .....ui.righelpers import RigHelpersProperties
+from ..abstractrighelper import AbstractRigHelper
 
-
-class ArmHelpers():
+class ArmHelpers(AbstractRigHelper):
 
     """This is the abstract rig type independent base class for working with
     helpers for arms and hands. You will want to call the static get_instance()
@@ -49,7 +47,7 @@ class ArmHelpers():
             self._apply_shoulder_chain(armature_object)
             self._set_parent(armature_object, has_elbow_ik=False, has_shoulder_ik=False)
 
-        bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
+        self.object_mode()
 
     def remove_ik(self, armature_object):
         """Remove rig helpers for arms and hands based on the settings that were provided
@@ -60,8 +58,6 @@ class ArmHelpers():
         self._bone_info = RigService.get_bone_orientation_info_as_dict(armature_object)
         mode = str(RigHelpersProperties.get_value("arm_mode", entity_reference=armature_object)).strip()
 
-        _LOG.debug("mode is", mode)
-
         include_shoulder = False
 
         if mode == "LOWERUPPERSHOULDER":
@@ -70,7 +66,7 @@ class ArmHelpers():
         if mode == "SHOULDERCHAIN":
             include_shoulder = True
 
-        bpy.ops.object.mode_set(mode='POSE', toggle=False)
+        self.pose_mode()
         bones_to_clear = self.get_reverse_list_of_bones_in_arm(True, True, True, include_shoulder)
 
         for bone_name in bones_to_clear:
@@ -79,7 +75,7 @@ class ArmHelpers():
 
         self._show_bones(armature_object, bones_to_clear)
 
-        bpy.ops.object.mode_set(mode='EDIT', toggle=False)
+        self.edit_mode()
 
         ik_bones = [
             self.which_arm + "_hand_ik",
@@ -92,7 +88,7 @@ class ArmHelpers():
             if bone:
                 armature_object.data.edit_bones.remove(bone)
 
-        bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
+        self.object_mode()
 
         _LOG.debug("Done")
 
@@ -107,8 +103,7 @@ class ArmHelpers():
 
     def _set_parent(self, armature_object, has_elbow_ik=False, has_shoulder_ik=False):
         _LOG.enter()
-        bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
-        bpy.ops.object.mode_set(mode='EDIT', toggle=False)
+        self.edit_mode()
 
         if not "arm_parenting_strategy" in self.settings:
             return
@@ -156,11 +151,10 @@ class ArmHelpers():
                 if shoulder_ik:
                     elbow_ik.parent = shoulder_ik
 
-        bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
 
     def _create_hand_ik_bone(self, armature_object):
         _LOG.enter()
-        bpy.ops.object.mode_set(mode='EDIT', toggle=False)
+        self.edit_mode()
         hand_name = self.get_hand_name()
 
         bones = armature_object.data.edit_bones
@@ -170,9 +164,7 @@ class ArmHelpers():
         bone.roll = self._bone_info["edit_bones"][hand_name]["roll"]
         bone.matrix = self._bone_info["pose_bones"][hand_name]["matrix"]
 
-        # Needed to save bone
-        bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
-        bpy.ops.object.mode_set(mode='POSE', toggle=False)
+        self.pose_mode()
 
         RigService.display_pose_bone_as_empty(armature_object, self.which_arm + "_hand_ik", empty_type="CIRCLE")
 
@@ -198,7 +190,7 @@ class ArmHelpers():
 
     def _create_elbow_ik_bone(self, armature_object):
         _LOG.enter()
-        bpy.ops.object.mode_set(mode='EDIT', toggle=False)
+        self.edit_mode()
         bones = armature_object.data.edit_bones
         bone = bones.new(self.which_arm + "_elbow_ik")
 
@@ -209,8 +201,7 @@ class ArmHelpers():
         bone.tail = bone.tail + length / 3
         bone.head = bone.head + length
 
-        bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
-        bpy.ops.object.mode_set(mode='POSE', toggle=False)
+        self.pose_mode()
 
         RigService.display_pose_bone_as_empty(armature_object, self.which_arm + "_elbow_ik", empty_type="SPHERE")
 
@@ -220,7 +211,7 @@ class ArmHelpers():
 
     def _create_shoulder_ik_bone(self, armature_object):
         _LOG.enter()
-        bpy.ops.object.mode_set(mode='EDIT', toggle=False)
+        self.edit_mode()
         bones = armature_object.data.edit_bones
         bone = bones.new(self.which_arm + "_shoulder_ik")
 
@@ -231,8 +222,7 @@ class ArmHelpers():
         bone.tail = bone.tail + length * 0.65
         bone.head = bone.head + length
 
-        bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
-        bpy.ops.object.mode_set(mode='POSE', toggle=False)
+        self.pose_mode()
 
         RigService.display_pose_bone_as_empty(armature_object, self.which_arm + "_shoulder_ik", empty_type="SPHERE")
 
@@ -242,7 +232,7 @@ class ArmHelpers():
 
     def _set_lower_arm_ik_target(self, armature_object, chain_length):
         _LOG.enter()
-        bpy.ops.object.mode_set(mode='POSE', toggle=False)
+        self.pose_mode()
         lower_arm_name = self.get_lower_arm_name()
         hand_name = self.which_arm + "_hand_ik"
         hand_bone = RigService.find_pose_bone_by_name(hand_name, armature_object)
@@ -251,7 +241,7 @@ class ArmHelpers():
 
     def _set_upper_arm_ik_target(self, armature_object, chain_length):
         _LOG.enter()
-        bpy.ops.object.mode_set(mode='POSE', toggle=False)
+        self.pose_mode()
         upper_arm_name = self.get_upper_arm_name()
         elbow_name = self.which_arm + "_elbow_ik"
         elbow_bone = RigService.find_pose_bone_by_name(elbow_name, armature_object)
@@ -260,7 +250,7 @@ class ArmHelpers():
 
     def _set_shoulder_ik_target(self, armature_object, chain_length):
         _LOG.enter()
-        bpy.ops.object.mode_set(mode='POSE', toggle=False)
+        self.pose_mode()
         shoulder_name = self.get_shoulder_name()
         shoulder_ik_name = self.which_arm + "_shoulder_ik"
         shoulder_bone = RigService.find_pose_bone_by_name(shoulder_ik_name, armature_object)
@@ -269,14 +259,12 @@ class ArmHelpers():
 
     def _hide_bones(self, armature_object, bone_list):
         _LOG.enter()
-        bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
         for name in bone_list:
             bone = armature_object.data.bones.get(name)
             bone.hide = True
 
     def _show_bones(self, armature_object, bone_list):
         _LOG.enter()
-        bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
         for name in bone_list:
             bone = armature_object.data.bones.get(name)
             bone.hide = False
