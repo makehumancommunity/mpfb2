@@ -1,3 +1,8 @@
+'''
+Ported from retarget_tool/retarget.py
+
+@author: SWiga
+'''
 from ....services import LogService
 from ....services import ObjectService
 from .... import ClassManager
