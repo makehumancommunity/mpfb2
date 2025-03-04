@@ -58,6 +58,7 @@ if SystemService.is_blender_version_at_least():
     from .matops import *
     from .boneops import *
     from .ai import *
+    from .retarget import *
 
     # System
     from .webresources import *
