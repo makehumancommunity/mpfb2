@@ -43,6 +43,7 @@ class MPFB_OT_HumanFromPresetsOperator(MpfbOperator):
         deserialization_settings["override_skin_model"] = PRESETS_HUMAN_PROPERTIES.get_value("override_skin_model", entity_reference=context.scene)
         deserialization_settings["override_clothes_model"] = PRESETS_HUMAN_PROPERTIES.get_value("override_clothes_model", entity_reference=context.scene)
         deserialization_settings["override_eyes_model"] = PRESETS_HUMAN_PROPERTIES.get_value("override_eyes_model", entity_reference=context.scene)
+        deserialization_settings["material_instances"] = PRESETS_HUMAN_PROPERTIES.get_value("material_instances", entity_reference=context.scene)
 
         if "rigify" in deserialization_settings["override_rig"] and not SystemService.check_for_rigify():
             self.report({'ERROR'}, "Rig override set to rigify, but rigify is not enabled.")

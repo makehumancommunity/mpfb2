@@ -1,0 +1,12 @@
+{
+    "type": "enum",
+    "name": "material_instances",
+    "description": "You can choose to assign a copy of the skin material for each of a series of vertex groups on the body, such as lips and fingernailes. This is used in the tutorial for the Enhanced skin for example. But it will cause problems with, for example, the MakeUp tool",
+    "label": "Material instances",
+    "default": "ENHANCED",
+    "items": [
+        ["NEVER", "Don't create", "Do not create material instances, no matter the skin material model", 1],
+        ["ENHANCED", "If enhanced", "Create material instances if the skin material model is 'enhanced'", 2],
+        ["ENHANCEDMS", "If enhanced or makeskin", "Create material instances if the skin material model is 'enhanced' or 'makeskin'", 3]
+    ]
+}

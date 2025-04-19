@@ -49,6 +49,7 @@ class MPFB_PT_From_Presets_Panel(Abstract_Panel):
             "override_skin_model",
             "override_clothes_model",
             "override_eyes_model",
+            "material_instances",
             "preselect_group",
             "detailed_helpers",
             "extra_vertex_groups",

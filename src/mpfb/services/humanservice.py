@@ -23,6 +23,7 @@ from ..entities.socketobject import BASEMESH_EXTRA_GROUPS, ALL_EXTRA_GROUPS
 from ..entities.primitiveprofiler import PrimitiveProfiler
 
 _LOG = LogService.get_logger("services.humanservice")
+_LOG.set_level(LogService.DEBUG)
 
 _EXISTING_PRESETS = None
 
@@ -845,7 +846,15 @@ class HumanService:
         if not skin_type or skin_type == "NONE":
             return
 
-        material_instances = skin_type != "LAYERED"
+        material_instances = False
+        if "material_instances" in human_info:
+            _LOG.debug("Material instances setting", human_info["material_instances"])
+            if "ENHANCED" in human_info["material_instances"] and str(skin_type).startswith("ENHANCED"):
+                material_instances = True
+            if "MS" in human_info["material_instances"] and str(skin_type) == "MAKESKIN":
+                material_instances = True
+        else:
+            _LOG.debug("No material instances setting specified, going with the default")
 
         slot_overrides = None
         if "skin_material_settings" in human_info:
@@ -939,6 +948,12 @@ class HumanService:
         scale = deserialization_settings["scale"]
         subdiv_levels = deserialization_settings["subdiv_levels"]
         load_clothes = deserialization_settings["load_clothes"]
+        material_instances = deserialization_settings["material_instances"]
+
+        if material_instances:
+            human_info["material_instances"] = material_instances
+        else:
+            human_info["material_instances"] = "NEVER"
 
         if human_info is None:
             raise ValueError('Cannot use None as human_info')
@@ -1045,7 +1060,8 @@ class HumanService:
             "subdiv_levels": 1,
             "load_clothes": True,
             "override_skin_model": "PRESET",
-            "override_rig": "PRESET"
+            "override_rig": "PRESET",
+            "material_instances": "NEVER"
             }
 
     @staticmethod
