@@ -23,7 +23,6 @@ from ..entities.socketobject import BASEMESH_EXTRA_GROUPS, ALL_EXTRA_GROUPS
 from ..entities.primitiveprofiler import PrimitiveProfiler
 
 _LOG = LogService.get_logger("services.humanservice")
-_LOG.set_level(LogService.DEBUG)
 
 _EXISTING_PRESETS = None
 
