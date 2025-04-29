@@ -32,11 +32,18 @@ class _LocationService():
         overriden_user_home = None
         try:
             overriden_user_home = get_preference("mpfb_user_data")
+            if overriden_user_home and isinstance(overriden_user_home, str):
+                _LOG.debug("Specified mpfb_user_data", overriden_user_home)
+                # Expand tilde to user's home directory
+                overriden_user_home = os.path.expanduser(overriden_user_home)
         except:
             _LOG.warn("Could not read preference mpfb_user_data")
         _LOG.debug("overriden_user_home", overriden_user_home)
         if overriden_user_home:
             self._user_home = overriden_user_home
+
+        if not os.path.exists(self._user_home):
+            _LOG.warn("User home directory does not exist", self._user_home)
 
         self._check_set_second_root()
         self._check_set_mh_user_dir()
@@ -102,6 +109,8 @@ class _LocationService():
             if self._second_root is not None:
                 self._second_root = str(self._second_root).strip()
                 if self._second_root:
+                    # Expand tilde to user's home directory
+                    self._second_root = os.path.expanduser(self._second_root)
                     self._second_root = os.path.abspath(self._second_root)
                 else:
                     self._second_root = None
