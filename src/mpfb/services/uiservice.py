@@ -16,7 +16,7 @@ class _UiService():
         self.set_value("PROPERTYPREFIX", "MPFB_")
 
         # For beta version. Will change back for the next nightly build
-        ui_prefix = "MPFB v%d.%d-b1" % (VERSION[0], VERSION[1])
+        ui_prefix = "MPFB v%d.%d-TK" % (VERSION[0], VERSION[1])
 
         # ui_prefix = "MPFB v%d.%d-a%d" % (VERSION[0], VERSION[1], VERSION[2])
 
