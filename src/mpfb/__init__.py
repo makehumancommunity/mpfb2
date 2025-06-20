@@ -87,7 +87,7 @@ def register():
 
     from mpfb.services.logservice import LogService
     _LOG = LogService.get_logger("mpfb.init")
-    _LOG.info("Build info", "20240723")
+    _LOG.info("Build info", "FROM_SOURCE")
     _LOG.reset_timer()
     _LOG.debug("We're in register() and about to start registering classes.")
 
