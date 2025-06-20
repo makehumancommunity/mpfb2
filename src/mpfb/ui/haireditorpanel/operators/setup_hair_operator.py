@@ -1,0 +1,65 @@
+# ------------------------------------------------------------------------------
+# MPFB2 Extension by Klecer
+# Author:       Tomáš Klecer
+# Date:         7.5.2025
+# University:   Brno University of Technology
+# Supervisor:   Ing. Tomáš Chlubna, Ph.D.
+# Description:  operator for setting up scene for adding hair
+# ------------------------------------------------------------------------------
+from mpfb.services.logservice import LogService
+from mpfb.services.locationservice import LocationService
+from mpfb._classmanager import ClassManager
+from mpfb.services.haireditorservices import HairEditorService
+import bpy, os, json, shutil
+
+_LOG = LogService.get_logger("haireditorpanel.setup_hair_operator")
+
+
+class MPFB_OT_SetupHair_Operator(bpy.types.Operator):
+    """Adds empty hair to mesh and actualizes UI"""
+    bl_idname = "mpfb.setup_hair_operator"
+    bl_label = "Setup hair"
+    bl_options = {'REGISTER'}
+
+    def execute(self, context):
+
+        scene = context.scene
+
+        self.report({'INFO'}, ("Setting up hair interface"))
+
+
+        # Get material
+        obj = context.object
+        if (not obj or not obj.name == 'Human'):
+            self.report({'ERROR'}, "Object Human must be active")
+            return {'CANCELLED'}
+
+        # Add empty hair or the hair asset wont behave correctly
+        bpy.ops.object.curves_empty_hair_add()
+
+        # For eevee set curves render as strip
+        if scene.render.engine == 'BLENDER_EEVEE_NEXT':
+            scene.render.hair_type = 'STRIP'
+
+
+        # Reselect Human
+        human_obj = bpy.data.objects.get("Human")
+        if human_obj:
+            bpy.ops.object.select_all(action='DESELECT')
+            human_obj.select_set(True)
+            context.view_layer.objects.active = human_obj
+        else:
+            self.report({'WARNING'}, "Human object not found in bpy.data.objects")
+
+        # Update UI
+        if not hasattr(bpy.types.Scene, "hair_setup"):
+            bpy.types.Scene.hair_setup = bpy.props.BoolProperty(
+                name="hair_setup",
+                description="Mesh has empty hair applied",
+                default=False
+            )
+        scene.hair_setup = True
+
+        return {'FINISHED'}
+
+ClassManager.add_class(MPFB_OT_SetupHair_Operator)

@@ -16,6 +16,9 @@ if SystemService.is_blender_version_at_least():
     from mpfb.ui.createpanel import *
     from mpfb.ui.systempanel import *
     from mpfb.ui.developer import *
+    from mpfb.ui.exportpanel import *
+    from mpfb.ui.skineditorpanel import *
+    from mpfb.ui.haireditorpanel import *
 
     # New human panels
     from mpfb.ui.newhuman import *
@@ -78,6 +81,9 @@ if SystemService.is_blender_version_at_least():
         "MPFB_PT_MakeClothes_Panel",
         "MPFB_PT_Operations_Panel",
         "MPFB_PT_Devloper_Panel",
+        "MPFB_PT_Export_Panel",
+        "MPFB_PT_Skin_Editor_Panel",
+        "MPFB_PT_Hair_Editor_Panel",
         "MPFB_PT_Ai_Panel"
         ]
 else:

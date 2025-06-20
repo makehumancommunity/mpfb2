@@ -39,8 +39,11 @@ class _UiService():
             self.set_value("RIGCATEGORY", ui_prefix + " Rig & Pose")
             self.set_value("OPERATIONSCATEGORY", ui_prefix + " Operations")
             self.set_value("DEVELOPERCATEGORY", ui_prefix + " Developer")
+            self.set_value("EXPORTCATEGORY", ui_prefix + " Export")
+            self.set_value("SKINEDITORCATEGORY", ui_prefix + " SkinEditor")
+            self.set_value("HAIREDITORCATEGORY", ui_prefix + " HairEditor")
         else:
-            for category in ["MODELCATEGORY", "IMPORTERCATEGORY", "CLOTHESCATEGORY", "TARGETSCATEGORY", "MATERIALSCATEGORY", "RIGCATEGORY", "OPERATIONSCATEGORY", "DEVELOPERCATEGORY"]:
+            for category in ["MODELCATEGORY", "IMPORTERCATEGORY", "CLOTHESCATEGORY", "TARGETSCATEGORY", "MATERIALSCATEGORY", "RIGCATEGORY", "OPERATIONSCATEGORY", "DEVELOPERCATEGORY", "EXPORTCATEGORY", "SKINEDITORCATEGORY", "HAIREDITORCATEGORY"]:
                 self.set_value(category, ui_prefix)
 
     def get_value(self, name):

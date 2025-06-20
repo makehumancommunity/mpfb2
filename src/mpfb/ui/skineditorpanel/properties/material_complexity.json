@@ -1,0 +1,11 @@
+{
+    "type": "enum",
+    "name": "material_complexity",
+    "description": "How complex material should be created?",
+    "label": "Material type",
+    "default": "EEVEE",
+    "items": [
+        ["COMPLEX", "Complex", "Most hi-detailed material with lot of modular options. Does only work with Cycles until baked.", 1],
+        ["EEVEE", "EEVEE compatible", "Number of used textures is minimized to be compatible with EEVEE.", 2]
+    ]
+}

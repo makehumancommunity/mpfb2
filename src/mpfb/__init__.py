@@ -14,7 +14,7 @@ bl_info = {  # pylint: disable=C0103
 
 # These are constants that can be imported from submodules
 VERSION = bl_info["version"]
-BUILD_INFO = "FROM_SOURCE"
+BUILD_INFO = "20240723"
 
 # Don't import this log object. Instead, get a local logger via LogService
 _LOG = None
@@ -87,7 +87,7 @@ def register():
 
     from mpfb.services.logservice import LogService
     _LOG = LogService.get_logger("mpfb.init")
-    _LOG.info("Build info", "FROM_SOURCE")
+    _LOG.info("Build info", "20240723")
     _LOG.reset_timer()
     _LOG.debug("We're in register() and about to start registering classes.")
 

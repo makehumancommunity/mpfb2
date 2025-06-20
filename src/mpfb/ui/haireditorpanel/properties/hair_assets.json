@@ -1,0 +1,16 @@
+{
+    "type": "enum",
+    "name": "hair_assets",
+    "description": "Pick hair asset for your character",
+    "label": "Hair",
+    "default": "short_hedgehog",
+    "items": [
+        ["short_hedgehog", "Short hedgehog", "Shortly trimmed hair with sighnificant corners.", 1],
+        ["hair_to_shoulder", "Hair to shoulder", "Wild uncared hair to shoulder", 2],
+        ["short_crown", "Hair crown", "Crown of short hair with bald top.", 3],
+        ["short_cap", "Short hair cap", "Short round monk-like hair cap", 4],
+        ["short_ponnytail", "Short ponnytail", "Short ponnytail from top of the head", 5],
+        ["back_pigtail", "Back pigtail", "Pigtail on the back of the head", 6],
+        ["tail_base", "Tail base", "Hair strands along the head without tale", 7]
+    ]
+}

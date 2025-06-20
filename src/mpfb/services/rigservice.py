@@ -1090,3 +1090,104 @@ class RigService:
                     bone.scale = scalings[bone.name]
 
         bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
+
+    # ------------------------------------------------------------------------------
+    # MPFB2 Extension by Klecer
+    # Author:       Tomáš Klecer
+    # Date:         13.5.2025
+    # University:   Brno University of Technology
+    # Supervisor:   Ing. Tomáš Chlubna, Ph.D.
+    # Description:  Function to flip bones of right arm and left leg and tweak the bones to awoid deformations
+    # ------------------------------------------------------------------------------
+    @staticmethod
+    def fix_ue5_bone_orientation(armature_object):
+        # Go to Pose mode for easier selection
+        ObjectService.activate_blender_object(armature_object)
+        bpy.ops.object.mode_set(mode='POSE', toggle=False)
+        bpy.ops.pose.select_all(action='DESELECT')
+
+        # Select the bones
+        bones_to_select = ['thigh_l', 'calf_l', 'foot_l', 'ik_foot_l', 'clavicle_r', 'upperarm_r', 'lowerarm_r', 'hand_r', 'thumb_01_r', 'thumb_02_r', 'thumb_03_r', 'index_metacarpal_r', 'index_01_r', 'index_02_r', 'index_03_r', 'middle_metacarpal_r', 'middle_01_r', 'middle_02_r', 'middle_03_r', 'ring_metacarpal_r', 'ring_01_r', 'ring_02_r', 'ring_03_r', 'pinky_metacarpal_r', 'pinky_01_r', 'pinky_02_r', 'pinky_03_r']
+        for bone_name in bones_to_select:
+            bone = armature_object.pose.bones.get(bone_name)
+            if bone:
+                bone.bone.select = True
+
+        # Swich to Edit mode
+        bpy.ops.object.mode_set(mode='EDIT', toggle=False)
+
+        # Set pivot point to Individual Origins
+        bpy.context.scene.tool_settings.transform_pivot_point = 'INDIVIDUAL_ORIGINS'
+
+        # Scale the bone by -1 along all axes
+        bpy.ops.transform.resize(value=(-1, -1, -1), orient_type='GLOBAL')
+
+        # Tweak feet
+        bpy.context.scene.transform_orientation_slots[0].type = 'NORMAL'
+
+        bpy.ops.object.mode_set(mode='POSE', toggle=False)
+        bpy.ops.pose.select_all(action='DESELECT')
+        armature_object.pose.bones.get('ik_foot_l').bone.select = True
+        armature_object.pose.bones.get('foot_l').bone.select = True
+        armature_object.pose.bones.get('ik_foot_r').bone.select = True
+        armature_object.pose.bones.get('foot_r').bone.select = True
+
+
+        bpy.ops.object.mode_set(mode='EDIT', toggle=False)
+        bpy.ops.transform.rotate(value=-1.22173048, orient_axis='X', orient_type='GLOBAL')
+
+        bpy.context.object.data.edit_bones['foot_l'].roll = -0.0610865238
+        bpy.context.object.data.edit_bones['ik_foot_l'].roll = -0.0610865238
+
+        # Tweak left ball - this bone does weird stuff after export with some phenotypes
+        bpy.ops.object.mode_set(mode='POSE', toggle=False)
+        bpy.ops.pose.select_all(action='DESELECT')
+
+        armature_object.pose.bones.get('ball_l').bone.select = True
+        bpy.ops.object.mode_set(mode='EDIT', toggle=False)
+        bpy.context.object.data.edit_bones['ball_l'].roll = -1.570796334
+
+        # Tweak right ball
+        bpy.ops.object.mode_set(mode='POSE', toggle=False)
+        bpy.ops.pose.select_all(action='DESELECT')
+        armature_object.pose.bones.get('ball_r').bone.select = True
+
+        bpy.ops.object.mode_set(mode='EDIT', toggle=False)
+        bpy.ops.transform.rotate(value=-3.14159265, orient_axis='X', orient_type='GLOBAL')
+        bpy.context.object.data.edit_bones['ball_r'].roll = 0
+
+        # Tweak right arm
+        bpy.context.object.data.edit_bones['upperarm_r'].roll = -2.0943951
+        bpy.context.object.data.edit_bones['lowerarm_r'].roll = 4.13643033
+        bpy.context.object.data.edit_bones['hand_r'].roll = 2.40855437
+
+        # Tweak right fingers
+        bpy.context.object.data.edit_bones['thumb_01_r'].roll = 3.14159265
+        bpy.context.object.data.edit_bones['thumb_02_r'].roll = 3.4906585
+        bpy.context.object.data.edit_bones['thumb_03_r'].roll = 3.4906585
+        bpy.context.object.data.edit_bones['index_metacarpal_r'].roll = 2.35619449
+        bpy.context.object.data.edit_bones['index_01_r'].roll = 2.35619449
+        bpy.context.object.data.edit_bones['index_02_r'].roll = 2.35619449
+        bpy.context.object.data.edit_bones['index_03_r'].roll = 2.35619449
+        bpy.context.object.data.edit_bones['middle_metacarpal_r'].roll = 1.74532925
+        bpy.context.object.data.edit_bones['middle_01_r'].roll = 1.74532925
+        bpy.context.object.data.edit_bones['middle_02_r'].roll = 1.74532925
+        bpy.context.object.data.edit_bones['middle_03_r'].roll = 1.74532925
+        bpy.context.object.data.edit_bones['ring_metacarpal_r'].roll = 1.74532925
+        bpy.context.object.data.edit_bones['ring_01_r'].roll = 1.74532925
+        bpy.context.object.data.edit_bones['ring_02_r'].roll = 1.74532925
+        bpy.context.object.data.edit_bones['ring_03_r'].roll = 1.74532925
+        bpy.context.object.data.edit_bones['pinky_metacarpal_r'].roll = 1.74532925
+        bpy.context.object.data.edit_bones['pinky_01_r'].roll = 1.74532925
+        bpy.context.object.data.edit_bones['pinky_02_r'].roll = 1.74532925
+        bpy.context.object.data.edit_bones['pinky_03_r'].roll = 1.74532925
+
+
+        # Aply transforms
+        bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
+        bpy.ops.object.transform_apply(location=True, rotation=True, scale=True)
+
+        # Switch back to Object mode
+        bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
+        # Switch back to global transform orientation
+        bpy.context.scene.transform_orientation_slots[0].type = 'GLOBAL'

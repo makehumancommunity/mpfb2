@@ -524,6 +524,7 @@ class HumanService:
         if rig and "name" in human_info and human_info["name"]:
             rig.name = human_info["name"]
 
+
     @staticmethod
     def _check_add_bodyparts(human_info, basemesh, subdiv_levels=1, material_model=None, eyes_material_model=None):
         for bodypart in ["eyes", "eyelashes", "eyebrows", "tongue", "teeth", "hair"]:
@@ -1269,8 +1270,13 @@ class HumanService:
         armature_object = rig.create_armature_and_fit_to_basemesh()
 
         # Assign a name to the armature
-        name = basemesh.name + (".metarig" if is_rigify else ".rig")
-        armature_object.name = armature_object.data.name = name
+        # EDIT by Klecer: name as "root" for ue5 rig
+        if(rig_name.startswith("ue5")):
+            name = "root"
+            armature_object.name = armature_object.data.name ="root"
+        else:
+            name = basemesh.name + (".metarig" if is_rigify else ".rig")
+            armature_object.name = armature_object.data.name = name
 
         # Type-specific handling
         if is_rigify:
@@ -1304,6 +1310,10 @@ class HumanService:
                     operator.report({'ERROR'}, "Could not find the weights file")
 
             RigService.ensure_armature_modifier(basemesh, armature_object)
+
+        # EDIT by Klecer: edit bones to fit ue5 mannequin
+        if(rig_name.startswith("ue5")):
+            RigService.fix_ue5_bone_orientation(armature_object)
 
         return armature_object
 
