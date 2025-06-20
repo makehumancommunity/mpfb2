@@ -14,7 +14,7 @@ bl_info = {  # pylint: disable=C0103
 
 # These are constants that can be imported from submodules
 VERSION = bl_info["version"]
-BUILD_INFO = "20240723"
+BUILD_INFO = "FROM_SOURCE"
 
 # Don't import this log object. Instead, get a local logger via LogService
 _LOG = None
