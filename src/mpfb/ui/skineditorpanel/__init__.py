@@ -8,7 +8,7 @@
 # ------------------------------------------------------------------------------
 
 import os, bpy
-from mpfb.services import LogService as _LogService
+from ...services import LogService as _LogService
 _LOG = _LogService.get_logger("skineditorpanel.init")
 _LOG.trace("initializing skin editor module")
 

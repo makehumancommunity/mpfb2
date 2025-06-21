@@ -6,9 +6,9 @@
 # Supervisor:   Ing. Tomáš Chlubna, Ph.D.
 # Description:  Operator responsible for export of Human mesh and hair cards to FBX hair assets to Alembic, optional parenting of card assets and merging of hair assets
 # ------------------------------------------------------------------------------
-from mpfb.services.logservice import LogService
-from mpfb.services.locationservice import LocationService
-from mpfb._classmanager import ClassManager
+from ....services.logservice import LogService
+from ....services.locationservice import LocationService
+from .... import ClassManager
 import bpy,os,json
 
 _LOG = LogService.get_logger("exportpanel.export_ue5")

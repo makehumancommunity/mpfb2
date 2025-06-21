@@ -6,10 +6,10 @@
 # Supervisor:   Ing. Tomáš Chlubna, Ph.D.
 # Description:  operator for deleting hair asset and removing its properties
 # ------------------------------------------------------------------------------
-from mpfb.services.logservice import LogService
-from mpfb.services.locationservice import LocationService
-from mpfb._classmanager import ClassManager
-from mpfb.services.haireditorservices import HairEditorService
+from ....services.logservice import LogService
+from ....services.locationservice import LocationService
+from .... import ClassManager
+from ....services.haireditorservices import HairEditorService
 import bpy, os, json, shutil
 
 _LOG = LogService.get_logger("haireditorpanel.delete_hair_operator")

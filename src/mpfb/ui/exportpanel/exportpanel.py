@@ -6,12 +6,13 @@
 # Supervisor:   Ing. Tomáš Chlubna, Ph.D.
 # Description:  UI panel for Unreal Engine 5 exporter module
 # ------------------------------------------------------------------------------
-from mpfb._classmanager import ClassManager
-from mpfb.services.logservice import LogService
-from mpfb.services.uiservice import UiService
-from mpfb.ui.abstractpanel import Abstract_Panel
-import bpy,os,json
-from mpfb.services.sceneconfigset import SceneConfigSet
+from ... import ClassManager
+from ...services.logservice import LogService
+from ...services.uiservice import UiService
+from ...ui.abstractpanel import Abstract_Panel
+from ...services.sceneconfigset import SceneConfigSet
+import bpy, os, json
+
 
 _LOG = LogService.get_logger("ui.exportpanel")
 _LOC = os.path.dirname(__file__)

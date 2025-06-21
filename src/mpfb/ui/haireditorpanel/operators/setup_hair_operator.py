@@ -6,10 +6,10 @@
 # Supervisor:   Ing. Tomáš Chlubna, Ph.D.
 # Description:  operator for setting up scene for adding hair
 # ------------------------------------------------------------------------------
-from mpfb.services.logservice import LogService
-from mpfb.services.locationservice import LocationService
-from mpfb._classmanager import ClassManager
-from mpfb.services.haireditorservices import HairEditorService
+from ....services.logservice import LogService
+from ....services.locationservice import LocationService
+from .... import ClassManager
+from ....services.haireditorservices import HairEditorService
 import bpy, os, json, shutil
 
 _LOG = LogService.get_logger("haireditorpanel.setup_hair_operator")

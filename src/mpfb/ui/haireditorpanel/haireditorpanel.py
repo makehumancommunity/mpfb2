@@ -7,12 +7,12 @@
 # Description:  UI panel for hair editor module
 # ------------------------------------------------------------------------------
 
-from mpfb._classmanager import ClassManager
-from mpfb.services.logservice import LogService
-from mpfb.services.uiservice import UiService
-from mpfb.services.sceneconfigset import SceneConfigSet
-from mpfb.services.haireditorservices import HairEditorService
-from mpfb.ui.abstractpanel import Abstract_Panel
+from ... import ClassManager
+from ...services.logservice import LogService
+from ...services.uiservice import UiService
+from ...services.sceneconfigset import SceneConfigSet
+from ...services.haireditorservices import HairEditorService
+from ...ui.abstractpanel import Abstract_Panel
 import bpy,os, json
 
 _LOG = LogService.get_logger("ui.haireditorpanel")

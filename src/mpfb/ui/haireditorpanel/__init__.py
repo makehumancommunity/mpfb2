@@ -9,7 +9,7 @@
 """This module contains functionality for haireditor."""
 
 import os, bpy
-from mpfb.services import LogService as _LogService
+from ...services import LogService as _LogService
 _LOG = _LogService.get_logger("heireditorpanel.init")
 _LOG.trace("initializing hair editor module")
 

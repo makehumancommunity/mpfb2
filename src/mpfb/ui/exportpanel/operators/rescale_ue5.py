@@ -7,9 +7,9 @@
 # Description:  Operator responsible for rescaling human armature and model for correct export and setting up attributes for export
 # NOTE:         Previously used only for rescaling, therefore the name
 # ------------------------------------------------------------------------------
-from mpfb.services.logservice import LogService
-from mpfb.services.locationservice import LocationService
-from mpfb._classmanager import ClassManager
+from ....services.logservice import LogService
+from ....services.locationservice import LocationService
+from .... import ClassManager
 import bpy, os
 
 _LOG = LogService.get_logger("exportpanel.rescale_ue5")

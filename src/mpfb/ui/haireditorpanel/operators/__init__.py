@@ -8,7 +8,7 @@
 # ------------------------------------------------------------------------------
 """Operators for hair editor"""
 
-from mpfb.services import LogService as _LogService
+from ....services import LogService as _LogService
 _LOG = _LogService.get_logger("haireditorpanel.operators")
 _LOG.trace("initializing Hair editor operators")
 

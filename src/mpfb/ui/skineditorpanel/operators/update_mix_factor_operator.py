@@ -6,10 +6,10 @@
 # Supervisor:   Ing. Tomáš Chlubna, Ph.D.
 # Description:  unused
 # ------------------------------------------------------------------------------
-from mpfb.services.logservice import LogService
-from mpfb.services.skineditorservices import SkinEditorService
-from mpfb.services.locationservice import LocationService
-from mpfb._classmanager import ClassManager
+from ....services.logservice import LogService
+from ....services.skineditorservices import SkinEditorService
+from ....services.locationservice import LocationService
+from ....  import ClassManager
 import bpy, os, json
 
 _LOG = LogService.get_logger("skineditorpanel.update_mix_factor_operator")

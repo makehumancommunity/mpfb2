@@ -6,12 +6,12 @@
 # Supervisor:   Ing. Tomáš Chlubna, Ph.D.
 # Description:  UI panel for material editor
 # ------------------------------------------------------------------------------
-from mpfb._classmanager import ClassManager
-from mpfb.services.logservice import LogService
-from mpfb.services.uiservice import UiService
-from mpfb.services.sceneconfigset import SceneConfigSet
-from mpfb.services.skineditorservices import SkinEditorService
-from mpfb.ui.abstractpanel import Abstract_Panel
+from ... import ClassManager
+from ...services.logservice import LogService
+from ...services.uiservice import UiService
+from ...services.sceneconfigset import SceneConfigSet
+from ...services.skineditorservices import SkinEditorService
+from ...ui.abstractpanel import Abstract_Panel
 import bpy,os, json
 
 _LOG = LogService.get_logger("ui.skineditorpanel")

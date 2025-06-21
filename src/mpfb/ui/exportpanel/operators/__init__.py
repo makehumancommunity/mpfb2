@@ -7,7 +7,7 @@
 # Description:  Initializing file for export operators
 # ------------------------------------------------------------------------------
 
-from mpfb.services import LogService as _LogService
+from ....services import LogService as _LogService
 _LOG = _LogService.get_logger("exportpanel.operators")
 _LOG.trace("initializing Export operators")
 
