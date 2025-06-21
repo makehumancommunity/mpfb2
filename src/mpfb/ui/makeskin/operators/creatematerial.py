@@ -1,11 +1,11 @@
 """Operator for creating a template MakeSkin material."""
 
 import bpy
-from mpfb.services.logservice import LogService
-from mpfb.services.materialservice import MaterialService
-from mpfb.entities.material.makeskinmaterial import MakeSkinMaterial
-from mpfb.ui.makeskin.makeskinpanel import MAKESKIN_PROPERTIES
-from mpfb import ClassManager
+from ....services import LogService
+from ....services import MaterialService
+from ....entities.material.makeskinmaterial import MakeSkinMaterial
+from ...makeskin.makeskinpanel import MAKESKIN_PROPERTIES
+from .... import ClassManager
 
 _LOG = LogService.get_logger("makeskin.creatematerial")
 
@@ -27,8 +27,8 @@ class MPFB_OT_CreateMaterialOperator(bpy.types.Operator):
         blender_object = context.active_object
         scene = context.scene
 
-        from mpfb.ui.makeskin.makeskinpanel import MAKESKIN_PROPERTIES  # pylint: disable=C0415
-        from mpfb.ui.makeskin import MakeSkinObjectProperties  # pylint: disable=C0415
+        from ...makeskin.makeskinpanel import MAKESKIN_PROPERTIES  # pylint: disable=C0415
+        from ...makeskin import MakeSkinObjectProperties  # pylint: disable=C0415
 
         if MaterialService.has_materials(blender_object):
             MaterialService.delete_all_materials(blender_object)

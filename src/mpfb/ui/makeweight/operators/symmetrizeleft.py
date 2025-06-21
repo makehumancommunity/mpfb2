@@ -1,10 +1,10 @@
 """Operator for making left side a mirrored copy of right side."""
 
 import bpy
-from mpfb.services.logservice import LogService
-from mpfb.services.objectservice import ObjectService
-from mpfb.services.rigservice import RigService
-from mpfb import ClassManager
+from ....services import LogService
+from ....services import ObjectService
+from ....services import RigService
+from .... import ClassManager
 
 _LOG = LogService.get_logger("makeweight.symmetrizeleft")
 

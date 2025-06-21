@@ -2,10 +2,10 @@
 
 import os, bpy
 
-from mpfb.services import LogService as _LogService
-from mpfb.services.sceneconfigset import SceneConfigSet
+from ...services import LogService
+from ...services import SceneConfigSet
 
-_LOG = _LogService.get_logger("makepose.init")
+_LOG = LogService.get_logger("makepose.init")
 _LOG.trace("initializing makepose module")
 
 _ROOT = os.path.dirname(__file__)

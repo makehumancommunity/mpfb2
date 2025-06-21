@@ -1,9 +1,9 @@
-from mpfb.services.logservice import LogService
-from mpfb.services.locationservice import LocationService
-from mpfb.services.materialservice import MaterialService
-from mpfb.services.objectservice import ObjectService
-from mpfb.services.rigservice import RigService
-from mpfb._classmanager import ClassManager
+from ....services import LogService
+from ....services import LocationService
+from ....services import MaterialService
+from ....services import ObjectService
+from ....services import RigService
+from .... import ClassManager
 import bpy, json, math, os
 from bpy.types import StringProperty
 from bpy_extras.io_utils import ExportHelper
@@ -33,7 +33,7 @@ class MPFB_OT_Save_Pose_Operator(bpy.types.Operator):
 
         armature_object = context.object
 
-        from mpfb.ui.makepose import MakePoseProperties
+        from ...makepose import MakePoseProperties
         name = MakePoseProperties.get_value('name', entity_reference=context.scene)
         pose_type = MakePoseProperties.get_value('pose_type', entity_reference=context.scene)
         overwrite = MakePoseProperties.get_value('overwrite', entity_reference=context.scene)

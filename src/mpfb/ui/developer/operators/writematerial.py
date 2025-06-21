@@ -1,12 +1,12 @@
 """Functionality for writing a node tree to v2 model material directory"""
 
-from mpfb.services.locationservice import LocationService
-from mpfb.services.logservice import LogService
-from mpfb.services.nodeservice import NodeService
-from mpfb.entities.nodemodel.v2.primitives import *
-from mpfb.entities.nodemodel.v2.composites import *
-from mpfb._classmanager import ClassManager
-from mpfb.ui.developer.developerpanel import DEVELOPER_PROPERTIES
+from ....services import LocationService
+from ....services import LogService
+from ....services import NodeService
+from ....entities.nodemodel.v2.primitives import *
+from ....entities.nodemodel.v2.composites import *
+from .... import ClassManager
+from ...developer.developerpanel import DEVELOPER_PROPERTIES
 from .rewritenodetypes import shorten_name, round_floats
 from .writecomposite import _identify_socket, _build_tree_def
 import bpy, os, json, pprint
@@ -151,10 +151,10 @@ class MPFB_OT_Write_Material_Operator(bpy.types.Operator):
         with open(v2test, "w") as pyfile:
             pyfile.write("import bpy, os\n")
             pyfile.write("from pytest import approx\n")
-            pyfile.write("from mpfb.services.objectservice import ObjectService\n")
-            pyfile.write("from mpfb.services.nodeservice import NodeService\n")
+            pyfile.write("from ....services import ObjectService\n")
+            pyfile.write("from ....services import NodeService\n")
             if mhmat_based:
-                pyfile.write("from mpfb.services.locationservice import LocationService\n")
+                pyfile.write("from ....services import LocationService\n")
                 pyfile.write("from mpfb.entities.material.mhmaterial import MhMaterial\n")
             pyfile.write("from mpfb.entities.nodemodel.v2.materials.nodewrapper" + output_name.lower() + " import NodeWrapper" + output_name + "\n\n")
             pyfile.write("def test_composite_is_available():\n")

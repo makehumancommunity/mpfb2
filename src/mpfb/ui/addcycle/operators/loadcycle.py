@@ -1,10 +1,10 @@
-from mpfb.services.logservice import LogService
-from mpfb.services.locationservice import LocationService
-from mpfb.services.materialservice import MaterialService
-from mpfb.services.objectservice import ObjectService
-from mpfb.services.animationservice import AnimationService
-from mpfb.services.rigservice import RigService
-from mpfb._classmanager import ClassManager
+from ....services import LogService
+from ....services import LocationService
+from ....services import MaterialService
+from ....services import ObjectService
+from ....services import AnimationService
+from ....services import RigService
+from .... import ClassManager
 import bpy, json, math, os
 from bpy.types import StringProperty
 from bpy_extras.io_utils import ExportHelper
@@ -34,7 +34,7 @@ class MPFB_OT_Load_Walk_Cycle_Operator(bpy.types.Operator):
 
         armature_object = context.object
 
-        from mpfb.ui.addcycle.addcyclepanel import ADD_CYCLE_PROPERTIES
+        from ...addcycle.addcyclepanel import ADD_CYCLE_PROPERTIES
 
         iterations = ADD_CYCLE_PROPERTIES.get_value('iterations', entity_reference=context.scene)
         cycle = ADD_CYCLE_PROPERTIES.get_value('available_cycles', entity_reference=context.scene)

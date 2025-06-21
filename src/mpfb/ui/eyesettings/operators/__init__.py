@@ -1,6 +1,6 @@
 """Operators for saving/loading eye material settings"""
 
-from mpfb.services.logservice import LogService
+from ....services import LogService
 _LOG = LogService.get_logger("importeroperators.init")
 _LOG.trace("initializing importer operators")
 

@@ -3,11 +3,11 @@
 import bpy
 from bpy_extras.io_utils import ImportHelper
 from bpy.props import StringProperty
-from mpfb.entities.material.makeskinmaterial import MakeSkinMaterial
-from mpfb.services.logservice import LogService
-from mpfb.services.rigservice import RigService
-from mpfb.services.objectservice import ObjectService
-from mpfb import ClassManager
+from ....entities.material.makeskinmaterial import MakeSkinMaterial
+from ....services import LogService
+from ....services import RigService
+from ....services import ObjectService
+from .... import ClassManager
 
 _LOG = LogService.get_logger("poseops.copy_pose")
 
@@ -28,7 +28,7 @@ class MPFB_OT_Copy_Pose_Operator(bpy.types.Operator):
         active = context.active_object
         scn = context.scene
 
-        from mpfb.ui.poseops.poseopspanel import POP_PROPERTIES
+        from ...poseops.poseopspanel import POP_PROPERTIES
         only_rotation = POP_PROPERTIES.get_value("only_rotation", entity_reference=scn)
 
         bpy.ops.object.mode_set(mode='OBJECT', toggle=False)

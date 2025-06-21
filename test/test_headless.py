@@ -1,7 +1,6 @@
 import pytest, os
-from mpfb.services.locationservice import LocationService
 
-tests = LocationService.get_mpfb_test("tests")
+tests = os.path.abspath(os.path.join(os.path.dirname(__file__), "tests"))
 
 if "TEST_MODULE" in os.environ:
     tests = os.path.abspath(os.path.join(tests, "..", os.environ['TEST_MODULE']))

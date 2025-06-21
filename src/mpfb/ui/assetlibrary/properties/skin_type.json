@@ -3,7 +3,7 @@
     "name": "skin_type",
     "description": "What type of skin should be loaded?",
     "label": "Skin type",
-    "default": "LAYERED",
+    "default": "MAKESKIN",
     "items": [
         ["GAMEENGINE", "GameEngine (PBR)", "Use a simplistic PBR-style material for the skin, without any procedural aspects at all. This is geared towards export to external applications", 5],
         ["MAKESKIN", "MakeSkin (PBR)", "Use a PBR-style material for the skin, relying mostly on image textures and with few procedural aspects. This supports more of the general PBR model than the GameEngine material. It is also the material which is most similar to the original MakeHuman material model", 1],

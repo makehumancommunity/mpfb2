@@ -1,6 +1,6 @@
 """Operators for loading clothes"""
 
-from mpfb.services.logservice import LogService
+from ....services import LogService
 _LOG = LogService.get_logger("loadclothes.operators.init")
 _LOG.trace("initializing load clothes operators")
 

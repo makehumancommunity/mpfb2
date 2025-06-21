@@ -5,12 +5,12 @@ for information about the actual properties"""
 
 import bpy, os
 
-from mpfb.services.logservice import LogService
+from ...services import LogService
 
 _LOG = LogService.get_logger("objectproperties.init")
 _LOG.trace("initializing object properties module")
 
-from mpfb.services.blenderconfigset import BlenderConfigSet
+from ...services import BlenderConfigSet
 
 _ROOT = os.path.dirname(__file__)
 

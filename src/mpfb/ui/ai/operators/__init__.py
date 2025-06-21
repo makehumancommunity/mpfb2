@@ -1,6 +1,6 @@
 """Operators for ai stuff"""
 
-from mpfb.services.logservice import LogService
+from ....services import LogService
 _LOG = LogService.get_logger("ai.operators.init")
 _LOG.trace("initializing ai operators")
 

@@ -1,7 +1,7 @@
 """Operators for adding rigs."""
 
-from mpfb.services import LogService as _LogService
-_LOG = _LogService.get_logger("addrig.operators")
+from ....services import LogService
+_LOG = LogService.get_logger("addrig.operators")
 _LOG.trace("initializing add rig module")
 
 from .addstandardrig import MPFB_OT_AddStandardRigOperator

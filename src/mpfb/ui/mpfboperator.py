@@ -2,24 +2,27 @@
 
 import bpy, platform, sys, traceback
 from datetime import date
-from mpfb.services.logservice import LogService
-from mpfb.services.locationservice import LocationService
-from mpfb.services.objectservice import ObjectService
-from mpfb import VERSION, BUILD_INFO
+from ..services import LogService
+from ..services import LocationService
+from ..services import ObjectService
+from .. import VERSION, BUILD_INFO
 
-_LOG = LogService.get_logger("uiactions")
+_LOG = LogService.get_logger("MpfbOperator")
+
 
 class MpfbOperator(bpy.types.Operator):
     """Abstract wrapper for UI operators, providing help for writing error summaries"""
 
-    def __init__(self, logname, default_log_level=None):
+    def __init__(self, *args, **kwargs):
         """Initialize the operator. You will normally not need to call this manually."""
 
-        bpy.types.Operator.__init__(self)
+        super().__init__(*args, **kwargs)
+        self.LOG = self.get_logger()
 
-        self.LOG = LogService.get_logger(logname)
-        if default_log_level is not None:
-            self.LOG.set_level(default_log_level)
+    def get_logger(self):
+        """Return the logger associated with this operator. This should be overriden by subclasses."""
+        _LOG.warn("Subclass of MpfbOperator did not override the get_logger() method.", self.__class__.__name__)
+        return _LOG
 
     def _generate_error_information(self, context, error, tb=""):
         """Generate an error information hash, providing information about the error and the state of the context."""
@@ -68,7 +71,7 @@ class MpfbOperator(bpy.types.Operator):
         out = out + tb
 
         dt = date.today()
-        fn = LocationService.get_log_dir("error_report_" + dt.strftime('%Y%m%d') +".txt")
+        fn = LocationService.get_log_dir("error_report_" + dt.strftime('%Y%m%d') + ".txt")
 
         with open(fn, "w") as f:
             f.write(out)
@@ -84,12 +87,12 @@ class MpfbOperator(bpy.types.Operator):
         """The excute method called by blender. This will wrap the actual execute method in a try/except block. If an exception is raised, it will be logged
         and a summary of the error will be written to a log file."""
         self.LOG.enter()
-        _LOG.info("Executing %s" % self.__class__.__name__)
+        _LOG.debug("Executing %s" % self.__class__.__name__)
         try:
             return self.hardened_execute(context)
         except Exception as e:
             self.LOG.crash("Execution caused an exception", self._generate_error_information(context, e, traceback.format_exc()))
-            #print(traceback.format_exc())
+            # print(traceback.format_exc())
             self.report({'ERROR'}, "An unhandled exception was encountered: %s. See console or log for information to provide in error report." % e)
             return {'CANCELLED'}
 

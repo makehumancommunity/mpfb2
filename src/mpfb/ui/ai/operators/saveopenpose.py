@@ -1,8 +1,8 @@
-from mpfb.entities.objectproperties import GeneralObjectProperties
-from mpfb.services.logservice import LogService
-from mpfb.services.objectservice import ObjectService
-from mpfb.services.rigservice import RigService
-from mpfb._classmanager import ClassManager
+from ....entities.objectproperties import GeneralObjectProperties
+from ....services import LogService
+from ....services import ObjectService
+from ....services import RigService
+from .... import ClassManager
 import bpy, json, math, bmesh
 from mathutils import Vector, Matrix
 from bpy.types import StringProperty
@@ -11,7 +11,6 @@ from bpy_extras.object_utils import world_to_camera_view
 from ._openposeconstants import COCO, LEFT_HAND, RIGHT_HAND
 
 _LOG = LogService.get_logger("ai.operators.saveopenpose")
-_LOG.set_level(LogService.DEBUG)
 
 _CREATE_DEBUG_EMPTIES = False
 
@@ -36,12 +35,12 @@ class MPFB_OT_Save_Openpose_Operator(bpy.types.Operator, ExportHelper):
         # Due to limitations in world_to_camera_view(), this ends up distorted. A world coordinate is
         # not matched to what the camera actually sees in an exact manner, as the method does not take
         # all camera settings into account. The final results are unpredictable and often depressing.
-        cam_coord = world_to_camera_view(scene, camera, keypoint)
+        cam_coord = world_to_camera_view(scene, camera, Vector(keypoint))
         _LOG.debug("Cam projection", (keypoint, cam_coord))
         return [cam_coord[0] * resx, (1.0 - cam_coord[1]) * resy]
 
     def _as_xz_projection(self, scene, resx, resy, keypoint):
-        from mpfb.ui.ai.aipanel import AI_PROPERTIES
+        from ...ai.aipanel import AI_PROPERTIES
         minx = AI_PROPERTIES.get_value("minx", entity_reference=scene)
         maxx = AI_PROPERTIES.get_value("maxx", entity_reference=scene)
         minz = AI_PROPERTIES.get_value("minz", entity_reference=scene)
@@ -59,7 +58,7 @@ class MPFB_OT_Save_Openpose_Operator(bpy.types.Operator, ExportHelper):
 
     def _get_keypoints_2d(self, armature_object, bm, scene, camera, resx, resy, mapper):
 
-        from mpfb.ui.ai.aipanel import AI_PROPERTIES
+        from ...ai.aipanel import AI_PROPERTIES
         low = AI_PROPERTIES.get_value("lowconfidence", entity_reference=scene)
         medium = AI_PROPERTIES.get_value("mediumconfidence", entity_reference=scene)
         high = AI_PROPERTIES.get_value("highconfidence", entity_reference=scene)
@@ -158,7 +157,7 @@ class MPFB_OT_Save_Openpose_Operator(bpy.types.Operator, ExportHelper):
             self.report({'ERROR'}, "Could not find a camera in the scene")
             return {'FINISHED'}
 
-        from mpfb.ui.ai.aipanel import AI_PROPERTIES
+        from ...ai.aipanel import AI_PROPERTIES
         hands = AI_PROPERTIES.get_value("hands", entity_reference=context.scene)
         #face = AI_PROPERTIES.get_value("face", entity_reference=context.scene)
         mode = AI_PROPERTIES.get_value("mode", entity_reference=context.scene)

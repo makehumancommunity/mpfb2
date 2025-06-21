@@ -2,10 +2,10 @@
 
 import os, bpy
 
-from mpfb.services import LogService as _LogService
-from mpfb.services.blenderconfigset import BlenderConfigSet
+from ...services import LogService
+from ...services import BlenderConfigSet
 
-_LOG = _LogService.get_logger("newhuman.init")
+_LOG = LogService.get_logger("newhuman.init")
 _LOG.trace("initializing new human module")
 
 from .frompresetspanel import MPFB_PT_From_Presets_Panel

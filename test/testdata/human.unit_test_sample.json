@@ -1,0 +1,65 @@
+{
+    "clothes": [],
+    "color_adjustments": {
+        "9c81ec3a-faa5-4c94-9cdb-992300ba3084": {
+            "Color1": [
+                1.0,
+                1.0,
+                1.0,
+                1.0
+            ],
+            "Color2": [
+                0.5,
+                0.5,
+                0.5,
+                1.0
+            ],
+            "Fac": 1.0
+        },
+        "d533836f-13ad-4836-8b65-051108253cd2": {
+            "Color1": [
+                1.0,
+                1.0,
+                1.0,
+                1.0
+            ],
+            "Color2": [
+                0.5,
+                0.5,
+                0.5,
+                1.0
+            ],
+            "Fac": 1.0
+        }
+    },
+    "eyebrows": "eyebrow001/eyebrow001.mhclo",
+    "eyelashes": "eyelashes01/eyelashes01.mhclo",
+    "eyes": "high-poly/high-poly.mhclo",
+    "eyes_material_settings": {},
+    "eyes_material_type": "MAKESKIN",
+    "hair": "",
+    "makeup": [],
+    "phenotype": {
+        "age": 0.5,
+        "cupsize": 0.550000011920929,
+        "firmness": 0.550000011920929,
+        "gender": 0.0,
+        "height": 0.5,
+        "muscle": 0.5,
+        "proportions": 0.5,
+        "race": {
+            "african": 0.33000001311302185,
+            "asian": 0.33000001311302185,
+            "caucasian": 0.33000001311302185
+        },
+        "weight": 0.5
+    },
+    "proxy": "",
+    "rig": "default_no_toes",
+    "skin_material_settings": {},
+    "skin_material_type": "MAKESKIN",
+    "skin_mhmat": "middleage_caucasian_female/middleage_caucasian_female.mhmat",
+    "targets": [],
+    "teeth": "",
+    "tongue": ""
+}

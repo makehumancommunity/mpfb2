@@ -2,16 +2,16 @@
 
 import bpy, os
 from bpy.props import StringProperty
-from mpfb.services.logservice import LogService
-from mpfb.services.objectservice import ObjectService
-from mpfb.services.materialservice import MaterialService
-from mpfb.services.clothesservice import ClothesService
-from mpfb.services.rigservice import RigService
-from mpfb.entities.clothes.mhclo import Mhclo
-from mpfb.entities.socketobject import ALL_EXTRA_GROUPS
-from mpfb.entities.objectproperties import GeneralObjectProperties
-from mpfb.entities.material.makeskinmaterial import MakeSkinMaterial
-from mpfb import ClassManager
+from ....services import LogService
+from ....services import ObjectService
+from ....services import MaterialService
+from ....services import ClothesService
+from ....services import RigService
+from ....entities.clothes.mhclo import Mhclo
+from ....entities.socketobject import ALL_EXTRA_GROUPS
+from ....entities.objectproperties import GeneralObjectProperties
+from ....entities.material.makeskinmaterial import MakeSkinMaterial
+from .... import ClassManager
 
 _LOG = LogService.get_logger("assetlibrary.loadlibraryproxy")
 
@@ -28,7 +28,7 @@ class MPFB_OT_Load_Library_Proxy_Operator(bpy.types.Operator):
 
         _LOG.debug("filepath", self.filepath)
 
-        from mpfb.ui.assetlibrary.assetsettingspanel import ASSET_SETTINGS_PROPERTIES # pylint: disable=C0415
+        from ...assetlibrary.assetsettingspanel import ASSET_SETTINGS_PROPERTIES # pylint: disable=C0415
 
         scene = context.scene
 

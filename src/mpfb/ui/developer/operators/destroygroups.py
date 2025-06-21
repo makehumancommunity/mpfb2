@@ -1,10 +1,10 @@
 """Functionality for removing all MPFB node groups"""
 
-from mpfb.services.locationservice import LocationService
-from mpfb.services.logservice import LogService
-from mpfb.services.nodeservice import NodeService
-from mpfb._classmanager import ClassManager
-from mpfb.ui.developer.developerpanel import DEVELOPER_PROPERTIES
+from ....services import LocationService
+from ....services import LogService
+from ....services import NodeService
+from .... import ClassManager
+from ...developer.developerpanel import DEVELOPER_PROPERTIES
 import bpy, os, json, pprint
 from string import Template
 

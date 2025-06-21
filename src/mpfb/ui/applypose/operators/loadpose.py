@@ -1,9 +1,9 @@
-from mpfb.services.logservice import LogService
-from mpfb.services.materialservice import MaterialService
-from mpfb.services.objectservice import ObjectService
-from mpfb.services.locationservice import LocationService
-from mpfb.services.rigservice import RigService
-from mpfb._classmanager import ClassManager
+from ....services import LogService
+from ....services import MaterialService
+from ....services import ObjectService
+from ....services import LocationService
+from ....services import RigService
+from .... import ClassManager
 import bpy, json, math, os
 from bpy.types import StringProperty
 from bpy_extras.io_utils import ImportHelper
@@ -34,7 +34,7 @@ class MPFB_OT_Load_Pose_Operator(bpy.types.Operator):
 
         armature_object = context.object
 
-        from mpfb.ui.applypose.applyposepanel import POSES_PROPERTIES
+        from ...applypose.applyposepanel import POSES_PROPERTIES
         name = POSES_PROPERTIES.get_value("available_poses", entity_reference=context.scene)
 
         name = str(name).strip()

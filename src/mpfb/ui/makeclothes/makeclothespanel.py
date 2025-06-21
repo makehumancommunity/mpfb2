@@ -1,16 +1,16 @@
 """File containing main UI for makeclothes"""
 
 import os, bpy
-from mpfb import ClassManager
-from mpfb.services.logservice import LogService
-from mpfb.services.sceneconfigset import SceneConfigSet
-from mpfb.services.uiservice import UiService
-from mpfb.services.objectservice import ObjectService
-from mpfb.services.locationservice import LocationService
-from mpfb.services.materialservice import MaterialService
-from mpfb.ui.makeclothes import MakeClothesObjectProperties
-from mpfb.entities.objectproperties import GeneralObjectProperties
-from mpfb.ui.abstractpanel import Abstract_Panel
+from ... import ClassManager
+from ...services import LogService
+from ...services import SceneConfigSet
+from ...services import UiService
+from ...services import ObjectService
+from ...services import LocationService
+from ...services import MaterialService
+from ..makeclothes import MakeClothesObjectProperties
+from ...entities.objectproperties import GeneralObjectProperties
+from ..abstractpanel import Abstract_Panel
 
 # TODO:
 # - Nuke all vert groups
@@ -66,6 +66,10 @@ class MPFB_PT_MakeClothes_Panel(Abstract_Panel):
         box = self._create_box(layout, "Basemesh xref", "TOOL_SETTINGS")
         box.operator('mpfb.basemesh_xref')
 
+    def _import_legacy(self, scene, layout):
+        box = self._create_box(layout, "Import legacy", "TOOL_SETTINGS")
+        box.operator('mpfb.legacy_makeclothes_import')
+
     def _extract_clothes(self, scene, layout, blender_object):
         box = self._create_box(layout, "Extract clothes", "TOOL_SETTINGS")
         props = ["available_groups"]
@@ -90,7 +94,8 @@ class MPFB_PT_MakeClothes_Panel(Abstract_Panel):
             return
         material = MaterialService.get_material(blender_object)
         mat_type = MaterialService.identify_material(material)
-        if mat_type != "makeskin":
+        _LOG.debug("Material type", mat_type)
+        if mat_type not in ["makeskin", "gameengine"]:
             box.label(text="Only MakeSkin materials")
             box.label(text="are supported")
             return
@@ -130,11 +135,6 @@ class MPFB_PT_MakeClothes_Panel(Abstract_Panel):
         box.operator('mpfb.makeclothes_gendelete')
 
     def _write_clothes(self, blender_object, scene, layout):
-        box = self._create_box(layout, "Write clothes", "MATERIAL_DATA")
-
-        if len(bpy.context.selected_objects) != 2:
-            box.label(text="Select exactly two objects")
-            return
 
         basemesh = None
         clothes = None
@@ -145,6 +145,17 @@ class MPFB_PT_MakeClothes_Panel(Abstract_Panel):
                 ot = ObjectService.get_object_type(obj)
                 if ot and ot != "Skeleton":
                     clothes = obj
+
+        label = "Write clothes"
+        if basemesh and clothes:
+            obj_type = GeneralObjectProperties.get_value("object_type", entity_reference=clothes)
+            label = "Write " + obj_type
+
+        box = self._create_box(layout, label, "MATERIAL_DATA")
+
+        if len(bpy.context.selected_objects) != 2:
+            box.label(text="Select exactly two objects")
+            return
 
         if not basemesh:
             box.label(text="Select a base mesh")
@@ -187,7 +198,7 @@ class MPFB_PT_MakeClothes_Panel(Abstract_Panel):
             box.label(text="Select a clothes type mesh")
             return
 
-        from mpfb.ui.makeclothes.operators import CLOTHES_CHECKS
+        from ..makeclothes.operators import CLOTHES_CHECKS
 
         uuid_value = GeneralObjectProperties.get_value("uuid", entity_reference=clothes)
         if not uuid_value:
@@ -263,6 +274,9 @@ class MPFB_PT_MakeClothes_Panel(Abstract_Panel):
                 ot = ObjectService.get_object_type(obj)
                 if ot and ot != "Skeleton":
                     clothes = obj
+
+        if blender_object:
+            self._import_legacy(scene, layout)
 
         if basemesh:
             self._bm_xref(scene, layout, basemesh)

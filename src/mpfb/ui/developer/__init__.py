@@ -1,7 +1,7 @@
 """This module contains functionality for various developer stuff."""
 
-from mpfb.services import LogService as _LogService
-_LOG = _LogService.get_logger("developer.init")
+from ...services import LogService
+_LOG = LogService.get_logger("developer.init")
 _LOG.trace("initializing developer module")
 
 from .developerpanel import MPFB_PT_Developer_Panel

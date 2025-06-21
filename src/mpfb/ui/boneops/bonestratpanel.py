@@ -2,10 +2,10 @@ import bpy
 
 from rna_prop_ui import rna_idprop_quote_path
 
-from mpfb._classmanager import ClassManager
-from mpfb.services.logservice import LogService
-from mpfb.services.objectservice import ObjectService
-from mpfb.ui.abstractpanel import Abstract_Panel
+from ... import ClassManager
+from ...services import LogService
+from ...services import ObjectService
+from ..abstractpanel import Abstract_Panel
 
 from . import BOP_PROPERTIES, BoneOpsEditBoneProperties, BoneOpsBoneProperties, BoneOpsArmatureProperties
 from .operators import MPFB_OT_Reapply_Bone_Strategy_Operator, MPFB_OT_Set_Roll_Strategy_Operator,\

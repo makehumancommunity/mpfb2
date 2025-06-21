@@ -1,14 +1,15 @@
 """Asset library subpanels"""
 
 import bpy, math
-from mpfb import ClassManager
-from mpfb.services.logservice import LogService
-from mpfb.services.assetservice import AssetService, ASSET_LIBRARY_SECTIONS
-from mpfb.services.humanservice import HumanService
-from mpfb.services.objectservice import ObjectService
-from mpfb.ui.assetlibrary.assetsettingspanel import ASSET_SETTINGS_PROPERTIES
-from mpfb.services.uiservice import UiService
-from mpfb.ui.assetspanel import FILTER_PROPERTIES
+from ... import ClassManager
+from ...services import LogService
+from ...services import AssetService, ASSET_LIBRARY_SECTIONS
+from ...services import HumanService
+from ...services import ObjectService
+from ...services import TargetService
+from ..assetlibrary.assetsettingspanel import ASSET_SETTINGS_PROPERTIES
+from ...services import UiService
+from ..assetspanel import FILTER_PROPERTIES
 
 _LOG = LogService.get_logger("assetlibrary.assetlibrarypanel")
 
@@ -34,6 +35,7 @@ class _Abstract_Asset_Library_Panel(bpy.types.Panel):
     asset_type = "mhclo"
     skin_overrides = False
     eye_overrides = False
+    ink_overrides = False
     object_type = "Clothes"
     equipped = []
 
@@ -109,6 +111,8 @@ class _Abstract_Asset_Library_Panel(bpy.types.Panel):
                     operator = box.operator("mpfb.load_library_proxy")
                 if self.asset_type == "bvh":
                     operator = box.operator("mpfb.load_library_pose")
+                if self.asset_type == "json" and self.ink_overrides:
+                    operator = box.operator("mpfb.load_library_ink")
                 if self.asset_type == "mhmat" and self.skin_overrides:
                     operator = box.operator("mpfb.load_library_skin")
                 if operator is not None:
@@ -133,6 +137,8 @@ class _Abstract_Asset_Library_Panel(bpy.types.Panel):
         layout = self.layout
         scene = context.scene
 
+        override_bake_check = ASSET_SETTINGS_PROPERTIES.get_value("override_bake_check", entity_reference=scene)
+
         if context.object:
             if ObjectService.object_is_basemesh(context.object):
                 self.basemesh = context.object
@@ -141,6 +147,10 @@ class _Abstract_Asset_Library_Panel(bpy.types.Panel):
             _LOG.debug("basemesh", self.basemesh)
 
         if self.basemesh and self.asset_type in ["mhclo", "proxy"]:
+            if not TargetService.has_any_shapekey(self.basemesh) and not override_bake_check:
+                layout.label(text="Cannot equip on baked mesh")
+                layout.label(text="See docs for alternatives")
+                return
             self.equipped = HumanService.get_asset_sources_of_equipped_mesh_assets(self.basemesh)
             _LOG.debug("Equipped assets", self.equipped)
         else:

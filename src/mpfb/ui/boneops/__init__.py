@@ -1,11 +1,11 @@
 import os
 import bpy
 
-from mpfb.services import LogService as _LogService
-from mpfb.services.sceneconfigset import SceneConfigSet
-from mpfb.services.blenderconfigset import BlenderConfigSet
+from ...services import LogService
+from ...services import SceneConfigSet
+from ...services import BlenderConfigSet
 
-_LOG = _LogService.get_logger("boneops.init")
+_LOG = LogService.get_logger("boneops.init")
 _LOG.trace("initializing setup boneops module")
 
 _LOC = os.path.dirname(__file__)

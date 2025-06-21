@@ -2,8 +2,8 @@
 
 import time
 
-from mpfb.services.meshservice import MeshService
-from mpfb.services.logservice import LogService
+from ...services import MeshService
+from ...services import LogService
 
 from mathutils import Vector
 import mathutils

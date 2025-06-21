@@ -2,10 +2,10 @@
 
 import bpy
 from bpy.props import StringProperty
-from mpfb.services.logservice import LogService
-from mpfb.services.objectservice import ObjectService
-from mpfb.services.humanservice import HumanService
-from mpfb import ClassManager
+from ....services import LogService
+from ....services import ObjectService
+from ....services import HumanService
+from .... import ClassManager
 
 _LOG = LogService.get_logger("assetlibrary.loadlibraryskin")
 
@@ -22,7 +22,7 @@ class MPFB_OT_Load_Library_Skin_Operator(bpy.types.Operator):
 
         _LOG.debug("filepath", self.filepath)
 
-        from mpfb.ui.assetlibrary.assetsettingspanel import ASSET_SETTINGS_PROPERTIES  # pylint: disable=C0415
+        from ...assetlibrary.assetsettingspanel import ASSET_SETTINGS_PROPERTIES  # pylint: disable=C0415
 
         scene = context.scene
 
@@ -33,7 +33,7 @@ class MPFB_OT_Load_Library_Skin_Operator(bpy.types.Operator):
         basemesh = ObjectService.find_object_of_type_amongst_nearest_relatives(blender_object, "Basemesh")
         bodyproxy = ObjectService.find_object_of_type_amongst_nearest_relatives(blender_object, "Proxymeshes")
 
-        if skin_type == "LAYERED" or skin_type == "GAMEENGINE":
+        if skin_type in ["LAYERED", "GAMEENGINE", "MAKESKIN"]:
             material_instances = False
 
         HumanService.set_character_skin(self.filepath, basemesh, bodyproxy=bodyproxy, skin_type=skin_type, material_instances=material_instances)

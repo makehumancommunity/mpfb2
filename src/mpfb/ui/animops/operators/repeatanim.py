@@ -1,11 +1,11 @@
-from mpfb.services.logservice import LogService
-from mpfb.services.locationservice import LocationService
-from mpfb.services.materialservice import MaterialService
-from mpfb.services.objectservice import ObjectService
-from mpfb.services.animationservice import AnimationService
-from mpfb.services.rigservice import RigService
-from mpfb._classmanager import ClassManager
-from mpfb.ui.mpfboperator import MpfbOperator
+from ....services import LogService
+from ....services import LocationService
+from ....services import MaterialService
+from ....services import ObjectService
+from ....services import AnimationService
+from ....services import RigService
+from .... import ClassManager
+from ...mpfboperator import MpfbOperator
 import bpy, json, math, os
 from bpy.types import StringProperty
 from bpy_extras.io_utils import ExportHelper
@@ -18,8 +18,8 @@ class MPFB_OT_Repeat_Animation_Operator(MpfbOperator):
     bl_label = "Repeat animation"
     bl_options = {'REGISTER', 'UNDO'}
 
-    def __init__(self):
-        MpfbOperator.__init__(self, "animops.repeatanim")
+    def get_logger(self):
+        return _LOG
 
     @classmethod
     def poll(cls, context):
@@ -37,7 +37,7 @@ class MPFB_OT_Repeat_Animation_Operator(MpfbOperator):
 
         armature_object = context.object
 
-        from mpfb.ui.animops.animopspanel import ANIMOPS_PROPERTIES
+        from ...animops.animopspanel import ANIMOPS_PROPERTIES
 
         iterations = ANIMOPS_PROPERTIES.get_value('iterations', entity_reference=context.scene)
         offset = ANIMOPS_PROPERTIES.get_value('offset', entity_reference=context.scene)

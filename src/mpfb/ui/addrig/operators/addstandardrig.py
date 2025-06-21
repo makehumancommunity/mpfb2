@@ -2,10 +2,10 @@
 
 import bpy
 
-from mpfb.services.humanservice import HumanService
-from mpfb.services.logservice import LogService
-from mpfb.services.objectservice import ObjectService
-from mpfb import ClassManager
+from ....services import HumanService
+from ....services import LogService
+from ....services import ObjectService
+from .... import ClassManager
 
 _LOG = LogService.get_logger("addrig.add_standard_rig")
 
@@ -31,7 +31,7 @@ class MPFB_OT_AddStandardRigOperator(bpy.types.Operator):
 
         basemesh = context.active_object
 
-        from mpfb.ui.addrig.addrigpanel import ADD_RIG_PROPERTIES # pylint: disable=C0415
+        from ...addrig.addrigpanel import ADD_RIG_PROPERTIES # pylint: disable=C0415
 
         import_weights = ADD_RIG_PROPERTIES.get_value("import_weights", entity_reference=scene)
         standard_rig = ADD_RIG_PROPERTIES.get_value("standard_rig", entity_reference=scene)

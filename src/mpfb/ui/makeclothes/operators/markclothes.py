@@ -1,9 +1,9 @@
 """Operator for setting mesh as clothes."""
 
 import bpy
-from mpfb.services.logservice import LogService
-from mpfb.entities.objectproperties import GeneralObjectProperties
-from mpfb import ClassManager
+from ....services import LogService
+from ....entities.objectproperties import GeneralObjectProperties
+from .... import ClassManager
 
 _LOG = LogService.get_logger("makeclothes.markclothes")
 
@@ -24,7 +24,7 @@ class MPFB_OT_MarkClothesOperator(bpy.types.Operator):
         blender_object = context.active_object
         scene = context.scene
 
-        from mpfb.ui.makeclothes.makeclothespanel import MAKECLOTHES_PROPERTIES # pylint: disable=C0415
+        from ...makeclothes.makeclothespanel import MAKECLOTHES_PROPERTIES # pylint: disable=C0415
         new_type = MAKECLOTHES_PROPERTIES.get_value("object_type", entity_reference=scene)
         GeneralObjectProperties.set_value("object_type", new_type, entity_reference=blender_object)
 

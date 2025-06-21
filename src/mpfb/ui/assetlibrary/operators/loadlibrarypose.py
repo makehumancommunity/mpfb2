@@ -2,11 +2,11 @@
 
 import bpy
 from bpy.props import StringProperty
-from mpfb.services.logservice import LogService
-from mpfb.services.objectservice import ObjectService
-from mpfb.services.rigservice import RigService
-from mpfb.services.animationservice import AnimationService
-from mpfb import ClassManager
+from ....services import LogService
+from ....services import ObjectService
+from ....services import RigService
+from ....services import AnimationService
+from .... import ClassManager
 
 _LOG = LogService.get_logger("assetlibrary.loadlibrarypose")
 

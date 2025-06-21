@@ -1,14 +1,13 @@
 """Functionality for creating an upload copy for mixamo."""
 
-from mpfb.services.logservice import LogService
-from mpfb.services.objectservice import ObjectService
-from mpfb.services.rigservice import RigService
-from mpfb._classmanager import ClassManager
-from mpfb.ui.mpfboperator import MpfbOperator
+from ....services import LogService
+from ....services import ObjectService
+from ....services import RigService
+from .... import ClassManager
+from ...mpfboperator import MpfbOperator
 import bpy, math
 
 _LOG = LogService.get_logger("animops.reduceddoll")
-_LOG.set_level(LogService.DEBUG)
 
 class MPFB_OT_Reduced_Doll_Operator(MpfbOperator):
     """Create a reduced copy of the character. The copy will have all clothes and body parts removed, the the helper geometry deleted and all shape keys baked"""
@@ -16,8 +15,8 @@ class MPFB_OT_Reduced_Doll_Operator(MpfbOperator):
     bl_label = "Mixamo reduced doll"
     bl_options = {'REGISTER', 'UNDO'}
 
-    def __init__(self):
-        MpfbOperator.__init__(self, "animops.reduceddoll")
+    def get_logger(self):
+        return _LOG
 
     @classmethod
     def poll(cls, context):
@@ -83,7 +82,7 @@ class MPFB_OT_Reduced_Doll_Operator(MpfbOperator):
         else:
             self.report({"INFO"}, "Done")
 
-        from mpfb.ui.animops.animopspanel import ANIMOPS_PROPERTIES
+        from ...animops.animopspanel import ANIMOPS_PROPERTIES
         if ANIMOPS_PROPERTIES.get_value("call_fbx", entity_reference=context.scene):
             bpy.ops.export_scene.fbx('INVOKE_DEFAULT', use_selection=True)
 

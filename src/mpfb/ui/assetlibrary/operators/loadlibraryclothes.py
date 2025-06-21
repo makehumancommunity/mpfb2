@@ -2,10 +2,10 @@
 
 import bpy
 from bpy.props import StringProperty
-from mpfb.services.logservice import LogService
-from mpfb.services.objectservice import ObjectService
-from mpfb.services.humanservice import HumanService
-from mpfb import ClassManager
+from ....services import LogService
+from ....services import ObjectService
+from ....services import HumanService
+from .... import ClassManager
 
 _LOG = LogService.get_logger("assetlibrary.loadlibraryclothes")
 
@@ -25,7 +25,7 @@ class MPFB_OT_Load_Library_Clothes_Operator(bpy.types.Operator):
         _LOG.debug("object_type", self.object_type)
         _LOG.debug("material_type", self.material_type)
 
-        from mpfb.ui.assetlibrary.assetsettingspanel import ASSET_SETTINGS_PROPERTIES # pylint: disable=C0415
+        from ...assetlibrary.assetsettingspanel import ASSET_SETTINGS_PROPERTIES # pylint: disable=C0415
 
         scene = context.scene
 

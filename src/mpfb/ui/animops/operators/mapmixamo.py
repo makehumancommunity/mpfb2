@@ -1,10 +1,10 @@
 """Functionality for snapping animation to mixamo rig"""
 
-from mpfb.services.logservice import LogService
-from mpfb.services.objectservice import ObjectService
-from mpfb.services.rigservice import RigService
-from mpfb._classmanager import ClassManager
-from mpfb.ui.mpfboperator import MpfbOperator
+from ....services import LogService
+from ....services import ObjectService
+from ....services import RigService
+from .... import ClassManager
+from ...mpfboperator import MpfbOperator
 import bpy, math
 
 _LOG = LogService.get_logger("animops.mapmixamo")
@@ -40,8 +40,8 @@ class MPFB_OT_Map_Mixamo_Operator(MpfbOperator):
     bl_label = "Snap to mixamo"
     bl_options = {'REGISTER', 'UNDO'}
 
-    def __init__(self):
-        MpfbOperator.__init__(self, "animops.mapmixamo")
+    def get_logger(self):
+        return _LOG
 
     def hardened_execute(self, context):
         _LOG.enter()

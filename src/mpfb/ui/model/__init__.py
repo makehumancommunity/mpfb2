@@ -2,14 +2,14 @@
 
 import os, bpy
 
-from mpfb.services import LogService as _LogService
-from mpfb.services.blenderconfigset import BlenderConfigSet
+from ...services import LogService
+from ...services import BlenderConfigSet
 
-_LOG = _LogService.get_logger("model.init")
+_LOG = LogService.get_logger("model.init")
 _LOG.trace("initializing the model module")
 
 from .modelpanel import MPFB_PT_Model_Panel
-from mpfb.ui.model.operators import *
+from ..model.operators import *
 
 __all__ = [
     "MPFB_PT_Model_Panel"

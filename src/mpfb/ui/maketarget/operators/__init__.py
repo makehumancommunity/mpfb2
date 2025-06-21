@@ -1,7 +1,7 @@
 """Operators for MakeTarget."""
 
-from mpfb.services import LogService as _LogService
-_LOG = _LogService.get_logger("maketarget.operators")
+from ....services import LogService
+_LOG = LogService.get_logger("maketarget.operators")
 _LOG.trace("initializing maketarget operators module")
 
 from .createtarget import MPFB_OT_CreateTargetOperator

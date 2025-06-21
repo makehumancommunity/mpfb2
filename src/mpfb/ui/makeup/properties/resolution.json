@@ -1,0 +1,14 @@
+{
+    "type": "enum",
+    "name": "resolution",
+    "description": "Which resolution should the ink layer have?",
+    "label": "Resolution",
+    "default": "4096",
+    "items": [
+        ["1024", "1024x1024", "1024x1024", 1],
+        ["2048", "2048x2048", "2048x2048", 2],
+        ["4096", "4096x4096", "4096x4096", 3],
+        ["8192", "8192x8192", "8192x8192", 4],
+        ["16384", "16384x16384", "16384x16384", 5]
+        ]
+}

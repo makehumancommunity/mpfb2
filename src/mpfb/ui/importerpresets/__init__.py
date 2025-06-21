@@ -1,6 +1,6 @@
 
-from mpfb.services import LogService as _LogService
-_LOG = _LogService.get_logger("importerpresets.init")
+from ...services import LogService
+_LOG = LogService.get_logger("importerpresets.init")
 _LOG.trace("initializing importerpresets module")
 
 from .importerpresetspanel import MPFB_PT_Importer_Presets_Panel

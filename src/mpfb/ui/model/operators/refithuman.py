@@ -1,10 +1,10 @@
 """Operator for refitting a human."""
 
 import bpy
-from mpfb.services.logservice import LogService
-from mpfb.services.humanservice import HumanService
-from mpfb.services.objectservice import ObjectService
-from mpfb import ClassManager
+from ....services import LogService
+from ....services import HumanService
+from ....services import ObjectService
+from .... import ClassManager
 
 _LOG = LogService.get_logger("model.refithuman")
 

@@ -1,0 +1,7 @@
+{
+    "type": "string",
+    "name": "ink_layer_name",
+    "description": "When saving an ink layer to the library, use this as a name",
+    "label": "Ink layer name",
+    "default": "new ink layer"
+}

@@ -1,12 +1,12 @@
 import bpy, importlib
-from mpfb.services.logservice import LogService
-from mpfb.services.nodeservice import NodeService
-from mpfb.services.nodetreeservice import NodeTreeService
-from mpfb.entities.nodemodel.v2.primitives import *
+from .....services import LogService
+from .....services import NodeService
+from .....services import NodeTreeService
+from ..primitives import *
 
 _LOG = LogService.get_logger("nodemodel.v2.abstractgroupwrapper")
 
-_SOCKET_TYPES=[
+_SOCKET_TYPES = [
     "NodeSocketBool",
     "NodeSocketCollection",
     "NodeSocketColor",
@@ -39,7 +39,9 @@ _SOCKET_TYPES=[
     "NodeSocketVirtual"
     ]
 
+
 class AbstractGroupWrapper(AbstractNodeWrapper):
+
     def __init__(self, group_def, tree_def=None):
         _LOG.trace("Constructing group wrapper for", group_def["class"])
         AbstractNodeWrapper.__init__(self, group_def)
@@ -81,11 +83,13 @@ class AbstractGroupWrapper(AbstractNodeWrapper):
     def get_wrapper(node_class_name):
         _LOG.enter()
         wrapper = None
+        from ..... import MPFB_CONTEXTUAL_INFORMATION
+        pkg = MPFB_CONTEXTUAL_INFORMATION["__package__"]
         if node_class_name in PRIMITIVE_NODE_WRAPPERS:
             wrapper = PRIMITIVE_NODE_WRAPPERS[node_class_name]
         else:
             try:
-                mod = importlib.import_module(".nodewrapper" + node_class_name.lower(), package="mpfb.entities.nodemodel.v2.composites")
+                mod = importlib.import_module(".nodewrapper" + node_class_name.lower(), package=pkg + ".entities.nodemodel.v2.composites")
                 if mod and hasattr(mod, "NodeWrapper" + node_class_name):
                     wrapper = getattr(mod, "NodeWrapper" + node_class_name)
             except Exception as e:
@@ -117,7 +121,7 @@ class AbstractGroupWrapper(AbstractNodeWrapper):
             raise ValueError('No such node or group: ' + node_class_name)
         inst = wrapper.create_instance(node_tree, name=name, label=label, input_socket_values=input_socket_values, attribute_values=attribute_values, output_socket_values=output_socket_values)
         _LOG.debug("Created node", inst)
-        from mpfb.entities.nodemodel.v2.composites import COMPOSITE_NODE_WRAPPERS
+        from ..composites import COMPOSITE_NODE_WRAPPERS
         if node_class_name in COMPOSITE_NODE_WRAPPERS:
             inst.use_custom_color = True
             color = [0.4, 0.4, 0.5]
@@ -139,10 +143,10 @@ class AbstractGroupWrapper(AbstractNodeWrapper):
         if not socket_type in _SOCKET_TYPES:
             raise ValueError("Illegal socket type " + socket_type)
         socket = NodeTreeService.create_input_socket(node_tree, name, socket_type)
-        #socket = node_tree.inputs.new(name=name, type=socket_type)
-        _LOG.debug("Socket params", { "name": name, "default_value": default_value, "min_value": min_value, "max_value": max_value, "hasattr": hasattr(socket, "min_value")} )
+        # socket = node_tree.inputs.new(name=name, type=socket_type)
+        _LOG.debug("Socket params", { "name": name, "default_value": default_value, "min_value": min_value, "max_value": max_value, "hasattr": hasattr(socket, "min_value")})
         if not default_value is None:
-            socket.default_value=default_value
+            socket.default_value = default_value
         if min_value is not None and hasattr(socket, "min_value"):
             socket.min_value = min_value
         if max_value is not None and hasattr(socket, "max_value"):
@@ -159,9 +163,9 @@ class AbstractGroupWrapper(AbstractNodeWrapper):
         if not socket_type in _SOCKET_TYPES:
             raise ValueError("Illegal socket type " + socket_type)
         socket = NodeTreeService.create_output_socket(node_tree, name, socket_type)
-        #socket = node_tree.outputs.new(name=name, type=socket_type)
+        # socket = node_tree.outputs.new(name=name, type=socket_type)
         if not default_value is None:
-            socket.default_value=default_value
+            socket.default_value = default_value
         _LOG.debug("Created output socket", socket)
         return socket
 

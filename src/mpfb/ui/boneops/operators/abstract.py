@@ -4,9 +4,9 @@ import bpy
 import typing
 from mathutils import Vector
 
-from mpfb.entities.rig import Rig
-from mpfb.services.logservice import LogService
-from mpfb.services.objectservice import ObjectService
+from ....entities.rig import Rig
+from ....services import LogService
+from ....services import ObjectService
 
 from .. import BoneOpsArmatureProperties, BOP_PROPERTIES
 

@@ -1,21 +1,24 @@
-"""Service for working with animations."""
+"""Service for working with animations and poses"""
 
-import bpy, os, math, mathutils
-from mathutils import Matrix, Vector
-from mpfb.services.locationservice import LocationService
-from mpfb.services.logservice import LogService
-from mpfb.services.rigservice import RigService
+import bpy, os
+from .logservice import LogService
+from .rigservice import RigService
 from .objectservice import ObjectService
-from bpy.types import PoseBone
-from mathutils import Vector
 
 _LOG = LogService.get_logger("services.animationservice")
-_LOG.set_level(LogService.DEBUG)
 
 
 class AnimationService:
-    """Service with utility functions for working with animations. It only has static methods, so you don't
-    need to instance it."""
+    """
+    The AnimationService class provides a collection of static methods for working with animations and poses in Blender.
+    It is not meant to be instantiated, as it only contains static methods.
+
+    The primary purpose of the AnimationService class is to facilitate various operations related to animations and poses,
+    such as importing BVH files, manipulating keyframes, making animations cyclic, and calculating bone movements.
+
+    The class relies on other services like LogService, RigService, and ObjectService for logging, rig manipulation,
+    and object management, respectively.
+    """
 
     def __init__(self):
         """Do not instance, there are only static methods in the class"""
@@ -85,6 +88,18 @@ class AnimationService:
 
     @staticmethod
     def get_max_keyframe(armature_object):
+        """
+        Get the maximum keyframe number for the given armature object.
+
+        This function scans through all the keyframes in the animation data of the provided armature object
+        and returns the highest keyframe number found.
+
+        Args:
+            armature_object (bpy.types.Object): The armature object to scan for keyframes.
+
+        Returns:
+            int or None: The maximum keyframe number, or None if no keyframes are found or if the armature object is None.
+        """
         if not armature_object:
             _LOG.error("armature_object is None")
             return None
@@ -127,6 +142,21 @@ class AnimationService:
 
     @staticmethod
     def get_bone_movement_distance(armature_object, bone_name, start_keyframe, end_keyframe):
+        """
+        Calculate the movement distance of a bone between two keyframes.
+
+        This function sets the scene to the specified start and end keyframes, retrieves the bone's location
+        at each keyframe, and calculates the difference in location.
+
+        Args:
+            armature_object (bpy.types.Object): The armature object containing the bone.
+            bone_name (str): The name of the bone to measure movement for.
+            start_keyframe (int): The starting keyframe number.
+            end_keyframe (int): The ending keyframe number.
+
+        Returns:
+            list: A list containing the movement distance [dx, dy, dz] of the bone between the two keyframes.
+        """
         start_loc = [0.0, 0.0, 0.0]
         end_loc = [0.0, 0.0, 0.0]
 
@@ -152,6 +182,19 @@ class AnimationService:
 
     @staticmethod
     def move_bone_for_all_keyframes(armature_object, bone_name, distance, start_keyframe, end_keyframe):
+        """
+        Move a bone by a specified distance for all keyframes within a given range.
+
+        This function iterates through each keyframe in the specified range, moves the bone by the given distance,
+        and inserts a new keyframe with the updated location.
+
+        Args:
+            armature_object (bpy.types.Object): The armature object containing the bone.
+            bone_name (str): The name of the bone to move.
+            distance (list): A list containing the distance [dx, dy, dz] to move the bone.
+            start_keyframe (int): The starting keyframe number.
+            end_keyframe (int): The ending keyframe number.
+        """
         if not armature_object:
             _LOG.error("armature_object is None")
             return
@@ -171,6 +214,19 @@ class AnimationService:
 
     @staticmethod
     def duplicate_keyframes(armature_object, start_duplicate_at, first_keyframe, last_keyframe):
+        """
+        Move a bone by a specified distance for all keyframes within a given range.
+
+        This function iterates through each keyframe in the specified range, moves the bone by the given distance,
+        and inserts a new keyframe with the updated location.
+
+        Args:
+            armature_object (bpy.types.Object): The armature object containing the bone.
+            bone_name (str): The name of the bone to move.
+            distance (list): A list containing the distance [dx, dy, dz] to move the bone.
+            start_keyframe (int): The starting keyframe number.
+            end_keyframe (int): The ending keyframe number.
+        """
         if not armature_object:
             _LOG.error("armature_object is None")
             return
@@ -299,7 +355,7 @@ class AnimationService:
         return full_dict
 
     @staticmethod
-    def set_key_frames_from_dict(armature_object, animation_dict, start_at_frame=0, skip_first_frame=False):
+    def set_key_frames_from_dict(armature_object, animation_dict, frame_offset=0, skip_first_frame=False):
         """Assign key frames for pose bones."""
         _LOG.enter()
 
@@ -328,9 +384,6 @@ class AnimationService:
                         pose_bone.rotation_quaternion = key_frame["rotation_quaternion"]["values"]
                         pose_bone.keyframe_insert(data_path="rotation_quaternion", frame=key_frame_idx)
                         _LOG.dump("Setting rotation quaternion", (bone_name, key_frame_idx, key_frame["rotation_quaternion"]["values"]))
-
-                    def fmt(val):
-                        return "{:.4f}".format(val)
 
                     if "location" in key_frame:
                         loc = list(key_frame["location"]["values"])

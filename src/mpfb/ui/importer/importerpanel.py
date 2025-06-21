@@ -1,9 +1,9 @@
 import os, bpy
-from mpfb._classmanager import ClassManager
-from mpfb.services.logservice import LogService
-from mpfb.services.sceneconfigset import SceneConfigSet
-from mpfb.services.uiservice import UiService
-from mpfb.ui.abstractpanel import Abstract_Panel
+from ... import ClassManager
+from ...services import LogService
+from ...services import SceneConfigSet
+from ...services import UiService
+from ..abstractpanel import Abstract_Panel
 
 _LOG = LogService.get_logger("importer.importerpanel")
 
@@ -77,7 +77,13 @@ class MPFB_PT_Importer_Panel(Abstract_Panel):
         layout = self.layout
         scn = context.scene
 
-        from mpfb.ui.eyesettings.eyesettingspanel import ensure_eye_settings_default_exists
+        if not bpy.app.online_access:
+            layout.label(text="This feature requires")
+            layout.label(text="that the 'allow online access'")
+            layout.label(text="preference is enabled.")
+            return
+
+        from ..eyesettings.eyesettingspanel import ensure_eye_settings_default_exists
         ensure_eye_settings_default_exists()
 
         if UiService.get_importer_panel_list() is None:

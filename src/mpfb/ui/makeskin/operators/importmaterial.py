@@ -3,10 +3,10 @@
 import bpy
 from bpy_extras.io_utils import ImportHelper
 from bpy.props import StringProperty
-from mpfb.entities.material.makeskinmaterial import MakeSkinMaterial
-from mpfb.services.logservice import LogService
-from mpfb.services.materialservice import MaterialService
-from mpfb import ClassManager
+from ....entities.material.makeskinmaterial import MakeSkinMaterial
+from ....services import LogService
+from ....services import MaterialService
+from .... import ClassManager
 
 _LOG = LogService.get_logger("makeskin.importmaterial")
 
@@ -30,7 +30,7 @@ class MPFB_OT_ImportMaterialOperator(bpy.types.Operator, ImportHelper):
         obj = context.active_object
         scn = context.scene
 
-        from mpfb.ui.makeskin.makeskinpanel import MAKESKIN_PROPERTIES
+        from ...makeskin.makeskinpanel import MAKESKIN_PROPERTIES
 
         if MaterialService.has_materials(obj):
             if not MAKESKIN_PROPERTIES.get_value("overwrite", entity_reference=scn):

@@ -3,15 +3,15 @@
 import bpy, os
 from bpy_extras.io_utils import ImportHelper
 from bpy.props import StringProperty
-from mpfb.services.logservice import LogService
-from mpfb.services.objectservice import ObjectService
-from mpfb.services.materialservice import MaterialService
-from mpfb.services.clothesservice import ClothesService
-from mpfb.services.humanservice import HumanService
-from mpfb.entities.clothes.mhclo import Mhclo
-from mpfb.entities.objectproperties import GeneralObjectProperties
-from mpfb.entities.material.makeskinmaterial import MakeSkinMaterial
-from mpfb import ClassManager
+from ....services import LogService
+from ....services import ObjectService
+from ....services import MaterialService
+from ....services import ClothesService
+from ....services import HumanService
+from ....entities.clothes.mhclo import Mhclo
+from ....entities.objectproperties import GeneralObjectProperties
+from ....entities.material.makeskinmaterial import MakeSkinMaterial
+from .... import ClassManager
 
 _LOG = LogService.get_logger("loadclothes.loadclothes")
 
@@ -25,8 +25,8 @@ class MPFB_OT_Load_Clothes_Operator(bpy.types.Operator, ImportHelper):
 
     def execute(self, context):
 
-        from mpfb.ui.loadclothes.loadclothespanel import LOAD_CLOTHES_PROPERTIES # pylint: disable=C0415
-        from mpfb.ui.assetlibrary.assetsettingspanel import ASSET_SETTINGS_PROPERTIES # pylint: disable=C0415
+        from ...loadclothes.loadclothespanel import LOAD_CLOTHES_PROPERTIES # pylint: disable=C0415
+        from ...assetlibrary.assetsettingspanel import ASSET_SETTINGS_PROPERTIES # pylint: disable=C0415
 
         scene = context.scene
 

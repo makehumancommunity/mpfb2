@@ -1,13 +1,13 @@
 """This file contains the alternative material panel."""
 
-from mpfb._classmanager import ClassManager
-from mpfb.services.logservice import LogService
-from mpfb.services.objectservice import ObjectService
-from mpfb.services.uiservice import UiService
-from mpfb.services.assetservice import AssetService
-from mpfb.services.sceneconfigset import SceneConfigSet
-from mpfb.ui.abstractpanel import Abstract_Panel
-from mpfb.entities.objectproperties import GeneralObjectProperties
+from ... import ClassManager
+from ...services import LogService
+from ...services import ObjectService
+from ...services import UiService
+from ...services import AssetService
+from ...services import SceneConfigSet
+from ..abstractpanel import Abstract_Panel
+from ...entities.objectproperties import GeneralObjectProperties
 import os, bpy
 
 _LOG = LogService.get_logger("assetlibrary.alternativematerials")

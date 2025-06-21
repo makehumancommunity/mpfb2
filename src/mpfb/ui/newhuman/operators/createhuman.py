@@ -1,13 +1,13 @@
 """Operator for creating a new human object."""
 
 import bpy
-from mpfb.services.logservice import LogService
-from mpfb.services.targetservice import TargetService
-from mpfb.services.humanservice import HumanService
-from mpfb.services.systemservice import SystemService
-from mpfb.services.meshservice import MeshService
-from mpfb.ui.mpfboperator import MpfbOperator
-from mpfb import ClassManager
+from ....services import LogService
+from ....services import TargetService
+from ....services import HumanService
+from ....services import SystemService
+from ....services import MeshService
+from ...mpfboperator import MpfbOperator
+from .... import ClassManager
 
 _LOG = LogService.get_logger("newhuman.createhuman")
 
@@ -18,12 +18,12 @@ class MPFB_OT_CreateHumanOperator(MpfbOperator):
     bl_label = "Create human"
     bl_options = {'REGISTER', 'UNDO'}
 
-    def __init__(self):
-        MpfbOperator.__init__(self, "newhuman.createhuman")
+    def get_logger(self):
+        return _LOG
 
     def hardened_execute(self, context):
 
-        from mpfb.ui.newhuman.newhumanpanel import NEW_HUMAN_PROPERTIES  # pylint: disable=C0415
+        from ...newhuman.newhumanpanel import NEW_HUMAN_PROPERTIES  # pylint: disable=C0415
 
         detailed_helpers = NEW_HUMAN_PROPERTIES.get_value("detailed_helpers", entity_reference=context.scene)
         extra_vertex_groups = NEW_HUMAN_PROPERTIES.get_value("extra_vertex_groups", entity_reference=context.scene)

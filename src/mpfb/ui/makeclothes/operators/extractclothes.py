@@ -1,9 +1,9 @@
 """Operator for creating template clothes from base mesh helpers."""
 
 import bpy
-from mpfb.services.logservice import LogService
-from mpfb.services.objectservice import ObjectService
-from mpfb import ClassManager
+from ....services import LogService
+from ....services import ObjectService
+from .... import ClassManager
 
 _LOG = LogService.get_logger("makeclothes.extractclothes")
 
@@ -24,8 +24,8 @@ class MPFB_OT_ExtractClothesOperator(bpy.types.Operator):
         blender_object = context.active_object
         scene = context.scene
 
-        from mpfb.ui.makeclothes.makeclothespanel import MAKECLOTHES_PROPERTIES # pylint: disable=C0415
-        #from mpfb.ui.makeclothes import MakeClothesObjectProperties # pylint: disable=C0415
+        from ...makeclothes.makeclothespanel import MAKECLOTHES_PROPERTIES # pylint: disable=C0415
+        #from ...makeclothes import MakeClothesObjectProperties # pylint: disable=C0415
 
         group_name = MAKECLOTHES_PROPERTIES.get_value("available_groups", entity_reference=scene)
         ObjectService.extract_vertex_group_to_new_object(blender_object, group_name)

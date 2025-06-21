@@ -1,13 +1,12 @@
-from mpfb.entities.objectproperties import GeneralObjectProperties
-from mpfb.services.logservice import LogService
-from mpfb.services.objectservice import ObjectService
-from mpfb.services.rigservice import RigService
-from mpfb._classmanager import ClassManager
+from ....entities.objectproperties import GeneralObjectProperties
+from ....services import LogService
+from ....services import ObjectService
+from ....services import RigService
+from .... import ClassManager
 import bpy, json, math
 from mathutils import Vector, Matrix
 
 _LOG = LogService.get_logger("ai.operators.boundingbox")
-_LOG.set_level(LogService.DEBUG)
 
 class MPFB_OT_Boundingbox_Operator(bpy.types.Operator):
     """Populate the bounding box settings from the active mesh object"""
@@ -48,7 +47,7 @@ class MPFB_OT_Boundingbox_Operator(bpy.types.Operator):
             if maxz is None or world_coord.z > maxz:
                 maxz = world_coord.z
 
-        from mpfb.ui.ai.aipanel import AI_PROPERTIES
+        from ...ai.aipanel import AI_PROPERTIES
 
         AI_PROPERTIES.set_value("minx", minx, entity_reference=context.scene)
         AI_PROPERTIES.set_value("maxx", maxx, entity_reference=context.scene)

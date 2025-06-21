@@ -1,6 +1,6 @@
 """Operators for developer stuff"""
 
-from mpfb.services.logservice import LogService
+from ....services import LogService
 _LOG = LogService.get_logger("developer.operators.init")
 _LOG.trace("initializing developers operators")
 

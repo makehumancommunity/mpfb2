@@ -1,26 +1,47 @@
+"""Utility functions for working with meshes"""
+
 import bpy, mathutils, numpy
 from mathutils import Vector
-from mpfb.services.logservice import LogService
-from mpfb.services.objectservice import ObjectService
+from .logservice import LogService
+from .objectservice import ObjectService
 
 _LOG = LogService.get_logger("services.meshservice")
 
-# Possible TODOs:
-# - create vertex group
-# - add verts to vertex group
-# - delete verts in vertex group
-# - delete verts
-# - recalculate_face_normals
-
 
 class MeshService:
-    """MeshService contains various functions for working meshes, vertex groups, weights and similar."""
+    """The MeshService class is a utility class designed to provide various functions for working with meshes, vertex groups, weights,
+    and related operations in Blender. It is structured to offer a collection of static methods that facilitate the creation,
+    manipulation, and querying of mesh data. The class is not intended to be instantiated; instead, its static methods should be used directly.
+
+    Its key responsibilities are:
+
+    - Mesh creation
+    - Vertex group management
+    - Handling of spatial data structures (KDTree)
+    - Data extraction (getting mesh info as numpy structures)
+    - Various utility methods
+
+    Note that some mesh operations are also available in ObjectService, for example loading wavefront files."""
 
     def __init__(self):
         raise RuntimeError("You should not instance MeshService. Use its static methods instead.")
 
     @staticmethod
     def create_mesh_object(vertices, edges, faces, vertex_groups=None, name="sample_object", link=True):
+        """
+        Create a new mesh object from given vertices, edges, and faces, and optionally assign vertex groups.
+
+        Parameters:
+        - vertices: A list of vertex coordinates.
+        - edges: A list of edges, where each edge is defined by a pair of vertex indices.
+        - faces: A list of faces, where each face is defined by a list of vertex indices.
+        - vertex_groups: A dictionary where keys are group names and values are lists of [vertex index, weight] pairs.
+        - name: The name of the new mesh object.
+        - link: Whether to link the new object to the current Blender scene.
+
+        Returns:
+        - The created mesh object.
+        """
         target_mesh = bpy.data.meshes.new(name + "_mesh")
         target_mesh.from_pydata(vertices, edges, faces)
         target_object = bpy.data.objects.new(name, target_mesh)
@@ -94,7 +115,126 @@ class MeshService:
             for group in vert.groups:
                 if group.group == vertex_group.index:
                     result.append([vert.index, group.weight])
+
         return result
+
+    @staticmethod
+    def find_faces_in_vertex_group(mesh_object, vertex_group_name):
+        """
+        Find all faces where all vertices are in the given vertex group.
+
+        Parameters:
+        - mesh_object: The mesh object to find faces in.
+        - vertex_group_name: The name of the vertex group to check.
+
+        Returns:
+        - A list of face indices where all vertices are in the given vertex group.
+        """
+        _LOG.enter()
+        result = []
+
+        vertex_group = mesh_object.vertex_groups.get(vertex_group_name)
+        if not vertex_group:
+            return result
+
+        for face in mesh_object.data.polygons:
+            all_vertices_belong_to_group = True
+            for vertex_index in face.vertices:
+                vertex = mesh_object.data.vertices[vertex_index]
+                if vertex_group.index not in [group.group for group in vertex.groups]:
+                    all_vertices_belong_to_group = False
+                    break
+            if all_vertices_belong_to_group:
+                result.append(face.index)
+
+        _LOG.debug("Found {} faces in vertex group {}".format(len(result), vertex_group_name))
+
+        return result
+
+    @staticmethod
+    def get_uv_map_names(mesh_object):
+        """List all UV map names in the mesh object."""
+        _LOG.enter()
+        return [uv_map.name for uv_map in mesh_object.data.uv_layers]
+
+    @staticmethod
+    def get_uv_map_as_dict(mesh_object, uv_map_name, only_include_vertex_group=None):
+        """
+        Return a dict where the key is the face index and the value is a dict where the key is the loop index and the value the uv coordinates.
+        Optionally only include faces where all vertices are in the given vertex group.
+
+        Parameters:
+        - mesh_object: The mesh object to get the UV map from.
+        - uv_map_name: The name of the UV map to get.
+        - only_include_vertex_group: The name of the vertex group to check. If not provided, all faces will be included.
+
+        Returns:
+        - A dict where the key is the face index and the value is a dict where the key is the loop index and the value the uv coordinates.
+        """
+        _LOG.enter()
+        uv_map = mesh_object.data.uv_layers.get(uv_map_name)
+        if not uv_map:
+            _LOG.debug("UV map not found in mesh object", uv_map_name)
+            return {}
+
+        _LOG.debug("UV map, UV map data, UV map data length", (uv_map, uv_map.data, len(uv_map.data)))
+
+        faces_to_include = []
+        if only_include_vertex_group:
+            faces_to_include = MeshService.find_faces_in_vertex_group(mesh_object, only_include_vertex_group)
+        else:
+            for face in mesh_object.data.polygons:
+                faces_to_include.append(face.index)
+
+        result = {}
+
+        for face_index in faces_to_include:
+            _LOG.debug("Getting UV map for face", face_index)
+            face_uvs = {}
+            for loop_index in mesh_object.data.polygons[face_index].loop_indices:
+                _LOG.debug("-- loop_index", loop_index)
+                uv = uv_map.data[loop_index].uv
+                face_uvs[loop_index] = [uv[0], uv[1]]
+            result[face_index] = face_uvs
+
+        return result
+
+    @staticmethod
+    def add_uv_map_from_dict(mesh_object, uv_map_name, uv_map_as_dict):
+        """
+        Create a new UV map from a given dict and add it to the mesh object. If an UV map with the same name already exists, it will be replaced.
+        Otherwise, it will be created with the given name.
+
+        Parameters:
+        - mesh_object: The mesh object on which to add the UV map.
+        - uv_map_name: The name of the new UV map.
+        - uv_map_as_dict: A dict where the key is the face index and the value is a dict where the key is the loop index and the value the uv coordinates.
+        """
+        _LOG.enter()
+        _LOG.debug("Adding UV map from dict", {"mesh_object": mesh_object,
+                                                 "uv_map_name": uv_map_name,
+                                                 "uv_map_as_dict": uv_map_as_dict})
+        uv_map = mesh_object.data.uv_layers.get(uv_map_name)
+        if uv_map:
+            _LOG.debug("Replacing existing UV map", {"uv_map_name": uv_map_name})
+            mesh_object.data.uv_layers.remove(uv_map)
+            uv_map = None
+
+        uv_map = mesh_object.data.uv_layers.new(name=uv_map_name, do_init=True)
+
+        for face in mesh_object.data.polygons:
+            for loop_index in face.loop_indices:
+                uv = uv_map.data[loop_index].uv
+                uv_map.data[loop_index].uv = [ uv[0] * 0.01, uv[1] * 0.01 ]
+
+        for face_index, uv_info in uv_map_as_dict.items():
+            for loop_index, uv_coords in uv_info.items():
+                _LOG.debug("Setting UV coords", {
+                    "face_index": face_index,
+                    "loop_index": loop_index,
+                    "uv_coords": uv_coords})
+
+                uv_map.data[int(loop_index)].uv = uv_coords
 
     @staticmethod
     def create_vertex_group(mesh_object, vertex_group_name, verts_and_weights, nuke_existing_group=False):
@@ -238,8 +378,8 @@ class MeshService:
             coord = v.co
             if world_coordinates:
                 coord = mesh_object.matrix_world @ coord
-            for d in range(3):
-                vert_array[i][d] = float(coord[d])
+            for axis in range(3):
+                vert_array[i][axis] = float(coord[axis])
 
         if after_modifiers:
             evaluated_mesh.to_mesh_clear()
@@ -297,7 +437,7 @@ class MeshService:
     def get_mesh_cross_references(mesh_object, after_modifiers=True, build_faces_by_group_reference=False):
         """Build a cross reference container for the mesh object."""
         _LOG.enter()
-        from mpfb.entities.meshcrossref import MeshCrossRef
+        from ..entities.meshcrossref import MeshCrossRef
         return MeshCrossRef(mesh_object, after_modifiers=after_modifiers, build_faces_by_group_reference=build_faces_by_group_reference)
 
     @staticmethod
@@ -319,4 +459,3 @@ class MeshService:
                     mesh_object.vertex_groups.active_index = group.index
 
             bpy.ops.object.vertex_group_select()
-

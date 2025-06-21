@@ -1,12 +1,13 @@
 import bpy, sys
-from mpfb._classmanager import ClassManager
-from mpfb.services.logservice import LogService
-from mpfb.services.uiservice import UiService
-from mpfb.services.objectservice import ObjectService
-from mpfb.ui.abstractpanel import Abstract_Panel
-from mpfb import BUILD_INFO, VERSION
+from .. import ClassManager
+from ..services import LogService
+from ..services import UiService
+from ..services import ObjectService
+from .abstractpanel import Abstract_Panel
+from .. import BUILD_INFO, VERSION
 
 _LOG = LogService.get_logger("ui.systempanel")
+
 
 class MPFB_PT_System_Panel(Abstract_Panel):
     bl_label = "System and resources"
@@ -24,5 +25,6 @@ class MPFB_PT_System_Panel(Abstract_Panel):
         layout = self.layout
         scene = context.scene
         self._system_info(context, scene, layout)
+
 
 ClassManager.add_class(MPFB_PT_System_Panel)

@@ -1,7 +1,7 @@
 """Functionality for setting log levels"""
 
-from mpfb.services.logservice import LogService
-from mpfb._classmanager import ClassManager
+from ....services import LogService
+from .... import ClassManager
 import bpy
 
 _LOG = LogService.get_logger("loglevels.operators.setloglevel")
@@ -17,7 +17,7 @@ class MPFB_OT_Set_Log_Level_Operator(bpy.types.Operator):
         _LOG.enter()
 
         scene = context.scene
-        from mpfb.ui.developer.developerpanel import DEVELOPER_PROPERTIES # pylint: disable=C0415
+        from ...developer.developerpanel import DEVELOPER_PROPERTIES # pylint: disable=C0415
 
         logger_name = DEVELOPER_PROPERTIES.get_value("available_loggers", entity_reference=scene)
         level_string = DEVELOPER_PROPERTIES.get_value("chosen_level", entity_reference=scene)

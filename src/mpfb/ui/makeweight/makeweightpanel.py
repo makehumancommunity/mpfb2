@@ -1,12 +1,12 @@
 """File containing main UI for makeweight"""
 
 import bpy, os
-from mpfb import ClassManager
-from mpfb.services.logservice import LogService
-from mpfb.services.objectservice import ObjectService
-from mpfb.services.uiservice import UiService
-from mpfb.services.sceneconfigset import SceneConfigSet
-from mpfb.ui.abstractpanel import Abstract_Panel
+from ... import ClassManager
+from ...services import LogService
+from ...services import ObjectService
+from ...services import UiService
+from ...services import SceneConfigSet
+from ..abstractpanel import Abstract_Panel
 
 _LOC = os.path.dirname(__file__)
 MAKEWEIGHT_PROPERTIES_DIR = os.path.join(_LOC, "properties")

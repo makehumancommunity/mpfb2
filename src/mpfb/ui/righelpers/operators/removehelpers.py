@@ -1,10 +1,15 @@
-from mpfb.services.logservice import LogService
+from ....services import LogService
 # from mpfb.entities.fingerik.fingerik import FingerIk
-from mpfb.ui.righelpers import RigHelpersProperties
-from mpfb._classmanager import ClassManager
+from ...righelpers import RigHelpersProperties
+from .... import ClassManager
+from ....entities.rigging.righelpers.armhelpers.armhelpers import ArmHelpers
+from ....entities.rigging.righelpers.leghelpers.leghelpers import LegHelpers
+from ....entities.rigging.righelpers.fingerhelpers.fingerhelpers import FingerHelpers
+from ....entities.rigging.righelpers.eyehelpers.eyehelpers import EyeHelpers
 import bpy
 
 _LOG = LogService.get_logger("setupikoperators.fingerfk")
+
 
 class MPFB_OT_RemoveHelpersOperator(bpy.types.Operator):
     """This will remove all helpers from the active armature"""
@@ -13,38 +18,33 @@ class MPFB_OT_RemoveHelpersOperator(bpy.types.Operator):
     bl_options = {'REGISTER', 'UNDO'}
 
     def _arm_helpers(self, armature_object, settings):
-        from mpfb.services.righelpers.armhelpers.armhelpers import ArmHelpers
         for side in ["left", "right"]:
             helpers = ArmHelpers.get_instance(side, settings)
             helpers.remove_ik(armature_object)
         RigHelpersProperties.set_value("arm_mode", "", entity_reference=armature_object)
 
     def _leg_helpers(self, armature_object, settings):
-        from mpfb.services.righelpers.leghelpers.leghelpers import LegHelpers
         for side in ["left", "right"]:
             helpers = LegHelpers.get_instance(side, settings)
             helpers.remove_ik(armature_object)
         RigHelpersProperties.set_value("leg_mode", "", entity_reference=armature_object)
 
     def _finger_helpers(self, armature_object, settings):
-        from mpfb.services.righelpers.fingerhelpers.fingerhelpers import FingerHelpers
         for side in ["left", "right"]:
             helpers = FingerHelpers.get_instance(side, settings)
             helpers.remove_ik(armature_object)
         RigHelpersProperties.set_value("finger_mode", "", entity_reference=armature_object)
 
     def _eye_helpers(self, armature_object, settings):
-        from mpfb.services.righelpers.eyehelpers.eyehelpers import EyeHelpers
         helpers = EyeHelpers.get_instance(settings)
         helpers.remove_ik(armature_object)
         RigHelpersProperties.set_value("eye_mode", "", entity_reference=armature_object)
-
 
     def execute(self, context):
         _LOG.enter()
         armature_object = context.object
 
-        from mpfb.ui.righelpers.righelperspanel import SETUP_HELPERS_PROPERTIES # pylint: disable=C0415
+        from ...righelpers.righelperspanel import SETUP_HELPERS_PROPERTIES  # pylint: disable=C0415
         settings = SETUP_HELPERS_PROPERTIES.as_dict(entity_reference=context.scene)
 
         finger_mode = RigHelpersProperties.get_value("finger_mode", entity_reference=armature_object)
@@ -64,6 +64,7 @@ class MPFB_OT_RemoveHelpersOperator(bpy.types.Operator):
         if eye_mode:
             self._eye_helpers(armature_object, settings)
 
+        bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
 
         self.report({'INFO'}, "Helpers were removed")
         return {'FINISHED'}
@@ -82,5 +83,6 @@ class MPFB_OT_RemoveHelpersOperator(bpy.types.Operator):
         eye_mode = RigHelpersProperties.get_value("eye_mode", entity_reference=armature_object)
 
         return finger_mode or leg_mode or arm_mode or eye_mode
+
 
 ClassManager.add_class(MPFB_OT_RemoveHelpersOperator)

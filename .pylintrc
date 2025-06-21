@@ -188,6 +188,7 @@ function-naming-style=snake_case
 good-names=i,
            j,
            k,
+           v,
 	   x,
 	   y,
 	   z,
@@ -451,7 +452,12 @@ disable=raw-checker-failed,
 	# code style
 	use-dict-literal,
 	# workarounds
-	global-statement
+	global-statement,
+	# Iteration style suggestions. Don't care, it works anyway
+	consider-using-dict-items,
+	consider-using-enumerate,
+	consider-iterating-dictionary
+
 	
 
 # Enable the message, report, category or checker with the given id(s). You can

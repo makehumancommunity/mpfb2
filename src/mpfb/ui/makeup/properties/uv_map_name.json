@@ -1,0 +1,7 @@
+{
+    "type": "string",
+    "name": "uv_map_name",
+    "description": "When importing or creating UV maps, use this as a name",
+    "label": "UV map name",
+    "default": "new uv map"
+}

@@ -1,10 +1,10 @@
-from mpfb.services.logservice import LogService
-from mpfb.services.materialservice import MaterialService
-from mpfb.services.nodeservice import NodeService
-from mpfb.services.objectservice import ObjectService
-from mpfb.services.locationservice import LocationService
-from mpfb.services.targetservice import TargetService
-from mpfb._classmanager import ClassManager
+from ....services import LogService
+from ....services import MaterialService
+from ....services import NodeService
+from ....services import ObjectService
+from ....services import LocationService
+from ....services import TargetService
+from .... import ClassManager
 import bpy, json, math, os
 from bpy.types import StringProperty
 from bpy_extras.io_utils import ImportHelper

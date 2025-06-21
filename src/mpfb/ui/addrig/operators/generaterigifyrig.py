@@ -1,14 +1,15 @@
 """Operator for Generating a rigify rig."""
 
 import bpy
-from mpfb.services.logservice import LogService
-from mpfb.services.objectservice import ObjectService
-from mpfb.services.rigifyhelpers.rigifyhelpers import RigifyHelpers
-from mpfb.services.rigservice import RigService
-from mpfb.services.systemservice import SystemService
-from mpfb import ClassManager
+from ....services import LogService
+from ....services import ObjectService
+from ....entities.rigging.rigifyhelpers.rigifyhelpers import RigifyHelpers
+from ....services import RigService
+from ....services import SystemService
+from .... import ClassManager
 
 _LOG = LogService.get_logger("addrig.generate_rigify_rig")
+
 
 class MPFB_OT_GenerateRigifyRigOperator(bpy.types.Operator):
     """Generate a rigify rig from a meta-rig"""
@@ -37,7 +38,7 @@ class MPFB_OT_GenerateRigifyRigOperator(bpy.types.Operator):
             self.report({'ERROR'}, "The rigify addon isn't enabled. You need to enable it under preferences.")
             return {'FINISHED'}
 
-        from mpfb.ui.addrig.addrigpanel import ADD_RIG_PROPERTIES # pylint: disable=C0415
+        from ...addrig.addrigpanel import ADD_RIG_PROPERTIES  # pylint: disable=C0415
 
         armature_object = context.active_object
         delete_after_generate = ADD_RIG_PROPERTIES.get_value("delete_after_generate", entity_reference=scene)
@@ -64,7 +65,7 @@ class MPFB_OT_GenerateRigifyRigOperator(bpy.types.Operator):
         if bpy.ops.pose.rigify_upgrade_face.poll():
             bpy.ops.pose.rigify_upgrade_face()
 
-        bpy.ops.pose.rigify_generate()
+        bpy.ops.pose.rigify_generate() # Rigify availability checked above
 
         rigify_object = context.active_object
         rigify_object.show_in_front = True
@@ -83,14 +84,13 @@ class MPFB_OT_GenerateRigifyRigOperator(bpy.types.Operator):
         context.view_layer.objects.active = rigify_object
         bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
 
-        from mpfb.entities.objectproperties import GeneralObjectProperties
+        from ....entities.objectproperties import GeneralObjectProperties
 
         object_type = ObjectService.get_object_type(armature_object)
         GeneralObjectProperties.set_value("object_type", object_type, entity_reference=rigify_object)
 
         self.report({'INFO'}, "A rig was generated")
         return {'FINISHED'}
-
 
 
 ClassManager.add_class(MPFB_OT_GenerateRigifyRigOperator)

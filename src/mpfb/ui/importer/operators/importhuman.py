@@ -1,19 +1,19 @@
 
-from mpfb.services.logservice import LogService
-from mpfb.services.locationservice import LocationService
-from mpfb.services.socketservice import SocketService
-from mpfb.services.objectservice import ObjectService
-from mpfb.services.materialservice import MaterialService
-from mpfb.services.nodeservice import NodeService
-from mpfb.services.uiservice import UiService
-from mpfb.ui.importer.importerpanel import IMPORTER_PROPERTIES
-from mpfb.ui.importerpresets.importerpresetspanel import IMPORTER_PRESETS_PROPERTIES
-from mpfb.ui.mpfboperator import MpfbOperator
-from mpfb._classmanager import ClassManager
-from mpfb.entities.socketobject.socketbodyobject import SocketBodyObject
-from mpfb.entities.socketobject.socketproxyobject import SocketProxyObject
-from mpfb.entities.material.makeskinmaterial import MakeSkinMaterial
-from mpfb.entities.material.enhancedskinmaterial import EnhancedSkinMaterial
+from ....services import LogService
+from ....services import LocationService
+from ....services import SocketService
+from ....services import ObjectService
+from ....services import MaterialService
+from ....services import NodeService
+from ....services import UiService
+from ...importer.importerpanel import IMPORTER_PROPERTIES
+from ...importerpresets.importerpresetspanel import IMPORTER_PRESETS_PROPERTIES
+from ...mpfboperator import MpfbOperator
+from .... import ClassManager
+from ....entities.socketobject.socketbodyobject import SocketBodyObject
+from ....entities.socketobject.socketproxyobject import SocketProxyObject
+from ....entities.material.makeskinmaterial import MakeSkinMaterial
+from ....entities.material.enhancedskinmaterial import EnhancedSkinMaterial
 import bpy, os, json
 
 _LOG = LogService.get_logger("newhuman.importhuman")
@@ -24,8 +24,12 @@ class MPFB_OT_ImportHumanOperator(MpfbOperator):
     bl_label = "Import human"
     bl_options = {'REGISTER', 'UNDO'}
 
-    def __init__(self):
-        MpfbOperator.__init__(self, "newhuman.importhuman")
+    @classmethod
+    def poll(cls, context):
+        return bpy.app.online_access
+
+    def get_logger(self):
+        return _LOG
 
     def _get_settings_from_ui(self, context):
         _LOG.enter()

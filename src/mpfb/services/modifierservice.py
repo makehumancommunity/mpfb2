@@ -1,9 +1,10 @@
 """This module contains utility functions for working with modifiers."""
 
 import bpy
-from mpfb.services.logservice import LogService
+from .logservice import LogService
 
 _LOG = LogService.get_logger("services.modifierservice")
+
 
 class ModifierService:
     """ModifierService contains various functions for working with modifiers, such as creating a new modifier,

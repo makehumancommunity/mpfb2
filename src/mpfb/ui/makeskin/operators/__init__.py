@@ -1,7 +1,7 @@
 """Operators for MakeSkin."""
 
-from mpfb.services import LogService as _LogService
-_LOG = _LogService.get_logger("makeskin.operators")
+from ....services import LogService
+_LOG = LogService.get_logger("makeskin.operators")
 _LOG.trace("initializing makeskin operators module")
 
 from .creatematerial import MPFB_OT_CreateMaterialOperator

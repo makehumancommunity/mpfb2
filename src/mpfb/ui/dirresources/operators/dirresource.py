@@ -2,9 +2,9 @@
 
 import bpy
 from bpy.props import StringProperty
-from mpfb.services.logservice import LogService
-from mpfb.services.systemservice import SystemService
-from mpfb import ClassManager
+from ....services import LogService
+from ....services import SystemService
+from .... import ClassManager
 
 _LOG = LogService.get_logger("dirresources.dirresource")
 

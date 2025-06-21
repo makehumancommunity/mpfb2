@@ -1,5 +1,6 @@
 from .abstractgroupwrapper import AbstractGroupWrapper
 
+from .nodewrappermpfbalphamixer import NodeWrapperMpfbAlphaMixer
 from .nodewrappermpfbadditiverange2 import NodeWrapperMpfbAdditiveRange2
 from .nodewrappermpfbadditiverange3 import NodeWrapperMpfbAdditiveRange3
 from .nodewrappermpfbaureolae import NodeWrapperMpfbAureolae
@@ -54,6 +55,7 @@ from .nodewrappermpfbwithindistance import NodeWrapperMpfbWithinDistance
 from .nodewrappermpfbwithindistanceofeither import NodeWrapperMpfbWithinDistanceOfEither
 
 COMPOSITE_NODE_WRAPPERS = dict()
+COMPOSITE_NODE_WRAPPERS["MpfbAlphaMixer"] = NodeWrapperMpfbAlphaMixer
 COMPOSITE_NODE_WRAPPERS["MpfbAdditiveRange2"] = NodeWrapperMpfbAdditiveRange2
 COMPOSITE_NODE_WRAPPERS["MpfbAdditiveRange3"] = NodeWrapperMpfbAdditiveRange3
 COMPOSITE_NODE_WRAPPERS["MpfbAureolae"] = NodeWrapperMpfbAureolae
@@ -110,6 +112,7 @@ COMPOSITE_NODE_WRAPPERS["MpfbWithinDistanceOfEither"] = NodeWrapperMpfbWithinDis
 __all__ = [
     "AbstractGroupWrapper",
     "COMPOSITE_NODE_WRAPPERS",
+    "NodeWrapperMpfbAlphaMixer",
     "NodeWrapperMpfbAdditiveRange2",
     "NodeWrapperMpfbAdditiveRange3",
     "NodeWrapperMpfbAureolae",

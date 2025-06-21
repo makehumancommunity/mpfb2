@@ -1,14 +1,13 @@
 """Functionality for transfering weights from one mesh to another"""
 
-from mpfb.services.logservice import LogService
-from mpfb.services.objectservice import ObjectService
-from mpfb.services.meshservice import MeshService
-from mpfb._classmanager import ClassManager
-from mpfb.ui.mpfboperator import MpfbOperator
+from ....services import LogService
+from ....services import ObjectService
+from ....services import MeshService
+from .... import ClassManager
+from ...mpfboperator import MpfbOperator
 import bpy, math
 
 _LOG = LogService.get_logger("makerig.autotransferweights")
-_LOG.set_level(LogService.DEBUG)
 
 MAX_DIST = 0.001
 
@@ -18,8 +17,8 @@ class MPFB_OT_Auto_Transfer_Weights_Operator(MpfbOperator):
     bl_label = "Auto transfer weights"
     bl_options = {'REGISTER', 'UNDO'}
 
-    def __init__(self):
-        MpfbOperator.__init__(self, "makerig.autotransferweights")
+    def get_logger(self):
+        return _LOG
 
     def hardened_execute(self, context):
         _LOG.enter()

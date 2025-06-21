@@ -1,7 +1,7 @@
 """Operators for MakeClothes."""
 
-from mpfb.services import LogService as _LogService
-_LOG = _LogService.get_logger("makeclothes.operators")
+from ....services import LogService
+_LOG = LogService.get_logger("makeclothes.operators")
 _LOG.trace("initializing makeclothes operators module")
 
 from .extractclothes import MPFB_OT_ExtractClothesOperator
@@ -12,6 +12,7 @@ from .bmxref import MPFB_OT_BasemeshXrefOperator
 from .genuuid import MPFB_OT_GenerateUUIDOperator
 from .gendelete import MPFB_OT_GenDeleteOperator
 from .checkclothes import MPFB_OT_CheckClothesOperator, CLOTHES_CHECKS
+from .legacyimport import MPFB_OT_LegacyImportOperator
 
 __all__ = [
     "MPFB_OT_ExtractClothesOperator",
@@ -22,5 +23,6 @@ __all__ = [
     "MPFB_OT_GenerateUUIDOperator",
     "MPFB_OT_GenDeleteOperator",
     "MPFB_OT_CheckClothesOperator",
+    "MPFB_OT_LegacyImportOperator",
     "CLOTHES_CHECKS"
 ]

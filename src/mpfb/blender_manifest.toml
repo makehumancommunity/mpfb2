@@ -1,0 +1,18 @@
+schema_version = "1.0.0"
+id = "mpfb"
+version = "2.0.10"
+name = "MPFB"
+tagline = "Human character generator and editor"
+maintainer = "Joel Palmius"
+type = "add-on"
+website = "http://static.makehumancommunity.org/mpfb.html"
+tags = ["Add Mesh", "Rigging"]
+blender_version_min = "4.2.0"
+license = [
+  "SPDX:GPL-3.0-or-later",
+]
+
+[permissions]
+files = "Load and save data"
+network = "(optional) Interact with local instance of MakeHuman"
+

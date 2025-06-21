@@ -2,9 +2,9 @@
 
 import bpy, os, sys, json
 from mathutils import Vector
-from mpfb.services.objectservice import ObjectService
-from mpfb.services.logservice import LogService
-from mpfb.services.locationservice import LocationService
+from ...services import ObjectService
+from ...services import LogService
+from ...services import LocationService
 
 _LOG = LogService.get_logger("entities.mhclo")
 
@@ -230,6 +230,8 @@ class Mhclo:
         dn = os.path.dirname(filename)
         mhmat_filename = os.path.join(dn, bn.replace(".mhclo", ".mhmat"))
         obj_filename = os.path.join(dn, bn.replace(".mhclo", ".obj"))
+        if str(bn).endswith(".proxy"):
+            obj_filename = os.path.join(dn, bn.replace(".proxy", ".obj"))
 
         if also_export_mhmat:
             _LOG.debug("Will export MHMAT to", mhmat_filename)

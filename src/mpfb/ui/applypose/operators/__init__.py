@@ -1,5 +1,5 @@
 
-from mpfb.services.logservice import LogService
+from ....services import LogService
 _LOG = LogService.get_logger("applyposeoperators.init")
 _LOG.trace("initializing apply pose operators")
 

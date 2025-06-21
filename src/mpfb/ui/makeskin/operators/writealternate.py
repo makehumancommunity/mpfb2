@@ -3,14 +3,14 @@
 import bpy, os
 from bpy_extras.io_utils import ExportHelper
 from bpy.props import StringProperty
-from mpfb.services.logservice import LogService
-from mpfb.services.assetservice import AssetService
-from mpfb.services.locationservice import LocationService
-from mpfb.services.materialservice import MaterialService
-from mpfb.services.objectservice import ObjectService
-from mpfb.entities.objectproperties import GeneralObjectProperties
-from mpfb import ClassManager
-from mpfb.entities.material.makeskinmaterial import MakeSkinMaterial
+from ....services import LogService
+from ....services import AssetService
+from ....services import LocationService
+from ....services import MaterialService
+from ....services import ObjectService
+from ....entities.objectproperties import GeneralObjectProperties
+from .... import ClassManager
+from ....entities.material.makeskinmaterial import MakeSkinMaterial
 
 _LOG = LogService.get_logger("makeskin.writealternate")
 
@@ -30,7 +30,7 @@ class MPFB_OT_WriteAlternateOperator(bpy.types.Operator):
 
         blender_object = context.active_object
 
-        from mpfb.ui.makeskin import MakeSkinObjectProperties
+        from ...makeskin import MakeSkinObjectProperties
         name = MakeSkinObjectProperties.get_value("name", entity_reference=blender_object)
 
         if not MaterialService.has_materials(blender_object):

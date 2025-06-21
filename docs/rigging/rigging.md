@@ -1,3 +1,0 @@
-# Rigging
-
-To be written

@@ -1,13 +1,14 @@
 """File containing main UI for modeling humans"""
 
 import os
-from mpfb import ClassManager
-from mpfb.services.logservice import LogService
-from mpfb.services.rigservice import RigService
-from mpfb.services.uiservice import UiService
-from mpfb.services.objectservice import ObjectService
-from mpfb.services.sceneconfigset import SceneConfigSet
-from mpfb.ui.abstractpanel import Abstract_Panel
+from ... import ClassManager
+from ...services import LogService
+from ...services import RigService
+from ...services import UiService
+from ...services import ObjectService
+from ...services import SceneConfigSet
+from ...services import SystemService
+from ..abstractpanel import Abstract_Panel
 
 _LOG = LogService.get_logger("addrig.addrigpanel")
 
@@ -33,21 +34,27 @@ class MPFB_PT_Add_Rig_Panel(Abstract_Panel):
 
     def _add_rigify_rig(self, scene, layout):
         box = self.create_box(layout, "Add rigify rig")
-        props = [
-            "rigify_rig",
-            "import_weights_rigify"
-            ]
-        ADD_RIG_PROPERTIES.draw_properties(scene, box, props)
-        box.operator('mpfb.add_rigify_rig')
+        if not SystemService.check_for_rigify():
+            box.label(text="Rigify is not enabled")
+        else:
+            props = [
+                "rigify_rig",
+                "import_weights_rigify"
+                ]
+            ADD_RIG_PROPERTIES.draw_properties(scene, box, props)
+            box.operator('mpfb.add_rigify_rig')
 
     def _generate_rigify_rig(self, scene, layout):
         box = self.create_box(layout, "Generate rigify rig")
-        props = [
-            "name",
-            "delete_after_generate",
-            ]
-        ADD_RIG_PROPERTIES.draw_properties(scene, box, props)
-        box.operator('mpfb.generate_rigify_rig')
+        if not SystemService.check_for_rigify():
+            box.label(text="Rigify is not enabled")
+        else:
+            props = [
+                "name",
+                "delete_after_generate",
+                ]
+            ADD_RIG_PROPERTIES.draw_properties(scene, box, props)
+            box.operator('mpfb.generate_rigify_rig')
 
     def draw(self, context):
         _LOG.enter()

@@ -1,11 +1,11 @@
 """File containing bones UI for makerig"""
 
 import bpy
-from mpfb import ClassManager
-from mpfb.services.logservice import LogService
-from mpfb.services.objectservice import ObjectService
-from mpfb.services.uiservice import UiService
-from mpfb.ui.abstractpanel import Abstract_Panel
+from ... import ClassManager
+from ...services import LogService
+from ...services import ObjectService
+from ...services import UiService
+from ..abstractpanel import Abstract_Panel
 
 _LOG = LogService.get_logger("makerig.bonespanel")
 
@@ -49,7 +49,7 @@ class MPFB_PT_MakeRigBones_Panel(Abstract_Panel):
             return
 
         props = ["head_cube", "tail_cube"]
-        from mpfb.ui.makerig import MakeRigProperties
+        from ..makerig import MakeRigProperties
         MakeRigProperties.draw_properties(scene, box, props)
         box.operator('mpfb.move_bone_to_cube')
 

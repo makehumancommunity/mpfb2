@@ -1,12 +1,13 @@
-from mpfb.services.logservice import LogService
-from mpfb.services.objectservice import ObjectService
-from mpfb.services.rigservice import RigService
-from mpfb._classmanager import ClassManager
-from mpfb.services.rigifyhelpers.rigifyhelpers import RigifyHelpers
-from mpfb.services.systemservice import SystemService
+from ....services import LogService
+from ....services import ObjectService
+from ....services import RigService
+from .... import ClassManager
+from ....entities.rigging.rigifyhelpers.rigifyhelpers import RigifyHelpers
+from ....services import SystemService
 import bpy, json
 
 _LOG = LogService.get_logger("rigify.operators.converttorigify")
+
 
 class MPFB_OT_Convert_To_Rigify_Operator(bpy.types.Operator):
     """Convert rig to rigify"""
@@ -40,7 +41,7 @@ class MPFB_OT_Convert_To_Rigify_Operator(bpy.types.Operator):
 
         bpy.ops.object.transform_apply(location=True, scale=False, rotation=False)
 
-        from mpfb.ui.rigify.rigifypanel import RIGIFY_PROPERTIES
+        from ...rigify.rigifypanel import RIGIFY_PROPERTIES
         settings = RIGIFY_PROPERTIES.as_dict(entity_reference=context.scene)
 
         helpers = RigifyHelpers.get_instance(settings)

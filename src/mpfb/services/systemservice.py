@@ -4,7 +4,8 @@ import os, sys, subprocess, bpy, addon_utils, re
 from .logservice import LogService
 _LOG = LogService.get_logger("services.systemservice")
 
-LOWEST_FUNCTIONAL_BLENDER_VERSION = (4, 1, 0)
+LOWEST_FUNCTIONAL_BLENDER_VERSION = (4, 2, 0)
+
 
 class SystemService:
     """Utility functions for various system tasks."""
@@ -39,7 +40,7 @@ class SystemService:
             subprocess.call(["xdg-open", path])
             return
         if platform == "WINDOWS":
-            os.startfile(path) # pylint: disable=E1101
+            os.startfile(path)  # pylint: disable=E1101
             return
         if platform == "MACOS":
             subprocess.call(["open", path])
@@ -54,11 +55,26 @@ class SystemService:
 
     @staticmethod
     def check_for_rigify():
-        """Check if the Blender Rigify addon is installed."""
-        if not hasattr(bpy.ops.pose, "rigify_generate"):
+        """Check if the Blender Rigify addon is enabled. This method will both check for the addon per se,
+        and for the specific operators which are commonly used."""
+        (loaded_default, loaded_state) = addon_utils.check('rigify')  # pylint: disable=W0612
+        if not loaded_state:
+            _LOG.warn("Rigify is not enabled")
             return False
-        (loaded_default, loaded_state) = addon_utils.check('rigify') # pylint: disable=W0612
-        return loaded_state
+        if not hasattr(bpy.ops.pose, "rigify_generate"):
+            _LOG.warn("Rigify generate operator is not available, despite rigify being enabled!?")
+            return False
+        if not hasattr(bpy.ops.pose, "rigify_upgrade_face"):
+            _LOG.warn("Rigify face upgrade operator is not available, despite rigify being enabled!?")
+            return False
+        if not hasattr(bpy.ops.armature, "rigify_collection_set_ui_row"):
+            _LOG.warn("Rigify collection set UI row operator is not available, despite rigify being enabled!?")
+            return False
+        if not hasattr(bpy.ops.armature, "rigify_collection_set_ui_row"):
+            _LOG.warn("Rigify collection set UI column operator is not available, despite rigify being enabled!?")
+            return False
+        _LOG.debug("Rigify seems to be installed, enabled and working as expected.")
+        return True
 
     @staticmethod
     def normalize_path_separators(path_string):

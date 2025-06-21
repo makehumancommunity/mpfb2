@@ -2,14 +2,15 @@
 
 import bpy, os, json, math
 from bpy.props import FloatProperty
-from mpfb import ClassManager
-from mpfb.services.logservice import LogService
-from mpfb.services.locationservice import LocationService
-from mpfb.services.objectservice import ObjectService
-from mpfb.services.targetservice import TargetService
-from mpfb.services.assetservice import AssetService
-from mpfb.services.humanservice import HumanService
-from mpfb.services.uiservice import UiService
+from ... import ClassManager
+from ...services import LogService
+from ...services import LocationService
+from ...services import ObjectService
+from ...services import TargetService
+from ...services import AssetService
+from ...services import HumanService
+from ...services import UiService
+from ..abstractpanel import Abstract_Panel
 
 from ._modelingicons import MODELING_ICONS
 
@@ -21,7 +22,7 @@ _TARGETS_JSON = os.path.join(_TARGETS_DIR, "target.json")
 _LOG.debug("Targets json:", _TARGETS_JSON)
 
 
-class _Abstract_Model_Panel(bpy.types.Panel):
+class _Abstract_Model_Panel(Abstract_Panel):
     """Human modeling panel"""
 
     bl_label = "SHOULD BE OVERRIDDEN"
@@ -37,7 +38,7 @@ class _Abstract_Model_Panel(bpy.types.Panel):
 
     def _draw_category(self, scene, layout, category, basemesh):
 
-        from mpfb.ui.model.modelpanel import MODEL_PROPERTIES
+        from ..model.modelpanel import MODEL_PROPERTIES
         hideimg = MODEL_PROPERTIES.get_value("hideimg", entity_reference=bpy.context.scene)
         only_active = MODEL_PROPERTIES.get_value("only_active", entity_reference=bpy.context.scene)
 
@@ -47,11 +48,10 @@ class _Abstract_Model_Panel(bpy.types.Panel):
             value = TargetService.get_target_value(basemesh, name)
             if abs(value) > 0.001:
                 is_modified = True
-                _LOG.debug("Target value modified", (name, value))
+                _LOG.trace("Target value considered modified", (name, value))
 
         if not only_active or is_modified:
-            box = layout.box()
-            box.label(text=category["label"])
+            box = self.create_box(layout, category["label"])
 
             if not hideimg:
                 if category["name"] in MODELING_ICONS:
@@ -77,7 +77,7 @@ class _Abstract_Model_Panel(bpy.types.Panel):
         if not basemesh:
             return
 
-        from mpfb.ui.model.modelpanel import MODEL_PROPERTIES
+        from ..model.modelpanel import MODEL_PROPERTIES
         filter = MODEL_PROPERTIES.get_value("filter", entity_reference=bpy.context.scene)
 
         tot_width = bpy.context.region.width
@@ -91,6 +91,10 @@ class _Abstract_Model_Panel(bpy.types.Panel):
             if not str(filter) or str(filter).lower() in str(category_name).lower():
                 category = _CATEGORIES_BY_LABEL[self.section_name][category_name]
                 self._draw_category(scene, grid, category, basemesh)
+
+    @classmethod
+    def poll(cls, context):
+        return cls.active_object_is_basemesh(context, also_check_relatives=True, also_check_for_shapekeys=True)
 
 
 _sections = dict()
@@ -150,7 +154,7 @@ if os.path.exists(user_targets_dir):
         if img:
             MODELING_ICONS.load(bn, img, 'IMAGE')
         else:
-            _LOG.warn("No image for ", str(target))
+            _LOG.debug("No image for ", str(target))
 else:
     _LOG.debug("User targets dir does not exist", user_targets_dir)
 
@@ -187,7 +191,7 @@ def _set_simple_modifier_value(scene, blender_object, section, category, value, 
         _LOG.debug("Will implicitly attempt a load of a target", target_path)
         TargetService.load_target(blender_object, target_path, weight=value, name=name)
     else:
-        from mpfb.ui.model.modelpanel import MODEL_PROPERTIES
+        from ..model.modelpanel import MODEL_PROPERTIES
         prune = MODEL_PROPERTIES.get_value("prune", entity_reference=bpy.context.scene)
         TargetService.set_target_value(blender_object, name, value, delete_target_on_zero=prune)
 
@@ -220,7 +224,7 @@ def _set_opposed_modifier_value(scene, blender_object, section, category, value,
     """This modifier is a combination of opposing targets ("decr-incr", "in-out"...)"""
     _LOG.debug("_set_opposed_modifier_value", (section, category, value, side))
 
-    from mpfb.ui.model.modelpanel import MODEL_PROPERTIES
+    from ..model.modelpanel import MODEL_PROPERTIES
     prune = MODEL_PROPERTIES.get_value("prune", entity_reference=bpy.context.scene)
     symmetry = MODEL_PROPERTIES.get_value("symmetry", entity_reference=bpy.context.scene)
 
@@ -265,7 +269,7 @@ def _set_modifier_value(scene, blender_object, section, category, value, side="u
         _set_opposed_modifier_value(scene, blender_object, section, category, value, side)
     else:
         _set_simple_modifier_value(scene, blender_object, section, category, value, side)
-    from mpfb.ui.model.modelpanel import MODEL_PROPERTIES
+    from ..model.modelpanel import MODEL_PROPERTIES
     if MODEL_PROPERTIES.get_value("refit", entity_reference=bpy.context.scene):
         HumanService.refit(blender_object)
 
@@ -280,6 +284,42 @@ def _get_modifier_value(scene, blender_object, section, category, side="unsided"
 _section_names = list(_sections.keys())
 _section_names.sort()
 
+def _unsided_getter_factory(section_name, unsided_name, category_index):
+    _LOG.debug("Constructing unsided getter for", unsided_name)
+    def _get_wrapper_unsided(self):
+        obj = ObjectService.find_object_of_type_amongst_nearest_relatives(bpy.context.active_object, "Basemesh")
+        cat = _sections[section_name]["categories"][category_index]
+        _LOG.trace("_get_wrapper_unsided for", unsided_name)
+        return _get_modifier_value(self, obj, section_name, cat)
+    return _get_wrapper_unsided
+
+def _sided_getter_factory(section_name, sided_name, category_index, side):
+    _LOG.debug("Constructing sided getter for", (sided_name, side))
+    def _get_wrapper_sided(self):
+        obj = ObjectService.find_object_of_type_amongst_nearest_relatives(bpy.context.active_object, "Basemesh")
+        cat = _sections[section_name]["categories"][category_index]
+        _LOG.trace("_get_wrapper_unsided for", (sided_name, side))
+        return _get_modifier_value(self, obj, section_name, cat, side)
+    return _get_wrapper_sided
+
+def _unsided_setter_factory(section_name, unsided_name, category_index):
+    _LOG.debug("Constructing unsided setter for", unsided_name)
+    def _set_wrapper_unsided(self, value):
+        obj = ObjectService.find_object_of_type_amongst_nearest_relatives(bpy.context.active_object, "Basemesh")
+        cat = _sections[section_name]["categories"][category_index]
+        _LOG.trace("_set_wrapper_unsided", (unsided_name, value))
+        _set_modifier_value(self, obj, section_name, cat, value)
+    return _set_wrapper_unsided
+
+def _sided_setter_factory(section_name, sided_name, category_index, side):
+    _LOG.debug("Constructing sided setter for", (sided_name, side))
+    def _set_wrapper_sided(self, value):
+        obj = ObjectService.find_object_of_type_amongst_nearest_relatives(bpy.context.active_object, "Basemesh")
+        cat = _sections[section_name]["categories"][category_index]
+        _LOG.trace("_set_wrapper_sided", (sided_name, side, value))
+        _set_modifier_value(self, obj, section_name, cat, value, side)
+    return _set_wrapper_sided
+
 for name in _section_names:
     _section = _sections[name]
     _i = 0
@@ -292,78 +332,27 @@ for name in _section_names:
 
         _LOG.debug("names", (_unsided_name, _left_name, _right_name))
 
-        # This is so ugly it makes me want to cry, but there doesn't seem to be any clean way to get both
-        # dynamically created properties AND getter/setter methods
-        #
-        # Anyway, we can keep creating functions with the same name here. When we feed the property with the
-        # reference to a function, what it gets is a function pointer. This is independent of name.
-
-        _function_str_general = ""
-        _function_str_general = _function_str_general + "    obj = ObjectService.find_object_of_type_amongst_nearest_relatives(bpy.context.active_object, \"Basemesh\")\n"
-        _function_str_general = _function_str_general + "    secname = \"" + name + "\"\n"
-        _function_str_general = _function_str_general + "    cat = _sections[secname][\"categories\"][" + str(_i) + "]\n"
-
-        _function_str = "def _get_wrapper_unsided(self):\n"
-        _function_str = _function_str + _function_str_general
-        _function_str = _function_str + "    modif = \"" + _unsided_name + "\"\n"
-        _function_str = _function_str + "    _LOG.trace(\"_get_wrapper_unsided for\", modif)\n"
-        _function_str = _function_str + "    return _get_modifier_value(self, obj, secname, cat)\n"
-        exec(_function_str)
-
-        _function_str = "def _set_wrapper_unsided(self, value):\n"
-        _function_str = _function_str + _function_str_general
-        _function_str = _function_str + "    modif = \"" + _unsided_name + "\"\n"
-        _function_str = _function_str + "    _LOG.trace(\"_set_wrapper_unsided for\", modif)\n"
-        _function_str = _function_str + "    _set_modifier_value(self, obj, secname, cat, value)\n"
-        exec(_function_str)
-
-        _function_str = "def _get_wrapper_left(self):\n"
-        _function_str = _function_str + _function_str_general
-        _function_str = _function_str + "    modif = \"" + _left_name + "\"\n"
-        _function_str = _function_str + "    side = \"left\"\n"
-        _function_str = _function_str + "    _LOG.trace(\"_get_wrapper_left for\", modif)\n"
-        _function_str = _function_str + "    return _get_modifier_value(self, obj, secname, cat, side)\n"
-        exec(_function_str)
-
-        _function_str = "def _set_wrapper_left(self, value):\n"
-        _function_str = _function_str + _function_str_general
-        _function_str = _function_str + "    modif = \"" + _left_name + "\"\n"
-        _function_str = _function_str + "    side = \"left\"\n"
-        _function_str = _function_str + "    _LOG.trace(\"_set_wrapper_left for\", modif)\n"
-        _function_str = _function_str + "    _set_modifier_value(self, obj, secname, cat, value, side)\n"
-        exec(_function_str)
-
-        _function_str = "def _get_wrapper_right(self):\n"
-        _function_str = _function_str + _function_str_general
-        _function_str = _function_str + "    modif = \"" + _right_name + "\"\n"
-        _function_str = _function_str + "    side = \"right\"\n"
-        _function_str = _function_str + "    _LOG.trace(\"_get_wrapper_right for\", modif)\n"
-        _function_str = _function_str + "    return _get_modifier_value(self, obj, secname, cat, side)\n"
-        exec(_function_str)
-
-        _function_str = "def _set_wrapper_right(self, value):\n"
-        _function_str = _function_str + _function_str_general
-        _function_str = _function_str + "    modif = \"" + _right_name + "\"\n"
-        _function_str = _function_str + "    side = \"right\"\n"
-        _function_str = _function_str + "    _LOG.trace(\"_set_wrapper_right for\", modif)\n"
-        _function_str = _function_str + "    _set_modifier_value(self, obj, secname, cat, value, side)\n"
-        exec(_function_str)
-
         _min_val = 0.0
         if "opposites" in _category:
             _min_val = -1.0
 
         if _category["has_left_and_right"]:
+            _get_wrapper_left = _sided_getter_factory(name, _left_name, _i, "left")
+            _get_wrapper_right = _sided_getter_factory(name, _right_name, _i, "right")
+            _set_wrapper_left = _sided_setter_factory(name, _left_name, _i, "left")
+            _set_wrapper_right = _sided_setter_factory(name, _right_name, _i, "right")
             prop = FloatProperty(name=_left_name, get=_get_wrapper_left, set=_set_wrapper_left, description="Set target value", max=1.0, min=_min_val)
             setattr(bpy.types.Scene, _left_name, prop)
-            _LOG.debug("property", prop)
+            _LOG.debug("property left", prop)
             prop = FloatProperty(name=_right_name, get=_get_wrapper_right, set=_set_wrapper_right, description="Set target value", max=1.0, min=_min_val)
             setattr(bpy.types.Scene, _right_name, prop)
-            _LOG.debug("property", prop)
+            _LOG.debug("property right", prop)
         else:
+            _get_wrapper_unsided = _unsided_getter_factory(name, _unsided_name, _i)
+            _set_wrapper_unsided = _unsided_setter_factory(name, _unsided_name, _i)
             prop = FloatProperty(name=_unsided_name, get=_get_wrapper_unsided, set=_set_wrapper_unsided, description="Set target value", max=1.0, min=_min_val)
             setattr(bpy.types.Scene, _unsided_name, prop)
-            _LOG.debug("property", prop)
+            _LOG.debug("property unsided", prop)
 
         _i = _i + 1
 
@@ -374,9 +363,9 @@ for name in _section_names:
         "section_name": name
         }
 
-    sub_panel = type("MPFB_PT_Model_Sub_Panel_" + name, (_Abstract_Model_Panel,), definition)
+    sub_panel = type("MPFB_PT_Model_Sub_Panel_" + name, (_Abstract_Model_Panel, Abstract_Panel), definition)
+    _LOG.debug("sub_panel", (sub_panel, sub_panel.__bases__))
 
-    _LOG.debug("sub_panel", sub_panel)
 
     ClassManager.add_class(sub_panel)
 

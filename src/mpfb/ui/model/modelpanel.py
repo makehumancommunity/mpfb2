@@ -1,10 +1,11 @@
 """File containing main UI for modeling humans"""
 
 import bpy, os
-from mpfb import ClassManager
-from mpfb.services.logservice import LogService
-from mpfb.services.uiservice import UiService
-from mpfb.services.sceneconfigset import SceneConfigSet
+from ... import ClassManager
+from ...services import LogService
+from ...services import TargetService
+from ...services import UiService
+from ...services import SceneConfigSet
 
 _LOG = LogService.get_logger("model.modelpanel")
 
@@ -51,8 +52,19 @@ class MPFB_PT_Model_Panel(bpy.types.Panel):
         layout = self.layout
         scene = context.scene
 
-        self._settings(scene, layout)
-        self._general(scene, layout)
+        if not context.active_object:
+            return
+
+        basemesh = ObjectService.find_object_of_type_amongst_nearest_relatives(context.active_object, "Basemesh")
+        if not basemesh:
+            return
+
+        if TargetService.has_any_shapekey(basemesh):
+            self._settings(scene, layout)
+            self._general(scene, layout)
+        else:
+            layout.label(text="Cannot model baked mesh")
+            layout.label(text="See docs for alternatives")
 
     @classmethod
     def poll(cls, context):

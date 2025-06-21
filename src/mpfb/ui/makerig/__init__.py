@@ -2,11 +2,11 @@
 
 import os, bpy
 
-from mpfb.services import LogService as _LogService
-from mpfb.services.objectservice import ObjectService
-from mpfb.services.sceneconfigset import SceneConfigSet
+from ...services import LogService
+from ...services import ObjectService
+from ...services import SceneConfigSet
 
-_LOG = _LogService.get_logger("makerig.init")
+_LOG = LogService.get_logger("makerig.init")
 _LOG.trace("initializing makerig module")
 
 _JOINT_CUBE_NAMES = []

@@ -1,13 +1,13 @@
 """File containing main UI for maketarget"""
 
 import bpy
-from mpfb import ClassManager
-from mpfb.services.logservice import LogService
-from mpfb.services.objectservice import ObjectService
-from mpfb.services.uiservice import UiService
-from mpfb.services.targetservice import TargetService
-from mpfb.ui.abstractpanel import Abstract_Panel
-from mpfb.ui.maketarget import MakeTargetObjectProperties
+from ... import ClassManager
+from ...services import LogService
+from ...services import ObjectService
+from ...services import UiService
+from ...services import TargetService
+from ..abstractpanel import Abstract_Panel
+from ..maketarget import MakeTargetObjectProperties
 
 _LOG = LogService.get_logger("maketarget.maketargetpanel")
 

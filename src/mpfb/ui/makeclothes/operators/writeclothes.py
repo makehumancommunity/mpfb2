@@ -1,22 +1,15 @@
 """Operator for saving a MHCLO file."""
 
-import bpy, os
+import bpy
 from bpy_extras.io_utils import ExportHelper
 from bpy.props import StringProperty
-from mpfb.services.logservice import LogService
-from mpfb.services.locationservice import LocationService
-from mpfb.services.objectservice import ObjectService
-from mpfb.services.clothesservice import ClothesService
-from mpfb.services.materialservice import MaterialService
-from mpfb.ui.makeclothes import MakeClothesObjectProperties
-from mpfb.entities.objectproperties import GeneralObjectProperties
-from mpfb.entities.material.makeskinmaterial import MakeSkinMaterial
-from mpfb.ui.makeclothes.operators.clothescommon import ClothesCommon
-from mpfb import ClassManager
+from ....services import LogService
+from ...makeclothes.operators.clothescommon import ClothesCommon
+from .... import ClassManager
 
 _LOG = LogService.get_logger("makeclothes.writeclothes")
 
-class MPFB_OT_WriteClothesOperator(bpy.types.Operator, ExportHelper, ClothesCommon):
+class MPFB_OT_WriteClothesOperator(ClothesCommon, ExportHelper):
     """Export the asset to MHCLO + MHMAT + obj, with filenames based on the mhclo file. Use this if you don't want to store the asset in your local asset library"""
     bl_idname = "mpfb.write_makeclothes_clothes"
     bl_label = "Save as files"

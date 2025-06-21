@@ -1,7 +1,7 @@
 """Operators for MakeWeight."""
 
-from mpfb.services import LogService as _LogService
-_LOG = _LogService.get_logger("makeweight.operators")
+from ....services import LogService
+_LOG = LogService.get_logger("makeweight.operators")
 _LOG.trace("initializing makeweight operators module")
 
 from .importweights import MPFB_OT_ImportWeightsOperator

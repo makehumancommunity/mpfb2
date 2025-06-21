@@ -1,10 +1,10 @@
-from mpfb.services.logservice import LogService
-from mpfb.services.locationservice import LocationService
-from mpfb.services.materialservice import MaterialService
-from mpfb.services.objectservice import ObjectService
-from mpfb.services.animationservice import AnimationService
-from mpfb.services.rigservice import RigService
-from mpfb._classmanager import ClassManager
+from ....services import LogService
+from ....services import LocationService
+from ....services import MaterialService
+from ....services import ObjectService
+from ....services import AnimationService
+from ....services import RigService
+from .... import ClassManager
 import bpy, json, math, os
 from bpy.types import StringProperty
 from bpy_extras.io_utils import ExportHelper
@@ -34,7 +34,7 @@ class MPFB_OT_Save_Animation_Operator(bpy.types.Operator):
 
         armature_object = context.object
 
-        from mpfb.ui.makepose import MakePoseProperties
+        from ...makepose import MakePoseProperties
 
         overwrite = MakePoseProperties.get_value('overwrite', entity_reference=context.scene)
         roottrans = MakePoseProperties.get_value('roottrans', entity_reference=context.scene)

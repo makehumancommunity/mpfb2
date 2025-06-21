@@ -1,10 +1,10 @@
 """Module with function for actually writing eye material settings."""
 
-from mpfb.services.logservice import LogService
-from mpfb.services.uiservice import UiService
-from mpfb.services.objectservice import ObjectService
-from mpfb.services.nodeservice import NodeService
-from mpfb.services.materialservice import MaterialService
+from ....services import LogService
+from ....services import UiService
+from ....services import ObjectService
+from ....services import NodeService
+from ....services import MaterialService
 import json
 
 _LOG = LogService.get_logger("eyesettings._save_material")

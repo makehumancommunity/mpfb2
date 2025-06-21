@@ -1,9 +1,9 @@
 """This module provides functionality adding rigs."""
 
 import os, bpy
-from mpfb.services import LogService as _LogService
+from ...services import LogService
 
-_LOG = _LogService.get_logger("addrig.init")
+_LOG = LogService.get_logger("addrig.init")
 _LOG.trace("initializing the addrig module")
 
 from .addrigpanel import MPFB_PT_Add_Rig_Panel

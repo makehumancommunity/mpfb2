@@ -2,10 +2,10 @@ import os, json, shutil, bpy
 from pathlib import Path
 from .mhmaterial import MhMaterial
 from .mhmatkeys import MHMAT_KEYS
-from mpfb.services.logservice import LogService
-from mpfb.services.locationservice import LocationService
-from mpfb.services.nodeservice import NodeService
-from mpfb.services.materialservice import MaterialService
+from ...services import LogService
+from ...services import LocationService
+from ...services import NodeService
+from ...services import MaterialService
 
 _LOG = LogService.get_logger("material.makeskinmaterial")
 
@@ -158,9 +158,37 @@ class MakeSkinMaterial(MhMaterial):
             _LOG.debug("Could not find a node for", name)
 
     def _set_config_value(self, blender_object, expected_name):
-        from mpfb.ui.makeskin import MakeSkinObjectProperties
+        from ...ui.makeskin import MakeSkinObjectProperties
         if MakeSkinObjectProperties.has_key(expected_name):
             self._settings[expected_name] = MakeSkinObjectProperties.get_value(expected_name, entity_reference=blender_object)
+
+    def ensure_uvmap_node_for_texture_nodes(self, blender_object):
+        material = blender_object.material_slots[0].material
+        node_tree = material.node_tree
+
+        for texture_name_base in _TEXTURE_NAMES:
+            texture_name = texture_name_base + "Texture"
+            node = NodeService.find_node_by_name(node_tree, texture_name)
+            _LOG.debug("texture name, node", (texture_name, node))
+            if node is not None:
+                uvmap_node = NodeService.find_node_linked_to_socket(node_tree, node, "Vector")
+                _LOG.debug("vector node, node", (uvmap_node, node))
+                if uvmap_node is None:
+                    node_name = node.name + "UVMap"
+                    node_label = node.label + " UVMap"
+                    node_x = node.location.x - 300
+                    node_y = node.location.y - 200
+
+                    uvmap_node = NodeService.create_node(
+                        node_tree,
+                        "ShaderNodeUVMap",
+                        name=node_name,
+                        label=node_label,
+                        xpos=node_x,
+                        ypos=node_y)
+
+                    NodeService.add_link(node_tree, uvmap_node, node, "UV", "Vector")
+                    uvmap_node.uv_map = blender_object.data.uv_layers[0].name
 
     def populate_from_object(self, blender_object):
         blender_material = blender_object.material_slots[0].material
@@ -187,7 +215,7 @@ class MakeSkinMaterial(MhMaterial):
                 if socket_values and socket_name in socket_values:
                     self._settings[setting_name] = socket_values[socket_name]
 
-        from mpfb.ui.makeskin import MakeSkinObjectProperties
+        from ...ui.makeskin import MakeSkinObjectProperties
         if MakeSkinObjectProperties.get_value("sss_enable", entity_reference=blender_object):
             self._settings["sssEnabled"] = True
             node = NodeService.find_node_by_name(blender_material.node_tree, "Principled BSDF")
@@ -260,7 +288,7 @@ class MakeSkinMaterial(MhMaterial):
     @staticmethod
     def create_makeskin_template_material(blender_object, scene, name="MakeSkinMaterial"):
 
-        from mpfb.ui.makeskin.makeskinpanel import MAKESKIN_PROPERTIES
+        from ...ui.makeskin.makeskinpanel import MAKESKIN_PROPERTIES
 
         if blender_object is None:
             raise ValueError('Must provide an object')

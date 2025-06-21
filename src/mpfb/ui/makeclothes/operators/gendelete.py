@@ -3,17 +3,16 @@
 import bpy, os, re
 from bpy_extras.io_utils import ExportHelper
 from bpy.props import StringProperty
-from mpfb.services.logservice import LogService
-from mpfb.services.locationservice import LocationService
-from mpfb.services.objectservice import ObjectService
-from mpfb.services.clothesservice import ClothesService
-from mpfb.services.assetservice import AssetService
-from mpfb.ui.makeclothes import MakeClothesObjectProperties
-from mpfb.entities.objectproperties import GeneralObjectProperties
-from mpfb import ClassManager
+from ....services import LogService
+from ....services import LocationService
+from ....services import ObjectService
+from ....services import ClothesService
+from ....services import AssetService
+from ...makeclothes import MakeClothesObjectProperties
+from ....entities.objectproperties import GeneralObjectProperties
+from .... import ClassManager
 
 _LOG = LogService.get_logger("makeclothes.gendelete")
-_LOG.set_level(LogService.DEBUG)
 
 
 class MPFB_OT_GenDeleteOperator(bpy.types.Operator):

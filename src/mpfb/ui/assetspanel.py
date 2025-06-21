@@ -1,11 +1,11 @@
 """This is the root panel for the asset library."""
 
-from mpfb._classmanager import ClassManager
-from mpfb.services.logservice import LogService
-from mpfb.services.uiservice import UiService
-from mpfb.services.assetservice import AssetService
-from mpfb.ui.abstractpanel import Abstract_Panel
-from mpfb.services.sceneconfigset import SceneConfigSet
+from .. import ClassManager
+from ..services import LogService
+from ..services import UiService
+from ..services import AssetService
+from .abstractpanel import Abstract_Panel
+from ..services import SceneConfigSet
 
 _LOG = LogService.get_logger("ui.assetspanel")
 

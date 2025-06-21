@@ -1,11 +1,11 @@
 """Operator for creating a template MakeTarget target."""
 
 import bpy
-from mpfb.services.logservice import LogService
-from mpfb.services.objectservice import ObjectService
-from mpfb.services.targetservice import TargetService
-from mpfb.ui.maketarget import MakeTargetObjectProperties
-from mpfb import ClassManager
+from ....services import LogService
+from ....services import ObjectService
+from ....services import TargetService
+from ...maketarget import MakeTargetObjectProperties
+from .... import ClassManager
 
 _LOG = LogService.get_logger("maketarget.createtarget")
 

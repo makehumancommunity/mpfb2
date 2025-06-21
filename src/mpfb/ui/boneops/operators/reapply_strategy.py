@@ -1,8 +1,8 @@
 """Operator for recomputing bone head or tail position from strategy."""
 
 import bpy
-from mpfb.services.logservice import LogService
-from mpfb import ClassManager
+from ....services import LogService
+from .... import ClassManager
 
 from .abstract import AbstractBoneOperator
 

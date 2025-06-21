@@ -1,8 +1,8 @@
 """Functionality for setting up v2 node groups"""
 
-from mpfb.services.logservice import LogService
-from mpfb.services.nodeservice import NodeService
-from mpfb._classmanager import ClassManager
+from ....services import LogService
+from ....services import NodeService
+from .... import ClassManager
 import bpy
 from string import Template
 

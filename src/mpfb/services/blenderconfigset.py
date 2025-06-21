@@ -1,7 +1,8 @@
-import bpy, os, json
+"""Functionality for storing configuration settings on blender entities"""
+
+import os, json
 from fnmatch import fnmatch
-from bpy.props import BoolProperty, StringProperty, EnumProperty, IntProperty, CollectionProperty, FloatProperty, \
-    FloatVectorProperty
+from bpy.props import BoolProperty, StringProperty, EnumProperty, IntProperty, FloatProperty, FloatVectorProperty
 from .logservice import LogService
 _LOG = LogService.get_logger("configuration.blenderconfigset")
 
@@ -9,7 +10,17 @@ from .configurationset import ConfigurationSet
 
 _PREFIX = "MPFB_"
 
+
 class BlenderConfigSet(ConfigurationSet):
+    """
+    The BlenderConfigSet class is a concrete implementation of the abstract ConfigurationSet class, specifically designed
+    to manage configuration settings within Blender. It extends the functionality provided by ConfigurationSet to handle
+    Blender-specific properties and entities.
+
+    The primary purpose of the BlenderConfigSet class is to provide a structured way to manage and interact with configuration
+    settings within Blender. It allows for defining, retrieving, setting, and displaying properties on Blender entities, making
+    it easier to handle complex configurations in a Blender environment.
+    """
 
     def __init__(self, properties, bpy_type, prefix="", *, lowercase_prefix=False):
         _LOG.debug("Constructing new blender config set with prefix", prefix)
@@ -24,10 +35,31 @@ class BlenderConfigSet(ConfigurationSet):
             self.add_property(prop)
 
     def get_fullname_key_from_shortname_key(self, key_name):
+        """
+        Constructs the full property name using the prefix and the provided short name.
+
+        Args:
+            key_name (str): The short name of the property.
+
+        Returns:
+            str: The full property name with the prefix.
+        """
         return self._prefix + key_name
 
     @staticmethod
     def get_definitions_in_json_directory(properties_dir):
+        """
+        Reads property definitions from JSON files in the specified directory.
+
+        Args:
+            properties_dir (str): The directory containing JSON files with property definitions.
+
+        Returns:
+            list: A list of property definitions read from the JSON files.
+
+        Raises:
+            IOError: If there is an error reading the properties from a JSON file.
+        """
         _LOG.enter()
         _LOG.debug("Scanning properties dir", properties_dir)
         known_properties = []
@@ -37,7 +69,7 @@ class BlenderConfigSet(ConfigurationSet):
                 json_file_name = os.path.join(properties_dir, file_name)
                 _LOG.debug("Trying to add properties from file", json_file_name)
                 try:
-                    with open(json_file_name) as json_file:
+                    with open(json_file_name, encoding="utf-8") as json_file:
                         data = json.load(json_file)
                         _LOG.dump("Json from file", data)
                         known_properties.append(data)
@@ -48,6 +80,18 @@ class BlenderConfigSet(ConfigurationSet):
         return known_properties
 
     def check_and_transform_entity_reference(self, entity_reference):
+        """
+        Validates and transforms the entity reference to ensure it matches the expected Blender type.
+
+        Args:
+            entity_reference: The entity reference to check and transform.
+
+        Returns:
+            The validated and transformed entity reference.
+
+        Raises:
+            ValueError: If the entity reference is None or not an instance of the expected Blender type.
+        """
         if entity_reference is None:
             raise ValueError('Must provide a valid entity reference in order to read a BlenderConfigSet value')
         if not isinstance(entity_reference, self._bpytype):
@@ -55,6 +99,17 @@ class BlenderConfigSet(ConfigurationSet):
         return entity_reference
 
     def get_value(self, name, default_value=None, entity_reference=None):
+        """
+        Retrieves the value of a property from a Blender entity.
+
+        Args:
+            name (str): The name of the property.
+            default_value (optional): The default value to return if the property is not found.
+            entity_reference (optional): The Blender entity reference to retrieve the property value from.
+
+        Returns:
+            The value of the property, or the default value if the property is not found.
+        """
         _LOG.enter()
         entity_reference = self.check_and_transform_entity_reference(entity_reference)
         prop = None
@@ -87,6 +142,17 @@ class BlenderConfigSet(ConfigurationSet):
         return getattr(entity_reference, full_name)
 
     def set_value(self, name, value, entity_reference=None):
+        """
+        Sets the value of a property on a Blender entity.
+
+        Args:
+            name (str): The name of the property.
+            value: The value to set for the property.
+            entity_reference (optional): The Blender entity reference to set the property value on.
+
+        Raises:
+            ValueError: If the property does not exist on the entity.
+        """
         _LOG.enter()
         entity_reference = self.check_and_transform_entity_reference(entity_reference)
 
@@ -111,16 +177,40 @@ class BlenderConfigSet(ConfigurationSet):
                 _LOG.dump("About to set alias", (self._bpytype, entity_reference, alias, value))
                 setattr(entity_reference, alias, value)
 
-
     def get_keys(self):
+        """
+        Retrieves all the short names of the properties in the configuration set.
+
+        Returns:
+            dict_keys: A view object that displays a list of all the short names of the properties.
+        """
         _LOG.enter()
         return self._properties_by_short_name.keys()
 
     def has_key(self, name):
+        """
+        Checks if a property with the given name exists in the configuration set.
+
+        Args:
+            name (str): The name of the property to check.
+
+        Returns:
+            bool: True if the property exists, False otherwise.
+        """
         _LOG.enter()
         return name in self._properties_by_full_name or name in self._properties_by_short_name or name in self._alias_to_prop
 
     def has_key_with_value(self, name, entity_reference=None):
+        """
+        Checks if a property with the given name exists and has a value in the configuration set.
+
+        Args:
+            name (str): The name of the property to check.
+            entity_reference (optional): The Blender entity reference to check the property value on.
+
+        Returns:
+            bool: True if the property exists and has a value, False otherwise.
+        """
         _LOG.enter()
         if not self.has_key(name):
             return False
@@ -130,16 +220,16 @@ class BlenderConfigSet(ConfigurationSet):
     def _create_property_by_type(self, proptype, name, description, default, items=None, items_callback=None, min=None, max=None):
         entity_property = None
         if proptype == "boolean":
-            entity_property = BoolProperty(name=name, description=description, default=default) # pylint: disable=E1111
+            entity_property = BoolProperty(name=name, description=description, default=default)  # pylint: disable=E1111
         if proptype == "string":
-            entity_property = StringProperty(name=name, description=description, default=default) # pylint: disable=E1111
+            entity_property = StringProperty(name=name, description=description, default=default)  # pylint: disable=E1111
         if proptype == "int":
-            entity_property = IntProperty(name=name, description=description, default=default) # pylint: disable=E1111
+            entity_property = IntProperty(name=name, description=description, default=default)  # pylint: disable=E1111
         if proptype == "float":
             if min is None:
-                entity_property = FloatProperty(name=name, description=description, default=default) # pylint: disable=E1111
+                entity_property = FloatProperty(name=name, description=description, default=default)  # pylint: disable=E1111
             else:
-                entity_property = FloatProperty(name=name, description=description, default=default, min=min, max=max) # pylint: disable=E1111
+                entity_property = FloatProperty(name=name, description=description, default=default, min=min, max=max)  # pylint: disable=E1111
         if proptype == "vector_location":
             entity_property = FloatVectorProperty(name=name, description=description, default=default,
                                                   size=3, subtype='XYZ', unit='LENGTH')
@@ -150,7 +240,7 @@ class BlenderConfigSet(ConfigurationSet):
                     enumitems.append(tuple(item))
             if not items_callback is None:
                 enumitems = items_callback
-            entity_property = EnumProperty( # pylint: disable=E1111
+            entity_property = EnumProperty(# pylint: disable=E1111
                 name=name,
                 description=description,
                 default=default,
@@ -159,6 +249,24 @@ class BlenderConfigSet(ConfigurationSet):
         return entity_property
 
     def add_property(self, prop, items_callback=None):
+        """
+        Adds a new property to the configuration set and defines it on the Blender entity type.
+
+        Args:
+            prop (dict): A dictionary containing the property definition. Expected keys include:
+                - name (str): The short name of the property.
+                - type (str): The type of the property (e.g., "boolean", "string", "int", "float", "vector_location", "enum").
+                - description (str): A description of the property.
+                - default: The default value of the property.
+                - aliases (list, optional): A list of alias names for the property.
+                - min (optional): The minimum value for the property (if applicable).
+                - max (optional): The maximum value for the property (if applicable).
+                - items (list, optional): A list of items for enum properties.
+            items_callback (callable, optional): A callback function to provide items for enum properties.
+
+        Raises:
+            ValueError: If the property type is not recognized.
+        """
         _LOG.enter()
         copied_property = dict(prop)
         copied_property["full_name"] = self._prefix + copied_property["name"]
@@ -181,7 +289,15 @@ class BlenderConfigSet(ConfigurationSet):
         items = None
         if "items" in copied_property:
             items = copied_property["items"]
-        entity_property = self._create_property_by_type(copied_property["type"], copied_property["full_name"], copied_property["description"], copied_property["default"], items, items_callback, min=min, max=max)
+        entity_property = self._create_property_by_type(
+            copied_property["type"],
+            copied_property["full_name"],
+            copied_property["description"],
+            copied_property["default"],
+            items,
+            items_callback,
+            min=min,
+            max=max)
 
         _LOG.dump("Adding entity property:", (str(copied_property["full_name"]), entity_property))
 
@@ -191,7 +307,13 @@ class BlenderConfigSet(ConfigurationSet):
             self._prop_to_aliases[copied_property["full_name"]] = prop["aliases"]
             for alias in prop["aliases"]:
                 self._alias_to_prop[alias] = copied_property["full_name"]
-                alias_property = self._create_property_by_type(copied_property["type"], alias, copied_property["description"], copied_property["default"], items, items_callback)
+                alias_property = self._create_property_by_type(
+                    copied_property["type"],
+                    alias,
+                    copied_property["description"],
+                    copied_property["default"],
+                    items,
+                    items_callback)
                 _LOG.dump("Adding alias property", (str(alias), alias_property))
                 setattr(self._bpytype, str(alias).strip(), alias_property)
 
@@ -204,6 +326,19 @@ class BlenderConfigSet(ConfigurationSet):
         return prop
 
     def draw_properties(self, entity_reference, component_to_draw_on, property_names, *, text=None, **kwargs):
+        """
+        Draws the specified properties on a Blender UI component.
+
+        Args:
+            entity_reference: The Blender entity reference to draw the properties from.
+            component_to_draw_on: The Blender UI component (e.g., a box) to draw the properties on.
+            property_names (list): A list of property names to draw.
+            text (str, optional): The text label to use for the properties. If None, the property label is used.
+            **kwargs: Additional keyword arguments to pass to the Blender UI component's prop method.
+
+        Raises:
+            ValueError: If the entity_reference or component_to_draw_on is None.
+        """
         _LOG.enter()
         if entity_reference is None:
             raise ValueError('Must provide a valid blender entity reference in order to draw properties')
@@ -222,6 +357,15 @@ class BlenderConfigSet(ConfigurationSet):
                 component_to_draw_on.prop(entity_reference, prop["full_name"], text=label, **kwargs)
 
     def get_property_id_for_draw(self, name):
+        """
+        Retrieves the full property name for drawing purposes.
+
+        Args:
+            name (str): The short name of the property.
+
+        Returns:
+            str: The full property name if the property exists, None otherwise.
+        """
         prop = self._find_property(name)
 
         if prop is None:

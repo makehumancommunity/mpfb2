@@ -1,9 +1,9 @@
 import bpy, json, math, os
 from bpy.props import StringProperty
-from mpfb.services.logservice import LogService
-from mpfb.services.animationservice import AnimationService
-from mpfb.ui.mpfboperator import MpfbOperator
-from mpfb._classmanager import ClassManager
+from ....services import LogService
+from ....services import AnimationService
+from ...mpfboperator import MpfbOperator
+from .... import ClassManager
 from bpy_extras.io_utils import ImportHelper
 
 _LOG = LogService.get_logger("applypose.loadmhbvh")
@@ -26,8 +26,8 @@ class MPFB_OT_Load_MH_BVH_Operator(MpfbOperator, ImportHelper):
             return False
         return True
 
-    def __init__(self):
-        MpfbOperator.__init__(self, "applypose.loadmhbvh")
+    def get_logger(self):
+        return _LOG
 
     def hardened_execute(self, context):
         _LOG.enter()

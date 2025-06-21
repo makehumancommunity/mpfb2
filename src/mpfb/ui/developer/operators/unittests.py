@@ -1,8 +1,8 @@
 """Functionality for running unit tests. See README in the test directory before using this."""
 
-from mpfb.services.logservice import LogService
-from mpfb.services.locationservice import LocationService
-from mpfb._classmanager import ClassManager
+from ....services import LogService
+from ....services import LocationService
+from .... import ClassManager
 import bpy
 
 _LOG = LogService.get_logger("developer.unittests")

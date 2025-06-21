@@ -2,9 +2,9 @@
 import bmesh
 import bpy
 
-from mpfb.entities.rig import Rig
-from mpfb.services.logservice import LogService
-from mpfb import ClassManager
+from ....entities.rig import Rig
+from ....services import LogService
+from .... import ClassManager
 
 from .abstract import AbstractBoneOperator
 

@@ -1,14 +1,14 @@
 """Operator for creating a new human object from presets."""
 
 import bpy
-from mpfb.services.logservice import LogService
-from mpfb.services.locationservice import LocationService
-from mpfb.services.humanservice import HumanService
-from mpfb.services.objectservice import ObjectService
-from mpfb.services.meshservice import MeshService
-from mpfb.services.systemservice import SystemService
-from mpfb.ui.mpfboperator import MpfbOperator
-from mpfb import ClassManager
+from ....services import LogService
+from ....services import LocationService
+from ....services import HumanService
+from ....services import ObjectService
+from ....services import MeshService
+from ....services import SystemService
+from ...mpfboperator import MpfbOperator
+from .... import ClassManager
 
 _LOG = LogService.get_logger("newhuman.humanfrompresets")
 
@@ -19,13 +19,13 @@ class MPFB_OT_HumanFromPresetsOperator(MpfbOperator):
     bl_label = "Create human"
     bl_options = {'REGISTER', 'UNDO'}
 
-    def __init__(self):
-        MpfbOperator.__init__(self, "newhuman.humanfrompresets")
+    def get_logger(self):
+        return _LOG
 
     def hardened_execute(self, context):
 
         _LOG.reset_timer()
-        from mpfb.ui.newhuman.frompresetspanel import PRESETS_HUMAN_PROPERTIES  # pylint: disable=C0415
+        from ...newhuman.frompresetspanel import PRESETS_HUMAN_PROPERTIES  # pylint: disable=C0415
 
         name = PRESETS_HUMAN_PROPERTIES.get_value("available_presets", entity_reference=context.scene)
 
@@ -43,6 +43,11 @@ class MPFB_OT_HumanFromPresetsOperator(MpfbOperator):
         deserialization_settings["override_skin_model"] = PRESETS_HUMAN_PROPERTIES.get_value("override_skin_model", entity_reference=context.scene)
         deserialization_settings["override_clothes_model"] = PRESETS_HUMAN_PROPERTIES.get_value("override_clothes_model", entity_reference=context.scene)
         deserialization_settings["override_eyes_model"] = PRESETS_HUMAN_PROPERTIES.get_value("override_eyes_model", entity_reference=context.scene)
+        deserialization_settings["material_instances"] = PRESETS_HUMAN_PROPERTIES.get_value("material_instances", entity_reference=context.scene)
+
+        if "rigify" in deserialization_settings["override_rig"] and not SystemService.check_for_rigify():
+            self.report({'ERROR'}, "Rig override set to rigify, but rigify is not enabled.")
+            return {'FINISHED'}
 
         scale_factor = PRESETS_HUMAN_PROPERTIES.get_value("scale_factor", entity_reference=context.scene)
         scale = 0.1

@@ -1,6 +1,6 @@
-from mpfb.services.logservice import LogService
-from mpfb.services.objectservice import ObjectService
-from mpfb._classmanager import ClassManager
+from ....services import LogService
+from ....services import ObjectService
+from .... import ClassManager
 import bpy
 
 

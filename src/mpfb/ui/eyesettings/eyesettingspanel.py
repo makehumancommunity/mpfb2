@@ -1,13 +1,13 @@
 """This file provides UI for saving/loading eye material settings"""
 
 import os, bpy, shutil
-from mpfb._classmanager import ClassManager
-from mpfb.services.logservice import LogService
-from mpfb.services.locationservice import LocationService
-from mpfb.services.sceneconfigset import SceneConfigSet
-from mpfb.services.uiservice import UiService
-from mpfb.services.objectservice import ObjectService
-from mpfb.ui.abstractpanel import Abstract_Panel
+from ... import ClassManager
+from ...services import LogService
+from ...services import LocationService
+from ...services import SceneConfigSet
+from ...services import UiService
+from ...services import ObjectService
+from ..abstractpanel import Abstract_Panel
 
 _LOG = LogService.get_logger("ui.eyesettings")
 
@@ -36,7 +36,7 @@ EYE_SETTINGS_PROPERTIES.add_property(_SETTINGS_LIST_PROP, _populate_settings)
 class MPFB_PT_Eye_Settings_Panel(Abstract_Panel):
     """Panel for saving/loading eye material settings."""
 
-    bl_label = "Eye material presets"
+    bl_label = "Eye material save files"
     bl_category = UiService.get_value("MATERIALSCATEGORY")
     bl_options = {'DEFAULT_CLOSED'}
     bl_parent_id = "MPFB_PT_Presets_Panel"

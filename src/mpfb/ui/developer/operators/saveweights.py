@@ -1,9 +1,9 @@
-from mpfb.services.logservice import LogService
-from mpfb.services.materialservice import MaterialService
-from mpfb.services.objectservice import ObjectService
-from mpfb.services.rigservice import RigService
-from mpfb.entities.rig import Rig
-from mpfb._classmanager import ClassManager
+from ....services import LogService
+from ....services import MaterialService
+from ....services import ObjectService
+from ....services import RigService
+from ....entities.rig import Rig
+from .... import ClassManager
 import bpy, json, math, re
 from bpy.types import StringProperty
 from bpy_extras.io_utils import ExportHelper
@@ -61,7 +61,7 @@ class MPFB_OT_Save_Weights_Operator(bpy.types.Operator, ExportHelper):
                 self.report({'ERROR'}, "Could not find related basemesh. It should have been parent or child of armature object.")
                 return {'FINISHED'}
 
-        from mpfb.ui.developer.developerpanel import DEVELOPER_PROPERTIES  # pylint: disable=C0415
+        from ...developer.developerpanel import DEVELOPER_PROPERTIES  # pylint: disable=C0415
 
         weights_mask = DEVELOPER_PROPERTIES.get_value("weights_mask", entity_reference=context.scene)
         save_evaluated = DEVELOPER_PROPERTIES.get_value("save_evaluated", entity_reference=context.scene)

@@ -1,13 +1,13 @@
-from mpfb.services.logservice import LogService
-from mpfb.services.materialservice import MaterialService
-from mpfb.services.objectservice import ObjectService
-from mpfb.entities.rig import Rig
-from mpfb._classmanager import ClassManager
+from ....services import LogService
+from ....services import MaterialService
+from ....services import ObjectService
+from ....entities.rig import Rig
+from .... import ClassManager
 import bpy, json, math
 from bpy.types import StringProperty
 from bpy_extras.io_utils import ImportHelper
 
-from mpfb.ui.developer.developerpanel import DEVELOPER_PROPERTIES
+from ...developer.developerpanel import DEVELOPER_PROPERTIES
 
 _LOG = LogService.get_logger("developer.operators.loadrig")
 

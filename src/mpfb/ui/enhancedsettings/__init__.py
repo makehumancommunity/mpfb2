@@ -1,5 +1,5 @@
-from mpfb.services import LogService as _LogService
-_LOG = _LogService.get_logger("ui.enhancedsettings")
+from ...services import LogService
+_LOG = LogService.get_logger("ui.enhancedsettings")
 _LOG.trace("initializing enhanced settings module")
 
 from .enhancedsettingspanel import MPFB_PT_Enhanced_Settings_Panel
