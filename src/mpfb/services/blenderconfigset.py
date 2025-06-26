@@ -34,6 +34,11 @@ class BlenderConfigSet(ConfigurationSet):
         for prop in properties:
             self.add_property(prop)
 
+    def get_type(self):
+        """Getter for the type of Blender entity this configuration set manages."""
+        _LOG.enter()
+        return self._bpytype
+
     def get_fullname_key_from_shortname_key(self, key_name):
         """
         Constructs the full property name using the prefix and the provided short name.
