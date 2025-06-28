@@ -10,16 +10,17 @@
 from ... import ClassManager
 from ...services.logservice import LogService
 from ...services.uiservice import UiService
-from ...services.sceneconfigset import SceneConfigSet
+from ...services.dynamicconfigset import DynamicConfigSet
 from ...services.haireditorservices import HairEditorService
 from ...ui.abstractpanel import Abstract_Panel
-import bpy,os, json
+import bpy, os, json
 
 _LOG = LogService.get_logger("ui.haireditorpanel")
+_LOG.set_level(LogService.DEBUG)
 
 _LOC = os.path.dirname(__file__)
 HAIR_PROPERTIES_DIR = os.path.join(_LOC, "properties")
-HAIR_PROPERTIES = SceneConfigSet.from_definitions_in_json_directory(HAIR_PROPERTIES_DIR, prefix="HAI_")
+HAIR_PROPERTIES = DynamicConfigSet.from_definitions_in_json_directory(HAIR_PROPERTIES_DIR, prefix="HAI_", dynamic_prefix="DYN_HAIR_")
 
 
 class MPFB_PT_Hair_Editor_Panel(Abstract_Panel):
@@ -28,44 +29,49 @@ class MPFB_PT_Hair_Editor_Panel(Abstract_Panel):
     bl_options = {'DEFAULT_CLOSED'}
 
     # Operator to set up UI for hair editor
-    def _setup_hair(self, scene, layout):
+    def _setup_hair(self, layout):
         box = layout.box()
         box.label(text="Setup mesh for hair editing")
 
         op = box.operator("mpfb.setup_hair_operator")
 
     # UI panel for adding and editing of hair assets
-    def _hair_panel(self, scene, layout):
+    def _hair_panel(self, basemesh, layout):
         box = layout.box()
         box.label(text="Hair assets:")
 
         # Add operators (hair, facial hair, eybrow, others)
-        HAIR_PROPERTIES.draw_properties(scene, box, ["hair_assets"])
+        HAIR_PROPERTIES.draw_properties(basemesh, box, ["hair_assets"])
         hair_op = box.operator("mpfb.apply_hair_operator")
-        hair_op.hair_asset = HAIR_PROPERTIES.get_value("hair_assets", entity_reference=scene)
-        HAIR_PROPERTIES.draw_properties(scene, box, ["facial_assets"])
+        hair_op.hair_asset = HAIR_PROPERTIES.get_value("hair_assets", entity_reference=basemesh)
+        HAIR_PROPERTIES.draw_properties(basemesh, box, ["facial_assets"])
         facial_op = box.operator("mpfb.apply_hair_operator")
-        facial_op.hair_asset = HAIR_PROPERTIES.get_value("facial_assets", entity_reference=scene)
-        HAIR_PROPERTIES.draw_properties(scene, box, ["eyebrow_assets"])
+        facial_op.hair_asset = HAIR_PROPERTIES.get_value("facial_assets", entity_reference=basemesh)
+        HAIR_PROPERTIES.draw_properties(basemesh, box, ["eyebrow_assets"])
         eyebrow_op = box.operator("mpfb.apply_hair_operator")
-        eyebrow_op.hair_asset = HAIR_PROPERTIES.get_value("eyebrow_assets", entity_reference=scene)
-        HAIR_PROPERTIES.draw_properties(scene, box, ["other_assets"])
+        eyebrow_op.hair_asset = HAIR_PROPERTIES.get_value("eyebrow_assets", entity_reference=basemesh)
+        HAIR_PROPERTIES.draw_properties(basemesh, box, ["other_assets"])
         other_op = box.operator("mpfb.apply_hair_operator")
-        other_op.hair_asset = HAIR_PROPERTIES.get_value("other_assets", entity_reference=scene)
+        other_op.hair_asset = HAIR_PROPERTIES.get_value("other_assets", entity_reference=basemesh)
+
 
         # Column with applied assets
         col = layout.column()
-        for prop in scene.bl_rna.properties:
-            if prop.identifier.endswith("_hair_asset_open"):
-                asset_name = prop.identifier.replace("_hair_asset_open", "")
+        HAIR_PROPERTIES.draw_properties(basemesh, col, ["hair_setup"])
+        return
+
+        for prop in HAIR_PROPERTIES.get_dynamic_keys(basemesh):
+            if prop.endswith("_hair_asset_open"):
+                asset_name = prop.replace("_hair_asset_open", "")
                 toggle_prop = f"{asset_name}_hair_asset_open"
 
                 # Toggle property
-                is_open = getattr(scene, toggle_prop)
+                is_open = HAIR_PROPERTIES.get_value(toggle_prop, False, basemesh)
                 icon = 'TRIA_DOWN' if is_open else 'TRIA_RIGHT'
-                col.prop(scene, f"{toggle_prop}", text=asset_name, icon=icon, emboss=True, toggle=False)
+                #col.prop(basemesh, f"{toggle_prop}", text=asset_name, icon=icon, emboss=True, toggle=False)
+                HAIR_PROPERTIES.draw_properties(basemesh, col, [toggle_prop])
 
-                if is_open:
+                if is_open and False:
                     box = col.box()
                     box.label(text=f"{asset_name}")
 
@@ -133,14 +139,17 @@ class MPFB_PT_Hair_Editor_Panel(Abstract_Panel):
                     op_del.hair_asset =asset_name
 
     # UI panel for adding and editing of hair assets
-    def _fur_panel(self, scene, layout):
+    def _fur_panel(self, basemesh, layout):
         box = layout.box()
         box.label(text="Fur assets:")
-        HAIR_PROPERTIES.draw_properties(scene, box, ["fur_assets"])
+        HAIR_PROPERTIES.draw_properties(basemesh, box, ["fur_assets"])
 
         # Apply fur operator
         other_op = box.operator("mpfb.apply_fur_operator")
-        other_op.hair_asset = HAIR_PROPERTIES.get_value("fur_assets", entity_reference=scene)
+        other_op.hair_asset = HAIR_PROPERTIES.get_value("fur_assets", entity_reference=basemesh)
+
+        # UNTIL BELOW IS FIXED: leave method early
+        return
 
         # Column with applied fur assets
         col = layout.column()
@@ -234,14 +243,29 @@ class MPFB_PT_Hair_Editor_Panel(Abstract_Panel):
 
     def draw(self, context):
         _LOG.enter()
+
+        layout = self.layout
+        basemesh = self.get_basemesh(context)
+        _LOG.debug("Basemesh", basemesh)
+        if basemesh is None:
+            layout.label(text="No Basemesh selected")
+            return
+
         layout = self.layout
         scene = context.scene
-        if (not scene.get("hair_setup", False)):
-            self._setup_hair(scene, layout)
 
-        if scene.get("hair_setup", False):
-            self._hair_panel(scene, layout)
-            self._fur_panel(scene, layout)
+        has_hair = False
+        has_key = HAIR_PROPERTIES.has_key("hair_setup", entity_reference=basemesh)
+        if has_key:
+            has_hair = HAIR_PROPERTIES.get_value("hair_setup", False, entity_reference=basemesh)
+        _LOG.debug("has key, has hair", (has_key, has_hair))
+
+        if has_hair:
+            self._hair_panel(basemesh, layout)
+            self._fur_panel(basemesh, layout)
+        else:
+            self._setup_hair(layout)
+
 
 
 ClassManager.add_class(MPFB_PT_Hair_Editor_Panel)

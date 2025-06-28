@@ -10,6 +10,8 @@ from ....services.logservice import LogService
 from ....services.locationservice import LocationService
 from .... import ClassManager
 from ....services.haireditorservices import HairEditorService
+from ..haireditorpanel import HAIR_PROPERTIES
+
 import bpy, os, json, shutil
 
 _LOG = LogService.get_logger("haireditorpanel.setup_hair_operator")
@@ -51,14 +53,26 @@ class MPFB_OT_SetupHair_Operator(bpy.types.Operator):
         else:
             self.report({'WARNING'}, "Human object not found in bpy.data.objects")
 
+        propdef = {
+                    "type": "boolean",
+                    "name": "hair_setup",
+                    "label": "Hair has been set up",
+                    "description": "Mesh has empty hair applied",
+                    "default": False
+                    }
+
+        HAIR_PROPERTIES.set_value_dynamic("hair_setup", True, propdef, human_obj)
+
         # Update UI
-        if not hasattr(bpy.types.Scene, "hair_setup"):
-            bpy.types.Scene.hair_setup = bpy.props.BoolProperty(
-                name="hair_setup",
-                description="Mesh has empty hair applied",
-                default=False
-            )
-        scene.hair_setup = True
+        #=======================================================================
+        # if not hasattr(bpy.types.Scene, "hair_setup"):
+        #     bpy.types.Scene.hair_setup = bpy.props.BoolProperty(
+        #         name="hair_setup",
+        #         description="Mesh has empty hair applied",
+        #         default=False
+        #     )
+        # scene.hair_setup = True
+        #=======================================================================
 
         return {'FINISHED'}
 

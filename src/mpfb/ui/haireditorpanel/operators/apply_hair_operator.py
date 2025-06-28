@@ -8,6 +8,7 @@
 # ------------------------------------------------------------------------------
 from ....services.logservice import LogService
 from ....services.locationservice import LocationService
+from ....services.objectservice import ObjectService
 from .... import ClassManager
 from ....services.haireditorservices import HairEditorService
 import bpy, os, json, shutil
@@ -70,10 +71,9 @@ class MPFB_OT_ApplyHair_Operator(bpy.types.Operator):
 
         self.report({'INFO'}, ("Applying hair asset..."))
 
-
         # Get Human mesh
-        human_obj = context.object
-        if (not human_obj or not human_obj.name == 'Human'):
+        human_obj = ObjectService.find_object_of_type_amongst_nearest_relatives(context.active_object)
+        if (not human_obj):
             self.report({'ERROR'}, "Object Human must be active")
             return {'CANCELLED'}
 
