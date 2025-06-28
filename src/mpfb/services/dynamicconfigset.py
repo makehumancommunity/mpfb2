@@ -238,3 +238,52 @@ class DynamicConfigSet(BlenderConfigSet):
         known_properties = BlenderConfigSet.get_definitions_in_json_directory(properties_dir)
         return DynamicConfigSet(known_properties, prefix=prefix, dynamic_prefix=dynamic_prefix)
 
+    def deferred_draw_property(self, entity_reference, component_to_draw_on, property_name, text=None):
+        """
+        Draw a dynamic property that may not be registered with the RNA system.
+        This handles both properties created in the current session and those loaded from a saved file.
+
+        Args:
+            entity_reference: The Blender object containing the property
+            component_to_draw_on: The UI component to draw on (layout, box, etc.)
+            property_name: The name of the property without the dynamic prefix
+            text: Optional label text to display
+        """
+        _LOG.debug("In deferred draw for dynamic property", property_name)
+
+        # Check if this is a dynamic property
+        if property_name not in self.get_dynamic_keys(entity_reference):
+            _LOG.debug("Property not found in dynamic properties", property_name)
+            return
+
+        # Set up the label
+        label = property_name
+        if text:
+            label = text
+
+        full_property_name = self.dynamic_prefix + property_name
+
+        # Try to determine if this is a custom property (from a previous session)
+        # or a regular property (added in this session)
+        is_custom_prop = False
+
+        # Check if it's in the RNA properties
+        for prop in entity_reference.bl_rna.properties:
+            if prop.identifier == full_property_name:
+                is_custom_prop = False
+                break
+        else:
+            # Not found in RNA properties, check if it's in custom properties
+            for key, _ in entity_reference.items():
+                if key == full_property_name:
+                    is_custom_prop = True
+                    break
+
+        if is_custom_prop:
+            # For custom properties loaded from a file, use this approach
+            _LOG.debug("Drawing as custom property", full_property_name)
+            component_to_draw_on.prop(entity_reference, f'["{full_property_name}"]', text=label)
+        else:
+            # For properties added in the current session, use the standard approach
+            _LOG.debug("Drawing as standard property", full_property_name)
+            component_to_draw_on.prop(entity_reference, full_property_name, text=label)
