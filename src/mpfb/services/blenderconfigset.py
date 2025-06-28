@@ -360,9 +360,16 @@ class BlenderConfigSet(ConfigurationSet):
             _LOG.debug("Drawing property", (name, type(prop), prop))
             if prop is None:
                 _LOG.warn("Tried to draw a non-existing property", name)
+                self.deferred_draw_property(entity_reference, component_to_draw_on, name, text)
             else:
                 label = prop.get("label", "") if text is None else text
                 component_to_draw_on.prop(entity_reference, prop["full_name"], text=label, **kwargs)
+
+    def deferred_draw_property(self, entity_reference, component_to_draw_on, property_name, text=None):
+        """Abstract method that can be overridden by subclasses to implement drawing logic for properties which
+        are not known to the configset."""
+        _LOG.debug("Deferred draw not overridden")
+
 
     def get_property_id_for_draw(self, name):
         """
