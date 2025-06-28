@@ -4,9 +4,9 @@ import os, json
 from fnmatch import fnmatch
 from bpy.props import BoolProperty, StringProperty, EnumProperty, IntProperty, FloatProperty, FloatVectorProperty
 from .logservice import LogService
-_LOG = LogService.get_logger("configuration.blenderconfigset")
-
 from .configurationset import ConfigurationSet
+
+_LOG = LogService.get_logger("configuration.blenderconfigset")
 
 _PREFIX = "MPFB_"
 
@@ -97,6 +97,7 @@ class BlenderConfigSet(ConfigurationSet):
         Raises:
             ValueError: If the entity reference is None or not an instance of the expected Blender type.
         """
+        _LOG.debug("Entity, entity type, bpy type", (entity_reference, type(entity_reference), self._bpytype))
         if entity_reference is None:
             raise ValueError('Must provide a valid entity reference in order to read a BlenderConfigSet value')
         if not isinstance(entity_reference, self._bpytype):
@@ -253,7 +254,7 @@ class BlenderConfigSet(ConfigurationSet):
 
         return entity_property
 
-    def add_property(self, prop, items_callback=None):
+    def add_property(self, prop, items_callback=None, override_prefix=None):
         """
         Adds a new property to the configuration set and defines it on the Blender entity type.
 
@@ -275,6 +276,8 @@ class BlenderConfigSet(ConfigurationSet):
         _LOG.enter()
         copied_property = dict(prop)
         copied_property["full_name"] = self._prefix + copied_property["name"]
+        if override_prefix:
+            copied_property["full_name"] = override_prefix + copied_property["name"]
         self._properties_by_full_name[copied_property["full_name"]] = copied_property
         self._properties_by_short_name[copied_property["name"]] = copied_property
         _LOG.debug("Defining property", copied_property["full_name"])
@@ -354,7 +357,7 @@ class BlenderConfigSet(ConfigurationSet):
 
         for name in property_names:
             prop = self._find_property(name)
-
+            _LOG.debug("Drawing property", (name, type(prop), prop))
             if prop is None:
                 _LOG.warn("Tried to draw a non-existing property", name)
             else:
