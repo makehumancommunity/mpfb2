@@ -9,7 +9,8 @@ On top of this, it will also scan the object for properties with a name starting
 methods in BlenderConfigSet will be extended to handle these dynamic properties.
 """
 
-import bpy
+import bpy, json
+from bpy.props import StringProperty
 from .logservice import LogService
 from .blenderconfigset import BlenderConfigSet
 
@@ -39,6 +40,57 @@ class DynamicConfigSet(BlenderConfigSet):
         _LOG.debug("Did not find property", name)
         return None
 
+    def _deserialize_property(self, entity_reference, long_name):
+        serialized_name = f"${long_name}$"
+        _LOG.debug("Deserializing property", serialized_name)
+        value = None
+        serialized_prop_def = None
+        for item in entity_reference.items():
+            prop = item[0]
+            if prop == long_name:
+                value = item[1]
+            if prop == serialized_name:
+                serialized_prop_def = item[1]
+        _LOG.debug("Deserializing property definition, value", (serialized_prop_def, value))
+        if serialized_prop_def is not None:
+            if long_name in entity_reference:
+                # The following will cause an exception if the state is wrong. We want that, since we want to avoid
+                # also trying to set the value later on. This we'll let this exception be raided and
+                # we catch it in the caller method
+                del entity_reference[long_name]
+                _LOG.debug(f"Successfully deleted custom property {long_name}")
+
+            # Now deserialize and recreate the property with full definition
+            prop_def = json.loads(serialized_prop_def)
+            _LOG.debug("Deserialized prop def", prop_def)
+
+            # Add the property with its full definition
+            self.add_property(prop_def, override_prefix=self.dynamic_prefix)
+
+            # Set the value if we had one
+            if value is not None:
+                setattr(entity_reference, long_name, value)
+                _LOG.debug(f"Restored value {value} for property {long_name}")
+
+    def _serialize_property(self, entity_reference, short_name, property_definition):
+        serialized_name = f"${self.dynamic_prefix}{short_name}$"
+        serialized_property_def = json.dumps(property_definition)
+        if not hasattr(entity_reference, serialized_name):
+            _LOG.debug("Adding new property definition property", serialized_name)
+            serialized_property_prop = StringProperty(name=serialized_name, default=serialized_property_def, description=f"serialization of {short_name}")
+            setattr(self._bpytype, serialized_name, serialized_property_prop)
+        setattr(entity_reference, serialized_name, serialized_property_def)
+
+    def _deserialization_timer(self, entity_reference, prop):
+        _LOG.debug("Starting deserialization timer for property", prop)
+        def callback():
+            _LOG.debug("About to execute timed creation", prop)
+            try:
+                self._deserialize_property(entity_reference, prop)
+            except Exception as e:
+                _LOG.error("Error deserializing property", (prop, e))
+        bpy.app.timers.register(callback, first_interval=0.1)
+
     def _list_object_properties_matching_dynamic_prefix(self, entity_reference):
         prop_names = []
         if self.dynamic_prefix is None:
@@ -54,12 +106,13 @@ class DynamicConfigSet(BlenderConfigSet):
                     if value is not None and value != '':
                         prop_names.append(prop.identifier)
 
-        # Ensure that dynamic properties are found even if they are missing on the type
+        # Ensure that dynamic properties are created if they are missing on the type. We can't recreate them
+        # in the draw context, so will need to defer the creation with a timer
         for item in entity_reference.items():
             prop = item[0]
             if prop.startswith(self.dynamic_prefix) and prop not in prop_names:
                 _LOG.debug("Found custom property not on type", prop)
-                prop_names.append(prop)
+                self._deserialization_timer(entity_reference, prop)
 
         prop_names.sort()
         return prop_names
@@ -132,6 +185,7 @@ class DynamicConfigSet(BlenderConfigSet):
             _LOG.debug("Property already exists in the type", (bpytype, full_dynamic_name))
         else:
             self.add_property(property_definition, override_prefix=self.dynamic_prefix)
+            self._serialize_property(entity_reference, name, property_definition)
 
         _LOG.debug("Setting property value", (full_dynamic_name, value))
         setattr(entity_reference, full_dynamic_name, value)
