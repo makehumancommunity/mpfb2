@@ -79,7 +79,7 @@ class MPFB_OT_ApplyHair_Operator(bpy.types.Operator):
 
 
         # Load hair asset
-        blend_relative_path = os.path.abspath(os.path.join(os.path.dirname(__file__), f"../../../data/hair/haireditor/{self.hair_asset}.blend"))
+        blend_relative_path = os.path.abspath(os.path.join(os.path.dirname(__file__), f"../../../data/hair/haireditor/hair.blend"))
         object_name = self.hair_asset
         brace_name = f"{object_name}_brace"
 
