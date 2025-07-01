@@ -70,6 +70,9 @@ class VertexMatch:
         self._attempt_exact_match()
 
         if not self.final_strategy:
+            _LOG.trace("------------------------ Rigid group strategy ------------------------")
+            self._attempt_rigid_group_match()
+        if not self.final_strategy:
             _LOG.trace("------------------------ Simple face strategy ------------------------")
             self._attempt_simple_face_match()
         if not self.final_strategy:
@@ -240,6 +243,22 @@ class VertexMatch:
             self.mhclo_line["offsets"] = [0, 0, 0]
         else:
             _LOG.debug("Distance is too large for EXACT match", distance)
+
+    def _attempt_rigid_group_match(self):
+        """In the RIGID_GROUP strategy, we check if the vertex group on the target has exactly three vertices. In this case,
+        we assume that the corresponding focus vertex group should scale linearly and uniformly and that the match should
+        be made as if these three vertices share the same face."""
+        _LOG.enter()
+
+        group_vertices = self.target_crossref.vertices_by_group[self.target_group_idx]
+        _LOG.debug("RIGID_GROUP vertices", len(group_vertices))
+        if len(group_vertices) == 3:
+            self._bake_best_verts_match(group_vertices)
+            self.final_strategy = "RIGID_GROUP"
+            _LOG.debug("RIGID_GROUP is appropriate", self.mhclo_line)
+            return
+        _LOG.debug("Not a correct number of verts for RIGID_GROUP match")
+
 
     def _attempt_simple_face_match(self):
         """In the SIMPLE_FACE strategy, we pick up the face (actually its median point) which is closest to the focus vertex.
