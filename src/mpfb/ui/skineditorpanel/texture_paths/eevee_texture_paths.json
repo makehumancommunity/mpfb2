@@ -1,0 +1,134 @@
+{
+  "albedo": [
+    {
+      "path": "../data/textures/skin_editor/base/base_diffuse.png",
+      "alt_path": ["../data/textures/skin_editor/base/base_diffuse.png"],
+      "label": "base_diffuse",
+      "box": "base",
+      "drawer": "base"
+    },
+    {
+      "path": "../data/textures/skin_editor/wrinkles/callus_diffuse.png",
+      "alt_path": ["../data/textures/skin_editor/wrinkles/callus_diffuse.png"],
+      "label": "callus_diffuse",
+      "box": "callus",
+      "drawer": "others"
+    },
+    {
+      "path": "../data/textures/skin_editor/wrinkles/knuckle_wounds_diffuse.png",
+      "alt_path": ["../data/textures/skin_editor/wrinkles/knuckle_wounds_diffuse.png"],
+      "label": "knuckle_wounds_diffuse",
+      "box":"knuckle_wounds",
+      "drawer": "others"},
+    {
+      "path": "../data/textures/skin_editor/wrinkles/eevee_eyes_diffuse.png",
+      "alt_path": ["../data/textures/skin_editor/wrinkles/eevee_eyes_diffuse.png", "../data/textures/skin_editor/wrinkles/eevee_eyes_middleage_diffuse.png"],
+      "label": "eyes_diffuse",
+      "box":"eyes",
+      "drawer": "wrinkles"},
+    {
+      "path": "../data/textures/skin_editor/wrinkles/eevee_midsection_middleage_diffuse.png",
+      "alt_path": ["../data/textures/skin_editor/wrinkles/eevee_midsection_middleage_diffuse.png"],
+      "label": "midsection_diffuse",
+      "box":"midsection",
+      "drawer": "wrinkles"},
+    {
+      "path": "../data/textures/skin_editor/wrinkles/eevee_mouth_diffuse.png",
+      "alt_path": ["../data/textures/skin_editor/wrinkles/eevee_mouth_diffuse.png","../data/textures/skin_editor/wrinkles/eevee_mouth_middleage_diffuse.png"],
+      "label": "mouth_diffuse",
+      "box":"mouth",
+      "drawer": "wrinkles"},
+    {
+      "path": "../data/textures/skin_editor/wrinkles/eevee_veins_diffuse.png",
+      "alt_path": ["../data/textures/skin_editor/wrinkles/eevee_veins_diffuse.png"],
+      "label": "veins_diffuse",
+      "box":"veins",
+      "drawer": "others"}
+  ],
+  "normal": [
+    {
+      "path": "../data/textures/skin_editor/base/base_norm.png",
+      "alt_path": ["../data/textures/skin_editor/base/base_norm.png"],
+      "label": "base_norm",
+      "box": "base",
+      "drawer": "base"
+    },
+    {
+      "path": "../data/textures/skin_editor/base/face_base_hi_res_norm.png",
+      "alt_path": ["../data/textures/skin_editor/base/face_base_hi_res_norm.png"],
+      "label": "face_base_hi_res_norm",
+      "box": "face_base",
+      "drawer": "base"
+    },
+    {
+      "path": "../data/textures/skin_editor/wrinkles/callus_norm.png",
+      "alt_path": ["../data/textures/skin_editor/wrinkles/callus_norm.png"],
+      "label": "callus_norm",
+      "box": "callus",
+      "drawer": "others"
+    },
+    {
+      "path": "../data/textures/skin_editor/wrinkles/hands_whole_norm.png",
+      "alt_path": ["../data/textures/skin_editor/wrinkles/hands_whole_norm.png"],
+      "label": "hands_whole_norm"
+    ,"box":"hands",
+    "drawer": "wrinkles"},
+    {
+      "path": "../data/textures/skin_editor/wrinkles/knuckle_wounds_norm.png",
+      "alt_path": ["../data/textures/skin_editor/wrinkles/knuckle_wounds_norm.png"],
+      "label": "knuckle_wounds_norm"
+    ,"box":"knuckle_wounds",
+    "drawer": "others"},
+    {
+      "path": "../data/textures/skin_editor/wrinkles/forehead_minor_hi_res_norm.png",
+      "alt_path": [ "../data/textures/skin_editor/wrinkles/forehead_minor_hi_res_norm.png"],
+      "label": "forehead_minor_hi_res_norm"
+    ,"box":"forehead",
+    "drawer": "wrinkles"},
+    {
+      "path": "../data/textures/skin_editor/wrinkles/eevee_mouth_norm.png",
+      "alt_path": [ "../data/textures/skin_editor/wrinkles/eevee_mouth_norm.png","../data/textures/skin_editor/wrinkles/eevee_mouth_middleage_norm.png"],
+      "label": "mouth_norm"
+    ,"box":"mouth",
+    "drawer": "wrinkles"},
+    {
+      "path": "../data/textures/skin_editor/wrinkles/eevee_midsection_norm.png",
+      "alt_path": ["../data/textures/skin_editor/wrinkles/eevee_midsection_norm.png","../data/textures/skin_editor/wrinkles/eevee_midsection_middleage_norm.png"],
+      "label": "midsection_norm"
+    ,"box":"midsection",
+    "drawer": "wrinkles"},
+    {
+      "path": "../data/textures/skin_editor/wrinkles/eevee_eyes_norm.png",
+      "alt_path": ["../data/textures/skin_editor/wrinkles/eevee_eyes_norm.png","../data/textures/skin_editor/wrinkles/eevee_eyes_middleage_norm.png"],
+      "label": "eyes_norm"
+    ,"box":"eyes",
+    "drawer": "wrinkles"},
+    {
+      "path": "../data/textures/skin_editor/wrinkles/eevee_veins_norm.png",
+      "alt_path": ["../data/textures/skin_editor/wrinkles/eevee_veins_norm.png"],
+      "label": "veins_norm"
+    ,"box":"veins",
+    "drawer": "others"},
+    {
+      "path": "../data/textures/skin_editor/muscle/eevee_legs_norm.png",
+      "alt_path": ["../data/textures/skin_editor/muscle/eevee_legs_norm.png"],
+      "label": "legs_norm",
+      "box": "legs",
+      "drawer": "muscles"
+    },
+    {
+      "path": "../data/textures/skin_editor/muscle/eevee_abs_norm.png",
+      "alt_path": ["../data/textures/skin_editor/muscle/eevee_abs_norm.png"],
+      "label": "abs_norm",
+      "box": "abs",
+      "drawer": "muscles"
+    },
+    {
+      "path": "../data/textures/skin_editor/muscle/eevee_arms_norm.png",
+      "alt_path": ["../data/textures/skin_editor/muscle/eevee_arms_norm.png"],
+      "label": "arms_norm",
+      "box": "arms",
+      "drawer": "muscles"
+    }
+  ]
+}

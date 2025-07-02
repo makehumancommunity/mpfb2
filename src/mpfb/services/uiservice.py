@@ -35,7 +35,9 @@ class _UiService():
         self._state = dict()
         self.set_value("PROPERTYPREFIX", "MPFB_")
 
-        ui_prefix = "MPFB v%d.%d.%d" % (VERSION[0], VERSION[1], VERSION[2])
+        # For TK branch. Change back before building for extension platform.
+        ui_prefix = "MPFB v%d.%d-TK" % (VERSION[0], VERSION[1])
+        # ui_prefix = "MPFB v%d.%d-a%d" % (VERSION[0], VERSION[1], VERSION[2])
 
         label = get_preference("mpfb_shelf_label")
         _LOG.debug("Shelf label", label)
@@ -56,6 +58,9 @@ class _UiService():
             self.set_value("RIGCATEGORY", ui_prefix + " Rig & Pose")
             self.set_value("OPERATIONSCATEGORY", ui_prefix + " Operations")
             self.set_value("DEVELOPERCATEGORY", ui_prefix + " Developer")
+            self.set_value("EXPORTCATEGORY", ui_prefix + " Export")
+            self.set_value("SKINEDITORCATEGORY", ui_prefix + " SkinEditor")
+            self.set_value("HAIREDITORCATEGORY", ui_prefix + " HairEditor")
         else:
             for category in [
                 "MODELCATEGORY",
@@ -65,7 +70,10 @@ class _UiService():
                 "MATERIALSCATEGORY",
                 "RIGCATEGORY",
                 "OPERATIONSCATEGORY",
-                "DEVELOPERCATEGORY"]:
+                "DEVELOPERCATEGORY",
+                "EXPORTCATEGORY",
+                "SKINEDITORCATEGORY",
+                "HAIREDITORCATEGORY"]:
                 self.set_value(category, ui_prefix)
 
     def get_value(self, name):

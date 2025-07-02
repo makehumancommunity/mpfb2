@@ -1,0 +1,24 @@
+{
+    "type": "enum",
+    "name": "fur_assets",
+    "description": "Pick fur asset for your character",
+    "label": "Fur",
+    "default": "fur_full",
+    "items": [
+        ["fur_full", "Fur full", "Dense wild fur over whole body", 1],
+        ["fur_hands", "Hand hairs", "Hairs/fur on hands", 2],
+        ["fur_forearms", "Forearm hairs", "Hairs/fur on forearms", 3],
+        ["fur_arms", "Upper arm hairs", "Hairs/fur on upper arms", 4],
+        ["fur_chest", "Chest hairs", "Hairs/fur on chest", 5],
+        ["fur_back", "Back hairs", "Hairs/fur on back", 6],
+        ["fur_neck", "Neck hairs", "Hairs/fur on neck", 7],
+        ["fur_belly", "Belly hairs", "Hairs/fur on belly", 8],
+        ["fur_thighs", "Upper legs hairs", "Hairs/fur on thighs", 9],
+        ["fur_lower_legs", "Lower legs hairs", "Hairs/fur on shins and calves", 10],
+        ["fur_feet", "Feet hairs", "Hairs/fur on feet", 11],
+        ["fur_mane", "Mane", "Mane along the spine", 12],
+        ["fur_face", "Face fur", "Fur on the face and back of the head", 13],
+        ["fur_head", "Head fur", "Fur on top of the head", 14],
+        ["fur_inner_arms", "Inner arms hairs", "Fur on the inner side of arms and forearms", 15]
+    ]
+}

@@ -1,0 +1,13 @@
+{
+    "type": "enum",
+    "name": "texture_resolution",
+    "description": "Choose resolution of baked textures.",
+    "label": "Baked resolution",
+    "default": "2K",
+    "items": [
+        ["1K", "1K", "1024 x 1024", 1],
+        ["2K", "2K", "2048 x 2048", 2],
+        ["4K", "4K", "4096 x 4096 - Does crash sometimes. If it does, try again ;).", 3],
+        ["8K", "8K", "8192 x 8192 - Crashing a lot, you might need to try it a few times.", 4]
+    ]
+}

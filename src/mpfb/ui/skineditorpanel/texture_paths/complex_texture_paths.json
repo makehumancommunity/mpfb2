@@ -1,0 +1,285 @@
+{
+  "albedo": [
+    {
+      "path": "../data/textures/skin_editor/base/base_diffuse.png",
+      "alt_path": ["../data/textures/skin_editor/base/base_diffuse.png"],
+      "label": "base_diffuse",
+      "box": "base",
+      "drawer": "base"
+    },
+    {
+      "path": "../data/textures/skin_editor/wrinkles/callus_diffuse.png",
+      "alt_path": ["../data/textures/skin_editor/wrinkles/callus_diffuse.png"],
+      "label": "callus_diffuse",
+      "box": "callus",
+      "drawer": "others"
+    },
+    {
+      "path": "../data/textures/skin_editor/wrinkles/knuckle_wounds_diffuse.png",
+      "alt_path": ["../data/textures/skin_editor/wrinkles/knuckle_wounds_diffuse.png"],
+      "label": "knuckle_wounds_diffuse",
+      "box":"knuckle_wounds",
+      "drawer": "others"},
+    {
+      "path": "../data/textures/skin_editor/wrinkles/nose2mouth_hi_res_diffuse.png",
+      "alt_path": ["../data/textures/skin_editor/wrinkles/nose2mouth_hi_res_diffuse.png"],
+      "label": "nose2mouth_hi_res_diffuse",
+      "box": "nose2mouth",
+      "drawer": "wrinkles"
+    },
+    {
+      "path": "../data/textures/skin_editor/wrinkles/chin_hi_res_diffuse.png",
+      "alt_path": ["../data/textures/skin_editor/wrinkles/chin_hi_res_diffuse.png"],
+      "label": "chin_hi_res_diffuse",
+      "box": "chin",
+      "drawer": "wrinkles"
+    },
+    {
+      "path": "../data/textures/skin_editor/wrinkles/eye_sacks_hi_res_diffuse.png",
+      "alt_path": ["../data/textures/skin_editor/wrinkles/eye_sacks_hi_res_diffuse.png"],
+      "label": "eye_sacks_hi_res_diffuse",
+      "box": "eye_sacks",
+      "drawer": "wrinkles"
+    },
+    {
+      "path": "../data/textures/skin_editor/wrinkles/lip_corners_hi_res_diffuse.png",
+      "alt_path": ["../data/textures/skin_editor/wrinkles/eye_smile_hi_res_diffuse.png", "../data/textures/skin_editor/wrinkles/lower_arms_veins_diffuse.png"],
+      "label": "lip_corners_hi_res_diffuse",
+      "box": "lip_corners",
+      "drawer": "wrinkles"
+    },
+    {
+      "path": "../data/textures/skin_editor/wrinkles/eye_smile_hi_res_diffuse.png",
+      "alt_path": ["../data/textures/skin_editor/wrinkles/eye_smile_hi_res_diffuse.png"],
+      "label": "eye_smile_hi_res_diffuse",
+      "box": "eye_smile",
+      "drawer": "wrinkles"
+    },
+    {
+      "path": "../data/textures/skin_editor/wrinkles/lower_arms_veins_diffuse.png",
+      "alt_path": ["../data/textures/skin_editor/wrinkles/lower_arms_veins_diffuse.png"],
+      "label": "lower_arms_veins_diffuse",
+      "box": "lower_arms_veins",
+      "drawer": "others"
+    },
+    {
+      "path": "../data/textures/skin_editor/wrinkles/mouth2chin_hi_res_diffuse.png",
+      "alt_path": ["../data/textures/skin_editor/wrinkles/mouth2chin_hi_res_diffuse.png"],
+      "label": "mouth2chin_hi_res_diffuse",
+      "box": "mouth2chin",
+      "drawer": "wrinkles"
+    },
+    {
+      "path": "../data/textures/skin_editor/wrinkles/superciliary_arch_hi_res_diffuse.png",
+      "alt_path": ["../data/textures/skin_editor/wrinkles/superciliary_arch_hi_res_diffuse.png"],
+      "label": "superciliary_arch_hi_res_diffuse",
+      "box": "superciliary_arch",
+      "drawer": "wrinkles"
+    },
+    {
+      "path": "../data/textures/skin_editor/wrinkles/neck_veins_diffuse.png",
+      "alt_path": ["../data/textures/skin_editor/wrinkles/neck_veins_diffuse.png"],
+      "label": "neck_veins_diffuse",
+      "box": "neck_veins",
+      "drawer": "others"
+    }
+
+  ],
+  "normal": [
+    {
+      "path": "../data/textures/skin_editor/base/base_norm.png",
+      "alt_path": ["../data/textures/skin_editor/base/base_norm.png"],
+      "label": "base_norm",
+      "box": "base",
+      "drawer": "base"
+    },
+    {
+      "path": "../data/textures/skin_editor/base/face_base_hi_res_norm.png",
+      "alt_path": ["../data/textures/skin_editor/base/face_base_hi_res_norm.png"],
+      "label": "face_base_hi_res_norm",
+      "box": "face_base",
+      "drawer": "base"
+    },
+    {
+      "path": "../data/textures/skin_editor/muscle/chest_norm.png",
+      "alt_path": ["../data/textures/skin_editor/muscle/chest_norm.png"],
+      "label": "chest_norm",
+      "box": "chest",
+      "drawer": "muscles"
+    },
+    {
+      "path": "../data/textures/skin_editor/muscle/lower_back_norm.png",
+      "alt_path": ["../data/textures/skin_editor/muscle/lower_back_norm.png"],
+      "label": "lower_back_norm",
+      "box": "lower_back",
+      "drawer": "muscles"
+    },
+    {
+      "path": "../data/textures/skin_editor/muscle/upper_abs_norm.png",
+      "alt_path": ["../data/textures/skin_editor/muscle/upper_abs_norm.png"],
+      "label": "upper_abs_norm",
+      "box": "upper_abs",
+      "drawer": "muscles"
+    },
+    {
+      "path": "../data/textures/skin_editor/muscle/upper_back_norm.png",
+      "alt_path": ["../data/textures/skin_editor/muscle/upper_back_norm.png"],
+      "label": "upper_back_norm",
+      "box": "upper_back",
+      "drawer": "muscles"
+    },
+    {
+      "path": "../data/textures/skin_editor/muscle/lower_abs_norm.png",
+      "alt_path": ["../data/textures/skin_editor/muscle/lower_abs_norm.png"],
+      "label": "lower_abs_norm",
+      "box": "lower_abs",
+      "drawer": "muscles"
+    },
+    {
+      "path": "../data/textures/skin_editor/muscle/lower_legs_norm.png",
+      "alt_path": ["../data/textures/skin_editor/muscle/lower_legs_norm.png"],
+      "label": "lower_legs_norm",
+      "box": "lower_legs",
+      "drawer": "muscles"
+    },
+    {
+      "path": "../data/textures/skin_editor/muscle/lower_arms_norm.png",
+      "alt_path": ["../data/textures/skin_editor/muscle/lower_arms_norm.png"],
+      "label": "lower_arms_norm",
+      "box": "lower_arms",
+      "drawer": "muscles"
+    },
+    {
+      "path": "../data/textures/skin_editor/muscle/side_abs_norm.png",
+      "alt_path": ["../data/textures/skin_editor/muscle/side_abs_norm.png"],
+      "label": "side_abs_norm",
+      "box": "side_abs",
+      "drawer": "muscles"
+    },
+    {
+      "path": "../data/textures/skin_editor/muscle/upper_arms_norm2.png",
+      "alt_path": ["../data/textures/skin_editor/muscle/upper_arms_norm2.png"],
+      "label": "upper_arms_norm2",
+      "box": "upper_arms",
+      "drawer": "muscles"
+    },
+    {
+      "path": "../data/textures/skin_editor/muscle/upper_legs_norm.png",
+      "alt_path": ["../data/textures/skin_editor/muscle/upper_legs_norm.png"],
+      "label": "upper_legs_norm",
+      "box": "upper_legs",
+      "drawer": "muscles"
+    },
+    {
+      "path": "../data/textures/skin_editor/wrinkles/neck_veins_norm.png",
+      "alt_path": ["../data/textures/skin_editor/wrinkles/neck_veins_norm.png"],
+      "label": "neck_veins_norm",
+      "box": "neck_veins",
+      "drawer": "others"
+    },
+    {
+      "path": "../data/textures/skin_editor/wrinkles/hands_whole_norm.png",
+      "alt_path": ["../data/textures/skin_editor/wrinkles/hands_whole_norm.png"],
+      "label": "hands_whole_norm"
+    ,"box":"hands",
+    "drawer": "wrinkles"},
+    {
+      "path": "../data/textures/skin_editor/wrinkles/callus_norm.png",
+      "alt_path": ["../data/textures/skin_editor/wrinkles/callus_norm.png"],
+      "label": "callus_norm",
+      "box": "callus",
+      "drawer": "others"
+    },
+    {
+      "path": "../data/textures/skin_editor/wrinkles/hands_veins_norm.png",
+      "alt_path": ["../data/textures/skin_editor/wrinkles/hands_veins_norm.png"],
+      "label": "hands_veins_norm",
+      "box": "hands_veins",
+      "drawer": "others"
+    },
+    {
+      "path": "../data/textures/skin_editor/wrinkles/chin_hi_res_norm.png",
+      "alt_path": ["../data/textures/skin_editor/wrinkles/chin_hi_res_norm.png"],
+      "label": "chin_hi_res_norm"
+    ,"box":"chin",
+    "drawer": "wrinkles"},
+    {
+      "path": "../data/textures/skin_editor/wrinkles/nose2mouth_hi_res_norm.png",
+      "alt_path": ["../data/textures/skin_editor/wrinkles/nose2mouth_hi_res_norm.png"],
+      "label": "nose2mouth_hi_res_norm"
+      ,"box":"nose2mouth",
+    "drawer": "wrinkles"},
+    {
+      "path": "../data/textures/skin_editor/wrinkles/cheecks_hi_res_norm.png",
+      "alt_path": ["../data/textures/skin_editor/wrinkles/cheecks_hi_res_norm.png"],
+      "label": "cheecks_hi_res_norm"
+    ,"box":"cheecks",
+    "drawer": "wrinkles"},
+    {
+      "path": "../data/textures/skin_editor/wrinkles/jaw_hi_res_norm.png",
+      "alt_path": ["../data/textures/skin_editor/wrinkles/jaw_hi_res_norm.png"],
+      "label": "jaw_hi_res_norm"
+    ,"box":"jaw",
+    "drawer": "wrinkles"},
+    {
+      "path": "../data/textures/skin_editor/wrinkles/knuckle_wounds_norm.png",
+      "alt_path": ["../data/textures/skin_editor/wrinkles/knuckle_wounds_norm.png"],
+      "label": "knuckle_wounds_norm"
+    ,"box":"knuckle_wounds",
+    "drawer": "others"},
+    {
+      "path": "../data/textures/skin_editor/wrinkles/eye_sacks_hi_res_norm.png",
+      "alt_path": ["../data/textures/skin_editor/wrinkles/eye_sacks_hi_res_norm.png"],
+      "label": "eye_sacks_hi_res_norm"
+    ,"box":"eye_sacks",
+    "drawer": "wrinkles"},
+    {
+      "path": "../data/textures/skin_editor/wrinkles/lip_corners_hi_res_norm.png",
+      "alt_path": ["../data/textures/skin_editor/wrinkles/lip_corners_hi_res_norm.png"],
+      "label": "lip_corners_hi_res_norm"
+    ,"box":"lip_corners",
+    "drawer": "wrinkles"},
+    {
+      "path": "../data/textures/skin_editor/wrinkles/nose_hi_res_norm.png",
+      "alt_path": ["../data/textures/skin_editor/wrinkles/nose_hi_res_norm.png"],
+      "label": "nose_hi_res_norm"
+    ,"box":"nose",
+    "drawer": "wrinkles"},
+    {
+      "path": "../data/textures/skin_editor/wrinkles/eye_smile_hi_res_norm.png",
+      "alt_path": ["../data/textures/skin_editor/wrinkles/eye_smile_hi_res_norm.png"],
+      "label": "eye_smile_hi_res_norm"
+    ,"box":"eye_smile",
+    "drawer": "wrinkles"},
+    {
+      "path": "../data/textures/skin_editor/wrinkles/lower_arms_veins_norm.png",
+      "alt_path": ["../data/textures/skin_editor/wrinkles/lower_arms_veins_norm.png"],
+      "label": "lower_arms_veins_norm"
+    ,"box":"lower_arms_veins",
+    "drawer": "others"},
+    {
+      "path": "../data/textures/skin_editor/wrinkles/mouth2chin_hi_res_norm.png",
+      "alt_path": ["../data/textures/skin_editor/wrinkles/mouth2chin_hi_res_norm.png"],
+      "label": "mouth2chin_hi_res_norm"
+    ,"box":"mouth2chin",
+    "drawer": "wrinkles"},
+    {
+      "path": "../data/textures/skin_editor/wrinkles/forehead_minor_hi_res_norm.png",
+      "alt_path": ["../data/textures/skin_editor/wrinkles/forehead_minor_hi_res_norm.png"],
+      "label": "forehead_minor_hi_res_norm"
+    ,"box":"forehead",
+    "drawer": "wrinkles"},
+    {
+      "path": "../data/textures/skin_editor/wrinkles/superciliary_arch_hi_res_norm.png",
+      "alt_path": ["../data/textures/skin_editor/wrinkles/superciliary_arch_hi_res_norm.png"],
+      "label": "superciliary_arch_hi_res_norm"
+    ,"box":"superciliary_arch",
+    "drawer": "wrinkles"},
+    {
+      "path": "../data/textures/skin_editor/wrinkles/upper_lips_hi_res_norm.png",
+      "alt_path": ["../data/textures/skin_editor/wrinkles/upper_lips_hi_res_norm.png"],
+      "label": "upper_lips_hi_res_norm"
+     ,"box":"upper_lips",
+     "drawer": "wrinkles"}
+  ]
+}
