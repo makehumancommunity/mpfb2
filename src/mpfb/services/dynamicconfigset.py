@@ -15,7 +15,7 @@ from .logservice import LogService
 from .blenderconfigset import BlenderConfigSet
 
 _LOG = LogService.get_logger("configuration.dynamicconfigset")
-_LOG.set_level(LogService.DEBUG)
+#_LOG.set_level(LogService.DEBUG)
 
 
 class DynamicConfigSet(BlenderConfigSet):
@@ -23,9 +23,9 @@ class DynamicConfigSet(BlenderConfigSet):
     """Specific management of configuration when the storage entity is an object and there are extra properties
     which are dynamic and changing continuously."""
 
-    def __init__(self, properties, prefix="", dynamic_prefix=None):
+    def __init__(self, properties, prefix="", dynamic_prefix=None, getter_factory=None, setter_factory=None):
         _LOG.debug("Constructing new dynamic config set with prefix, dynamic_prefix", (prefix, dynamic_prefix))
-        BlenderConfigSet.__init__(self, properties, bpy.types.Object, prefix)
+        BlenderConfigSet.__init__(self, properties, bpy.types.Object, prefix, getter_factory=getter_factory, setter_factory=setter_factory)
         self.dynamic_prefix = dynamic_prefix
 
     def _find_property(self, name):
@@ -82,7 +82,7 @@ class DynamicConfigSet(BlenderConfigSet):
         setattr(entity_reference, serialized_name, serialized_property_def)
 
     def _deserialization_timer(self, entity_reference, prop):
-        _LOG.debug("Starting deserialization timer for property", prop)
+        _LOG.info("Will attempt to reconstruct custom property", prop)
         def callback():
             _LOG.debug("About to execute timed creation", prop)
             try:
@@ -109,10 +109,16 @@ class DynamicConfigSet(BlenderConfigSet):
         # Ensure that dynamic properties are created if they are missing on the type. We can't recreate them
         # in the draw context, so will need to defer the creation with a timer
         for item in entity_reference.items():
+            _LOG.debug("item", item)
             prop = item[0]
             if prop.startswith(self.dynamic_prefix) and prop not in prop_names:
                 _LOG.debug("Found custom property not on type", prop)
                 self._deserialization_timer(entity_reference, prop)
+            if "$" in prop:
+                prop = prop.replace("$", "")
+                if prop.startswith(self.dynamic_prefix) and prop not in prop_names:
+                    _LOG.debug("Found serialized property still not on type", prop)
+                    self._deserialization_timer(entity_reference, prop)
 
         prop_names.sort()
         return prop_names
@@ -275,7 +281,7 @@ class DynamicConfigSet(BlenderConfigSet):
         return properties
 
     @staticmethod
-    def from_definitions_in_json_directory(properties_dir, prefix="", dynamic_prefix=""):
+    def from_definitions_in_json_directory(properties_dir, prefix="", dynamic_prefix="", getter_factory=None, setter_factory=None):
         """
         Creates a DynamicConfigSet instance from property definitions in a specified directory.
         The JSON files will form "predefined" properties. Use methods on resulting object to
@@ -290,7 +296,7 @@ class DynamicConfigSet(BlenderConfigSet):
             DynamicConfigSet: An instance of DynamicConfigSet with properties loaded from the JSON files.
         """
         known_properties = BlenderConfigSet.get_definitions_in_json_directory(properties_dir)
-        return DynamicConfigSet(known_properties, prefix=prefix, dynamic_prefix=dynamic_prefix)
+        return DynamicConfigSet(known_properties, prefix=prefix, dynamic_prefix=dynamic_prefix, getter_factory=getter_factory, setter_factory=setter_factory)
 
     def deferred_draw_property(self, entity_reference, component_to_draw_on, property_name, text=None):
         """
