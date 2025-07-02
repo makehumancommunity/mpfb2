@@ -10,7 +10,6 @@ _LOG = LogService.get_logger("configuration.blenderconfigset")
 
 _PREFIX = "MPFB_"
 
-
 class BlenderConfigSet(ConfigurationSet):
     """
     The BlenderConfigSet class is a concrete implementation of the abstract ConfigurationSet class, specifically designed
@@ -22,7 +21,7 @@ class BlenderConfigSet(ConfigurationSet):
     it easier to handle complex configurations in a Blender environment.
     """
 
-    def __init__(self, properties, bpy_type, prefix="", *, lowercase_prefix=False):
+    def __init__(self, properties, bpy_type, prefix="", *, lowercase_prefix=False, getter_factory=None, setter_factory=None):
         _LOG.debug("Constructing new blender config set with prefix", prefix)
         self._properties_by_short_name = dict()
         self._properties_by_full_name = dict()
@@ -31,6 +30,15 @@ class BlenderConfigSet(ConfigurationSet):
         self._prefix = (_PREFIX.lower() if lowercase_prefix else _PREFIX) + prefix
         self._bpytype = bpy_type
         _LOG.debug("Full prefix is", self._prefix)
+
+        self.getter_factory = None
+        self.setter_factory = None
+
+        if getter_factory is not None:
+            self.getter_factory = getter_factory
+        if setter_factory is not None:
+            self.setter_factory = setter_factory
+
         for prop in properties:
             self.add_property(prop)
 
@@ -225,20 +233,30 @@ class BlenderConfigSet(ConfigurationSet):
 
     def _create_property_by_type(self, proptype, name, description, default, items=None, items_callback=None, min=None, max=None):
         entity_property = None
+        getter = None
+        setter = None
+        if self.getter_factory is not None:
+            getter = self.getter_factory(self, name)
+        if self.setter_factory is not None:
+            setter = self.setter_factory(self, name)
+
+        _LOG.debug("Getter, setter factories", (self.getter_factory, self.setter_factory))
+        _LOG.debug("Getter, setter", (getter, setter))
+
         if proptype == "boolean":
-            entity_property = BoolProperty(name=name, description=description, default=default)  # pylint: disable=E1111
+            entity_property = BoolProperty(name=name, description=description, default=default, get=getter, set=setter)  # pylint: disable=E1111
         if proptype == "string":
-            entity_property = StringProperty(name=name, description=description, default=default)  # pylint: disable=E1111
+            entity_property = StringProperty(name=name, description=description, default=default, get=getter, set=setter)  # pylint: disable=E1111
         if proptype == "int":
-            entity_property = IntProperty(name=name, description=description, default=default)  # pylint: disable=E1111
+            entity_property = IntProperty(name=name, description=description, default=default, get=getter, set=setter)  # pylint: disable=E1111
         if proptype == "float":
             if min is None:
-                entity_property = FloatProperty(name=name, description=description, default=default)  # pylint: disable=E1111
+                entity_property = FloatProperty(name=name, description=description, default=default, get=getter, set=setter)  # pylint: disable=E1111
             else:
-                entity_property = FloatProperty(name=name, description=description, default=default, min=min, max=max)  # pylint: disable=E1111
+                entity_property = FloatProperty(name=name, description=description, default=default, min=min, max=max, get=getter, set=setter)  # pylint: disable=E1111
         if proptype == "vector_location":
             entity_property = FloatVectorProperty(name=name, description=description, default=default,
-                                                  size=3, subtype='XYZ', unit='LENGTH')
+                                                  size=3, subtype='XYZ', unit='LENGTH', get=getter, set=setter)
         if proptype == "enum":
             enumitems = []
             if items:
@@ -250,7 +268,7 @@ class BlenderConfigSet(ConfigurationSet):
                 name=name,
                 description=description,
                 default=default,
-                items=enumitems)
+                items=enumitems, get=getter, set=setter)
 
         return entity_property
 
