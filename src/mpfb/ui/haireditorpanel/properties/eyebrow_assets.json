@@ -3,8 +3,9 @@
     "name": "eyebrow_assets",
     "description": "Pick eyebrow asset for your character",
     "label": "Eyebrows",
-    "default": "wild_thick_eyebrow",
+    "default": "wild_eyebrow",
     "items": [
-        ["wild_thick_eyebrow", "Wild thick eyebrow", "Dense uncared eyebrow", 1]
+        ["wild_eyebrow", "Wild eyebrow", "Uncared eyebrow", 1],
+        ["wild_thick_eyebrow", "Wild thick eyebrow", "Dense uncared eyebrow", 2]
     ]
 }

@@ -3,9 +3,9 @@
     "name": "facial_assets",
     "description": "Pick facial hair asset for your character",
     "label": "Facial hair",
-    "default": "wild_thick_beard",
+    "default": "wild_beard",
     "items": [
-        ["wild_thick_beard", "Wild thick beard", "Wild uncared full beard", 1],
-        ["wild_thick_moustache", "Wild thick moustache", "Wild uncared moustache to chin", 2]
+        ["wild_beard", "Wild beard", "Wild uncared full beard", 1],
+        ["wild_moustache", "Wild moustache", "Wild uncared moustache to chin", 2]
     ]
 }
