@@ -16,11 +16,33 @@ from ...ui.abstractpanel import Abstract_Panel
 import bpy, os, json
 
 _LOG = LogService.get_logger("ui.haireditorpanel")
-_LOG.set_level(LogService.DEBUG)
+
+def dynamic_setter_factory(configset, name):
+    if not "getter_setter" in name:
+        return None
+    _LOG.debug("Creating dynamic setter for", name)
+    def setter(self, value):
+        _LOG.debug("Invoking setter for", (name, value))
+    return setter
+
+def dynamic_getter_factory(configset, name):
+    if not "getter_setter" in name:
+        return None
+    _LOG.debug("Creating dynamic getter for", name)
+    def getter(self):
+        _LOG.trace("Invoking getter for", name)
+        return False
+    return getter
 
 _LOC = os.path.dirname(__file__)
 HAIR_PROPERTIES_DIR = os.path.join(_LOC, "properties")
-HAIR_PROPERTIES = DynamicConfigSet.from_definitions_in_json_directory(HAIR_PROPERTIES_DIR, prefix="HAI_", dynamic_prefix="DYN_HAIR_")
+HAIR_PROPERTIES = DynamicConfigSet.from_definitions_in_json_directory(
+    HAIR_PROPERTIES_DIR,
+    prefix="HAI_",
+    dynamic_prefix="DYN_HAIR_",
+    getter_factory=dynamic_getter_factory,
+    setter_factory=dynamic_setter_factory
+    )
 
 
 class MPFB_PT_Hair_Editor_Panel(Abstract_Panel):
@@ -57,7 +79,7 @@ class MPFB_PT_Hair_Editor_Panel(Abstract_Panel):
 
         # Column with applied assets
         col = layout.column()
-        HAIR_PROPERTIES.draw_properties(basemesh, col, ["hair_setup"])
+        HAIR_PROPERTIES.draw_properties(basemesh, col, ["getter_setter", "hair_setup"])
         return
 
         for prop in HAIR_PROPERTIES.get_dynamic_keys(basemesh):

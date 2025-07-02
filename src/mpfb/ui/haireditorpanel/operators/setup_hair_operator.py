@@ -63,6 +63,16 @@ class MPFB_OT_SetupHair_Operator(bpy.types.Operator):
 
         HAIR_PROPERTIES.set_value_dynamic("hair_setup", True, propdef, human_obj)
 
+        testdef = {
+                    "type": "boolean",
+                    "name": "getter_setter",
+                    "label": "Getter and setter test",
+                    "description": "Getter and setter test",
+                    "default": False
+                    }
+
+        HAIR_PROPERTIES.set_value_dynamic("getter_setter", True, testdef, human_obj)
+
         # Update UI
         #=======================================================================
         # if not hasattr(bpy.types.Scene, "hair_setup"):
