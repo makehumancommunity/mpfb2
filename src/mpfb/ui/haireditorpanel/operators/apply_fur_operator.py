@@ -61,7 +61,7 @@ class MPFB_OT_ApplyFur_Operator(bpy.types.Operator):
                 target_input.default_value = val
         return callback
 
-    # Callback for fur asset texture
+    # Callback for loading fur asset texture
     def make_texture_callback(self, material_name, prop_id):
         def callback(self, context):
             # Get the texture file path
@@ -86,6 +86,19 @@ class MPFB_OT_ApplyFur_Operator(bpy.types.Operator):
             nt = mat.node_tree
             nodes = nt.nodes
 
+            # Find group node
+            group_node = next((n for n in nodes if n.name == 'Group'), None)
+            if not group_node:
+                print("Group node not found")
+                return
+            
+            # Access the node tree inside the group
+            group_tree = group_node.node_tree
+            if not group_tree:
+                print("Group node has no node tree assigned")
+                return
+            nodes = group_tree.nodes
+
             # Create new texture node
             tex_node = nodes.new('ShaderNodeTexImage')
             tex_node.image = img
@@ -93,6 +106,9 @@ class MPFB_OT_ApplyFur_Operator(bpy.types.Operator):
             tex_node.location = (300, 200)
 
             print(f"[Fur] Added Texture node: {img.name}")
+            # Automatically trigger use texture callback (material name is the same as name of the object)
+            use_prop = f"{material_name}_use_texture"
+            setattr(bpy.context.scene, use_prop, True)
         return callback
 
     # Callback for texture toggle
@@ -104,15 +120,29 @@ class MPFB_OT_ApplyFur_Operator(bpy.types.Operator):
                 return
 
             nt = mat.node_tree
-            nodes = nt.nodes
-            links = nt.links
+            nodes_prev = nt.nodes
 
             # Find group node
-            group_node = next((n for n in nodes if n.name == 'Group'), None)
+            group_node = next((n for n in nodes_prev if n.name == 'Group'), None)
             if not group_node:
                 print("Group node not found")
                 return
 
+            # Access the node tree inside the group
+            group_tree = group_node.node_tree
+            if not group_tree:
+                print("Group node has no node tree assigned")
+                return
+            
+            nodes = group_tree.nodes
+            links = group_tree.links
+            
+            # Find shader node for eevee and hair shader node for cycles
+            principleds = [
+                n for n in group_tree.nodes
+                if (n.bl_idname == 'ShaderNodeBsdfPrincipled' or n.bl_idname == 'ShaderNodeBsdfHairPrincipled')
+            ]
+            
             # Find texture node
             img_node = next((n for n in nodes if n.type == 'TEX_IMAGE'), None)
             if not img_node:
@@ -120,25 +150,67 @@ class MPFB_OT_ApplyFur_Operator(bpy.types.Operator):
                 return
 
             use = getattr(self, prop_id)
-
-            # Get links
-            input1 = next(i for i in group_node.inputs if i.name == 'Color 1')
-            input2 = next(i for i in group_node.inputs if i.name == 'Color 2')
-
+            storage_key = "_saved_base_color_links"
+            
+            # Apply texture
             if use:
-                # Link texture in
-                if not any(link.from_node == img_node and link.to_socket == input1 for link in links):
-                    links.new(img_node.outputs['Color'], input1)
-                if not any(link.from_node == img_node and link.to_socket == input2 for link in links):
-                    links.new(img_node.outputs['Color'], input2)
-                print(f"Texture linked in")
+                # Prepare storage dict on the group node
+                saved = {}
+                for p in principleds:
+                    # Color (principled hair shader) or Base color (principled shader) inpud
+                    inp = p.inputs[0]
+
+                    # Capture all existing links
+                    orig = [(link.from_node.name, link.from_socket.name)
+                            for link in inp.links]
+                    if orig:
+                        saved[p.name] = orig
+                        # remove them
+                        for link in list(inp.links):
+                            links.remove(link)
+
+                    # Link texture
+                    links.new(img_node.outputs['Color'], inp)
+
+                # Store JSON on group node
+                group_node[storage_key] = json.dumps(saved)
+                print(f"Texture linked in; stored original links for {len(saved)} nodes.")
+
+            # Restore previous links
             else:
-                # Link texture out
-                for link in list(input1.links):
-                    links.remove(link)
-                for link in list(input2.links):
-                    links.remove(link)
-                print(f"Texture linked out")
+                # Load saved links
+                saved = {}
+                if storage_key in group_node:
+                    try:
+                        saved = json.loads(group_node[storage_key])
+                    except:
+                        saved = {}
+
+                # Remove texture links
+                for p in principleds:
+                    inp = p.inputs[0]
+                    for link in list(inp.links):
+                        if link.from_node == img_node:
+                            links.remove(link)
+
+                # Restore original ones
+                restored_count = 0
+                for p in principleds:
+                    inp = p.inputs[0]
+                    for from_name, socket_name in saved.get(p.name, []):
+                        src = nodes.get(from_name) or group_node.node_tree.nodes.get(from_name)
+                        if src:
+                            out_sock = src.outputs.get(socket_name)
+                            if out_sock:
+                                links.new(out_sock, inp)
+                                restored_count += 1
+
+                # Clean up storage
+                if storage_key in group_node:
+                    del group_node[storage_key]
+
+                print(f"Removed texture links and restored {restored_count} original link(s).")
+
         return callback
 
     def execute(self, context):
