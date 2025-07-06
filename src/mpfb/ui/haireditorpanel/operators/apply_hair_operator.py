@@ -10,10 +10,11 @@ from ....services.logservice import LogService
 from ....services.objectservice import ObjectService
 from .... import ClassManager
 from ....services.haireditorservices import HairEditorService
-from ..hairproperties import HAIR_PROPERTIES, DYNAMIC_HAIR_PROPS_DEFINITIONS
+from ..hairproperties import HAIR_PROPERTIES, DYNAMIC_HAIR_PROPS_DEFINITIONS, DYNAMIC_HAIR_MATERIAL_PROPS_DEFINITIONS
 import bpy, os, json, shutil
 
 _LOG = LogService.get_logger("haireditorpanel.apply_hair_operator")
+_LOG.set_level(LogService.DEBUG)
 
 
 class MPFB_OT_ApplyHair_Operator(bpy.types.Operator):
@@ -163,6 +164,36 @@ class MPFB_OT_ApplyHair_Operator(bpy.types.Operator):
                 }
             HAIR_PROPERTIES.set_value_dynamic(propname, hair_obj.modifiers[mod_name][attr], propdef, entity_reference=basemesh)
 
+        mat = hair_obj.active_material
+
+        _LOG.debug("Material", mat)
+
+        for name, definition in DYNAMIC_HAIR_MATERIAL_PROPS_DEFINITIONS.items():
+
+            mod_name = definition[0]
+            specification = definition[1]
+
+            _LOG.debug("name, definition, modifier, specification", (name, definition, mod_name, specification))
+
+            propname = f"{prop_prefix}{name}"
+            propdef = {
+                "name": propname,
+                "description": mod_name,
+                }
+
+            if len(specification) > 2:
+                # Assume this is a color
+                pass
+            else:
+                # Assume this is a float
+                minval = specification[0]
+                maxval = specification[1]
+                propdef["type"] = "float"
+                propdef["min"] = minval
+                propdef["max"] = maxval
+                propdef["default"] = (minval + maxval) / 2.0
+                HAIR_PROPERTIES.set_value_dynamic(propname, (minval + maxval) / 2, propdef, entity_reference=basemesh)
+
         propname = f"{prop_prefix}hair_asset_open"
         propdef = {
             "name": propname,
@@ -176,32 +207,15 @@ class MPFB_OT_ApplyHair_Operator(bpy.types.Operator):
         ObjectService.deselect_and_deactivate_all()
         ObjectService.activate_blender_object(basemesh)
 
+        for key in HAIR_PROPERTIES.get_keys(entity_reference=basemesh):
+            _LOG.debug("Key", key)
+
+        for item in basemesh.items():
+            _LOG.debug("Item", item)
+
         self.report({'INFO'}, f"Applied new hair: {hair_obj.name}")
         return {'FINISHED'}
 
-        for name, (mod_name, attr, rng) in props.items():
-            prop_id = f"{prop_prefix}{name}"
-            if not hasattr(scene.__class__, prop_id):
-                setattr(
-                    scene.__class__,
-                    prop_id,
-                    bpy.props.FloatProperty(
-                        name=name.replace("_", " ").capitalize(),
-                        default=hair_obj.modifiers[mod_name][attr],
-                        min = rng[0],
-                        max =rng[1],
-                        update=self.make_update_callback(hair_obj,mod_name, attr,name, rng)
-                    )
-                )
-
-        # Define material properties
-        material_props = {
-            "color1": ("Color 1", (0.117, 0.093, 0.047, 1.0)),
-            "color2": ("Color 2", (0.031, 0.016, 0.004, 1.0)),
-            "color_noise_scale": ("Noise Scale", (0.0, 500.0)),
-            "darken_root": ("Darken root", (0.0, 1.0)),
-            "root_color_length": ("Root color length", (0.0, 1.0))
-        }
         mat = hair_obj.active_material
         if mat and mat.use_nodes:
             material_name = mat.name

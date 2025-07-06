@@ -13,7 +13,7 @@ from ...services.uiservice import UiService
 from ...services.sceneconfigset import SceneConfigSet
 from ...services.haireditorservices import HairEditorService
 from ...ui.abstractpanel import Abstract_Panel
-from .hairproperties import HAIR_PROPERTIES, DYNAMIC_HAIR_PROPS_DEFINITIONS
+from .hairproperties import HAIR_PROPERTIES, DYNAMIC_HAIR_PROPS_DEFINITIONS, DYNAMIC_HAIR_MATERIAL_PROPS_DEFINITIONS
 import bpy,os, json
 
 _LOG = LogService.get_logger("ui.haireditorpanel")
@@ -66,7 +66,10 @@ class MPFB_PT_Hair_Editor_Panel(Abstract_Panel):
 
                 for prop in DYNAMIC_HAIR_PROPS_DEFINITIONS.keys():
                     propname = f"{HAIR_PROPERTIES.dynamic_prefix}{asset_name}_{prop}"
-                    box.prop(basemesh, propname, text=prop)
+                    box.prop(basemesh, propname, text=prop, slider=True)
+                #for prop in DYNAMIC_HAIR_MATERIAL_PROPS_DEFINITIONS.keys():
+                #    propname = f"{HAIR_PROPERTIES.dynamic_prefix}{asset_name}_{prop}"
+                #    box.prop(basemesh, propname, text=prop)
         return
 
         for prop in basemesh.bl_rna.properties:

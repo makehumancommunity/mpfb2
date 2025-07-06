@@ -7,6 +7,8 @@ import bpy, os, re
 _LOG = LogService.get_logger("ui.hairproperties")
 _LOG.set_level(LogService.DEBUG)
 
+DYNAMIC_PREFIX="DHAI_"
+
 DYNAMIC_HAIR_PROPS_DEFINITIONS = {
         "length": ("Set Hair Curve Profile", "Socket_1", (0.0, 10.0)),
         "density": ("Set Hair Curve Profile", "Socket_0", (0.0, 1.0)),
@@ -29,89 +31,136 @@ DYNAMIC_HAIR_PROPS_DEFINITIONS = {
         "curl_frequency": ("Curl Hair Curves", "Input_11", (0.0, 20.0))
         }
 
-def _get_propdef(name):
-    candidate = (None, None)
-    for key in DYNAMIC_HAIR_PROPS_DEFINITIONS:
-        if name.endswith(key):
-            # Can't break here, since it will find "length" before "roll_length"
-            candidate = (key, DYNAMIC_HAIR_PROPS_DEFINITIONS[key])
-    return candidate
+DYNAMIC_HAIR_MATERIAL_PROPS_DEFINITIONS = {
+        "color1": ("Color 1", (0.117, 0.093, 0.047, 1.0)),
+        "color2": ("Color 2", (0.031, 0.016, 0.004, 1.0)),
+        "color_noise_scale": ("Noise Scale", (0.0, 500.0)),
+        "darken_root": ("Darken root", (0.0, 1.0)),
+        "root_color_length": ("Root color length", (0.0, 1.0))
+        }
 
-def _get_basemesh():
-    if bpy.context and hasattr(bpy.context, "object"):
-        basemesh = ObjectService.find_object_of_type_amongst_nearest_relatives(bpy.context.object)
-        return basemesh
-    return None
+class HairGetterSetterFactory():
 
-def _get_hair_object(name):
-    if not name:
+    def __init__(self, name, prefix=DYNAMIC_PREFIX):
+        self.prefix = prefix
+        self.full_property_name = name
+        self.short_property_name = None
+        self.property_metadata = None
+        self.hair_object_name = None
+        self.managed_to_deduce_property = False
+        self.modifier_name = None
+        self.modifier_attribute = None
+        self.max = 0.0
+        self.min = 0.0
+        self.default_value = None
+        self.is_hair_property = False
+
+        self._attempt_deducing_from_hair()
+
+        if self.managed_to_deduce_property:
+            self._interpolate_hair_object_name()
+
+    def _attempt_deducing_from_hair(self):
+        candidate = (None, None)
+        for key in DYNAMIC_HAIR_PROPS_DEFINITIONS:
+            if self.full_property_name.endswith(key):
+                # Can't break here, since it will find "length" before "roll_length"
+                candidate = (key, DYNAMIC_HAIR_PROPS_DEFINITIONS[key])
+        if candidate[0] is None:
+            return
+        self.short_property_name = candidate[0]
+        definition = candidate[1]
+
+        self.modifier_name = definition[0]
+        self.modifier_attribute = definition[1]
+        self.min = definition[2][0]
+        self.max = definition[2][1]
+        self.is_hair_property = True
+        self.managed_to_deduce_property = True
+
+    def _interpolate_hair_object_name(self):
+        hair_name = re.sub("^" + self.prefix, "", self.full_property_name)
+        hair_name = re.sub("_" + self.short_property_name + "$", "", hair_name)
+        self.hair_object_name = hair_name
+
+    def _get_hair_object(self):
+        if not self.hair_object_name:
+            return None
+        if self.hair_object_name in bpy.data.objects:
+            return bpy.data.objects[self.hair_object_name]
         return None
-    if name in bpy.data.objects:
-        return bpy.data.objects[name]
-    return None
+
+    def _get_basemesh(self):
+        if bpy.context and hasattr(bpy.context, "object"):
+            basemesh = ObjectService.find_object_of_type_amongst_nearest_relatives(bpy.context.object)
+            return basemesh
+        return None
+
+    def _hair_getter(self):
+        _LOG.debug("Generating hair getter for", self.full_property_name)
+        def getter(source):
+            _LOG.debug("Invoking getter for", (
+                source,
+                self.full_property_name,
+                self.short_property_name,
+                self.modifier_name,
+                self.modifier_attribute
+                ))
+            hair_obj = self._get_hair_object()
+            if hair_obj is None:
+                _LOG.error("No hair object found for", self.hair_object_name)
+                return
+            modifier = hair_obj.modifiers[self.modifier_name]
+            return modifier[self.modifier_attribute]
+        return None
+
+    def _hair_setter(self):
+        _LOG.debug("Generating hair setter for", self.full_property_name)
+        def setter(source, value):
+            _LOG.debug("Invoking setter for", (
+                source,
+                self.full_property_name,
+                self.short_property_name,
+                self.modifier_name,
+                self.modifier_attribute,
+                value
+                ))
+            hair_obj = self._get_hair_object()
+            if hair_obj is None:
+                _LOG.error("No hair object found for", self.hair_object_name)
+                return
+            modifier = hair_obj.modifiers[self.modifier_name]
+            modifier[self.modifier_attribute] = value
+        return setter
+
+    def generate_getter(self):
+        if self.is_hair_property:
+            return self._hair_getter()
+        return None
+
+    def generate_setter(self):
+        if self.is_hair_property:
+            return self._hair_setter()
+        return None
 
 def dynamic_setter_factory(configset, name):
-    (propname, definition) = _get_propdef(name)
-
-    if propname is None:
-        _LOG.error("No definition found for", name)
-        return None
-
-    hair_name = re.sub("^DHAI_", "", name)
-    hair_name = re.sub("_" + propname + "$", "", hair_name)
-
-    _LOG.debug("Creating dynamic getter for", (name, propname, hair_name))
-
-    def setter(self, value):
-        basemesh = _get_basemesh()
-        modifier_name = definition[0]
-        modifier_attr = definition[1]
-        _LOG.debug("Invoking setter for", (name, basemesh, modifier_name, modifier_attr))
-        if basemesh is None:
-            _LOG.error("No active basemesh found when trying to execute getter", name)
-            return
-        hair_obj = _get_hair_object(hair_name) # Should probably look for a relative of basemesh here
-        if hair_obj is None:
-            _LOG.error("No hair object found for", hair_name)
-            return
-        mod = hair_obj.modifiers[modifier_name]
-        mod[modifier_attr] = value
-        hair_obj.update_tag()
-        bpy.context.view_layer.update()
-        hair_obj.hide_viewport = True
-        hair_obj.hide_viewport = False
-        if hasattr(mod, "node_group") and mod.node_group:
-            mod.node_group.interface_update(bpy.context)
-
-    return setter
+    factory = HairGetterSetterFactory(name)
+    return factory.generate_setter()
+#===============================================================================
+# The following works, but makes the creation of the setter extremely slow
+# When commented out, the hair object no longer gets updated when changing properties
+#
+#         hair_obj.update_tag()
+#         bpy.context.view_layer.update()
+#         hair_obj.hide_viewport = True
+#         hair_obj.hide_viewport = False
+#         if hasattr(mod, "node_group") and mod.node_group:
+#             mod.node_group.interface_update(bpy.context)
+#===============================================================================
 
 def dynamic_getter_factory(configset, name):
-    (propname, definition) = _get_propdef(name)
-
-    if propname is None:
-        _LOG.error("No definition found for", name)
-        return None
-
-    hair_name = re.sub("^DHAI_", "", name)
-    hair_name = re.sub("_" + propname + "$", "", hair_name)
-
-    _LOG.debug("Creating dynamic getter for", (name, propname, hair_name))
-
-    def getter(self):
-        basemesh = _get_basemesh()
-        modifier_name = definition[0]
-        modifier_attr = definition[1]
-        _LOG.trace("Invoking getter for", (name, basemesh, modifier_name, modifier_attr))
-        if basemesh is None:
-            _LOG.error("No active basemesh found when trying to execute getter", name)
-            return
-        hair_obj = _get_hair_object(hair_name) # Should probably look for a relative of basemesh here
-        if hair_obj is None:
-            _LOG.error("No hair object found for", hair_name)
-            return
-        return hair_obj.modifiers[modifier_name][modifier_attr]
-
-    return getter
+    factory = HairGetterSetterFactory(name)
+    return factory.generate_getter()
 
 _LOC = os.path.dirname(__file__)
 HAIR_PROPERTIES_DIR = os.path.join(_LOC, "properties")
