@@ -121,7 +121,8 @@ class DynamicConfigSet(BlenderConfigSet):
                     self._deserialization_timer(entity_reference, prop)
 
         prop_names.sort()
-        return prop_names
+
+        return set(prop_names)
 
     def has_key(self, name, entity_reference=None):
         """Checks if the config set contains the provided property name.
@@ -247,6 +248,7 @@ class DynamicConfigSet(BlenderConfigSet):
         for prop in self._list_object_properties_matching_dynamic_prefix(entity_reference):
             properties.append(prop.replace(self.dynamic_prefix, ""))
         properties.sort()
+        properties = set(properties)
         _LOG.debug("All keys", properties)
         return properties
 
