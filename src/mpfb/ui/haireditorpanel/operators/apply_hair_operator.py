@@ -7,9 +7,10 @@
 # Description:  operator for loading hair assets, adding them to Human mesh and setting up UI for editing
 # ------------------------------------------------------------------------------
 from ....services.logservice import LogService
-from ....services.locationservice import LocationService
+from ....services.objectservice import ObjectService
 from .... import ClassManager
 from ....services.haireditorservices import HairEditorService
+from ..hairproperties import HAIR_PROPERTIES, DYNAMIC_HAIR_PROPS_DEFINITIONS
 import bpy, os, json, shutil
 
 _LOG = LogService.get_logger("haireditorpanel.apply_hair_operator")
@@ -66,16 +67,20 @@ class MPFB_OT_ApplyHair_Operator(bpy.types.Operator):
 
     def execute(self, context):
 
+        if context.object is None:
+            self.report({'ERROR'}, "Must have an active object")
+            return {'FINISHED'}
+
+        basemesh = ObjectService.find_object_of_type_amongst_nearest_relatives(context.object)
+
+        if basemesh is None:
+            self.report({'ERROR'}, "Could not find basemesh amongst relatives of selected object")
+            return {'FINISHED'}
+
+        ObjectService.deselect_and_deactivate_all()
+        ObjectService.activate_blender_object(basemesh)
+
         scene = context.scene
-
-        self.report({'INFO'}, ("Applying hair asset..."))
-
-
-        # Get Human mesh
-        human_obj = context.object
-        if (not human_obj or not human_obj.name == 'Human'):
-            self.report({'ERROR'}, "Object Human must be active")
-            return {'CANCELLED'}
 
 
         # Load hair asset
@@ -112,8 +117,8 @@ class MPFB_OT_ApplyHair_Operator(bpy.types.Operator):
 
             # Parent brace
             if brace_obj is not None:
-                brace_obj.parent = human_obj
-                brace_obj.matrix_parent_inverse = human_obj.matrix_world.inverted()
+                brace_obj.parent = basemesh
+                brace_obj.matrix_parent_inverse = basemesh.matrix_world.inverted()
 
 
         except Exception as e:
@@ -130,39 +135,50 @@ class MPFB_OT_ApplyHair_Operator(bpy.types.Operator):
         if hair_obj.type == 'CURVES':
             curves_data = hair_obj.data
             if hasattr(curves_data, 'surface'):
-                curves_data.surface = human_obj
+                curves_data.surface = basemesh
             else:
                 self.report({'WARNING'}, "Curve object has no surface property")
         else:
             self.report({'WARNING'}, f"Object '{object_name}' is not curve!")
 
         # Parent hair to Human
-        hair_obj.parent = human_obj
-        hair_obj.matrix_parent_inverse = human_obj.matrix_world.inverted()
+        hair_obj.parent = basemesh
+        hair_obj.matrix_parent_inverse = basemesh.matrix_world.inverted()
 
         # Define shape properties
         prop_prefix = f"{self.hair_asset}_"
-        props = {
-            "length": ("Set Hair Curve Profile", "Socket_1", (0.0, 10.0)),
-            "density": ("Set Hair Curve Profile", "Socket_0", (0.0, 1.0)),
-            "thickness": ("Set Hair Curve Profile", "Input_3", (0.0, 0.003)),
-            "frizz": ("Frizz Hair Curves", "Input_3", (0.0,1.0)),
-            "roll": ("Roll Hair Curves", "Input_10", (0.0,1.0)),
-            "roll_radius": ("Roll Hair Curves", "Input_3", (0.001, 0.005)),
-            "roll_length": ("Roll Hair Curves", "Input_2", (0.001, 0.1)),
-            "clump": ("Clump Hair Curves", "Input_7", (0.0,1.0)),
-            "clump_distance": ("Clump Hair Curves", "Input_9", (0.003, 0.05)),
-            "clump_shape": ("Clump Hair Curves", "Input_6", (-1.0,1.0)),
-            "clump_tip_spread": ("Clump Hair Curves", "Input_10", (0.0, 0.02)),
-            "noise": ("Hair Curves Noise", "Input_3", (0.0, 1.0)),
-            "noise_distance": ("Hair Curves Noise", "Input_14", (0.0, 0.01)),
-            "noise_scale": ("Hair Curves Noise", "Input_11", (0.0, 20)),
-            "noise_shape": ("Hair Curves Noise", "Input_2", (0.0, 1.0)),
-            "curl": ("Curl Hair Curves", "Input_2", (0.0, 1.0)),
-            "curl_guide_distance": ("Curl Hair Curves", "Input_4", (0.0, 0.1)),
-            "curl_radius": ("Curl Hair Curves", "Input_7", (0.0, 0.1)),
-            "curl_frequency": ("Curl Hair Curves", "Input_11", (0.0, 20.0))
-        }
+
+        for mod in basemesh.modifiers:
+            _LOG.debug("Modifier", mod)
+
+        for name, (mod_name, attr, rng) in DYNAMIC_HAIR_PROPS_DEFINITIONS.items():
+            propname = f"{prop_prefix}{name}"
+            propdef = {
+                "name": propname,
+                "type": "float",
+                "description": mod_name,
+                "max": rng[1],
+                "min": rng[0],
+                "default": hair_obj.modifiers[mod_name][attr]
+                }
+            HAIR_PROPERTIES.set_value_dynamic(propname, hair_obj.modifiers[mod_name][attr], propdef, entity_reference=basemesh)
+
+        propname = f"{prop_prefix}hair_asset_open"
+        propdef = {
+            "name": propname,
+            "type": "boolean",
+            "description": "Toggle visibility of hair properties",
+            "default": False
+            }
+
+        HAIR_PROPERTIES.set_value_dynamic(propname, False, propdef, entity_reference=basemesh)
+
+        ObjectService.deselect_and_deactivate_all()
+        ObjectService.activate_blender_object(basemesh)
+
+        self.report({'INFO'}, f"Applied new hair: {hair_obj.name}")
+        return {'FINISHED'}
+
         for name, (mod_name, attr, rng) in props.items():
             prop_id = f"{prop_prefix}{name}"
             if not hasattr(scene.__class__, prop_id):

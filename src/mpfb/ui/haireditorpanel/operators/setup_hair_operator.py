@@ -7,9 +7,11 @@
 # Description:  operator for setting up scene for adding hair
 # ------------------------------------------------------------------------------
 from ....services.logservice import LogService
-from ....services.locationservice import LocationService
+from ....services.objectservice import ObjectService
 from .... import ClassManager
 from ....services.haireditorservices import HairEditorService
+from ..hairproperties import HAIR_PROPERTIES
+
 import bpy, os, json, shutil
 
 _LOG = LogService.get_logger("haireditorpanel.setup_hair_operator")
@@ -23,16 +25,20 @@ class MPFB_OT_SetupHair_Operator(bpy.types.Operator):
 
     def execute(self, context):
 
+        if context.object is None:
+            self.report({'ERROR'}, "Must have an active object")
+            return {'FINISHED'}
+
+        basemesh = ObjectService.find_object_of_type_amongst_nearest_relatives(context.object)
+
+        if basemesh is None:
+            self.report({'ERROR'}, "Could not find basemesh amongst relatives of selected object")
+            return {'FINISHED'}
+
+        ObjectService.deselect_and_deactivate_all()
+        ObjectService.activate_blender_object(basemesh)
+
         scene = context.scene
-
-        self.report({'INFO'}, ("Setting up hair interface"))
-
-
-        # Get material
-        obj = context.object
-        if (not obj or not obj.name == 'Human'):
-            self.report({'ERROR'}, "Object Human must be active")
-            return {'CANCELLED'}
 
         # Add empty hair or the hair asset wont behave correctly
         bpy.ops.object.curves_empty_hair_add()
@@ -41,24 +47,16 @@ class MPFB_OT_SetupHair_Operator(bpy.types.Operator):
         if scene.render.engine == 'BLENDER_EEVEE_NEXT':
             scene.render.hair_type = 'STRIP'
 
+        hair_prop = {
+            "name": "hair_setup",
+            "type": "boolean",
+            "description": "Hair has been initialized for this object",
+            "label": "Setup hair",
+            "default": False
+            }
 
-        # Reselect Human
-        human_obj = bpy.data.objects.get("Human")
-        if human_obj:
-            bpy.ops.object.select_all(action='DESELECT')
-            human_obj.select_set(True)
-            context.view_layer.objects.active = human_obj
-        else:
-            self.report({'WARNING'}, "Human object not found in bpy.data.objects")
-
-        # Update UI
-        if not hasattr(bpy.types.Scene, "hair_setup"):
-            bpy.types.Scene.hair_setup = bpy.props.BoolProperty(
-                name="hair_setup",
-                description="Mesh has empty hair applied",
-                default=False
-            )
-        scene.hair_setup = True
+        HAIR_PROPERTIES.set_value_dynamic("hair_setup", True, hair_prop, basemesh)
+        self.report({'INFO'}, ("Initialized hair for this basemesh"))
 
         return {'FINISHED'}
 

@@ -13,14 +13,11 @@ from ...services.uiservice import UiService
 from ...services.sceneconfigset import SceneConfigSet
 from ...services.haireditorservices import HairEditorService
 from ...ui.abstractpanel import Abstract_Panel
+from .hairproperties import HAIR_PROPERTIES, DYNAMIC_HAIR_PROPS_DEFINITIONS
 import bpy,os, json
 
 _LOG = LogService.get_logger("ui.haireditorpanel")
-
-_LOC = os.path.dirname(__file__)
-HAIR_PROPERTIES_DIR = os.path.join(_LOC, "properties")
-HAIR_PROPERTIES = SceneConfigSet.from_definitions_in_json_directory(HAIR_PROPERTIES_DIR, prefix="HAI_")
-
+_LOG.set_level(LogService.DEBUG)
 
 class MPFB_PT_Hair_Editor_Panel(Abstract_Panel):
     bl_label = "Hair Editor"
@@ -35,96 +32,113 @@ class MPFB_PT_Hair_Editor_Panel(Abstract_Panel):
         op = box.operator("mpfb.setup_hair_operator")
 
     # UI panel for adding and editing of hair assets
-    def _hair_panel(self, scene, layout):
+    def _hair_panel(self, basemesh, layout):
         box = layout.box()
         box.label(text="Hair assets:")
 
         # Add operators (hair, facial hair, eybrow, others)
-        HAIR_PROPERTIES.draw_properties(scene, box, ["hair_assets"])
+        HAIR_PROPERTIES.draw_properties(basemesh, box, ["hair_assets"])
         hair_op = box.operator("mpfb.apply_hair_operator")
-        hair_op.hair_asset = HAIR_PROPERTIES.get_value("hair_assets", entity_reference=scene)
-        HAIR_PROPERTIES.draw_properties(scene, box, ["facial_assets"])
+        hair_op.hair_asset = HAIR_PROPERTIES.get_value("hair_assets", entity_reference=basemesh)
+        HAIR_PROPERTIES.draw_properties(basemesh, box, ["facial_assets"])
         facial_op = box.operator("mpfb.apply_hair_operator")
-        facial_op.hair_asset = HAIR_PROPERTIES.get_value("facial_assets", entity_reference=scene)
-        HAIR_PROPERTIES.draw_properties(scene, box, ["eyebrow_assets"])
+        facial_op.hair_asset = HAIR_PROPERTIES.get_value("facial_assets", entity_reference=basemesh)
+        HAIR_PROPERTIES.draw_properties(basemesh, box, ["eyebrow_assets"])
         eyebrow_op = box.operator("mpfb.apply_hair_operator")
-        eyebrow_op.hair_asset = HAIR_PROPERTIES.get_value("eyebrow_assets", entity_reference=scene)
-        HAIR_PROPERTIES.draw_properties(scene, box, ["other_assets"])
+        eyebrow_op.hair_asset = HAIR_PROPERTIES.get_value("eyebrow_assets", entity_reference=basemesh)
+        HAIR_PROPERTIES.draw_properties(basemesh, box, ["other_assets"])
         other_op = box.operator("mpfb.apply_hair_operator")
-        other_op.hair_asset = HAIR_PROPERTIES.get_value("other_assets", entity_reference=scene)
+        other_op.hair_asset = HAIR_PROPERTIES.get_value("other_assets", entity_reference=basemesh)
+
+        #_LOG.debug("Hair keys", HAIR_PROPERTIES.get_keys(basemesh))
+
 
         # Column with applied assets
         col = layout.column()
-        for prop in scene.bl_rna.properties:
+
+        for key in HAIR_PROPERTIES.get_keys(basemesh):
+            if str(key).endswith("_hair_asset_open"):
+                asset_name = str(key).replace("_hair_asset_open", "")
+                toggle_prop = f"{asset_name}_hair_asset_open"
+
+                box = col.box()
+                box.label(text=f"{asset_name}")
+
+                for prop in DYNAMIC_HAIR_PROPS_DEFINITIONS.keys():
+                    propname = f"{HAIR_PROPERTIES.dynamic_prefix}{asset_name}_{prop}"
+                    box.prop(basemesh, propname, text=prop)
+        return
+
+        for prop in basemesh.bl_rna.properties:
             if prop.identifier.endswith("_hair_asset_open"):
                 asset_name = prop.identifier.replace("_hair_asset_open", "")
                 toggle_prop = f"{asset_name}_hair_asset_open"
 
                 # Toggle property
-                is_open = getattr(scene, toggle_prop)
+                is_open = getattr(basemesh, toggle_prop)
                 icon = 'TRIA_DOWN' if is_open else 'TRIA_RIGHT'
-                col.prop(scene, f"{toggle_prop}", text=asset_name, icon=icon, emboss=True, toggle=False)
+                col.prop(basemesh, f"{toggle_prop}", text=asset_name, icon=icon, emboss=True, toggle=False)
 
                 if is_open:
                     box = col.box()
                     box.label(text=f"{asset_name}")
 
                     # Editing material and shape of curves
-                    if not getattr(scene, f"{asset_name}_cards_baked",False):
-                        box.prop(scene, f"{asset_name}_color1", text="Color 1")
-                        box.prop(scene, f"{asset_name}_color2", text="Color 2")
-                        box.prop(scene, f"{asset_name}_color_noise_scale", text="Color distribution", slider=True)
-                        box.prop(scene, f"{asset_name}_darken_root", text="Darken root", slider=True)
-                        box.prop(scene, f"{asset_name}_root_color_length", text="Root length", slider=True)
+                    if not getattr(basemesh, f"{asset_name}_cards_baked",False):
+                        box.prop(basemesh, f"{asset_name}_color1", text="Color 1")
+                        box.prop(basemesh, f"{asset_name}_color2", text="Color 2")
+                        box.prop(basemesh, f"{asset_name}_color_noise_scale", text="Color distribution", slider=True)
+                        box.prop(basemesh, f"{asset_name}_darken_root", text="Darken root", slider=True)
+                        box.prop(basemesh, f"{asset_name}_root_color_length", text="Root length", slider=True)
 
                         box.label(text="Shape:")
-                        box.prop(scene, f"{asset_name}_length", text="Length", slider=True)
-                        box.prop(scene, f"{asset_name}_density", text="Density", slider=True)
-                        box.prop(scene, f"{asset_name}_thickness", text="Thickness", slider=True)
-                        box.prop(scene, f"{asset_name}_frizz", text="Frizz", slider=True)
+                        box.prop(basemesh, f"{asset_name}_length", text="Length", slider=True)
+                        box.prop(basemesh, f"{asset_name}_density", text="Density", slider=True)
+                        box.prop(basemesh, f"{asset_name}_thickness", text="Thickness", slider=True)
+                        box.prop(basemesh, f"{asset_name}_frizz", text="Frizz", slider=True)
 
-                        box.prop(scene, f"{asset_name}_roll", text="Roll", slider=True)
-                        box.prop(scene, f"{asset_name}_roll_radius", text="Roll radius", slider=True)
-                        box.prop(scene, f"{asset_name}_roll_length", text="Roll length", slider=True)
+                        box.prop(basemesh, f"{asset_name}_roll", text="Roll", slider=True)
+                        box.prop(basemesh, f"{asset_name}_roll_radius", text="Roll radius", slider=True)
+                        box.prop(basemesh, f"{asset_name}_roll_length", text="Roll length", slider=True)
 
-                        box.prop(scene, f"{asset_name}_clump", text="Clump", slider=True)
-                        box.prop(scene, f"{asset_name}_clump_distance", text="Clump distance", slider=True)
-                        box.prop(scene, f"{asset_name}_clump_shape", text="Clump shape", slider=True)
-                        box.prop(scene, f"{asset_name}_clump_tip_spread", text="Clump tip spread", slider=True)
+                        box.prop(basemesh, f"{asset_name}_clump", text="Clump", slider=True)
+                        box.prop(basemesh, f"{asset_name}_clump_distance", text="Clump distance", slider=True)
+                        box.prop(basemesh, f"{asset_name}_clump_shape", text="Clump shape", slider=True)
+                        box.prop(basemesh, f"{asset_name}_clump_tip_spread", text="Clump tip spread", slider=True)
 
-                        box.prop(scene, f"{asset_name}_noise", text="Noise", slider=True)
-                        box.prop(scene, f"{asset_name}_noise_distance", text="Noise distance", slider=True)
-                        box.prop(scene, f"{asset_name}_noise_scale", text="Noise scale", slider=True)
-                        box.prop(scene, f"{asset_name}_noise_shape", text="Noise radius", slider=True)
+                        box.prop(basemesh, f"{asset_name}_noise", text="Noise", slider=True)
+                        box.prop(basemesh, f"{asset_name}_noise_distance", text="Noise distance", slider=True)
+                        box.prop(basemesh, f"{asset_name}_noise_scale", text="Noise scale", slider=True)
+                        box.prop(basemesh, f"{asset_name}_noise_shape", text="Noise radius", slider=True)
 
-                        box.prop(scene, f"{asset_name}_curl", text="Curl", slider=True)
-                        box.prop(scene, f"{asset_name}_curl_guide_distance", text="Curl guide distance", slider=True)
-                        box.prop(scene, f"{asset_name}_curl_radius", text="Curl radius", slider=True)
-                        box.prop(scene, f"{asset_name}_curl_frequency", text="Curl frequency", slider=True)
+                        box.prop(basemesh, f"{asset_name}_curl", text="Curl", slider=True)
+                        box.prop(basemesh, f"{asset_name}_curl_guide_distance", text="Curl guide distance", slider=True)
+                        box.prop(basemesh, f"{asset_name}_curl_radius", text="Curl radius", slider=True)
+                        box.prop(basemesh, f"{asset_name}_curl_frequency", text="Curl frequency", slider=True)
 
 
                         # Generate cards operator
-                        if not getattr(scene, f"{asset_name}_cards_generated",False):
+                        if not getattr(basemesh, f"{asset_name}_cards_generated",False):
                             op_gen = box.operator("mpfb.generate_hair_cards_operator", text="Convert to cards")
                             op_gen.hair_asset =asset_name
                             op_gen.card_asset=f"{asset_name}_cards"
 
                         # Cards editing
-                        if getattr(scene, f"{asset_name}_cards_generated",False):
+                        if getattr(basemesh, f"{asset_name}_cards_generated",False):
                             box.label(text="Hair cards:")
 
                             # Settings for eventual generated cards placement
-                            if getattr(scene, f"{asset_name}_cards_scale",False):
-                                box.prop(scene, f"{asset_name}_cards_scale", text="Scale of cards", slider=True)
-                                box.prop(scene, f"{asset_name}_cards_density", text="Card density", slider=True)
-                                box.prop(scene, f"{asset_name}_cards_placement", text="Seed for deleting random cards. No efect when density is 1.", slider=True)
+                            if getattr(basemesh, f"{asset_name}_cards_scale",False):
+                                box.prop(basemesh, f"{asset_name}_cards_scale", text="Scale of cards", slider=True)
+                                box.prop(basemesh, f"{asset_name}_cards_density", text="Card density", slider=True)
+                                box.prop(basemesh, f"{asset_name}_cards_placement", text="Seed for deleting random cards. No efect when density is 1.", slider=True)
 
                             # Bake hair cards settings
                             box.label(text="Warning: baking process is slow and might crash blender")
-                            box.prop(scene, f"{asset_name}_cards_glossy", text="Bake as glossy(better in hi res), or diffuse(fater and more stable)?")
-                            box.prop(scene, f"{asset_name}_cards_samples", text="Render samples used in baking", slider=True)
-                            box.prop(scene, f"{asset_name}_cards_resolution", text="Resolution of baked texture (Idealy power of 2 values)", slider=True)
-                            box.prop(scene, f"{asset_name}_cards_texture_dst", text="Export Save Path")
+                            box.prop(basemesh, f"{asset_name}_cards_glossy", text="Bake as glossy(better in hi res), or diffuse(fater and more stable)?")
+                            box.prop(basemesh, f"{asset_name}_cards_samples", text="Render samples used in baking", slider=True)
+                            box.prop(basemesh, f"{asset_name}_cards_resolution", text="Resolution of baked texture (Idealy power of 2 values)", slider=True)
+                            box.prop(basemesh, f"{asset_name}_cards_texture_dst", text="Export Save Path")
                             op_bake = box.operator("mpfb.bake_hair_operator", text="Bake cards")
                             op_bake.hair_asset =asset_name
                             op_bake.card_asset=f"{asset_name}_cards"
@@ -133,26 +147,27 @@ class MPFB_PT_Hair_Editor_Panel(Abstract_Panel):
                     op_del.hair_asset =asset_name
 
     # UI panel for adding and editing of hair assets
-    def _fur_panel(self, scene, layout):
+    def _fur_panel(self, basemesh, layout):
         box = layout.box()
         box.label(text="Fur assets:")
-        HAIR_PROPERTIES.draw_properties(scene, box, ["fur_assets"])
+        HAIR_PROPERTIES.draw_properties(basemesh, box, ["fur_assets"])
 
         # Apply fur operator
         other_op = box.operator("mpfb.apply_fur_operator")
-        other_op.hair_asset = HAIR_PROPERTIES.get_value("fur_assets", entity_reference=scene)
+        other_op.hair_asset = HAIR_PROPERTIES.get_value("fur_assets", entity_reference=basemesh)
 
+        return
         # Column with applied fur assets
         col = layout.column()
-        for prop in scene.bl_rna.properties:
+        for prop in basemesh.bl_rna.properties:
             if prop.identifier.endswith("_fur_asset_open"):
                 asset_name = prop.identifier.replace("_fur_asset_open", "")
                 toggle_prop = f"{asset_name}_fur_asset_open"
 
                 # Toggle property
-                is_open = getattr(scene, toggle_prop)
+                is_open = getattr(basemesh, toggle_prop)
                 icon = 'TRIA_DOWN' if is_open else 'TRIA_RIGHT'
-                col.prop(scene, f"{toggle_prop}", text=asset_name, icon=icon, emboss=True, toggle=False)
+                col.prop(basemesh, f"{toggle_prop}", text=asset_name, icon=icon, emboss=True, toggle=False)
 
 
                 if is_open:
@@ -160,69 +175,69 @@ class MPFB_PT_Hair_Editor_Panel(Abstract_Panel):
                     box.label(text=f"{asset_name}")
 
                     # Editing material and shape of curves
-                    if not getattr(scene, f"{asset_name}_cards_baked",False):
-                        box.prop(scene, f"{asset_name}_use_texture")
-                        if not getattr(scene, f"{asset_name}_use_texture",False):
-                            box.prop(scene, f"{asset_name}_color1", text="Color 1")
-                            box.prop(scene, f"{asset_name}_color2", text="Color 2")
+                    if not getattr(basemesh, f"{asset_name}_cards_baked",False):
+                        box.prop(basemesh, f"{asset_name}_use_texture")
+                        if not getattr(basemesh, f"{asset_name}_use_texture",False):
+                            box.prop(basemesh, f"{asset_name}_color1", text="Color 1")
+                            box.prop(basemesh, f"{asset_name}_color2", text="Color 2")
                         else:
-                            box.prop(scene, f"{asset_name}_texture_path", text="Texture path")
-                        box.prop(scene, f"{asset_name}_color_noise_scale", text="Color distribution", slider=True)
-                        box.prop(scene, f"{asset_name}_darken_root", text="Darken root", slider=True)
-                        box.prop(scene, f"{asset_name}_root_color_length", text="Root length", slider=True)
+                            box.prop(basemesh, f"{asset_name}_texture_path", text="Texture path")
+                        box.prop(basemesh, f"{asset_name}_color_noise_scale", text="Color distribution", slider=True)
+                        box.prop(basemesh, f"{asset_name}_darken_root", text="Darken root", slider=True)
+                        box.prop(basemesh, f"{asset_name}_root_color_length", text="Root length", slider=True)
 
 
                         box.label(text="Shape:")
-                        box.prop(scene, f"{asset_name}_length", text="Length", slider=True)
-                        box.prop(scene, f"{asset_name}_density", text="Density", slider=True)
-                        box.prop(scene, f"{asset_name}_thickness", text="Thickness", slider=True)
-                        box.prop(scene, f"{asset_name}_frizz", text="Frizz", slider=True)
+                        box.prop(basemesh, f"{asset_name}_length", text="Length", slider=True)
+                        box.prop(basemesh, f"{asset_name}_density", text="Density", slider=True)
+                        box.prop(basemesh, f"{asset_name}_thickness", text="Thickness", slider=True)
+                        box.prop(basemesh, f"{asset_name}_frizz", text="Frizz", slider=True)
 
-                        box.prop(scene, f"{asset_name}_roll", text="Roll", slider=True)
-                        box.prop(scene, f"{asset_name}_roll_radius", text="Roll radius", slider=True)
-                        box.prop(scene, f"{asset_name}_roll_length", text="Roll length", slider=True)
+                        box.prop(basemesh, f"{asset_name}_roll", text="Roll", slider=True)
+                        box.prop(basemesh, f"{asset_name}_roll_radius", text="Roll radius", slider=True)
+                        box.prop(basemesh, f"{asset_name}_roll_length", text="Roll length", slider=True)
 
-                        box.prop(scene, f"{asset_name}_clump", text="Clump", slider=True)
-                        box.prop(scene, f"{asset_name}_clump_distance", text="Clump distance", slider=True)
-                        box.prop(scene, f"{asset_name}_clump_shape", text="Clump shape", slider=True)
-                        box.prop(scene, f"{asset_name}_clump_tip_spread", text="Clump tip spread", slider=True)
+                        box.prop(basemesh, f"{asset_name}_clump", text="Clump", slider=True)
+                        box.prop(basemesh, f"{asset_name}_clump_distance", text="Clump distance", slider=True)
+                        box.prop(basemesh, f"{asset_name}_clump_shape", text="Clump shape", slider=True)
+                        box.prop(basemesh, f"{asset_name}_clump_tip_spread", text="Clump tip spread", slider=True)
 
-                        box.prop(scene, f"{asset_name}_noise", text="Noise", slider=True)
-                        box.prop(scene, f"{asset_name}_noise_distance", text="Noise distance", slider=True)
-                        box.prop(scene, f"{asset_name}_noise_scale", text="Noise scale", slider=True)
-                        box.prop(scene, f"{asset_name}_noise_shape", text="Noise radius", slider=True)
+                        box.prop(basemesh, f"{asset_name}_noise", text="Noise", slider=True)
+                        box.prop(basemesh, f"{asset_name}_noise_distance", text="Noise distance", slider=True)
+                        box.prop(basemesh, f"{asset_name}_noise_scale", text="Noise scale", slider=True)
+                        box.prop(basemesh, f"{asset_name}_noise_shape", text="Noise radius", slider=True)
 
-                        box.prop(scene, f"{asset_name}_curl", text="Curl", slider=True)
-                        box.prop(scene, f"{asset_name}_curl_guide_distance", text="Curl guide distance", slider=True)
-                        box.prop(scene, f"{asset_name}_curl_radius", text="Curl radius", slider=True)
-                        box.prop(scene, f"{asset_name}_curl_frequency", text="Curl frequency", slider=True)
+                        box.prop(basemesh, f"{asset_name}_curl", text="Curl", slider=True)
+                        box.prop(basemesh, f"{asset_name}_curl_guide_distance", text="Curl guide distance", slider=True)
+                        box.prop(basemesh, f"{asset_name}_curl_radius", text="Curl radius", slider=True)
+                        box.prop(basemesh, f"{asset_name}_curl_frequency", text="Curl frequency", slider=True)
 
-                        box.prop(scene, f"{asset_name}_holes", text="Bald holes", slider=True)
-                        box.prop(scene, f"{asset_name}_holes_scale", text="Holes scale", slider=True)
+                        box.prop(basemesh, f"{asset_name}_holes", text="Bald holes", slider=True)
+                        box.prop(basemesh, f"{asset_name}_holes_scale", text="Holes scale", slider=True)
 
 
                         # Generate cards operator
-                        if not getattr(scene, f"{asset_name}_cards_generated",False):
+                        if not getattr(basemesh, f"{asset_name}_cards_generated",False):
                             op_gen = box.operator("mpfb.generate_hair_cards_operator", text="Convert to cards")
                             op_gen.hair_asset =asset_name
                             op_gen.card_asset=f"{asset_name}_cards"
 
                         # Cards editing
-                        if getattr(scene, f"{asset_name}_cards_generated",False):
+                        if getattr(basemesh, f"{asset_name}_cards_generated",False):
                             box.label(text="Hair cards:")
 
                             # Settings for eventual generated cards placement
-                            if getattr(scene, f"{asset_name}_cards_scale",False):
-                                box.prop(scene, f"{asset_name}_cards_scale", text="Scale of cards", slider=True)
-                                box.prop(scene, f"{asset_name}_cards_density", text="Card density", slider=True)
-                                box.prop(scene, f"{asset_name}_cards_placement", text="Seed for deleting random cards. No efect when density is 1.", slider=True)
+                            if getattr(basemesh, f"{asset_name}_cards_scale",False):
+                                box.prop(basemesh, f"{asset_name}_cards_scale", text="Scale of cards", slider=True)
+                                box.prop(basemesh, f"{asset_name}_cards_density", text="Card density", slider=True)
+                                box.prop(basemesh, f"{asset_name}_cards_placement", text="Seed for deleting random cards. No efect when density is 1.", slider=True)
 
                             # Card baking settings
                             box.label(text="Warning: baking process is slow and might crash blender")
-                            box.prop(scene, f"{asset_name}_cards_glossy", text="Bake as glossy(better in hi res), or diffuse(fater and more stable)?")
-                            box.prop(scene, f"{asset_name}_cards_samples", text="Render samples used in baking", slider=True)
-                            box.prop(scene, f"{asset_name}_cards_resolution", text="Resolution of baked texture (Idealy power of 2 values)", slider=True)
-                            box.prop(scene, f"{asset_name}_cards_texture_dst", text="Export Save Path")
+                            box.prop(basemesh, f"{asset_name}_cards_glossy", text="Bake as glossy(better in hi res), or diffuse(fater and more stable)?")
+                            box.prop(basemesh, f"{asset_name}_cards_samples", text="Render samples used in baking", slider=True)
+                            box.prop(basemesh, f"{asset_name}_cards_resolution", text="Resolution of baked texture (Idealy power of 2 values)", slider=True)
+                            box.prop(basemesh, f"{asset_name}_cards_texture_dst", text="Export Save Path")
                             op_bake = box.operator("mpfb.bake_hair_operator", text="Bake cards")
                             op_bake.hair_asset =asset_name
                             op_bake.card_asset=f"{asset_name}_cards"
@@ -234,14 +249,23 @@ class MPFB_PT_Hair_Editor_Panel(Abstract_Panel):
 
     def draw(self, context):
         _LOG.enter()
-        layout = self.layout
-        scene = context.scene
-        if (not scene.get("hair_setup", False)):
-            self._setup_hair(scene, layout)
 
-        if scene.get("hair_setup", False):
-            self._hair_panel(scene, layout)
-            self._fur_panel(scene, layout)
+        layout = self.layout
+        basemesh = self.get_basemesh(context)
+
+        if not basemesh:
+            layout.label(text="No basemesh selected.")
+            return
+
+        hair_setup = False
+        if HAIR_PROPERTIES.has_key("hair_setup", entity_reference=basemesh):
+            hair_setup = HAIR_PROPERTIES.get_value("hair_setup", False, entity_reference=basemesh)
+
+        if (not hair_setup):
+            self._setup_hair(basemesh, layout)
+        else:
+            self._hair_panel(basemesh, layout)
+            self._fur_panel(basemesh, layout)
 
 
 ClassManager.add_class(MPFB_PT_Hair_Editor_Panel)

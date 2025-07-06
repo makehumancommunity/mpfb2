@@ -91,7 +91,7 @@ class MPFB_OT_ApplyFur_Operator(bpy.types.Operator):
             if not group_node:
                 print("Group node not found")
                 return
-            
+
             # Access the node tree inside the group
             group_tree = group_node.node_tree
             if not group_tree:
@@ -133,16 +133,16 @@ class MPFB_OT_ApplyFur_Operator(bpy.types.Operator):
             if not group_tree:
                 print("Group node has no node tree assigned")
                 return
-            
+
             nodes = group_tree.nodes
             links = group_tree.links
-            
+
             # Find shader node for eevee and hair shader node for cycles
             principleds = [
                 n for n in group_tree.nodes
                 if (n.bl_idname == 'ShaderNodeBsdfPrincipled' or n.bl_idname == 'ShaderNodeBsdfHairPrincipled')
             ]
-            
+
             # Find texture node
             img_node = next((n for n in nodes if n.type == 'TEX_IMAGE'), None)
             if not img_node:
@@ -151,7 +151,7 @@ class MPFB_OT_ApplyFur_Operator(bpy.types.Operator):
 
             use = getattr(self, prop_id)
             storage_key = "_saved_base_color_links"
-            
+
             # Apply texture
             if use:
                 # Prepare storage dict on the group node

@@ -13,10 +13,12 @@ from ...services import LogService as _LogService
 _LOG = _LogService.get_logger("heireditorpanel.init")
 _LOG.trace("initializing hair editor module")
 
+from .hairproperties import HAIR_PROPERTIES
 from .haireditorpanel import MPFB_PT_Hair_Editor_Panel
 from .operators import *
 
 __all__ = [
+    "HAIR_PROPERTIES",
     "MPFB_PT_Hair_Editor_Panel",
     "MPFB_OT_SetupHair_Operator",
     "MPFB_OT_ApplyMaterial_Operator",
