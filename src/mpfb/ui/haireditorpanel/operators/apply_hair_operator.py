@@ -14,7 +14,7 @@ from ..hairproperties import HAIR_PROPERTIES, DYNAMIC_HAIR_PROPS_DEFINITIONS, DY
 import bpy, os, json, shutil
 
 _LOG = LogService.get_logger("haireditorpanel.apply_hair_operator")
-_LOG.set_level(LogService.DEBUG)
+#_LOG.set_level(LogService.DEBUG)
 
 
 class MPFB_OT_ApplyHair_Operator(bpy.types.Operator):
@@ -149,9 +149,6 @@ class MPFB_OT_ApplyHair_Operator(bpy.types.Operator):
         # Define shape properties
         prop_prefix = f"{self.hair_asset}_"
 
-        for mod in basemesh.modifiers:
-            _LOG.debug("Modifier", mod)
-
         for name, (mod_name, attr, rng) in DYNAMIC_HAIR_PROPS_DEFINITIONS.items():
             propname = f"{prop_prefix}{name}"
             propdef = {
@@ -182,8 +179,9 @@ class MPFB_OT_ApplyHair_Operator(bpy.types.Operator):
                 }
 
             if len(specification) > 2:
-                # Assume this is a color
-                pass
+                propdef["type"] = "color"
+                propdef["default"] = list(specification) # To make a clone
+                HAIR_PROPERTIES.set_value_dynamic(propname, list(specification), propdef, entity_reference=basemesh)
             else:
                 # Assume this is a float
                 minval = specification[0]
@@ -206,12 +204,6 @@ class MPFB_OT_ApplyHair_Operator(bpy.types.Operator):
 
         ObjectService.deselect_and_deactivate_all()
         ObjectService.activate_blender_object(basemesh)
-
-        for key in HAIR_PROPERTIES.get_keys(entity_reference=basemesh):
-            _LOG.debug("Key", key)
-
-        for item in basemesh.items():
-            _LOG.debug("Item", item)
 
         self.report({'INFO'}, f"Applied new hair: {hair_obj.name}")
         return {'FINISHED'}

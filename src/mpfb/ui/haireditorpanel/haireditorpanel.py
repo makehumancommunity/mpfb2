@@ -67,9 +67,9 @@ class MPFB_PT_Hair_Editor_Panel(Abstract_Panel):
                 for prop in DYNAMIC_HAIR_PROPS_DEFINITIONS.keys():
                     propname = f"{HAIR_PROPERTIES.dynamic_prefix}{asset_name}_{prop}"
                     box.prop(basemesh, propname, text=prop, slider=True)
-                #for prop in DYNAMIC_HAIR_MATERIAL_PROPS_DEFINITIONS.keys():
-                #    propname = f"{HAIR_PROPERTIES.dynamic_prefix}{asset_name}_{prop}"
-                #    box.prop(basemesh, propname, text=prop)
+                for prop in DYNAMIC_HAIR_MATERIAL_PROPS_DEFINITIONS.keys():
+                    propname = f"{HAIR_PROPERTIES.dynamic_prefix}{asset_name}_{prop}"
+                    box.prop(basemesh, propname, text=prop)
         return
 
         for prop in basemesh.bl_rna.properties:

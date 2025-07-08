@@ -102,14 +102,14 @@ class DynamicConfigSet(BlenderConfigSet):
             if prop.identifier.startswith(self.dynamic_prefix):
                 if hasattr(entity_reference, prop.identifier):
                     value = getattr(entity_reference, prop.identifier)
-                    _LOG.debug("Found potential dynamic property", (entity_reference, prop.identifier, value))
+                    _LOG.trace("Found potential dynamic property", (entity_reference, prop.identifier, value))
                     if value is not None and value != '':
                         prop_names.append(prop.identifier)
 
         # Ensure that dynamic properties are created if they are missing on the type. We can't recreate them
         # in the draw context, so will need to defer the creation with a timer
         for item in entity_reference.items():
-            _LOG.debug("item", item)
+            _LOG.trace("item", item)
             prop = item[0]
             if prop.startswith(self.dynamic_prefix) and prop not in prop_names:
                 _LOG.debug("Found custom property not on type", prop)
@@ -194,8 +194,14 @@ class DynamicConfigSet(BlenderConfigSet):
             self.add_property(property_definition, override_prefix=self.dynamic_prefix)
             self._serialize_property(entity_reference, name, property_definition)
 
-        _LOG.debug("Setting property value", (full_dynamic_name, value))
-        setattr(entity_reference, full_dynamic_name, value)
+        existing_value = getattr(entity_reference, full_dynamic_name, None)
+        if existing_value is None or isinstance(value, tuple) or isinstance(value, list) or existing_value != value:
+            _LOG.debug("Setting property value", (full_dynamic_name, value))
+            setattr(entity_reference, full_dynamic_name, value)
+        else:
+            # This is since both creating all properties and calling the setter method (which potentially calls
+            # scene updates etc) can take an unreasonably long time.
+            _LOG.debug("Avoiding property set since value is identical to existing value", (value, existing_value))
 
     def get_value(self, name, default_value=None, entity_reference=None):
         """
