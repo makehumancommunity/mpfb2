@@ -257,6 +257,10 @@ class BlenderConfigSet(ConfigurationSet):
         if proptype == "vector_location":
             entity_property = FloatVectorProperty(name=name, description=description, default=default,
                                                   size=3, subtype='XYZ', unit='LENGTH', get=getter, set=setter)
+        if proptype == "color":
+                entity_property = FloatVectorProperty(name=name, description=description, default=default,
+                                                      size=4, subtype='COLOR', min=0.0, max=1.0, get=getter, set=setter)
+
         if proptype == "enum":
             enumitems = []
             if items:
@@ -279,7 +283,7 @@ class BlenderConfigSet(ConfigurationSet):
         Args:
             prop (dict): A dictionary containing the property definition. Expected keys include:
                 - name (str): The short name of the property.
-                - type (str): The type of the property (e.g., "boolean", "string", "int", "float", "vector_location", "enum").
+                - type (str): The type of the property (e.g., "boolean", "string", "int", "float", "vector_location", "enum", "color").
                 - description (str): A description of the property.
                 - default: The default value of the property.
                 - aliases (list, optional): A list of alias names for the property.
