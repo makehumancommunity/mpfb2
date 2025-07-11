@@ -1,3 +1,5 @@
+"""This module contains the Apply Hair Operator class."""
+
 # ------------------------------------------------------------------------------
 # MPFB2 Extension by Klecer
 # Author:       Tomáš Klecer
@@ -6,65 +8,24 @@
 # Supervisor:   Ing. Tomáš Chlubna, Ph.D.
 # Description:  operator for loading hair assets, adding them to Human mesh and setting up UI for editing
 # ------------------------------------------------------------------------------
+
 from ....services.logservice import LogService
 from ....services.objectservice import ObjectService
 from .... import ClassManager
 from ....services.haireditorservices import HairEditorService
 from ..hairproperties import HAIR_PROPERTIES, DYNAMIC_HAIR_PROPS_DEFINITIONS, DYNAMIC_HAIR_MATERIAL_PROPS_DEFINITIONS
-import bpy, os, json, shutil
+import bpy, os
 
 _LOG = LogService.get_logger("haireditorpanel.apply_hair_operator")
-#_LOG.set_level(LogService.DEBUG)
-
 
 class MPFB_OT_ApplyHair_Operator(bpy.types.Operator):
     """Adds hair asset"""
+
     bl_idname = "mpfb.apply_hair_operator"
     bl_label = "Apply hair"
     bl_options = {'REGISTER'}
 
-
     hair_asset: bpy.props.StringProperty()
-
-    # Callback for editing hair asset geometry
-    def make_update_callback(self, hair_obj ,modifier_name, attribute_name, property_name, value_range=None):
-        def callback(self, context):
-            mod = hair_obj.modifiers.get(modifier_name)
-            if mod:
-                value = getattr(self, f"{hair_obj.name}_{property_name}")
-                hair_obj.modifiers[modifier_name][attribute_name]=value
-                hair_obj.update_tag()
-                bpy.context.view_layer.update()
-                hair_obj.hide_viewport = True
-                hair_obj.hide_viewport = False
-                if hasattr(mod, "node_group") and mod.node_group:
-                    mod.node_group.interface_update(bpy.context)
-        return callback
-
-    # Callback for editing material
-    def make_material_callback(self, material_name, attribute_name, input_name):
-        def callback(self, context):
-            mat = bpy.data.materials.get(material_name)
-            if not mat or not mat.use_nodes:
-                print("Material not found")
-                return
-
-            for node in mat.node_tree.nodes:
-                if node.name == 'Group':
-                    material_node = node
-                    break
-
-            # Update the input value
-            target_input = next((inp for inp in material_node.inputs if inp.name == input_name), None)
-            if not target_input:
-                print(f"Input '{input_name}' not found in node '{material_node.name}'")
-                return
-
-            val = getattr(self, f"{material_name}_{attribute_name}")
-            if hasattr(target_input, 'default_value'):
-                target_input.default_value = val
-
-        return callback
 
     def execute(self, context):
 
@@ -81,16 +42,12 @@ class MPFB_OT_ApplyHair_Operator(bpy.types.Operator):
         ObjectService.deselect_and_deactivate_all()
         ObjectService.activate_blender_object(basemesh)
 
-        scene = context.scene
-
-
         # Load hair asset
         blend_relative_path = os.path.abspath(os.path.join(os.path.dirname(__file__), f"../../../data/hair/haireditor/hair.blend"))
         object_name = self.hair_asset
         brace_name = f"{object_name}_brace"
 
         objects_to_load = []
-        brace_present = False
 
         try:
             with bpy.data.libraries.load(blend_relative_path, link=False) as (data_from, data_to):
@@ -103,7 +60,6 @@ class MPFB_OT_ApplyHair_Operator(bpy.types.Operator):
                 # Load eventual brace asset
                 if brace_name in data_from.objects:
                     objects_to_load.append(brace_name)
-                    brace_present = True
 
                 data_to.objects = objects_to_load
 
@@ -206,61 +162,6 @@ class MPFB_OT_ApplyHair_Operator(bpy.types.Operator):
         ObjectService.activate_blender_object(basemesh)
 
         self.report({'INFO'}, f"Applied new hair: {hair_obj.name}")
-        return {'FINISHED'}
-
-        mat = hair_obj.active_material
-        if mat and mat.use_nodes:
-            material_name = mat.name
-
-            for name, (input_name, rng) in material_props.items():
-                prop_id = f"{material_name}_{name}"
-                if not hasattr(scene.__class__, prop_id):
-                    # Different behavior for color and number
-                    if isinstance(rng, tuple) and len(rng) == 4:
-                        prop = bpy.props.FloatVectorProperty(
-                            name=name.replace("_", " ").capitalize(),
-                            subtype='COLOR',
-                            size=4,
-                            min=0.0,
-                            max=1.0,
-                            default=rng,
-                            update=self.make_material_callback(material_name, name, input_name)
-                        )
-                    else:
-                        prop = bpy.props.FloatProperty(
-                            name=name.replace("_", " ").capitalize(),
-                            min=rng[0],
-                            max=rng[1],
-                            default=(rng[0] + rng[1]) / 2,
-                            update=self.make_material_callback(material_name, name, input_name)
-                        )
-
-                    setattr(scene.__class__, prop_id, prop)
-
-        # Property for UI drawer
-        prop_id = f"{prop_prefix}hair_asset_open"
-        if not hasattr(bpy.types.Scene, prop_id):
-            setattr(
-                bpy.types.Scene,
-                prop_id,
-                bpy.props.BoolProperty(
-                name=prop_id,
-                description=f"Toggle drawer for {self.hair_asset}",
-                default=False
-                )
-            )
-
-        # Reselect Human
-        human_obj = bpy.data.objects.get("Human")
-        if human_obj:
-            bpy.ops.object.select_all(action='DESELECT')
-            human_obj.select_set(True)
-            context.view_layer.objects.active = human_obj
-        else:
-            self.report({'WARNING'}, "Human object not found in bpy.data.objects")
-
-        scene.hair_setup = True
-
         return {'FINISHED'}
 
 ClassManager.add_class(MPFB_OT_ApplyHair_Operator)
