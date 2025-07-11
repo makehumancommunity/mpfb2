@@ -43,14 +43,14 @@ class MPFB_OT_ApplyHair_Operator(bpy.types.Operator):
         ObjectService.activate_blender_object(basemesh)
 
         # Load hair asset
-        blend_relative_path = os.path.abspath(os.path.join(os.path.dirname(__file__), f"../../../data/hair/haireditor/hair.blend"))
+        blend_path = HairEditorService.get_hair_blend_path()
         object_name = self.hair_asset
         brace_name = f"{object_name}_brace"
 
         objects_to_load = []
 
         try:
-            with bpy.data.libraries.load(blend_relative_path, link=False) as (data_from, data_to):
+            with bpy.data.libraries.load(blend_path, link=False) as (data_from, data_to):
                 if object_name in data_from.objects:
                     objects_to_load.append(object_name)
                 else:

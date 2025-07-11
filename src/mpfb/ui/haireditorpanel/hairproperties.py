@@ -3,11 +3,11 @@ from ...services.objectservice import ObjectService
 from ...services.materialservice import MaterialService
 from ...services.nodeservice import NodeService
 from ...services.dynamicconfigset import DynamicConfigSet
-from ...services.haireditorservices import HairEditorService
+
 import bpy, os, re
 
 _LOG = LogService.get_logger("ui.hairproperties")
-_LOG.set_level(LogService.DEBUG)
+#_LOG.set_level(LogService.DEBUG)
 
 DYNAMIC_PREFIX="DHAI_"
 
