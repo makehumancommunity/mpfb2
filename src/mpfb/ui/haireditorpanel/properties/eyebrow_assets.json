@@ -1,0 +1,11 @@
+{
+    "type": "enum",
+    "name": "eyebrow_assets",
+    "description": "Pick eyebrow asset for your character",
+    "label": "Eyebrows",
+    "default": "wild_eyebrow",
+    "items": [
+        ["wild_eyebrow", "Wild eyebrow", "Uncared eyebrow", 1],
+        ["wild_thick_eyebrow", "Wild thick eyebrow", "Dense uncared eyebrow", 2]
+    ]
+}

@@ -15,6 +15,7 @@ from .jsoncall import JsonCall
 from .configurationset import ConfigurationSet
 from .blenderconfigset import BlenderConfigSet
 from .sceneconfigset import SceneConfigSet
+from .dynamicconfigset import DynamicConfigSet
 
 # Mostly standalone services
 from .modifierservice import ModifierService
