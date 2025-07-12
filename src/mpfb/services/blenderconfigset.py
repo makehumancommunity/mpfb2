@@ -385,7 +385,15 @@ class BlenderConfigSet(ConfigurationSet):
                 self.deferred_draw_property(entity_reference, component_to_draw_on, name, text)
             else:
                 label = prop.get("label", "") if text is None else text
-                component_to_draw_on.prop(entity_reference, prop["full_name"], text=label, **kwargs)
+                is_default = True
+                if "type" in prop and "subtype" in prop:
+                    if prop["type"] == "boolean" and prop["subtype"] == "panel_toggle":
+                        is_default = False
+                        is_open = self.get_value(prop["name"], False, entity_reference=entity_reference)
+                        icon = 'TRIA_DOWN' if is_open else 'TRIA_RIGHT'
+                        component_to_draw_on.prop(entity_reference, prop["full_name"], text=label, icon=icon, emboss=True, **kwargs)
+                if is_default:
+                    component_to_draw_on.prop(entity_reference, prop["full_name"], text=label, **kwargs)
 
     def deferred_draw_property(self, entity_reference, component_to_draw_on, property_name, text=None):
         """Abstract method that can be overridden by subclasses to implement drawing logic for properties which

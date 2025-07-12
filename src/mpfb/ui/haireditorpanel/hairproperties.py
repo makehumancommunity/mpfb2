@@ -233,10 +233,14 @@ class HairGetterSetterFactory():
                 _LOG.error("No material found for", hair_obj.name)
                 return
 
-            # TODO: Maybe there's a cycles version too?
-            group_node = NodeService.find_first_group_node_by_tree_name(material.node_tree, "Hair shader EEVEE")
+            group_node = None
+            for node in material.node_tree.nodes:
+                if hasattr(node, "node_tree") and node.node_tree and str(node.node_tree.name).startswith("Hair shader EEVEE"):
+                    group_node = node
+                    break
+
             if group_node is None:
-                _LOG.error("There is no group node in this material", hair_obj.name)
+                _LOG.error("There is no group node in this material", (hair_obj.name, material, material.node_tree))
                 return
 
             socket = NodeService.find_input_socket_by_identifier_or_name(

@@ -151,9 +151,11 @@ class MPFB_OT_ApplyHair_Operator(bpy.types.Operator):
         propname = f"{prop_prefix}hair_asset_open"
         propdef = {
             "name": propname,
+            "label": f"{self.hair_asset}",
             "type": "boolean",
             "description": "Toggle visibility of hair properties",
-            "default": False
+            "default": False,
+            "subtype": "panel_toggle"
             }
 
         HAIR_PROPERTIES.set_value_dynamic(propname, False, propdef, entity_reference=basemesh)

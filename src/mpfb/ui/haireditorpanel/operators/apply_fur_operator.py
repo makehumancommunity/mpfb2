@@ -154,8 +154,10 @@ class MPFB_OT_ApplyFur_Operator(bpy.types.Operator):
         propdef = {
             "name": propname,
             "type": "boolean",
+            "label": f"{self.hair_asset}",
             "description": "Toggle visibility of fur properties",
-            "default": False
+            "default": False,
+            "subtype": "panel_toggle"
             }
 
         FUR_PROPERTIES.set_value_dynamic(propname, False, propdef, entity_reference=basemesh)
