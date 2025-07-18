@@ -190,6 +190,12 @@ class MPFB_PT_Hair_Editor_Panel(Abstract_Panel):
             layout.label(text="No basemesh selected.")
             return
 
+        if not HairEditorService.is_hair_asset_installed():
+            layout.label(text="Hair editor assets are not")
+            layout.label(text="installed. Download from")
+            layout.label(text="asset packs page.")
+            return
+
         hair_setup = False
         if HAIR_PROPERTIES.has_key("hair_setup", entity_reference=basemesh):
             hair_setup = HAIR_PROPERTIES.get_value("hair_setup", False, entity_reference=basemesh)
