@@ -3,8 +3,9 @@ from ...services.objectservice import ObjectService
 from ...services.materialservice import MaterialService
 from ...services.nodeservice import NodeService
 from ...services.dynamicconfigset import DynamicConfigSet
+from ...services.haireditorservices import HairEditorService
 
-import bpy, os, re
+import bpy, os, re, json
 
 _LOG = LogService.get_logger("ui.hairproperties")
 #_LOG.set_level(LogService.DEBUG)
@@ -71,7 +72,9 @@ DYNAMIC_FUR_MATERIAL_PROPS_DEFINITIONS = {
         "color2": ("Color 2", (0.031, 0.016, 0.004, 1.0)),
         "color_noise_scale": ("Noise Scale", (0.0, 500.0)),
         "darken_root": ("Darken root", (0.0, 1.0)),
-        "root_color_length": ("Root color length", (0.0, 1.0))
+        "root_color_length": ("Root color length", (0.0, 1.0)),
+        "use_texture": ("Use Texture Instead of Colors", False),
+        "texture_path": ("Texture File Path", "")
         }
 
 class HairGetterSetterFactory():
@@ -144,8 +147,12 @@ class HairGetterSetterFactory():
 
         self.modifier_name = definition[0]
         self.modifier_attribute = definition[1]
-        self.is_material_property = True
+        if self.short_property_name in ["use_texture", "texture_path"]:
+            self.is_texture_property = True
+        else:
+            self.is_material_property = True
         self.managed_to_deduce_property = True
+
 
     def _interpolate_hair_object_name(self):
         hair_name = re.sub("^" + self.prefix, "", self.full_property_name)
@@ -255,6 +262,169 @@ class HairGetterSetterFactory():
             socket.default_value = value
 
         return setter
+    
+    def _texture_getter(self):
+        _LOG.debug("Generating texture getter for", self.full_property_name)
+        def getter(source):
+            _LOG.debug("Invoking texture getter for", (
+                source,
+                self.full_property_name,
+                self.short_property_name
+            ))
+
+            hair_obj = self._get_hair_object()
+            if hair_obj is None:
+                _LOG.error("No hair object found for", self.hair_object_name)
+                return
+
+            mat = MaterialService.get_material(hair_obj)
+            if mat is None or not mat.use_nodes:
+                _LOG.error("No usable material on", hair_obj.name)
+                return
+
+            # find material group node
+            group_node = next(
+                (n for n in mat.node_tree.nodes
+                 if hasattr(n, "node_tree")
+                 and n.node_tree
+                 and n.node_tree.name.startswith("Hair shader EEVEE")),
+                None
+            )
+            if group_node is None:
+                _LOG.error("No hair shader group node in material", mat.name)
+                return
+                
+            gtree = group_node.node_tree
+            nodes = gtree.nodes
+            links = gtree.links
+            img_node = next((n for n in nodes if n.type == 'TEX_IMAGE'), None)
+
+            # TEXTURE PATH PROPERTY: look for the image node inside the group
+            if self.short_property_name == "texture_path":
+                if img_node and img_node.image:
+                    return bpy.path.abspath(img_node.image.filepath)
+                return "Select texture path"          
+
+            # USE TEXTURE PROPERTY: simply read the group‐node input default
+            else:
+                if not img_node:
+                    _LOG.debug("No image node found - texture is not used.")
+                    return False
+
+                # Check if image node is linked to any shader base color inputs
+                shader_nodes = [
+                    n for n in nodes
+                    if n.bl_idname in ('ShaderNodeBsdfPrincipled', 'ShaderNodeBsdfHairPrincipled')
+                ]
+
+                for shader in shader_nodes:
+                    inp = shader.inputs[0]  # 'Base Color'
+                    for ln in inp.links:
+                        if ln.from_node == img_node and ln.from_socket.name == "Color":
+                            _LOG.debug("Texture node is actively linked.")
+                            return True
+
+                _LOG.debug("No texture link found.")
+                return False
+        return getter
+
+    def _texture_setter(self):
+        _LOG.debug("Generating texture setter for", self.full_property_name)
+        def setter(source, value):
+            _LOG.debug("Invoking texture setter for", (
+                source,
+                self.full_property_name,
+                self.short_property_name
+            ))
+
+            hair_obj = self._get_hair_object()
+            if hair_obj is None:
+                _LOG.error("No hair object found for", self.hair_object_name)
+                return
+
+            mat = MaterialService.get_material(hair_obj)
+            if mat is None or not mat.use_nodes:
+                _LOG.error("No usable material on", hair_obj.name)
+                return
+
+            # find our group node (Despite its name, group node also supports cycles)
+            group_node = next(
+                (n for n in mat.node_tree.nodes
+                 if hasattr(n, "node_tree")
+                 and n.node_tree
+                 and n.node_tree.name.startswith("Hair shader EEVEE")),
+                None
+            )
+            if group_node is None:
+                _LOG.error("No hair shader group node in material", mat.name)
+                return
+
+            # key for saving previous links from shader nodes
+            storage_key = "_saved_base_color_links"
+
+            # TEXTURE PATH: load the image and insert a new image texture node
+            gtree = group_node.node_tree
+            nodes = gtree.nodes
+            links = gtree.links
+
+            # find all principled/hair-principled shader nodes
+            shader_nodes = [
+                n for n in nodes if n.bl_idname in ('ShaderNodeBsdfPrincipled', 'ShaderNodeBsdfHairPrincipled')
+            ]
+
+            if self.short_property_name == "texture_path":
+                # Store previous texture node to delete it later
+                previous_tex_node = None
+                for node in list(nodes):
+                    if node.type == 'TEX_IMAGE':
+                        previous_tex_node = node
+                # Disconnect texture
+                if previous_tex_node:
+                    HairEditorService.restore_shader_links(previous_tex_node, shader_nodes, group_node, nodes, links, storage_key)
+
+                # Remove texture
+                if previous_tex_node:
+                    nodes.remove(previous_tex_node)
+
+                path = bpy.path.abspath(value)
+                if not path or not os.path.isfile(path):
+                    _LOG.info("Texture path invalid")
+                    return
+                try:
+                    img = bpy.data.images.load(path, check_existing=True)
+                except Exception as e:
+                    _LOG.error("Cannot load image '%s': %s", path, e)
+                    return
+
+                tex_node = gtree.nodes.new('ShaderNodeTexImage')
+                tex_node.image = img
+                tex_node.label = os.path.basename(path)
+                tex_node.location = (300, 200)
+
+                # Join node to material
+                store_links = storage_key not in group_node
+                HairEditorService.join_texture_node_to_shader(tex_node, shader_nodes, group_node, links, storage_key, store_links)
+
+                _LOG.debug("Added texture node %s", tex_node.name)
+                return
+
+            # USE TEXTURE: flip links on/off
+            # find the texture IMG node
+            img_node = next((n for n in nodes if (n.type == 'TEX_IMAGE')), None)
+            
+            if value:
+                # return in case of no available texture, so it does not break the material
+                if not img_node:
+                    return
+                # store and remove existing links
+                store_links=True
+                HairEditorService.join_texture_node_to_shader(img_node, shader_nodes, group_node, links, storage_key, store_links)
+
+            else:
+                # disconnect texture and restore links to color inputs
+                HairEditorService.restore_shader_links(img_node, shader_nodes, group_node, nodes, links, storage_key)
+
+        return setter
 
     def _hair_getter(self):
         _LOG.debug("Generating hair getter for", self.full_property_name)
@@ -305,167 +475,13 @@ class HairGetterSetterFactory():
         return setter
 
 
-# TODO: Port texture related getters and setters. Comment block from old apply fur operator:
-
-#===============================================================================
-#     # Callback for loading fur asset texture
-#     def make_texture_callback(self, material_name, prop_id):
-#         def callback(self, context):
-#             # Get the texture file path
-#             path = getattr(self, prop_id)
-#             if not path or not os.path.isfile(path):
-#                 print(f"Texture path invalid: {path}")
-#                 return
-#
-#             # Load or reuse image
-#             try:
-#                 img = bpy.data.images.load(path, check_existing=True)
-#             except Exception as e:
-#                 print(f"Cannot load image: {e}")
-#                 return
-#
-#             # Find material
-#             mat = bpy.data.materials.get(material_name)
-#             if not mat or not mat.use_nodes:
-#                 print(f"Material '{material_name}' not found")
-#                 return
-#
-#             nt = mat.node_tree
-#             nodes = nt.nodes
-#
-#             # Find group node
-#             group_node = next((n for n in nodes if n.name == 'Group'), None)
-#             if not group_node:
-#                 print("Group node not found")
-#                 return
-#
-#             # Access the node tree inside the group
-#             group_tree = group_node.node_tree
-#             if not group_tree:
-#                 print("Group node has no node tree assigned")
-#                 return
-#             nodes = group_tree.nodes
-#
-#             # Create new texture node
-#             tex_node = nodes.new('ShaderNodeTexImage')
-#             tex_node.image = img
-#             tex_node.label = os.path.basename(path)
-#             tex_node.location = (300, 200)
-#
-#             print(f"[Fur] Added Texture node: {img.name}")
-#             # Automatically trigger use texture callback (material name is the same as name of the object)
-#             use_prop = f"{material_name}_use_texture"
-#             setattr(bpy.context.scene, use_prop, True)
-#         return callback
-#
-#     # Callback for texture toggle
-#     def make_use_texture_callback(self, material_name, prop_id):
-#         def callback(self, context):
-#             mat = bpy.data.materials.get(material_name)
-#             if not mat or not mat.use_nodes:
-#                 print(f"Material '{material_name}' not found")
-#                 return
-#
-#             nt = mat.node_tree
-#             nodes_prev = nt.nodes
-#
-#             # Find group node
-#             group_node = next((n for n in nodes_prev if n.name == 'Group'), None)
-#             if not group_node:
-#                 print("Group node not found")
-#                 return
-#
-#             # Access the node tree inside the group
-#             group_tree = group_node.node_tree
-#             if not group_tree:
-#                 print("Group node has no node tree assigned")
-#                 return
-#
-#             nodes = group_tree.nodes
-#             links = group_tree.links
-#
-#             # Find shader node for eevee and hair shader node for cycles
-#             principleds = [
-#                 n for n in group_tree.nodes
-#                 if (n.bl_idname == 'ShaderNodeBsdfPrincipled' or n.bl_idname == 'ShaderNodeBsdfHairPrincipled')
-#             ]
-#
-#             # Find texture node
-#             img_node = next((n for n in nodes if n.type == 'TEX_IMAGE'), None)
-#             if not img_node:
-#                 print("Texture node not found")
-#                 return
-#
-#             use = getattr(self, prop_id)
-#             storage_key = "_saved_base_color_links"
-#
-#             # Apply texture
-#             if use:
-#                 # Prepare storage dict on the group node
-#                 saved = {}
-#                 for p in principleds:
-#                     # Color (principled hair shader) or Base color (principled shader) inpud
-#                     inp = p.inputs[0]
-#
-#                     # Capture all existing links
-#                     orig = [(link.from_node.name, link.from_socket.name)
-#                             for link in inp.links]
-#                     if orig:
-#                         saved[p.name] = orig
-#                         # remove them
-#                         for link in list(inp.links):
-#                             links.remove(link)
-#
-#                     # Link texture
-#                     links.new(img_node.outputs['Color'], inp)
-#
-#                 # Store JSON on group node
-#                 group_node[storage_key] = json.dumps(saved)
-#                 print(f"Texture linked in; stored original links for {len(saved)} nodes.")
-#
-#             # Restore previous links
-#             else:
-#                 # Load saved links
-#                 saved = {}
-#                 if storage_key in group_node:
-#                     try:
-#                         saved = json.loads(group_node[storage_key])
-#                     except:
-#                         saved = {}
-#
-#                 # Remove texture links
-#                 for p in principleds:
-#                     inp = p.inputs[0]
-#                     for link in list(inp.links):
-#                         if link.from_node == img_node:
-#                             links.remove(link)
-#
-#                 # Restore original ones
-#                 restored_count = 0
-#                 for p in principleds:
-#                     inp = p.inputs[0]
-#                     for from_name, socket_name in saved.get(p.name, []):
-#                         src = nodes.get(from_name) or group_node.node_tree.nodes.get(from_name)
-#                         if src:
-#                             out_sock = src.outputs.get(socket_name)
-#                             if out_sock:
-#                                 links.new(out_sock, inp)
-#                                 restored_count += 1
-#
-#                 # Clean up storage
-#                 if storage_key in group_node:
-#                     del group_node[storage_key]
-#
-#                 print(f"Removed texture links and restored {restored_count} original link(s).")
-#
-#         return callback
-#===============================================================================
-
     def generate_getter(self):
         if self.is_hair_property:
             return self._hair_getter()
         if self.is_material_property:
             return self._material_getter()
+        if self.is_texture_property:
+            return self._texture_getter()
         return None
 
     def generate_setter(self):
@@ -473,6 +489,8 @@ class HairGetterSetterFactory():
             return self._hair_setter()
         if self.is_material_property:
             return self._material_setter()
+        if self.is_texture_property:
+            return self._texture_setter()
         return None
 
 def dynamic_setter_factory(configset, name):

@@ -247,6 +247,13 @@ class BlenderConfigSet(ConfigurationSet):
             entity_property = BoolProperty(name=name, description=description, default=default, get=getter, set=setter)  # pylint: disable=E1111
         if proptype == "string":
             entity_property = StringProperty(name=name, description=description, default=default, get=getter, set=setter)  # pylint: disable=E1111
+
+        if proptype == "path":
+            entity_property = StringProperty(name=name, description=description, default=default,
+                                         subtype='FILE_PATH', get=getter, set=setter)
+        if proptype == "dir_path":
+            entity_property = StringProperty(name=name, description=description, default=default,
+                                         subtype='DIR_PATH', get=getter, set=setter)
         if proptype == "int":
             entity_property = IntProperty(name=name, description=description, default=default, get=getter, set=setter)  # pylint: disable=E1111
         if proptype == "float":

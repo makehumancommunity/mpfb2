@@ -134,7 +134,17 @@ class MPFB_OT_ApplyFur_Operator(bpy.types.Operator):
                 "description": mod_name,
                 }
 
-            if len(specification) > 2:
+            if type(specification) == bool:
+                propdef["type"] = "boolean"
+                propdef["default"] = specification
+                FUR_PROPERTIES.set_value_dynamic(propname, specification, propdef, entity_reference=basemesh)
+            
+            elif type(specification) == str:
+                propdef["type"] = "path"
+                propdef["default"] = specification
+                FUR_PROPERTIES.set_value_dynamic(propname, specification, propdef, entity_reference=basemesh)
+
+            elif len(specification) > 2:
                 propdef["type"] = "color"
                 propdef["default"] = list(specification) # To make a clone
                 FUR_PROPERTIES.set_value_dynamic(propname, list(specification), propdef, entity_reference=basemesh)
