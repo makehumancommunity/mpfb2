@@ -63,6 +63,13 @@ class MPFB_PT_Hair_Editor_Panel(Abstract_Panel):
                 toggle_prop = f"{asset_name}_hair_asset_open"
                 HAIR_PROPERTIES.draw_properties(basemesh, col, [toggle_prop])
                 is_open = HAIR_PROPERTIES.get_value(toggle_prop, entity_reference=basemesh)
+
+                cards_gen_prop = f"{asset_name}_hair_cards_are_generated"
+                cards_are_generated = HAIR_PROPERTIES.get_value(cards_gen_prop, entity_reference=basemesh)
+
+                cards_baked_prop = f"{asset_name}_hair_cards_are_baked"
+                cards_are_baked = HAIR_PROPERTIES.get_value(cards_baked_prop, entity_reference=basemesh)
+
                 if is_open:
                     box = col.box()
                     #box.label(text=f"{asset_name}")
@@ -73,6 +80,13 @@ class MPFB_PT_Hair_Editor_Panel(Abstract_Panel):
                     for prop in DYNAMIC_HAIR_MATERIAL_PROPS_DEFINITIONS.keys():
                         propname = f"{HAIR_PROPERTIES.dynamic_prefix}{asset_name}_{prop}"
                         box.prop(basemesh, propname, text=prop)
+                    
+                    if not cards_are_generated:
+                        # generate cards button
+                        pass
+                    elif(cards_are_generated and not cards_are_baked):
+                        # properties and bake button
+                        pass
 
         # TODO: Port cards, delete etc
 
@@ -131,6 +145,12 @@ class MPFB_PT_Hair_Editor_Panel(Abstract_Panel):
                 FUR_PROPERTIES.draw_properties(basemesh, col, [toggle_prop])
                 is_open = FUR_PROPERTIES.get_value(toggle_prop, entity_reference=basemesh)
 
+                cards_gen_prop = f"{asset_name}_fur_cards_are_generated"
+                cards_are_generated = FUR_PROPERTIES.get_value(cards_gen_prop, entity_reference=basemesh)
+
+                cards_baked_prop = f"{asset_name}_fur_cards_are_baked"
+                cards_are_baked = FUR_PROPERTIES.get_value(cards_baked_prop, entity_reference=basemesh)
+
                 if is_open:
                     box = col.box()
                     #box.label(text=f"{asset_name}")
@@ -141,6 +161,15 @@ class MPFB_PT_Hair_Editor_Panel(Abstract_Panel):
                     for prop in DYNAMIC_FUR_MATERIAL_PROPS_DEFINITIONS.keys():
                         propname = f"{FUR_PROPERTIES.dynamic_prefix}{asset_name}_{prop}"
                         box.prop(basemesh, propname, text=prop)
+                    
+                    if not cards_are_generated:
+                        # generate cards button
+                        pass
+                    elif(cards_are_generated and not cards_are_baked):
+                        # properties and bake button
+                        pass
+
+
 
 # TODO: fur card and delete stuff
 #===============================================================================
