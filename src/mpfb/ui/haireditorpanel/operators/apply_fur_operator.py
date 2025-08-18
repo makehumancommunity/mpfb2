@@ -172,6 +172,30 @@ class MPFB_OT_ApplyFur_Operator(bpy.types.Operator):
 
         FUR_PROPERTIES.set_value_dynamic(propname, False, propdef, entity_reference=basemesh)
 
+        propname = f"{prop_prefix}fur_cards_are_generated"
+        propdef = {
+            "name": propname,
+            "type": "boolean",
+            "label": f"{self.hair_asset}",
+            "description": "Toggle visibility of card placement and baking properties",
+            "default": False,
+            "subtype": "panel_toggle"
+            }
+
+        FUR_PROPERTIES.set_value_dynamic(propname, False, propdef, entity_reference=basemesh)
+
+        propname = f"{prop_prefix}fur_cards_are_baked"
+        propdef = {
+            "name": propname,
+            "type": "boolean",
+            "label": f"{self.hair_asset}",
+            "description": "Hides options for card placement and baking",
+            "default": False,
+            "subtype": "panel_toggle"
+            }
+
+        FUR_PROPERTIES.set_value_dynamic(propname, False, propdef, entity_reference=basemesh)
+
         ObjectService.deselect_and_deactivate_all()
         ObjectService.activate_blender_object(basemesh)
 
