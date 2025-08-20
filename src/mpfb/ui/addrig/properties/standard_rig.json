@@ -10,6 +10,7 @@
         ["game_engine", "Game engine", "The game engine rig", 2],
         ["game_engine_with_breast", "Game engine (with breast)", "The game engine rig with breast", 3],
         ["cmu_mb", "CMU MB", "The CMU MB rig", 4],
-        ["mixamo", "Mixamo", "The Mixamo rig", 5]
+        ["mixamo", "Mixamo", "The Mixamo rig", 5],
+		["mixamo_with_breast", "Mixamo (with breast)", "The Mixamo rig with breast", 6]
     ]
 }

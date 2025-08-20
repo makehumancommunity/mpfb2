@@ -1,0 +1,59 @@
+{
+    "bone_rotations": {
+        "mixamorig:LeftShoulder": [
+            0.0,
+            -0.0,
+            0.2617993950843811
+        ],
+        "mixamorig:RightShoulder": [
+            0.0,
+            -0.0,
+            -0.2617993950843811
+        ],
+        "mixamorig:LeftFoot": [
+            0.0,
+            0.09599310904741287,
+            -0.05235987901687622
+        ],
+        "mixamorig:RightFoot": [
+            0.0,
+            -0.09599310904741287,
+            0.05235987901687622
+        ],
+        "mixamorig:LeftForeArm": [
+            -0.6108652353286743,
+            -0.0,
+            0.0
+        ],
+        "mixamorig:RightForeArm": [
+            -0.6108652353286743,
+            -0.0,
+            0.0
+        ],
+        "mixamorig:LeftUpLeg": [
+            0.05235987901687622,
+            0.0,
+            0.09599310904741287
+        ],
+        "mixamorig:RightUpLeg": [
+            0.05235987901687622,
+            -0.0,
+            -0.09599310904741287
+        ],
+        "mixamorig:LeftArm": [
+            0.0,
+            -0.0,
+            0.5585053563117981
+        ],
+        "mixamorig:RightArm": [
+            0.0,
+            -0.0,
+            -0.5585053563117981
+        ]
+    },
+    "bone_translations": {},
+    "has_ik_bones": false,
+    "original_shoulder_width": 0,
+    "original_spine_length": 0,
+    "skeleton_type": "mixamo_with_breast"
+}
