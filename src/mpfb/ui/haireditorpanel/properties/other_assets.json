@@ -1,0 +1,11 @@
+{
+    "type": "enum",
+    "name": "other_assets",
+    "description": "Other groom assets - lashes, hairs etc.",
+    "label": "Other groom assets",
+    "default": "basic_lashes_upper",
+    "items": [
+        ["basic_lashes_upper", "Basic upper lashes", "Middle length eye lashes", 1],
+        ["basic_lashes_lower", "Basic lower lashes", "Middle length eye lashes", 2]
+    ]
+}

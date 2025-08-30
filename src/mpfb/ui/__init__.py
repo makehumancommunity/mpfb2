@@ -18,6 +18,7 @@ if SystemService.is_blender_version_at_least():
     from .createpanel import *
     from .systempanel import *
     from .developer import *
+    from .haireditorpanel import *
 
     # New human panels
     from .newhuman import *
@@ -82,6 +83,7 @@ if SystemService.is_blender_version_at_least():
         "MPFB_PT_MakeClothes_Panel",
         "MPFB_PT_Operations_Panel",
         "MPFB_PT_Devloper_Panel",
+        "MPFB_PT_Hair_Editor_Panel",
         "MPFB_PT_Ai_Panel",
         "UI_DUMMY_VALUE"
         ]
