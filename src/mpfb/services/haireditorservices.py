@@ -70,7 +70,7 @@ class HairEditorService():
             bool: True if the fur blend file exists, False otherwise.
         """
         return HairEditorService.get_fur_blend_path() is not None
-    
+
     @staticmethod
     def join_texture_node_to_shader(img_node, shader_nodes, group_node, links, storage_key, store_links):
         """Joins given texture node to principled shaders inside "Hair shader EEVEE" group node

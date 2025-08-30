@@ -138,7 +138,7 @@ class MPFB_OT_ApplyFur_Operator(bpy.types.Operator):
                 propdef["type"] = "boolean"
                 propdef["default"] = specification
                 FUR_PROPERTIES.set_value_dynamic(propname, specification, propdef, entity_reference=basemesh)
-            
+
             elif type(specification) == str:
                 propdef["type"] = "path"
                 propdef["default"] = specification

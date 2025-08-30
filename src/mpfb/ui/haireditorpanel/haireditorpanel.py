@@ -80,7 +80,7 @@ class MPFB_PT_Hair_Editor_Panel(Abstract_Panel):
                     for prop in DYNAMIC_HAIR_MATERIAL_PROPS_DEFINITIONS.keys():
                         propname = f"{HAIR_PROPERTIES.dynamic_prefix}{asset_name}_{prop}"
                         box.prop(basemesh, propname, text=prop)
-                    
+
                     if not cards_are_generated:
                         # generate cards button
                         pass
@@ -161,7 +161,7 @@ class MPFB_PT_Hair_Editor_Panel(Abstract_Panel):
                     for prop in DYNAMIC_FUR_MATERIAL_PROPS_DEFINITIONS.keys():
                         propname = f"{FUR_PROPERTIES.dynamic_prefix}{asset_name}_{prop}"
                         box.prop(basemesh, propname, text=prop)
-                    
+
                     if not cards_are_generated:
                         # generate cards button
                         pass

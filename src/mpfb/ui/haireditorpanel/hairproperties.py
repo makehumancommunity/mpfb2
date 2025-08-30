@@ -262,7 +262,7 @@ class HairGetterSetterFactory():
             socket.default_value = value
 
         return setter
-    
+
     def _texture_getter(self):
         _LOG.debug("Generating texture getter for", self.full_property_name)
         def getter(source):
@@ -293,7 +293,7 @@ class HairGetterSetterFactory():
             if group_node is None:
                 _LOG.error("No hair shader group node in material", mat.name)
                 return
-                
+
             gtree = group_node.node_tree
             nodes = gtree.nodes
             links = gtree.links
@@ -303,7 +303,7 @@ class HairGetterSetterFactory():
             if self.short_property_name == "texture_path":
                 if img_node and img_node.image:
                     return bpy.path.abspath(img_node.image.filepath)
-                return "Select texture path"          
+                return "Select texture path"
 
             # USE TEXTURE PROPERTY: simply read the group‐node input default
             else:
@@ -411,7 +411,7 @@ class HairGetterSetterFactory():
             # USE TEXTURE: flip links on/off
             # find the texture IMG node
             img_node = next((n for n in nodes if (n.type == 'TEX_IMAGE')), None)
-            
+
             if value:
                 # return in case of no available texture, so it does not break the material
                 if not img_node:
