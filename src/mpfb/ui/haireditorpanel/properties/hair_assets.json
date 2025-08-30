@@ -1,0 +1,13 @@
+{
+    "type": "enum",
+    "name": "hair_assets",
+    "description": "Pick hair asset for your character",
+    "label": "Hair",
+    "default": "basic_short_hair",
+    "items": [
+        ["hedgehog", "Hedgehog", "Straight hair.", 1],
+        ["basic_short_hair", "Short hair", "Shorter messy hair with significant corners.", 2],
+        ["straight_hair_to_shoulder", "Hair to shoulder", "Straight hair to shoulder", 3],
+        ["back_pigtail", "Back pigtail", "Pigtail on the back of the head", 4]
+    ]
+}

@@ -26,6 +26,19 @@ class Abstract_Panel(bpy.types.Panel):
     def _create_box(self, layout: bpy.types.UILayout, box_text: str, icon=None):
         return self.create_box(layout, box_text, icon)
 
+    def get_basemesh(self, context, also_check_relatives=True):
+        if context is None or context.active_object is None:
+            return None
+        basemesh = None
+
+        if also_check_relatives:
+            basemesh = ObjectService.find_object_of_type_amongst_nearest_relatives(context.active_object, "Basemesh")
+        else:
+            basemesh = context.active_object
+            if not ObjectService.object_is_basemesh(basemesh):
+                return None
+        return basemesh
+
     @classmethod
     def active_object_is_basemesh(cls, context, also_check_relatives=False, also_check_for_shapekeys=False):
         if not context.active_object:

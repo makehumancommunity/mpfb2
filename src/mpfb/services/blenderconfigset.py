@@ -4,12 +4,11 @@ import os, json
 from fnmatch import fnmatch
 from bpy.props import BoolProperty, StringProperty, EnumProperty, IntProperty, FloatProperty, FloatVectorProperty
 from .logservice import LogService
-_LOG = LogService.get_logger("configuration.blenderconfigset")
-
 from .configurationset import ConfigurationSet
 
-_PREFIX = "MPFB_"
+_LOG = LogService.get_logger("configuration.blenderconfigset")
 
+_PREFIX = "MPFB_"
 
 class BlenderConfigSet(ConfigurationSet):
     """
@@ -22,7 +21,7 @@ class BlenderConfigSet(ConfigurationSet):
     it easier to handle complex configurations in a Blender environment.
     """
 
-    def __init__(self, properties, bpy_type, prefix="", *, lowercase_prefix=False):
+    def __init__(self, properties, bpy_type, prefix="", *, lowercase_prefix=False, getter_factory=None, setter_factory=None):
         _LOG.debug("Constructing new blender config set with prefix", prefix)
         self._properties_by_short_name = dict()
         self._properties_by_full_name = dict()
@@ -31,8 +30,22 @@ class BlenderConfigSet(ConfigurationSet):
         self._prefix = (_PREFIX.lower() if lowercase_prefix else _PREFIX) + prefix
         self._bpytype = bpy_type
         _LOG.debug("Full prefix is", self._prefix)
+
+        self.getter_factory = None
+        self.setter_factory = None
+
+        if getter_factory is not None:
+            self.getter_factory = getter_factory
+        if setter_factory is not None:
+            self.setter_factory = setter_factory
+
         for prop in properties:
             self.add_property(prop)
+
+    def get_type(self):
+        """Getter for the type of Blender entity this configuration set manages."""
+        _LOG.enter()
+        return self._bpytype
 
     def get_fullname_key_from_shortname_key(self, key_name):
         """
@@ -92,6 +105,7 @@ class BlenderConfigSet(ConfigurationSet):
         Raises:
             ValueError: If the entity reference is None or not an instance of the expected Blender type.
         """
+        _LOG.debug("Entity, entity type, bpy type", (entity_reference, type(entity_reference), self._bpytype))
         if entity_reference is None:
             raise ValueError('Must provide a valid entity reference in order to read a BlenderConfigSet value')
         if not isinstance(entity_reference, self._bpytype):
@@ -219,20 +233,41 @@ class BlenderConfigSet(ConfigurationSet):
 
     def _create_property_by_type(self, proptype, name, description, default, items=None, items_callback=None, min=None, max=None):
         entity_property = None
+        getter = None
+        setter = None
+        if self.getter_factory is not None:
+            getter = self.getter_factory(self, name)
+        if self.setter_factory is not None:
+            setter = self.setter_factory(self, name)
+
+        _LOG.debug("Getter, setter factories", (self.getter_factory, self.setter_factory))
+        _LOG.debug("Getter, setter", (getter, setter))
+
         if proptype == "boolean":
-            entity_property = BoolProperty(name=name, description=description, default=default)  # pylint: disable=E1111
+            entity_property = BoolProperty(name=name, description=description, default=default, get=getter, set=setter)  # pylint: disable=E1111
         if proptype == "string":
-            entity_property = StringProperty(name=name, description=description, default=default)  # pylint: disable=E1111
+            entity_property = StringProperty(name=name, description=description, default=default, get=getter, set=setter)  # pylint: disable=E1111
+
+        if proptype == "path":
+            entity_property = StringProperty(name=name, description=description, default=default,
+                                         subtype='FILE_PATH', get=getter, set=setter)
+        if proptype == "dir_path":
+            entity_property = StringProperty(name=name, description=description, default=default,
+                                         subtype='DIR_PATH', get=getter, set=setter)
         if proptype == "int":
-            entity_property = IntProperty(name=name, description=description, default=default)  # pylint: disable=E1111
+            entity_property = IntProperty(name=name, description=description, default=default, get=getter, set=setter)  # pylint: disable=E1111
         if proptype == "float":
             if min is None:
-                entity_property = FloatProperty(name=name, description=description, default=default)  # pylint: disable=E1111
+                entity_property = FloatProperty(name=name, description=description, default=default, get=getter, set=setter)  # pylint: disable=E1111
             else:
-                entity_property = FloatProperty(name=name, description=description, default=default, min=min, max=max)  # pylint: disable=E1111
+                entity_property = FloatProperty(name=name, description=description, default=default, min=min, max=max, get=getter, set=setter)  # pylint: disable=E1111
         if proptype == "vector_location":
             entity_property = FloatVectorProperty(name=name, description=description, default=default,
-                                                  size=3, subtype='XYZ', unit='LENGTH')
+                                                  size=3, subtype='XYZ', unit='LENGTH', get=getter, set=setter)
+        if proptype == "color":
+                entity_property = FloatVectorProperty(name=name, description=description, default=default,
+                                                      size=4, subtype='COLOR', min=0.0, max=1.0, get=getter, set=setter)
+
         if proptype == "enum":
             enumitems = []
             if items:
@@ -244,18 +279,18 @@ class BlenderConfigSet(ConfigurationSet):
                 name=name,
                 description=description,
                 default=default,
-                items=enumitems)
+                items=enumitems, get=getter, set=setter)
 
         return entity_property
 
-    def add_property(self, prop, items_callback=None):
+    def add_property(self, prop, items_callback=None, override_prefix=None):
         """
         Adds a new property to the configuration set and defines it on the Blender entity type.
 
         Args:
             prop (dict): A dictionary containing the property definition. Expected keys include:
                 - name (str): The short name of the property.
-                - type (str): The type of the property (e.g., "boolean", "string", "int", "float", "vector_location", "enum").
+                - type (str): The type of the property (e.g., "boolean", "string", "int", "float", "vector_location", "enum", "color").
                 - description (str): A description of the property.
                 - default: The default value of the property.
                 - aliases (list, optional): A list of alias names for the property.
@@ -270,6 +305,8 @@ class BlenderConfigSet(ConfigurationSet):
         _LOG.enter()
         copied_property = dict(prop)
         copied_property["full_name"] = self._prefix + copied_property["name"]
+        if override_prefix:
+            copied_property["full_name"] = override_prefix + copied_property["name"]
         self._properties_by_full_name[copied_property["full_name"]] = copied_property
         self._properties_by_short_name[copied_property["name"]] = copied_property
         _LOG.debug("Defining property", copied_property["full_name"])
@@ -349,12 +386,27 @@ class BlenderConfigSet(ConfigurationSet):
 
         for name in property_names:
             prop = self._find_property(name)
-
+            _LOG.debug("Drawing property", (name, type(prop), prop))
             if prop is None:
                 _LOG.warn("Tried to draw a non-existing property", name)
+                self.deferred_draw_property(entity_reference, component_to_draw_on, name, text)
             else:
                 label = prop.get("label", "") if text is None else text
-                component_to_draw_on.prop(entity_reference, prop["full_name"], text=label, **kwargs)
+                is_default = True
+                if "type" in prop and "subtype" in prop:
+                    if prop["type"] == "boolean" and prop["subtype"] == "panel_toggle":
+                        is_default = False
+                        is_open = self.get_value(prop["name"], False, entity_reference=entity_reference)
+                        icon = 'TRIA_DOWN' if is_open else 'TRIA_RIGHT'
+                        component_to_draw_on.prop(entity_reference, prop["full_name"], text=label, icon=icon, emboss=True, **kwargs)
+                if is_default:
+                    component_to_draw_on.prop(entity_reference, prop["full_name"], text=label, **kwargs)
+
+    def deferred_draw_property(self, entity_reference, component_to_draw_on, property_name, text=None):
+        """Abstract method that can be overridden by subclasses to implement drawing logic for properties which
+        are not known to the configset."""
+        _LOG.debug("Deferred draw not overridden")
+
 
     def get_property_id_for_draw(self, name):
         """
