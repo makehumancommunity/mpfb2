@@ -23,7 +23,7 @@ class MPFB_OT_ApplyFur_Operator(bpy.types.Operator):
 
     bl_idname = "mpfb.apply_fur_operator"
     bl_label = "Apply fur"
-    bl_options = {'REGISTER'}
+    bl_options = {'REGISTER', 'UNDO'}
 
     hair_asset: bpy.props.StringProperty()
 
