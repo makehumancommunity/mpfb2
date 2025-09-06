@@ -13,7 +13,7 @@
         ["game_engine_with_breast", "Game engine (with breast)", "Use the game_engine_with_breast rig", 6],
         ["cmu_mb", "CMU MB", "Use the cmu_mb rig", 7],
         ["mixamo", "Mixamo", "Use the mixamo rig", 8],
-        ["mixamo_with_breast", "Mixamo (with breast)", "Use the mixamo_with_breast rig", 9],
+        ["mixamo_extended", "Mixamo (extended)", "Use the mixamo_extended rig", 9],
         ["rigify.human_toes", "Rigify default metarig", "Use the default rigify metarig. See the rigging panel for generating the final rigify rig", 10],
         ["rigify.human", "Rigify metarig without toes", "Use the default rigify metarig without toes. See the rigging panel for generating the final rigify rig", 11]
     ]
