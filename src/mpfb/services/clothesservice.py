@@ -634,6 +634,7 @@ class ClothesService:
                 - all_verts_belong_to_faces (bool): Whether all vertices belong to at least one face.
                 - all_checks_ok (bool): Whether all validation checks passed.
                 - clothes_groups_exist_on_basemesh (bool): Whether the clothes groups exist on the basemesh.
+                - objs_same_scale: Whether the clothes object and basemesh have the same scale.
                 - warnings (list): A list of warnings encountered during validation.
         """
 
@@ -646,6 +647,7 @@ class ClothesService:
             "all_verts_belong_to_faces": True,
             "all_checks_ok": False,
             "clothes_groups_exist_on_basemesh": True,
+            "objs_same_scale": True,
             "warnings": []
             }
 
@@ -680,9 +682,17 @@ class ClothesService:
             else:
                 paired_groups.append(group_name)
 
+        # Check if the clothes object and basemesh have the same scale
+        for axis in range(3):
+            clothes_scale = mesh_object.scale[axis]
+            basemesh_scale = basemesh.scale[axis]
+            if abs(clothes_scale - basemesh_scale) > 0.0001:
+                report["objs_same_scale"] = False
+                report["warnings"].append(f"Basemesh and clothes scale are different on axis {axis}")
+
         all_ok = report["is_valid_object"] and report["has_any_vertices"] and report["has_any_vgroups"]
         all_ok = all_ok and report["all_verts_have_max_one_vgroup"] and report["all_verts_have_min_one_vgroup"] and report["all_verts_belong_to_faces"]
-        all_ok = all_ok and report["clothes_groups_exist_on_basemesh"]
+        all_ok = all_ok and report["clothes_groups_exist_on_basemesh"] and report["objs_same_scale"]
         report["all_checks_ok"] = all_ok
 
         cache_dir = LocationService.get_user_cache("basemesh_xref")
