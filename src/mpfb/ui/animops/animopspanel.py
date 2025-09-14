@@ -27,7 +27,7 @@ class MPFB_PT_AnimopsPanel(Abstract_Panel):
         if len(armatures) != 2:
             box.label(text="Select two mixamo armatures")
             return
-        if RigService.identify_rig(armatures[0]) != "mixamo" or RigService.identify_rig(armatures[1]) != "mixamo":
+        if "mixamo" not in RigService.identify_rig(armatures[0]) or "mixamo" not in RigService.identify_rig(armatures[1]):
             box.label(text="Only mixamo armatures supported")
             return
         src = None

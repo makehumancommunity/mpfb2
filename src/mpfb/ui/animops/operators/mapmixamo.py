@@ -86,9 +86,29 @@ class MPFB_OT_Map_Mixamo_Operator(MpfbOperator):
             self.report({"ERROR"}, "Hips bone not found in source. Is this a mixamo rig?")
             return {'CANCELLED'}
 
+        src_bone_names = []
+        for bone in src.data.bones:
+            src_bone_names.append(bone.name)
+        src_bone_names.sort()
+
+        _LOG.debug("Source bones", src_bone_names)
+
+        dst_bone_names = []
+        for bone in dst.data.bones:
+            dst_bone_names.append(bone.name)
+        dst_bone_names.sort()
+
+        _LOG.debug("Destination bones", dst_bone_names)
+
+        different_bones = len(src_bone_names) != len(dst_bone_names)
+
         for bone in dst.data.bones:
             src_bone = _find_bone_by_name(src, bone.name)
-            _LOG.debug("Bone", src_bone.name)
+            _LOG.debug("Bone", (bone.name, src_bone))
+            if src_bone is None:
+                _LOG.warn("There was a bone in the destination rig that does not exist in the source rig", bone.name)
+                different_bones = True
+                continue
             constraint = RigService.add_bone_constraint_to_pose_bone(bone.name, dst, "COPY_ROTATION")
             constraint.target = src
             constraint.subtarget = src_bone.name
@@ -98,7 +118,10 @@ class MPFB_OT_Map_Mixamo_Operator(MpfbOperator):
         constraint.target = src
         constraint.subtarget = src_hips.name
 
-        self.report({"INFO"}, "Done")
+        if not different_bones:
+            self.report({"INFO"}, "Done")
+        else:
+            self.report({"WARNING"}, "The source and destination rigs do not have exactly the same set of bones. This might cause issues when animating.")
 
         bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
 
