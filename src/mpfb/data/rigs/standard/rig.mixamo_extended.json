@@ -137,6 +137,60 @@
         "use_inherit_rotation": true,
         "use_local_location": true
     },
+	"mixamorig:LeftButtock": {
+        "head": {
+            "cube_name": "joint-l-upper-leg",
+            "default_position": [
+                0.10138169676065445,
+                -0.00493039982393384,
+                0.04789000004529953
+            ],
+            "strategy": "CUBE"
+        },
+        "inherit_scale": "FULL",
+        "parent": "mixamorig:LeftUpLeg",
+        "rigify": {},
+        "roll": 0.5189173817634583,
+        "tail": {
+            "default_position": [
+                0.10138169676065445,
+                -0.00493039982393384,
+                0.04789000004529953
+            ],
+            "strategy": "VERTEX",
+            "vertex_index": 10862
+        },
+        "use_connect": false,
+        "use_inherit_rotation": true,
+        "use_local_location": true
+    },
+    "mixamorig:RightButtock": {
+        "head": {
+            "cube_name": "joint-r-upper-leg",
+            "default_position": [
+                -0.10138169676065445,
+                -0.00493039982393384,
+                0.04789000004529953
+            ],
+            "strategy": "CUBE"
+        },
+        "inherit_scale": "FULL",
+        "parent": "mixamorig:RightUpLeg",
+        "rigify": {},
+        "roll": -0.5189173817634583,
+        "tail": {
+            "default_position": [
+                -0.10209662467241287,
+                -0.14870992302894592,
+                0.39611339569091797
+            ],
+            "strategy": "VERTEX",
+            "vertex_index": 4227
+        },
+        "use_connect": false,
+        "use_inherit_rotation": true,
+        "use_local_location": true
+    },
     "mixamorig:LeftLeg": {
         "head": {
             "cube_name": "joint-l-knee",
@@ -373,6 +427,195 @@
                 0.0,
                 -0.0373532734811306,
                 0.8448141813278198
+            ],
+            "strategy": "CUBE"
+        },
+        "use_connect": false,
+        "use_inherit_rotation": true,
+        "use_local_location": true
+    },
+	"mixamorig:Jaw": {
+        "head": {
+            "cube_name": "joint-mouth",
+            "default_position": [
+                0.0,
+                -0.056428298354148865,
+                0.703254222869873
+            ],
+            "strategy": "CUBE"
+        },
+        "inherit_scale": "FULL",
+        "parent": "mixamorig:Head",
+        "rigify": {},
+        "roll": 0.0,
+        "tail": {
+            "default_position": [
+                0.0,
+                -0.10692666471004486,
+                0.6255499720573425
+            ],
+            "strategy": "VERTEX",
+            "vertex_index": 991
+        },
+        "use_connect": false,
+        "use_inherit_rotation": true,
+        "use_local_location": true
+    },
+	"mixamorig:LeftEye": {
+        "head": {
+            "cube_name": "joint-l-eye",
+            "default_position": [
+                0.02889380045235157,
+                -0.1180787980556488,
+                0.7355129718780518
+            ],
+            "strategy": "CUBE"
+        },
+        "inherit_scale": "FULL",
+        "parent": "mixamorig:Head",
+        "rigify": {},
+        "roll": 2.0617685317993164,
+        "tail": {
+            "cube_name": "joint-l-eye-target",
+            "default_position": [
+                0.030670462176203728,
+                -0.15605668723583221,
+                0.7325596213340759
+            ],
+            "strategy": "CUBE"
+        },
+        "use_connect": false,
+        "use_inherit_rotation": true,
+        "use_local_location": true
+    },
+    "mixamorig:RightEye": {
+        "head": {
+            "cube_name": "joint-r-eye",
+            "default_position": [
+                -0.02889380045235157,
+                -0.1180787980556488,
+                0.7355129718780518
+            ],
+            "strategy": "CUBE"
+        },
+        "inherit_scale": "FULL",
+        "parent": "mixamorig:Head",
+        "rigify": {},
+        "roll": -2.0617685317993164,
+        "tail": {
+            "cube_name": "joint-r-eye-target",
+            "default_position": [
+                -0.030670462176203728,
+                -0.15605668723583221,
+                0.7325596213340759
+            ],
+            "strategy": "CUBE"
+        },
+        "use_connect": false,
+        "use_inherit_rotation": true,
+        "use_local_location": true
+    },
+	"mixamorig:LeftOrbicularisTop": {
+        "head": {
+            "cube_name": "joint-l-eye",
+            "default_position": [
+                0.02889380045235157,
+                -0.1180787980556488,
+                0.7355129718780518
+            ],
+            "strategy": "CUBE"
+        },
+        "inherit_scale": "FULL",
+        "parent": "mixamorig:Head",
+        "rigify": {},
+        "roll": -2.7493228912353516,
+        "tail": {
+            "cube_name": "joint-l-upperlid",
+            "default_position": [
+                0.030597977340221405,
+                -0.15403161942958832,
+                0.7443487048149109
+            ],
+            "strategy": "CUBE"
+        },
+        "use_connect": false,
+        "use_inherit_rotation": true,
+        "use_local_location": true
+    },
+    "mixamorig:RightOrbicularisTop": {
+        "head": {
+            "cube_name": "joint-r-eye",
+            "default_position": [
+                -0.02889380045235157,
+                -0.1180787980556488,
+                0.7355129718780518
+            ],
+            "strategy": "CUBE"
+        },
+        "inherit_scale": "FULL",
+        "parent": "mixamorig:Head",
+        "rigify": {},
+        "roll": 2.7493228912353516,
+        "tail": {
+            "cube_name": "joint-r-upperlid",
+            "default_position": [
+                -0.030597977340221405,
+                -0.15403161942958832,
+                0.7443487048149109
+            ],
+            "strategy": "CUBE"
+        },
+        "use_connect": false,
+        "use_inherit_rotation": true,
+        "use_local_location": true
+    },
+	"mixamorig:LeftOrbicularisBottom": {
+        "head": {
+            "cube_name": "joint-l-eye",
+            "default_position": [
+                0.02889380045235157,
+                -0.1180787980556488,
+                0.7355129718780518
+            ],
+            "strategy": "CUBE"
+        },
+        "inherit_scale": "FULL",
+        "parent": "mixamorig:Head",
+        "rigify": {},
+        "roll": 2.8857905864715576,
+        "tail": {
+            "cube_name": "joint-l-lowerlid",
+            "default_position": [
+                0.030694635584950447,
+                -0.15349581837654114,
+                0.7212799787521362
+            ],
+            "strategy": "CUBE"
+        },
+        "use_connect": false,
+        "use_inherit_rotation": true,
+        "use_local_location": true
+    },
+    "mixamorig:RightOrbicularisBottom": {
+        "head": {
+            "cube_name": "joint-r-eye",
+            "default_position": [
+                -0.02889380045235157,
+                -0.1180787980556488,
+                0.7355129718780518
+            ],
+            "strategy": "CUBE"
+        },
+        "inherit_scale": "FULL",
+        "parent": "mixamorig:Head",
+        "rigify": {},
+        "roll": -2.8857905864715576,
+        "tail": {
+            "cube_name": "joint-r-lowerlid",
+            "default_position": [
+                -0.030694635584950447,
+                -0.15349581837654114,
+                0.7212799787521362
             ],
             "strategy": "CUBE"
         },
