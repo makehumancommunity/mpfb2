@@ -1465,6 +1465,8 @@ class HumanService:
         if not os.path.isfile(rig_file):
             if operator is not None:
                 operator.report({'ERROR'}, "Could not find the rig file: " + rig_file)
+            else:
+                raise IOError("Could not find the rig file: " + rig_file)
             return None
 
         # Load the rig from file

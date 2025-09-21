@@ -77,7 +77,7 @@ class MPFB_OT_Reduced_Doll_Operator(MpfbOperator):
 
         new_skeleton.select_set(True)
 
-        if RigService.identify_rig(new_skeleton) != "mixamo":
+        if not "mixamo" in RigService.identify_rig(new_skeleton):
             self.report({"WARNING"}, "Skeleton is not a mixamo rig. This is probably not suitable for upload to Mixamo.")
         else:
             self.report({"INFO"}, "Done")

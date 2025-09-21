@@ -11,6 +11,6 @@
         ["game_engine_with_breast", "Game engine (with breast)", "The game engine rig with breast", 3],
         ["cmu_mb", "CMU MB", "The CMU MB rig", 4],
         ["mixamo", "Mixamo", "The Mixamo rig", 5],
-        ["mixamo_extended", "Mixamo (extended)", "The Mixamo rig with extended bones", 6]
+        ["mixamo_unity", "Mixamo (unity extensions)", "The Mixamo rig with extra bones for unity", 6]
     ]
 }
