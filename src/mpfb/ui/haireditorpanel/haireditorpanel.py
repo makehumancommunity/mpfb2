@@ -61,7 +61,6 @@ class MPFB_PT_Hair_Editor_Panel(Abstract_Panel):
             if str(key).endswith("_hair_asset_open"):
                 asset_name = str(key).replace("_hair_asset_open", "")
                 toggle_prop = f"{asset_name}_hair_asset_open"
-                HAIR_PROPERTIES.draw_properties(basemesh, col, [toggle_prop])
                 is_open = HAIR_PROPERTIES.get_value(toggle_prop, entity_reference=basemesh)
 
                 cards_gen_prop = f"{asset_name}_hair_cards_are_generated"
@@ -70,7 +69,14 @@ class MPFB_PT_Hair_Editor_Panel(Abstract_Panel):
                 cards_baked_prop = f"{asset_name}_hair_cards_are_baked"
                 cards_are_baked = HAIR_PROPERTIES.get_value(cards_baked_prop, entity_reference=basemesh)
 
-                if is_open:
+                # dont show the asset in UI if it has been deleted
+                hair_asset = bpy.data.objects.get(asset_name)
+                asset_exists = (hair_asset and hair_asset.parent == basemesh)
+
+                if asset_exists:
+                    HAIR_PROPERTIES.draw_properties(basemesh, col, [toggle_prop])
+                
+                if asset_exists and is_open:
                     box = col.box()
                     #box.label(text=f"{asset_name}")
 
@@ -87,6 +93,9 @@ class MPFB_PT_Hair_Editor_Panel(Abstract_Panel):
                     elif(cards_are_generated and not cards_are_baked):
                         # properties and bake button
                         pass
+                    
+                    op_del = box.operator("mpfb.delete_hair_operator", text="Delete hair")
+                    op_del.hair_asset =asset_name
 
         # TODO: Port cards, delete etc
 
@@ -142,8 +151,8 @@ class MPFB_PT_Hair_Editor_Panel(Abstract_Panel):
                 asset_name = str(key).replace("_fur_asset_open", "")
                 toggle_prop = f"{asset_name}_fur_asset_open"
 
-                FUR_PROPERTIES.draw_properties(basemesh, col, [toggle_prop])
-                is_open = FUR_PROPERTIES.get_value(toggle_prop, entity_reference=basemesh)
+
+                is_open = FUR_PROPERTIES.get_value(toggle_prop, entity_reference=basemesh) 
 
                 cards_gen_prop = f"{asset_name}_fur_cards_are_generated"
                 cards_are_generated = FUR_PROPERTIES.get_value(cards_gen_prop, entity_reference=basemesh)
@@ -151,7 +160,13 @@ class MPFB_PT_Hair_Editor_Panel(Abstract_Panel):
                 cards_baked_prop = f"{asset_name}_fur_cards_are_baked"
                 cards_are_baked = FUR_PROPERTIES.get_value(cards_baked_prop, entity_reference=basemesh)
 
-                if is_open:
+                # dont show the asset in UI if it has been deleted
+                hair_asset = bpy.data.objects.get(asset_name)
+                asset_exists = (hair_asset and hair_asset.parent == basemesh)
+
+                if asset_exists:
+                    FUR_PROPERTIES.draw_properties(basemesh, col, [toggle_prop])
+                if asset_exists and is_open:
                     box = col.box()
                     #box.label(text=f"{asset_name}")
 
@@ -168,7 +183,9 @@ class MPFB_PT_Hair_Editor_Panel(Abstract_Panel):
                     elif(cards_are_generated and not cards_are_baked):
                         # properties and bake button
                         pass
-
+                
+                    op_del = box.operator("mpfb.delete_hair_operator", text="Delete hair")
+                    op_del.hair_asset =asset_name
 
 
 # TODO: fur card and delete stuff
