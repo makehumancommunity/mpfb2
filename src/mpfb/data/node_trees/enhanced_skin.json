@@ -261,23 +261,23 @@
                     "from_node": "SSSRadiusRed",
                     "from_socket": "Value",
                     "to_node": "Combine RGB",
-                    "to_socket": "R"
+                    "to_socket": "X"
                 },
                 {
                     "from_node": "SSSRadiusGreen",
                     "from_socket": "Value",
                     "to_node": "Combine RGB",
-                    "to_socket": "G"
+                    "to_socket": "Y"
                 },
                 {
                     "from_node": "SSSRadiusBlue",
                     "from_socket": "Value",
                     "to_node": "Combine RGB",
-                    "to_socket": "B"
+                    "to_socket": "Z"
                 },
                 {
                     "from_node": "Combine RGB",
-                    "from_socket": "Image",
+                    "from_socket": "Vector",
                     "to_node": "Principled BSDF",
                     "to_socket": "Subsurface Radius"
                 },
@@ -349,7 +349,7 @@
                         -175.0984344482422
                     ],
                     "name": "Combine RGB",
-                    "type": "ShaderNodeCombineRGB",
+                    "type": "ShaderNodeCombineXYZ",
                     "values": {}
                 },
                 "Group Input": {
