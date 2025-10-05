@@ -4,7 +4,7 @@ import os, sys, subprocess, bpy, addon_utils, re
 from .logservice import LogService
 _LOG = LogService.get_logger("services.systemservice")
 
-LOWEST_FUNCTIONAL_BLENDER_VERSION = (4, 3, 0)
+LOWEST_FUNCTIONAL_BLENDER_VERSION = (4, 2, 0)
 
 
 class SystemService:
