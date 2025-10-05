@@ -23,8 +23,6 @@ from .nodewrappershadernodebump import snBump
 from .nodewrappershadernodecameradata import snCameraData
 from .nodewrappershadernodeclamp import snClamp
 from .nodewrappershadernodecombinecolor import snCombineColor
-from .nodewrappershadernodecombinehsv import snCombineHSV
-from .nodewrappershadernodecombinergb import snCombineRGB
 from .nodewrappershadernodecombinexyz import snCombineXYZ
 from .nodewrappershadernodedisplacement import snDisplacement
 from .nodewrappershadernodeeeveespecular import snEeveeSpecular
@@ -62,8 +60,6 @@ from .nodewrappershadernodergbcurve import snRGBCurve
 from .nodewrappershadernodergbtobw import snRGBToBW
 from .nodewrappershadernodescript import snScript
 from .nodewrappershadernodeseparatecolor import snSeparateColor
-from .nodewrappershadernodeseparatehsv import snSeparateHSV
-from .nodewrappershadernodeseparatergb import snSeparateRGB
 from .nodewrappershadernodeseparatexyz import snSeparateXYZ
 from .nodewrappershadernodeshadertorgb import snShaderToRGB
 from .nodewrappershadernodesqueeze import snSqueeze
@@ -80,7 +76,6 @@ from .nodewrappershadernodetexmagic import snTexMagic
 if not SystemService.is_blender_version_at_least(version=[4,1,0]):
     from .nodewrappershadernodetexmusgrave import snTexMusgrave
 from .nodewrappershadernodetexnoise import snTexNoise
-from .nodewrappershadernodetexpointdensity import snTexPointDensity
 from .nodewrappershadernodetexsky import snTexSky
 from .nodewrappershadernodetexvoronoi import snTexVoronoi
 from .nodewrappershadernodetexwave import snTexWave
@@ -125,8 +120,6 @@ PRIMITIVE_NODE_WRAPPERS["ShaderNodeBump"] = snBump
 PRIMITIVE_NODE_WRAPPERS["ShaderNodeCameraData"] = snCameraData
 PRIMITIVE_NODE_WRAPPERS["ShaderNodeClamp"] = snClamp
 PRIMITIVE_NODE_WRAPPERS["ShaderNodeCombineColor"] = snCombineColor
-PRIMITIVE_NODE_WRAPPERS["ShaderNodeCombineHSV"] = snCombineHSV
-PRIMITIVE_NODE_WRAPPERS["ShaderNodeCombineRGB"] = snCombineRGB
 PRIMITIVE_NODE_WRAPPERS["ShaderNodeCombineXYZ"] = snCombineXYZ
 PRIMITIVE_NODE_WRAPPERS["ShaderNodeDisplacement"] = snDisplacement
 PRIMITIVE_NODE_WRAPPERS["ShaderNodeEeveeSpecular"] = snEeveeSpecular
@@ -164,8 +157,6 @@ PRIMITIVE_NODE_WRAPPERS["ShaderNodeRGBCurve"] = snRGBCurve
 PRIMITIVE_NODE_WRAPPERS["ShaderNodeRGBToBW"] = snRGBToBW
 PRIMITIVE_NODE_WRAPPERS["ShaderNodeScript"] = snScript
 PRIMITIVE_NODE_WRAPPERS["ShaderNodeSeparateColor"] = snSeparateColor
-PRIMITIVE_NODE_WRAPPERS["ShaderNodeSeparateHSV"] = snSeparateHSV
-PRIMITIVE_NODE_WRAPPERS["ShaderNodeSeparateRGB"] = snSeparateRGB
 PRIMITIVE_NODE_WRAPPERS["ShaderNodeSeparateXYZ"] = snSeparateXYZ
 PRIMITIVE_NODE_WRAPPERS["ShaderNodeShaderToRGB"] = snShaderToRGB
 PRIMITIVE_NODE_WRAPPERS["ShaderNodeSqueeze"] = snSqueeze
@@ -184,7 +175,6 @@ if not SystemService.is_blender_version_at_least(version=[4,1,0]):
     PRIMITIVE_NODE_WRAPPERS["ShaderNodeTexMusgrave"] = snTexMusgrave
 
 PRIMITIVE_NODE_WRAPPERS["ShaderNodeTexNoise"] = snTexNoise
-PRIMITIVE_NODE_WRAPPERS["ShaderNodeTexPointDensity"] = snTexPointDensity
 PRIMITIVE_NODE_WRAPPERS["ShaderNodeTexSky"] = snTexSky
 PRIMITIVE_NODE_WRAPPERS["ShaderNodeTexVoronoi"] = snTexVoronoi
 PRIMITIVE_NODE_WRAPPERS["ShaderNodeTexWave"] = snTexWave
@@ -231,8 +221,6 @@ __all__ = [
     "snCameraData",
     "snClamp",
     "snCombineColor",
-    "snCombineHSV",
-    "snCombineRGB",
     "snCombineXYZ",
     "snDisplacement",
     "snEeveeSpecular",
@@ -270,8 +258,6 @@ __all__ = [
     "snRGBToBW",
     "snScript",
     "snSeparateColor",
-    "snSeparateHSV",
-    "snSeparateRGB",
     "snSeparateXYZ",
     "snShaderToRGB",
     "snSqueeze",
@@ -286,7 +272,6 @@ __all__ = [
     "snTexImage",
     "snTexMagic",
     "snTexNoise",
-    "snTexPointDensity",
     "snTexSky",
     "snTexVoronoi",
     "snTexWave",

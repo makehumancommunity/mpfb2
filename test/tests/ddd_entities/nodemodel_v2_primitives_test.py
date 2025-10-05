@@ -27,8 +27,6 @@ snBump = dynamic_import("mpfb.entities.nodemodel.v2", "snBump")
 snCameraData = dynamic_import("mpfb.entities.nodemodel.v2", "snCameraData")
 snClamp = dynamic_import("mpfb.entities.nodemodel.v2", "snClamp")
 snCombineColor = dynamic_import("mpfb.entities.nodemodel.v2", "snCombineColor")
-snCombineHSV = dynamic_import("mpfb.entities.nodemodel.v2", "snCombineHSV")
-snCombineRGB = dynamic_import("mpfb.entities.nodemodel.v2", "snCombineRGB")
 snCombineXYZ = dynamic_import("mpfb.entities.nodemodel.v2", "snCombineXYZ")
 snDisplacement = dynamic_import("mpfb.entities.nodemodel.v2", "snDisplacement")
 snEeveeSpecular = dynamic_import("mpfb.entities.nodemodel.v2", "snEeveeSpecular")
@@ -66,8 +64,6 @@ snRGBCurve = dynamic_import("mpfb.entities.nodemodel.v2", "snRGBCurve")
 snRGBToBW = dynamic_import("mpfb.entities.nodemodel.v2", "snRGBToBW")
 snScript = dynamic_import("mpfb.entities.nodemodel.v2", "snScript")
 snSeparateColor = dynamic_import("mpfb.entities.nodemodel.v2", "snSeparateColor")
-snSeparateHSV = dynamic_import("mpfb.entities.nodemodel.v2", "snSeparateHSV")
-snSeparateRGB = dynamic_import("mpfb.entities.nodemodel.v2", "snSeparateRGB")
 snSeparateXYZ = dynamic_import("mpfb.entities.nodemodel.v2", "snSeparateXYZ")
 snShaderToRGB = dynamic_import("mpfb.entities.nodemodel.v2", "snShaderToRGB")
 snSqueeze = dynamic_import("mpfb.entities.nodemodel.v2", "snSqueeze")
@@ -84,7 +80,6 @@ snTexMagic = dynamic_import("mpfb.entities.nodemodel.v2", "snTexMagic")
 if not SystemService.is_blender_version_at_least(version=[4, 1, 0]):
     snTexMusgrave = dynamic_import("mpfb.entities.nodemodel.v2", "snTexMusgrave")
 snTexNoise = dynamic_import("mpfb.entities.nodemodel.v2", "snTexNoise")
-snTexPointDensity = dynamic_import("mpfb.entities.nodemodel.v2", "snTexPointDensity")
 snTexSky = dynamic_import("mpfb.entities.nodemodel.v2", "snTexSky")
 snTexVoronoi = dynamic_import("mpfb.entities.nodemodel.v2", "snTexVoronoi")
 snTexWave = dynamic_import("mpfb.entities.nodemodel.v2", "snTexWave")
@@ -130,8 +125,6 @@ def test_primitives_are_available():
     assert snCameraData
     assert snClamp
     assert snCombineColor
-    assert snCombineHSV
-    assert snCombineRGB
     assert snCombineXYZ
     assert snDisplacement
     assert snEeveeSpecular
@@ -169,8 +162,6 @@ def test_primitives_are_available():
     assert snRGBToBW
     assert snScript
     assert snSeparateColor
-    assert snSeparateHSV
-    assert snSeparateRGB
     assert snSeparateXYZ
     assert snShaderToRGB
     assert snSqueeze
@@ -187,7 +178,6 @@ def test_primitives_are_available():
     if not SystemService.is_blender_version_at_least(version=[4, 1, 0]):
         assert snTexMusgrave
     assert snTexNoise
-    assert snTexPointDensity
     assert snTexSky
     assert snTexVoronoi
     assert snTexWave
@@ -426,26 +416,6 @@ def test_can_create_sncombinecolor():
     node = snCombineColor.create_instance(node_tree)
     assert node
     assert node.__class__.__name__ == "ShaderNodeCombineColor"
-    node_tree.nodes.remove(node)
-    NodeService.destroy_node_tree(node_tree)
-
-
-def test_can_create_sncombinehsv():
-    node_tree_name = ObjectService.random_name()
-    node_tree = NodeService.create_node_tree(node_tree_name)
-    node = snCombineHSV.create_instance(node_tree)
-    assert node
-    assert node.__class__.__name__ == "ShaderNodeCombineHSV"
-    node_tree.nodes.remove(node)
-    NodeService.destroy_node_tree(node_tree)
-
-
-def test_can_create_sncombinergb():
-    node_tree_name = ObjectService.random_name()
-    node_tree = NodeService.create_node_tree(node_tree_name)
-    node = snCombineRGB.create_instance(node_tree)
-    assert node
-    assert node.__class__.__name__ == "ShaderNodeCombineRGB"
     node_tree.nodes.remove(node)
     NodeService.destroy_node_tree(node_tree)
 
@@ -820,26 +790,6 @@ def test_can_create_snseparatecolor():
     NodeService.destroy_node_tree(node_tree)
 
 
-def test_can_create_snseparatehsv():
-    node_tree_name = ObjectService.random_name()
-    node_tree = NodeService.create_node_tree(node_tree_name)
-    node = snSeparateHSV.create_instance(node_tree)
-    assert node
-    assert node.__class__.__name__ == "ShaderNodeSeparateHSV"
-    node_tree.nodes.remove(node)
-    NodeService.destroy_node_tree(node_tree)
-
-
-def test_can_create_snseparatergb():
-    node_tree_name = ObjectService.random_name()
-    node_tree = NodeService.create_node_tree(node_tree_name)
-    node = snSeparateRGB.create_instance(node_tree)
-    assert node
-    assert node.__class__.__name__ == "ShaderNodeSeparateRGB"
-    node_tree.nodes.remove(node)
-    NodeService.destroy_node_tree(node_tree)
-
-
 def test_can_create_snseparatexyz():
     node_tree_name = ObjectService.random_name()
     node_tree = NodeService.create_node_tree(node_tree_name)
@@ -988,16 +938,6 @@ def test_can_create_sntexnoise():
     node = snTexNoise.create_instance(node_tree)
     assert node
     assert node.__class__.__name__ == "ShaderNodeTexNoise"
-    node_tree.nodes.remove(node)
-    NodeService.destroy_node_tree(node_tree)
-
-
-def test_can_create_sntexpointdensity():
-    node_tree_name = ObjectService.random_name()
-    node_tree = NodeService.create_node_tree(node_tree_name)
-    node = snTexPointDensity.create_instance(node_tree)
-    assert node
-    assert node.__class__.__name__ == "ShaderNodeTexPointDensity"
     node_tree.nodes.remove(node)
     NodeService.destroy_node_tree(node_tree)
 
