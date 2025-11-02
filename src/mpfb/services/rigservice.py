@@ -969,7 +969,7 @@ class RigService:
             ["thumb_01_l", "breast_l", "game_engine_with_breast"],
             ["RThumb", "cmu_mb"],
             ["mixamo:Hips", "mixamo"],
-            ["mixamorig:LeftHandThumb1", "mixamorig:LeftBreast", "mixamo_extended"],
+            ["mixamorig:LeftHandThumb1", "mixamorig:LeftBreast", "mixamo_unity"],
             ["brow.T.R.002", "rigify.human"],
             ["brow.T.R.002", "toe2-1.L", "rigify.human_toes"],
             ["ORG-clavicle_l", "rigify_generated.game_engine"],
