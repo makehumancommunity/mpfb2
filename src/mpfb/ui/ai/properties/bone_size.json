@@ -1,0 +1,7 @@
+{
+    "type": "float",
+    "name": "bone_size",
+    "description": "Radius for the added bones. This should be adjusted to fit the scale of the character and how far away it is in the image",
+    "label": "Bone size",
+    "default": 0.015
+}

@@ -20,15 +20,24 @@ class MPFB_PT_Ai_Panel(Abstract_Panel):
     bl_options = {'DEFAULT_CLOSED'}
     bl_parent_id = "MPFB_PT_Operations_Panel"
 
+    def _visible_bones(self, scene, layout):
+        box = self._create_box(layout, "Rig add visible bones")
+        props = [
+            "bone_size",
+            "joint_size"
+            ]
+        AI_PROPERTIES.draw_properties(scene, box, props)
+        box.operator("mpfb.openpose_visible_bones")
+
     def _mode(self, scene, layout):
-        box = self._create_box(layout, "Projection mode")
+        box = self._create_box(layout, "JSON Projection mode")
         props = [
             "mode",
             ]
         AI_PROPERTIES.draw_properties(scene, box, props)
 
     def _parts(self, scene, layout):
-        box = self._create_box(layout, "OpenPose structures")
+        box = self._create_box(layout, "JSON OpenPose structures")
         props = [
             #"bodyformat",
             "hands",
@@ -39,7 +48,7 @@ class MPFB_PT_Ai_Panel(Abstract_Panel):
         AI_PROPERTIES.draw_properties(scene, box, props)
 
     def _confidence(self, scene, layout):
-        box = self._create_box(layout, "Confidence levels")
+        box = self._create_box(layout, "JSON Confidence levels")
         props = [
             "highconfidence",
             "mediumconfidence",
@@ -48,11 +57,11 @@ class MPFB_PT_Ai_Panel(Abstract_Panel):
         AI_PROPERTIES.draw_properties(scene, box, props)
 
     def _camera(self, scene, layout):
-        box = self._create_box(layout, "Export")
+        box = self._create_box(layout, "JSON Export")
         box.operator("mpfb.save_openpose")
 
     def _bounds(self, scene, layout):
-        box = self._create_box(layout, "Bounding box")
+        box = self._create_box(layout, "JSON Bounding box")
         props = [
             "minx",
             "maxx",
@@ -63,7 +72,7 @@ class MPFB_PT_Ai_Panel(Abstract_Panel):
         box.operator("mpfb.boundingbox")
 
     def _xz(self, scene, layout):
-        box = self._create_box(layout, "Export")
+        box = self._create_box(layout, "JSON Export")
         props = [
             "resx",
             "resy"
@@ -79,6 +88,7 @@ class MPFB_PT_Ai_Panel(Abstract_Panel):
         scene = context.scene
         mode = AI_PROPERTIES.get_value("mode", entity_reference=scene)
 
+        self._visible_bones(scene, layout)
         self._mode(scene, layout)
         self._parts(scene, layout)
         self._confidence(scene, layout)
