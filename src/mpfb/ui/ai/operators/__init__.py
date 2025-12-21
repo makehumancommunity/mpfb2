@@ -7,9 +7,11 @@ _LOG.trace("initializing ai operators")
 from .saveopenpose import MPFB_OT_Save_Openpose_Operator
 from .boundingbox import MPFB_OT_Boundingbox_Operator
 from .addvisiblebones import MPFB_OT_OpenPose_Visible_Bones_Operator
+from .scenesettings import MPFB_OT_OpenPose_Scene_Settings_Operator
 
 __all__ = [
     "MPFB_OT_Save_Openpose_Operator",
     "MPFB_OT_Boundingbox_Operator",
-    "MPFB_OT_OpenPose_Visible_Bones_Operator"
+    "MPFB_OT_OpenPose_Visible_Bones_Operator",
+    "MPFB_OT_OpenPose_Scene_Settings_Operator"
     ]

@@ -1,0 +1,7 @@
+{
+    "type": "boolean",
+    "name": "color",
+    "description": "Change the color management to standard (sRGB) for rendering",
+    "label": "Set color management",
+    "default": true
+}

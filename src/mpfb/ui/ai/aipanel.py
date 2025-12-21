@@ -29,6 +29,18 @@ class MPFB_PT_Ai_Panel(Abstract_Panel):
         AI_PROPERTIES.draw_properties(scene, box, props)
         box.operator("mpfb.openpose_visible_bones")
 
+    def _visible_bones_scene(self, scene, layout):
+        box = self._create_box(layout, "Visible bones scene settings")
+        props = [
+            "background",
+            "view",
+            "render",
+            "color",
+            "hide"
+            ]
+        AI_PROPERTIES.draw_properties(scene, box, props)
+        box.operator("mpfb.openpose_scene_settings")
+
     def _mode(self, scene, layout):
         box = self._create_box(layout, "JSON Projection mode")
         props = [
@@ -89,6 +101,7 @@ class MPFB_PT_Ai_Panel(Abstract_Panel):
         mode = AI_PROPERTIES.get_value("mode", entity_reference=scene)
 
         self._visible_bones(scene, layout)
+        self._visible_bones_scene(scene, layout)
         self._mode(scene, layout)
         self._parts(scene, layout)
         self._confidence(scene, layout)
