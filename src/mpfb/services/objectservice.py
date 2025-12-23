@@ -91,6 +91,11 @@ class ObjectService:
         context.view_layer.objects.active = object_to_make_active
 
     @staticmethod
+    def select_object(obj):
+        """Selects an object an makes it active."""
+        bpy.context.view_layer.objects.active = obj
+
+    @staticmethod
     def deselect_and_deactivate_all():
         """Make sure no object is selected nor active."""
         if bpy.context.object:
