@@ -1,0 +1,7 @@
+{
+    "type": "float",
+    "name": "joint_size",
+    "description": "Radius for the added joints. This should be adjusted to fit the scale of the character and how far away it is in the image",
+    "label": "Joint size",
+    "default": 0.02
+}

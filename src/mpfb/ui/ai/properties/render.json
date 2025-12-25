@@ -1,0 +1,7 @@
+{
+    "type": "boolean",
+    "name": "render",
+    "description": "Change render engine to 'workbench'",
+    "label": "Change engine",
+    "default": true
+}

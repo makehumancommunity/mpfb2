@@ -1,0 +1,7 @@
+{
+    "type": "boolean",
+    "name": "background",
+    "description": "Change viewport background to black",
+    "label": "Change background",
+    "default": true
+}

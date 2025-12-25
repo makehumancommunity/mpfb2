@@ -15,6 +15,7 @@
         ["mixamo", "Mixamo", "Use the mixamo rig", 8],
         ["mixamo_unity", "Mixamo (unity extensions)", "The Mixamo rig with extra bones for unity", 9],
         ["rigify.human_toes", "Rigify default metarig", "Use the default rigify metarig. See the rigging panel for generating the final rigify rig", 10],
-        ["rigify.human", "Rigify metarig without toes", "Use the default rigify metarig without toes. See the rigging panel for generating the final rigify rig", 11]
+        ["rigify.human", "Rigify metarig without toes", "Use the default rigify metarig without toes. See the rigging panel for generating the final rigify rig", 11],
+        ["openpose", "OpenPose", "Use the OpenPose BODY_25 rig (without hands)", 12]
     ]
 }
