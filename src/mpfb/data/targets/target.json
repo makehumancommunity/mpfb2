@@ -1200,6 +1200,14 @@
                 "has_left_and_right": true,
                 "label": "eye-eyefold-concave-convex",
                 "name": "eye-eyefold-concave-convex",
+                "opposites": {
+                    "negative-left": "l-eye-eyefold-concave",
+                    "negative-right": "r-eye-eyefold-concave",
+                    "negative-unsided": "",
+                    "positive-left": "l-eye-eyefold-convex",
+                    "positive-right": "r-eye-eyefold-convex",
+                    "positive-unsided": ""
+                },
                 "targets": [
                     "r-eye-eyefold-concave",
                     "r-eye-eyefold-convex",
