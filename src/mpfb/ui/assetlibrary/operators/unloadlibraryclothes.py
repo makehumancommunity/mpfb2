@@ -54,8 +54,12 @@ class MPFB_OT_Unload_Library_Clothes_Operator(bpy.types.Operator):
         if not asset:
             self.report({'ERROR'}, "Could not find asset?")
             return {'FINISHED'}
+        
+        parent = basemesh.parent
 
         HumanService.unload_mhclo_asset(basemesh, asset)
+
+        ObjectService.select_object(parent)
 
         #_LOG.debug("Will call add_mhclo_asset: (asset_type, material_type)", (self.object_type, self.material_type))
         #HumanService.add_mhclo_asset(self.filepath, basemesh, asset_type=self.object_type, subdiv_levels=subdiv_levels, material_type=self.material_type)
