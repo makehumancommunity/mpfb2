@@ -92,8 +92,8 @@ class ObjectService:
 
     @staticmethod
     def select_object(obj):
-        """Selects an object an makes it active."""
-        bpy.context.view_layer.objects.active = obj
+        """Selects an object an makes it active. This is a convenience alias for activate_blender_object."""
+        ObjectService.activate_blender_object(obj, deselect_all=True)
 
     @staticmethod
     def deselect_and_deactivate_all():

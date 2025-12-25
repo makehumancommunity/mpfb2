@@ -457,6 +457,26 @@ class AssetService:
         return False
 
     @staticmethod
+    def check_if_modern_makehuman_system_assets_installed():
+        """Check if the makehuman system assets pack is installed in the user data directory. Also
+        check whether the brown.mhmat file is installed. If the latter isn't available, then this is an
+        indication that the user has a very old version of the makehuman system assets pack installed.
+
+        Returns:
+            tuple(bool,bool): First is true if the system assets pack is installed, False otherwise. Second is True if the brown.mhmat file is installed, False otherwise.
+        """
+
+        pack_path = os.path.join(LocationService.get_user_data("packs"), "makehuman_system_assets.json")
+        system_assets_pack_installed = os.path.exists(pack_path)
+        _LOG.debug("System assets pack installed?", (pack_path, system_assets_pack_installed))
+
+        eyes_path = os.path.join(LocationService.get_user_data("eyes"), "materials", "brown.mhmat")
+        brown_mhmat_installed = os.path.exists(eyes_path)
+        _LOG.debug("Brown.mhmat installed?", (eyes_path, brown_mhmat_installed))
+
+        return system_assets_pack_installed, brown_mhmat_installed
+
+    @staticmethod
     def rescan_pack_metadata():
         """
         Load pack metadata from JSON files in the packs directory.

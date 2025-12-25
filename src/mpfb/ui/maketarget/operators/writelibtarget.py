@@ -43,6 +43,10 @@ class MPFB_OT_WriteLibTargetOperator(bpy.types.Operator):
     def execute(self, context):
         blender_object = context.active_object
 
+        if blender_object.mode != "OBJECT":
+            self.report({'ERROR'}, "Must be in object mode to save target file")
+            return {'FINISHED'}
+
         expected_name = MakeTargetObjectProperties.get_value("name", entity_reference=blender_object)
         if not expected_name:
             self.report({'ERROR'}, "Must specify the name of the target")

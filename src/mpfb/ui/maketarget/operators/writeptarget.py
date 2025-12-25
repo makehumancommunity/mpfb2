@@ -40,12 +40,18 @@ class MPFB_OT_WritePtargetOperator(bpy.types.Operator, ExportHelper):
 
     def invoke(self, context, event):
         blender_object = context.active_object
+
         name = MakeTargetObjectProperties.get_value("name", entity_reference=blender_object)
         self.filepath = bpy.path.clean_name(name, replace="-") + ".ptarget"
         return super().invoke(context, event)
 
     def execute(self, context):
         blender_object = context.active_object
+
+        if blender_object.mode != "OBJECT":
+            self.report({'ERROR'}, "Must be in object mode to save target file")
+            return {'FINISHED'}
+
         info = TargetService.get_shape_key_as_dict(blender_object, "PrimaryTarget")
 
         _LOG.dump("Shape key", info)

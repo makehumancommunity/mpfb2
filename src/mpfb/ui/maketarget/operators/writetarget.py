@@ -46,6 +46,11 @@ class MPFB_OT_WriteTargetOperator(bpy.types.Operator, ExportHelper):
 
     def invoke(self, context, event):
         blender_object = context.active_object
+
+        if blender_object.mode != "OBJECT":
+            self.report({'ERROR'}, "Must be in object mode to save target file")
+            return {'FINISHED'}
+
         name = MakeTargetObjectProperties.get_value("name", entity_reference=blender_object)
         self.filepath = bpy.path.clean_name(name, replace="-") + ".target"
         return super().invoke(context, event)

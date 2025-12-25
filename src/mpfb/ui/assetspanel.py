@@ -38,9 +38,35 @@ class MPFB_PT_Assets_Panel(Abstract_Panel):
     bl_label = "Apply assets"
     bl_category = UiService.get_value("MATERIALSCATEGORY")
 
+    def system_assets(self, layout):
+        (has_sys_assets, modern_sys_assets) = AssetService.check_if_modern_makehuman_system_assets_installed()
+        _LOG.debug("has_sys_assets", (has_sys_assets, modern_sys_assets))
+
+        if has_sys_assets and modern_sys_assets:
+            return
+        box = layout.box()
+        box.label(text="NOTE ABOUT SYSTEM ASSETS")
+        box.label(text="")
+        if not has_sys_assets:
+            box.label(text="It seems the makehuman system assets")
+            box.label(text="have not been installed. You will")
+            box.label(text="likely want these before trying to load")
+            box.label(text="any assets")
+            return
+        if not modern_sys_assets:
+            box.label(text="While the makehuman system assets")
+            box.label(text="are installed, it seems you are using")
+            box.label(text="a rather old version. You might want")
+            box.label(text="to download and reinstall the latest")
+            box.label(text="version of the makehuman system assets")
+            box.label(text="if you encounter problems.")
+
     def draw(self, context):
         _LOG.enter()
         layout = self.layout
+
+        self.system_assets(layout)
+
         box = layout.box()
         box.label(text="Filter")
         show_props = ["filter"]

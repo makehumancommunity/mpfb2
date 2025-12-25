@@ -1,0 +1,7 @@
+{
+    "type": "boolean",
+    "name": "view",
+    "description": "Change view mode to render",
+    "label": "Set view mode",
+    "default": true
+}

@@ -78,3 +78,8 @@ def test_identify_rig():
     ObjectService.delete_object(basemesh)
     ObjectService.delete_object(rig)
 
+def test_add_path_object_to_bone():
+    """RigService.add_path_object_to_bone()"""
+    (basemesh, rig) = _create_human_with_rig()
+    curve_object = RigService.add_path_object_to_bone(rig, "spine05")
+
