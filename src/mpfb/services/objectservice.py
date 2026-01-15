@@ -195,6 +195,27 @@ class ObjectService:
             object_to_link.parent = parent
 
     @staticmethod
+    def duplicate_blender_object(object_to_copy, collection=None, parent=None):
+        """Duplicate a blender, including duplicating its data. Optionally link object to a collection, optionally also assigning a parent object"""
+        if object_to_copy is None:
+            return
+
+        new_object = object_to_copy.copy()
+        if hasattr(object_to_copy, "data") and object_to_copy.data is not None:
+            new_object.data = object_to_copy.data.copy()
+
+        if collection is None:
+            collection = bpy.context.collection
+        collection.objects.link(new_object)
+
+        _LOG.debug("new_object", new_object)
+        _LOG.debug("parent", parent)
+        if parent:
+            new_object.parent = parent
+
+        return new_object
+
+    @staticmethod
     def get_list_of_children(parent_object):
         """Return list with objects whose parent property is set to parent_object."""
         children = []
