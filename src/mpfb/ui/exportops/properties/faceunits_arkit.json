@@ -1,0 +1,7 @@
+{
+    "type": "boolean",
+    "name": "faceunits_arkit",
+    "description": "Load arkit-style faceunits. If baking shapekeys, this will be done after the bake",
+    "label": "Load arkit-style faceunits",
+    "default": false
+}

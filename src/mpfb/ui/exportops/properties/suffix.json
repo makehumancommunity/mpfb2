@@ -1,0 +1,7 @@
+{
+    "type": "string",
+    "name": "suffix",
+    "description": "String to add to the name of each object cope",
+    "label": "Suffix",
+    "default": "_export_copy"
+}

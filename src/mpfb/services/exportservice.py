@@ -6,19 +6,39 @@ and animations. This module provides a set of tools to create character copies w
 otherwise managed.
 """
 
-import os, gzip, bpy, json, random, re
-from itertools import count
-from pathlib import Path
+import bpy
 from .logservice import LogService
-from .assetservice import AssetService
-from .locationservice import LocationService
+from .targetservice import TargetService
 from .objectservice import ObjectService
-from ..entities.objectproperties import GeneralObjectProperties
-from ..entities.objectproperties import HumanObjectProperties
-from ..entities.primitiveprofiler import PrimitiveProfiler
 
 _LOG = LogService.get_logger("services.exportservice")
 _LOG.set_level(LogService.DEBUG)
+
+META_VISEMES = [
+    "aa_02",
+    "aa_ah_ax_01",
+    "ao_03",
+    "aw_09",
+    "ay_11",
+    "d_t_n_19",
+    "er_05",
+    "ey_eh_uh_04",
+    "f_v_18",
+    "h_12",
+    "k_g_ng_20",
+    "l_14",
+    "ow_08",
+    "oy_10",
+    "p_b_m_21",
+    "r_13",
+    "sh_ch_jh_zh_16",
+    "sil_00",
+    "s_z_15",
+    "th_dh_17",
+    "w_uw_07",
+    "y_iy_ih_ix_06"
+    ]
+
 
 class ExportService:
     """The ExportService class serves as a utility class for staging characters for export.
@@ -68,11 +88,31 @@ class ExportService:
 
         for child in children:
             _LOG.debug("Child", child)
-            ObjectService.duplicate_blender_object(child, collection=place_in_collection, parent=new_root)
+            name = child.name + name_suffix
+            duplicated_child = ObjectService.duplicate_blender_object(child, collection=place_in_collection, parent=new_root)
+            duplicated_child.name = name
             if new_root.type == 'ARMATURE':
                 # We need to make sure that any armature modifier on the child is pointed to the new root
-                modifier = child.modifiers.get("Armature") # Assuming there's only one armature modifier
+                modifier = duplicated_child.modifiers.get("Armature") # Assuming there's only one armature modifier
                 if modifier:
                     modifier.object = new_root
 
         return new_root
+
+    @staticmethod
+    def load_targets(basemesh, load_meta_visemes=True, load_microsoft_visemes=False, load_arkit_faceunits=False):
+        """Bulk load targets, if installed. Will raise exception if target asset pack is not installed."""
+        _LOG.enter()
+
+        target_stack = []
+        if load_meta_visemes:
+            for target in META_VISEMES:
+                _LOG.debug("Adding target", target)
+                target_stack.append(
+                    {
+                        "target": target,
+                        "value": 0.0
+                    })
+
+        if len(target_stack) > 0:
+            TargetService.bulk_load_targets(basemesh, target_stack)
