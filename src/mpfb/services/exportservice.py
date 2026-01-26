@@ -14,7 +14,7 @@ from .objectservice import ObjectService
 _LOG = LogService.get_logger("services.exportservice")
 _LOG.set_level(LogService.DEBUG)
 
-META_VISEMES = [
+MICROSOFT_VISEMES = [
     "aa_02",
     "aa_ah_ax_01",
     "ao_03",
@@ -100,13 +100,13 @@ class ExportService:
         return new_root
 
     @staticmethod
-    def load_targets(basemesh, load_meta_visemes=True, load_microsoft_visemes=False, load_arkit_faceunits=False):
+    def load_targets(basemesh, load_microsoft_visemes=True, load_meta_visemes=False, load_arkit_faceunits=False):
         """Bulk load targets, if installed. Will raise exception if target asset pack is not installed."""
         _LOG.enter()
 
         target_stack = []
-        if load_meta_visemes:
-            for target in META_VISEMES:
+        if load_microsoft_visemes:
+            for target in MICROSOFT_VISEMES:
                 _LOG.debug("Adding target", target)
                 target_stack.append(
                     {
@@ -116,3 +116,123 @@ class ExportService:
 
         if len(target_stack) > 0:
             TargetService.bulk_load_targets(basemesh, target_stack)
+
+    @staticmethod
+    def bake_shapekeys_modifiers_remove_helpers(basemesh, bake_shapekeys=True, bake_masks=False, bake_subdiv=False, remove_helpers=True, also_proxy=True):
+        """Bakes shape keys, modifiers and optionally remove helpers.
+
+        Args:
+        - basemesh (bpy.types.Object): The object to bake shape keys, masks, and subdivision modifiers for.
+        - bake_shapekeys (bool): Whether to bake shape keys.
+        - bake_masks (bool): Whether to bake masks.
+        - bake_subdiv (bool): Whether to bake subdivision modifiers.
+        - remove_helpers (bool): Whether to remove helper geometry
+        - also_proxy (bool): Whether to also bake on the body proxy if it exists.
+        """
+
+        _LOG.enter()
+
+        if not TargetService.has_any_shapekey(basemesh):
+            _LOG.debug("No shapekeys to bake")
+            bake_shapekeys = False
+
+        if (bake_masks or bake_subdiv) and not bake_shapekeys:
+            # TODO: Support baking masks and subdivision modifiers without baking shape keys
+            raise NotImplementedError("Baking masks and/or subdivision modifiers without baking shape keys is not implemented yet")
+
+        if bake_shapekeys:
+            _LOG.debug("Baking shape keys")
+            TargetService.bake_targets(basemesh)
+
+        helpers_removed_by_modifier = False
+
+        bpy.context.view_layer.objects.active = basemesh
+
+        for modifier in basemesh.modifiers:
+            if modifier.type == 'MASK' and bake_masks:
+                print(modifier.vertex_group)
+
+                if modifier.vertex_group == "body" and not modifier.invert_vertex_group:
+                    # This is the modifier that hides helper geometry
+                    bpy.ops.object.modifier_apply(modifier=modifier.name)
+                    helpers_removed_by_modifier = True
+                else:
+                    if modifier.vertex_group == "body" and modifier.invert_vertex_group:
+                        # This is the modifier that hides the body if there is a proxy. It does not make much
+                        # sense to keep this if we're baking masks, but it doesn't make sense to bake it either
+                        basemesh.modifiers.remove(modifier)
+                    else:
+                        # This is probably a clothes delete group
+                        bpy.ops.object.modifier_apply(modifier=modifier.name)
+
+            if modifier.type == 'SUBSURF' and bake_subdiv:
+                modifier.levels = modifier.render_levels
+                if modifier.levels == 0:
+                    basemesh.modifiers.remove(modifier)
+                else:
+                    bpy.ops.object.modifier_apply(modifier=modifier.name)
+
+        if remove_helpers and not helpers_removed_by_modifier:
+            bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
+
+            ExportService._delete_vertex_group(basemesh, "HelperGeometry")
+            ExportService._delete_vertex_group(basemesh, "JointCubes")
+
+            for modifier in basemesh.modifiers:
+                if modifier.type == 'MASK' and modifier.vertex_group == 'body' and not modifier.invert_vertex_group:
+                    basemesh.modifiers.remove(modifier)
+
+            if not bake_shapekeys:
+                TargetService.reapply_all_details(basemesh)
+
+            basemesh.select_set(True)
+            ObjectService.activate_blender_object(basemesh)
+
+            for group in basemesh.vertex_groups:
+                _LOG.debug("group name", group.name)
+                if group.name.startswith("helper-") or group.name.startswith("joint-") or group.name in ["Mid", "Left", "Right"]:
+                    basemesh.vertex_groups.remove(group)
+
+    @staticmethod
+    def _delete_vertex_group(blender_object, vgroup_name):
+
+        context = bpy.context
+
+        _LOG.debug("Deleting vertex groups", (blender_object, vgroup_name))
+        bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
+        bpy.ops.object.select_all(action='DESELECT')
+        context.view_layer.objects.active = blender_object
+        blender_object.select_set(True)
+        bpy.ops.object.mode_set(mode='EDIT', toggle=False)
+        bpy.ops.mesh.select_all(action='DESELECT')
+        bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
+
+        group_idx = None
+        for group in blender_object.vertex_groups:
+            _LOG.dump("group name", group.name)
+            if vgroup_name in group.name:
+                group_idx = group.index
+        _LOG.dump("group index", group_idx)
+
+        for vertex in blender_object.data.vertices:
+            vertex.select = False
+            for group in vertex.groups:
+                if group.group == group_idx:
+                    vertex.select = True
+            _LOG.dump("Vertex index, selected", (vertex.index, vertex.select))
+
+        bpy.ops.object.mode_set(mode='EDIT', toggle=False)
+        bpy.ops.mesh.delete(type='VERT')
+        bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
+        blender_object.select_set(False)
+
+        # Re-query the vertex group after mesh topology changes
+        group_to_remove = None
+        for group in blender_object.vertex_groups:
+            if vgroup_name in group.name:
+                group_to_remove = group
+                break
+
+        if group_to_remove:
+            _LOG.debug("Deleting vertex group", group_to_remove)
+            blender_object.vertex_groups.remove(group_to_remove)

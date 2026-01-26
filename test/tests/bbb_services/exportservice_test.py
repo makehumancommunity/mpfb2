@@ -3,7 +3,7 @@ from pytest import approx
 from .. import ObjectService
 from .. import HumanService
 from .. import ExportService
-from .. import MaterialService
+from .. import TargetService
 from .. import LocationService
 
 HUMAN_PRESET_DICT = {
@@ -61,8 +61,68 @@ def create_sample_human():
     basemesh = HumanService.deserialize_from_dict(human_info, deserialization_settings)
     return basemesh
 
+def remove_character_copy(character_copy):
+    """Remove a character copy from the scene"""
+    if character_copy is None:
+        return
+    if character_copy.parent is None:
+        obj = character_copy
+    else:
+        obj = character_copy.parent
+
+    for child in ObjectService.get_list_of_children(obj):
+        ObjectService.delete_object(child)
+    ObjectService.delete_object(obj)
+
 def test_create_character_copy():
     """ExportService.create_character_copy()"""
     basemesh = create_sample_human()
     character_copy = ExportService.create_character_copy(basemesh)
     assert character_copy is not None, "Character copy created successfully"
+    remove_character_copy(character_copy)
+
+# def bake_shapekeys_modifiers_remove_helpers(basemesh, bake_shapekeys=True, bake_masks=False, bake_subdiv=False, remove_helpers=True, also_proxy=True):
+
+def test_bake_shapekeys_and_modifiers():
+    """ExportService.bake_shapekeys_modifiers_remove_helpers()"""
+    basemesh = create_sample_human()
+    character_copy = ExportService.create_character_copy(basemesh)
+    new_basemesh = ObjectService.find_object_of_type_amongst_nearest_relatives(character_copy)
+
+    has_mask_modifier = False
+    has_subdiv_modifier = False
+
+    for modifier in new_basemesh.modifiers:
+        #print(modifier)
+        if modifier.type == 'MASK':
+            has_mask_modifier = True
+        elif modifier.type == 'SUBSURF':
+            has_subdiv_modifier = True
+
+    assert has_mask_modifier
+    assert has_subdiv_modifier
+    assert TargetService.has_any_shapekey(new_basemesh)
+
+    ExportService.bake_shapekeys_modifiers_remove_helpers(
+        new_basemesh,
+        bake_shapekeys=True,
+        bake_masks=True,
+        bake_subdiv=True,
+        remove_helpers=False,
+        also_proxy=False)
+
+    has_mask_modifier = False
+    has_subdiv_modifier = False
+
+    for modifier in new_basemesh.modifiers:
+        print(modifier)
+        if modifier.type == 'MASK':
+            has_mask_modifier = True
+        elif modifier.type == 'SUBSURF':
+            has_subdiv_modifier = True
+
+    assert not has_mask_modifier
+    assert not has_subdiv_modifier
+    assert not TargetService.has_any_shapekey(new_basemesh)
+
+    remove_character_copy(character_copy)

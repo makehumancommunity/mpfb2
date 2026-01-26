@@ -17,47 +17,6 @@ class MPFB_OT_Create_Export_Copy_Operator(MpfbOperator):
     bl_label = "Create export copy"
     bl_options = {'REGISTER'}
 
-    def _delete_vertex_group(self, context, blender_object, vgroup_name):
-
-        _LOG.debug("Deleting vertex groups", (blender_object, vgroup_name))
-        bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
-        bpy.ops.object.select_all(action='DESELECT')
-        context.view_layer.objects.active = blender_object
-        blender_object.select_set(True)
-        bpy.ops.object.mode_set(mode='EDIT', toggle=False)
-        bpy.ops.mesh.select_all(action='DESELECT')
-        bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
-
-        group_idx = None
-        for group in blender_object.vertex_groups:
-            _LOG.dump("group name", group.name)
-            if vgroup_name in group.name:
-                group_idx = group.index
-        _LOG.dump("group index", group_idx)
-
-        for vertex in blender_object.data.vertices:
-            vertex.select = False
-            for group in vertex.groups:
-                if group.group == group_idx:
-                    vertex.select = True
-            _LOG.dump("Vertex index, selected", (vertex.index, vertex.select))
-
-        bpy.ops.object.mode_set(mode='EDIT', toggle=False)
-        bpy.ops.mesh.delete(type='VERT')
-        bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
-        blender_object.select_set(False)
-
-        # Re-query the vertex group after mesh topology changes
-        group_to_remove = None
-        for group in blender_object.vertex_groups:
-            if vgroup_name in group.name:
-                group_to_remove = group
-                break
-
-        if group_to_remove:
-            _LOG.debug("Deleting vertex group", group_to_remove)
-            blender_object.vertex_groups.remove(group_to_remove)
-
     @classmethod
     def poll(self, context):
         obj = context.object
@@ -88,6 +47,9 @@ class MPFB_OT_Create_Export_Copy_Operator(MpfbOperator):
         suffix = EXPORTOPS_PROPERTIES.get_value("suffix", entity_reference=scene)
         create_collection = EXPORTOPS_PROPERTIES.get_value("collection", entity_reference=scene)
         visemes_meta = EXPORTOPS_PROPERTIES.get_value("visemes_meta", entity_reference=scene)
+        visemes_microsoft = EXPORTOPS_PROPERTIES.get_value("visemes_microsoft", entity_reference=scene)
+        mask_modifiers = EXPORTOPS_PROPERTIES.get_value("mask_modifiers", entity_reference=scene)
+        subdiv_modifiers = EXPORTOPS_PROPERTIES.get_value("subdiv_modifiers", entity_reference=scene)
 
         if create_collection:
             if "export copy" not in bpy.data.collections:
@@ -103,33 +65,22 @@ class MPFB_OT_Create_Export_Copy_Operator(MpfbOperator):
         export_copy = ExportService.create_character_copy(basemesh, name_suffix=suffix, place_in_collection=collection)
         new_basemesh = ObjectService.find_object_of_type_amongst_nearest_relatives(export_copy)
 
-        if bake_shapekeys:
-            TargetService.bake_targets(new_basemesh)
+        ExportService.bake_shapekeys_modifiers_remove_helpers(
+            basemesh, bake_shapekeys=bake_shapekeys,
+            bake_masks=mask_modifiers,
+            bake_subdiv=subdiv_modifiers,
+            remove_helpers=delete_helpers,
+            also_proxy=True)
 
-        if visemes_meta:
-            ExportService.load_targets(new_basemesh)
+        if visemes_meta or visemes_microsoft:
+            ExportService.load_targets(
+                new_basemesh,
+                load_microsoft_visemes=visemes_microsoft,
+                load_meta_visemes=visemes_meta,
+                load_arkit_faceunits=False) # TODO: Add support for ARKit faceunits
 
         if delete_helpers:
             context.view_layer.objects.active = new_basemesh
-            bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
-
-            self._delete_vertex_group(context, new_basemesh, "HelperGeometry")
-            self._delete_vertex_group(context, new_basemesh, "JointCubes")
-
-            for modifier in new_basemesh.modifiers:
-                if modifier.type == 'MASK' and modifier.vertex_group == 'body':
-                    new_basemesh.modifiers.remove(modifier)
-
-            if not bake_shapekeys:
-                TargetService.reapply_all_details(new_basemesh)
-
-            new_basemesh.select_set(True)
-            ObjectService.activate_blender_object(new_basemesh)
-
-            for group in new_basemesh.vertex_groups:
-                _LOG.debug("group name", group.name)
-                if group.name.startswith("helper-") or group.name.startswith("joint-") or group.name in ["Mid", "Left", "Right"]:
-                    new_basemesh.vertex_groups.remove(group)
 
         if remove_basemesh:
             ObjectService.delete_object(new_basemesh)
