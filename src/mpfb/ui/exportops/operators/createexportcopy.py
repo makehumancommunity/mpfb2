@@ -51,6 +51,20 @@ class MPFB_OT_Create_Export_Copy_Operator(MpfbOperator):
         mask_modifiers = EXPORTOPS_PROPERTIES.get_value("mask_modifiers", entity_reference=scene)
         subdiv_modifiers = EXPORTOPS_PROPERTIES.get_value("subdiv_modifiers", entity_reference=scene)
 
+        _LOG.debug("settings", {
+            "bake_shapekeys": bake_shapekeys,
+            "remove_basemesh": remove_basemesh,
+            "delete_helpers": delete_helpers,
+            "suffix": suffix,
+            "create_collection": create_collection,
+            "visemes_meta": visemes_meta,
+            "visemes_microsoft": visemes_microsoft,
+            "mask_modifiers": mask_modifiers,
+            "subdiv_modifiers": subdiv_modifiers})
+
+        bake_masks = mask_modifiers == "BAKE"
+        bake_subdiv = subdiv_modifiers == "BAKE"
+
         if create_collection:
             if "export copy" not in bpy.data.collections:
                 collection = bpy.data.collections.new("export copy")
@@ -66,11 +80,13 @@ class MPFB_OT_Create_Export_Copy_Operator(MpfbOperator):
         new_basemesh = ObjectService.find_object_of_type_amongst_nearest_relatives(export_copy)
 
         ExportService.bake_shapekeys_modifiers_remove_helpers(
-            basemesh, bake_shapekeys=bake_shapekeys,
-            bake_masks=mask_modifiers,
-            bake_subdiv=subdiv_modifiers,
+            new_basemesh, bake_shapekeys=bake_shapekeys,
+            bake_masks=bake_masks,
+            bake_subdiv=bake_subdiv,
             remove_helpers=delete_helpers,
             also_proxy=True)
+
+        # TODO: remove modifiers when setting is "REMOVE"
 
         if visemes_meta or visemes_microsoft:
             ExportService.load_targets(

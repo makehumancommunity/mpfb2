@@ -164,13 +164,13 @@ class ExportService:
                     else:
                         # This is probably a clothes delete group
                         bpy.ops.object.modifier_apply(modifier=modifier.name)
-
-            if modifier.type == 'SUBSURF' and bake_subdiv:
-                modifier.levels = modifier.render_levels
-                if modifier.levels == 0:
-                    basemesh.modifiers.remove(modifier)
-                else:
-                    bpy.ops.object.modifier_apply(modifier=modifier.name)
+            else:
+                if modifier.type == 'SUBSURF' and bake_subdiv:
+                    modifier.levels = modifier.render_levels
+                    if modifier.levels == 0:
+                        basemesh.modifiers.remove(modifier)
+                    else:
+                        bpy.ops.object.modifier_apply(modifier=modifier.name)
 
         if remove_helpers and not helpers_removed_by_modifier:
             bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
@@ -189,9 +189,13 @@ class ExportService:
             ObjectService.activate_blender_object(basemesh)
 
             for group in basemesh.vertex_groups:
-                _LOG.debug("group name", group.name)
+                _LOG.trace("group name", group.name)
                 if group.name.startswith("helper-") or group.name.startswith("joint-") or group.name in ["Mid", "Left", "Right"]:
                     basemesh.vertex_groups.remove(group)
+
+        if also_proxy:
+            # TODO: bake modifiers that affect the body proxy
+            pass
 
     @staticmethod
     def _delete_vertex_group(blender_object, vgroup_name):
