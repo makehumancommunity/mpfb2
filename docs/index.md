@@ -8,6 +8,7 @@ the [docs hierarchy](https://static.makehumancommunity.org/mpfb/docs.html) on th
 These describe the formats of files used by MPFB:
 
 - [MHCLO](fileformats/mhclo.md)
-
+- [MHMAT](fileformats/mhmat.md)
+- [Target](fileformats/target.md)
 
 
