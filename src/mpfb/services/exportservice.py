@@ -11,6 +11,7 @@ from .logservice import LogService
 from .targetservice import TargetService
 from .objectservice import ObjectService
 from .clothesservice import ClothesService
+from ..entities.clothes.mhclo import Mhclo
 
 _LOG = LogService.get_logger("services.exportservice")
 _LOG.set_level(LogService.DEBUG)
@@ -40,6 +41,25 @@ MICROSOFT_VISEMES = [
     "y_iy_ih_ix_06"
     ]
 
+META_VISEMES = [
+    "viseme_aa",
+    "viseme_CH",
+    "viseme_DD",
+    "viseme_E",
+    "viseme_FF",
+    "viseme_I",
+    "viseme_kk",
+    "viseme_nn",
+    "viseme_O",
+    "viseme_PP",
+    "viseme_RR",
+    "viseme_sil",
+    "viseme_SS",
+    "viseme_TH",
+    "viseme_U"
+    ]
+
+# TODO: List arkit face units here
 
 class ExportService:
     """The ExportService class serves as a utility class for staging characters for export.
@@ -106,8 +126,18 @@ class ExportService:
         _LOG.enter()
 
         target_stack = []
+
         if load_microsoft_visemes:
             for target in MICROSOFT_VISEMES:
+                _LOG.debug("Adding target", target)
+                target_stack.append(
+                    {
+                        "target": target,
+                        "value": 0.0
+                    })
+
+        if load_meta_visemes:
+            for target in META_VISEMES:
                 _LOG.debug("Adding target", target)
                 target_stack.append(
                     {
@@ -141,11 +171,15 @@ class ExportService:
         children = ObjectService.get_list_of_children(root_object)
         _LOG.debug("Children to interpolate to", children)
 
+        all_relevant_shapekey_names = list(MICROSOFT_VISEMES)
+        all_relevant_shapekey_names.extend(list(META_VISEMES))
+        # TODO: Extend to handle faceunit shape keys as well as viseme shape keys
+
         shape_keys_to_interpolate = []
         for key_block in basemesh.data.shape_keys.key_blocks:
             if key_block.name == "Basis":
                 continue
-            if TargetService.shapekey_is_target(key_block.name):
+            if key_block.name not in all_relevant_shapekey_names:
                 continue
             shape_keys_to_interpolate.append(key_block)
 

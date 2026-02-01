@@ -1,6 +1,5 @@
 """Functionality for creating an export copy of a character"""
 
-from ....services import TargetService
 from ....services import LogService
 from ....services import ExportService
 from ....services import ObjectService
@@ -90,7 +89,16 @@ class MPFB_OT_Create_Export_Copy_Operator(MpfbOperator):
             remove_helpers=delete_helpers,
             also_proxy=True)
 
-        # TODO: remove modifiers when setting is "REMOVE"
+        if mask_modifiers == "REMOVE":
+            for modifier in new_basemesh.modifiers:
+                if modifier.type == 'MASK':
+                    # This will also remove modifiers which are unrelated to MPFB. This is intended.
+                    new_basemesh.modifiers.remove(modifier)
+
+        if subdiv_modifiers == "REMOVE":
+            for modifier in new_basemesh.modifiers:
+                if modifier.type == 'SUBSURF':
+                    new_basemesh.modifiers.remove(modifier)
 
         if visemes_meta or visemes_microsoft or faceunits_arkit:
             ExportService.load_targets(

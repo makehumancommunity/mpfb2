@@ -35,7 +35,6 @@ class MPFB_PT_ExportOpsPanel(Abstract_Panel):
             "delete_helpers",
             "remove_basemesh"
             ])
-        #box.operator("mpfb.remove_makeup")
 
     def _visemes(self, scene, layout):
         box = self.create_box(layout, "Visemes and faceunits")
@@ -45,14 +44,10 @@ class MPFB_PT_ExportOpsPanel(Abstract_Panel):
             "faceunits_arkit",
             "interpolate"
             ])
-        #box.operator("mpfb.remove_makeup")
 
     def _create(self, scene, layout):
         box = self.create_box(layout, "Create copy")
         EXPORTOPS_PROPERTIES.draw_properties(scene, box, [
-        #    "visemes_meta",
-        #    "visemes_microsoft",
-        #    "faceunits_arkit",
             "suffix",
             "collection"
             ])
