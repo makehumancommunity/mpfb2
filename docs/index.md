@@ -7,10 +7,11 @@ the [docs hierarchy](https://static.makehumancommunity.org/mpfb/docs.html) on th
 
 - [Code Structure Guide](code-structure.md) — how the codebase is organized, for new developers
 
-## File formats
+## MakeHuman file formats
 
-These describe the formats of files used by MPFB:
+These describe the formats of files used by both MakeHuman and MPFB:
 
+- [MHM](fileformats/mhm.md)
 - [MHCLO](fileformats/mhclo.md)
 - [MHMAT](fileformats/mhmat.md)
 - [Target](fileformats/target.md)
