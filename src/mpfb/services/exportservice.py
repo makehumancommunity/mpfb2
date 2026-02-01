@@ -61,6 +61,9 @@ META_VISEMES = [
 
 # TODO: List arkit face units here
 
+# If no vert was shifted more than this in a shape key, assume the shape key is not significant enough to be interpolated.
+SIGNIFICANT_SHIFT_MINIMUM = 0.0001
+
 class ExportService:
     """The ExportService class serves as a utility class for staging characters for export.
 
@@ -212,27 +215,41 @@ class ExportService:
                 if source_key.name in child.data.shape_keys.key_blocks:
                     _LOG.debug("Shape key already exists on child, skipping", (child.name, source_key.name))
                     continue
-
-                new_key = child.shape_key_add(name=source_key.name, from_mix=False)
-                new_key.value = source_key.value
-
+            
+                # First, calculate all interpolated offsets to check if any are significant
+                significant_changes = []
                 for child_vert_idx in mhclo.verts:
                     if child_vert_idx >= len(child.data.vertices):
                         break
                     mapping = mhclo.verts[child_vert_idx]
                     v0, v1, v2 = mapping["verts"]
                     w0, w1, w2 = mapping["weights"]
-
+            
                     if v0 >= len(source_key.data) or v1 >= len(source_key.data) or v2 >= len(source_key.data):
                         continue
-
+            
                     offset0 = source_key.data[v0].co - basis_coords[v0]
                     offset1 = source_key.data[v1].co - basis_coords[v1]
                     offset2 = source_key.data[v2].co - basis_coords[v2]
-
+            
                     interpolated_offset = offset0 * w0 + offset1 * w1 + offset2 * w2
+                    
+                    # Check if this offset is significant
+                    if interpolated_offset.length > SIGNIFICANT_SHIFT_MINIMUM:
+                        significant_changes.append((child_vert_idx, interpolated_offset))
+            
+                # Only create the shape key if there are significant changes
+                if not significant_changes:
+                    _LOG.debug("No significant changes for shape key, skipping", (child.name, source_key.name))
+                    continue
+            
+                new_key = child.shape_key_add(name=source_key.name, from_mix=False)
+                new_key.value = source_key.value
+            
+                # Apply the significant changes
+                for child_vert_idx, interpolated_offset in significant_changes:
                     new_key.data[child_vert_idx].co = child.data.vertices[child_vert_idx].co + interpolated_offset
-
+            
                 _LOG.debug("Interpolated shape key to child", (source_key.name, child.name))
 
     @staticmethod
