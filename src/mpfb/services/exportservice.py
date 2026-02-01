@@ -10,6 +10,7 @@ import bpy
 from .logservice import LogService
 from .targetservice import TargetService
 from .objectservice import ObjectService
+from .clothesservice import ClothesService
 
 _LOG = LogService.get_logger("services.exportservice")
 _LOG.set_level(LogService.DEBUG)
@@ -116,6 +117,89 @@ class ExportService:
 
         if len(target_stack) > 0:
             TargetService.bulk_load_targets(basemesh, target_stack)
+
+    @staticmethod
+    def interpolate_targets(basemesh):
+        """Interpolate viseme and faceunit shape keys from the basemesh to child meshes.
+
+        For each child mesh that has an associated MHCLO file, this method transfers all non-modelling
+        shape keys from the basemesh using the MHCLO vertex correspondence data.
+
+        Args:
+            basemesh (bpy.types.Object): The basemesh object whose shape keys will be interpolated to children.
+        """
+        _LOG.enter()
+
+        if not basemesh.data.shape_keys or not basemesh.data.shape_keys.key_blocks:
+            _LOG.debug("No shape keys on basemesh, nothing to interpolate")
+            return
+
+        root_object = basemesh
+        if basemesh.parent:
+            root_object = basemesh.parent
+
+        children = ObjectService.get_list_of_children(root_object)
+        _LOG.debug("Children to interpolate to", children)
+
+        shape_keys_to_interpolate = []
+        for key_block in basemesh.data.shape_keys.key_blocks:
+            if key_block.name == "Basis":
+                continue
+            if TargetService.shapekey_is_target(key_block.name):
+                continue
+            shape_keys_to_interpolate.append(key_block)
+
+        if not shape_keys_to_interpolate:
+            _LOG.debug("No viseme/faceunit shape keys found to interpolate")
+            return
+
+        _LOG.debug("Shape keys to interpolate", [sk.name for sk in shape_keys_to_interpolate])
+
+        basis_coords = [v.co.copy() for v in basemesh.data.vertices]
+
+        for child in children:
+            if child == basemesh or child.type != 'MESH':
+                continue
+
+            mhclo_path = ClothesService.find_clothes_absolute_path(child)
+            if not mhclo_path:
+                _LOG.debug("No MHCLO path for child, skipping", child.name)
+                continue
+
+            _LOG.debug("Interpolating shape keys to", child.name)
+
+            mhclo = Mhclo()
+            mhclo.load(mhclo_path)
+
+            if not child.data.shape_keys:
+                child.shape_key_add(name="Basis", from_mix=False)
+
+            for source_key in shape_keys_to_interpolate:
+                if source_key.name in child.data.shape_keys.key_blocks:
+                    _LOG.debug("Shape key already exists on child, skipping", (child.name, source_key.name))
+                    continue
+
+                new_key = child.shape_key_add(name=source_key.name, from_mix=False)
+                new_key.value = source_key.value
+
+                for child_vert_idx in mhclo.verts:
+                    if child_vert_idx >= len(child.data.vertices):
+                        break
+                    mapping = mhclo.verts[child_vert_idx]
+                    v0, v1, v2 = mapping["verts"]
+                    w0, w1, w2 = mapping["weights"]
+
+                    if v0 >= len(source_key.data) or v1 >= len(source_key.data) or v2 >= len(source_key.data):
+                        continue
+
+                    offset0 = source_key.data[v0].co - basis_coords[v0]
+                    offset1 = source_key.data[v1].co - basis_coords[v1]
+                    offset2 = source_key.data[v2].co - basis_coords[v2]
+
+                    interpolated_offset = offset0 * w0 + offset1 * w1 + offset2 * w2
+                    new_key.data[child_vert_idx].co = child.data.vertices[child_vert_idx].co + interpolated_offset
+
+                _LOG.debug("Interpolated shape key to child", (source_key.name, child.name))
 
     @staticmethod
     def bake_shapekeys_modifiers_remove_helpers(basemesh, bake_shapekeys=True, bake_masks=False, bake_subdiv=False, remove_helpers=True, also_proxy=True):

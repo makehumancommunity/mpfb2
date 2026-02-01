@@ -48,6 +48,8 @@ class MPFB_OT_Create_Export_Copy_Operator(MpfbOperator):
         create_collection = EXPORTOPS_PROPERTIES.get_value("collection", entity_reference=scene)
         visemes_meta = EXPORTOPS_PROPERTIES.get_value("visemes_meta", entity_reference=scene)
         visemes_microsoft = EXPORTOPS_PROPERTIES.get_value("visemes_microsoft", entity_reference=scene)
+        faceunits_arkit = EXPORTOPS_PROPERTIES.get_value("faceunits_arkit", entity_reference=scene)
+        interpolate = EXPORTOPS_PROPERTIES.get_value("interpolate", entity_reference=scene)
         mask_modifiers = EXPORTOPS_PROPERTIES.get_value("mask_modifiers", entity_reference=scene)
         subdiv_modifiers = EXPORTOPS_PROPERTIES.get_value("subdiv_modifiers", entity_reference=scene)
 
@@ -59,6 +61,8 @@ class MPFB_OT_Create_Export_Copy_Operator(MpfbOperator):
             "create_collection": create_collection,
             "visemes_meta": visemes_meta,
             "visemes_microsoft": visemes_microsoft,
+            "faceunits_arkit": faceunits_arkit,
+            "interpolate": interpolate,
             "mask_modifiers": mask_modifiers,
             "subdiv_modifiers": subdiv_modifiers})
 
@@ -88,12 +92,15 @@ class MPFB_OT_Create_Export_Copy_Operator(MpfbOperator):
 
         # TODO: remove modifiers when setting is "REMOVE"
 
-        if visemes_meta or visemes_microsoft:
+        if visemes_meta or visemes_microsoft or faceunits_arkit:
             ExportService.load_targets(
                 new_basemesh,
                 load_microsoft_visemes=visemes_microsoft,
                 load_meta_visemes=visemes_meta,
-                load_arkit_faceunits=False) # TODO: Add support for ARKit faceunits
+                load_arkit_faceunits=faceunits_arkit)
+
+        if interpolate:
+            ExportService.interpolate_targets(new_basemesh)
 
         if delete_helpers:
             context.view_layer.objects.active = new_basemesh
