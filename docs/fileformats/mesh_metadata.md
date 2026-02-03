@@ -31,6 +31,8 @@ an object with integer fields: `xmin`, `xmax`, `ymin`, `ymax`, `zmin`, `zmax`.
 Each key is a selection group name (e.g. `"BODY"`, `"SKIRT"`, `"EYES"`). The value is an array of vertex group
 names that belong to this selection set.
 
+Selection group is not used in MPFB, but it is kept for compatibility with MakeHuman.
+
 #### Groups by range
 
 Each key is a vertex group name (e.g. `"body"`, `"helper-skirt"`). The value is a two-element array
@@ -40,6 +42,8 @@ Each key is a vertex group name (e.g. `"body"`, `"helper-skirt"`). The value is 
 
 Maps vertex group names to their vertex index ranges. Each key is a group name and each value is an array
 of `[start, end]` pairs (inclusive ranges). A group can have multiple non-contiguous ranges.
+
+These are extra groups defined on top of those specified by hm08_config.json.
 
 #### Group types
 
@@ -88,6 +92,8 @@ Maps proxy mesh UUIDs to correction settings.
 
 - Each key is a proxy UUID (string).
 - `fix_leftright_weights_for_groups` (boolean) — Whether to automatically fix weight issues between left/right vertex group pairs for this proxy.
+
+This is a remainder of an experiment which was not really finished. It is mostly unused.
 
 ### Compressed lookup tables
 

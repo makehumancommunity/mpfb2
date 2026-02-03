@@ -2,6 +2,8 @@
 
 This file explains the material settings preset JSON formats used by MPFB.
 
+This structure is used both in standalone files (as described below) and as keys in human save files.
+
 ## Purpose
 
 Material settings presets store shader parameter values for MPFB's procedural materials. There are two types:
@@ -9,8 +11,7 @@ Material settings presets store shader parameter values for MPFB's procedural ma
 - **Enhanced skin settings** — Per-zone skin parameters (body, ears, lips, etc.) for the enhanced skin shader.
 - **Eye settings** — Parameters for the procedural eye shader.
 
-Default presets ship with MPFB in `src/mpfb/data/settings/`. User presets are saved in the user config directory
-with the naming pattern `enhanced_settings.<name>.json` or `eye_settings.<name>.json`.
+User presets are saved in the user config directory with the naming pattern `enhanced_settings.<name>.json` or `eye_settings.<name>.json`.
 
 ## Structure: Enhanced skin settings
 

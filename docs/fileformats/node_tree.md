@@ -8,6 +8,9 @@ A node tree file defines a complete Blender shader node network as JSON. This al
 procedural materials (enhanced skin, procedural eyes, MakeSkin materials) from templates with conditional
 nodes and variable substitution. Node tree files are located in `src/mpfb/data/node_trees/`.
 
+In most cases, these files are not written by hand. There is some tooling available in the shader
+node view in blender, although the UX leaves a bit to be desired.
+
 ## Structure
 
 A node tree file is a JSON object with nested group definitions. The format supports variable substitution

@@ -1,6 +1,6 @@
 # Human Preset
 
-This file explains the human preset JSON format used by MPFB.
+This file explains the human preset ("save file") JSON format used by MPFB.
 
 ## Purpose
 
@@ -14,22 +14,42 @@ A human preset is a JSON object created by `HumanService.serialize_to_json_file(
 `src/mpfb/services/humanservice.py`. It combines data from multiple populate methods that each fill
 in a section of the preset.
 
+In those cases where a key represents a reference to an asset, the asset path is relative to any of
+the specified asset roots (that it, AssetService will look through all asset roots until it finds the asset).
+The first segment of the path is the key name, the rest usually a subdirectory plus an asset filename.
+
+Thus something like this:
+
+```
+{
+   ...
+   "eyes": "high-poly/high-poly.mhclo"
+   ...
+}
+```
+
+Will indicate an asset `[any asset root]/eyes/high-poly/high-poly.mhclo`. 
+
+When "asset" is mentioned in the following, it is the above pattern that is indicated.
+
 ### Top-level keys
 
 #### Body shape
 
-- `phenotype` (object) — Macro morph values. Keys are target paths (e.g. `"Macrodetails/Gender"`, `"Macrodetails/Age"`) and values are floats representing slider positions.
-- `targets` (array of strings) — Names of detail morph targets applied to the character.
+Two keys control the overall shape of the character: 
+
+- `phenotype` (object) — Macro morph values. Keys are target paths (e.g. `"Macrodetails/Gender"`, `"Macrodetails/Age"`) and values are floats representing slider positions for sliders normally found on the "phenotype" modeling panel.
+- `targets` (array of strings) — Names of detail morph targets applied to the character. These correspond to the sliders on all other modeling panels.
 
 #### Rig
 
-- `rig` (string) — Rig type identifier, e.g. `"rigify.human_toes"`, `"game_engine"`, `"default"`.
+- `rig` (string) — Rig type identifier, e.g. `"game_engine"`, `"default"` and so on.
 
 #### Body parts
 
 Asset source paths for each body part slot. Each is a string (empty if no asset is assigned):
 
-- `eyes` — Eye mesh asset.
+- `eyes` — Eye mesh asset. 
 - `eyebrows` — Eyebrow asset.
 - `eyelashes` — Eyelash asset.
 - `tongue` — Tongue asset.
@@ -39,11 +59,11 @@ Asset source paths for each body part slot. Each is a string (empty if no asset 
 
 #### Clothes
 
-- `clothes` (array of strings) — Asset source paths for equipped clothing items.
+- `clothes` (array) — A list of assets
 
 #### Makeup
 
-- `makeup` (array of strings) — Ink layer JSON filenames applied to the character.
+- `makeup` (array of strings) — File named pointing to Ink layer JSON files.
 
 #### Skin material
 
@@ -61,10 +81,9 @@ Asset source paths for each body part slot. Each is a string (empty if no asset 
 
 #### Color adjustments and alternatives
 
-- `color_adjustments` (object) — Per-object color modifications, keyed by object UUID. Each value has:
-  - `saturation` (float)
-  - `hue_shift` (float)
-  - `lightness` (float)
+- `color_adjustments` (object) — Per-object color modifications, keyed by object UUID. This will only modify assets with a MHCLO material. Each entry contains three keys:
+  - `Color1` and `Color2`. These are RGBA values for the input sockets on the color mix node. Color2 will usually have a diffuse texture connected, so most of the time it is not used.
+  - `Fac`: The balance between Color1 and Color2. A Fac of 0.0 will override the diffuse texture completely with Color 1.
 - `alternative_materials` (object) — Maps object UUIDs to alternative material names.
 
 ## Example content
