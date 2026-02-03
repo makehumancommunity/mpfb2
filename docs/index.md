@@ -1,13 +1,17 @@
 # Docs
 
-These are some basic technical docs. For more elaborate documentation, see
+These are some basic technical docs intended for developers. For more elaborate and user friendly documentation, see
 the [docs hierarchy](https://static.makehumancommunity.org/mpfb/docs.html) on the website.
 
 ## Code structure
 
 - [Code Structure Guide](code-structure.md) — how the codebase is organized, for new developers
 
-## MakeHuman file formats
+## File formats
+
+These are format descriptions for various files used by MPFB.
+
+### MakeHuman file formats
 
 These describe the formats of files used by both MakeHuman and MPFB:
 
@@ -16,7 +20,7 @@ These describe the formats of files used by both MakeHuman and MPFB:
 - [MHMAT](fileformats/mhmat.md)
 - [Target](fileformats/target.md)
 
-## MPFB JSON file formats
+### MPFB JSON file formats
 
 These describe JSON formats used internally by MPFB and for user presets:
 
@@ -29,3 +33,45 @@ These describe JSON formats used internally by MPFB and for user presets:
 - [Mesh metadata](fileformats/mesh_metadata.md) — vertex groups, mesh config, UV layers
 - [Human preset](fileformats/human_preset.md) — complete character definition
 - [Miscellaneous presets](fileformats/misc_presets.md) — importer presets, makeup, ink layers
+
+## Services
+
+API documentation for the service layer in `src/mpfb/services/`.
+
+### Foundational
+
+- [LogService](services/logservice.md) — logging and profiling infrastructure
+- [LocationService](services/locationservice.md) — file system path resolution
+
+### Configuration utilities
+
+- [ConfigurationSet](services/configurationset.md) — abstract base for configuration management
+- [BlenderConfigSet](services/blenderconfigset.md) — Blender entity property management (ie storing configuration on an object)
+- [SceneConfigSet](services/sceneconfigset.md) — scene-level property configuration (ie storing configuration in the scene)
+- [DynamicConfigSet](services/dynamicconfigset.md) — object configuration with dynamic properties
+- [JsonCall](services/jsoncall.md) — JSON-serializable function call model. This is only used in communication with a running MakeHuman instance.
+
+### Standalone services
+
+- [SystemService](services/systemservice.md) — platform detection and system utilities
+- [ObjectService](services/objectservice.md) — Blender object creation and management
+- [ModifierService](services/modifierservice.md) — Blender modifier operations
+- [NodeService](services/nodeservice.md) — shader node tree and node manipulation
+- [NodeTreeService](services/nodetreeservice.md) — node tree interface socket utilities
+- [MeshService](services/meshservice.md) — mesh, vertex group, and spatial operations
+- [SocketService](services/socketservice.md) — MakeHuman socket server communication
+- [UiService](services/uiservice.md) — UI state and preset list management
+
+### Higher-level services
+
+- [AssetService](services/assetservice.md) — asset discovery, caching, and pack management
+- [MaterialService](services/materialservice.md) — material creation and management
+- [TargetService](services/targetservice.md) — shape key and morph target management
+- [RigService](services/rigservice.md) — armature, bone, weight, and pose operations
+- [AnimationService](services/animationservice.md) — BVH import and keyframe manipulation
+
+### Aggregator services
+
+- [ClothesService](services/clothesservice.md) — clothes fitting, rigging, and MHCLO management
+- [HumanService](services/humanservice.md) — high-level character creation and serialization
+- [HairEditorService](services/haireditorservice.md) — hair and fur asset management
