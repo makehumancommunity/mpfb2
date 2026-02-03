@@ -17,9 +17,9 @@ An MHCLO file is a text-based format. The file consists of several sections.
 The file begins with optional comment lines (starting with `#`) that provide metadata. These are mostly treated as unstructured
 text, but some lines might be parsed in other applications:
 
-- # author `<author_name>` - Usually the user name in the online asset repository
-- # license `<license_type>` - The license of the entire asset. Usually CC0 or CC-BY.
-- # description `<description_text>` - One paragraph of text describing the asset
+- `#` author `<author_name>` - Usually the user name in the online asset repository
+- `#` license `<license_type>` - The license of the entire asset. Usually CC0 or CC-BY.
+- `#` description `<description_text>` - One paragraph of text describing the asset
 
 ### Basic Metadata
 
