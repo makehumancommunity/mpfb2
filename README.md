@@ -8,6 +8,12 @@ The quick start guide is also where you can find download links. There is also a
 
 Note that MPFB 2.x requires a Blender version of at least 4.2.
 
+## Docs
+
+See the homepage for [docs](https://static.makehumancommunity.org/mpfb/docs.html) and [FAQ](https://static.makehumancommunity.org/mpfb/faq.html)
+
+For devs, there are also some technical reference documentation in [the docs folder](docs/index.md)
+
 ## MPFB vs MakeHuman, MPFB vs MHX
 
 If you have previous experience with MakeHuman and/or MHX, you might be interested in the FAQs explaining the similarities and differences:
