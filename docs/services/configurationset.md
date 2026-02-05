@@ -22,8 +22,6 @@ The three concrete implementations in MPFB are:
 | Dependency | Usage |
 |------------|-------|
 | `LogService` | Logging via `LogService.get_logger("configuration.configurationset")` |
-| `abc` | `ABC` base class and `abstractmethod` decorator |
-| `json` | JSON serialization for `serialize_to_json` and `deserialize_from_json` |
 
 ## Public API
 

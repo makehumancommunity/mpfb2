@@ -25,7 +25,6 @@ All methods are static; the class should never be instantiated.
 | `GeneralObjectProperties` | Accessing MPFB custom properties on objects |
 | `TargetService` | Shape key operations (imported at call time to avoid circular imports) |
 | `MaterialService` | Material deletion (imported at call time to avoid circular imports) |
-| `bpy` | Blender Python API for object manipulation |
 
 ## Object Type Constants
 

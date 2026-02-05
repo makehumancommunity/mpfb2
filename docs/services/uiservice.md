@@ -24,9 +24,6 @@ At module load time, UiService automatically rebuilds the importer preset lists 
 | `LocationService` | Accessing user configuration directory for preset discovery |
 | `mpfb.VERSION` | Version tuple for constructing UI prefixes |
 | `mpfb.get_preference` | Reading user preferences for UI customization |
-| `os` | Directory listing for preset discovery |
-| `re` | Regular expressions for identifier sanitization |
-| `fnmatch` | Filename pattern matching for preset files |
 
 ## UI Categories
 

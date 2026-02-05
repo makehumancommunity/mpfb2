@@ -6,9 +6,10 @@ DynamicConfigSet is a specialized subclass of BlenderConfigSet designed for scen
 
 The class is specifically designed for `bpy.types.Object` storage and distinguishes between two categories of properties: **pre-defined properties** (declared in JSON files or at construction time) and **dynamic properties** (created at runtime with a special prefix). Both types can be accessed through the same interface, and the class handles the complexity of tracking which properties exist on which objects.
 
-A key use case is the morph target system. When a human mesh is created, dozens of shape key modifiers may be added based on user selections. Each target needs a corresponding slider property, but the exact set of targets isn't known until runtime. DynamicConfigSet allows these properties to be created on-demand while still supporting serialization and UI rendering.
-
 The class also handles persistence across Blender sessions. When a .blend file is saved and reopened, dynamic properties that were stored as custom properties need to be reconstructed with their full Blender property definitions. DynamicConfigSet uses a serialization mechanism (storing property definitions in special `$propname$` custom properties) and deferred timer-based reconstruction to handle this transparently.
+
+The main use case for DynamicConfigSet are the hair/fur editor. As dynamic config is complex and fragile, 
+**it is generally recommended to avoid using this approach**. If at all possible, use the static approach instead.
 
 ## Source
 
@@ -20,9 +21,6 @@ The class also handles persistence across Blender sessions. When a .blend file i
 |------------|-------|
 | `LogService` | Logging via `LogService.get_logger("configuration.dynamicconfigset")` |
 | `BlenderConfigSet` | Parent class for core functionality |
-| `bpy` | `bpy.types.Object` as storage type, `bpy.app.timers` for deferred reconstruction |
-| `bpy.props.StringProperty` | For serialized property definition storage |
-| `json` | Serializing/deserializing property definitions |
 
 ## Dual-Prefix System
 

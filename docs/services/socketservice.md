@@ -2,6 +2,9 @@
 
 ## Overview
 
+SocketService is one of the more ancient of the services, tracing its roots back to when the main purpose of MPFB was to interact with 
+a running MakeHuman instance. It has little use beyond that purpose.
+
 SocketService handles asynchronous communication with a separate MakeHuman socket server. It manages JSON and binary remote calls for retrieving mesh data, material information, skeleton data, and proxy asset information from a running MakeHuman instance.
 
 Unlike most MPFB services which are static classes, SocketService is instantiated as a module-level singleton. This is because it maintains connection state (host, port) and a result cache across multiple calls.
@@ -22,7 +25,6 @@ SocketService caches results for certain calls (like directory paths) to avoid r
 |------------|-------|
 | `LogService` | Logging via `LogService.get_logger("services.socketservice")` |
 | `JsonCall` | JSON-serializable function call model |
-| `asyncio` | Asynchronous network I/O |
 
 ## Connection Defaults
 

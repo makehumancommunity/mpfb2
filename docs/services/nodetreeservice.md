@@ -21,8 +21,6 @@ All methods are static; the class should never be instantiated.
 | Dependency | Usage |
 |------------|-------|
 | `LogService` | Logging via `LogService.get_logger("services.nodetreeservice")` |
-| `bpy` | Blender Python API |
-| `bpy.types` | Type checking for `NodeTreeInterfaceSocket` |
 
 ## Socket Types
 

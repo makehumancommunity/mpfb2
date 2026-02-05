@@ -19,9 +19,6 @@ All methods are static; the class should never be instantiated.
 | Dependency | Usage |
 |------------|-------|
 | `LogService` | Logging via `LogService.get_logger("services.systemservice")` |
-| `bpy` | Blender API for version checking and operator availability |
-| `addon_utils` | Checking if the Rigify addon is enabled |
-| `os`, `sys`, `subprocess`, `re` | Standard library for platform detection and command execution |
 
 ## Constants
 

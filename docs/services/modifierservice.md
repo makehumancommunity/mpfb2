@@ -19,7 +19,6 @@ All methods are static; the class should never be instantiated.
 | Dependency | Usage |
 |------------|-------|
 | `LogService` | Logging via `LogService.get_logger("services.modifierservice")` |
-| `bpy` | Blender Python API for modifier manipulation |
 
 ## Public API
 

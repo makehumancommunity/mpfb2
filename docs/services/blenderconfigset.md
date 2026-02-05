@@ -20,9 +20,6 @@ The class also provides UI integration through `draw_properties()`, which render
 |------------|-------|
 | `LogService` | Logging via `LogService.get_logger("configuration.blenderconfigset")` |
 | `ConfigurationSet` | Abstract base class |
-| `bpy.props` | Property types: `BoolProperty`, `StringProperty`, `EnumProperty`, `IntProperty`, `FloatProperty`, `FloatVectorProperty` |
-| `json` | Reading property definitions from JSON files |
-| `fnmatch` | Filtering JSON files in directories |
 
 ## Property Types
 

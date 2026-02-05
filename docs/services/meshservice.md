@@ -22,9 +22,6 @@ All methods are static; the class should never be instantiated.
 |------------|-------|
 | `LogService` | Logging via `LogService.get_logger("services.meshservice")` |
 | `ObjectService` | Object linking operations |
-| `bpy` | Blender Python API |
-| `mathutils` | Vector and KDTree operations |
-| `numpy` | Array operations for vertex/face data |
 
 ## Public API
 
