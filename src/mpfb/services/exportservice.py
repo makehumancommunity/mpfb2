@@ -167,6 +167,13 @@ class ExportService:
             _LOG.debug("No shape keys on basemesh, nothing to interpolate")
             return
 
+        # Temporarily disable all modifiers on the basemesh. Store their state so they can be restored in the end of the function
+        modifier_states = {}
+        for modifier in basemesh.modifiers:
+            _LOG.debug("Disabling modifier", (modifier.name, modifier.show_viewport))
+            modifier_states[modifier.name] = modifier.show_viewport
+            modifier.show_viewport = False
+
         root_object = basemesh
         if basemesh.parent:
             root_object = basemesh.parent
@@ -215,7 +222,7 @@ class ExportService:
                 if source_key.name in child.data.shape_keys.key_blocks:
                     _LOG.debug("Shape key already exists on child, skipping", (child.name, source_key.name))
                     continue
-            
+
                 # First, calculate all interpolated offsets to check if any are significant
                 significant_changes = []
                 for child_vert_idx in mhclo.verts:
@@ -224,41 +231,45 @@ class ExportService:
                     mapping = mhclo.verts[child_vert_idx]
                     v0, v1, v2 = mapping["verts"]
                     w0, w1, w2 = mapping["weights"]
-            
+
                     if v0 >= len(source_key.data) or v1 >= len(source_key.data) or v2 >= len(source_key.data):
                         continue
-            
+
                     offset0 = source_key.data[v0].co - basis_coords[v0]
                     offset1 = source_key.data[v1].co - basis_coords[v1]
                     offset2 = source_key.data[v2].co - basis_coords[v2]
-            
+
                     interpolated_offset = offset0 * w0 + offset1 * w1 + offset2 * w2
-                    
+
                     # Check if this offset is significant
                     if interpolated_offset.length > SIGNIFICANT_SHIFT_MINIMUM:
                         significant_changes.append((child_vert_idx, interpolated_offset))
-            
+
                 # Only create the shape key if there are significant changes
                 if not significant_changes:
                     _LOG.debug("No significant changes for shape key, skipping", (child.name, source_key.name))
                     continue
-            
+
                 new_key = child.shape_key_add(name=source_key.name, from_mix=False)
                 new_key.value = source_key.value
-            
+
                 # Apply the significant changes
                 for child_vert_idx, interpolated_offset in significant_changes:
                     new_key.data[child_vert_idx].co = child.data.vertices[child_vert_idx].co + interpolated_offset
-            
+
                 _LOG.debug("Interpolated shape key to child", (source_key.name, child.name))
 
+        # Restore the modifier states
+        for modifier in basemesh.modifiers:
+            if modifier.name in modifier_states:
+                modifier.show_viewport = modifier_states[modifier.name]
+
     @staticmethod
-    def bake_shapekeys_modifiers_remove_helpers(basemesh, bake_shapekeys=True, bake_masks=False, bake_subdiv=False, remove_helpers=True, also_proxy=True):
-        """Bakes shape keys, modifiers and optionally remove helpers.
+    def bake_modifiers_remove_helpers(basemesh, bake_masks=False, bake_subdiv=False, remove_helpers=True, also_proxy=True):
+        """Bakes modifiers and optionally remove helpers.
 
         Args:
         - basemesh (bpy.types.Object): The object to bake shape keys, masks, and subdivision modifiers for.
-        - bake_shapekeys (bool): Whether to bake shape keys.
         - bake_masks (bool): Whether to bake masks.
         - bake_subdiv (bool): Whether to bake subdivision modifiers.
         - remove_helpers (bool): Whether to remove helper geometry
@@ -267,17 +278,11 @@ class ExportService:
 
         _LOG.enter()
 
-        if not TargetService.has_any_shapekey(basemesh):
-            _LOG.debug("No shapekeys to bake")
-            bake_shapekeys = False
+        has_sk = TargetService.has_any_shapekey(basemesh)
 
-        if (bake_masks or bake_subdiv) and not bake_shapekeys:
+        if (bake_masks or bake_subdiv) and has_sk:
             # TODO: Support baking masks and subdivision modifiers without baking shape keys
             raise NotImplementedError("Baking masks and/or subdivision modifiers without baking shape keys is not implemented yet")
-
-        if bake_shapekeys:
-            _LOG.debug("Baking shape keys")
-            TargetService.bake_targets(basemesh)
 
         helpers_removed_by_modifier = False
 
@@ -317,7 +322,7 @@ class ExportService:
                 if modifier.type == 'MASK' and modifier.vertex_group == 'body' and not modifier.invert_vertex_group:
                     basemesh.modifiers.remove(modifier)
 
-            if not bake_shapekeys:
+            if has_sk:
                 TargetService.reapply_all_details(basemesh)
 
             basemesh.select_set(True)

@@ -83,8 +83,8 @@ def test_create_character_copy():
 
 # def bake_shapekeys_modifiers_remove_helpers(basemesh, bake_shapekeys=True, bake_masks=False, bake_subdiv=False, remove_helpers=True, also_proxy=True):
 
-def test_bake_shapekeys_and_modifiers():
-    """ExportService.bake_shapekeys_modifiers_remove_helpers()"""
+def test_bake_modifiers():
+    """ExportService.bake_modifiers_remove_helpers()"""
     basemesh = create_sample_human()
     character_copy = ExportService.create_character_copy(basemesh)
     new_basemesh = ObjectService.find_object_of_type_amongst_nearest_relatives(character_copy)
@@ -101,11 +101,11 @@ def test_bake_shapekeys_and_modifiers():
 
     assert has_mask_modifier
     assert has_subdiv_modifier
-    assert TargetService.has_any_shapekey(new_basemesh)
 
-    ExportService.bake_shapekeys_modifiers_remove_helpers(
+    TargetService.bake_targets(new_basemesh)
+
+    ExportService.bake_modifiers_remove_helpers(
         new_basemesh,
-        bake_shapekeys=True,
         bake_masks=True,
         bake_subdiv=True,
         remove_helpers=False,
@@ -123,6 +123,5 @@ def test_bake_shapekeys_and_modifiers():
 
     assert not has_mask_modifier
     assert not has_subdiv_modifier
-    assert not TargetService.has_any_shapekey(new_basemesh)
 
     remove_character_copy(character_copy)

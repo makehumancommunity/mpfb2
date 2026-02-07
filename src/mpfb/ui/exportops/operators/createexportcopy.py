@@ -3,6 +3,7 @@
 from ....services import LogService
 from ....services import ExportService
 from ....services import ObjectService
+from ....services import TargetService
 from ...mpfboperator import MpfbOperator
 from .... import ClassManager
 import bpy
@@ -82,12 +83,37 @@ class MPFB_OT_Create_Export_Copy_Operator(MpfbOperator):
         export_copy = ExportService.create_character_copy(basemesh, name_suffix=suffix, place_in_collection=collection)
         new_basemesh = ObjectService.find_object_of_type_amongst_nearest_relatives(export_copy)
 
-        ExportService.bake_shapekeys_modifiers_remove_helpers(
-            new_basemesh, bake_shapekeys=bake_shapekeys,
+        if bake_shapekeys:
+            TargetService.bake_targets(new_basemesh)
+
+        if visemes_meta or visemes_microsoft or faceunits_arkit:
+            ExportService.load_targets(
+                new_basemesh,
+                load_microsoft_visemes=visemes_microsoft,
+                load_meta_visemes=visemes_meta,
+                load_arkit_faceunits=faceunits_arkit)
+
+        if interpolate:
+            ExportService.interpolate_targets(new_basemesh)
+
+        if bake_shapekeys:
+            # Yes, this is a stupid workaround until we're able to bake modifiers while having shape keys
+            TargetService.bake_targets(new_basemesh)
+
+        ExportService.bake_modifiers_remove_helpers(
+            new_basemesh,
             bake_masks=bake_masks,
             bake_subdiv=bake_subdiv,
             remove_helpers=delete_helpers,
             also_proxy=True)
+
+        if bake_shapekeys and (visemes_meta or visemes_microsoft or faceunits_arkit):
+            # Continuing with the stupid workaround
+            ExportService.load_targets(
+                new_basemesh,
+                load_microsoft_visemes=visemes_microsoft,
+                load_meta_visemes=visemes_meta,
+                load_arkit_faceunits=faceunits_arkit)
 
         if mask_modifiers == "REMOVE":
             for modifier in new_basemesh.modifiers:
@@ -99,16 +125,6 @@ class MPFB_OT_Create_Export_Copy_Operator(MpfbOperator):
             for modifier in new_basemesh.modifiers:
                 if modifier.type == 'SUBSURF':
                     new_basemesh.modifiers.remove(modifier)
-
-        if visemes_meta or visemes_microsoft or faceunits_arkit:
-            ExportService.load_targets(
-                new_basemesh,
-                load_microsoft_visemes=visemes_microsoft,
-                load_meta_visemes=visemes_meta,
-                load_arkit_faceunits=faceunits_arkit)
-
-        if interpolate:
-            ExportService.interpolate_targets(new_basemesh)
 
         if delete_helpers:
             context.view_layer.objects.active = new_basemesh
