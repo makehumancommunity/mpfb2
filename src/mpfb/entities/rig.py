@@ -287,16 +287,42 @@ class Rig:
         return location
 
     def _align_roll_by_strategy(self, bone, bone_info):
-        self.apply_bone_roll_strategy(bone, bone_info.get("roll_strategy", None))
+        """Aligns the roll of a bone based on the given strategy"""
+        roll_strategy = bone_info.get("roll_strategy")
+        roll_reference_z = None
+
+        if roll_strategy == "ALIGN_Z_REFERENCE_Z":
+            roll_reference_z = bone_info.get("roll_reference_z", bone.z_axis)
+
+            # Ensure the type is list
+            try:
+                roll_reference_z = list(roll_reference_z)
+            except TypeError:
+                roll_reference_z = None
+
+            bone_info["roll_reference_z"] = roll_reference_z
+
+        if roll_strategy:
+            self.apply_bone_roll_strategy(bone, roll_strategy, roll_reference_z )
 
     @staticmethod
-    def apply_bone_roll_strategy(bone, roll_strategy):
+    def apply_bone_roll_strategy(bone, roll_strategy, roll_reference_z = None):
         matrix = None
 
         if roll_strategy == "ALIGN_Z_WORLD_Z":
             matrix = matrix_from_axis_pair(bone.y_axis, (0, 0, 1), 'z')
         elif roll_strategy == "ALIGN_X_WORLD_X":
             matrix = matrix_from_axis_pair(bone.y_axis, (1, 0, 0), 'x')
+        elif (
+            roll_strategy == "ALIGN_Z_REFERENCE_Z"
+            and roll_reference_z is not None
+            and isinstance(roll_reference_z, (list, tuple))
+            and len(roll_reference_z) == 3
+        ):
+            ref = Vector(roll_reference_z)
+            if ref.length > 1e-6:
+                ref.normalize()
+                bone.align_roll(ref)
 
         if matrix:
             bone.roll = bpy.types.Bone.AxisRollFromMatrix(matrix, axis=bone.y_axis)[1]
@@ -324,6 +350,10 @@ class Rig:
             bone.head = self.get_best_location_from_strategy(bone_info["head"])
             bone.tail = self.get_best_location_from_strategy(bone_info["tail"])
 
+        # Apply roll strategies after head-tail positions have been set
+        for bone_name in self.rig_definition.keys():
+            bone_info = self.rig_definition[bone_name]
+            bone = RigService.find_edit_bone_by_name(bone_name, self.armature_object)
             self._align_roll_by_strategy(bone, bone_info)
 
         bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
@@ -337,11 +367,17 @@ class Rig:
             if bone:
                 bone.head = self.get_best_location_from_strategy(bone_info["head"])
                 bone.tail = self.get_best_location_from_strategy(bone_info["tail"])
-                self._align_roll_by_strategy(bone, bone_info)
             else:
                 _LOG.warn("Tried to refit bone that did not exist in definition", bone_name)
                 _LOG.debug("Bone info is", bone_info)
                 _LOG.dump("Rig definition is", self.rig_definition)
+
+        # Apply roll strategies after head-tail positions have been set
+        for bone_name in self.rig_definition.keys():
+            bone_info = self.rig_definition[bone_name]
+            bone = RigService.find_edit_bone_by_name(bone_name, self.armature_object)
+            if bone:
+                self._align_roll_by_strategy(bone, bone_info)
 
         bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
 
@@ -678,21 +714,27 @@ class Rig:
         return chains
 
     def save_strategies(self, refit=False):
-        """Save strategy data in the pose bones for development."""
+        """Save strategy data in the pose and edit bones for development."""
+        from ..ui.boneops import BoneOpsArmatureProperties, BoneOpsBoneProperties, BoneOpsEditBoneProperties
 
-        from ..ui.boneops import BoneOpsArmatureProperties, BoneOpsBoneProperties
         BoneOpsArmatureProperties.set_value("developer_mode", True, entity_reference=self.armature_object.data)
-
+        
         for bone_name, bone_info in self.rig_definition.items():
             bone = RigService.find_pose_bone_by_name(bone_name, self.armature_object).bone
 
             self.assign_bone_end_strategy(bone, bone_info["head"], False)
             self.assign_bone_end_strategy(bone, bone_info["tail"], True)
 
-            if not refit:
-                roll_strategy = bone_info.get("roll_strategy", None)
-                if roll_strategy:
-                    BoneOpsBoneProperties.set_value("roll_strategy", roll_strategy, entity_reference=bone)
+        if not refit:
+            bpy.ops.object.mode_set(mode='EDIT', toggle=False)
+            for bone_name in self.rig_definition.keys():
+                bone_info = self.rig_definition[bone_name]
+                bone = RigService.find_edit_bone_by_name(bone_name, self.armature_object)
+                roll_strategy = bone_info.get("roll_strategy", "")
+                BoneOpsEditBoneProperties.set_value("roll_strategy", roll_strategy, entity_reference=bone)
+                roll_reference_z = bone_info.get("roll_reference_z", (0.0, 0.0, 0.0))
+                BoneOpsEditBoneProperties.set_value("roll_reference_z", roll_reference_z, entity_reference=bone)
+            bpy.ops.object.mode_set(mode='OBJECT', toggle=False)        
 
     @staticmethod
     def assign_bone_end_strategy(bone, info, is_tail: bool, *, force=False, lock: bool | None=None):
@@ -892,14 +934,27 @@ class Rig:
 
     def add_edit_bone_info(self):
         """Extract bone information from the edit bones."""
+        from ..ui.boneops import BoneOpsEditBoneProperties
 
         assert self.armature_object.mode == 'EDIT'
+        properties = BoneOpsEditBoneProperties
 
         for bone in self.armature_object.data.edit_bones:
             bone_info = self.rig_definition[bone.name]
 
             # Info that must be accessed in Edit mode
             bone_info["roll"] = bone.roll
+            
+            roll_strategy = properties.get_value("roll_strategy", entity_reference=bone)
+            if roll_strategy:
+                bone_info["roll_strategy"] = roll_strategy
+
+                if roll_strategy == "ALIGN_Z_REFERENCE_Z":
+                    ref_z = properties.get_value("roll_reference_z", entity_reference=bone)
+                    if ref_z:
+                        bone_info["roll_reference_z"] = list(ref_z)
+                    else:
+                        bone_info["roll_reference_z"] = list(bone.z_axis)
 
         _LOG.dump("rig_definition after edit bones", self.rig_definition)
 
@@ -917,6 +972,8 @@ class Rig:
             if "offset" in info["tail"]:
                 info["tail"]["offset"] = list(map(clean, info["tail"]["offset"]))
             info["roll"] = clean(info["roll"])
+            if "roll_reference_z" in info:
+                info["roll_reference_z"] = list(map(clean, info["roll_reference_z"]))
 
     def _encode_bbone_info(self, bone):
         defaults = {
