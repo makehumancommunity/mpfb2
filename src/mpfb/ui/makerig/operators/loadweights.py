@@ -8,7 +8,7 @@ import bpy, json, math
 from bpy.types import StringProperty
 from bpy_extras.io_utils import ImportHelper
 
-_LOG = LogService.get_logger("developer.operators.loadweights")
+_LOG = LogService.get_logger("makerig.operators.loadweights")
 
 class MPFB_OT_Load_Weights_Operator(bpy.types.Operator, ImportHelper):
     """Load weights from definition in json. NOTE that the base mesh must have the rig in question as a parent for this to work"""

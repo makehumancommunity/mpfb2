@@ -8,7 +8,7 @@ import bpy, json, math, re
 from bpy.types import StringProperty
 from bpy_extras.io_utils import ExportHelper
 
-_LOG = LogService.get_logger("developer.operators.saveweights")
+_LOG = LogService.get_logger("makerig.operators.saveweights")
 
 class MPFB_OT_Save_Weights_Operator(bpy.types.Operator, ExportHelper):
     """Save weights as json"""
@@ -61,11 +61,11 @@ class MPFB_OT_Save_Weights_Operator(bpy.types.Operator, ExportHelper):
                 self.report({'ERROR'}, "Could not find related basemesh. It should have been parent or child of armature object.")
                 return {'FINISHED'}
 
-        from ...developer.developerpanel import DEVELOPER_PROPERTIES  # pylint: disable=C0415
+        from ...makerig import MakeRigProperties  # pylint: disable=C0415
 
-        weights_mask = DEVELOPER_PROPERTIES.get_value("weights_mask", entity_reference=context.scene)
-        save_evaluated = DEVELOPER_PROPERTIES.get_value("save_evaluated", entity_reference=context.scene)
-        save_masks = DEVELOPER_PROPERTIES.get_value("save_masks", entity_reference=context.scene)
+        weights_mask = MakeRigProperties.get_value("weights_mask", entity_reference=context.scene)
+        save_evaluated = MakeRigProperties.get_value("save_evaluated", entity_reference=context.scene)
+        save_masks = MakeRigProperties.get_value("save_masks", entity_reference=context.scene)
 
         if save_evaluated:
             eval_basemesh = basemesh.evaluated_get(context.view_layer.depsgraph)

@@ -8,9 +8,7 @@ import bpy, json, math
 from bpy.types import StringProperty
 from bpy_extras.io_utils import ExportHelper
 
-from ...developer.developerpanel import DEVELOPER_PROPERTIES
-
-_LOG = LogService.get_logger("developer.operators.saverig")
+_LOG = LogService.get_logger("makerig.operators.saverig")
 
 
 class MPFB_OT_Save_Rig_Operator(bpy.types.Operator, ExportHelper):
@@ -39,9 +37,10 @@ class MPFB_OT_Save_Rig_Operator(bpy.types.Operator, ExportHelper):
 
         armature_object = context.object
 
-        rig_subrig = DEVELOPER_PROPERTIES.get_value("rig_subrig", entity_reference=context.scene)
-        rig_save_rigify = DEVELOPER_PROPERTIES.get_value("rig_save_rigify", entity_reference=context.scene)
-        rig_refit = DEVELOPER_PROPERTIES.get_value("rig_refit", entity_reference=context.scene)
+        from ...makerig import MakeRigProperties
+        rig_subrig = MakeRigProperties.get_value("rig_subrig", entity_reference=context.scene)
+        rig_save_rigify = MakeRigProperties.get_value("rig_save_rigify", entity_reference=context.scene)
+        rig_refit = MakeRigProperties.get_value("rig_refit", entity_reference=context.scene)
 
         bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
 
