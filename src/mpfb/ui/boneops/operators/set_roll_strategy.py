@@ -33,6 +33,10 @@ class MPFB_OT_Set_Roll_Strategy_Operator(AbstractBoneOperator):
             "Align Z to World Z",
             "align bone Z to world Z"
         ),
+        "ALIGN_Z_REFERENCE_Z": (
+            "Use Current Z-axis as Reference",
+            "use the current Z-axis of the bone as reference"
+        ),
     }
 
     @classmethod
@@ -53,7 +57,12 @@ class MPFB_OT_Set_Roll_Strategy_Operator(AbstractBoneOperator):
 
         BoneOpsEditBoneProperties.set_value("roll_strategy", self.strategy, entity_reference=bone)
 
-        Rig.apply_bone_roll_strategy(bone, self.strategy)
+        if self.strategy == "ALIGN_Z_REFERENCE_Z":
+            reference_z = list(bone.z_axis)
+            BoneOpsEditBoneProperties.set_value("roll_reference_z", reference_z, entity_reference=bone)
+            Rig.apply_bone_roll_strategy(bone, self.strategy, reference_z)
+        else:
+            Rig.apply_bone_roll_strategy(bone, self.strategy)
 
         return {'FINISHED'}
 
