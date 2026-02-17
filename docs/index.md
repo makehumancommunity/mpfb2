@@ -82,6 +82,7 @@ These services are either abstractions for a specific feature, or experimental. 
 topics, it is unlikely you will need them elsewhere in the code.
 
 - [AnimationService](services/animationservice.md) — BVH import and keyframe manipulation. Mostly experimental.
+- [ExportService](services/exportservice.md) — character copy creation, shape key interpolation, and modifier baking for export to external applications
 - [HairEditorService](services/haireditorservice.md) — Hair and fur asset management. Experimental and only useful for the hair editor.
 
 ### Communication with MakeHuman
