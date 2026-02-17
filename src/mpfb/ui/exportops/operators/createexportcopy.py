@@ -96,24 +96,12 @@ class MPFB_OT_Create_Export_Copy_Operator(MpfbOperator):
         if interpolate:
             ExportService.interpolate_targets(new_basemesh)
 
-        if bake_shapekeys:
-            # Yes, this is a stupid workaround until we're able to bake modifiers while having shape keys
-            TargetService.bake_targets(new_basemesh)
-
         ExportService.bake_modifiers_remove_helpers(
             new_basemesh,
             bake_masks=bake_masks,
             bake_subdiv=bake_subdiv,
             remove_helpers=delete_helpers,
             also_proxy=True)
-
-        if bake_shapekeys and (visemes_meta or visemes_microsoft or faceunits_arkit):
-            # Continuing with the stupid workaround
-            ExportService.load_targets(
-                new_basemesh,
-                load_microsoft_visemes=visemes_microsoft,
-                load_meta_visemes=visemes_meta,
-                load_arkit_faceunits=faceunits_arkit)
 
         if mask_modifiers == "REMOVE":
             for modifier in new_basemesh.modifiers:

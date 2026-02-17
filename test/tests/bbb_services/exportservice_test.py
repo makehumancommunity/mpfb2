@@ -125,3 +125,56 @@ def test_bake_modifiers():
     assert not has_subdiv_modifier
 
     remove_character_copy(character_copy)
+
+
+def test_bake_modifiers_with_shape_keys():
+    """ExportService.bake_modifiers_remove_helpers() preserves shape keys"""
+    basemesh = create_sample_human()
+    character_copy = ExportService.create_character_copy(basemesh)
+    new_basemesh = ObjectService.find_object_of_type_amongst_nearest_relatives(character_copy)
+
+    # Load viseme shape keys so there are shape keys to preserve
+    ExportService.load_targets(new_basemesh, load_microsoft_visemes=True)
+
+    has_mask_modifier = False
+    has_subdiv_modifier = False
+
+    for modifier in new_basemesh.modifiers:
+        if modifier.type == 'MASK':
+            has_mask_modifier = True
+        elif modifier.type == 'SUBSURF':
+            has_subdiv_modifier = True
+
+    assert has_mask_modifier, "Precondition: basemesh should have a MASK modifier"
+    assert has_subdiv_modifier, "Precondition: basemesh should have a SUBSURF modifier"
+
+    assert new_basemesh.data.shape_keys is not None, "Precondition: basemesh should have shape keys"
+    sk_names_before = [kb.name for kb in new_basemesh.data.shape_keys.key_blocks if kb.name != "Basis"]
+    assert len(sk_names_before) > 0, "Precondition: basemesh should have non-Basis shape keys"
+
+    # Bake modifiers WITHOUT baking shape keys first (this used to raise NotImplementedError)
+    ExportService.bake_modifiers_remove_helpers(
+        new_basemesh,
+        bake_masks=True,
+        bake_subdiv=True,
+        remove_helpers=False,
+        also_proxy=False)
+
+    has_mask_modifier = False
+    has_subdiv_modifier = False
+
+    for modifier in new_basemesh.modifiers:
+        if modifier.type == 'MASK':
+            has_mask_modifier = True
+        elif modifier.type == 'SUBSURF':
+            has_subdiv_modifier = True
+
+    assert not has_mask_modifier, "MASK modifier should be gone after baking"
+    assert not has_subdiv_modifier, "SUBSURF modifier should be gone after baking"
+
+    assert new_basemesh.data.shape_keys is not None, "Shape keys should still exist after baking modifiers"
+    sk_names_after = [kb.name for kb in new_basemesh.data.shape_keys.key_blocks if kb.name != "Basis"]
+    for sk_name in sk_names_before:
+        assert sk_name in sk_names_after, f"Shape key '{sk_name}' should survive modifier baking"
+
+    remove_character_copy(character_copy)

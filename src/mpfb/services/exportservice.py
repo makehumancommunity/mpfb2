@@ -280,37 +280,61 @@ class ExportService:
 
         has_sk = TargetService.has_any_shapekey(basemesh)
 
-        if (bake_masks or bake_subdiv) and has_sk:
-            # TODO: Support baking masks and subdivision modifiers without baking shape keys
-            raise NotImplementedError("Baking masks and/or subdivision modifiers without baking shape keys is not implemented yet")
-
         helpers_removed_by_modifier = False
 
         bpy.context.view_layer.objects.active = basemesh
 
-        for modifier in basemesh.modifiers:
-            if modifier.type == 'MASK' and bake_masks:
-                print(modifier.vertex_group)
-
-                if modifier.vertex_group == "body" and not modifier.invert_vertex_group:
-                    # This is the modifier that hides helper geometry
-                    bpy.ops.object.modifier_apply(modifier=modifier.name)
-                    helpers_removed_by_modifier = True
-                else:
-                    if modifier.vertex_group == "body" and modifier.invert_vertex_group:
-                        # This is the modifier that hides the body if there is a proxy. It does not make much
-                        # sense to keep this if we're baking masks, but it doesn't make sense to bake it either
-                        basemesh.modifiers.remove(modifier)
-                    else:
-                        # This is probably a clothes delete group
-                        bpy.ops.object.modifier_apply(modifier=modifier.name)
-            else:
+        if (bake_masks or bake_subdiv) and has_sk:
+            # Pre-adjust SUBSURF levels to render_levels so duplicates inherit the right level
+            for modifier in basemesh.modifiers:
                 if modifier.type == 'SUBSURF' and bake_subdiv:
                     modifier.levels = modifier.render_levels
-                    if modifier.levels == 0:
-                        basemesh.modifiers.remove(modifier)
+
+            # Collect modifiers to apply (in order)
+            mods_to_apply = []
+            for modifier in basemesh.modifiers:
+                if modifier.type == 'MASK' and bake_masks:
+                    if modifier.vertex_group == "body" and not modifier.invert_vertex_group:
+                        helpers_removed_by_modifier = True
+                        mods_to_apply.append(modifier.name)
+                    elif modifier.vertex_group == "body" and modifier.invert_vertex_group:
+                        pass  # handled in cleanup loop below
                     else:
+                        mods_to_apply.append(modifier.name)
+                elif modifier.type == 'SUBSURF' and bake_subdiv and modifier.levels > 0:
+                    mods_to_apply.append(modifier.name)
+
+            ExportService._apply_modifiers_keep_shapekeys(basemesh, mods_to_apply)
+
+            # Cleanup: remove all bake-related modifiers from basemesh object
+            # (applied ones had their effect baked into mesh data; unapplied ones are discarded)
+            for modifier in list(basemesh.modifiers):
+                if modifier.type == 'MASK' and bake_masks:
+                    basemesh.modifiers.remove(modifier)
+                elif modifier.type == 'SUBSURF' and bake_subdiv:
+                    basemesh.modifiers.remove(modifier)
+        else:
+            for modifier in basemesh.modifiers:
+                if modifier.type == 'MASK' and bake_masks:
+                    if modifier.vertex_group == "body" and not modifier.invert_vertex_group:
+                        # This is the modifier that hides helper geometry
                         bpy.ops.object.modifier_apply(modifier=modifier.name)
+                        helpers_removed_by_modifier = True
+                    else:
+                        if modifier.vertex_group == "body" and modifier.invert_vertex_group:
+                            # This is the modifier that hides the body if there is a proxy. It does not make much
+                            # sense to keep this if we're baking masks, but it doesn't make sense to bake it either
+                            basemesh.modifiers.remove(modifier)
+                        else:
+                            # This is probably a clothes delete group
+                            bpy.ops.object.modifier_apply(modifier=modifier.name)
+                else:
+                    if modifier.type == 'SUBSURF' and bake_subdiv:
+                        modifier.levels = modifier.render_levels
+                        if modifier.levels == 0:
+                            basemesh.modifiers.remove(modifier)
+                        else:
+                            bpy.ops.object.modifier_apply(modifier=modifier.name)
 
         if remove_helpers and not helpers_removed_by_modifier:
             bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
@@ -336,6 +360,140 @@ class ExportService:
         if also_proxy:
             # TODO: bake modifiers that affect the body proxy
             pass
+
+    @staticmethod
+    def _apply_modifiers_keep_shapekeys(basemesh, modifier_names_to_apply):
+        """Apply modifiers to basemesh while preserving shape keys.
+
+        Uses the copy-bake-apply-delta strategy: for each shape key, a temporary duplicate
+        is baked and modified; the resulting vertex deltas vs a modified Basis mesh become
+        the new shape key data on the final mesh.
+
+        Args:
+            basemesh (bpy.types.Object): The object to apply modifiers on.
+            modifier_names_to_apply (list): Ordered list of modifier names to apply.
+        """
+        _LOG.enter()
+
+        if not modifier_names_to_apply:
+            return
+
+        if not TargetService.has_any_shapekey(basemesh):
+            bpy.context.view_layer.objects.active = basemesh
+            basemesh.select_set(True)
+            for mod_name in modifier_names_to_apply:
+                bpy.ops.object.modifier_apply(modifier=mod_name)
+            return
+
+        # Snapshot shape key metadata (skip Basis)
+        original_sk_data = [
+            {"name": kb.name, "value": kb.value}
+            for kb in basemesh.data.shape_keys.key_blocks
+            if kb.name != "Basis"
+        ]
+
+        _LOG.debug("Shape keys to preserve", [sk["name"] for sk in original_sk_data])
+
+        # Build export_basis: duplicate basemesh with all non-Basis keys set to 0.0, bake and apply modifiers
+        bpy.context.view_layer.objects.active = basemesh
+        basemesh.select_set(True)
+        bpy.ops.object.duplicate()
+        export_basis_obj = bpy.context.active_object
+
+        for kb in export_basis_obj.data.shape_keys.key_blocks:
+            kb.value = 0.0
+
+        TargetService.bake_targets(export_basis_obj)
+
+        bpy.context.view_layer.objects.active = export_basis_obj
+        export_basis_obj.select_set(True)
+        for mod_name in modifier_names_to_apply:
+            if mod_name in export_basis_obj.modifiers:
+                bpy.ops.object.modifier_apply(modifier=mod_name)
+
+        n_verts = len(export_basis_obj.data.vertices)
+        export_basis_coords = [0.0] * (n_verts * 3)
+        export_basis_obj.data.vertices.foreach_get('co', export_basis_coords)
+
+        _LOG.debug("export_basis vertex count", n_verts)
+
+        # Per-key loop: build delta data for each shape key
+        new_sk_deltas = []
+
+        for sk_info in original_sk_data:
+            sk_name = sk_info["name"]
+            sk_value = sk_info["value"]
+
+            bpy.context.view_layer.objects.active = basemesh
+            basemesh.select_set(True)
+            bpy.ops.object.duplicate()
+            temp_obj = bpy.context.active_object
+
+            # Set only this key to 1.0
+            for kb in temp_obj.data.shape_keys.key_blocks:
+                if kb.name == sk_name:
+                    kb.value = 1.0
+                else:
+                    kb.value = 0.0
+
+            TargetService.bake_targets(temp_obj)
+
+            bpy.context.view_layer.objects.active = temp_obj
+            temp_obj.select_set(True)
+            for mod_name in modifier_names_to_apply:
+                if mod_name in temp_obj.modifiers:
+                    bpy.ops.object.modifier_apply(modifier=mod_name)
+
+            if len(temp_obj.data.vertices) != n_verts:
+                _LOG.warning("Vertex count mismatch for shape key, skipping", (sk_name, len(temp_obj.data.vertices), n_verts))
+                bpy.data.objects.remove(temp_obj, do_unlink=True)
+                continue
+
+            temp_coords = [0.0] * (n_verts * 3)
+            temp_obj.data.vertices.foreach_get('co', temp_coords)
+
+            significant_deltas = []
+            min_sq = SIGNIFICANT_SHIFT_MINIMUM * SIGNIFICANT_SHIFT_MINIMUM
+            for i in range(n_verts):
+                dx = temp_coords[i * 3] - export_basis_coords[i * 3]
+                dy = temp_coords[i * 3 + 1] - export_basis_coords[i * 3 + 1]
+                dz = temp_coords[i * 3 + 2] - export_basis_coords[i * 3 + 2]
+                if dx * dx + dy * dy + dz * dz > min_sq:
+                    significant_deltas.append((i, dx, dy, dz))
+
+            bpy.data.objects.remove(temp_obj, do_unlink=True)
+
+            _LOG.debug("Shape key deltas", (sk_name, len(significant_deltas)))
+            new_sk_deltas.append((sk_name, sk_value, significant_deltas))
+
+        # Swap mesh data: replace basemesh.data with export_basis_obj.data
+        old_mesh_data = basemesh.data
+        basemesh.data = export_basis_obj.data
+        bpy.data.objects.remove(export_basis_obj, do_unlink=True)
+        bpy.data.meshes.remove(old_mesh_data)
+
+        # Reconstruct shape keys from stored deltas
+        if new_sk_deltas:
+            basemesh.shape_key_add(name="Basis", from_mix=False)
+            basis_key = basemesh.data.shape_keys.key_blocks["Basis"]
+
+            basis_coords = [0.0] * (n_verts * 3)
+            basemesh.data.vertices.foreach_get('co', basis_coords)
+
+            for sk_name, sk_value, deltas in new_sk_deltas:
+                new_key = basemesh.shape_key_add(name=sk_name, from_mix=False)
+                new_key.value = sk_value
+                new_key.relative_key = basis_key
+
+                if deltas:
+                    key_coords = list(basis_coords)
+                    for idx, dx, dy, dz in deltas:
+                        key_coords[idx * 3] = basis_coords[idx * 3] + dx
+                        key_coords[idx * 3 + 1] = basis_coords[idx * 3 + 1] + dy
+                        key_coords[idx * 3 + 2] = basis_coords[idx * 3 + 2] + dz
+                    new_key.data.foreach_set('co', key_coords)
+
+        _LOG.debug("_apply_modifiers_keep_shapekeys complete")
 
     @staticmethod
     def _delete_vertex_group(blender_object, vgroup_name):
