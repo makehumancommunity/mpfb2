@@ -357,9 +357,45 @@ class ExportService:
                 if group.name.startswith("helper-") or group.name.startswith("joint-") or group.name in ["Mid", "Left", "Right"]:
                     basemesh.vertex_groups.remove(group)
 
+        root_obj = basemesh
+        if basemesh.parent is not None:
+            root_obj = basemesh.parent
+
+        ObjectService.activate_blender_object(root_obj, deselect_all=True)
+
         if also_proxy:
-            # TODO: bake modifiers that affect the body proxy
-            pass
+            proxy = ObjectService.find_object_of_type_amongst_nearest_relatives(basemesh, "Proxymeshes")
+            _LOG.debug("Proxy", proxy)
+            if proxy is None:
+                _LOG.debug("Requested to bake modifiers on proxy, but proxy not found.")
+                return
+
+            # Pre-adjust SUBSURF levels on proxy before collecting mods
+            for modifier in proxy.modifiers:
+                if modifier.type == 'SUBSURF' and bake_subdiv:
+                    modifier.levels = modifier.render_levels
+
+            proxy_mods_to_apply = []
+            for modifier in proxy.modifiers:
+                if modifier.type == 'MASK' and bake_masks:
+                    proxy_mods_to_apply.append(modifier.name)
+                elif modifier.type == 'SUBSURF' and bake_subdiv and modifier.levels > 0:
+                    proxy_mods_to_apply.append(modifier.name)
+
+            _LOG.debug("Proxy modifiers to apply", proxy_mods_to_apply)
+
+            if len(proxy_mods_to_apply) < 1:
+                _LOG.debug("No modifiers to bake on proxy.")
+                return
+
+            ObjectService.activate_blender_object(proxy, deselect_all=True)
+
+            for mod_name in proxy_mods_to_apply:
+                if mod_name in proxy.modifiers:
+                    _LOG.debug("Baking proxy modifier", mod_name)
+                    bpy.ops.object.modifier_apply(modifier=mod_name)
+
+        ObjectService.activate_blender_object(root_obj, deselect_all=True)
 
     @staticmethod
     def _apply_modifiers_keep_shapekeys(basemesh, modifier_names_to_apply):
