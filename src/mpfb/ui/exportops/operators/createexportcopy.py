@@ -12,7 +12,7 @@ _LOG = LogService.get_logger("matops.createexportcopy")
 _LOG.set_level(LogService.DEBUG)
 
 class MPFB_OT_Create_Export_Copy_Operator(MpfbOperator):
-    """Operation to create an export copy of a character"""
+    """Create a deep copy of a character"""
     bl_idname = "mpfb.export_copy"
     bl_label = "Create export copy"
     bl_options = {'REGISTER'}

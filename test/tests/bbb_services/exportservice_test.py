@@ -178,3 +178,34 @@ def test_bake_modifiers_with_shape_keys():
         assert sk_name in sk_names_after, f"Shape key '{sk_name}' should survive modifier baking"
 
     remove_character_copy(character_copy)
+
+
+def test_no_superfluous_objects_after_bake_with_shape_keys():
+    """ExportService.bake_modifiers_remove_helpers() leaves no extra objects when shape keys are present"""
+    basemesh = create_sample_human()
+    character_copy = ExportService.create_character_copy(basemesh)
+    new_basemesh = ObjectService.find_object_of_type_amongst_nearest_relatives(character_copy)
+
+    # Load viseme shape keys to exercise the shape-key-preserving code path
+    ExportService.load_targets(new_basemesh, load_microsoft_visemes=True)
+
+    objects_before = set(bpy.data.objects)
+    armature_count_before = sum(1 for o in bpy.data.objects if o.type == 'ARMATURE')
+
+    ExportService.bake_modifiers_remove_helpers(
+        new_basemesh,
+        bake_masks=True,
+        bake_subdiv=True,
+        remove_helpers=False,
+        also_proxy=False)
+
+    objects_after = set(bpy.data.objects)
+    armature_count_after = sum(1 for o in bpy.data.objects if o.type == 'ARMATURE')
+
+    extra_objects = objects_after - objects_before
+    assert not extra_objects, \
+        f"Baking modifiers left {len(extra_objects)} unexpected extra object(s): {[o.name for o in extra_objects]}"
+    assert armature_count_after == armature_count_before, \
+        f"Expected {armature_count_before} armature(s) after baking but found {armature_count_after}"
+
+    remove_character_copy(character_copy)

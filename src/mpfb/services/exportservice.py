@@ -308,7 +308,7 @@ class ExportService:
 
             # Cleanup: remove all bake-related modifiers from basemesh object
             # (applied ones had their effect baked into mesh data; unapplied ones are discarded)
-            for modifier in list(basemesh.modifiers):
+            for modifier in basemesh.modifiers:
                 if modifier.type == 'MASK' and bake_masks:
                     basemesh.modifiers.remove(modifier)
                 elif modifier.type == 'SUBSURF' and bake_subdiv:
@@ -378,6 +378,7 @@ class ExportService:
         if not modifier_names_to_apply:
             return
 
+        # Just in case, although this will probably never happen here
         if not TargetService.has_any_shapekey(basemesh):
             bpy.context.view_layer.objects.active = basemesh
             basemesh.select_set(True)
@@ -392,13 +393,12 @@ class ExportService:
             if kb.name != "Basis"
         ]
 
-        _LOG.debug("Shape keys to preserve", [sk["name"] for sk in original_sk_data])
+        _LOG.dump("Shape keys to preserve", [sk["name"] for sk in original_sk_data])
 
-        # Build export_basis: duplicate basemesh with all non-Basis keys set to 0.0, bake and apply modifiers
-        bpy.context.view_layer.objects.active = basemesh
-        basemesh.select_set(True)
-        bpy.ops.object.duplicate()
-        export_basis_obj = bpy.context.active_object
+        bpy.ops.object.select_all(action='DESELECT')
+        export_basis_obj = ObjectService.duplicate_blender_object(basemesh)
+        bpy.context.view_layer.objects.active = export_basis_obj
+        export_basis_obj.select_set(True)
 
         for kb in export_basis_obj.data.shape_keys.key_blocks:
             kb.value = 0.0
@@ -424,10 +424,11 @@ class ExportService:
             sk_name = sk_info["name"]
             sk_value = sk_info["value"]
 
-            bpy.context.view_layer.objects.active = basemesh
-            basemesh.select_set(True)
-            bpy.ops.object.duplicate()
-            temp_obj = bpy.context.active_object
+            bpy.ops.object.select_all(action='DESELECT')
+            temp_obj = ObjectService.duplicate_blender_object(basemesh)
+            bpy.context.view_layer.objects.active = temp_obj
+            temp_obj.select_set(True)
+            _LOG.debug("Created new temporary object", temp_obj.name)
 
             # Set only this key to 1.0
             for kb in temp_obj.data.shape_keys.key_blocks:
@@ -461,6 +462,7 @@ class ExportService:
                 if dx * dx + dy * dy + dz * dz > min_sq:
                     significant_deltas.append((i, dx, dy, dz))
 
+            _LOG.debug("About to remove object", temp_obj.name)
             bpy.data.objects.remove(temp_obj, do_unlink=True)
 
             _LOG.debug("Shape key deltas", (sk_name, len(significant_deltas)))
@@ -493,7 +495,6 @@ class ExportService:
                         key_coords[idx * 3 + 2] = basis_coords[idx * 3 + 2] + dz
                     new_key.data.foreach_set('co', key_coords)
 
-        _LOG.debug("_apply_modifiers_keep_shapekeys complete")
 
     @staticmethod
     def _delete_vertex_group(blender_object, vgroup_name):
