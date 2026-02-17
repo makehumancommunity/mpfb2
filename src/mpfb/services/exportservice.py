@@ -14,7 +14,6 @@ from .clothesservice import ClothesService
 from ..entities.clothes.mhclo import Mhclo
 
 _LOG = LogService.get_logger("services.exportservice")
-_LOG.set_level(LogService.DEBUG)
 
 MICROSOFT_VISEMES = [
     "aa_02",
@@ -59,7 +58,60 @@ META_VISEMES = [
     "viseme_U"
     ]
 
-# TODO: List arkit face units here
+ARKIT_FACEUNITS = [
+    "browDownLeft",
+    "browDownRight",
+    "browInnerUp",
+    "browOuterUpLeft",
+    "browOuterUpRight",
+    "cheekPuff",
+    "cheekSquintLeft",
+    "cheekSquintRight",
+    "eyeBlinkLeft",
+    "eyeBlinkRight",
+    "eyeLookDownLeft",
+    "eyeLookDownRight",
+    "eyeLookInLeft",
+    "eyeLookInRight",
+    "eyeLookOutLeft",
+    "eyeLookOutRight",
+    "eyeLookUpLeft",
+    "eyeLookUpRight",
+    "eyeSquintLeft",
+    "eyeSquintRight",
+    "eyeWideLeft",
+    "eyeWideRight",
+    "jawForward",
+    "jawLeft",
+    "jawOpen",
+    "jawRight",
+    "mouthClose",
+    "mouthDimpleLeft",
+    "mouthDimpleRight",
+    "mouthFrownLeft",
+    "mouthFrownRight",
+    "mouthFunnel",
+    "mouthLeft",
+    "mouthLowerDownLeft",
+    "mouthLowerDownRight",
+    "mouthPressLeft",
+    "mouthPressRight",
+    "mouthPucker",
+    "mouthRight",
+    "mouthRollLower",
+    "mouthRollUpper",
+    "mouthShrugLower",
+    "mouthShrugUpper",
+    "mouthSmileLeft",
+    "mouthSmileRight",
+    "mouthStretchLeft",
+    "mouthStretchRight",
+    "mouthUpperUpLeft",
+    "mouthUpperUpRight",
+    "noseSneerLeft",
+    "noseSneerRight",
+    "tongueOut"
+]
 
 # If no vert was shifted more than this in a shape key, assume the shape key is not significant enough to be interpolated.
 SIGNIFICANT_SHIFT_MINIMUM = 0.0001
@@ -148,6 +200,15 @@ class ExportService:
                         "value": 0.0
                     })
 
+        if load_arkit_faceunits:
+            for target in ARKIT_FACEUNITS:
+                _LOG.debug("Adding target", target)
+                target_stack.append(
+                    {
+                        "target": target,
+                        "value": 0.0
+                    })
+
         if len(target_stack) > 0:
             TargetService.bulk_load_targets(basemesh, target_stack)
 
@@ -183,7 +244,7 @@ class ExportService:
 
         all_relevant_shapekey_names = list(MICROSOFT_VISEMES)
         all_relevant_shapekey_names.extend(list(META_VISEMES))
-        # TODO: Extend to handle faceunit shape keys as well as viseme shape keys
+        all_relevant_shapekey_names.extend(list(ARKIT_FACEUNITS))
 
         shape_keys_to_interpolate = []
         for key_block in basemesh.data.shape_keys.key_blocks:
