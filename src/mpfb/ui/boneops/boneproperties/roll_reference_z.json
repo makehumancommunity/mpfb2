@@ -1,0 +1,7 @@
+{
+    "type": "vector_location",
+    "name": "roll_reference_z",
+    "description": "Reference vector for bone Z-axis",
+    "label": "Reference Z",
+    "default": [0.0, 0.0, 0.0]
+}
