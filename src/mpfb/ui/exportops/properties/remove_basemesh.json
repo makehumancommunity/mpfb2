@@ -1,0 +1,7 @@
+{
+    "type": "boolean",
+    "name": "remove_basemesh",
+    "description": "Once all relevant operations have been conducted on the export copy, remove the basemesh. This is recommended if you use a body proxy",
+    "label": "Remove basemesh",
+    "default": false
+}
