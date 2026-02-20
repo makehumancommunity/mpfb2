@@ -408,7 +408,22 @@ class ExportService:
                     basemesh.modifiers.remove(modifier)
 
             if has_sk:
-                TargetService.reapply_all_details(basemesh)
+                # First check if there are any macro details on the basemesh
+                # If there are only viseme/faceunits, then we shouldn't call
+                # reapply_all_details() since it will then add back the macro details
+                non_pertinent_targets = ["Basis"]
+                non_pertinent_targets.extend(META_VISEMES)
+                non_pertinent_targets.extend(MICROSOFT_VISEMES)
+                non_pertinent_targets.extend(ARKIT_FACEUNITS)
+                has_any_pertinent_detail = False
+                for shapekey in basemesh.data.shape_keys.key_blocks:
+                    _LOG.debug("found shape key", shapekey.name)
+                    if shapekey.name not in non_pertinent_targets:
+                        _LOG.debug("found pertinent shape key", shapekey.name)
+                        has_any_pertinent_detail = True
+                        break
+                if has_any_pertinent_detail:
+                    TargetService.reapply_all_details(basemesh)
 
             basemesh.select_set(True)
             ObjectService.activate_blender_object(basemesh)
