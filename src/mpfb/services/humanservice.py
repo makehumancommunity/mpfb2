@@ -488,6 +488,11 @@ class HumanService:
         GeneralObjectProperties.set_value("object_type", atype, entity_reference=clothes)
 
         bpy.ops.object.shade_smooth()
+        if SystemService.is_blender_version_at_least([5,1,0]):
+            # Try to handle bug in blender 5.1 normals calculation
+            bpy.ops.object.mode_set(mode='EDIT', toggle=False)
+            bpy.context.view_layer.update()
+            bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
 
         name = basemesh.name
 
