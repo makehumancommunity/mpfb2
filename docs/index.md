@@ -91,3 +91,46 @@ These are services and classes which are only relevant when interacting with a r
 
 - [SocketService](services/socketservice.md) — MakeHuman socket server communication
 - [JsonCall](services/jsoncall.md) — JSON-serializable function call model. 
+
+## Entities
+
+Entity classes are in `src/mpfb/entities/`. Entities are data-oriented classes that encapsulate state and domain logic, in contrast to the stateless singleton services.
+In many cases, an entity class is a wrapper for a file format (see above).
+
+### Data structures and utilities
+
+- [MeshCrossRef](entities/meshcrossref.md) — multi-table mesh cross-reference for efficient spatial and topological queries
+- [PrimitiveProfiler](entities/primitiveprofiler.md) — lightweight named timing profiler for development use
+
+### Object property sets
+
+- [Object properties](entities/objectproperties.md) — `GeneralObjectProperties`, `HumanObjectProperties`, and `SkeletonObjectProperties`: module-level `BlenderConfigSet` singletons that attach namespaced custom properties to Blender objects
+
+### Clothes entities
+
+- [Mhclo](entities/clothes/mhclo.md) — parser and serializer for MHCLO clothing files
+- [VertexMatch](entities/clothes/vertexmatch.md) — automatic clothes-to-basemesh vertex mapping with 4-strategy fallback
+
+### Material entities
+
+- [MHMAT key system](entities/material/mhmat_keys.md) — type hierarchy and key catalog for MHMAT parsing (`mhmatkeytypes.py`, `mhmatkeys.py`)
+- [MhMaterial](entities/material/mhmaterial.md) — parser and serializer for MHMAT material files
+- [MakeSkinMaterial](entities/material/makeskinmaterial.md) — bridges MHMAT format with Blender node-based materials (MakeSkin workflow)
+- [EnhancedSkinMaterial](entities/material/enhancedskinmaterial.md) — advanced skin shader with PBR and subsurface scattering support
+
+### Rig entity
+
+- [Rig](entities/rig.md) — armature serialisation/deserialisation and JSON Blender round-trip, with positioning-strategy system
+
+### Rigging helpers
+
+Yes it looks odd that each helper is a one-to-one class hierarchy. "Default" here is the "default" rig. The plan was originally
+to support other rigs too.
+
+- [AbstractRigHelper](entities/rigging/righelpers.md) — base class providing Blender mode-switching utilities
+- [ArmHelpers / DefaultArmHelpers](entities/rigging/armhelpers.md) — IK helper bones and constraints for arms
+- [LegHelpers / DefaultLegHelpers](entities/rigging/leghelpers.md) — IK helper bones and constraints for legs
+- [EyeHelpers / DefaultEyeHelpers](entities/rigging/eyehelpers.md) — eye-tracking IK bones and constraints
+- [FingerHelpers / DefaultFingerHelpers](entities/rigging/fingerhelpers.md) — grip and IK helpers for fingers
+- [RigifyHelpers / GameEngineRigifyHelpers](entities/rigging/rigifyhelpers.md) — Rigify metarig conversion
+
