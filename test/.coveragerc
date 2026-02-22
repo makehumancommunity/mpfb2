@@ -8,3 +8,6 @@ omit =
 
 [html]
 directory = coverage
+
+[json]
+output = coverage/coverage.json

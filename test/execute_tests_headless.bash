@@ -27,9 +27,10 @@ else
     unset COVERAGE_PROCESS_START  # prevent coverage from starting again
     "$BLENDER_PYTHON" -m coverage combine
     "$BLENDER_PYTHON" -m coverage html
-    echo "Coverage report written to test/coverage/"
+    "$BLENDER_PYTHON" -m coverage json
+    echo "Coverage reports written to test/coverage/ (HTML and JSON)"
   else
     echo "Warning: Could not find Blender's Python; skipping coverage report generation."
-    echo "Run manually: python3 -m coverage combine && python3 -m coverage html"
+    echo "Run manually: python3 -m coverage combine && python3 -m coverage html && python3 -m coverage json"
   fi
 fi
