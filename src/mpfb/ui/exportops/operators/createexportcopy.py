@@ -2,6 +2,7 @@
 
 from ....services import LogService
 from ....services import ExportService
+from ....services import FaceService
 from ....services import ObjectService
 from ....services import TargetService
 from ...mpfboperator import MpfbOperator
@@ -87,14 +88,14 @@ class MPFB_OT_Create_Export_Copy_Operator(MpfbOperator):
             TargetService.bake_targets(new_basemesh)
 
         if visemes_meta or visemes_microsoft or faceunits_arkit:
-            ExportService.load_targets(
+            FaceService.load_targets(
                 new_basemesh,
                 load_microsoft_visemes=visemes_microsoft,
                 load_meta_visemes=visemes_meta,
                 load_arkit_faceunits=faceunits_arkit)
 
         if interpolate:
-            ExportService.interpolate_targets(new_basemesh)
+            FaceService.interpolate_targets(new_basemesh)
 
         ExportService.bake_modifiers_remove_helpers(
             new_basemesh,

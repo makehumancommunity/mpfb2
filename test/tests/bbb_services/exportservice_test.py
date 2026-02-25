@@ -3,6 +3,7 @@ from pytest import approx
 from .. import ObjectService
 from .. import HumanService
 from .. import ExportService
+from .. import FaceService
 from .. import TargetService
 from .. import LocationService
 
@@ -134,7 +135,7 @@ def test_bake_modifiers_with_shape_keys():
     new_basemesh = ObjectService.find_object_of_type_amongst_nearest_relatives(character_copy)
 
     # Load viseme shape keys so there are shape keys to preserve
-    ExportService.load_targets(new_basemesh, load_microsoft_visemes=True)
+    FaceService.load_targets(new_basemesh, load_microsoft_visemes=True)
 
     has_mask_modifier = False
     has_subdiv_modifier = False
@@ -187,7 +188,7 @@ def test_no_superfluous_objects_after_bake_with_shape_keys():
     new_basemesh = ObjectService.find_object_of_type_amongst_nearest_relatives(character_copy)
 
     # Load viseme shape keys to exercise the shape-key-preserving code path
-    ExportService.load_targets(new_basemesh, load_microsoft_visemes=True)
+    FaceService.load_targets(new_basemesh, load_microsoft_visemes=True)
 
     objects_before = set(bpy.data.objects)
     armature_count_before = sum(1 for o in bpy.data.objects if o.type == 'ARMATURE')
