@@ -267,7 +267,7 @@ Test directories use alphabetical prefixes to control execution order:
 
 ### Coverage
 
-Code coverage reports are generated to `test/tests/coverage/` when running headless. Due to how tests are invoked (Blender imports modules before pytest runs), class and method headers will never show as covered.
+Code coverage reports are generated to `test/coverage/` when running headless.
 
 ## Linting
 
