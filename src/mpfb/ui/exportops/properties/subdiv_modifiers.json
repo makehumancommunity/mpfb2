@@ -1,0 +1,12 @@
+{
+    "type": "enum",
+    "name": "subdiv_modifiers",
+    "description": "If keeping the basemesh, use this strategy for subdivision modifiers",
+    "label": "Subdiv modifiers",
+    "default": "KEEP",
+    "items":     [
+            ["KEEP", "Keep all subdiv modifiers", "Keep subdiv modifiers"],
+            ["REMOVE", "Remove subdiv modifiers", "Remove subdiv modifiers"],
+            ["BAKE", "Bake subdiv modifiers", "Bake subdiv modifiers"]
+        ]
+}

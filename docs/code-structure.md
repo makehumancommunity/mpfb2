@@ -106,6 +106,8 @@ These are not services per se but are imported alongside them:
 | `TargetService` | Morph targets and shape keys. A target is a serialized shape key: vertex indices with XYZ displacement vectors. |
 | `RigService` | Rigs, bones, and weights. |
 | `AnimationService` | Animations and poses. |
+| `FaceService` | Facial animation targets: loading and interpolating viseme and ARKit face unit shape keys. |
+| `ExportService` | Character copy creation and modifier baking. |
 | `HairEditorService` | Convenience methods for the hair editor. |
 
 #### Aggregator services
@@ -267,7 +269,7 @@ Test directories use alphabetical prefixes to control execution order:
 
 ### Coverage
 
-Code coverage reports are generated to `test/tests/coverage/` when running headless. Due to how tests are invoked (Blender imports modules before pytest runs), class and method headers will never show as covered.
+Code coverage reports are generated to `test/coverage/` when running headless.
 
 ## Linting
 

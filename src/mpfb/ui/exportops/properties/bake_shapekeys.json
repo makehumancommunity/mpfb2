@@ -1,0 +1,7 @@
+{
+    "type": "boolean",
+    "name": "bake_shapekeys",
+    "description": "If keeping the basemesh, bake all modelling related shape keys. Viseme and faceunit shape keys applied as part of the export process will be kept",
+    "label": "Bake modelling shapekeys",
+    "default": true
+}

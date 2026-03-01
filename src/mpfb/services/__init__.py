@@ -35,6 +35,8 @@ from .meshservice import MeshService
 from .targetservice import TargetService
 from .rigservice import RigService
 from .animationservice import AnimationService
+from .faceservice import FaceService
+from .exportservice import ExportService
 
 # Depend on everything services
 from .clothesservice import ClothesService
@@ -44,6 +46,8 @@ SERVICES = {
     "AnimationService": AnimationService,
     "AssetService": AssetService,
     "ClothesService": ClothesService,
+    "ExportService": ExportService,
+    "FaceService": FaceService,
     "HumanService": HumanService,
     "LocationService": LocationService,
     "LogService": LogService,
@@ -67,6 +71,8 @@ __all__ = [
     "ConfigurationSet",
     "BlenderConfigSet",
     "SceneConfigSet",
+    "ExportService",
+    "FaceService",
     "ModifierService",
     "NodeService",
     "NodeTreeService",

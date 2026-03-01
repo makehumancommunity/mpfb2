@@ -1,0 +1,12 @@
+{
+    "type": "enum",
+    "name": "mask_modifiers",
+    "description": "If keeping the basemesh, use this strategy for mask modifiers",
+    "label": "Mask modifiers",
+    "default": "KEEP",
+    "items":     [
+            ["KEEP", "Keep all mask modifiers", "Keep mask modifiers"],
+            ["REMOVE", "Remove mask modifiers", "Remove mask modifiers"],
+            ["BAKE", "Bake mask modifiers", "Bake mask modifiers"]
+        ]
+}

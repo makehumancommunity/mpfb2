@@ -1,0 +1,7 @@
+{
+    "type": "boolean",
+    "name": "delete_helpers",
+    "description": "If keeping the basemesh, remove all helper geometry",
+    "label": "Delete helpers",
+    "default": true
+}

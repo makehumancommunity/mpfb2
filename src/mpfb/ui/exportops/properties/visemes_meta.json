@@ -1,0 +1,7 @@
+{
+    "type": "boolean",
+    "name": "visemes_meta",
+    "description": "Load meta-style visemes. If baking shapekeys, this will be done after the bake",
+    "label": "Load meta-style visemes",
+    "default": false
+}

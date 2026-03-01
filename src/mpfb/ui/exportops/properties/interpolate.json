@@ -1,0 +1,7 @@
+{
+    "type": "boolean",
+    "name": "interpolate",
+    "description": "Interpolate visemes and faceunits to bodypart and hair child meshes",
+    "label": "Interpolate visemes and faceunits",
+    "default": false
+}

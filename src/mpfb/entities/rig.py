@@ -718,7 +718,7 @@ class Rig:
         from ..ui.boneops import BoneOpsArmatureProperties, BoneOpsBoneProperties, BoneOpsEditBoneProperties
 
         BoneOpsArmatureProperties.set_value("developer_mode", True, entity_reference=self.armature_object.data)
-        
+
         for bone_name, bone_info in self.rig_definition.items():
             bone = RigService.find_pose_bone_by_name(bone_name, self.armature_object).bone
 
@@ -734,7 +734,7 @@ class Rig:
                 BoneOpsEditBoneProperties.set_value("roll_strategy", roll_strategy, entity_reference=bone)
                 roll_reference_z = bone_info.get("roll_reference_z", (0.0, 0.0, 0.0))
                 BoneOpsEditBoneProperties.set_value("roll_reference_z", roll_reference_z, entity_reference=bone)
-            bpy.ops.object.mode_set(mode='OBJECT', toggle=False)        
+            bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
 
     @staticmethod
     def assign_bone_end_strategy(bone, info, is_tail: bool, *, force=False, lock: bool | None=None):
@@ -944,7 +944,7 @@ class Rig:
 
             # Info that must be accessed in Edit mode
             bone_info["roll"] = bone.roll
-            
+
             roll_strategy = properties.get_value("roll_strategy", entity_reference=bone)
             if roll_strategy:
                 bone_info["roll_strategy"] = roll_strategy
