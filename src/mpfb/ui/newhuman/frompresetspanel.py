@@ -34,8 +34,8 @@ PRESETS_HUMAN_PROPERTIES.add_property(_SETTINGS_LIST_PROP, _populate_settings)
 def _populate_override_rig(self, context):
     from ...services import AssetService  # pylint: disable=C0415
     items = [
-        ("NONE", "No rig", "Do not add a rig, no matter what is said in the preset"),
         ("PRESET", "From preset", "Use the rig specified in the preset"),
+        ("NONE", "No rig", "Do not add a rig, no matter what is said in the preset"),
         ("default", "Default", "Use the default rig"),
         ("default_no_toes", "Default (no toes)", "Use the default_no_toes rig"),
         ("game_engine", "Game engine", "Use the game_engine rig"),
@@ -57,7 +57,7 @@ _OVERRIDE_RIG_PROP = {
     "name": "override_rig",
     "description": "What rig to use for the character",
     "label": "Rig",
-    "default": None
+    "default": 0
 }
 PRESETS_HUMAN_PROPERTIES.add_property(_OVERRIDE_RIG_PROP, _populate_override_rig)
 
