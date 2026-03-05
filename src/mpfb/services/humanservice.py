@@ -236,7 +236,7 @@ class HumanService:
         armature_object = ObjectService.find_object_of_type_amongst_nearest_relatives(basemesh, "Skeleton")
         if not armature_object is None:
             rig_type = RigService.identify_rig(armature_object)
-            if rig_type is None or rig_type == "unkown":
+            if rig_type is None or rig_type in ("unknown", "unkown"):
                 raise ValueError("Could not identify rig type. Custom rigs cannot be serialized.")
             if rig_type.startswith("rigify_generated"):
                 _LOG.warn("Generated rigify should probably not be serialized. If you want to serialize the rig you should do it before generating the final rig.")
@@ -608,8 +608,11 @@ class HumanService:
         rig = None
         if "rig" in human_info and not human_info["rig"] is None and not str(human_info["rig"]).strip() == "":
             rig_name = human_info["rig"]
-            _LOG.debug("Adding a standard rig:", rig_name)
-            rig = HumanService.add_builtin_rig(basemesh, rig_name, import_weights=True)
+            _LOG.debug("Adding rig:", rig_name)
+            if rig_name.startswith("custom."):
+                rig = HumanService.add_custom_rig(basemesh, rig_name, import_weights=True)
+            else:
+                rig = HumanService.add_builtin_rig(basemesh, rig_name, import_weights=True)
         else:
             _LOG.warn("Not adding a rig, since rig setting is empty")
 
@@ -1513,6 +1516,51 @@ class HumanService:
                 if operator is not None:
                     operator.report({'ERROR'}, "Could not find the weights file")
 
+            RigService.ensure_armature_modifier(basemesh, armature_object)
+
+        return armature_object
+
+    @staticmethod
+    def add_custom_rig(basemesh, rig_name, *, import_weights=True, operator=None):
+        """Load a custom rig from user data and attach it to the given basemesh.
+
+        Args:
+            basemesh (bpy.types.Object): The basemesh to attach the rig to.
+            rig_name (str): Full rig name including 'custom.' prefix, e.g. 'custom.my_rig'.
+            import_weights (bool): Whether to load weights and create an armature modifier.
+            operator (bpy.types.Operator, optional): Operator for reporting errors/warnings.
+
+        Returns:
+            bpy.types.Object: The created armature object, or None on failure.
+        """
+        short_name = rig_name[7:]  # strip "custom."
+        custom_rigs = {r["name"]: r for r in AssetService.get_custom_rigs()}
+        if short_name not in custom_rigs:
+            msg = "Custom rig '" + short_name + "' not found in user data. Cannot load character."
+            if operator:
+                operator.report({'ERROR'}, msg)
+            else:
+                raise ValueError(msg)
+            return None
+
+        rig_info = custom_rigs[short_name]
+        rig_file = rig_info["path"]
+        rig_dir = os.path.dirname(rig_file)
+
+        rig = Rig.from_json_file_and_basemesh(rig_file, basemesh)
+        armature_object = rig.create_armature_and_fit_to_basemesh()
+        armature_object.name = armature_object.data.name = basemesh.name + ".rig"
+        RigService.normalize_rotation_mode(armature_object)
+        basemesh.parent = armature_object
+        armature_object.location = basemesh.location
+        basemesh.location = (0.0, 0.0, 0.0)
+
+        if import_weights:
+            weights_file = os.path.join(rig_dir, "weights." + short_name + ".json")
+            if os.path.isfile(weights_file):
+                RigService.load_weights(armature_object, basemesh, weights_file)
+            elif operator:
+                operator.report({'WARNING'}, "No weights file found for custom rig '" + short_name + "'")
             RigService.ensure_armature_modifier(basemesh, armature_object)
 
         return armature_object

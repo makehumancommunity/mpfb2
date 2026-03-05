@@ -31,6 +31,37 @@ _SETTINGS_LIST_PROP = {
 PRESETS_HUMAN_PROPERTIES.add_property(_SETTINGS_LIST_PROP, _populate_settings)
 
 
+def _populate_override_rig(self, context):
+    from ...services import AssetService  # pylint: disable=C0415
+    items = [
+        ("NONE", "No rig", "Do not add a rig, no matter what is said in the preset"),
+        ("PRESET", "From preset", "Use the rig specified in the preset"),
+        ("default", "Default", "Use the default rig"),
+        ("default_no_toes", "Default (no toes)", "Use the default_no_toes rig"),
+        ("game_engine", "Game engine", "Use the game_engine rig"),
+        ("game_engine_with_breast", "Game engine (with breast)", "Use the game_engine_with_breast rig"),
+        ("cmu_mb", "CMU MB", "Use the cmu_mb rig"),
+        ("mixamo", "Mixamo", "Use the mixamo rig"),
+        ("mixamo_unity", "Mixamo (unity extensions)", "The Mixamo rig with extra bones for unity"),
+        ("rigify.human_toes", "Rigify default metarig", "Use the default rigify metarig"),
+        ("rigify.human", "Rigify metarig without toes", "Use the default rigify metarig without toes"),
+        ("openpose", "OpenPose", "Use the OpenPose BODY_25 rig (without hands)"),
+    ]
+    for cr in AssetService.get_custom_rigs():
+        items.append(("custom." + cr["name"], "Custom: " + cr["name"], "Use custom rig " + cr["name"]))
+    return items
+
+
+_OVERRIDE_RIG_PROP = {
+    "type": "enum",
+    "name": "override_rig",
+    "description": "What rig to use for the character",
+    "label": "Rig",
+    "default": None
+}
+PRESETS_HUMAN_PROPERTIES.add_property(_OVERRIDE_RIG_PROP, _populate_override_rig)
+
+
 class MPFB_PT_From_Presets_Panel(Abstract_Panel):
     """Create human from preset main panel."""
 

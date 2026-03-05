@@ -10,6 +10,7 @@ from .loadrig import MPFB_OT_Load_Rig_Operator
 from .saverig import MPFB_OT_Save_Rig_Operator
 from .loadweights import MPFB_OT_Load_Weights_Operator
 from .saveweights import MPFB_OT_Save_Weights_Operator
+from .savetolibrary import MPFB_OT_Save_Rig_To_Library_Operator
 
 __all__ = [
     "MPFB_OT_Move_To_Cube_Operator",
@@ -17,5 +18,6 @@ __all__ = [
     "MPFB_OT_Load_Rig_Operator",
     "MPFB_OT_Save_Rig_Operator",
     "MPFB_OT_Load_Weights_Operator",
-    "MPFB_OT_Save_Weights_Operator"
+    "MPFB_OT_Save_Weights_Operator",
+    "MPFB_OT_Save_Rig_To_Library_Operator"
 ]

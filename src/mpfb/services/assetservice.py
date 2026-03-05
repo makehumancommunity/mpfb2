@@ -11,6 +11,7 @@ _LOG = LogService.get_logger("services.assetservice")
 _ASSETS = dict()
 _ASSET_THUMBS = None
 _PACKS = None
+_CUSTOM_RIGS_CACHE = None
 
 ASSET_LIBRARY_SECTIONS = [
         {
@@ -571,3 +572,79 @@ class AssetService:
                 asset_names.extend(AssetService.get_asset_names_in_pack(name))
         asset_names.sort()
         return asset_names
+
+    @staticmethod
+    def get_custom_rigs(use_cache=True):
+        """Scan user asset roots for custom rig JSON files.
+
+        Returns a list of dicts: {name, path, identifying_bones}.
+        Only scans user data roots (not the system MPFB data root).
+
+        Args:
+            use_cache (bool): If True, return cached results when available.
+
+        Returns:
+            list: List of dicts with keys 'name', 'path', 'identifying_bones'.
+        """
+        import re as _re
+        global _CUSTOM_RIGS_CACHE  # pylint: disable=W0603
+        if use_cache and _CUSTOM_RIGS_CACHE is not None:
+            return _CUSTOM_RIGS_CACHE
+
+        found = []
+        roots = []
+
+        user_data = LocationService.get_user_data()
+        if user_data and os.path.exists(user_data):
+            roots.append(user_data)
+
+        second_root = LocationService.get_second_root()
+        if second_root and os.path.exists(second_root) and second_root not in roots:
+            roots.append(second_root)
+
+        for root in roots:
+            rigs_dir = os.path.join(root, "rigs")
+            if not os.path.isdir(rigs_dir):
+                continue
+            for filename in os.listdir(rigs_dir):
+                if not filename.endswith(".json"):
+                    continue
+                name = filename[:-5]  # strip .json
+                if not _re.match(r'^[a-zA-Z0-9_]+$', name):
+                    _LOG.debug("Skipping custom rig file with invalid name", filename)
+                    continue
+                filepath = os.path.join(rigs_dir, filename)
+                try:
+                    with open(filepath, "r") as f:
+                        data = json.load(f)
+                except Exception:  # pylint: disable=W0703
+                    _LOG.warn("Could not parse custom rig file", filepath)
+                    continue
+                if "identifying_bones" not in data:
+                    continue
+                found.append({
+                    "name": name,
+                    "path": filepath,
+                    "identifying_bones": data["identifying_bones"]
+                })
+
+        _CUSTOM_RIGS_CACHE = found
+        return found
+
+    @staticmethod
+    def invalidate_custom_rig_cache():
+        """Clear the cached custom rig list so the next call to get_custom_rigs() rescans disk."""
+        global _CUSTOM_RIGS_CACHE  # pylint: disable=W0603
+        _CUSTOM_RIGS_CACHE = None
+
+    @staticmethod
+    def get_custom_rigs_enum_items():
+        """Return custom rig names as Blender enum item tuples for use in EnumProperty callbacks.
+
+        Returns:
+            list: List of (identifier, label, description) tuples. Returns a single 'NONE' entry if no custom rigs exist.
+        """
+        custom_rigs = AssetService.get_custom_rigs()
+        if not custom_rigs:
+            return [("NONE", "No custom rigs found", "")]
+        return [(r["name"], "Custom: " + r["name"], "") for r in custom_rigs]

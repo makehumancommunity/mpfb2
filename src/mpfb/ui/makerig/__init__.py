@@ -45,9 +45,36 @@ _TAIL_CUBE = {
     "default": None
 }
 
+_LIBRARY_RIG_NAME = {
+    "type": "string",
+    "name": "library_rig_name",
+    "description": "Alphanumeric name (letters, digits, underscores) for this rig in the library",
+    "label": "Library rig name",
+    "default": ""
+}
+
+_LIBRARY_IDENTIFYING_BONES = {
+    "type": "string",
+    "name": "library_identifying_bones",
+    "description": "Comma-separated bone names that uniquely identify this rig",
+    "label": "Identifying bones",
+    "default": ""
+}
+
+_LIBRARY_ALSO_SAVE_WEIGHTS = {
+    "type": "boolean",
+    "name": "library_also_save_weights",
+    "description": "Also save weights alongside the rig definition",
+    "label": "Save weights",
+    "default": True
+}
+
 MakeRigProperties = SceneConfigSet(_MAKERIG_PROPERTIES, prefix="MRP_") # pylint: disable=C0103
 MakeRigProperties.add_property(_HEAD_CUBE, get_joints)
 MakeRigProperties.add_property(_TAIL_CUBE, get_joints)
+MakeRigProperties.add_property(_LIBRARY_RIG_NAME)
+MakeRigProperties.add_property(_LIBRARY_IDENTIFYING_BONES)
+MakeRigProperties.add_property(_LIBRARY_ALSO_SAVE_WEIGHTS)
 
 from .makerigpanel import MPFB_PT_MakeRig_Panel
 from .bonespanel import MPFB_PT_MakeRigBones_Panel
