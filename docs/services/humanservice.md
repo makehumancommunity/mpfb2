@@ -6,7 +6,9 @@ HumanService is the highest-level orchestrator in MPFB's service layer. It coord
 
 The **serialization** path collects information from a fully assembled character (targets, rig type, equipped assets, material settings, ink layers, alternative materials, and color adjustments) into a `human_info` dictionary that is written as JSON. The **deserialization** path reads that dictionary back and recreates the character from scratch, respecting override settings for rig, skin model, clothes material model, subdivision levels, and more. MHM files (MakeHuman's native save format) are also supported as an import source, with target and asset lines parsed and mapped to MPFB equivalents.
 
-The service also manages a **preset system**: character definitions stored as `human.*.json` files in the user config directory can be listed, cached, and loaded. A **refit** operation allows the character to be updated after target changes by re-fitting all equipped clothes and re-positioning the rig. All methods are static; the class should never be instantiated.
+The service also manages a **preset system**: character definitions stored as `human.*.json` files in the user config directory can be listed, cached, and loaded. A **refit** operation allows the character to be updated after target changes by re-fitting all equipped clothes and re-positioning the rig.
+
+Characters with **custom rigs** (user-defined rigs saved to the `rigs/` directory in user data) are fully supported: they can be added via `add_custom_rig()`, serialized with the `"custom.<name>"` identifier, and reloaded from a preset with a descriptive error message if the rig file is no longer available. All methods are static; the class should never be instantiated.
 
 ## Source
 
@@ -70,6 +72,23 @@ Add a built-in rig to the basemesh. Supports both standard rigs and Rigify meta-
 **Returns:** `bpy.types.Object` or `None` — The created armature object, or `None` if the rig file was not found.
 
 **Raises:** `NotImplementedError` if a Rigify rig is requested but Rigify is not enabled. `IOError` if the rig file is missing and no operator is provided.
+
+---
+
+#### add_custom_rig(basemesh, rig_name, *, import_weights=True, operator=None)
+
+Load a custom rig from user data and attach it to the given basemesh. The rig is looked up via `AssetService.get_custom_rigs()` using the short name (the part after `"custom."`). The rig JSON file is loaded and fitted to the basemesh, the basemesh is parented to the armature, rotation modes are normalized, and the armature is moved to the basemesh's original world location. If `import_weights` is `True`, the corresponding weights file (`weights.<name>.json` in the same directory as the rig JSON) is loaded if it exists.
+
+| Argument | Type | Default | Description |
+|----------|------|---------|-------------|
+| `basemesh` | `bpy.types.Object` | — | The basemesh to attach the rig to |
+| `rig_name` | `str` | — | Full rig name including prefix (e.g., `"custom.my_rig"`) |
+| `import_weights` | `bool` | `True` | Whether to load weights and create an armature modifier |
+| `operator` | `bpy.types.Operator` | `None` | Optional operator for error/warning reporting via `operator.report` |
+
+**Returns:** `bpy.types.Object` or `None` — The created armature object, or `None` if the custom rig was not found in user data.
+
+**Raises:** `ValueError` if the rig is not found and no operator is provided (when an operator is provided, an `ERROR` report is issued and `None` is returned instead).
 
 ---
 
@@ -145,7 +164,7 @@ Retrieve the `asset_source` property values of all mesh assets currently equippe
 
 #### serialize_to_json_string(basemesh, save_clothes=False)
 
-Serialize a fully assembled character to a JSON string. Collects phenotype (macro) details, rig type, body parts (eyes, hair, teeth, etc.), clothes, proxy, skin settings, eye material settings, ink layers, alternative materials, and color adjustments.
+Serialize a fully assembled character to a JSON string. Collects phenotype (macro) details, rig type, body parts (eyes, hair, teeth, etc.), clothes, proxy, skin settings, eye material settings, ink layers, alternative materials, and color adjustments. Custom rigs are serialized using the `"custom.<name>"` identifier returned by `RigService.identify_rig()`.
 
 | Argument | Type | Default | Description |
 |----------|------|---------|-------------|
@@ -154,7 +173,7 @@ Serialize a fully assembled character to a JSON string. Collects phenotype (macr
 
 **Returns:** `str` — JSON string representation of the character.
 
-**Raises:** `ValueError` if basemesh is `None` or is not an MPFB human project.
+**Raises:** `ValueError` if basemesh is `None`, is not an MPFB human project, or has an attached rig that cannot be identified (including rigs not in user data).
 
 ---
 
@@ -178,7 +197,7 @@ Serialize a character to a JSON file. Calls `serialize_to_json_string` and write
 
 #### deserialize_from_dict(human_info, deserialization_settings)
 
-Reconstruct a full character from a `human_info` dictionary and deserialization settings. Creates the basemesh, loads targets, adds the rig, equips body parts and clothes, sets up the proxy, applies skin and eye materials, loads ink layers, and enables shape key edit mode.
+Reconstruct a full character from a `human_info` dictionary and deserialization settings. Creates the basemesh, loads targets, adds the rig, equips body parts and clothes, sets up the proxy, applies skin and eye materials, loads ink layers, and enables shape key edit mode. If the `"rig"` key starts with `"custom."`, the rig is loaded via `add_custom_rig()` instead of `add_builtin_rig()`. If the named custom rig is not available in user data, deserialization fails with a descriptive error message.
 
 | Argument | Type | Default | Description |
 |----------|------|---------|-------------|
@@ -187,7 +206,7 @@ Reconstruct a full character from a `human_info` dictionary and deserialization 
 
 **Returns:** `bpy.types.Object` — The created basemesh object.
 
-**Raises:** `ValueError` if `human_info` is `None` or empty.
+**Raises:** `ValueError` if `human_info` is `None` or empty, or if a referenced custom rig is not found in user data.
 
 ---
 
@@ -298,8 +317,11 @@ macro["gender"] = 1.0  # female
 macro["age"] = 0.5
 basemesh = HumanService.create_human(macro_detail_dict=macro)
 
-# Add a rig
+# Add a built-in rig
 rig = HumanService.add_builtin_rig(basemesh, "default")
+
+# Add a custom rig from user data
+rig = HumanService.add_custom_rig(basemesh, "custom.my_rig", import_weights=True)
 ```
 
 ### Equipping Assets

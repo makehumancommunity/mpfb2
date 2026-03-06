@@ -6,7 +6,9 @@ AssetService manages the discovery, cataloging, and caching of MPFB asset files 
 
 MPFB assets are organized in a hierarchy of data roots: the built-in MPFB data directory, the MakeHuman user directory, the MPFB user directory, and an optional secondary root. Within each root, assets are grouped by subdirectory (e.g., `clothes`, `skins`, `eyes`, `poses`). AssetService scans these locations, resolves file paths, and maintains a cached dictionary of discovered assets with their metadata and thumbnail previews.
 
-The service also manages **asset packs** — bundles of assets distributed as downloadable packages. Pack metadata is stored as JSON files in the user's `packs` directory and can be queried to determine which assets are installed and available. All methods are static; the class should never be instantiated.
+The service also manages **asset packs** — bundles of assets distributed as downloadable packages. Pack metadata is stored as JSON files in the user's `packs` directory and can be queried to determine which assets are installed and available.
+
+In addition, AssetService is responsible for discovering **custom rigs** stored in the `rigs/` subdirectory of user data roots. Custom rigs are JSON files whose names consist only of alphanumeric characters and underscores and which contain an `"identifying_bones"` key. The results are cached in a module-level variable and can be invalidated when a new rig is saved to the library. All methods are static; the class should never be instantiated.
 
 ## Source
 
@@ -19,6 +21,12 @@ The service also manages **asset packs** — bundles of assets distributed as do
 | `LogService` | Logging via `LogService.get_logger("services.assetservice")` |
 | `LocationService` | Resolving data roots (user data, MakeHuman data, MPFB data, secondary root) |
 | `SystemService` | Path segment matching for alternative material discovery |
+
+## Module-Level State
+
+In addition to `ASSET_LIBRARY_SECTIONS` and the asset list cache, the module maintains:
+
+- `_CUSTOM_RIGS_CACHE` — A cached list of custom rig dictionaries discovered in user data roots. Initially `None`; populated on the first call to `get_custom_rigs()` and cleared by `invalidate_custom_rig_cache()`.
 
 ## Constants
 
@@ -283,6 +291,36 @@ Retrieve asset names from all packs whose names contain the given pattern (case-
 
 ---
 
+### Custom Rig Discovery
+
+#### get_custom_rigs(use_cache=True)
+
+Scan the `rigs/` subdirectory of all user data roots for custom rig JSON files. A file is included only if its name (without the `.json` extension) consists entirely of alphanumeric characters and underscores (`[a-zA-Z0-9_]+`) and if the JSON contains an `"identifying_bones"` key. The system asset root is intentionally excluded from this scan.
+
+| Argument | Type | Default | Description |
+|----------|------|---------|-------------|
+| `use_cache` | `bool` | `True` | If `True`, return the cached list when available instead of rescanning disk |
+
+**Returns:** `list[dict]` — Each dict has keys `"name"` (str, bare filename without extension), `"path"` (str, absolute path to the JSON file), and `"identifying_bones"` (list of bone name strings).
+
+---
+
+#### invalidate_custom_rig_cache()
+
+Clear the cached custom rig list so that the next call to `get_custom_rigs()` performs a fresh scan of disk. Should be called whenever a new custom rig is saved to the user library.
+
+**Returns:** None
+
+---
+
+#### get_custom_rigs_enum_items()
+
+Return the list of discovered custom rigs as Blender `EnumProperty` item tuples, suitable for use in a dynamic enum callback. If no custom rigs are found, returns a single placeholder entry.
+
+**Returns:** `list[tuple]` — List of `(identifier, label, description)` tuples. When no rigs exist, returns `[("NONE", "No custom rigs found", "")]`. Otherwise each entry is `(name, "Custom: " + name, "")`.
+
+---
+
 ## Examples
 
 ### Discovering and Loading Assets
@@ -327,4 +365,22 @@ if AssetService.system_assets_pack_is_installed():
 for pack_name in AssetService.get_pack_names():
     assets = AssetService.get_asset_names_in_pack(pack_name)
     print(f"Pack '{pack_name}': {len(assets)} assets")
+```
+
+### Working with Custom Rigs
+
+```python
+from mpfb.services.assetservice import AssetService
+
+# List all custom rigs available in user data
+for rig in AssetService.get_custom_rigs():
+    print(f"Custom rig: {rig['name']}, path: {rig['path']}")
+    print(f"  Identifying bones: {rig['identifying_bones']}")
+
+# Get enum items for use in a Blender EnumProperty callback
+def rig_enum_items(self, context):
+    return AssetService.get_custom_rigs_enum_items()
+
+# Invalidate the cache after saving a new rig
+AssetService.invalidate_custom_rig_cache()
 ```
