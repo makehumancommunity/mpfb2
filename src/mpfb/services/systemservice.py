@@ -54,6 +54,27 @@ class SystemService:
         return True
 
     @staticmethod
+    def check_for_lipsync():
+        """Check if the Lip Sync addon is enabled. This method will both check for the addon per se,
+        and for the specific operators which are commonly used."""
+        lip_sync_name = None
+        for addon_name in bpy.context.preferences.addons.keys():
+            if "iocgpoly_lip_sync" in addon_name:
+                lip_sync_name = addon_name
+                break
+
+        if lip_sync_name is None:
+            _LOG.warn("Lip sync addon does not exist in addon keys")
+            return False
+
+        (loaded_default, loaded_state) = addon_utils.check(lip_sync_name)  # pylint: disable=W0612
+        if not loaded_state:
+            _LOG.warn("Lip sync is not enabled")
+            return False
+
+        return True
+
+    @staticmethod
     def check_for_rigify():
         """Check if the Blender Rigify addon is enabled. This method will both check for the addon per se,
         and for the specific operators which are commonly used."""
