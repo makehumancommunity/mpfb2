@@ -4,7 +4,7 @@ from .....services import LogService
 _LOG = LogService.get_logger("armhelpers.armhelpers")
 
 from .....services import RigService
-from .....ui.righelpers import RigHelpersProperties
+from .....ui.rigging.righelpers import RigHelpersProperties
 from ..abstractrighelper import AbstractRigHelper
 
 class ArmHelpers(AbstractRigHelper):

@@ -29,11 +29,7 @@ if SystemService.is_blender_version_at_least():
     from .create_assets import *
 
     # Rig panels
-    from .addrig import *
-    from .rigify import *
-    from .righelpers import *
-    from .applypose import *
-    from .addcycle import *
+    from .rigging import *
 
     # Presets
     from .humanpresets import *
