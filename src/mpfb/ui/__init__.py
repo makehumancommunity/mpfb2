@@ -46,15 +46,7 @@ if SystemService.is_blender_version_at_least():
     from .loadclothes import *
 
     # Operations
-    from .animops import *
-    from .basemeshops import *
-    from .poseops import *
-    from .sculpt import *
-    from .matops import *
-    from .boneops import *
-    from .exportops import *
-    from .faceops import *
-    from .ai import *
+    from .operations import *
 
     # System
     from .webresources import *
