@@ -593,7 +593,7 @@ class ClothesService:
         """This will update the clothes object's properties with metadata values
         from the mhclo object."""
 
-        from ..ui.makeclothes import MakeClothesObjectProperties
+        from ..ui.create_assets.makeclothes import MakeClothesObjectProperties
 
         properties = [
             "author",

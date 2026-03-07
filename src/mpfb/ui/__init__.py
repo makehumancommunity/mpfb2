@@ -26,13 +26,7 @@ if SystemService.is_blender_version_at_least():
     from .importerpresets import *
 
     # Create assets panels
-    from .makeskin import *
-    from .maketarget import *
-    from .makeclothes import *
-    from .makeweight import *
-    from .makepose import *
-    from .makerig import *
-    from .makeup import *
+    from .create_assets import *
 
     # Rig panels
     from .addrig import *
