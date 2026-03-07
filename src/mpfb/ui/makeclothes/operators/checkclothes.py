@@ -53,9 +53,14 @@ class MPFB_OT_CheckClothesOperator(bpy.types.Operator):
             self.report({'ERROR'}, "No UUID found for the selected clothes")
             return {'CANCELLED'}
 
-        CLOTHES_CHECKS[uuid_value] = ClothesService.mesh_is_valid_as_clothes(clothes, basemesh)
-        self.report({'INFO'}, "Clothes check performed, see panel")
-        return {'FINISHED'}
+        try:
+            CLOTHES_CHECKS[uuid_value] = ClothesService.mesh_is_valid_as_clothes(clothes, basemesh)
+            self.report({'INFO'}, "Clothes check performed, see panel")
+            return {'FINISHED'}
+        except Exception as exc:
+            _LOG.error("Clothes check failed with exception", exc)
+            self.report({'ERROR'}, "Clothes check failed: " + str(exc))
+            return {'CANCELLED'}
 
 
 ClassManager.add_class(MPFB_OT_CheckClothesOperator)
