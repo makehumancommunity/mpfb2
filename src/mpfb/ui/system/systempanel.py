@@ -1,10 +1,10 @@
 import bpy, sys
-from .. import ClassManager
-from ..services import LogService
-from ..services import UiService
-from ..services import ObjectService
-from .abstractpanel import Abstract_Panel
-from .. import BUILD_INFO, VERSION
+from ... import ClassManager
+from ...services import LogService
+from ...services import UiService
+from ...services import ObjectService
+from ..abstractpanel import Abstract_Panel
+from ... import BUILD_INFO, VERSION
 
 _LOG = LogService.get_logger("ui.systempanel")
 

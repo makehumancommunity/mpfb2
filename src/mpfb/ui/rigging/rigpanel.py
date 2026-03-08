@@ -1,8 +1,8 @@
-from .. import ClassManager
-from ..services import LogService
-from ..services import UiService
-from ..services import ObjectService
-from .abstractpanel import Abstract_Panel
+from ... import ClassManager
+from ...services import LogService
+from ...services import UiService
+from ...services import ObjectService
+from ..abstractpanel import Abstract_Panel
 
 _LOG = LogService.get_logger("ui.rigpanel")
 

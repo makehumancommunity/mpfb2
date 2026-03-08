@@ -10,13 +10,8 @@ if SystemService.is_blender_version_at_least():
 
     # Top level panels
     from .newpanel import *
-    from .presetspanel import *
     from .model import *
-    from .rigpanel import *
     from .assetspanel import *
-    from .operationspanel import *
-    from .createpanel import *
-    from .systempanel import *
     from .developer import *
     from .haireditorpanel import *
 
