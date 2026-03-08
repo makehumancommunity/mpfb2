@@ -32,10 +32,7 @@ if SystemService.is_blender_version_at_least():
     from .rigging import *
 
     # Presets
-    from .humanpresets import *
-    from .enhancedsettings import *
-    from .eyesettings import *
-    from .makeuppresets import *
+    from .presets import *
 
     # Assets
     from .assetlibrary import *
