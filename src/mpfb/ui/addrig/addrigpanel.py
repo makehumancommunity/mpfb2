@@ -16,6 +16,31 @@ _LOC = os.path.dirname(__file__)
 ADD_RIG_PROPERTIES_DIR = os.path.join(_LOC, "properties")
 ADD_RIG_PROPERTIES = SceneConfigSet.from_definitions_in_json_directory(ADD_RIG_PROPERTIES_DIR, prefix="ADR_")
 
+
+def _populate_custom_rigs(self, context):
+    from ...services import AssetService  # pylint: disable=C0415
+    return AssetService.get_custom_rigs_enum_items()
+
+
+_CUSTOM_RIG_PROP = {
+    "type": "enum",
+    "name": "custom_rig",
+    "description": "Select a custom rig from user data",
+    "label": "Custom rig",
+    "default": None
+}
+
+_IMPORT_WEIGHTS_CUSTOM_PROP = {
+    "type": "boolean",
+    "name": "import_weights_custom",
+    "description": "Also import weights (if available) and set up the corresponding vertex groups",
+    "label": "Import weights",
+    "default": True
+}
+
+ADD_RIG_PROPERTIES.add_property(_CUSTOM_RIG_PROP, _populate_custom_rigs)
+ADD_RIG_PROPERTIES.add_property(_IMPORT_WEIGHTS_CUSTOM_PROP)
+
 class MPFB_PT_Add_Rig_Panel(Abstract_Panel):
     """Functionality for adding/setting rig"""
 
@@ -56,6 +81,16 @@ class MPFB_PT_Add_Rig_Panel(Abstract_Panel):
             ADD_RIG_PROPERTIES.draw_properties(scene, box, props)
             box.operator('mpfb.generate_rigify_rig')
 
+    def _add_custom_rig(self, scene, layout):
+        from ...services import AssetService  # pylint: disable=C0415
+        box = self.create_box(layout, "Add custom rig")
+        if not AssetService.get_custom_rigs():
+            box.label(text="No custom rigs found in user data")
+            box.label(text="Use MakeRig to create and save a rig to library")
+        else:
+            ADD_RIG_PROPERTIES.draw_properties(scene, box, ["custom_rig", "import_weights_custom"])
+            box.operator('mpfb.add_custom_rig')
+
     def draw(self, context):
         _LOG.enter()
         layout = self.layout
@@ -71,6 +106,7 @@ class MPFB_PT_Add_Rig_Panel(Abstract_Panel):
         if not armature_object:
             self._standard_rig(scene, layout)
             self._add_rigify_rig(scene, layout)
+            self._add_custom_rig(scene, layout)
         elif ObjectService.object_is_any_skeleton(context.active_object):
             rig_type = RigService.identify_rig(context.active_object)
             if rig_type.startswith("rigify."):

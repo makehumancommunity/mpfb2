@@ -1006,6 +1006,14 @@ class RigService:
                     guessed_rig = "mixamo"
                     break
 
+        if guessed_rig == "unknown":
+            from .assetservice import AssetService  # pylint: disable=C0415
+            for custom_rig in AssetService.get_custom_rigs():
+                identifying_bones = custom_rig.get("identifying_bones", [])
+                if identifying_bones and all(b in armature_object.data.bones for b in identifying_bones):
+                    guessed_rig = "custom." + custom_rig["name"]
+                    break
+
         return guessed_rig
 
     @staticmethod
@@ -1297,6 +1305,16 @@ class RigService:
 
         if "generated" in rig_type:
             raise ValueError("Cannot refit a generated rigify rig")
+
+        if rig_type.startswith("custom."):
+            rig_name = rig_type[7:]
+            from .assetservice import AssetService  # pylint: disable=C0415
+            custom_rigs = {r["name"]: r for r in AssetService.get_custom_rigs()}
+            if rig_name not in custom_rigs:
+                raise ValueError("Custom rig '" + rig_name + "' is not available in user data. Cannot refit.")
+            rig_file = custom_rigs[rig_name]["path"]
+            RigService._do_refit_existing_armature(armature_object, basemesh, rig_file)
+            return
 
         rigdir = LocationService.get_mpfb_data("rigs")
 

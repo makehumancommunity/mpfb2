@@ -82,18 +82,6 @@ class MPFB_PT_Developer_Panel(bpy.types.Panel):
         box.operator("mpfb.load_nodes")
         box.operator("mpfb.rewrite_node_types")
 
-    def _rig(self, scene, layout):
-        box = self._create_box(layout, "Load/Save rig")
-        DEVELOPER_PROPERTIES.draw_properties(scene, box, ["rig_parent", "rig_subrig", "rig_save_rigify", "rig_refit"])
-        box.operator("mpfb.load_rig")
-        box.operator("mpfb.save_rig")
-
-    def _weights(self, scene, layout):
-        box = self._create_box(layout, "Load/Save weights")
-        DEVELOPER_PROPERTIES.draw_properties(scene, box, ["weights_mask", "save_masks", "save_evaluated"])
-        box.operator("mpfb.load_weights")
-        box.operator("mpfb.save_weights")
-
     def _targets(self, scene, layout):
         box = self._create_box(layout, "Load/Save targets")
         box.operator("mpfb.load_target")
@@ -111,8 +99,6 @@ class MPFB_PT_Developer_Panel(bpy.types.Panel):
         self._log_levels(scene, layout)
         self._export_log_file(scene, layout)
         self._nodes(layout)
-        self._rig(scene, layout)
-        self._weights(scene, layout)
         self._targets(scene, layout)
         self._tests(scene, layout)
 

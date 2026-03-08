@@ -7,9 +7,7 @@ import bpy, json, math
 from bpy.types import StringProperty
 from bpy_extras.io_utils import ImportHelper
 
-from ...developer.developerpanel import DEVELOPER_PROPERTIES
-
-_LOG = LogService.get_logger("developer.operators.loadrig")
+_LOG = LogService.get_logger("makerig.operators.loadrig")
 
 
 class MPFB_OT_Load_Rig_Operator(bpy.types.Operator, ImportHelper):
@@ -26,7 +24,8 @@ class MPFB_OT_Load_Rig_Operator(bpy.types.Operator, ImportHelper):
         if context.object is None:
             return False
 
-        rig_subrig = DEVELOPER_PROPERTIES.get_value("rig_subrig", entity_reference=context.scene)
+        from ...makerig import MakeRigProperties
+        rig_subrig = MakeRigProperties.get_value("rig_subrig", entity_reference=context.scene)
 
         if rig_subrig:
             if not ObjectService.object_is_any_mesh(context.object):
@@ -49,8 +48,9 @@ class MPFB_OT_Load_Rig_Operator(bpy.types.Operator, ImportHelper):
     def execute(self, context):
         _LOG.enter()
 
-        rig_subrig = DEVELOPER_PROPERTIES.get_value("rig_subrig", entity_reference=context.scene)
-        rig_parent = DEVELOPER_PROPERTIES.get_value("rig_parent", entity_reference=context.scene)
+        from ...makerig import MakeRigProperties
+        rig_subrig = MakeRigProperties.get_value("rig_subrig", entity_reference=context.scene)
+        rig_parent = MakeRigProperties.get_value("rig_parent", entity_reference=context.scene)
 
         mesh = context.object
         skeleton = None

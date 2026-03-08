@@ -10,10 +10,6 @@ from .resetloglevels import MPFB_OT_Reset_Log_Levels_Operator
 from .setloglevel import MPFB_OT_Set_Log_Level_Operator
 from .savenodes import MPFB_OT_Save_Nodes_Operator
 from .loadnodes import MPFB_OT_Load_Nodes_Operator
-from .saverig import MPFB_OT_Save_Rig_Operator
-from .loadrig import MPFB_OT_Load_Rig_Operator
-from .saveweights import MPFB_OT_Save_Weights_Operator
-from .loadweights import MPFB_OT_Load_Weights_Operator
 from .savetarget import MPFB_OT_Save_Target_Operator
 from .loadtarget import MPFB_OT_Load_Target_Operator
 from .create_groups import MPFB_OT_Create_Groups_Operator
@@ -30,10 +26,6 @@ __all__ = [
     "MPFB_OT_Set_Log_Level_Operator",
     "MPFB_OT_Load_Nodes_Operator",
     "MPFB_OT_Save_Nodes_Operator",
-    "MPFB_OT_Save_Rig_Operator",
-    "MPFB_OT_Load_Rig_Operator",
-    "MPFB_OT_Save_Weights_Operator",
-    "MPFB_OT_Load_Weights_Operator",
     "MPFB_OT_Save_Target_Operator",
     "MPFB_OT_Load_Target_Operator",
     "MPFB_OT_Create_Groups_Operator",
