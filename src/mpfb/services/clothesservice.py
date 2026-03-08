@@ -645,6 +645,7 @@ class ClothesService:
             "all_verts_have_max_one_vgroup": False,
             "all_verts_have_min_one_vgroup": False,
             "all_verts_belong_to_faces": True,
+            "all_faces_same_type": True,
             "all_checks_ok": False,
             "clothes_groups_exist_on_basemesh": True,
             "objs_same_scale": True,
@@ -660,6 +661,17 @@ class ClothesService:
             return report
 
         report["has_any_vertices"] = True
+
+        verts_per_face = None
+        for face in mesh_object.data.polygons:
+            n = len(face.vertices)
+            if verts_per_face is None:
+                verts_per_face = n
+            elif n != verts_per_face:
+                report["all_faces_same_type"] = False
+                report["warnings"].append("Clothes mesh has mixed tri and quad faces; triangulate or convert to quads before use")
+                report["all_checks_ok"] = False
+                return report
 
         xref = MeshCrossRef(mesh_object)
         report["has_any_vgroups"] = len(xref.group_index_to_group_name) > 0

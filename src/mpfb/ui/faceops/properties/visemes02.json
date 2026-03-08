@@ -1,0 +1,7 @@
+{
+    "type": "boolean",
+    "name": "visemes02",
+    "description": "Load visemes02 (Meta/ARKit v2 standard, 15 shapes) shape keys onto the base mesh with zero weight. This is the recommended pack for use with the Lip Sync addon.",
+    "label": "Load visemes02 (Meta/ARKit)",
+    "default": false
+}

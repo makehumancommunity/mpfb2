@@ -1,0 +1,7 @@
+{
+    "type": "boolean",
+    "name": "visemes01",
+    "description": "Load visemes01 (Microsoft/SSML standard, 22 shapes) shape keys onto the base mesh with zero weight",
+    "label": "Load visemes01 (Microsoft)",
+    "default": false
+}

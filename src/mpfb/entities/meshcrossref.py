@@ -66,61 +66,61 @@ class MeshCrossRef:
                     _stripped_mesh_object.modifiers.remove(modifier)
             self._mesh_object = _stripped_mesh_object
 
-        self.vertex_coordinates = MeshService.get_vertex_coordinates_as_numpy_array(self._mesh_object, after_modifiers=after_modifiers)
-        self.vertex_coordinates_kdtree = MeshService.get_kdtree(self._mesh_object, after_modifiers=after_modifiers)
-        self.vertices_by_face = MeshService.get_faces_as_numpy_array(self._mesh_object)
-        self.vertices_by_edge = MeshService.get_edges_as_numpy_array(self._mesh_object)
+        try:
+            self.vertex_coordinates = MeshService.get_vertex_coordinates_as_numpy_array(self._mesh_object, after_modifiers=after_modifiers)
+            self.vertex_coordinates_kdtree = MeshService.get_kdtree(self._mesh_object, after_modifiers=after_modifiers)
+            self.vertices_by_face = MeshService.get_faces_as_numpy_array(self._mesh_object)
+            self.vertices_by_edge = MeshService.get_edges_as_numpy_array(self._mesh_object)
 
-        before = int(time.time() * 1000.0)
-        self.faces_by_vertex = []
-        self._build_faces_by_vertex_table()
-        after = int(time.time() * 1000.0)
-        _LOG.debug("Building faces_by_vertex table took", (after - before))
-
-        before = int(time.time() * 1000.0)
-        self.edges_by_vertex = []
-        self._build_edges_by_vertex_table()
-        after = int(time.time() * 1000.0)
-        _LOG.debug("Building edges_by_vertex table took", (after - before))
-
-        before = int(time.time() * 1000.0)
-        self.face_neighbors = []
-        self._build_face_neighbors_table()
-        after = int(time.time() * 1000.0)
-        _LOG.debug("Building face_neighbors table took", (after - before))
-
-        before = int(time.time() * 1000.0)
-        self.face_median_points = []
-        self.face_normals = []
-        self.face_median_points_kdtree = None
-        self._build_face_median_points_table()
-        after = int(time.time() * 1000.0)
-        _LOG.debug("Building face_median_points and face_normals tables took", (after - before))
-
-        before = int(time.time() * 1000.0)
-        self.group_index_to_group_name = []
-        self.group_name_to_group_index = dict()
-        self.vertices_by_group = []
-        self._potential_faces_by_group = []
-        self.vertices_without_group = []
-        self.vertices_with_multiple_groups = []
-        self.face_median_points_by_group_kdtrees = []
-        self._build_vert_group_references(build_faces_by_group_reference=build_faces_by_group_reference)
-        after = int(time.time() * 1000.0)
-        _LOG.debug("Building vert_group_references took", (after - before))
-
-        if build_faces_by_group_reference:
             before = int(time.time() * 1000.0)
-            self.faces_by_group = []
-            self._build_faces_by_group_table()
-            self._build_faces_by_group_kdtrees()
+            self.faces_by_vertex = []
+            self._build_faces_by_vertex_table()
             after = int(time.time() * 1000.0)
-            _LOG.debug("Building faces_by_group took", (after - before))
+            _LOG.debug("Building faces_by_vertex table took", (after - before))
 
-        if after_modifiers:
-            ObjectService.delete_object(self._mesh_object)
+            before = int(time.time() * 1000.0)
+            self.edges_by_vertex = []
+            self._build_edges_by_vertex_table()
+            after = int(time.time() * 1000.0)
+            _LOG.debug("Building edges_by_vertex table took", (after - before))
 
-        self._mesh_object = None
+            before = int(time.time() * 1000.0)
+            self.face_neighbors = []
+            self._build_face_neighbors_table()
+            after = int(time.time() * 1000.0)
+            _LOG.debug("Building face_neighbors table took", (after - before))
+
+            before = int(time.time() * 1000.0)
+            self.face_median_points = []
+            self.face_normals = []
+            self.face_median_points_kdtree = None
+            self._build_face_median_points_table()
+            after = int(time.time() * 1000.0)
+            _LOG.debug("Building face_median_points and face_normals tables took", (after - before))
+
+            before = int(time.time() * 1000.0)
+            self.group_index_to_group_name = []
+            self.group_name_to_group_index = dict()
+            self.vertices_by_group = []
+            self._potential_faces_by_group = []
+            self.vertices_without_group = []
+            self.vertices_with_multiple_groups = []
+            self.face_median_points_by_group_kdtrees = []
+            self._build_vert_group_references(build_faces_by_group_reference=build_faces_by_group_reference)
+            after = int(time.time() * 1000.0)
+            _LOG.debug("Building vert_group_references took", (after - before))
+
+            if build_faces_by_group_reference:
+                before = int(time.time() * 1000.0)
+                self.faces_by_group = []
+                self._build_faces_by_group_table()
+                self._build_faces_by_group_kdtrees()
+                after = int(time.time() * 1000.0)
+                _LOG.debug("Building faces_by_group took", (after - before))
+        finally:
+            if after_modifiers and self._mesh_object is not None:
+                ObjectService.delete_object(self._mesh_object)
+                self._mesh_object = None
 
     def read_array_from_cache(self, cache_file_name):
         _LOG.enter()

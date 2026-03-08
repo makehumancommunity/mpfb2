@@ -1,0 +1,7 @@
+{
+    "type": "boolean",
+    "name": "faceunits01",
+    "description": "Load faceunits01 (ARKit face units, 52 shapes) shapekeys onto the base mesh with zero weight",
+    "label": "Load faceunits01",
+    "default": false
+}

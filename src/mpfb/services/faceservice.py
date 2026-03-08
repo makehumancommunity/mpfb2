@@ -2,10 +2,12 @@
 Module with logic for loading and interpolating facial animation targets (visemes and ARKit face units).
 """
 
+import bpy
 from .logservice import LogService
 from .targetservice import TargetService
 from .objectservice import ObjectService
 from .clothesservice import ClothesService
+from .systemservice import SystemService
 from ..entities.clothes.mhclo import Mhclo
 
 _LOG = LogService.get_logger("services.faceservice")
@@ -110,6 +112,31 @@ ARKIT_FACEUNITS = [
 
 # If no vert was shifted more than this in a shape key, assume the shape key is not significant enough to be interpolated.
 SIGNIFICANT_SHIFT_MINIMUM = 0.0001
+
+# Mapping from Lip Sync addon property suffixes to visemes02 (Meta/ARKit) shape key names.
+# Three Lip Sync slot IDs differ from the corresponding MPFB shape key name suffix:
+#   slot "ih" → shape key "viseme_I"  (Lip Sync slot uses lowercase; MPFB shape key uses uppercase I)
+#   slot "oh" → shape key "viseme_O"  (Lip Sync slot uses lowercase; MPFB shape key uses uppercase O)
+#   slot "ou" → shape key "viseme_U"  (Lip Sync slot uses lowercase; MPFB shape key uses uppercase U)
+# "UNK" falls back to "viseme_sil" (silence) as there is no dedicated unknown-phoneme shape key.
+VISEMES02_TO_LIPSYNC = {
+    "sil": "viseme_sil",
+    "PP":  "viseme_PP",
+    "FF":  "viseme_FF",
+    "TH":  "viseme_TH",
+    "DD":  "viseme_DD",
+    "kk":  "viseme_kk",
+    "CH":  "viseme_CH",
+    "SS":  "viseme_SS",
+    "nn":  "viseme_nn",
+    "RR":  "viseme_RR",
+    "aa":  "viseme_aa",
+    "E":   "viseme_E",
+    "ih":  "viseme_I",
+    "oh":  "viseme_O",
+    "ou":  "viseme_U",
+    "UNK": "viseme_sil",
+}
 
 
 class FaceService:
@@ -272,3 +299,46 @@ class FaceService:
         for modifier in basemesh.modifiers:
             if modifier.name in modifier_states:
                 modifier.show_viewport = modifier_states[modifier.name]
+
+    @staticmethod
+    def configure_lip_sync(basemesh):
+        """Map loaded visemes02 shape keys to the Lip Sync addon's property slots.
+
+        This method automates the manual process of selecting shape keys in the Lip Sync panel
+        by iterating over VISEMES02_TO_LIPSYNC and writing each mapping to the corresponding
+        lipsync2d_props attribute on the basemesh object.
+
+        Args:
+            basemesh (bpy.types.Object): The basemesh to configure. Must have visemes02 shape keys
+                loaded and the Lip Sync addon must be installed and initialised on this object.
+
+        Returns:
+            list: A list of viseme IDs (strings) whose target shape key was not found on the mesh.
+                  An empty list means all mappings were applied successfully.
+
+        Raises:
+            ValueError: If the Lip Sync addon is not installed/enabled, if the Lip Sync properties
+                have not been initialised on this object, or if visemes02 shape keys are not loaded.
+        """
+        _LOG.enter()
+
+        if not SystemService.check_for_lipsync():
+            raise ValueError("The Lip Sync addon (iocgpoly_lip_sync) is not enabled. Please enable it in Blender preferences.")
+
+        if not hasattr(basemesh, "lipsync2d_props") or not basemesh.lipsync2d_props.lip_sync_2d_initialized:
+            raise ValueError("Lip Sync has not been initialised on this object. Use the Lip Sync panel to initialise it first.")
+
+        if not basemesh.data.shape_keys or "viseme_sil" not in basemesh.data.shape_keys.key_blocks:
+            raise ValueError("visemes02 shape keys are not loaded on this basemesh. Load the visemes02 pack first.")
+
+        missing = []
+        for viseme_id, shape_key_name in VISEMES02_TO_LIPSYNC.items():
+            prop_name = "lip_sync_2d_viseme_shape_keys_" + viseme_id
+            if shape_key_name not in basemesh.data.shape_keys.key_blocks:
+                _LOG.warn("Shape key not found on mesh, skipping", (shape_key_name, viseme_id))
+                missing.append(viseme_id)
+                continue
+            _LOG.debug("Setting lip sync property", (prop_name, shape_key_name))
+            setattr(basemesh.lipsync2d_props, prop_name, shape_key_name)
+
+        return missing
