@@ -42,8 +42,7 @@ if SystemService.is_blender_version_at_least():
     from .operations import *
 
     # System
-    from .webresources import *
-    from .dirresources import *
+    from .system import *
 
     __all__ = [
         "MPFB_PT_New_Panel",

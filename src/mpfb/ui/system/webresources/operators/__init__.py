@@ -1,6 +1,6 @@
 """Operators for opening urls"""
 
-from ....services import LogService
+from .....services import LogService
 _LOG = LogService.get_logger("webresources.operators.init")
 _LOG.trace("initializing web resources operators")
 

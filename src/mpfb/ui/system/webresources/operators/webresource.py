@@ -2,8 +2,8 @@
 
 import webbrowser, bpy
 from bpy.props import StringProperty
-from ....services import LogService
-from .... import ClassManager
+from .....services import LogService
+from ..... import ClassManager
 
 _LOG = LogService.get_logger("webresources.webresource")
 

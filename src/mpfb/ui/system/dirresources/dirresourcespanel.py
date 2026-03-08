@@ -1,10 +1,10 @@
 """This file contains the dir resources panel."""
 
-from ... import ClassManager
-from ...services import LogService
-from ...services import LocationService
-from ...services import UiService
-from ..abstractpanel import Abstract_Panel
+from .... import ClassManager
+from ....services import LogService
+from ....services import LocationService
+from ....services import UiService
+from ...abstractpanel import Abstract_Panel
 
 _LOG = LogService.get_logger("dirresources.dirresourcespanel")
 
