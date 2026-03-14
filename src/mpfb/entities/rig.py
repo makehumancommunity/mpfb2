@@ -715,7 +715,7 @@ class Rig:
 
     def save_strategies(self, refit=False):
         """Save strategy data in the pose and edit bones for development."""
-        from ..ui.boneops import BoneOpsArmatureProperties, BoneOpsBoneProperties, BoneOpsEditBoneProperties
+        from ..ui.operations.boneops import BoneOpsArmatureProperties, BoneOpsBoneProperties, BoneOpsEditBoneProperties
 
         BoneOpsArmatureProperties.set_value("developer_mode", True, entity_reference=self.armature_object.data)
 
@@ -738,7 +738,7 @@ class Rig:
 
     @staticmethod
     def assign_bone_end_strategy(bone, info, is_tail: bool, *, force=False, lock: bool | None=None):
-        from ..ui.boneops import BoneOpsBoneProperties, BoneOpsEditBoneProperties
+        from ..ui.operations.boneops import BoneOpsBoneProperties, BoneOpsEditBoneProperties
 
         properties = BoneOpsEditBoneProperties if isinstance(bone, bpy.types.EditBone) else BoneOpsBoneProperties
         prefix = "tail" if is_tail else "head"
@@ -767,7 +767,7 @@ class Rig:
     @staticmethod
     def get_bone_end_strategy(bone, is_tail):
         """Retrieve head or tail strategy settings from a bone."""
-        from ..ui.boneops import BoneOpsBoneProperties, BoneOpsEditBoneProperties
+        from ..ui.operations.boneops import BoneOpsBoneProperties, BoneOpsEditBoneProperties
 
         properties = BoneOpsEditBoneProperties if isinstance(bone, bpy.types.EditBone) else BoneOpsBoneProperties
         prefix = "tail" if is_tail else "head"
@@ -934,7 +934,7 @@ class Rig:
 
     def add_edit_bone_info(self):
         """Extract bone information from the edit bones."""
-        from ..ui.boneops import BoneOpsEditBoneProperties
+        from ..ui.operations.boneops import BoneOpsEditBoneProperties
 
         assert self.armature_object.mode == 'EDIT'
         properties = BoneOpsEditBoneProperties

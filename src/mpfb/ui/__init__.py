@@ -10,13 +10,8 @@ if SystemService.is_blender_version_at_least():
 
     # Top level panels
     from .newpanel import *
-    from .presetspanel import *
     from .model import *
-    from .rigpanel import *
     from .assetspanel import *
-    from .operationspanel import *
-    from .createpanel import *
-    from .systempanel import *
     from .developer import *
     from .haireditorpanel import *
 
@@ -26,45 +21,23 @@ if SystemService.is_blender_version_at_least():
     from .importerpresets import *
 
     # Create assets panels
-    from .makeskin import *
-    from .maketarget import *
-    from .makeclothes import *
-    from .makeweight import *
-    from .makepose import *
-    from .makerig import *
-    from .makeup import *
+    from .create_assets import *
 
     # Rig panels
-    from .addrig import *
-    from .rigify import *
-    from .righelpers import *
-    from .applypose import *
-    from .addcycle import *
+    from .rigging import *
 
     # Presets
-    from .humanpresets import *
-    from .enhancedsettings import *
-    from .eyesettings import *
-    from .makeuppresets import *
+    from .presets import *
 
     # Assets
     from .assetlibrary import *
     from .loadclothes import *
 
     # Operations
-    from .animops import *
-    from .basemeshops import *
-    from .poseops import *
-    from .sculpt import *
-    from .matops import *
-    from .boneops import *
-    from .exportops import *
-    from .faceops import *
-    from .ai import *
+    from .operations import *
 
     # System
-    from .webresources import *
-    from .dirresources import *
+    from .system import *
 
     __all__ = [
         "MPFB_PT_New_Panel",
