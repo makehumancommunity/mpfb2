@@ -2,7 +2,10 @@
 
 from .mock_report import MockReport
 from .mock_operator_base import MockOperatorBase
-from .scene_fixtures import HumanFixture, HumanWithRigFixture, HumanWithRigAndClothesFixture, SceneSnapshot
+from .scene_fixtures import (
+    HumanFixture, HumanWithRigFixture, HumanWithRigAndClothesFixture, SceneSnapshot,
+    BasemeshWithTargetFixture, TwoHumansWithRigsFixture, BasemeshWithMakeSkinFixture,
+)
 
 __all__ = [
     "MockReport",
@@ -11,4 +14,7 @@ __all__ = [
     "HumanWithRigFixture",
     "HumanWithRigAndClothesFixture",
     "SceneSnapshot",
+    "BasemeshWithTargetFixture",
+    "TwoHumansWithRigsFixture",
+    "BasemeshWithMakeSkinFixture",
 ]
