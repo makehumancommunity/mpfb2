@@ -5,6 +5,8 @@ from .mock_operator_base import MockOperatorBase
 from .scene_fixtures import (
     HumanFixture, HumanWithRigFixture, HumanWithRigAndClothesFixture, SceneSnapshot,
     BasemeshWithTargetFixture, TwoHumansWithRigsFixture, BasemeshWithMakeSkinFixture,
+    BasemeshWithV2SkinFixture, TwoMixamoArmaturesFixture, OpenPoseRigFixture,
+    SceneWithCameraFixture,
 )
 
 __all__ = [
@@ -17,4 +19,8 @@ __all__ = [
     "BasemeshWithTargetFixture",
     "TwoHumansWithRigsFixture",
     "BasemeshWithMakeSkinFixture",
+    "BasemeshWithV2SkinFixture",
+    "TwoMixamoArmaturesFixture",
+    "OpenPoseRigFixture",
+    "SceneWithCameraFixture",
 ]
