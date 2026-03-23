@@ -5,7 +5,12 @@ SceneWithCameraFixture."""
 
 import bpy
 import pytest
+from ... import dynamic_import
 
+# Somewhat ugly workaround, but if we're importing this module we are in unit testing mode.
+# Thus it will make sense to always raise exceptions in MpfbOperator
+set_raise_exceptions_in_mpfboperator = dynamic_import("mpfb.ui.mpfboperator", "set_raise_exceptions_in_mpfboperator")
+set_raise_exceptions_in_mpfboperator(True)
 
 class SceneSnapshot:
     """Records object names before a test; deletes new objects on cleanup."""
