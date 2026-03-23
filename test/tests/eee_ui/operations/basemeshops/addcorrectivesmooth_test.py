@@ -24,6 +24,10 @@ def test_add_corrective_smooth_poll_true_with_basemesh():
     with HumanFixture() as fixture:
         assert MPFB_OT_Add_Corrective_Smooth_Operator.poll(bpy.context)
 
-# TODO: There seems to be a problem with modifier_move_up, breaks test. Need to investigate.
 
-
+def test_add_corrective_smooth_executes_with_basemesh():
+    with HumanFixture() as fixture:
+        mockself = MockOperatorBase()
+        result = MPFB_OT_Add_Corrective_Smooth_Operator.execute(mockself, bpy.context)
+        assert result == {'FINISHED'}
+        mockself.mock_report.assert_no_errors()

@@ -24,6 +24,10 @@ def test_create_export_copy_poll_true_with_basemesh():
     with HumanFixture() as fixture:
         assert MPFB_OT_Create_Export_Copy_Operator.poll(bpy.context)
 
-# TODO: Need to work around mpfboperator for actual functionality test
 
-
+def test_create_export_copy_executes_with_basemesh():
+    with HumanFixture() as fixture:
+        mockself = MockOperatorBase()
+        result = MPFB_OT_Create_Export_Copy_Operator.hardened_execute(mockself, bpy.context)
+        assert result == {'FINISHED'}
+        mockself.mock_report.assert_no_errors()

@@ -5,6 +5,11 @@ from .. import HumanService
 from .. import LocationService
 from .. import UiService
 from .. import dynamic_import
+from ._helpers import MockOperatorBase
+
+MPFB_OT_CreateHumanOperator = dynamic_import("mpfb.ui.newhuman.operators.createhuman", "MPFB_OT_CreateHumanOperator")
+MPFB_OT_HumanFromMHMOperator = dynamic_import("mpfb.ui.newhuman.operators.humanfrommhm", "MPFB_OT_HumanFromMHMOperator")
+MPFB_OT_HumanFromPresetsOperator = dynamic_import("mpfb.ui.newhuman.operators.humanfrompresets", "MPFB_OT_HumanFromPresetsOperator")
 
 def test_operators_exist():
     """Operators are not none"""
@@ -14,7 +19,9 @@ def test_operators_exist():
 
 def test_create_human_defaults():
     ObjectService.deselect_and_deactivate_all()
-    bpy.ops.mpfb.create_human()
+    mockself = MockOperatorBase()
+    MPFB_OT_CreateHumanOperator.hardened_execute(mockself, bpy.context)
+    mockself.mock_report.assert_no_errors()
     basemesh = bpy.context.view_layer.objects.active
     assert basemesh is not None
     assert ObjectService.object_is_basemesh(basemesh)
@@ -26,7 +33,9 @@ def test_create_human_from_mhm():
     testdata = LocationService.get_mpfb_test("testdata")
     mhm_file = os.path.join(testdata, "testchar.mhm")
     assert os.path.exists(mhm_file)
-    bpy.ops.mpfb.human_from_mhm(filepath=mhm_file)
+    mockself = MockOperatorBase(filepath=mhm_file)
+    MPFB_OT_HumanFromMHMOperator.hardened_execute(mockself, bpy.context)
+    mockself.mock_report.assert_no_errors()
     active_obj = bpy.context.view_layer.objects.active
     basemesh = ObjectService.find_object_of_type_amongst_nearest_relatives(active_obj)
     assert basemesh is not None
@@ -54,7 +63,9 @@ def test_create_human_from_preset():
 
     PRESETS_HUMAN_PROPERTIES.set_value("available_presets", randname, entity_reference=bpy.context.scene)
 
-    bpy.ops.mpfb.human_from_presets()
+    mockself = MockOperatorBase()
+    MPFB_OT_HumanFromPresetsOperator.hardened_execute(mockself, bpy.context)
+    mockself.mock_report.assert_no_errors()
     active_obj = bpy.context.view_layer.objects.active
     basemesh = ObjectService.find_object_of_type_amongst_nearest_relatives(active_obj)
     assert basemesh is not None
