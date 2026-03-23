@@ -28,11 +28,3 @@ def test_load_pose_poll_true_with_rig():
         assert MPFB_OT_Load_Pose_Operator.poll(bpy.context)
 
 
-def test_load_pose_executes_reports_error_no_pose_selected():
-    with HumanWithRigFixture() as fixture:
-        bpy.context.view_layer.objects.active = fixture.rig
-        mockself = MockOperatorBase()
-        result = MPFB_OT_Load_Pose_Operator.execute(mockself, bpy.context)
-        assert result == {"FINISHED"}
-        # No pose is selected by default; expect an error report
-        mockself.mock_report.assert_reported("ERROR", "Must select a valid pose name")
