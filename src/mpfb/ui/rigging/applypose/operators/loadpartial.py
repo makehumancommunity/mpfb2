@@ -53,7 +53,7 @@ class MPFB_OT_Load_Partial_Operator(bpy.types.Operator):
         _LOG.debug("absolute_file_path", absolute_file_path)
 
         if not os.path.exists(absolute_file_path):
-            self.report({'ERROR'}, "The selected pose '" + name + "' for rig type '" + rigtype + mode + "' does not exist as file. You should probably report this as a bug.")
+            self.report({'ERROR'}, "The selected pose '" + name + "' for rig type '" + rig_type + mode + "' does not exist as file. You should probably report this as a bug.")
             return {'FINISHED'}
 
         pose = dict()

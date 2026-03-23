@@ -69,7 +69,8 @@ class MPFB_OT_Add_Corrective_Smooth_Operator(bpy.types.Operator):
             smooth_modifier.invert_vertex_group = True
 
         while obj.modifiers.find(smooth_modifier.name) > add_index:
-            bpy.ops.object.modifier_move_up({'object': object}, modifier=smooth_modifier.name)
+            with bpy.context.temp_override(object=obj):
+                bpy.ops.object.modifier_move_up(modifier=smooth_modifier.name)
 
         # Bake the neutral shape if the object has shape keys
         if obj.data.shape_keys and len(obj.data.shape_keys.key_blocks) > 1:
@@ -81,7 +82,8 @@ class MPFB_OT_Add_Corrective_Smooth_Operator(bpy.types.Operator):
             # Bind
             smooth_modifier.rest_source = "BIND"
 
-            bpy.ops.object.correctivesmooth_bind({'object': object}, modifier=smooth_modifier.name)
+            with bpy.context.temp_override(object=obj):
+                bpy.ops.object.correctivesmooth_bind(modifier=smooth_modifier.name)
 
             # Restore armature deformation
             for modifier in obj.modifiers:
