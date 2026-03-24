@@ -8,21 +8,16 @@ from .....services import LogService
 from .....services import RigService
 from .....services import ObjectService
 from ..... import ClassManager
+from ....pollstrategy import pollstrategy, PollStrategy
 
 _LOG = LogService.get_logger("poseops.copy_pose")
 
+@pollstrategy(PollStrategy.RIG_ACTIVE)
 class MPFB_OT_Copy_Pose_Operator(bpy.types.Operator):
     """Copy pose from active to selected. Ie, first select all targets, then select the source. You can copy to multiple targets at the same time"""
     bl_idname = "mpfb.copy_pose"
     bl_label = "Copy pose"
     bl_options = {'REGISTER', 'UNDO'}
-
-    @classmethod
-    def poll(cls, context):
-        if context.active_object is not None:
-            objtype = ObjectService.get_object_type(context.active_object)
-            return objtype == "Skeleton"
-        return False
 
     def execute(self, context):
         active = context.active_object

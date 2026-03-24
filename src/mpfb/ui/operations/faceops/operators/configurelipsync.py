@@ -6,22 +6,17 @@ from .....services import ObjectService
 from .....services import SystemService
 from ....mpfboperator import MpfbOperator
 from ..... import ClassManager
+from ....pollstrategy import pollstrategy, PollStrategy
 
 _LOG = LogService.get_logger("faceops.configurelipsync")
 
 
+@pollstrategy(PollStrategy.BASEMESH_AMONGST_RELATIVES)
 class MPFB_OT_Configure_Lip_Sync_Operator(MpfbOperator):
     """Map loaded visemes02 shape keys to the Lip Sync addon's property slots"""
     bl_idname = "mpfb.configure_lip_sync"
     bl_label = "Assign Lip Sync shape keys"
     bl_options = {'REGISTER'}
-
-    @classmethod
-    def poll(cls, context):
-        if not context.object:
-            return False
-        basemesh = ObjectService.find_object_of_type_amongst_nearest_relatives(context.object)
-        return basemesh is not None
 
     def get_logger(self):
         return _LOG

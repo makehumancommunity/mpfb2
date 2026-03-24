@@ -6,21 +6,17 @@ from .....services import MaterialService
 from .....entities.material.makeskinmaterial import MakeSkinMaterial
 from ...makeskin.makeskinpanel import MAKESKIN_PROPERTIES
 from ..... import ClassManager
+from ....pollstrategy import pollstrategy, PollStrategy
 
 _LOG = LogService.get_logger("makeskin.creatematerial")
 
 
+@pollstrategy(PollStrategy.ANY_MESH_OBJECT_ACTIVE)
 class MPFB_OT_CreateMaterialOperator(bpy.types.Operator):
     """Create template material"""
     bl_idname = "mpfb.create_makeskin_material"
     bl_label = "Create material"
     bl_options = {'REGISTER'}
-
-    @classmethod
-    def poll(cls, context):
-        if context.active_object is not None:
-            return context.active_object.type == "MESH"
-        return False
 
     def execute(self, context):
 

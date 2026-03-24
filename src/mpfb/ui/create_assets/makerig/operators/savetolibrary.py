@@ -8,20 +8,18 @@ from .....services import ObjectService
 from .....services import RigService
 from .....entities.rig import Rig
 from ..... import ClassManager
+from ....pollstrategy import pollstrategy, PollStrategy
 
 _LOG = LogService.get_logger("makerig.operators.savetolibrary")
 
 
+@pollstrategy(PollStrategy.ANY_ARMATURE_OBJECT_ACTIVE)
 class MPFB_OT_Save_Rig_To_Library_Operator(bpy.types.Operator):
     """Save the active armature as a named custom rig in the user library"""
 
     bl_idname = "mpfb.save_rig_to_library"
     bl_label = "Save rig to library"
     bl_options = {'REGISTER', 'UNDO'}
-
-    @classmethod
-    def poll(cls, context):
-        return context.object is not None and context.object.type == 'ARMATURE'
 
     def execute(self, context):
         _LOG.enter()

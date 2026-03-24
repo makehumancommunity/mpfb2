@@ -7,23 +7,17 @@ from .....services import LogService
 from .....services import ObjectService
 from .....services import MaterialService
 from ..... import ClassManager
+from ....pollstrategy import pollstrategy, PollStrategy
 
 _LOG = LogService.get_logger("matops.removemakeup")
 
 
+@pollstrategy(PollStrategy.ANY_MAKEHUMAN_OBJECT_ACTIVE)
 class MPFB_OT_Remove_Makeup_Operator(bpy.types.Operator):
     """Remove all ink layers from a material"""
     bl_idname = "mpfb.remove_makeup"
     bl_label = "Remove makeup"
     bl_options = {'REGISTER', 'UNDO'}
-
-    @classmethod
-    def poll(cls, context):
-        if context.active_object is not None:
-            if not hasattr(context.active_object, "MhObjectType"):
-                return False
-            return True
-        return False
 
     def execute(self, context):
         obj = context.active_object

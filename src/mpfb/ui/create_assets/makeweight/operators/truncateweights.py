@@ -8,18 +8,16 @@ from .....services import LogService
 from .....services import ObjectService
 from ...makeweight.makeweightpanel import MAKEWEIGHT_PROPERTIES
 from ..... import ClassManager
+from ....pollstrategy import pollstrategy, PollStrategy
 
 _LOG = LogService.get_logger("makeweight.truncateweights")
 
+@pollstrategy(PollStrategy.BASEMESH_ACTIVE)
 class MPFB_OT_TruncateWeightsOperator(bpy.types.Operator):
     """Wipe all weight information from the selected vertex group"""
     bl_idname = "mpfb.truncate_weights"
     bl_label = "Truncate"
     bl_options = {'REGISTER', 'UNDO'}
-
-    @classmethod
-    def poll(cls, context):
-        return ObjectService.object_is_basemesh(context.active_object)
 
     def execute(self, context):
 

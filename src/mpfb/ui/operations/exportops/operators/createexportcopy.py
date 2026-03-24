@@ -7,26 +7,18 @@ from .....services import ObjectService
 from .....services import TargetService
 from ....mpfboperator import MpfbOperator
 from ..... import ClassManager
+from ....pollstrategy import pollstrategy, PollStrategy
 import bpy
 
 _LOG = LogService.get_logger("matops.createexportcopy")
 _LOG.set_level(LogService.DEBUG)
 
+@pollstrategy(PollStrategy.BASEMESH_AMONGST_RELATIVES)
 class MPFB_OT_Create_Export_Copy_Operator(MpfbOperator):
     """Create a deep copy of a character"""
     bl_idname = "mpfb.export_copy"
     bl_label = "Create export copy"
     bl_options = {'REGISTER'}
-
-    @classmethod
-    def poll(self, context):
-        obj = context.object
-        if not obj:
-            return False
-        basemesh = ObjectService.find_object_of_type_amongst_nearest_relatives(context.object)
-        if basemesh is None:
-            return False
-        return True
 
     def get_logger(self):
         return _LOG

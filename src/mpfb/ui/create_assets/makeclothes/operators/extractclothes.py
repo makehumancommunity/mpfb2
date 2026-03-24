@@ -4,20 +4,16 @@ import bpy
 from .....services import LogService
 from .....services import ObjectService
 from ..... import ClassManager
+from ....pollstrategy import pollstrategy, PollStrategy
 
 _LOG = LogService.get_logger("makeclothes.extractclothes")
 
+@pollstrategy(PollStrategy.ANY_MESH_OBJECT_ACTIVE)
 class MPFB_OT_ExtractClothesOperator(bpy.types.Operator):
     """Extract clothes from base mesh helpers"""
     bl_idname = "mpfb.extract_makeclothes_clothes"
     bl_label = "Extract clothes"
     bl_options = {'REGISTER', 'UNDO'}
-
-    @classmethod
-    def poll(cls, context):
-        if context.active_object is not None:
-            return context.active_object.type == "MESH"
-        return False
 
     def execute(self, context):
 

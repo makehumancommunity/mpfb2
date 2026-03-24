@@ -3,23 +3,18 @@ from .....services import LogService
 from .....services import ObjectService
 from .....services import RigService
 from ..... import ClassManager
+from ....pollstrategy import pollstrategy, PollStrategy
 import bpy, json, math
 from mathutils import Vector, Matrix
 
 _LOG = LogService.get_logger("ai.operators.boundingbox")
 
+@pollstrategy(PollStrategy.ANY_MESH_OBJECT_ACTIVE)
 class MPFB_OT_Boundingbox_Operator(bpy.types.Operator):
     """Populate the bounding box settings from the active mesh object"""
     bl_idname = "mpfb.boundingbox"
     bl_label = "From active"
     bl_options = {'REGISTER'}
-
-    @classmethod
-    def poll(cls, context):
-        _LOG.enter()
-        if context.active_object is None or context.active_object.type != 'MESH':
-            return False
-        return True
 
     def execute(self, context):
         _LOG.enter()
