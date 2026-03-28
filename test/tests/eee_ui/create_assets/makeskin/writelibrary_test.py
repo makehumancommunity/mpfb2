@@ -12,6 +12,11 @@ def test_write_library_is_registered():
     assert MPFB_OT_WriteLibraryOperator is not None
 
 
+def test_write_library_poll_false_no_active_object():
+    ObjectService.deselect_and_deactivate_all()
+    assert not MPFB_OT_WriteLibraryOperator.poll(bpy.context)
+
+
 def test_write_library_poll_with_active_mesh():
     with HumanFixture() as fixture:
         assert MPFB_OT_WriteLibraryOperator.poll(bpy.context)

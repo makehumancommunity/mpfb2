@@ -8,22 +8,17 @@ from .....services import ObjectService
 from .....entities.nodemodel.v2.materials import NodeWrapperSkin
 from ..... import ClassManager
 from ....developer.developerpanel import DEVELOPER_PROPERTIES
+from ....pollstrategy import pollstrategy, PollStrategy
 import bpy, os, json, pprint
 
 _LOG = LogService.get_logger("matops.createv2skin")
 
+@pollstrategy(PollStrategy.BASEMESH_OR_BODY_PROXY_ACTIVE)
 class MPFB_OT_Create_V2_Skin_Operator(bpy.types.Operator):
     """Wipe all current materials and add a v2 skin material on the selected object"""
     bl_idname = "mpfb.create_v2_skin"
     bl_label = "Create v2 skin"
     bl_options = {'REGISTER'}
-
-    @classmethod
-    def poll(self, context):
-        obj = context.object
-        if not obj:
-            return False
-        return ObjectService.object_is_basemesh_or_body_proxy(obj)
 
     def _find_textures_in_enhanced_skin(self, material):
         textures = { "diffuse": None, "normal": None }

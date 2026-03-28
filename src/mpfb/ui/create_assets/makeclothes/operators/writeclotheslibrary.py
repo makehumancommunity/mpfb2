@@ -11,18 +11,16 @@ from .....entities.objectproperties import GeneralObjectProperties
 from .....entities.material.makeskinmaterial import MakeSkinMaterial
 from ...makeclothes.operators.clothescommon import ClothesCommon
 from ..... import ClassManager
+from ....pollstrategy import pollstrategy, PollStrategy
 
 _LOG = LogService.get_logger("makeclothes.writeclotheslibrary")
 
+@pollstrategy(PollStrategy.ANY_OBJECT_ACTIVE)
 class MPFB_OT_WriteClothesLibraryOperator(ClothesCommon):
     """Export the asset to the relevant section in the asset library. The file name will be based on the 'name' text box"""
     bl_idname = "mpfb.write_makeclothes_library"
     bl_label = "Store in library"
     bl_options = {'REGISTER'}
-
-    @classmethod
-    def poll(cls, context):
-        return context.active_object is not None
 
     def execute(self, context):
 

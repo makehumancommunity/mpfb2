@@ -32,6 +32,9 @@ class PollStrategy:
     RIG_AMONGST_RELATIVES = 8
     ACTIVE_ARMATURE_IN_POSE_MODE = 9
     ACTIVE_MESH_IN_EDIT_MODE = 10
+    ANY_OBJECT_ACTIVE = 11
+    BASEMESH_OR_BODY_PROXY_ACTIVE = 12
+    BASEMESH_OR_BODY_PROXY_OR_SKELETON_ACTIVE = 13
 
 def _ensure_context(context):
     if context is not None:
@@ -108,6 +111,29 @@ def _strategy_active_mesh_in_edit_mode(cls, context):
     return (ObjectService.object_is_any_mesh(ctx.active_object)
             and ctx.active_object.mode == "EDIT")
 
+def _strategy_any_object_active(cls, context):
+    _LOG.trace("In strategy ANY_OBJECT_ACTIVE", (cls, context))
+    ctx = _ensure_context(context)
+    if ctx is None:
+        return False
+    return ctx.active_object is not None
+
+def _strategy_basemesh_or_body_proxy_active(cls, context):
+    _LOG.trace("In strategy BASEMESH_OR_BODY_PROXY_ACTIVE", (cls, context))
+    ctx = _ensure_context(context)
+    if ctx is None:
+        return False
+    return ObjectService.object_is_basemesh_or_body_proxy(ctx.active_object)
+
+def _strategy_basemesh_or_body_proxy_or_skeleton_active(cls, context):
+    _LOG.trace("In strategy BASEMESH_OR_BODY_PROXY_OR_SKELETON_ACTIVE", (cls, context))
+    ctx = _ensure_context(context)
+    if ctx is None or ctx.active_object is None:
+        return False
+    if ObjectService.object_is_basemesh_or_body_proxy(ctx.active_object):
+        return True
+    return ObjectService.object_is_any_skeleton(ctx.active_object)
+
 class pollstrategy(object):
     """A class decorator which adds a poll method to the class based on the provided poll strategy."""
 
@@ -137,4 +163,10 @@ class pollstrategy(object):
             klass.poll = classmethod(_strategy_active_armature_in_pose_mode)
         if self.strategy == PollStrategy.ACTIVE_MESH_IN_EDIT_MODE:
             klass.poll = classmethod(_strategy_active_mesh_in_edit_mode)
+        if self.strategy == PollStrategy.ANY_OBJECT_ACTIVE:
+            klass.poll = classmethod(_strategy_any_object_active)
+        if self.strategy == PollStrategy.BASEMESH_OR_BODY_PROXY_ACTIVE:
+            klass.poll = classmethod(_strategy_basemesh_or_body_proxy_active)
+        if self.strategy == PollStrategy.BASEMESH_OR_BODY_PROXY_OR_SKELETON_ACTIVE:
+            klass.poll = classmethod(_strategy_basemesh_or_body_proxy_or_skeleton_active)
         return klass

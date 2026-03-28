@@ -6,12 +6,14 @@ from .....services import AnimationService
 from .....services import RigService
 from ..... import ClassManager
 from ....mpfboperator import MpfbOperator
+from ....pollstrategy import pollstrategy, PollStrategy
 import bpy, json, math, os
 from bpy.types import StringProperty
 from bpy_extras.io_utils import ExportHelper
 
 _LOG = LogService.get_logger("animops.repeatanim")
 
+@pollstrategy(PollStrategy.ANY_ARMATURE_OBJECT_ACTIVE)
 class MPFB_OT_Make_Cyclic_Operator(MpfbOperator):
     """Make animation cyclic by adding fcurve modifiers. WARNING: This will not work if the animation already has fcurve modifiers."""
     bl_idname = "mpfb.make_cyclic"
@@ -20,13 +22,6 @@ class MPFB_OT_Make_Cyclic_Operator(MpfbOperator):
 
     def get_logger(self):
         return _LOG
-
-    @classmethod
-    def poll(cls, context):
-        _LOG.enter()
-        if context.object is None or context.object.type != 'ARMATURE':
-            return False
-        return True
 
     def hardened_execute(self, context):
         _LOG.enter()

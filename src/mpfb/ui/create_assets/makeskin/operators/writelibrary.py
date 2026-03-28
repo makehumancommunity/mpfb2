@@ -9,18 +9,16 @@ from .....services import MaterialService
 from .....services import ObjectService
 from ..... import ClassManager
 from .....entities.material.makeskinmaterial import MakeSkinMaterial
+from ....pollstrategy import pollstrategy, PollStrategy
 
 _LOG = LogService.get_logger("makeskin.writelibrary")
 
+@pollstrategy(PollStrategy.BASEMESH_OR_BODY_PROXY_ACTIVE)
 class MPFB_OT_WriteLibraryOperator(bpy.types.Operator):
     """Save material in the user skins directory to make it available as new body skin"""
     bl_idname = "mpfb.write_makeskin_to_library"
     bl_label = "Store as skin"
     bl_options = {'REGISTER'}
-
-    @classmethod
-    def poll(cls, context):
-        return ObjectService.object_is_basemesh_or_body_proxy(context.active_object)
 
     def execute(self, context):
 
