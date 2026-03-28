@@ -1,8 +1,8 @@
 """Module with convenience logic for expanding context, scene properties and object properties into a flat object."""
 
 import bpy
-from .objectservice import ObjectService
-from .logservice import LogService
+from ..services import ObjectService
+from ..services import LogService
 
 _LOG = LogService.get_logger("mpfbcontext")
 
