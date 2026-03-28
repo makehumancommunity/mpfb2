@@ -2,9 +2,12 @@
 
 import bpy
 from .objectservice import ObjectService
+from .logservice import LogService
+
+_LOG = LogService.get_logger("mpfbcontext")
 
 class MpfbContext:
-    """MpfbContext is a DTO (Data Transfer Object) that simplifies the process of expanding context, scene properties and object properties
+    """MpfbContext is a short-lived helper class which simplifies the process of expanding context, scene properties and object properties
     into a flat structure.
 
     Keys which will always exist (but which might be None) are:
@@ -21,7 +24,7 @@ class MpfbContext:
     For example, if you have a scene property "scale_factor", then it would be readable via a MpfbContext "ctx" as "ctx.scale_factor".
     """
 
-    def __init__(self, context=None, scene_properties=None, object_properties=None, use_basemesh_for_object_properties=True):
+    def __init__(self, context=None, scene_properties=None, object_properties=None, use_basemesh_for_object_properties=True, skip_object_resolve=False):
         ctx = context
         if ctx is None:
             ctx = bpy.context
@@ -30,8 +33,6 @@ class MpfbContext:
         self.context = ctx
         self.scene = ctx.scene
         self.active_object = ctx.active_object
-        self.scene_properties = scene_properties
-        self.object_properties = object_properties
         self.selected_objects = ctx.selected_objects
 
         # Ensure these keys are present
@@ -40,7 +41,7 @@ class MpfbContext:
         self.proxy = None
         self.root = None
 
-        if ctx.active_object:
+        if not skip_object_resolve and ctx.active_object is not None:
             self.basemesh = ObjectService.find_object_of_type_amongst_nearest_relatives(ctx.active_object)
             self.rig = ObjectService.find_object_of_type_amongst_nearest_relatives(ctx.active_object, "Skeleton")
             self.proxy = ObjectService.find_object_of_type_amongst_nearest_relatives(ctx.active_object, "Proxymeshes")
@@ -61,6 +62,8 @@ class MpfbContext:
         if scene_properties is not None:
             # To ensure these keys are present even if there is no scene object
             for key in scene_properties.get_keys():
+                if hasattr(self, key):
+                    _LOG.warn("A scene property will overwrite a core key", (key, scene_properties))
                 setattr(self, key, None)
             if self.scene is not None:
                 for key in scene_properties.get_keys():
@@ -70,6 +73,8 @@ class MpfbContext:
         if object_properties is not None:
             # To ensure these keys are present even if there is no scene object
             for key in object_properties.get_keys():
+                if hasattr(self, key):
+                    _LOG.warn("An object property will overwrite a core key", (key, object_properties))
                 setattr(self, key, None)
 
             if use_basemesh_for_object_properties:
@@ -81,3 +86,5 @@ class MpfbContext:
                 for key in object_properties.get_keys():
                     value = object_properties.get_value(key, entity_reference=obj)
                     setattr(self, key, value)
+
+        _LOG.trace("Created MpfbContext", self.__dict__)
