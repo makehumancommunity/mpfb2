@@ -10,21 +10,18 @@ from .....entities.material.makeskinmaterial import MakeSkinMaterial
 from ..makeuppanel import MAKEUP_PROPERTIES
 
 from ..... import ClassManager
+from ....pollstrategy import pollstrategy, PollStrategy
 
 _LOG = LogService.get_logger("makeup.createink")
 
 
+@pollstrategy(PollStrategy.ANY_MESH_OBJECT_ACTIVE)
 class MPFB_OT_CreateInkOperator(bpy.types.Operator):
     """Add a new empty ink layer to the mesh's existing material. Only MakeSkin materials are supported."""
 
     bl_idname = "mpfb.create_ink"
     bl_label = "Create ink"
     bl_options = {'REGISTER', 'UNDO'}
-
-    @classmethod
-    def poll(cls, context):
-        """Check if the operator can run in the current context and that a mesh object is active."""
-        return context.active_object is not None and context.active_object.type == 'MESH'
 
     def execute(self, context):
         """Create a new empty ink layer on the selected object, optionally importing a specific UV map."""

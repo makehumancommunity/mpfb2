@@ -4,26 +4,19 @@ from .....services import ObjectService
 from .....services import LocationService
 from .....services import RigService
 from ..... import ClassManager
+from ....pollstrategy import pollstrategy, PollStrategy
 import bpy, json, math, os
 from bpy.types import StringProperty
 from bpy_extras.io_utils import ImportHelper
 
 _LOG = LogService.get_logger("developer.operators.loadpartial")
 
+@pollstrategy(PollStrategy.ANY_ARMATURE_OBJECT_ACTIVE)
 class MPFB_OT_Load_Partial_Operator(bpy.types.Operator):
     """Load partial pose matching rig type"""
     bl_idname = "mpfb.load_partial"
     bl_label = "Load partial pose"
     bl_options = {'REGISTER', 'UNDO'}
-
-    @classmethod
-    def poll(cls, context):
-        _LOG.enter()
-        if context.object is None:
-            return False
-        if context.object is None or context.object.type != 'ARMATURE':
-            return False
-        return True
 
     def execute(self, context):
         _LOG.enter()

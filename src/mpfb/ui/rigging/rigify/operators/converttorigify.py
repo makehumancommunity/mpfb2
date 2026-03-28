@@ -4,22 +4,18 @@ from .....services import RigService
 from ..... import ClassManager
 from .....entities.rigging.rigifyhelpers.rigifyhelpers import RigifyHelpers
 from .....services import SystemService
+from ....pollstrategy import pollstrategy, PollStrategy
 import bpy, json
 
 _LOG = LogService.get_logger("rigify.operators.converttorigify")
 
 
+@pollstrategy(PollStrategy.RIG_ACTIVE)
 class MPFB_OT_Convert_To_Rigify_Operator(bpy.types.Operator):
     """Convert rig to rigify"""
     bl_idname = "mpfb.convert_to_rigify"
     bl_label = "Rigify"
     bl_options = {'REGISTER', 'UNDO'}
-
-    @classmethod
-    def poll(self, context):
-        if not ObjectService.object_is_skeleton(context.active_object):
-            return False
-        return True
 
     def execute(self, context):
         _LOG.enter()

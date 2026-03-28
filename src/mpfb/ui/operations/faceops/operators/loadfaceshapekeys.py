@@ -5,22 +5,17 @@ from .....services import FaceService
 from .....services import ObjectService
 from ....mpfboperator import MpfbOperator
 from ..... import ClassManager
+from ....pollstrategy import pollstrategy, PollStrategy
 
 _LOG = LogService.get_logger("faceops.loadfaceshapekeys")
 
 
+@pollstrategy(PollStrategy.BASEMESH_AMONGST_RELATIVES)
 class MPFB_OT_Load_Face_Shape_Keys_Operator(MpfbOperator):
     """Load selected facial shape key packs onto the basemesh"""
     bl_idname = "mpfb.load_face_shape_keys"
     bl_label = "Load face shape keys"
     bl_options = {'REGISTER'}
-
-    @classmethod
-    def poll(cls, context):
-        if not context.object:
-            return False
-        basemesh = ObjectService.find_object_of_type_amongst_nearest_relatives(context.object)
-        return basemesh is not None
 
     def get_logger(self):
         return _LOG

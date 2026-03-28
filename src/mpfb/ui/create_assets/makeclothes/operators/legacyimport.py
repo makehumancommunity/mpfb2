@@ -6,6 +6,7 @@ from .....entities.objectproperties import GeneralObjectProperties
 from .. import MakeClothesObjectProperties
 from ..... import ClassManager
 from ....mpfboperator import MpfbOperator
+from ....pollstrategy import pollstrategy, PollStrategy
 
 _LOG = LogService.get_logger("makeclothes.legacyimport")
 
@@ -20,6 +21,7 @@ _LEGACY_CLOTHES_SCENE_PROPS = {
     "MhClothesAuthor": "author"
     }
 
+@pollstrategy(PollStrategy.ANY_MESH_OBJECT_ACTIVE)
 class MPFB_OT_LegacyImportOperator(MpfbOperator):
     """Attempt to import properties set by legacy MakeClothes"""
     bl_idname = "mpfb.legacy_makeclothes_import"
@@ -28,12 +30,6 @@ class MPFB_OT_LegacyImportOperator(MpfbOperator):
 
     def get_logger(self):
         return _LOG
-
-    @classmethod
-    def poll(cls, context):
-        if context.active_object is not None:
-            return context.active_object.type == "MESH"
-        return False
 
     def hardened_execute(self, context):
         """Import properties from legacy MakeClothes"""

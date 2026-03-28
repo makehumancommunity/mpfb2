@@ -8,10 +8,12 @@ from .....services import MaterialService
 from ..makeuppanel import MAKEUP_PROPERTIES
 
 from ..... import ClassManager
+from ....pollstrategy import pollstrategy, PollStrategy
 
 _LOG = LogService.get_logger("makeup.writeink")
 
 
+@pollstrategy(PollStrategy.ANY_MESH_OBJECT_ACTIVE)
 class MPFB_OT_WriteInkOperator(bpy.types.Operator):
     """Write a UV map to the local library. If there are multiple ink layers on the active object, use the first."""
 
@@ -20,11 +22,6 @@ class MPFB_OT_WriteInkOperator(bpy.types.Operator):
     bl_options = {'REGISTER', 'UNDO'}
 
     filename_ext = ".json"
-
-    @classmethod
-    def poll(cls, context):
-        """Check if the operator can run in the current context and that a mesh object is active."""
-        return context.active_object is not None and context.active_object.type == 'MESH'
 
     def execute(self, context):
         """Write ink layer to library."""

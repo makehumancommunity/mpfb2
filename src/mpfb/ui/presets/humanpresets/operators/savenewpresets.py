@@ -8,11 +8,13 @@ from .....services import HumanService
 from .....services import RigService
 from ...humanpresets.humanpresetspanel import HUMAN_PRESETS_PROPERTIES
 from ..... import ClassManager
+from ....pollstrategy import pollstrategy, PollStrategy
 import bpy, os, json
 
 _LOG = LogService.get_logger("humanpresets.savenewpresets")
 
 
+@pollstrategy(PollStrategy.BASEMESH_OR_BODY_PROXY_OR_SKELETON_ACTIVE)
 class MPFB_OT_Save_New_Presets_Operator(bpy.types.Operator):
     """This will save new human preset"""
     bl_idname = "mpfb.save_new_human_presets"
@@ -22,7 +24,7 @@ class MPFB_OT_Save_New_Presets_Operator(bpy.types.Operator):
     def execute(self, context):
         _LOG.enter()
 
-        if context.object is None:
+        if context.active_object is None:
             self.report({'ERROR'}, "Must have a selected object")
             return {'FINISHED'}
 
@@ -43,10 +45,10 @@ class MPFB_OT_Save_New_Presets_Operator(bpy.types.Operator):
             return {'FINISHED'}
 
         basemesh = None
-        if ObjectService.object_is_basemesh(context.object):
-            basemesh = context.object
+        if ObjectService.object_is_basemesh(context.active_object):
+            basemesh = context.active_object
         else:
-            basemesh = ObjectService.find_object_of_type_amongst_nearest_relatives(context.object, "Basemesh")
+            basemesh = ObjectService.find_object_of_type_amongst_nearest_relatives(context.active_object, "Basemesh")
 
         if basemesh is None:
             self.report({'ERROR'}, "Could not find basemesh amongst relatives of selected object")
@@ -54,27 +56,13 @@ class MPFB_OT_Save_New_Presets_Operator(bpy.types.Operator):
 
         HumanService.serialize_to_json_file(basemesh, file_name, True)
 
-        rig = ObjectService.find_object_of_type_amongst_nearest_relatives(context.object, "Skeleton")
+        rig = ObjectService.find_object_of_type_amongst_nearest_relatives(context.active_object, "Skeleton")
         if rig and "generated" in RigService.identify_rig(rig):
             self.report({'WARNING'}, "Serializing a generated rig might cause issues. The preset was saved, but you should load it and see if it is correct.")
         else:
             self.report({'INFO'}, "Human saved as " + file_name)
 
         return {'FINISHED'}
-
-    @classmethod
-    def poll(cls, context):
-        obj = context.active_object
-        if not obj:
-            return False
-
-        if ObjectService.object_is_basemesh_or_body_proxy(obj):
-            return True
-
-        if ObjectService.object_is_skeleton(obj):
-            return True
-
-        return False
 
 
 ClassManager.add_class(MPFB_OT_Save_New_Presets_Operator)

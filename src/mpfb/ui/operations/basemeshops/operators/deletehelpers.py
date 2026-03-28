@@ -5,30 +5,19 @@ from .....services import ObjectService
 from .....services import LocationService
 from .....services import TargetService
 from ..... import ClassManager
+from ....pollstrategy import pollstrategy, PollStrategy
 import bpy, json, math, os
 from bpy.types import StringProperty
 from bpy_extras.io_utils import ImportHelper
 
 _LOG = LogService.get_logger("basemeshops.operators.deletehelpers")
 
+@pollstrategy(PollStrategy.BASEMESH_ACTIVE)
 class MPFB_OT_Delete_Helpers_Operator(bpy.types.Operator):
     """Delete all helper geometry. This will also delete the mask operator for hiding helpers. WARNING: You will not be able to equip many clothes after doing this"""
     bl_idname = "mpfb.delete_helpers"
     bl_label = "Delete helpers"
     bl_options = {'REGISTER', 'UNDO'}
-
-    @classmethod
-    def poll(cls, context):
-        _LOG.enter()
-        if context.object is None:
-            return False
-
-        objtype = ObjectService.get_object_type(context.object)
-
-        if objtype != "Basemesh":
-            return
-
-        return True
 
     def _delete_vertex_group(self, context, blender_object, vgroup_name):
         bpy.ops.object.mode_set(mode='OBJECT', toggle=False)

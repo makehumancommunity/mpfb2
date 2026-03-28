@@ -5,25 +5,19 @@ from .....services import ObjectService
 from .....services import AnimationService
 from .....services import RigService
 from ..... import ClassManager
+from ....pollstrategy import pollstrategy, PollStrategy
 import bpy, json, math, os
 from bpy.types import StringProperty
 from bpy_extras.io_utils import ExportHelper
 
 _LOG = LogService.get_logger("makepose.operators.loadanimation")
 
+@pollstrategy(PollStrategy.ANY_ARMATURE_OBJECT_ACTIVE)
 class MPFB_OT_Load_Animation_Operator(bpy.types.Operator):
     """Load animation from json"""
     bl_idname = "mpfb.load_animation"
     bl_label = "Load animation"
     bl_options = {'REGISTER'}
-
-    @classmethod
-    def poll(cls, context):
-        _LOG.enter()
-        if context.object is None or context.object.type != 'ARMATURE':
-            return False
-        # TODO: check current mode
-        return True
 
     def execute(self, context):
         _LOG.enter()

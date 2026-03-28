@@ -6,22 +6,18 @@ from .....services import HumanService
 from .....services import LogService
 from .....services import ObjectService
 from ..... import ClassManager
+from ....pollstrategy import pollstrategy, PollStrategy
 
 _LOG = LogService.get_logger("addrig.add_custom_rig")
 
 
+@pollstrategy(PollStrategy.BASEMESH_ACTIVE)
 class MPFB_OT_Add_Custom_Rig_Operator(bpy.types.Operator):
     """Add a custom rig from the user library to the active basemesh"""
 
     bl_idname = "mpfb.add_custom_rig"
     bl_label = "Add custom rig"
     bl_options = {'REGISTER', 'UNDO'}
-
-    @classmethod
-    def poll(cls, context):
-        if context.active_object is not None:
-            return ObjectService.object_is_basemesh(context.active_object)
-        return False
 
     def execute(self, context):
         scene = context.scene

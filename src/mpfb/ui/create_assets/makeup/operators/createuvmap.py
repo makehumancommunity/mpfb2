@@ -5,21 +5,18 @@ from .....services import LogService
 from ..makeuppanel import MAKEUP_PROPERTIES
 
 from ..... import ClassManager
+from ....pollstrategy import pollstrategy, PollStrategy
 
 _LOG = LogService.get_logger("makeup.createuvmap")
 
 
+@pollstrategy(PollStrategy.ANY_MESH_OBJECT_ACTIVE)
 class MPFB_OT_CreateUvMapOperator(bpy.types.Operator):
     """Create a new UV map on the selected object."""
 
     bl_idname = "mpfb.create_uv_map"
     bl_label = "Create UV map"
     bl_options = {'REGISTER', 'UNDO'}
-
-    @classmethod
-    def poll(cls, context):
-        """Check if the operator can run in the current context and that a mesh object is active."""
-        return context.active_object is not None and context.active_object.type == 'MESH'
 
     def execute(self, context):
         """Create a new UV map on the selected object, using the name set in the Makeup Properties."""

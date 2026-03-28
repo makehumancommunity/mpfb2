@@ -5,9 +5,11 @@ from ....services import LogService
 from ....services import TargetService
 from ....services import ObjectService
 from .... import ClassManager
+from ...pollstrategy import pollstrategy, PollStrategy
 
 _LOG = LogService.get_logger("model.prunehuman")
 
+@pollstrategy(PollStrategy.BASEMESH_AMONGST_RELATIVES)
 class MPFB_OT_PruneHumanOperator(bpy.types.Operator):
     """Remove all shape keys with a weight of < 0.0001"""
     bl_idname = "mpfb.prune_human"
@@ -22,12 +24,5 @@ class MPFB_OT_PruneHumanOperator(bpy.types.Operator):
 
         self.report({'INFO'}, "Shape keys have tidied up")
         return {'FINISHED'}
-
-    @classmethod
-    def poll(cls, context):
-        if not context.active_object:
-            return False
-        basemesh = ObjectService.find_object_of_type_amongst_nearest_relatives(context.active_object, "Basemesh")
-        return basemesh is not None
 
 ClassManager.add_class(MPFB_OT_PruneHumanOperator)

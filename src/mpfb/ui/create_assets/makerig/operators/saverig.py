@@ -4,6 +4,7 @@ from .....services import MaterialService
 from .....services import ObjectService
 from .....entities.rig import Rig
 from ..... import ClassManager
+from ....pollstrategy import pollstrategy, PollStrategy
 import bpy, json, math
 from bpy.types import StringProperty
 from bpy_extras.io_utils import ExportHelper
@@ -11,6 +12,7 @@ from bpy_extras.io_utils import ExportHelper
 _LOG = LogService.get_logger("makerig.operators.saverig")
 
 
+@pollstrategy(PollStrategy.ANY_ARMATURE_OBJECT_ACTIVE)
 class MPFB_OT_Save_Rig_Operator(bpy.types.Operator, ExportHelper):
     """Save rig definition as json"""
     bl_idname = "mpfb.save_rig"
@@ -19,14 +21,6 @@ class MPFB_OT_Save_Rig_Operator(bpy.types.Operator, ExportHelper):
 
     filename_ext = '.mpfbskel'
     check_extension = False
-
-    @classmethod
-    def poll(cls, context):
-        _LOG.enter()
-        if context.object is None or context.object.type != 'ARMATURE':
-            return False
-        # TODO: check current mode
-        return True
 
     def execute(self, context):
         _LOG.enter()

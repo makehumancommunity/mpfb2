@@ -8,10 +8,12 @@ from .....services import MeshService
 from ..makeuppanel import MAKEUP_PROPERTIES
 
 from ..... import ClassManager
+from ....pollstrategy import pollstrategy, PollStrategy
 
 _LOG = LogService.get_logger("makeup.writeuvmap")
 
 
+@pollstrategy(PollStrategy.ANY_MESH_OBJECT_ACTIVE)
 class MPFB_OT_WriteUvMapOperator(bpy.types.Operator, ExportHelper):
     """Write a UV map to a JSON file. If there are multiple UV maps on the active object, use the one which matches
     the name set in the Makeup Properties. If no match is found, use active UV map."""
@@ -21,11 +23,6 @@ class MPFB_OT_WriteUvMapOperator(bpy.types.Operator, ExportHelper):
     bl_options = {'REGISTER', 'UNDO'}
 
     filename_ext = ".json"
-
-    @classmethod
-    def poll(cls, context):
-        """Check if the operator can run in the current context and that a mesh object is active."""
-        return context.active_object is not None and context.active_object.type == 'MESH'
 
     def invoke(self, context, event):
         """Show the save file dialog."""

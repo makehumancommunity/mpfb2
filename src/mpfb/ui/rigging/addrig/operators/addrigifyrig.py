@@ -7,21 +7,17 @@ from .....services import LogService
 from .....services import ObjectService
 from .....services import SystemService
 from ..... import ClassManager
+from ....pollstrategy import pollstrategy, PollStrategy
 
 _LOG = LogService.get_logger("addrig.add_rigify_rig")
 
+@pollstrategy(PollStrategy.BASEMESH_ACTIVE)
 class MPFB_OT_AddRigifyRigOperator(bpy.types.Operator):
     """Add a rigify rig"""
 
     bl_idname = "mpfb.add_rigify_rig"
     bl_label = "Add rigify rig"
     bl_options = {'REGISTER', 'UNDO'}
-
-    @classmethod
-    def poll(cls, context):
-        if context.active_object is not None:
-            return ObjectService.object_is_basemesh(context.active_object)
-        return False
 
     def execute(self, context):
 

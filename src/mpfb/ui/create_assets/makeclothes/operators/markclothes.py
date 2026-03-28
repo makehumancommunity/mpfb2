@@ -4,20 +4,16 @@ import bpy
 from .....services import LogService
 from .....entities.objectproperties import GeneralObjectProperties
 from ..... import ClassManager
+from ....pollstrategy import pollstrategy, PollStrategy
 
 _LOG = LogService.get_logger("makeclothes.markclothes")
 
+@pollstrategy(PollStrategy.ANY_MESH_OBJECT_ACTIVE)
 class MPFB_OT_MarkClothesOperator(bpy.types.Operator):
     """Set mesh type"""
     bl_idname = "mpfb.mark_makeclothes_clothes"
     bl_label = "Change type"
     bl_options = {'REGISTER'}
-
-    @classmethod
-    def poll(cls, context):
-        if context.active_object is not None:
-            return context.active_object.type == "MESH"
-        return False
 
     def execute(self, context):
 

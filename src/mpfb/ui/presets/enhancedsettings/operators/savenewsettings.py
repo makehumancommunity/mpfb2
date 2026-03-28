@@ -7,6 +7,7 @@ from .....services import NodeService
 from .....services import MaterialService
 from ...enhancedsettings.enhancedsettingspanel import ENHANCED_SETTINGS_PROPERTIES
 from ..... import ClassManager
+from ....pollstrategy import pollstrategy, PollStrategy
 import bpy, os, json
 
 from ._savematerial import _save_material
@@ -14,6 +15,7 @@ from ._savematerial import _save_material
 _LOG = LogService.get_logger("enhancedsettings.savenewsettings")
 
 
+@pollstrategy(PollStrategy.ANY_OBJECT_ACTIVE)
 class MPFB_OT_SaveNewEnhancedSettingsOperator(bpy.types.Operator):
     """This will save new enhanced material settings with a name from the text field above, using values from the selected object's material"""
     bl_idname = "mpfb.save_new_enhanced_settings"
@@ -23,7 +25,7 @@ class MPFB_OT_SaveNewEnhancedSettingsOperator(bpy.types.Operator):
     def execute(self, context):
         _LOG.enter()
 
-        if context.object is None:
+        if context.active_object is None:
             self.report({'ERROR'}, "Must have a selected object")
             return {'FINISHED'}
 
@@ -44,10 +46,5 @@ class MPFB_OT_SaveNewEnhancedSettingsOperator(bpy.types.Operator):
             return {'FINISHED'}
 
         return _save_material(self, context, file_name)
-
-    @classmethod
-    def poll(cls, context):
-        _LOG.enter()
-        return not context.object is None
 
 ClassManager.add_class(MPFB_OT_SaveNewEnhancedSettingsOperator)

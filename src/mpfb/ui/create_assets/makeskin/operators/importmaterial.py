@@ -7,9 +7,11 @@ from .....entities.material.makeskinmaterial import MakeSkinMaterial
 from .....services import LogService
 from .....services import MaterialService
 from ..... import ClassManager
+from ....pollstrategy import pollstrategy, PollStrategy
 
 _LOG = LogService.get_logger("makeskin.importmaterial")
 
+@pollstrategy(PollStrategy.ANY_MAKEHUMAN_OBJECT_ACTIVE)
 class MPFB_OT_ImportMaterialOperator(bpy.types.Operator, ImportHelper):
     """Import MHMAT"""
     bl_idname = "mpfb.import_makeskin_material"
@@ -17,14 +19,6 @@ class MPFB_OT_ImportMaterialOperator(bpy.types.Operator, ImportHelper):
     bl_options = {'REGISTER', 'UNDO'}
 
     filter_glob: StringProperty(default='*.mhmat', options={'HIDDEN'})
-
-    @classmethod
-    def poll(cls, context):
-        if context.active_object is not None:
-            if not hasattr(context.active_object, "MhObjectType"):
-                return False
-            return True
-        return False
 
     def execute(self, context):
         obj = context.active_object

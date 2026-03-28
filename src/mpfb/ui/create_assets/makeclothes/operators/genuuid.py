@@ -9,18 +9,16 @@ from .....services import ObjectService
 from .....entities.meshcrossref import MeshCrossRef
 from .....entities.objectproperties import GeneralObjectProperties
 from ..... import ClassManager
+from ....pollstrategy import pollstrategy, PollStrategy
 
 _LOG = LogService.get_logger("makeclothes.genuuid")
 
+@pollstrategy(PollStrategy.ANY_OBJECT_ACTIVE)
 class MPFB_OT_GenerateUUIDOperator(bpy.types.Operator):
     """Generate a new UUID for the asset"""
     bl_idname = "mpfb.genuuid"
     bl_label = "Generate UUID"
     bl_options = {'REGISTER'}
-
-    @classmethod
-    def poll(cls, context):
-        return context.active_object is not None
 
     def execute(self, context):
 

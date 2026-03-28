@@ -5,9 +5,11 @@ from ....services import LogService
 from ....services import HumanService
 from ....services import ObjectService
 from .... import ClassManager
+from ...pollstrategy import pollstrategy, PollStrategy
 
 _LOG = LogService.get_logger("model.refithuman")
 
+@pollstrategy(PollStrategy.BASEMESH_OR_BODY_PROXY_OR_SKELETON_ACTIVE)
 class MPFB_OT_RefitHumanOperator(bpy.types.Operator):
     """Refit clothes, bodyparts, proxy and rig to the basemesh. This is needed if you have changed modeling sliders after having added such assets"""
     bl_idname = "mpfb.refit_human"
@@ -21,20 +23,6 @@ class MPFB_OT_RefitHumanOperator(bpy.types.Operator):
 
         self.report({'INFO'}, "Assets have been refitted")
         return {'FINISHED'}
-
-    @classmethod
-    def poll(cls, context):
-        obj = context.active_object
-        if not obj:
-            return False
-
-        if ObjectService.object_is_basemesh_or_body_proxy(obj):
-            return True
-
-        if ObjectService.object_is_skeleton(obj):
-            return True
-
-        return False
 
 ClassManager.add_class(MPFB_OT_RefitHumanOperator)
 

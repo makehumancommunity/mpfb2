@@ -6,11 +6,13 @@ from .....entities.rigging.righelpers.armhelpers.armhelpers import ArmHelpers
 from .....entities.rigging.righelpers.leghelpers.leghelpers import LegHelpers
 from .....entities.rigging.righelpers.fingerhelpers.fingerhelpers import FingerHelpers
 from .....entities.rigging.righelpers.eyehelpers.eyehelpers import EyeHelpers
+from ....pollstrategy import pollstrategy, PollStrategy
 import bpy
 
 _LOG = LogService.get_logger("setupikoperators.fingerfk")
 
 
+@pollstrategy(PollStrategy.ANY_ARMATURE_OBJECT_ACTIVE)
 class MPFB_OT_AddHelpersOperator(bpy.types.Operator):
     """This will add all selected helpers to the active armature"""
     bl_idname = "mpfb.add_helpers"
@@ -85,14 +87,6 @@ class MPFB_OT_AddHelpersOperator(bpy.types.Operator):
         RigService.normalize_rotation_mode(armature_object)
 
         return {'FINISHED'}
-
-    @classmethod
-    def poll(cls, context):
-        _LOG.enter()
-        if context.object is None or context.object.type != 'ARMATURE':
-            return False
-        # TODO: check current mode
-        return True
 
 
 ClassManager.add_class(MPFB_OT_AddHelpersOperator)

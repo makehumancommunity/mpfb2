@@ -5,10 +5,12 @@ from .....services import ObjectService
 from .....services import RigService
 from ..... import ClassManager
 from ....mpfboperator import MpfbOperator
+from ....pollstrategy import pollstrategy, PollStrategy
 import bpy, math
 
 _LOG = LogService.get_logger("animops.reduceddoll")
 
+@pollstrategy(PollStrategy.ANY_MAKEHUMAN_OBJECT_ACTIVE)
 class MPFB_OT_Reduced_Doll_Operator(MpfbOperator):
     """Create a reduced copy of the character. The copy will have all clothes and body parts removed, the the helper geometry deleted and all shape keys baked"""
     bl_idname = "mpfb.reduced_doll"
@@ -17,15 +19,6 @@ class MPFB_OT_Reduced_Doll_Operator(MpfbOperator):
 
     def get_logger(self):
         return _LOG
-
-    @classmethod
-    def poll(cls, context):
-        _LOG.enter()
-        if context.object is None:
-            return False
-        if not ObjectService.get_object_type(context.object):
-            return False
-        return True
 
     def hardened_execute(self, context):
         _LOG.enter()
