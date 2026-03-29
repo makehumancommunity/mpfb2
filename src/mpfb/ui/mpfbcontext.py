@@ -66,7 +66,8 @@ class MpfbContext:
                  object_properties=None,
                  focus_object_type=ContextFocusObject.BASEMESH,
                  effort=ContextResolveEffort.COMMON,
-                 also_resolve_general=False):
+                 also_resolve_general=False,
+                 exception_on_duplicate_key=True):
         """Initialize MpfbContext.
 
         Parameters:
@@ -76,6 +77,7 @@ class MpfbContext:
         - focus_object_type: The type of object to focus on (default is BASEMESH)
         - effort: The effort to resolve objects (default is COMMON)
         - also_resolve_general: Attempt to resolve GeneralObjectProperties from the focus object (default is False)
+        - exception_on_duplicate_key: Whether to raise an exception when a duplicate key is encountered (default is True)
         """
 
         ctx = context
@@ -194,6 +196,8 @@ class MpfbContext:
                 for key in configset.get_keys():
                     if hasattr(self, key):
                         _LOG.warn("A scene property will overwrite an existing key", (key, configset))
+                        if exception_on_duplicate_key:
+                            raise ValueError("Duplicate key in scene properties: " + str(key))
                     setattr(self, key, None)
                 if self.scene is not None:
                     for key in configset.get_keys():
@@ -205,6 +209,8 @@ class MpfbContext:
             for key in object_properties.get_keys():
                 if hasattr(self, key):
                     _LOG.warn("An object property will overwrite an existing key", (key, object_properties))
+                    if exception_on_duplicate_key:
+                        raise ValueError("Duplicate key in object properties: " + str(key))
                 setattr(self, key, None)
 
             obj = self.focus_object
@@ -218,6 +224,8 @@ class MpfbContext:
             for key in GeneralObjectProperties.get_keys():
                 if hasattr(self, key):
                     _LOG.warn("A general object property will overwrite an existing key", (key, object_properties))
+                    if exception_on_duplicate_key:
+                        raise ValueError("Duplicate key in general object properties: " + str(key))
                 setattr(self, key, None)
 
             obj = self.focus_object
