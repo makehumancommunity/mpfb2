@@ -106,86 +106,83 @@ class MpfbContext:
 
         _LOG.debug("Active object", self.active_object)
 
-        if not self.active_object or self.active_object is None:
-            # No active object, we can't resolve anything
-            return
-
-        if effort >= ContextResolveEffort.FOCUS:
-            type_to_resolve = None
-            match focus_object_type:
-                case ContextFocusObject.BASEMESH:
-                    type_to_resolve = "Basemesh"
-                case ContextFocusObject.RIG:
-                    type_to_resolve = "Skeleton"
-                case ContextFocusObject.PROXY:
-                    type_to_resolve = "Proxymeshes"
-                case ContextFocusObject.CLOTHES:
-                    type_to_resolve = "Clothes"
-                case ContextFocusObject.EYES:
-                    type_to_resolve = "Eyes"
-                case ContextFocusObject.EYELASHES:
-                    type_to_resolve = "Eyelashes"
-                case ContextFocusObject.EYEBROWS:
-                    type_to_resolve = "Eyebrows"
-                case ContextFocusObject.TONGUE:
-                    type_to_resolve = "Tongue"
-                case ContextFocusObject.TEETH:
-                    type_to_resolve = "Teeth"
-                case ContextFocusObject.HAIR:
-                    type_to_resolve = "Hair"
-            _LOG.debug("Resolving focus object of type", type_to_resolve)
-            if type_to_resolve is not None:
-                # It is a makehuman type, find it amongst the nearest relatives
-                self.focus_object = ObjectService.find_object_of_type_amongst_nearest_relatives(ctx.active_object, type_to_resolve)
-            else:
-                # Special cases
-                if focus_object_type == ContextFocusObject.ACTIVE:
-                    self.focus_object = self.active_object
-                if focus_object_type == ContextFocusObject.ROOT:
-                    self.focus_object = self.active_object
-                    if self.focus_object.parent:
-                        self.focus_object = self.focus_object.parent
-                if focus_object_type == ContextFocusObject.ARMATURE:
-                    if self.active_object.type == 'ARMATURE':
+        if self.active_object is not None:
+            if effort >= ContextResolveEffort.FOCUS:
+                type_to_resolve = None
+                match focus_object_type:
+                    case ContextFocusObject.BASEMESH:
+                        type_to_resolve = "Basemesh"
+                    case ContextFocusObject.RIG:
+                        type_to_resolve = "Skeleton"
+                    case ContextFocusObject.PROXY:
+                        type_to_resolve = "Proxymeshes"
+                    case ContextFocusObject.CLOTHES:
+                        type_to_resolve = "Clothes"
+                    case ContextFocusObject.EYES:
+                        type_to_resolve = "Eyes"
+                    case ContextFocusObject.EYELASHES:
+                        type_to_resolve = "Eyelashes"
+                    case ContextFocusObject.EYEBROWS:
+                        type_to_resolve = "Eyebrows"
+                    case ContextFocusObject.TONGUE:
+                        type_to_resolve = "Tongue"
+                    case ContextFocusObject.TEETH:
+                        type_to_resolve = "Teeth"
+                    case ContextFocusObject.HAIR:
+                        type_to_resolve = "Hair"
+                _LOG.debug("Resolving focus object of type", type_to_resolve)
+                if type_to_resolve is not None:
+                    # It is a makehuman type, find it amongst the nearest relatives
+                    self.focus_object = ObjectService.find_object_of_type_amongst_nearest_relatives(ctx.active_object, type_to_resolve)
+                else:
+                    # Special cases
+                    if focus_object_type == ContextFocusObject.ACTIVE:
                         self.focus_object = self.active_object
-                    else:
-                        if self.active_object.parent and self.active_object.parent.type == 'ARMATURE':
-                            self.focus_object = self.active_object.parent
-                        # TODO: Look through siblings too
+                    if focus_object_type == ContextFocusObject.ROOT:
+                        self.focus_object = self.active_object
+                        if self.focus_object.parent:
+                            self.focus_object = self.focus_object.parent
+                    if focus_object_type == ContextFocusObject.ARMATURE:
+                        if self.active_object.type == 'ARMATURE':
+                            self.focus_object = self.active_object
+                        else:
+                            if self.active_object.parent and self.active_object.parent.type == 'ARMATURE':
+                                self.focus_object = self.active_object.parent
+                            # TODO: Look through siblings too
 
-        _LOG.debug("Focus object", self.focus_object)
+            _LOG.debug("Focus object", self.focus_object)
 
-        if effort >= ContextResolveEffort.COMMON:
-            self.basemesh = ObjectService.find_object_of_type_amongst_nearest_relatives(ctx.active_object)
-            self.rig = ObjectService.find_object_of_type_amongst_nearest_relatives(ctx.active_object, "Skeleton")
-            self.proxy = ObjectService.find_object_of_type_amongst_nearest_relatives(ctx.active_object, "Proxymeshes")
+            if effort >= ContextResolveEffort.COMMON:
+                self.basemesh = ObjectService.find_object_of_type_amongst_nearest_relatives(ctx.active_object)
+                self.rig = ObjectService.find_object_of_type_amongst_nearest_relatives(ctx.active_object, "Skeleton")
+                self.proxy = ObjectService.find_object_of_type_amongst_nearest_relatives(ctx.active_object, "Proxymeshes")
 
-            if self.basemesh is not None:
-                self.root = self.basemesh
-                if self.basemesh.parent:
-                    self.root = self.basemesh.parent
-            if self.root is None and self.rig is not None:
-                self.root = self.rig
-                if self.rig.parent:
-                    self.root = self.rig.parent
-            if self.root is None and self.proxy is not None:
-                self.root = self.proxy
-                if self.proxy.parent:
-                    self.root = self.proxy.parent
+                if self.basemesh is not None:
+                    self.root = self.basemesh
+                    if self.basemesh.parent:
+                        self.root = self.basemesh.parent
+                if self.root is None and self.rig is not None:
+                    self.root = self.rig
+                    if self.rig.parent:
+                        self.root = self.rig.parent
+                if self.root is None and self.proxy is not None:
+                    self.root = self.proxy
+                    if self.proxy.parent:
+                        self.root = self.proxy.parent
 
-        _LOG.debug("Common objects", (self.basemesh, self.rig, self.proxy, self.root))
+            _LOG.debug("Common objects", (self.basemesh, self.rig, self.proxy, self.root))
 
-        if effort >= ContextResolveEffort.ALL:
-            self.eyes = ObjectService.find_object_of_type_amongst_nearest_relatives(ctx.active_object, "Eyes")
-            self.eyelashes = ObjectService.find_object_of_type_amongst_nearest_relatives(ctx.active_object, "Eyelashes")
-            self.eyebrows = ObjectService.find_object_of_type_amongst_nearest_relatives(ctx.active_object, "Eyebrows")
-            self.tongue = ObjectService.find_object_of_type_amongst_nearest_relatives(ctx.active_object, "Tongue")
-            self.teeth = ObjectService.find_object_of_type_amongst_nearest_relatives(ctx.active_object, "Teeth")
-            self.hair = ObjectService.find_object_of_type_amongst_nearest_relatives(ctx.active_object, "Hair")
-            self.clothes = []
-            for clothes in ObjectService.find_related_objects(ctx.active_object):
-                if ObjectService.object_is(clothes, "Clothes"):
-                    self.clothes.append(clothes)
+            if effort >= ContextResolveEffort.ALL:
+                self.eyes = ObjectService.find_object_of_type_amongst_nearest_relatives(ctx.active_object, "Eyes")
+                self.eyelashes = ObjectService.find_object_of_type_amongst_nearest_relatives(ctx.active_object, "Eyelashes")
+                self.eyebrows = ObjectService.find_object_of_type_amongst_nearest_relatives(ctx.active_object, "Eyebrows")
+                self.tongue = ObjectService.find_object_of_type_amongst_nearest_relatives(ctx.active_object, "Tongue")
+                self.teeth = ObjectService.find_object_of_type_amongst_nearest_relatives(ctx.active_object, "Teeth")
+                self.hair = ObjectService.find_object_of_type_amongst_nearest_relatives(ctx.active_object, "Hair")
+                self.clothes = []
+                for clothes in ObjectService.find_related_objects(ctx.active_object):
+                    if ObjectService.object_is(clothes, "Clothes"):
+                        self.clothes.append(clothes)
 
         if scene_properties is not None:
             # Might have been given a list of SceneConfigSet
