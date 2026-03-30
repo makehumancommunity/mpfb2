@@ -32,14 +32,14 @@ class MPFB_OT_Make_Cyclic_Operator(MpfbOperator):
 
         armature_object = context.object
 
-        from ...animops.animopspanel import ANIMOPS_PROPERTIES
+        from ...animops.animopspanel import ANIMOPS_PROPERTIES  # pylint: disable=C0415
+        from ....mpfbcontext import MpfbContext  # pylint: disable=C0415
 
-        shiftroot = ANIMOPS_PROPERTIES.get_value("shiftroot", entity_reference=context.scene)
-        rootbone = ANIMOPS_PROPERTIES.get_value('rootbone', entity_reference=context.scene)
+        ctx = MpfbContext(context=context, scene_properties=ANIMOPS_PROPERTIES)
 
         bone_name = None
-        if shiftroot and rootbone:
-            bone_name = rootbone
+        if ctx.shiftroot and ctx.rootbone:
+            bone_name = ctx.rootbone
 
         bpy.ops.object.mode_set(mode='POSE', toggle=False)
 

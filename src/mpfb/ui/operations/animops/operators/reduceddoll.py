@@ -27,28 +27,31 @@ class MPFB_OT_Reduced_Doll_Operator(MpfbOperator):
             self.report({"ERROR"}, "No object selected")
             return {'CANCELLED'}
 
-        bm = ObjectService.find_object_of_type_amongst_nearest_relatives(context.object, "Basemesh")
-        if not bm:
+        from ...animops.animopspanel import ANIMOPS_PROPERTIES  # pylint: disable=C0415
+        from ....mpfbcontext import MpfbContext  # pylint: disable=C0415
+
+        ctx = MpfbContext(context=context, scene_properties=ANIMOPS_PROPERTIES)
+
+        if not ctx.basemesh:
             self.report({"ERROR"}, "No basemesh found")
             return {'CANCELLED'}
 
-        skeleton = ObjectService.find_object_of_type_amongst_nearest_relatives(context.object, "Skeleton")
-        if not skeleton:
+        if not ctx.rig:
             self.report({"ERROR"}, "No skeleton found")
             return {'CANCELLED'}
 
-        base_name = skeleton.name
+        base_name = ctx.rig.name
 
-        if bm.parent != skeleton:
+        if ctx.basemesh.parent != ctx.rig:
             self.report({"ERROR"}, "Basemesh must have rig as parent")
             return {'CANCELLED'}
 
-        new_skeleton = skeleton.copy()
-        new_skeleton.data = skeleton.data.copy()
+        new_skeleton = ctx.rig.copy()
+        new_skeleton.data = ctx.rig.data.copy()
         new_skeleton.name = base_name + "_reduced"
 
-        new_bm = bm.copy()
-        new_bm.data = bm.data.copy()
+        new_bm = ctx.basemesh.copy()
+        new_bm.data = ctx.basemesh.data.copy()
         new_bm.name = base_name + "_body_reduced"
         new_bm.parent = new_skeleton
 
@@ -75,8 +78,7 @@ class MPFB_OT_Reduced_Doll_Operator(MpfbOperator):
         else:
             self.report({"INFO"}, "Done")
 
-        from ...animops.animopspanel import ANIMOPS_PROPERTIES
-        if ANIMOPS_PROPERTIES.get_value("call_fbx", entity_reference=context.scene):
+        if ctx.call_fbx:
             bpy.ops.export_scene.fbx('INVOKE_DEFAULT', use_selection=True)
 
         return {'FINISHED'}

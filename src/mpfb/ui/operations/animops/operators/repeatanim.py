@@ -32,17 +32,16 @@ class MPFB_OT_Repeat_Animation_Operator(MpfbOperator):
 
         armature_object = context.object
 
-        from ...animops.animopspanel import ANIMOPS_PROPERTIES
+        from ...animops.animopspanel import ANIMOPS_PROPERTIES  # pylint: disable=C0415
+        from ....mpfbcontext import MpfbContext  # pylint: disable=C0415
 
-        iterations = ANIMOPS_PROPERTIES.get_value('iterations', entity_reference=context.scene)
-        offset = ANIMOPS_PROPERTIES.get_value('offset', entity_reference=context.scene)
-        skipfirst = ANIMOPS_PROPERTIES.get_value('skipfirst', entity_reference=context.scene)
+        ctx = MpfbContext(context=context, scene_properties=ANIMOPS_PROPERTIES)
 
         skip = 0
-        if skipfirst:
+        if ctx.skipfirst:
             skip = 1
 
-        if not iterations:
+        if not ctx.iterations:
             self.report({'ERROR'}, "Must specify a positive number of iterations")
             return {'CANCELLED'}
 
@@ -57,8 +56,8 @@ class MPFB_OT_Repeat_Animation_Operator(MpfbOperator):
         _LOG.debug("first_distance", first_distance)
         distance = total_distance
 
-        for i in range(iterations):
-            first_keyframe = max_keyframe + offset + (i*(max_keyframe-skip))
+        for i in range(ctx.iterations):
+            first_keyframe = max_keyframe + ctx.offset + (i*(max_keyframe-skip))
             last_keyframe = first_keyframe + max_keyframe - skip
             _LOG.debug("first, last, skip", (first_keyframe, last_keyframe, skip))
             AnimationService.duplicate_keyframes(armature_object, first_keyframe, skip, max_keyframe)
