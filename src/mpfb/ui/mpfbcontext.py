@@ -233,3 +233,19 @@ class MpfbContext:
                     setattr(self, key, value)
 
         _LOG.trace("Created MpfbContext", self.__dict__)
+
+    def populate_dict(self, dictlike, keys=None):
+        """Set values from this context into a dictionary.
+
+        Args:
+            dictlike (dict): The dictionary to populate.
+            keys (list, optional): Keys to set in the dictionary. If not provided, leave the dictionary untouched.
+        """
+        if keys is None or len(keys) == 0:
+            return
+
+        for key in keys:
+            if hasattr(self, key):
+                dictlike[key] = getattr(self, key)
+            else:
+                _LOG.warn("Key not found in context", (self, key))
