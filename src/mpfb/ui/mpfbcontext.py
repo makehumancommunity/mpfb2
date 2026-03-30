@@ -41,6 +41,8 @@ class MpfbContext:
     - scene: The current scene
     - active_object: The currently active object
     - focus_object: The first object of the type specified as focus type amongst the nearest relatives of the active object
+    - focus_type: What makehuman type is the focus object, or None if it is not a makehuman object
+    - focus_mode: What mode is the focus object in, or None if there is no focus object
     - selected_objects: The currently selected objects
     - basemesh: The basemesh object amongst the nearest relatives of the active object
     - rig: The rig object amongst the nearest relatives of the active object
@@ -92,6 +94,8 @@ class MpfbContext:
 
         # Ensure these keys are present
         self.focus_object = None
+        self.focus_type = None # What makehuman type is the focus object, or None if it is not a makehuman object
+        self.focus_mode = None # What mode is the focus object in, or None if there is no focus object
         self.basemesh = None
         self.rig = None
         self.proxy = None
@@ -231,6 +235,10 @@ class MpfbContext:
                 for key in GeneralObjectProperties.get_keys():
                     value = GeneralObjectProperties.get_value(key, entity_reference=obj)
                     setattr(self, key, value)
+
+        if self.focus_object is not None:
+            self.focus_type = ObjectService.get_object_type(self.focus_object)
+            self.focus_mode = self.focus_object.mode
 
         _LOG.trace("Created MpfbContext", self.__dict__)
 
