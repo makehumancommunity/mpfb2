@@ -161,6 +161,9 @@ class MpfbContext:
                 self.rig = ObjectService.find_object_of_type_amongst_nearest_relatives(ctx.active_object, "Skeleton")
                 self.proxy = ObjectService.find_object_of_type_amongst_nearest_relatives(ctx.active_object, "Proxymeshes")
 
+                # This following logic for resolving root works since the relevant depth of the hierarchy is limited to
+                # parent+children. We never need to consider parent's parent or child's children.
+
                 if self.basemesh is not None:
                     self.root = self.basemesh
                     if self.basemesh.parent:
@@ -173,6 +176,10 @@ class MpfbContext:
                     self.root = self.proxy
                     if self.proxy.parent:
                         self.root = self.proxy.parent
+                if self.root is None and self.active_object is not None:
+                    self.root = self.active_object
+                    if self.active_object.parent:
+                        self.root = self.active_object.parent
 
             _LOG.debug("Common objects", (self.basemesh, self.rig, self.proxy, self.root))
 
@@ -187,6 +194,17 @@ class MpfbContext:
                 for clothes in ObjectService.find_related_objects(ctx.active_object):
                     if ObjectService.object_is(clothes, "Clothes"):
                         self.clothes.append(clothes)
+
+        if self.focus_object is not None:
+            self.focus_type = ObjectService.get_object_type(self.focus_object)
+            self.focus_mode = self.focus_object.mode
+
+            if focus_object_type == ContextFocusObject.BASEMESH and self.basemesh is None and self.focus_type.lower() == "basemesh":
+                self.basemesh = self.focus_object
+            if focus_object_type == ContextFocusObject.RIG and self.rig is None and self.focus_type.lower() == "skeleton":
+                self.rig = self.focus_object
+            if focus_object_type == ContextFocusObject.PROXY and self.proxy is None and "proxy" in self.focus_type.lower():
+                self.proxy = self.focus_object
 
         if scene_properties is not None:
             # Might have been given a list of SceneConfigSet
@@ -224,7 +242,7 @@ class MpfbContext:
         if also_resolve_general and self.focus_object is not None:
             for key in GeneralObjectProperties.get_keys():
                 if hasattr(self, key):
-                    _LOG.warn("A general object property will overwrite an existing key", (key, object_properties))
+                    _LOG.warn("A general object property will overwrite an existing key", (key, GeneralObjectProperties))
                     if exception_on_duplicate_key:
                         raise ValueError("Duplicate key in general object properties: " + str(key))
                 setattr(self, key, None)
@@ -235,10 +253,6 @@ class MpfbContext:
                 for key in GeneralObjectProperties.get_keys():
                     value = GeneralObjectProperties.get_value(key, entity_reference=obj)
                     setattr(self, key, value)
-
-        if self.focus_object is not None:
-            self.focus_type = ObjectService.get_object_type(self.focus_object)
-            self.focus_mode = self.focus_object.mode
 
         _LOG.trace("Created MpfbContext", self.__dict__)
 

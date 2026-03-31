@@ -447,7 +447,7 @@ class NodeService:
     def set_image_in_image_node(node, file_name, colorspace=None):
         """Update an existing image node with the provided filename and colorspace."""
         if not file_name or not str(file_name).strip():
-            _LOG.error("Trying to load image with null/empty filename")
+            _LOG.warn("Trying to load image with null/empty filename")
             return
         bn = os.path.basename(file_name)
         if bn in bpy.data.images:
