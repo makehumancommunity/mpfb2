@@ -36,7 +36,7 @@ def test_write_uv_map_execute_errors_without_uvmap_vertex_group():
         try:
             MAKEUP_PROPERTIES.set_value("uv_map_name", "UVMap", entity_reference=bpy.context.scene)
             mockself = MockOperatorBase(filepath=tmp_path)
-            result = MPFB_OT_WriteUvMapOperator.execute(mockself, bpy.context)
+            result = MPFB_OT_WriteUvMapOperator.hardened_execute(mockself, bpy.context)
             # Should error or cancel since no "uvmap" vertex group
             assert result in ({'CANCELLED'}, {'FINISHED'})
         finally:
@@ -55,7 +55,7 @@ def test_write_uv_map_execute_writes_file_with_uvmap_group():
         try:
             MAKEUP_PROPERTIES.set_value("uv_map_name", "UVMap", entity_reference=bpy.context.scene)
             mockself = MockOperatorBase(filepath=tmp_path)
-            result = MPFB_OT_WriteUvMapOperator.execute(mockself, bpy.context)
+            result = MPFB_OT_WriteUvMapOperator.hardened_execute(mockself, bpy.context)
             assert result == {'FINISHED'}
             mockself.mock_report.assert_no_errors()
             assert os.path.exists(tmp_path)

@@ -27,7 +27,7 @@ def test_create_uv_map_execute_creates_uv_map():
     with HumanFixture() as fixture:
         MAKEUP_PROPERTIES.set_value("uv_map_name", "test_uv_map", entity_reference=bpy.context.scene)
         mockself = MockOperatorBase()
-        result = MPFB_OT_CreateUvMapOperator.execute(mockself, bpy.context)
+        result = MPFB_OT_CreateUvMapOperator.hardened_execute(mockself, bpy.context)
         assert result == {'FINISHED'}
         assert "test_uv_map" in fixture.basemesh.data.uv_layers
 
@@ -37,8 +37,8 @@ def test_create_uv_map_execute_cancelled_if_already_exists():
         MAKEUP_PROPERTIES.set_value("uv_map_name", "test_uv_map2", entity_reference=bpy.context.scene)
         mockself = MockOperatorBase()
         # Create the UV map first
-        MPFB_OT_CreateUvMapOperator.execute(mockself, bpy.context)
+        MPFB_OT_CreateUvMapOperator.hardened_execute(mockself, bpy.context)
         # Try to create it again
         mockself2 = MockOperatorBase()
-        result2 = MPFB_OT_CreateUvMapOperator.execute(mockself2, bpy.context)
+        result2 = MPFB_OT_CreateUvMapOperator.hardened_execute(mockself2, bpy.context)
         assert result2 == {'CANCELLED'}

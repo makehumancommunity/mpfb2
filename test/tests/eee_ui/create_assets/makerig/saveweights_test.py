@@ -36,7 +36,7 @@ def test_save_weights_errors_mesh_without_armature_modifier():
         os.close(fd)
         try:
             mockself = MockOperatorBase(filepath=tmp_path)
-            result = MPFB_OT_Save_Weights_Operator.execute(mockself, bpy.context)
+            result = MPFB_OT_Save_Weights_Operator.hardened_execute(mockself, bpy.context)
             assert result == {'FINISHED'}
             mockself.mock_report.assert_reported('ERROR', "armature")
         finally:
@@ -51,7 +51,7 @@ def test_save_weights_from_armature():
         os.close(fd)
         try:
             mockself = MockOperatorBase(filepath=tmp_path)
-            result = MPFB_OT_Save_Weights_Operator.execute(mockself, bpy.context)
+            result = MPFB_OT_Save_Weights_Operator.hardened_execute(mockself, bpy.context)
             assert result == {'FINISHED'}
             mockself.mock_report.assert_no_errors()
             assert os.path.getsize(tmp_path) > 0

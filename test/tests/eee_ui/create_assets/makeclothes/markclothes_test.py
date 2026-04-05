@@ -26,7 +26,7 @@ def test_mark_clothes_sets_object_type():
         ObjectService.activate_blender_object(clothes_mesh)
         MAKECLOTHES_PROPERTIES.set_value("object_type", "Clothes", entity_reference=bpy.context.scene)
         mockself = MockOperatorBase()
-        result = MPFB_OT_MarkClothesOperator.execute(mockself, bpy.context)
+        result = MPFB_OT_MarkClothesOperator.hardened_execute(mockself, bpy.context)
         assert result == {'FINISHED'}
         mockself.mock_report.assert_no_errors()
         GeneralObjectProperties = dynamic_import("mpfb.entities.objectproperties", "GeneralObjectProperties")

@@ -28,7 +28,7 @@ def test_save_pose_errors_without_name():
     with HumanWithRigFixture() as fixture:
         MakePoseProperties.set_value("name", "", entity_reference=bpy.context.scene)
         mockself = MockOperatorBase()
-        result = MPFB_OT_Save_Pose_Operator.execute(mockself, bpy.context)
+        result = MPFB_OT_Save_Pose_Operator.hardened_execute(mockself, bpy.context)
         assert result == {'FINISHED'}
         mockself.mock_report.assert_reported('ERROR', "valid name")
 
@@ -42,7 +42,7 @@ def test_save_pose_executes_successfully():
             MakePoseProperties.set_value("pose_type", "AUTO", entity_reference=scene)
             MakePoseProperties.set_value("overwrite", True, entity_reference=scene)
             mockself = MockOperatorBase()
-            result = MPFB_OT_Save_Pose_Operator.execute(mockself, bpy.context)
+            result = MPFB_OT_Save_Pose_Operator.hardened_execute(mockself, bpy.context)
             assert result == {'FINISHED'}
             mockself.mock_report.assert_no_errors()
             # Find the created file

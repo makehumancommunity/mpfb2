@@ -45,16 +45,14 @@ class MPFB_OT_Move_To_Cube_Operator(MpfbOperator):
     def hardened_execute(self, context):
         _LOG.enter()
 
-        scene = context.scene
-
         basemesh = None
         armature = None
 
-        if not context.object or context.object.type != "ARMATURE":
+        if not context.active_object or context.active_object.type != "ARMATURE":
             self.report({"ERROR"}, "Need armature as active")
             return {'CANCELED'}
 
-        armature = context.object
+        armature = context.active_object
         basemesh = ObjectService.find_object_of_type_amongst_nearest_relatives(armature, "Basemesh")
 
         if not basemesh:
@@ -101,11 +99,11 @@ class MPFB_OT_Move_To_Cube_Operator(MpfbOperator):
         _LOG.debug("Head, tail", (head, tail))
 
         from ...makerig import MakeRigProperties
-        head_cube = MakeRigProperties.get_value("head_cube", entity_reference=scene)
-        tail_cube = MakeRigProperties.get_value("tail_cube", entity_reference=scene)
+        from ....mpfbcontext import MpfbContext  # pylint: disable=C0415
+        ctx = MpfbContext(context=context, scene_properties=MakeRigProperties)
 
-        self._move(head, head_cube, basemesh)
-        self._move(tail, tail_cube, basemesh)
+        self._move(head, ctx.head_cube, basemesh)
+        self._move(tail, ctx.tail_cube, basemesh)
 
         self.report({"INFO"}, "Done")
 

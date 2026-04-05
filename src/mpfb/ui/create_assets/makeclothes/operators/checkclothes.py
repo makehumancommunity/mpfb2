@@ -11,6 +11,7 @@ from .....entities.objectproperties import GeneralObjectProperties
 from .....entities.material.makeskinmaterial import MakeSkinMaterial
 from ...makeclothes.operators.clothescommon import ClothesCommon
 from ..... import ClassManager
+from ....mpfboperator import MpfbOperator
 from ....pollstrategy import pollstrategy, PollStrategy
 
 _LOG = LogService.get_logger("makeclothes.checkclothes")
@@ -19,13 +20,16 @@ CLOTHES_CHECKS = dict()
 
 
 @pollstrategy(PollStrategy.ANY_OBJECT_ACTIVE)
-class MPFB_OT_CheckClothesOperator(bpy.types.Operator):
+class MPFB_OT_CheckClothesOperator(MpfbOperator):
     """Perform basic sanity checks on the active object. You need to click this again if changing the clothes, the panel will not update automatically. Note that this operation might a long time depending on the number of vertex groups and the number of vertices"""
     bl_idname = "mpfb.check_makeclothes_clothes"
     bl_label = "Check"
     bl_options = {'REGISTER'}
 
-    def execute(self, context):
+    def get_logger(self):
+        return _LOG
+
+    def hardened_execute(self, context):
 
         basemesh = None
         clothes = None

@@ -8,11 +8,12 @@ from .....services import ObjectService
 from .....services import TargetService
 from ...maketarget import MakeTargetObjectProperties
 from ..... import ClassManager
+from ....mpfboperator import MpfbOperator
 
 _LOG = LogService.get_logger("maketarget.writetarget")
 
 
-class MPFB_OT_WriteTargetOperator(bpy.types.Operator, ExportHelper):
+class MPFB_OT_WriteTargetOperator(MpfbOperator, ExportHelper):
     """Write target to target file. In order to do this, you must first have created a primary target on the mesh"""
     bl_idname = "mpfb.write_maketarget_target"
     bl_label = "Save target"
@@ -22,6 +23,9 @@ class MPFB_OT_WriteTargetOperator(bpy.types.Operator, ExportHelper):
 
     filter_glob: StringProperty(default='*.target', options={'HIDDEN'})
     filepath: StringProperty(name="File Path", description="Filepath used for exporting the file", maxlen=1024, subtype='FILE_PATH')
+
+    def get_logger(self):
+        return _LOG
 
     @classmethod
     def poll(cls, context):
@@ -55,19 +59,20 @@ class MPFB_OT_WriteTargetOperator(bpy.types.Operator, ExportHelper):
         self.filepath = bpy.path.clean_name(name, replace="-") + ".target"
         return super().invoke(context, event)
 
-    def execute(self, context):
-        blender_object = context.active_object
+    def hardened_execute(self, context):
+        from ....mpfbcontext import MpfbContext, ContextFocusObject  # pylint: disable=C0415
+        ctx = MpfbContext(context=context, object_properties=MakeTargetObjectProperties,
+                          focus_object_type=ContextFocusObject.ACTIVE)
 
-        expected_name = MakeTargetObjectProperties.get_value("name", entity_reference=blender_object)
-        if not expected_name:
+        if not ctx.name:
             self.report({'ERROR'}, "Must specify the name of the target")
             return {'FINISHED'}
 
-        if not TargetService.has_target(blender_object, expected_name):
+        if not TargetService.has_target(ctx.active_object, ctx.name):
             self.report({'ERROR'}, "Must first create a MakeTarget primary target")
             return {'FINISHED'}
 
-        info = TargetService.get_shape_key_as_dict(blender_object, expected_name)
+        info = TargetService.get_shape_key_as_dict(ctx.active_object, ctx.name)
 
         _LOG.dump("Shape key", info)
 

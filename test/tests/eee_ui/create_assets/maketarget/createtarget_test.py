@@ -28,7 +28,7 @@ def test_create_target_errors_without_name():
         # Ensure no name is set
         MakeTargetObjectProperties.set_value("name", "", entity_reference=fixture.basemesh)
         mockself = MockOperatorBase()
-        result = MPFB_OT_CreateTargetOperator.execute(mockself, bpy.context)
+        result = MPFB_OT_CreateTargetOperator.hardened_execute(mockself, bpy.context)
         assert result == {'FINISHED'}
         mockself.mock_report.assert_reported('ERROR', "Must specify the name")
 
@@ -37,7 +37,7 @@ def test_create_target_executes_successfully():
     with HumanFixture() as fixture:
         MakeTargetObjectProperties.set_value("name", "test_target", entity_reference=fixture.basemesh)
         mockself = MockOperatorBase()
-        result = MPFB_OT_CreateTargetOperator.execute(mockself, bpy.context)
+        result = MPFB_OT_CreateTargetOperator.hardened_execute(mockself, bpy.context)
         assert result == {'FINISHED'}
         mockself.mock_report.assert_no_errors()
         assert TargetService.has_target(fixture.basemesh, "test_target")

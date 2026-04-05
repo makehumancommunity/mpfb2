@@ -28,7 +28,7 @@ def test_write_lib_target_execute_writes_to_library():
     try:
         with BasemeshWithTargetFixture() as fixture:
             mockself = MockOperatorBase()
-            result = MPFB_OT_WriteLibTargetOperator.execute(mockself, bpy.context)
+            result = MPFB_OT_WriteLibTargetOperator.hardened_execute(mockself, bpy.context)
             assert result == {'FINISHED'}
             mockself.mock_report.assert_no_errors()
             created_path = os.path.join(

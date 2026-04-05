@@ -9,12 +9,13 @@ from ..makeuppanel import MAKEUP_PROPERTIES
 
 from ..... import ClassManager
 from ....pollstrategy import pollstrategy, PollStrategy
+from ....mpfboperator import MpfbOperator
 
 _LOG = LogService.get_logger("makeup.importuvmap")
 
 
 @pollstrategy(PollStrategy.ANY_MESH_OBJECT_ACTIVE)
-class MPFB_OT_ImportUvMapOperator(bpy.types.Operator, ImportHelper):
+class MPFB_OT_ImportUvMapOperator(MpfbOperator, ImportHelper):
     """Import a UV map from a JSON file. Use the UV map data to create a new UV map on the active object,
     using the name set in MakeUp properties."""
 
@@ -24,14 +25,18 @@ class MPFB_OT_ImportUvMapOperator(bpy.types.Operator, ImportHelper):
 
     filename_ext = ".json"
 
+    def get_logger(self):
+        return _LOG
+
     def invoke(self, context, event):
         """Show the open file dialog."""
         return super().invoke(context, event)
 
-    def execute(self, context):
+    def hardened_execute(self, context):
         """Import the UV map from a JSON file."""
-        mesh_object = context.active_object
-        uv_map_name = MAKEUP_PROPERTIES.get_value("uv_map_name", entity_reference=context.scene)
+        from ....mpfbcontext import MpfbContext  # pylint: disable=C0415
+
+        ctx = MpfbContext(context=context, scene_properties=MAKEUP_PROPERTIES)
 
         try:
             with open(self.filepath, 'r', encoding="utf-8") as json_file:
@@ -40,9 +45,9 @@ class MPFB_OT_ImportUvMapOperator(bpy.types.Operator, ImportHelper):
             self.report({'ERROR'}, f"Failed to read UV map file: {excp}")
             return {'CANCELLED'}
 
-        MeshService.add_uv_map_from_dict(mesh_object, uv_map_name, uv_map_data)
+        MeshService.add_uv_map_from_dict(ctx.active_object, ctx.uv_map_name, uv_map_data)
 
-        self.report({'INFO'}, f"UV map '{uv_map_name}' imported from '{self.filepath}'.")
+        self.report({'INFO'}, f"UV map '{ctx.uv_map_name}' imported from '{self.filepath}'.")
         return {'FINISHED'}
 
 

@@ -31,5 +31,5 @@ def test_load_rig_executes_successfully():
         MakeRigProperties.set_value("rig_parent", True, entity_reference=bpy.context.scene)
         rig_path = LocationService.get_mpfb_data("rigs/standard/rig.default.json")
         mockself = MockOperatorBase(filepath=rig_path)
-        result = MPFB_OT_Load_Rig_Operator.execute(mockself, bpy.context)
+        result = MPFB_OT_Load_Rig_Operator.hardened_execute(mockself, bpy.context)
         assert result == {'FINISHED'}

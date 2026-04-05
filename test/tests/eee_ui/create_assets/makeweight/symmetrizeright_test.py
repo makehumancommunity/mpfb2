@@ -25,7 +25,7 @@ def test_symmetrize_right_poll_true_with_basemesh():
 def test_symmetrize_right_execute_errors_without_rig():
     with HumanFixture() as fixture:
         mockself = MockOperatorBase()
-        result = MPFB_OT_SymmetrizeRightOperator.execute(mockself, bpy.context)
+        result = MPFB_OT_SymmetrizeRightOperator.hardened_execute(mockself, bpy.context)
         assert result == {'FINISHED'}
         mockself.mock_report.assert_reported('ERROR', "Could not find a rig")
 
@@ -34,6 +34,6 @@ def test_symmetrize_right_execute_with_rig():
     with HumanWithRigFixture() as fixture:
         ObjectService.activate_blender_object(fixture.basemesh)
         mockself = MockOperatorBase()
-        result = MPFB_OT_SymmetrizeRightOperator.execute(mockself, bpy.context)
+        result = MPFB_OT_SymmetrizeRightOperator.hardened_execute(mockself, bpy.context)
         assert result == {'FINISHED'}
         mockself.mock_report.assert_no_errors()

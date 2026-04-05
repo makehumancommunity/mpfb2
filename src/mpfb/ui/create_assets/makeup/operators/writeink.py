@@ -9,12 +9,13 @@ from ..makeuppanel import MAKEUP_PROPERTIES
 
 from ..... import ClassManager
 from ....pollstrategy import pollstrategy, PollStrategy
+from ....mpfboperator import MpfbOperator
 
 _LOG = LogService.get_logger("makeup.writeink")
 
 
 @pollstrategy(PollStrategy.ANY_MESH_OBJECT_ACTIVE)
-class MPFB_OT_WriteInkOperator(bpy.types.Operator):
+class MPFB_OT_WriteInkOperator(MpfbOperator):
     """Write a UV map to the local library. If there are multiple ink layers on the active object, use the first."""
 
     bl_idname = "mpfb.write_ink_layer"
@@ -23,36 +24,39 @@ class MPFB_OT_WriteInkOperator(bpy.types.Operator):
 
     filename_ext = ".json"
 
-    def execute(self, context):
+    def get_logger(self):
+        return _LOG
+
+    def hardened_execute(self, context):
         """Write ink layer to library."""
-        mesh_object = context.active_object
+        from ....mpfbcontext import MpfbContext  # pylint: disable=C0415
 
-        ink_layer_name = MAKEUP_PROPERTIES.get_value("ink_layer_name", entity_reference=context.scene)
-        layer_number_str = MAKEUP_PROPERTIES.get_value("layer_number", entity_reference=context.scene)
+        ctx = MpfbContext(context=context, scene_properties=MAKEUP_PROPERTIES)
+
         layer_number = 1
-        if layer_number_str:
-            layer_number = int(layer_number_str)
+        if ctx.layer_number:
+            layer_number = int(ctx.layer_number)
 
-        if not str(ink_layer_name).strip():
+        if not str(ctx.ink_layer_name).strip():
             self.report({'ERROR'}, "An ink layer name must be provided.")
             return {'CANCELLED'}
 
         # Ensure the active object is a basemesh
-        if not ObjectService.object_is_basemesh(mesh_object):
+        if not ObjectService.object_is_basemesh(ctx.active_object):
             self.report({'ERROR'}, "The active object is not a basemesh.")
             return {'CANCELLED'}
 
         # Use MaterialService to check that the mesh object has a MakeSkin material
-        if not MaterialService.has_materials(mesh_object):
+        if not MaterialService.has_materials(ctx.active_object):
             self.report({'ERROR'}, "The mesh object does not have any materials.")
             return {'CANCELLED'}
 
-        material = MaterialService.get_material(mesh_object)
+        material = MaterialService.get_material(ctx.active_object)
         if MaterialService.identify_material(material) != "makeskin":
             self.report({'ERROR'}, "Only MakeSkin materials are supported.")
             return {'CANCELLED'}
 
-        uv_name, image_name = MaterialService.get_ink_layer_info(mesh_object, ink_layer=layer_number)
+        uv_name, image_name = MaterialService.get_ink_layer_info(ctx.active_object, ink_layer=layer_number)
         _LOG.debug("uv_name", uv_name)
         _LOG.debug("image_name", image_name)
 
@@ -70,13 +74,13 @@ class MPFB_OT_WriteInkOperator(bpy.types.Operator):
         if not os.path.exists(inkpath):
             os.makedirs(inkpath)
 
-        ink_layer_fn = os.path.join(inkpath, str(ink_layer_name).replace(" ", "_") + ".json")
-        image_fn = os.path.join(inkpath, str(ink_layer_name).replace(" ", "_") + ".png")
+        ink_layer_fn = os.path.join(inkpath, str(ctx.ink_layer_name).replace(" ", "_") + ".json")
+        image_fn = os.path.join(inkpath, str(ctx.ink_layer_name).replace(" ", "_") + ".png")
 
         ink_info = {
-            "name": ink_layer_name,
+            "name": ctx.ink_layer_name,
             "focus": uv_name,
-            "image_name": str(ink_layer_name).replace(" ", "_") + ".png"
+            "image_name": str(ctx.ink_layer_name).replace(" ", "_") + ".png"
             }
 
         bpy.data.images[image_name].save(filepath=image_fn)
@@ -84,7 +88,7 @@ class MPFB_OT_WriteInkOperator(bpy.types.Operator):
         with open(ink_layer_fn, 'w', encoding="utf-8") as json_file:
             json.dump(ink_info, json_file, indent=4)
 
-        self.report({'INFO'}, f"Ink layer '{ink_layer_name}' written to library at {ink_layer_fn}.")
+        self.report({'INFO'}, f"Ink layer '{ctx.ink_layer_name}' written to library at {ink_layer_fn}.")
         return {'FINISHED'}
 
 

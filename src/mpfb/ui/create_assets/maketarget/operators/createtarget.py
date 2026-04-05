@@ -6,15 +6,19 @@ from .....services import ObjectService
 from .....services import TargetService
 from ...maketarget import MakeTargetObjectProperties
 from ..... import ClassManager
+from ....mpfboperator import MpfbOperator
 
 _LOG = LogService.get_logger("maketarget.createtarget")
 
 
-class MPFB_OT_CreateTargetOperator(bpy.types.Operator):
+class MPFB_OT_CreateTargetOperator(MpfbOperator):
     """Create primary target"""
     bl_idname = "mpfb.create_maketarget_target"
     bl_label = "Create target"
     bl_options = {'REGISTER', 'UNDO'}
+
+    def get_logger(self):
+        return _LOG
 
     @classmethod
     def poll(cls, context):
@@ -39,20 +43,20 @@ class MPFB_OT_CreateTargetOperator(bpy.types.Operator):
 
         return not TargetService.has_target(blender_object, expected_name)
 
-    def execute(self, context):
-        blender_object = context.active_object
+    def hardened_execute(self, context):
+        from ....mpfbcontext import MpfbContext, ContextFocusObject  # pylint: disable=C0415
+        ctx = MpfbContext(context=context, object_properties=MakeTargetObjectProperties,
+                          focus_object_type=ContextFocusObject.ACTIVE)
 
-        expected_name = MakeTargetObjectProperties.get_value("name", entity_reference=blender_object)
-        if not expected_name:
+        if not ctx.name:
             self.report({'ERROR'}, "Must specify the name of the target")
             return {'FINISHED'}
 
-        TargetService.create_shape_key(blender_object, expected_name)
+        TargetService.create_shape_key(ctx.active_object, ctx.name)
 
         # This might look strange, but it is to ensure the name attribute of the object
         # is not still null if left at its default
-        name = MakeTargetObjectProperties.get_value("name", entity_reference=blender_object)
-        MakeTargetObjectProperties.set_value("name", name, entity_reference=blender_object)
+        MakeTargetObjectProperties.set_value("name", ctx.name, entity_reference=ctx.active_object)
 
         self.report({'INFO'}, "Primary target created")
         return {'FINISHED'}

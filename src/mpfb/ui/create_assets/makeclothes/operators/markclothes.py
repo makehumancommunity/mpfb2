@@ -4,27 +4,29 @@ import bpy
 from .....services import LogService
 from .....entities.objectproperties import GeneralObjectProperties
 from ..... import ClassManager
+from ....mpfboperator import MpfbOperator
 from ....pollstrategy import pollstrategy, PollStrategy
 
 _LOG = LogService.get_logger("makeclothes.markclothes")
 
 @pollstrategy(PollStrategy.ANY_MESH_OBJECT_ACTIVE)
-class MPFB_OT_MarkClothesOperator(bpy.types.Operator):
+class MPFB_OT_MarkClothesOperator(MpfbOperator):
     """Set mesh type"""
     bl_idname = "mpfb.mark_makeclothes_clothes"
     bl_label = "Change type"
     bl_options = {'REGISTER'}
 
-    def execute(self, context):
+    def get_logger(self):
+        return _LOG
 
-        blender_object = context.active_object
-        scene = context.scene
+    def hardened_execute(self, context):
+        from ...makeclothes.makeclothespanel import MAKECLOTHES_PROPERTIES  # pylint: disable=C0415
+        from ....mpfbcontext import MpfbContext  # pylint: disable=C0415
+        ctx = MpfbContext(context=context, scene_properties=MAKECLOTHES_PROPERTIES)
 
-        from ...makeclothes.makeclothespanel import MAKECLOTHES_PROPERTIES # pylint: disable=C0415
-        new_type = MAKECLOTHES_PROPERTIES.get_value("object_type", entity_reference=scene)
-        GeneralObjectProperties.set_value("object_type", new_type, entity_reference=blender_object)
+        GeneralObjectProperties.set_value("object_type", ctx.object_type, entity_reference=ctx.active_object)
 
-        self.report({'INFO'}, "Mesh type was set to " + new_type)
+        self.report({'INFO'}, "Mesh type was set to " + ctx.object_type)
         return {'FINISHED'}
 
 ClassManager.add_class(MPFB_OT_MarkClothesOperator)

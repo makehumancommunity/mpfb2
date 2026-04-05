@@ -4,13 +4,14 @@ from .....services import ObjectService
 from .....services import RigService
 from .....entities.rig import Rig
 from ..... import ClassManager
+from ....mpfboperator import MpfbOperator
 import bpy, json, math, re
 from bpy.types import StringProperty
 from bpy_extras.io_utils import ExportHelper
 
 _LOG = LogService.get_logger("makerig.operators.saveweights")
 
-class MPFB_OT_Save_Weights_Operator(bpy.types.Operator, ExportHelper):
+class MPFB_OT_Save_Weights_Operator(MpfbOperator, ExportHelper):
     """Save weights as json"""
     bl_idname = "mpfb.save_weights"
     bl_label = "Save weights"
@@ -19,22 +20,31 @@ class MPFB_OT_Save_Weights_Operator(bpy.types.Operator, ExportHelper):
     filename_ext = '.mhw'
     check_extension = False
 
+    def get_logger(self):
+        return _LOG
+
     @classmethod
     def poll(cls, context):
         _LOG.enter()
-        if ObjectService.object_is_any_mesh(context.object):
+        if context.active_object is None:
+            return False
+        if ObjectService.object_is_any_mesh(context.active_object):
             return True
-        if context.object is None or context.object.type != 'ARMATURE':
+        if context.active_object.type != 'ARMATURE':
             return False
         return True
 
-    def execute(self, context):
+    def hardened_execute(self, context):
         _LOG.enter()
+
+        from ...makerig import MakeRigProperties  # pylint: disable=C0415
+        from ....mpfbcontext import MpfbContext
+        ctx = MpfbContext(context=context, scene_properties=MakeRigProperties)
 
         subrig_object = None
 
-        if ObjectService.object_is_any_mesh(context.object):
-            basemesh = context.object
+        if ObjectService.object_is_any_mesh(context.active_object):
+            basemesh = context.active_object
             armature_object = None
 
             for mod in basemesh.modifiers:
@@ -50,24 +60,18 @@ class MPFB_OT_Save_Weights_Operator(bpy.types.Operator, ExportHelper):
                 return {'FINISHED'}
 
         else:
-            if context.object is None or context.object.type != 'ARMATURE':
+            if context.active_object is None or context.active_object.type != 'ARMATURE':
                 self.report({'ERROR'}, "Must have armature or basemesh as active object")
                 return {'FINISHED'}
 
-            armature_object = context.object
+            armature_object = context.active_object
             basemesh = ObjectService.find_object_of_type_amongst_nearest_relatives(armature_object, mpfb_type_name="Basemesh")
 
             if basemesh is None:
                 self.report({'ERROR'}, "Could not find related basemesh. It should have been parent or child of armature object.")
                 return {'FINISHED'}
 
-        from ...makerig import MakeRigProperties  # pylint: disable=C0415
-
-        weights_mask = MakeRigProperties.get_value("weights_mask", entity_reference=context.scene)
-        save_evaluated = MakeRigProperties.get_value("save_evaluated", entity_reference=context.scene)
-        save_masks = MakeRigProperties.get_value("save_masks", entity_reference=context.scene)
-
-        if save_evaluated:
+        if ctx.save_evaluated:
             eval_basemesh = basemesh.evaluated_get(context.view_layer.depsgraph)
 
             if len(eval_basemesh.data.vertices) != len(basemesh.data.vertices):
@@ -81,10 +85,10 @@ class MPFB_OT_Save_Weights_Operator(bpy.types.Operator, ExportHelper):
 
         armatures = []
 
-        if weights_mask in ("SKELETON", "BOTH"):
+        if ctx.weights_mask in ("SKELETON", "BOTH"):
             armatures.append(armature_object)
 
-        if weights_mask in ("SUBRIG", "BOTH"):
+        if ctx.weights_mask in ("SUBRIG", "BOTH"):
             if not subrig_object:
                 self.report({'ERROR'}, "Could not find the related sub-rig. The active mesh must have an Armature "
                                        "modifier with the 'mhmask-subrig' vertex group that references it.")
@@ -93,7 +97,7 @@ class MPFB_OT_Save_Weights_Operator(bpy.types.Operator, ExportHelper):
             armatures.append(subrig_object)
 
         weights = RigService.get_weights(
-            armatures, basemesh, all_groups=(weights_mask == "ALL_GROUPS"), all_masks=save_masks)
+            armatures, basemesh, all_groups=(ctx.weights_mask == "ALL_GROUPS"), all_masks=ctx.save_masks)
 
         # Strip the Rigify deform bone prefix for convenience
         def strip_def(name):

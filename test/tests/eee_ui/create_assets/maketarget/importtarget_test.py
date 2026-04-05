@@ -35,7 +35,7 @@ def test_import_target_execute_imports_target():
             with open(tmp_path, 'w') as f:
                 f.write("")
             mockself = MockOperatorBase(filepath=tmp_path)
-            result = MPFB_OT_ImportTargetOperator.execute(mockself, bpy.context)
+            result = MPFB_OT_ImportTargetOperator.hardened_execute(mockself, bpy.context)
             assert result == {'FINISHED'}
             mockself.mock_report.assert_no_errors()
             assert TargetService.has_target(fixture.basemesh, "PrimaryTarget")

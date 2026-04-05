@@ -6,29 +6,34 @@ from ..makeuppanel import MAKEUP_PROPERTIES
 
 from ..... import ClassManager
 from ....pollstrategy import pollstrategy, PollStrategy
+from ....mpfboperator import MpfbOperator
 
 _LOG = LogService.get_logger("makeup.createuvmap")
 
 
 @pollstrategy(PollStrategy.ANY_MESH_OBJECT_ACTIVE)
-class MPFB_OT_CreateUvMapOperator(bpy.types.Operator):
+class MPFB_OT_CreateUvMapOperator(MpfbOperator):
     """Create a new UV map on the selected object."""
 
     bl_idname = "mpfb.create_uv_map"
     bl_label = "Create UV map"
     bl_options = {'REGISTER', 'UNDO'}
 
-    def execute(self, context):
-        """Create a new UV map on the selected object, using the name set in the Makeup Properties."""
-        mesh_object = context.active_object
-        uv_map_name = MAKEUP_PROPERTIES.get_value("uv_map_name", entity_reference=context.scene)
+    def get_logger(self):
+        return _LOG
 
-        if uv_map_name in mesh_object.data.uv_layers:
-            self.report({'WARNING'}, f"UV map '{uv_map_name}' already exists.")
+    def hardened_execute(self, context):
+        """Create a new UV map on the selected object, using the name set in the Makeup Properties."""
+        from ....mpfbcontext import MpfbContext  # pylint: disable=C0415
+
+        ctx = MpfbContext(context=context, scene_properties=MAKEUP_PROPERTIES)
+
+        if ctx.uv_map_name in ctx.active_object.data.uv_layers:
+            self.report({'WARNING'}, f"UV map '{ctx.uv_map_name}' already exists.")
             return {'CANCELLED'}
 
-        mesh_object.data.uv_layers.new(name=uv_map_name)
-        self.report({'INFO'}, f"UV map '{uv_map_name}' created.")
+        ctx.active_object.data.uv_layers.new(name=ctx.uv_map_name)
+        self.report({'INFO'}, f"UV map '{ctx.uv_map_name}' created.")
         return {'FINISHED'}
 
 

@@ -3,6 +3,7 @@ from .....services import MaterialService
 from .....services import ObjectService
 from .....entities.rig import Rig
 from ..... import ClassManager
+from ....mpfboperator import MpfbOperator
 import bpy, json, math
 from bpy.types import StringProperty
 from bpy_extras.io_utils import ImportHelper
@@ -10,7 +11,7 @@ from bpy_extras.io_utils import ImportHelper
 _LOG = LogService.get_logger("makerig.operators.loadrig")
 
 
-class MPFB_OT_Load_Rig_Operator(bpy.types.Operator, ImportHelper):
+class MPFB_OT_Load_Rig_Operator(MpfbOperator, ImportHelper):
     """Load rig from definition in json"""
     bl_idname = "mpfb.load_rig"
     bl_label = "Load rig"
@@ -18,24 +19,27 @@ class MPFB_OT_Load_Rig_Operator(bpy.types.Operator, ImportHelper):
 
     filename_ext = '.mpfbskel'
 
+    def get_logger(self):
+        return _LOG
+
     @classmethod
     def poll(cls, context):
         _LOG.enter()
-        if context.object is None:
+        if context.active_object is None:
             return False
 
         from ...makerig import MakeRigProperties
         rig_subrig = MakeRigProperties.get_value("rig_subrig", entity_reference=context.scene)
 
         if rig_subrig:
-            if not ObjectService.object_is_any_mesh(context.object):
+            if not ObjectService.object_is_any_mesh(context.active_object):
                 return False
 
-            if ObjectService.object_is_basemesh(context.object):
+            if ObjectService.object_is_basemesh(context.active_object):
                 return False
 
             skeleton = ObjectService.find_object_of_type_amongst_nearest_relatives(
-                context.object, "Skeleton", only_parents=True)
+                context.active_object, "Skeleton", only_parents=True)
 
             if not skeleton:
                 return False
@@ -43,25 +47,25 @@ class MPFB_OT_Load_Rig_Operator(bpy.types.Operator, ImportHelper):
             return True
 
         else:
-            return ObjectService.object_is_basemesh(context.object)
+            return ObjectService.object_is_basemesh(context.active_object)
 
-    def execute(self, context):
+    def hardened_execute(self, context):
         _LOG.enter()
 
         from ...makerig import MakeRigProperties
-        rig_subrig = MakeRigProperties.get_value("rig_subrig", entity_reference=context.scene)
-        rig_parent = MakeRigProperties.get_value("rig_parent", entity_reference=context.scene)
+        from ....mpfbcontext import MpfbContext
+        ctx = MpfbContext(context=context, scene_properties=MakeRigProperties)
 
-        mesh = context.object
+        mesh = context.active_object
         skeleton = None
 
-        if rig_subrig:
+        if ctx.rig_subrig:
             if mesh is None or mesh.type != "MESH" or ObjectService.object_is_basemesh(mesh):
                 self.report({'ERROR'}, "Must have a mesh asset as active object")
                 return {'CANCELLED'}
 
             skeleton = ObjectService.find_object_of_type_amongst_nearest_relatives(
-                context.object, "Skeleton", only_parents=True)
+                context.active_object, "Skeleton", only_parents=True)
 
             if not skeleton:
                 self.report({'ERROR'}, "Could not find the main skeleton among the parents.")
@@ -84,7 +88,7 @@ class MPFB_OT_Load_Rig_Operator(bpy.types.Operator, ImportHelper):
         absolute_file_path = bpy.path.abspath(self.filepath)
         _LOG.debug("absolute_file_path", absolute_file_path)
 
-        if rig_subrig:
+        if ctx.rig_subrig:
             parent_rig = Rig.from_given_basemesh_and_armature(basemesh, skeleton, fast_positions=True)
 
             rig = Rig.from_json_file_and_basemesh(absolute_file_path, mesh, parent=parent_rig)
@@ -93,10 +97,10 @@ class MPFB_OT_Load_Rig_Operator(bpy.types.Operator, ImportHelper):
 
         armature_object = rig.create_armature_and_fit_to_basemesh(for_developer=True)
 
-        if rig_parent:
+        if ctx.rig_parent:
             mesh.parent = armature_object
 
-            if rig_subrig:
+            if ctx.rig_subrig:
                 armature_object.parent = skeleton
 
         return {'FINISHED'}

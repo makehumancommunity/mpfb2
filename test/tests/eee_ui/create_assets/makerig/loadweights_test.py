@@ -26,7 +26,7 @@ def test_load_weights_errors_without_skeleton():
     with HumanFixture() as fixture:
         weights_path = LocationService.get_mpfb_data("rigs/standard/weights.default.json")
         mockself = MockOperatorBase(filepath=weights_path)
-        result = MPFB_OT_Load_Weights_Operator.execute(mockself, bpy.context)
+        result = MPFB_OT_Load_Weights_Operator.hardened_execute(mockself, bpy.context)
         assert result == {'FINISHED'}
         mockself.mock_report.assert_reported('ERROR', "skeleton")
 
@@ -36,6 +36,6 @@ def test_load_weights_executes_with_rig():
         ObjectService.activate_blender_object(fixture.basemesh)
         weights_path = LocationService.get_mpfb_data("rigs/standard/weights.default.json")
         mockself = MockOperatorBase(filepath=weights_path)
-        result = MPFB_OT_Load_Weights_Operator.execute(mockself, bpy.context)
+        result = MPFB_OT_Load_Weights_Operator.hardened_execute(mockself, bpy.context)
         assert result == {'FINISHED'}
         mockself.mock_report.assert_no_errors()

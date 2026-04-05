@@ -10,24 +10,27 @@ from .....services import ObjectService
 from ..... import ClassManager
 from .....entities.material.makeskinmaterial import MakeSkinMaterial
 from ....pollstrategy import pollstrategy, PollStrategy
+from ....mpfboperator import MpfbOperator
 
 _LOG = LogService.get_logger("makeskin.writelibrary")
 
 @pollstrategy(PollStrategy.BASEMESH_OR_BODY_PROXY_ACTIVE)
-class MPFB_OT_WriteLibraryOperator(bpy.types.Operator):
+class MPFB_OT_WriteLibraryOperator(MpfbOperator):
     """Save material in the user skins directory to make it available as new body skin"""
     bl_idname = "mpfb.write_makeskin_to_library"
     bl_label = "Store as skin"
     bl_options = {'REGISTER'}
 
-    def execute(self, context):
+    def get_logger(self):
+        return _LOG
 
-        blender_object = context.active_object
+    def hardened_execute(self, context):
+        from ...makeskin import MakeSkinObjectProperties  # pylint: disable=C0415
+        from ....mpfbcontext import MpfbContext  # pylint: disable=C0415
 
-        from ...makeskin import MakeSkinObjectProperties
-        name = MakeSkinObjectProperties.get_value("name", entity_reference=blender_object)
+        ctx = MpfbContext(context=context, object_properties=MakeSkinObjectProperties)
 
-        if not name:
+        if not ctx.name:
             self.report({'ERROR'}, "The material must have a name")
             return {'FINISHED'}
 
@@ -35,7 +38,7 @@ class MPFB_OT_WriteLibraryOperator(bpy.types.Operator):
         if not os.path.exists(skindir):
             os.makedirs(skindir)
 
-        normalized_name = name.replace(" ", "_").lower()
+        normalized_name = ctx.name.replace(" ", "_").lower()
 
         file_name = os.path.abspath(os.path.join(skindir, normalized_name))
         if not os.path.exists(file_name):
@@ -45,14 +48,14 @@ class MPFB_OT_WriteLibraryOperator(bpy.types.Operator):
 
         _LOG.debug("file_name", file_name)
 
-        if not MaterialService.has_materials(blender_object):
+        if not MaterialService.has_materials(ctx.active_object):
             self.report({'ERROR'}, "Object does not have a material")
             return {'FINISHED'}
 
         material = MakeSkinMaterial()
-        material.populate_from_object(blender_object)
+        material.populate_from_object(ctx.active_object)
 
-        image_file_error = material.check_that_all_textures_are_saved(blender_object)
+        image_file_error = material.check_that_all_textures_are_saved(ctx.active_object)
         if not image_file_error is None:
             self.report({'ERROR'}, image_file_error)
             return {'FINISHED'}

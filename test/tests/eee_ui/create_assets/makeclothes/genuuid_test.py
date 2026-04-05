@@ -16,7 +16,7 @@ def test_generate_uuid_errors_when_no_clothes_selected():
     """GenerateUUID reports error when no non-basemesh object is selected."""
     with HumanFixture() as fixture:
         mockself = MockOperatorBase()
-        result = MPFB_OT_GenerateUUIDOperator.execute(mockself, bpy.context)
+        result = MPFB_OT_GenerateUUIDOperator.hardened_execute(mockself, bpy.context)
         assert result == {'CANCELED'}
         mockself.mock_report.assert_reported('ERROR', 'No clothes')
 
@@ -32,7 +32,7 @@ def test_generate_uuid_sets_uuid_on_clothes():
         clothes_mesh.select_set(True)
         ObjectService.activate_blender_object(clothes_mesh)
         mockself = MockOperatorBase()
-        result = MPFB_OT_GenerateUUIDOperator.execute(mockself, bpy.context)
+        result = MPFB_OT_GenerateUUIDOperator.hardened_execute(mockself, bpy.context)
         assert result == {'FINISHED'}
         mockself.mock_report.assert_no_errors()
         uuid_val = GeneralObjectProperties.get_value("uuid", entity_reference=clothes_mesh)
