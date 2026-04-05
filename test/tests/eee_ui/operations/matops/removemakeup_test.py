@@ -28,6 +28,6 @@ def test_remove_makeup_poll_true_with_basemesh():
 def test_remove_makeup_executes_with_v2_skin():
     with BasemeshWithV2SkinFixture() as fixture:
         mockself = MockOperatorBase()
-        result = MPFB_OT_Remove_Makeup_Operator.execute(mockself, bpy.context)
+        result = MPFB_OT_Remove_Makeup_Operator.hardened_execute(mockself, bpy.context)
         assert result == {'FINISHED'}
         mockself.mock_report.assert_no_errors()

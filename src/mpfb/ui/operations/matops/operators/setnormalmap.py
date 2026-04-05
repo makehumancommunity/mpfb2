@@ -7,12 +7,13 @@ from .....entities.material.makeskinmaterial import MakeSkinMaterial
 from .....services import LogService
 from .....services import MaterialService
 from ..... import ClassManager
+from ....mpfboperator import MpfbOperator
 from ....pollstrategy import pollstrategy, PollStrategy
 
 _LOG = LogService.get_logger("matops.setnormalmap")
 
 @pollstrategy(PollStrategy.ANY_MAKEHUMAN_OBJECT_ACTIVE)
-class MPFB_OT_Set_Normalmap_Operator(bpy.types.Operator, ImportHelper):
+class MPFB_OT_Set_Normalmap_Operator(MpfbOperator, ImportHelper):
     """Adjust material by changing its normalmap or adding a normalmap to it"""
     bl_idname = "mpfb.set_normalmap"
     bl_label = "Set normalmap"
@@ -20,7 +21,10 @@ class MPFB_OT_Set_Normalmap_Operator(bpy.types.Operator, ImportHelper):
 
     filter_glob: StringProperty(default='*.png')
 
-    def execute(self, context):
+    def get_logger(self):
+        return _LOG
+
+    def hardened_execute(self, context):
         obj = context.active_object
         scn = context.scene
 

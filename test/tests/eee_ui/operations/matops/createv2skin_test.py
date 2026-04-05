@@ -28,6 +28,6 @@ def test_create_v2_skin_poll_true_with_basemesh():
 def test_create_v2_skin_executes_with_basemesh():
     with HumanFixture() as fixture:
         mockself = MockOperatorBase()
-        result = MPFB_OT_Create_V2_Skin_Operator.execute(mockself, bpy.context)
+        result = MPFB_OT_Create_V2_Skin_Operator.hardened_execute(mockself, bpy.context)
         assert result == {'FINISHED'}
         mockself.mock_report.assert_no_errors()

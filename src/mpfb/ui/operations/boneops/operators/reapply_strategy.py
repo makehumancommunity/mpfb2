@@ -21,7 +21,7 @@ class MPFB_OT_Reapply_Bone_Strategy_Operator(AbstractBoneOperator):
     def poll(cls, context):
         return cls.is_developer_bone_edit(context)
 
-    def execute(self, context):
+    def hardened_execute(self, context):
         bone = self.get_bone(context)
 
         rig_entity = self.get_rig_entity(context.active_object)

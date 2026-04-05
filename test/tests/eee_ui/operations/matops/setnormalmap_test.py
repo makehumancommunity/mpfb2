@@ -34,7 +34,7 @@ def test_set_normalmap_poll_true_with_basemesh():
 def test_set_normalmap_errors_without_material():
     with HumanFixture() as fixture:
         mockself = MockOperatorBase()
-        result = MPFB_OT_Set_Normalmap_Operator.execute(mockself, bpy.context)
+        result = MPFB_OT_Set_Normalmap_Operator.hardened_execute(mockself, bpy.context)
         assert result == {'FINISHED'}
         mockself.mock_report.assert_reported('ERROR', "needs to have a material")
 
@@ -42,6 +42,6 @@ def test_set_normalmap_errors_without_material():
 def test_set_normalmap_executes_with_v2_skin():
     with BasemeshWithV2SkinFixture() as fixture:
         mockself = MockOperatorBase(filepath=_TEST_PNG)
-        result = MPFB_OT_Set_Normalmap_Operator.execute(mockself, bpy.context)
+        result = MPFB_OT_Set_Normalmap_Operator.hardened_execute(mockself, bpy.context)
         assert result == {'FINISHED'}
         mockself.mock_report.assert_no_errors()

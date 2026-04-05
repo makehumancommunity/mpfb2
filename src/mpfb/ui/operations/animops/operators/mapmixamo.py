@@ -65,7 +65,7 @@ class MPFB_OT_Map_Mixamo_Operator(MpfbOperator):
             src = armatures[0]
             dst = armatures[1]
         if not src:
-            src = bpy.context.object
+            src = bpy.context.active_object
             if src == armatures[0]:
                 dst = armatures[1]
             else:

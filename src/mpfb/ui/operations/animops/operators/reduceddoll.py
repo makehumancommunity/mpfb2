@@ -23,10 +23,6 @@ class MPFB_OT_Reduced_Doll_Operator(MpfbOperator):
     def hardened_execute(self, context):
         _LOG.enter()
 
-        if not context.object:
-            self.report({"ERROR"}, "No object selected")
-            return {'CANCELLED'}
-
         from ...animops.animopspanel import ANIMOPS_PROPERTIES  # pylint: disable=C0415
         from ....mpfbcontext import MpfbContext  # pylint: disable=C0415
 

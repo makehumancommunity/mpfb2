@@ -28,6 +28,6 @@ def test_openpose_visible_bones_poll_true_with_openpose_rig():
 def test_openpose_visible_bones_executes_with_openpose_rig():
     with OpenPoseRigFixture() as fixture:
         mockself = MockOperatorBase()
-        result = MPFB_OT_OpenPose_Visible_Bones_Operator.execute(mockself, bpy.context)
+        result = MPFB_OT_OpenPose_Visible_Bones_Operator.hardened_execute(mockself, bpy.context)
         assert result == {'FINISHED'}
         mockself.mock_report.assert_no_errors()

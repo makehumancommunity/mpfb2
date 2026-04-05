@@ -33,6 +33,6 @@ def test_apply_pose_poll_true_with_rig():
 def test_apply_pose_executes_with_rig():
     with HumanWithRigFixture() as fixture:
         mockself = MockOperatorBase()
-        result = MPFB_OT_Apply_Pose_Operator.execute(mockself, bpy.context)
+        result = MPFB_OT_Apply_Pose_Operator.hardened_execute(mockself, bpy.context)
         assert result == {'FINISHED'}
         mockself.mock_report.assert_no_errors()

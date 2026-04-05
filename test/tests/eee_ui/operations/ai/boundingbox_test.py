@@ -28,6 +28,6 @@ def test_boundingbox_poll_true_with_basemesh():
 def test_boundingbox_executes_with_basemesh():
     with HumanFixture() as fixture:
         mockself = MockOperatorBase()
-        result = MPFB_OT_Boundingbox_Operator.execute(mockself, bpy.context)
+        result = MPFB_OT_Boundingbox_Operator.hardened_execute(mockself, bpy.context)
         assert result == {'FINISHED'}
         mockself.mock_report.assert_no_errors()
