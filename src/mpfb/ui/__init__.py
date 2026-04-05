@@ -11,6 +11,7 @@ if SystemService.is_blender_version_at_least():
     # Meta classes
     from .abstractpanel import Abstract_Panel
     from .mpfboperator import MpfbOperator
+    from .mpfbcontext import MpfbContext, ContextFocusObject, ContextResolveEffort
     from .pollstrategy import pollstrategy, PollStrategy
 
     # Top level panels

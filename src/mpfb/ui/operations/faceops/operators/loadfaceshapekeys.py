@@ -2,7 +2,6 @@
 
 from .....services import LogService
 from .....services import FaceService
-from .....services import ObjectService
 from ....mpfboperator import MpfbOperator
 from ..... import ClassManager
 from ....pollstrategy import pollstrategy, PollStrategy
@@ -23,33 +22,31 @@ class MPFB_OT_Load_Face_Shape_Keys_Operator(MpfbOperator):
     def hardened_execute(self, context):
         _LOG.enter()
 
-        basemesh = ObjectService.find_object_of_type_amongst_nearest_relatives(context.object)
-        if basemesh is None:
+        from ..faceopspanel import FACEOPS_PROPERTIES  # pylint: disable=C0415
+        from ....mpfbcontext import MpfbContext  # pylint: disable=C0415
+
+        ctx = MpfbContext(context=context, scene_properties=FACEOPS_PROPERTIES)
+
+        if ctx.basemesh is None:
             self.report({'ERROR'}, "Could not find a basemesh")
             return {'FINISHED'}
 
-        from ..faceopspanel import FACEOPS_PROPERTIES
-        scene = context.scene
-        visemes01 = FACEOPS_PROPERTIES.get_value("visemes01", entity_reference=scene)
-        visemes02 = FACEOPS_PROPERTIES.get_value("visemes02", entity_reference=scene)
-        faceunits01 = FACEOPS_PROPERTIES.get_value("faceunits01", entity_reference=scene)
-
-        if not visemes01 and not visemes02 and not faceunits01:
+        if not ctx.visemes01 and not ctx.visemes02 and not ctx.faceunits01:
             self.report({'WARNING'}, "No shape key packs selected")
             return {'FINISHED'}
 
         FaceService.load_targets(
-            basemesh,
-            load_microsoft_visemes=visemes01,
-            load_meta_visemes=visemes02,
-            load_arkit_faceunits=faceunits01)
+            ctx.basemesh,
+            load_microsoft_visemes=ctx.visemes01,
+            load_meta_visemes=ctx.visemes02,
+            load_arkit_faceunits=ctx.faceunits01)
 
         loaded = []
-        if visemes01:
+        if ctx.visemes01:
             loaded.append("visemes01")
-        if visemes02:
+        if ctx.visemes02:
             loaded.append("visemes02")
-        if faceunits01:
+        if ctx.faceunits01:
             loaded.append("faceunits01")
 
         self.report({'INFO'}, "Loaded shape key pack(s): " + ", ".join(loaded))

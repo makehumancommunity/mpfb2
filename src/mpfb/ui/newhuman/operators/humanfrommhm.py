@@ -29,33 +29,31 @@ class MPFB_OT_HumanFromMHMOperator(MpfbOperator, ImportHelper):
         _LOG.reset_timer()
 
         from ...newhuman.frompresetspanel import PRESETS_HUMAN_PROPERTIES  # pylint: disable=C0415
+        from ...mpfbcontext import MpfbContext  # pylint: disable=C0415
+
+        ctx = MpfbContext(context=context, scene_properties=PRESETS_HUMAN_PROPERTIES)
 
         _LOG.debug("filepath", self.filepath)
 
         deserialization_settings = HumanService.get_default_deserialization_settings()
 
-        deserialization_settings["detailed_helpers"] = PRESETS_HUMAN_PROPERTIES.get_value("detailed_helpers", entity_reference=context.scene)
-        deserialization_settings["extra_vertex_groups"] = PRESETS_HUMAN_PROPERTIES.get_value("extra_vertex_groups", entity_reference=context.scene)
-        deserialization_settings["mask_helpers"] = PRESETS_HUMAN_PROPERTIES.get_value("mask_helpers", entity_reference=context.scene)
-        deserialization_settings["load_clothes"] = PRESETS_HUMAN_PROPERTIES.get_value("load_clothes", entity_reference=context.scene)
-        deserialization_settings["override_rig"] = PRESETS_HUMAN_PROPERTIES.get_value("override_rig", entity_reference=context.scene)
-        deserialization_settings["override_skin_model"] = PRESETS_HUMAN_PROPERTIES.get_value("override_skin_model", entity_reference=context.scene)
-        deserialization_settings["bodypart_deep_search"] = PRESETS_HUMAN_PROPERTIES.get_value("bodypart_deep_search", entity_reference=context.scene)
-        deserialization_settings["clothes_deep_search"] = PRESETS_HUMAN_PROPERTIES.get_value("clothes_deep_search", entity_reference=context.scene)
-        deserialization_settings["override_clothes_model"] = PRESETS_HUMAN_PROPERTIES.get_value("override_clothes_model", entity_reference=context.scene)
-        deserialization_settings["override_eyes_model"] = PRESETS_HUMAN_PROPERTIES.get_value("override_eyes_model", entity_reference=context.scene)
+        ctx.populate_dict(deserialization_settings, [
+            "detailed_helpers", "extra_vertex_groups", "mask_helpers",
+            "load_clothes", "override_rig", "override_skin_model",
+            "bodypart_deep_search", "clothes_deep_search",
+            "override_clothes_model", "override_eyes_model"
+        ])
 
         if "rigify" in deserialization_settings["override_rig"] and not SystemService.check_for_rigify():
             self.report({'ERROR'}, "Rig override set to rigify, but rigify is not enabled.")
             return {'FINISHED'}
 
-        scale_factor = PRESETS_HUMAN_PROPERTIES.get_value("scale_factor", entity_reference=context.scene)
         scale = 0.1
 
-        if scale_factor == "DECIMETER":
+        if ctx.scale_factor == "DECIMETER":
             scale = 1.0
 
-        if scale_factor == "CENTIMETER":
+        if ctx.scale_factor == "CENTIMETER":
             scale = 10.0
 
         deserialization_settings["scale"] = scale

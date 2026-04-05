@@ -26,91 +26,80 @@ class MPFB_OT_Create_Export_Copy_Operator(MpfbOperator):
     def hardened_execute(self, context):
         _LOG.enter()
 
-        scene = context.scene
+        from ..exportopspanel import EXPORTOPS_PROPERTIES  # pylint: disable=C0415
+        from ....mpfbcontext import MpfbContext  # pylint: disable=C0415
 
-        basemesh = ObjectService.find_object_of_type_amongst_nearest_relatives(context.object)
-        if basemesh is None:
+        ctx = MpfbContext(context=context, scene_properties=EXPORTOPS_PROPERTIES)
+
+        if ctx.basemesh is None:
             self.report({'ERROR'}, "Could not deduce basemesh")
             return {'FINISHED'}
 
-        from ..exportopspanel import EXPORTOPS_PROPERTIES
-        bake_shapekeys = EXPORTOPS_PROPERTIES.get_value("bake_shapekeys", entity_reference=scene)
-        remove_basemesh = EXPORTOPS_PROPERTIES.get_value("remove_basemesh", entity_reference=scene)
-        delete_helpers = EXPORTOPS_PROPERTIES.get_value("delete_helpers", entity_reference=scene)
-        suffix = EXPORTOPS_PROPERTIES.get_value("suffix", entity_reference=scene)
-        create_collection = EXPORTOPS_PROPERTIES.get_value("collection", entity_reference=scene)
-        visemes_meta = EXPORTOPS_PROPERTIES.get_value("visemes_meta", entity_reference=scene)
-        visemes_microsoft = EXPORTOPS_PROPERTIES.get_value("visemes_microsoft", entity_reference=scene)
-        faceunits_arkit = EXPORTOPS_PROPERTIES.get_value("faceunits_arkit", entity_reference=scene)
-        interpolate = EXPORTOPS_PROPERTIES.get_value("interpolate", entity_reference=scene)
-        mask_modifiers = EXPORTOPS_PROPERTIES.get_value("mask_modifiers", entity_reference=scene)
-        subdiv_modifiers = EXPORTOPS_PROPERTIES.get_value("subdiv_modifiers", entity_reference=scene)
-
         _LOG.debug("settings", {
-            "bake_shapekeys": bake_shapekeys,
-            "remove_basemesh": remove_basemesh,
-            "delete_helpers": delete_helpers,
-            "suffix": suffix,
-            "create_collection": create_collection,
-            "visemes_meta": visemes_meta,
-            "visemes_microsoft": visemes_microsoft,
-            "faceunits_arkit": faceunits_arkit,
-            "interpolate": interpolate,
-            "mask_modifiers": mask_modifiers,
-            "subdiv_modifiers": subdiv_modifiers})
+            "bake_shapekeys": ctx.bake_shapekeys,
+            "remove_basemesh": ctx.remove_basemesh,
+            "delete_helpers": ctx.delete_helpers,
+            "suffix": ctx.suffix,
+            "create_collection": ctx.collection,
+            "visemes_meta": ctx.visemes_meta,
+            "visemes_microsoft": ctx.visemes_microsoft,
+            "faceunits_arkit": ctx.faceunits_arkit,
+            "interpolate": ctx.interpolate,
+            "mask_modifiers": ctx.mask_modifiers,
+            "subdiv_modifiers": ctx.subdiv_modifiers})
 
-        bake_masks = mask_modifiers == "BAKE"
-        bake_subdiv = subdiv_modifiers == "BAKE"
+        bake_masks = ctx.mask_modifiers == "BAKE"
+        bake_subdiv = ctx.subdiv_modifiers == "BAKE"
 
-        if create_collection:
+        if ctx.collection:
             if "export copy" not in bpy.data.collections:
                 collection = bpy.data.collections.new("export copy")
                 bpy.context.scene.collection.children.link(collection)
             else:
                 collection = bpy.data.collections["export copy"]
         else:
-            collection = basemesh.users_collection[0]
+            collection = ctx.basemesh.users_collection[0]
 
         _LOG.debug("collection", collection)
 
-        export_copy = ExportService.create_character_copy(basemesh, name_suffix=suffix, place_in_collection=collection)
+        export_copy = ExportService.create_character_copy(ctx.basemesh, name_suffix=ctx.suffix, place_in_collection=collection)
         new_basemesh = ObjectService.find_object_of_type_amongst_nearest_relatives(export_copy)
 
-        if bake_shapekeys:
+        if ctx.bake_shapekeys:
             TargetService.bake_targets(new_basemesh)
 
-        if visemes_meta or visemes_microsoft or faceunits_arkit:
+        if ctx.visemes_meta or ctx.visemes_microsoft or ctx.faceunits_arkit:
             FaceService.load_targets(
                 new_basemesh,
-                load_microsoft_visemes=visemes_microsoft,
-                load_meta_visemes=visemes_meta,
-                load_arkit_faceunits=faceunits_arkit)
+                load_microsoft_visemes=ctx.visemes_microsoft,
+                load_meta_visemes=ctx.visemes_meta,
+                load_arkit_faceunits=ctx.faceunits_arkit)
 
-        if interpolate:
+        if ctx.interpolate:
             FaceService.interpolate_targets(new_basemesh)
 
         ExportService.bake_modifiers_remove_helpers(
             new_basemesh,
             bake_masks=bake_masks,
             bake_subdiv=bake_subdiv,
-            remove_helpers=delete_helpers,
+            remove_helpers=ctx.delete_helpers,
             also_proxy=True)
 
-        if mask_modifiers == "REMOVE":
+        if ctx.mask_modifiers == "REMOVE":
             for modifier in new_basemesh.modifiers:
                 if modifier.type == 'MASK':
                     # This will also remove modifiers which are unrelated to MPFB. This is intended.
                     new_basemesh.modifiers.remove(modifier)
 
-        if subdiv_modifiers == "REMOVE":
+        if ctx.subdiv_modifiers == "REMOVE":
             for modifier in new_basemesh.modifiers:
                 if modifier.type == 'SUBSURF':
                     new_basemesh.modifiers.remove(modifier)
 
-        if delete_helpers:
+        if ctx.delete_helpers:
             context.view_layer.objects.active = new_basemesh
 
-        if remove_basemesh:
+        if ctx.remove_basemesh:
             ObjectService.delete_object(new_basemesh)
 
         self.report({'INFO'}, "Export copy created")

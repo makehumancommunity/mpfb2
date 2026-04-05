@@ -26,43 +26,39 @@ class MPFB_OT_HumanFromPresetsOperator(MpfbOperator):
 
         _LOG.reset_timer()
         from ...newhuman.frompresetspanel import PRESETS_HUMAN_PROPERTIES  # pylint: disable=C0415
+        from ...mpfbcontext import MpfbContext  # pylint: disable=C0415
 
-        name = PRESETS_HUMAN_PROPERTIES.get_value("available_presets", entity_reference=context.scene)
+        ctx = MpfbContext(context=context, scene_properties=PRESETS_HUMAN_PROPERTIES)
 
-        if name is None or str(name).strip() == "":
+        if ctx.available_presets is None or str(ctx.available_presets).strip() == "":
             self.report({'ERROR'}, "Presets must be selected")
             return {'FINISHED'}
 
         deserialization_settings = HumanService.get_default_deserialization_settings()
 
-        deserialization_settings["detailed_helpers"] = PRESETS_HUMAN_PROPERTIES.get_value("detailed_helpers", entity_reference=context.scene)
-        deserialization_settings["extra_vertex_groups"] = PRESETS_HUMAN_PROPERTIES.get_value("extra_vertex_groups", entity_reference=context.scene)
-        deserialization_settings["mask_helpers"] = PRESETS_HUMAN_PROPERTIES.get_value("mask_helpers", entity_reference=context.scene)
-        deserialization_settings["load_clothes"] = PRESETS_HUMAN_PROPERTIES.get_value("load_clothes", entity_reference=context.scene)
-        deserialization_settings["override_rig"] = PRESETS_HUMAN_PROPERTIES.get_value("override_rig", entity_reference=context.scene)
-        deserialization_settings["override_skin_model"] = PRESETS_HUMAN_PROPERTIES.get_value("override_skin_model", entity_reference=context.scene)
-        deserialization_settings["override_clothes_model"] = PRESETS_HUMAN_PROPERTIES.get_value("override_clothes_model", entity_reference=context.scene)
-        deserialization_settings["override_eyes_model"] = PRESETS_HUMAN_PROPERTIES.get_value("override_eyes_model", entity_reference=context.scene)
-        deserialization_settings["material_instances"] = PRESETS_HUMAN_PROPERTIES.get_value("material_instances", entity_reference=context.scene)
+        ctx.populate_dict(deserialization_settings, [
+            "detailed_helpers", "extra_vertex_groups", "mask_helpers",
+            "load_clothes", "override_rig", "override_skin_model",
+            "override_clothes_model", "override_eyes_model", "material_instances"
+        ])
 
         if "rigify" in deserialization_settings["override_rig"] and not SystemService.check_for_rigify():
             self.report({'ERROR'}, "Rig override set to rigify, but rigify is not enabled.")
             return {'FINISHED'}
 
-        scale_factor = PRESETS_HUMAN_PROPERTIES.get_value("scale_factor", entity_reference=context.scene)
         scale = 0.1
 
-        if scale_factor == "DECIMETER":
+        if ctx.scale_factor == "DECIMETER":
             scale = 1.0
 
-        if scale_factor == "CENTIMETER":
+        if ctx.scale_factor == "CENTIMETER":
             scale = 10.0
 
         deserialization_settings["scale"] = scale
 
         _LOG.debug("Deserialization settings", deserialization_settings)
 
-        fullname = "human." + name + ".json"
+        fullname = "human." + ctx.available_presets + ".json"
         filename = LocationService.get_user_config(fullname)
 
         _LOG.debug("filename", filename)
@@ -71,19 +67,15 @@ class MPFB_OT_HumanFromPresetsOperator(MpfbOperator):
 
         _LOG.debug("Basemesh", basemesh)
 
-        preselect_group = PRESETS_HUMAN_PROPERTIES.get_value("preselect_group", entity_reference=context.scene)
-        if not preselect_group:
-            preselect_group = None
-
         proxy = ObjectService.find_object_of_type_amongst_nearest_relatives(basemesh, "Proxymeshes")
         if proxy:
             bpy.context.view_layer.objects.active = proxy
             proxy.select_set(True)
             bpy.ops.object.mode_set(mode='EDIT', toggle=False)
-            MeshService.select_all_vertices_in_vertex_group_for_active_object(preselect_group, deselect_other=True)
+            MeshService.select_all_vertices_in_vertex_group_for_active_object(ctx.preselect_group or None, deselect_other=True)
             bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
             for slot in proxy.material_slots:
-                if str(slot.material.name).lower().endswith(str(preselect_group).lower()):
+                if str(slot.material.name).lower().endswith(str(ctx.preselect_group).lower()):
                     proxy.active_material_index = slot.slot_index
 
         bpy.ops.object.select_all(action='DESELECT')
@@ -91,11 +83,11 @@ class MPFB_OT_HumanFromPresetsOperator(MpfbOperator):
         basemesh.select_set(True)
 
         bpy.ops.object.mode_set(mode='EDIT', toggle=False)
-        MeshService.select_all_vertices_in_vertex_group_for_active_object(preselect_group, deselect_other=True)
+        MeshService.select_all_vertices_in_vertex_group_for_active_object(ctx.preselect_group or None, deselect_other=True)
         bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
 
         for slot in basemesh.material_slots:
-            if str(slot.material.name).lower().endswith(str(preselect_group).lower()):
+            if str(slot.material.name).lower().endswith(str(ctx.preselect_group).lower()):
                 basemesh.active_material_index = slot.slot_index
 
         rig = ObjectService.find_object_of_type_amongst_nearest_relatives(basemesh, mpfb_type_name="Skeleton")
