@@ -7,11 +7,12 @@ from ....services import ObjectService
 from ....services import RigService
 from ....services import AnimationService
 from .... import ClassManager
+from ...mpfboperator import MpfbOperator
 
 _LOG = LogService.get_logger("assetlibrary.loadlibrarypose")
 
 
-class MPFB_OT_Load_Library_Pose_Operator(bpy.types.Operator):
+class MPFB_OT_Load_Library_Pose_Operator(MpfbOperator):
     """Destructively load a pose from a MH BVH file. WARNING: This will change the bone rolls of all bones, making further posing a bit unpredictable"""
     bl_idname = "mpfb.load_library_pose"
     bl_label = "Load Pose"
@@ -20,7 +21,10 @@ class MPFB_OT_Load_Library_Pose_Operator(bpy.types.Operator):
     filepath: StringProperty(name="filepath", description="Full path to asset", default="")
     object_type: StringProperty(name="object_type", description="type of the object", default="bvh")
 
-    def execute(self, context):
+    def get_logger(self):
+        return _LOG
+
+    def hardened_execute(self, context):
         _LOG.debug("filepath", self.filepath)
 
         blender_object = context.active_object

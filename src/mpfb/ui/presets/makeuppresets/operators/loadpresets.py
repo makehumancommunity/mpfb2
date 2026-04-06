@@ -16,7 +16,7 @@ class MPFB_OT_Load_Makeup_Presets_Operator(generic_makeup_presets):
     bl_label = "Load presets"
     bl_options = {'REGISTER', 'UNDO'}
 
-    def execute(self, context):
+    def hardened_execute(self, context):
         """
         Executes the operator to load makeup presets onto the current object in the Blender context.
 
@@ -40,7 +40,7 @@ class MPFB_OT_Load_Makeup_Presets_Operator(generic_makeup_presets):
         with open(file_name, 'r', encoding="utf-8") as json_file:
             ink_layers = json.load(json_file)
 
-        basemesh = context.object
+        basemesh = context.active_object
         material = MaterialService.get_material(basemesh)
 
         MaterialService.remove_all_makeup(material, basemesh)

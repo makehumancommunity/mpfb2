@@ -5,16 +5,20 @@ from ....services import LogService
 from ....services import NodeService
 from .... import ClassManager
 from ...developer.developerpanel import DEVELOPER_PROPERTIES
+from ...mpfboperator import MpfbOperator
 import bpy, os, json, pprint
 from string import Template
 
 _LOG = LogService.get_logger("developer.operators.destroygroups")
 
-class MPFB_OT_Destroy_Groups_Operator(bpy.types.Operator):
+class MPFB_OT_Destroy_Groups_Operator(MpfbOperator):
     """Remove all groups starting with mpfb"""
     bl_idname = "mpfb.destroy_groups"
     bl_label = "Destroy Groups"
     bl_options = {'REGISTER'}
+
+    def get_logger(self):
+        return _LOG
 
     @classmethod
     def poll(self, context):
@@ -25,10 +29,9 @@ class MPFB_OT_Destroy_Groups_Operator(bpy.types.Operator):
 
         return True
 
-    def execute(self, context):
+    def hardened_execute(self, context):
         _LOG.enter()
 
-        scene = context.scene
         node_tree = bpy.context.space_data.edit_tree
 
         if not node_tree:

@@ -11,9 +11,9 @@ import bpy, os, json
 _LOG = LogService.get_logger("enhancedsettings._save_material")
 
 def _save_material(self, context, file_name):
-    body = ObjectService.find_object_of_type_amongst_nearest_relatives(context.object, "Basemesh")
+    body = ObjectService.find_object_of_type_amongst_nearest_relatives(context.active_object, "Basemesh")
     if not body:
-        body = ObjectService.find_object_of_type_amongst_nearest_relatives(context.object, "Proxymesh")
+        body = ObjectService.find_object_of_type_amongst_nearest_relatives(context.active_object, "Proxymesh")
 
     if not body:
         self.report({'ERROR'}, "Could not find basemesh or body proxy amongst nearest relatives")

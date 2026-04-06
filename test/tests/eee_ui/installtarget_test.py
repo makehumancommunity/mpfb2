@@ -20,7 +20,7 @@ def test_install_target():
     dest = os.path.join(custom, os.path.basename(target))
     assert not os.path.exists(dest)
     mockself = MockOperatorBase(filepath=target)
-    MPFB_OT_Install_Target_Operator.execute(mockself, bpy.context)
+    MPFB_OT_Install_Target_Operator.hardened_execute(mockself, bpy.context)
     mockself.mock_report.assert_no_errors()
     assert os.path.exists(dest)
     os.remove(dest)

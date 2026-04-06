@@ -9,12 +9,13 @@ from .... import ClassManager
 from ...developer.developerpanel import DEVELOPER_PROPERTIES
 from .rewritenodetypes import shorten_name, round_floats
 from .writecomposite import _identify_socket, _build_tree_def
+from ...mpfboperator import MpfbOperator
 import bpy, os, json, pprint
 from string import Template
 
 _LOG = LogService.get_logger("developer.operators.writematerial")
 
-class MPFB_OT_Write_Material_Operator(bpy.types.Operator):
+class MPFB_OT_Write_Material_Operator(MpfbOperator):
     """Generate the code representing a material to the materials directory"""
     bl_idname = "mpfb.write_material"
     bl_label = "Write material"
@@ -29,10 +30,15 @@ class MPFB_OT_Write_Material_Operator(bpy.types.Operator):
 
         return True
 
-    def execute(self, context):
+    def get_logger(self):
+        return _LOG
+
+    def hardened_execute(self, context):
         _LOG.enter()
 
-        scene = context.scene
+        from ....mpfbcontext import MpfbContext, ContextResolveEffort  # pylint: disable=C0415
+
+        ctx = MpfbContext(context=context, scene_properties=DEVELOPER_PROPERTIES, effort=ContextResolveEffort.NONE)
 
         node_tree = bpy.context.space_data.edit_tree
 
@@ -40,8 +46,8 @@ class MPFB_OT_Write_Material_Operator(bpy.types.Operator):
             self.report({'ERROR'}, "Could not deduce current node tree")
             return {'FINISHED'}
 
-        output_name = DEVELOPER_PROPERTIES.get_value("output_material_name", entity_reference=scene)
-        mhmat_based = DEVELOPER_PROPERTIES.get_value("mhmat_based", entity_reference=scene)
+        output_name = ctx.output_material_name
+        mhmat_based = ctx.mhmat_based
 
         if not output_name or not output_name.strip():
             self.report({'ERROR'}, "Must provide valid name")

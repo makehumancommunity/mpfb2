@@ -8,12 +8,13 @@ from ....services import ObjectService
 from ....services import TargetService
 from .... import ClassManager
 from ...pollstrategy import pollstrategy, PollStrategy
+from ...mpfboperator import MpfbOperator
 
 _LOG = LogService.get_logger("developer.operators.loadtarget")
 
 
 @pollstrategy(PollStrategy.BASEMESH_ACTIVE)
-class MPFB_OT_Load_Target_Operator(bpy.types.Operator, ImportHelper):
+class MPFB_OT_Load_Target_Operator(MpfbOperator, ImportHelper):
     """Import one or more targets as shape keys"""
     bl_idname = "mpfb.load_target"
     bl_label = "Load targets"
@@ -28,12 +29,15 @@ class MPFB_OT_Load_Target_Operator(bpy.types.Operator, ImportHelper):
     encode: BoolProperty(name="Encode Names", default=False,
                          description="Encode mpfb macro detail names according to the standard rules")
 
+    def get_logger(self):
+        return _LOG
+
     def draw(self, context):
         self.layout.operator("file.select_all", text="Select/Deselect All").action = 'TOGGLE'
         self.layout.prop(self, 'weight')
         self.layout.prop(self, 'encode')
 
-    def execute(self, context):
+    def hardened_execute(self, context):
         blender_object = context.active_object
         filenames = [os.path.join(self.directory, f.name) for f in self.files]
 
