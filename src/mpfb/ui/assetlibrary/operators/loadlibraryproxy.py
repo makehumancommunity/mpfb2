@@ -33,7 +33,7 @@ class MPFB_OT_Load_Library_Proxy_Operator(MpfbOperator):
         _LOG.debug("filepath", self.filepath)
 
         from ...assetlibrary.assetsettingspanel import ASSET_SETTINGS_PROPERTIES  # pylint: disable=C0415
-        from ....mpfbcontext import MpfbContext
+        from ...mpfbcontext import MpfbContext
 
         ctx = MpfbContext(context=context, scene_properties=ASSET_SETTINGS_PROPERTIES)
 
