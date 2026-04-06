@@ -7,17 +7,21 @@ from .....entities.rigging.righelpers.leghelpers.leghelpers import LegHelpers
 from .....entities.rigging.righelpers.fingerhelpers.fingerhelpers import FingerHelpers
 from .....entities.rigging.righelpers.eyehelpers.eyehelpers import EyeHelpers
 from ....pollstrategy import pollstrategy, PollStrategy
+from ....mpfboperator import MpfbOperator
 import bpy
 
 _LOG = LogService.get_logger("setupikoperators.fingerfk")
 
 
 @pollstrategy(PollStrategy.ANY_ARMATURE_OBJECT_ACTIVE)
-class MPFB_OT_AddHelpersOperator(bpy.types.Operator):
+class MPFB_OT_AddHelpersOperator(MpfbOperator):
     """This will add all selected helpers to the active armature"""
     bl_idname = "mpfb.add_helpers"
     bl_label = "Add helpers"
     bl_options = {'REGISTER', 'UNDO'}
+
+    def get_logger(self):
+        return _LOG
 
     def _arm_helpers(self, armature_object, settings):
         for side in ["left", "right"]:
@@ -43,9 +47,9 @@ class MPFB_OT_AddHelpersOperator(bpy.types.Operator):
         helpers.apply_ik(armature_object)
         RigHelpersProperties.set_value("eye_mode", "IK", entity_reference=armature_object)
 
-    def execute(self, context):
+    def hardened_execute(self, context):
         _LOG.enter()
-        armature_object = context.object
+        armature_object = context.active_object
 
         bpy.ops.object.mode_set(mode='EDIT', toggle=False)
         levator = RigService.find_edit_bone_by_name("levator03.L", armature_object)

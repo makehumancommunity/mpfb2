@@ -25,11 +25,11 @@ class MPFB_OT_Load_MH_BVH_Operator(MpfbOperator, ImportHelper):
     def hardened_execute(self, context):
         _LOG.enter()
 
-        if context.object is None or context.object.type != 'ARMATURE':
+        if context.active_object is None or context.active_object.type != 'ARMATURE':
             self.report({'ERROR'}, "Must have armature as active object")
             return {'FINISHED'}
 
-        armature_object = context.object
+        armature_object = context.active_object
 
         _LOG.debug("filepath", self.filepath)
 

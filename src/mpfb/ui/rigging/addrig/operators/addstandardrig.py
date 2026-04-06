@@ -1,42 +1,39 @@
 """Operator for adding a standard rig."""
 
-import bpy
-
 from .....services import HumanService
 from .....services import LogService
 from .....services import ObjectService
 from ..... import ClassManager
 from ....pollstrategy import pollstrategy, PollStrategy
+from ....mpfboperator import MpfbOperator
 
 _LOG = LogService.get_logger("addrig.add_standard_rig")
 
 @pollstrategy(PollStrategy.BASEMESH_ACTIVE)
-class MPFB_OT_AddStandardRigOperator(bpy.types.Operator):
+class MPFB_OT_AddStandardRigOperator(MpfbOperator):
     """Add a standard (non-rigify) rig"""
 
     bl_idname = "mpfb.add_standard_rig"
     bl_label = "Add standard rig"
     bl_options = {'REGISTER', 'UNDO'}
 
-    def execute(self, context):
-        scene = context.scene
+    def get_logger(self):
+        return _LOG
 
-        if not ObjectService.object_is_basemesh(context.active_object):
+    def hardened_execute(self, context):
+        from ...addrig.addrigpanel import ADD_RIG_PROPERTIES  # pylint: disable=C0415
+        from ....mpfbcontext import MpfbContext  # pylint: disable=C0415
+
+        ctx = MpfbContext(context=context, scene_properties=ADD_RIG_PROPERTIES)
+
+        if not ObjectService.object_is_basemesh(ctx.active_object):
             self.report({'ERROR'}, "Rigs can only be added to the base mesh")
             return {'FINISHED'}
 
-        basemesh = context.active_object
-
-        from ...addrig.addrigpanel import ADD_RIG_PROPERTIES # pylint: disable=C0415
-
-        import_weights = ADD_RIG_PROPERTIES.get_value("import_weights", entity_reference=scene)
-        standard_rig = ADD_RIG_PROPERTIES.get_value("standard_rig", entity_reference=scene)
-
-        HumanService.add_builtin_rig(basemesh, standard_rig, import_weights=import_weights, operator=self)
+        HumanService.add_builtin_rig(ctx.basemesh, ctx.standard_rig, import_weights=ctx.import_weights, operator=self)
 
         self.report({'INFO'}, "A rig was added")
         return {'FINISHED'}
 
 
 ClassManager.add_class(MPFB_OT_AddStandardRigOperator)
-

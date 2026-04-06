@@ -1,34 +1,37 @@
 from .....services import LogService
-from .....services import MaterialService
-from .....services import ObjectService
 from .....services import LocationService
 from .....services import RigService
 from ..... import ClassManager
 from ....pollstrategy import pollstrategy, PollStrategy
-import bpy, json, math, os
-from bpy.types import StringProperty
-from bpy_extras.io_utils import ImportHelper
+from ....mpfboperator import MpfbOperator
+import bpy, json, os
 
 _LOG = LogService.get_logger("developer.operators.loadpartial")
 
 @pollstrategy(PollStrategy.ANY_ARMATURE_OBJECT_ACTIVE)
-class MPFB_OT_Load_Partial_Operator(bpy.types.Operator):
+class MPFB_OT_Load_Partial_Operator(MpfbOperator):
     """Load partial pose matching rig type"""
     bl_idname = "mpfb.load_partial"
     bl_label = "Load partial pose"
     bl_options = {'REGISTER', 'UNDO'}
 
-    def execute(self, context):
+    def get_logger(self):
+        return _LOG
+
+    def hardened_execute(self, context):
         _LOG.enter()
 
-        if context.object is None or context.object.type != 'ARMATURE':
+        from ...applypose.applyposepanel import POSES_PROPERTIES  # pylint: disable=C0415
+        from ....mpfbcontext import MpfbContext  # pylint: disable=C0415
+
+        ctx = MpfbContext(context=context, scene_properties=POSES_PROPERTIES)
+
+        if ctx.active_object is None or ctx.active_object.type != 'ARMATURE':
             self.report({'ERROR'}, "Must have armature as active object")
             return {'FINISHED'}
 
-        armature_object = context.object
-
-        from ...applypose.applyposepanel import POSES_PROPERTIES
-        name = POSES_PROPERTIES.get_value("available_partials", entity_reference=context.scene)
+        armature_object = ctx.active_object
+        name = ctx.available_partials
 
         if not name:
             self.report({'ERROR'}, "Must select a valid pose name")
