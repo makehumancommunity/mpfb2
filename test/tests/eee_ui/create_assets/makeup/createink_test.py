@@ -26,7 +26,7 @@ def test_create_ink_poll_true_with_active_mesh():
 def test_create_ink_errors_without_makeskin_material():
     with HumanFixture() as fixture:
         mockself = MockOperatorBase()
-        result = MPFB_OT_CreateInkOperator.execute(mockself, bpy.context)
+        result = MPFB_OT_CreateInkOperator.hardened_execute(mockself, bpy.context)
         assert result == {'CANCELLED'}
         # Should report either "no materials" or "not a basemesh" or similar error
         assert len(mockself.mock_report.reports) > 0
@@ -37,6 +37,6 @@ def test_create_ink_executes_with_makeskin_material():
         # Set focus_name to NONE (no special UV map)
         MAKEUP_PROPERTIES.set_value("create_ink", False, entity_reference=bpy.context.scene)
         mockself = MockOperatorBase()
-        result = MPFB_OT_CreateInkOperator.execute(mockself, bpy.context)
+        result = MPFB_OT_CreateInkOperator.hardened_execute(mockself, bpy.context)
         # With a MakeSkin material and focus_name=NONE (if default), expect FINISHED or error about focus_name
         assert result in ({'FINISHED'}, {'CANCELLED'})

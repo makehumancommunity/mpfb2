@@ -8,10 +8,11 @@ from ....services import LocationService
 from ....services import AssetService
 import zipfile
 from .... import ClassManager
+from ...mpfboperator import MpfbOperator
 
 _LOG = LogService.get_logger("assetlibrary.loadpack")
 
-class MPFB_OT_Load_Pack_Operator(bpy.types.Operator, ImportHelper):
+class MPFB_OT_Load_Pack_Operator(MpfbOperator, ImportHelper):
     """Install an asset pack from ZIP file. You can find more asset packs to download
     by clicking the asset packs button under "system and resources" -> "web resources"
     """
@@ -21,7 +22,10 @@ class MPFB_OT_Load_Pack_Operator(bpy.types.Operator, ImportHelper):
 
     filter_glob: StringProperty(default='*.zip', options={'HIDDEN'})
 
-    def execute(self, context):
+    def get_logger(self):
+        return _LOG
+
+    def hardened_execute(self, context):
 
         if not self.filepath:
             self.report({'ERROR'}, "Must select a file")

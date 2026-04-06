@@ -6,6 +6,7 @@ from ....services import NodeService
 from ....services import ObjectService
 from .... import ClassManager
 from ...developer.developerpanel import DEVELOPER_PROPERTIES
+from ...mpfboperator import MpfbOperator
 import bpy, os, json
 from string import Template
 from pprint import pprint
@@ -24,13 +25,16 @@ def round_floats(o):
         return [round_floats(x) for x in o]
     return o
 
-class MPFB_OT_Rewrite_Node_Types_Operator(bpy.types.Operator):
+class MPFB_OT_Rewrite_Node_Types_Operator(MpfbOperator):
     """WARNING: this is a code generation utility and will overwrite corresponding source code files in the addon directory. Only use if you know what you are doing."""
     bl_idname = "mpfb.rewrite_node_types"
     bl_label = "Rewrite node types"
     bl_options = {'REGISTER'}
 
-    def execute(self, context):
+    def get_logger(self):
+        return _LOG
+
+    def hardened_execute(self, context):
         _LOG.enter()
         entities = LocationService.get_mpfb_root("entities")
         test = LocationService.get_mpfb_test("tests")

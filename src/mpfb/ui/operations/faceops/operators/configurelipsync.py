@@ -24,7 +24,7 @@ class MPFB_OT_Configure_Lip_Sync_Operator(MpfbOperator):
     def hardened_execute(self, context):
         _LOG.enter()
 
-        basemesh = ObjectService.find_object_of_type_amongst_nearest_relatives(context.object)
+        basemesh = ObjectService.find_object_of_type_amongst_nearest_relatives(context.active_object)
         if basemesh is None:
             self.report({'ERROR'}, "Could not find a basemesh")
             return {'FINISHED'}

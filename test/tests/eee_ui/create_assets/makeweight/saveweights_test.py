@@ -28,6 +28,6 @@ def test_save_makeweight_weight_errors_without_armature():
     with HumanFixture() as fixture:
         # Active object is basemesh, not armature — execute should report ERROR
         mockself = MockOperatorBase(filepath="/tmp/test_weights.json")
-        result = MPFB_OT_SaveWeightsOperator.execute(mockself, bpy.context)
+        result = MPFB_OT_SaveWeightsOperator.hardened_execute(mockself, bpy.context)
         assert result == {'FINISHED'}
         mockself.mock_report.assert_reported('ERROR', "armature")

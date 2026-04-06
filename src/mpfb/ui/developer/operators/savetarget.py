@@ -10,11 +10,12 @@ from ....services import LogService
 from ....services import ObjectService
 from ....services import TargetService
 from .... import ClassManager
+from ...mpfboperator import MpfbOperator
 
 _LOG = LogService.get_logger("developer.operators.savetarget")
 
 
-class MPFB_OT_Save_Target_Operator(bpy.types.Operator, ExportHelper):
+class MPFB_OT_Save_Target_Operator(MpfbOperator, ExportHelper):
     """Write the active shape key as a target file"""
     bl_idname = "mpfb.save_target"
     bl_label = "Save target"
@@ -60,6 +61,9 @@ class MPFB_OT_Save_Target_Operator(bpy.types.Operator, ExportHelper):
         self.filepath = bpy.path.clean_name(name, replace="-") + extension
         return super().invoke(context, event)
 
+    def get_logger(self):
+        return _LOG
+
     def draw(self, context):
         self.layout.prop(self, 'include_header')
 
@@ -79,7 +83,7 @@ class MPFB_OT_Save_Target_Operator(bpy.types.Operator, ExportHelper):
 
         return False
 
-    def execute(self, context):
+    def hardened_execute(self, context):
         blender_object = context.active_object
         shape_key = self.get_active_key(blender_object)
 

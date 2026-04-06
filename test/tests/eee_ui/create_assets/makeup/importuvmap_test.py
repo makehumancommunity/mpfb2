@@ -36,7 +36,7 @@ def test_import_uv_map_execute_errors_invalid_json():
                 f.write("not valid json")
             MAKEUP_PROPERTIES.set_value("uv_map_name", "test_uv", entity_reference=bpy.context.scene)
             mockself = MockOperatorBase(filepath=tmp_path)
-            result = MPFB_OT_ImportUvMapOperator.execute(mockself, bpy.context)
+            result = MPFB_OT_ImportUvMapOperator.hardened_execute(mockself, bpy.context)
             assert result == {'CANCELLED'}
             mockself.mock_report.assert_reported('ERROR', "Failed to read")
         finally:
@@ -55,7 +55,7 @@ def test_import_uv_map_execute_imports_empty_uv_map():
                 json.dump(uv_data, f)
             MAKEUP_PROPERTIES.set_value("uv_map_name", "imported_uv", entity_reference=bpy.context.scene)
             mockself = MockOperatorBase(filepath=tmp_path)
-            result = MPFB_OT_ImportUvMapOperator.execute(mockself, bpy.context)
+            result = MPFB_OT_ImportUvMapOperator.hardened_execute(mockself, bpy.context)
             # Empty dict is valid: no faces to set, should finish without error
             assert result in ({'FINISHED'}, {'CANCELLED'})
         finally:

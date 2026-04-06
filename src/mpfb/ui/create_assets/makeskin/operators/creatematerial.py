@@ -4,43 +4,40 @@ import bpy
 from .....services import LogService
 from .....services import MaterialService
 from .....entities.material.makeskinmaterial import MakeSkinMaterial
-from ...makeskin.makeskinpanel import MAKESKIN_PROPERTIES
 from ..... import ClassManager
 from ....pollstrategy import pollstrategy, PollStrategy
+from ....mpfboperator import MpfbOperator
 
 _LOG = LogService.get_logger("makeskin.creatematerial")
 
 
 @pollstrategy(PollStrategy.ANY_MESH_OBJECT_ACTIVE)
-class MPFB_OT_CreateMaterialOperator(bpy.types.Operator):
+class MPFB_OT_CreateMaterialOperator(MpfbOperator):
     """Create template material"""
     bl_idname = "mpfb.create_makeskin_material"
     bl_label = "Create material"
     bl_options = {'REGISTER'}
 
-    def execute(self, context):
+    def get_logger(self):
+        return _LOG
 
-        blender_object = context.active_object
-        scene = context.scene
-
+    def hardened_execute(self, context):
         from ...makeskin.makeskinpanel import MAKESKIN_PROPERTIES  # pylint: disable=C0415
         from ...makeskin import MakeSkinObjectProperties  # pylint: disable=C0415
+        from ....mpfbcontext import MpfbContext  # pylint: disable=C0415
 
-        if MaterialService.has_materials(blender_object):
-            MaterialService.delete_all_materials(blender_object)
+        ctx = MpfbContext(context=context, scene_properties=MAKESKIN_PROPERTIES, object_properties=MakeSkinObjectProperties)
 
-        name = MakeSkinObjectProperties.get_value("name", entity_reference=blender_object)
-        if not name:
-            name = "MakeSkinMaterial"
+        if MaterialService.has_materials(ctx.active_object):
+            MaterialService.delete_all_materials(ctx.active_object)
 
-        create_specularmap = MAKESKIN_PROPERTIES.get_value("create_specularmap", entity_reference=scene)
-        create_roughnessmap = MAKESKIN_PROPERTIES.get_value("create_roughnessmap", entity_reference=scene)
+        name = ctx.name or "MakeSkinMaterial"
 
-        if create_specularmap and create_roughnessmap:
+        if ctx.create_specularmap and ctx.create_roughnessmap:
             self.report({'ERROR'}, "Cannot set specular and roughness maps at the same time.")
             return {'CANCELLED'}
 
-        MakeSkinMaterial.create_makeskin_template_material(blender_object, scene, name)
+        MakeSkinMaterial.create_makeskin_template_material(ctx.active_object, ctx.scene, name)
 
         self.report({'INFO'}, "Material was created")
         return {'FINISHED'}

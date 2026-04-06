@@ -7,6 +7,7 @@ from mathutils import Vector
 from .....entities.rig import Rig
 from .....services import LogService
 from .....services import ObjectService
+from ....mpfboperator import MpfbOperator
 
 from .. import BoneOpsArmatureProperties, BOP_PROPERTIES
 
@@ -15,7 +16,10 @@ _LOG = LogService.get_logger("boneops.abstract")
 TBone = typing.TypeVar("TBone", bound=bpy.types.EditBone | bpy.types.Bone)
 
 
-class AbstractBoneOperator(bpy.types.Operator):
+class AbstractBoneOperator(MpfbOperator):
+
+    def get_logger(self):
+        return _LOG
     @staticmethod
     def get_bone(context: bpy.types.Context) -> bpy.types.Bone | bpy.types.EditBone | None:
         return getattr(context, "edit_bone", None) or getattr(context, "bone", None)

@@ -74,10 +74,10 @@ class MPFB_PT_RigHelpersPanel(Abstract_Panel):
         layout = self.layout
         scene = context.scene
 
-        if context.object is None or context.object.type != 'ARMATURE':
+        if context.active_object is None or context.active_object.type != 'ARMATURE':
             return
 
-        armature_object = context.object
+        armature_object = context.active_object
 
         finger_mode = RigHelpersProperties.get_value("finger_mode", entity_reference=armature_object)
         leg_mode = RigHelpersProperties.get_value("leg_mode", entity_reference=armature_object)

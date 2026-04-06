@@ -139,11 +139,11 @@ class _Abstract_Asset_Library_Panel(bpy.types.Panel):
 
         override_bake_check = ASSET_SETTINGS_PROPERTIES.get_value("override_bake_check", entity_reference=scene)
 
-        if context.object:
-            if ObjectService.object_is_basemesh(context.object):
-                self.basemesh = context.object
+        if context.active_object:
+            if ObjectService.object_is_basemesh(context.active_object):
+                self.basemesh = context.active_object
             else:
-                self.basemesh = ObjectService.find_object_of_type_amongst_nearest_relatives(context.object, "Basemesh")
+                self.basemesh = ObjectService.find_object_of_type_amongst_nearest_relatives(context.active_object, "Basemesh")
             _LOG.debug("basemesh", self.basemesh)
 
         if self.basemesh and self.asset_type in ["mhclo", "proxy"]:

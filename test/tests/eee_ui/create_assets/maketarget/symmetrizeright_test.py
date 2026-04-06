@@ -32,6 +32,6 @@ def test_symmetrize_right_execute_successfully():
     with HumanFixture() as fixture:
         TargetService.create_shape_key(fixture.basemesh, "PrimaryTarget")
         mockself = MockOperatorBase()
-        result = MPFB_OT_SymmetrizeRightOperator.execute(mockself, bpy.context)
+        result = MPFB_OT_SymmetrizeRightOperator.hardened_execute(mockself, bpy.context)
         assert result == {'FINISHED'}
         mockself.mock_report.assert_no_errors()

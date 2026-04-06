@@ -31,7 +31,7 @@ def test_check_clothes_errors_when_no_basemesh():
     GeneralObjectProperties.set_value("object_type", "Clothes", entity_reference=cube)
     cube.select_set(True)
     mockself = MockOperatorBase()
-    result = MPFB_OT_CheckClothesOperator.execute(mockself, bpy.context)
+    result = MPFB_OT_CheckClothesOperator.hardened_execute(mockself, bpy.context)
     assert result == {'CANCELLED'}
     mockself.mock_report.assert_reported('ERROR', 'basemesh')
     ObjectService.delete_object(cube)

@@ -9,15 +9,19 @@ from .....services import TargetService
 from .....services import LocationService
 from ...maketarget import MakeTargetObjectProperties
 from ..... import ClassManager
+from ....mpfboperator import MpfbOperator
 
 _LOG = LogService.get_logger("maketarget.writelibtarget")
 
 
-class MPFB_OT_WriteLibTargetOperator(bpy.types.Operator):
+class MPFB_OT_WriteLibTargetOperator(MpfbOperator):
     """Write target to model library. In order to do this, you must first have created a primary target on the mesh"""
     bl_idname = "mpfb.write_library_target"
     bl_label = "Save target"
     bl_options = {'REGISTER'}
+
+    def get_logger(self):
+        return _LOG
 
     @classmethod
     def poll(cls, context):
@@ -40,23 +44,24 @@ class MPFB_OT_WriteLibTargetOperator(bpy.types.Operator):
 
         return TargetService.has_target(blender_object, expected_name)
 
-    def execute(self, context):
-        blender_object = context.active_object
+    def hardened_execute(self, context):
+        from ....mpfbcontext import MpfbContext, ContextFocusObject  # pylint: disable=C0415
+        ctx = MpfbContext(context=context, object_properties=MakeTargetObjectProperties,
+                          focus_object_type=ContextFocusObject.ACTIVE)
 
-        if blender_object.mode != "OBJECT":
+        if ctx.active_object.mode != "OBJECT":
             self.report({'ERROR'}, "Must be in object mode to save target file")
             return {'FINISHED'}
 
-        expected_name = MakeTargetObjectProperties.get_value("name", entity_reference=blender_object)
-        if not expected_name:
+        if not ctx.name:
             self.report({'ERROR'}, "Must specify the name of the target")
             return {'FINISHED'}
 
-        if not TargetService.has_target(blender_object, expected_name):
+        if not TargetService.has_target(ctx.active_object, ctx.name):
             self.report({'ERROR'}, "Must first create a MakeTarget primary target")
             return {'FINISHED'}
 
-        info = TargetService.get_shape_key_as_dict(blender_object, expected_name)
+        info = TargetService.get_shape_key_as_dict(ctx.active_object, ctx.name)
 
         _LOG.dump("Shape key", info)
 
@@ -64,7 +69,7 @@ class MPFB_OT_WriteLibTargetOperator(bpy.types.Operator):
         if not os.path.exists(data_dir):
             os.makedirs(data_dir)
 
-        file_path = os.path.join(data_dir, expected_name + ".target")
+        file_path = os.path.join(data_dir, ctx.name + ".target")
         with open(file_path, "w") as target_file:
             target_file.write(TargetService.shape_key_info_as_target_string(info))
 

@@ -38,7 +38,7 @@ class MPFB_OT_Copy_Connected_Strategy_Operator(AbstractBoneOperator):
             Rig.assign_bone_end_strategy(bone, best_info, is_tail, force=True, lock=best_lock)
             return True
 
-    def execute(self, context):
+    def hardened_execute(self, context):
         bone = self.get_bone(context)
 
         names = []

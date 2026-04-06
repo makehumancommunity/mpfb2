@@ -6,16 +6,20 @@ from bpy.props import StringProperty
 from .....services import LogService
 from .....services import ObjectService
 from ..... import ClassManager
+from ....mpfboperator import MpfbOperator
 
 _LOG = LogService.get_logger("makeweight.writeweights")
 
-class MPFB_OT_SaveWeightsOperator(bpy.types.Operator, ExportHelper):
+class MPFB_OT_SaveWeightsOperator(MpfbOperator, ExportHelper):
     """Save weights to weight file"""
     bl_idname = "mpfb.save_makeweight_weight"
     bl_label = "Save weights"
     bl_options = {'REGISTER'}
 
     filename_ext = '.json'
+
+    def get_logger(self):
+        return _LOG
 
     @classmethod
     def poll(cls, context):
@@ -30,12 +34,12 @@ class MPFB_OT_SaveWeightsOperator(bpy.types.Operator, ExportHelper):
             return True
         return False
 
-    def execute(self, context):
-        if context.object is None or context.object.type != 'ARMATURE':
+    def hardened_execute(self, context):
+        if context.active_object is None or context.active_object.type != 'ARMATURE':
             self.report({'ERROR'}, "Must have armature as active object")
             return {'FINISHED'}
 
-        armature_object = context.object
+        armature_object = context.active_object
 
         basemesh = ObjectService.find_object_of_type_amongst_nearest_relatives(armature_object, mpfb_type_name="Basemesh")
 

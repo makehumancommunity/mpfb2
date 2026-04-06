@@ -34,7 +34,7 @@ def test_convert_to_rigify_executes_with_default_rig():
     with HumanWithRigFixture() as fixture:
         bpy.context.view_layer.objects.active = fixture.rig
         mockself = MockOperatorBase()
-        result = MPFB_OT_Convert_To_Rigify_Operator.execute(mockself, bpy.context)
+        result = MPFB_OT_Convert_To_Rigify_Operator.hardened_execute(mockself, bpy.context)
         assert result == {"FINISHED"}
         # Default rig does not have a "ball_r" bone; operator reports an error about
         # unsupported skeleton type — this is the expected graceful-failure path

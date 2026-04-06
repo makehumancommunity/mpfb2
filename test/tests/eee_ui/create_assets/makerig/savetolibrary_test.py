@@ -30,7 +30,7 @@ def test_save_rig_to_library_errors_invalid_rig_name():
         MakeRigProperties.set_value("library_rig_name", "my rig", entity_reference=scene)
         MakeRigProperties.set_value("library_identifying_bones", "root", entity_reference=scene)
         mockself = MockOperatorBase()
-        result = MPFB_OT_Save_Rig_To_Library_Operator.execute(mockself, bpy.context)
+        result = MPFB_OT_Save_Rig_To_Library_Operator.hardened_execute(mockself, bpy.context)
         assert result == {'FINISHED'}
         mockself.mock_report.assert_reported('ERROR', "letters")
 
@@ -41,7 +41,7 @@ def test_save_rig_to_library_errors_empty_identifying_bones():
         MakeRigProperties.set_value("library_rig_name", "test_rig", entity_reference=scene)
         MakeRigProperties.set_value("library_identifying_bones", "", entity_reference=scene)
         mockself = MockOperatorBase()
-        result = MPFB_OT_Save_Rig_To_Library_Operator.execute(mockself, bpy.context)
+        result = MPFB_OT_Save_Rig_To_Library_Operator.hardened_execute(mockself, bpy.context)
         assert result == {'FINISHED'}
         mockself.mock_report.assert_reported('ERROR', "identifying bone")
 
@@ -52,6 +52,6 @@ def test_save_rig_to_library_errors_nonexistent_bone():
         MakeRigProperties.set_value("library_rig_name", "test_rig", entity_reference=scene)
         MakeRigProperties.set_value("library_identifying_bones", "nonexistent_bone_xyz", entity_reference=scene)
         mockself = MockOperatorBase()
-        result = MPFB_OT_Save_Rig_To_Library_Operator.execute(mockself, bpy.context)
+        result = MPFB_OT_Save_Rig_To_Library_Operator.hardened_execute(mockself, bpy.context)
         assert result == {'FINISHED'}
         mockself.mock_report.assert_reported('ERROR', "not found")

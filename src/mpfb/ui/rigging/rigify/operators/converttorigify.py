@@ -5,19 +5,23 @@ from ..... import ClassManager
 from .....entities.rigging.rigifyhelpers.rigifyhelpers import RigifyHelpers
 from .....services import SystemService
 from ....pollstrategy import pollstrategy, PollStrategy
+from ....mpfboperator import MpfbOperator
 import bpy, json
 
 _LOG = LogService.get_logger("rigify.operators.converttorigify")
 
 
 @pollstrategy(PollStrategy.RIG_ACTIVE)
-class MPFB_OT_Convert_To_Rigify_Operator(bpy.types.Operator):
+class MPFB_OT_Convert_To_Rigify_Operator(MpfbOperator):
     """Convert rig to rigify"""
     bl_idname = "mpfb.convert_to_rigify"
     bl_label = "Rigify"
     bl_options = {'REGISTER', 'UNDO'}
 
-    def execute(self, context):
+    def get_logger(self):
+        return _LOG
+
+    def hardened_execute(self, context):
         _LOG.enter()
         _LOG.debug("click")
 

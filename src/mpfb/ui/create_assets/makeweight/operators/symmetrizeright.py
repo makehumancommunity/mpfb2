@@ -5,14 +5,18 @@ from .....services import LogService
 from .....services import ObjectService
 from .....services import RigService
 from ..... import ClassManager
+from ....mpfboperator import MpfbOperator
 
 _LOG = LogService.get_logger("makeweight.symmetrizeright")
 
-class MPFB_OT_SymmetrizeRightOperator(bpy.types.Operator):
+class MPFB_OT_SymmetrizeRightOperator(MpfbOperator):
     """Symmetrize by finding all left-side bone groups and copying their weights to the corresponding right-side bone groups"""
     bl_idname = "mpfb.symmetrize_makeweight_right"
     bl_label = "Copy left to right"
     bl_options = {'REGISTER', 'UNDO'}
+
+    def get_logger(self):
+        return _LOG
 
     @classmethod
     def poll(cls, context):
@@ -27,7 +31,7 @@ class MPFB_OT_SymmetrizeRightOperator(bpy.types.Operator):
             return True
         return False
 
-    def execute(self, context):
+    def hardened_execute(self, context):
 
         rig = ObjectService.find_object_of_type_amongst_nearest_relatives(context.active_object, "Skeleton")
         if not rig:

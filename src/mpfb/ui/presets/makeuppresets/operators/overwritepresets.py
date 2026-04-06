@@ -13,7 +13,7 @@ class MPFB_OT_Overwrite_Makeup_Presets_Operator(generic_makeup_presets):
     bl_label = "Overwrite presets"
     bl_options = {'REGISTER'}
 
-    def execute(self, context):
+    def hardened_execute(self, context):
         """
         Executes the operator to overwrite an existing makeup preset with data from the current object in the Blender context.
 

@@ -11,19 +11,23 @@ from .....services import AssetService
 from ...makeclothes import MakeClothesObjectProperties
 from .....entities.objectproperties import GeneralObjectProperties
 from ..... import ClassManager
+from ....mpfboperator import MpfbOperator
 from ....pollstrategy import pollstrategy, PollStrategy
 
 _LOG = LogService.get_logger("makeclothes.gendelete")
 
 
 @pollstrategy(PollStrategy.ANY_MESH_OBJECT_ACTIVE)
-class MPFB_OT_GenDeleteOperator(bpy.types.Operator):
+class MPFB_OT_GenDeleteOperator(MpfbOperator):
     """Create a (very) rough delete group on the base mesh based on which vertices are matched by the clothes. You will need to edit this manually afterwards as it is most likely patchy and too large"""
     bl_idname = "mpfb.makeclothes_gendelete"
     bl_label = "Interpolate"
     bl_options = {'REGISTER'}
 
-    def execute(self, context):
+    def get_logger(self):
+        return _LOG
+
+    def hardened_execute(self, context):
 
         basemesh = None
         clothes = None

@@ -7,10 +7,11 @@ from .....services import LogService
 from .....services import MaterialService
 from ..... import ClassManager
 from .....entities.material.makeskinmaterial import MakeSkinMaterial
+from ....mpfboperator import MpfbOperator
 
 _LOG = LogService.get_logger("makeskin.writematerial")
 
-class MPFB_OT_WriteMaterialOperator(bpy.types.Operator, ExportHelper):
+class MPFB_OT_WriteMaterialOperator(MpfbOperator, ExportHelper):
     """Write material to MHMAT file. WARNING: This will also save all assigned images alongside the MHMAT file"""
     bl_idname = "mpfb.write_makeskin_material"
     bl_label = "Save as MHMAT"
@@ -20,6 +21,9 @@ class MPFB_OT_WriteMaterialOperator(bpy.types.Operator, ExportHelper):
 
     filter_glob: StringProperty(default='*.mhmat', options={'HIDDEN'})
     filepath: StringProperty(name="File Path", description="Filepath used for exporting the file", maxlen=1024, subtype='FILE_PATH')
+
+    def get_logger(self):
+        return _LOG
 
     @classmethod
     def poll(cls, context):
@@ -41,7 +45,7 @@ class MPFB_OT_WriteMaterialOperator(bpy.types.Operator, ExportHelper):
         context.window_manager.fileselect_add(self)
         return {'RUNNING_MODAL'}
 
-    def execute(self, context):
+    def hardened_execute(self, context):
 
         blender_object = context.active_object
 

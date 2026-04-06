@@ -7,10 +7,11 @@ from ....services import ObjectService
 from ....services import HumanService
 from ....entities.objectproperties import GeneralObjectProperties
 from .... import ClassManager
+from ...mpfboperator import MpfbOperator
 
 _LOG = LogService.get_logger("assetlibrary.unloadlibraryclothes")
 
-class MPFB_OT_Unload_Library_Clothes_Operator(bpy.types.Operator):
+class MPFB_OT_Unload_Library_Clothes_Operator(MpfbOperator):
     """Unequip mhclo asset that has been previously loaded"""
     bl_idname = "mpfb.unload_library_clothes"
     bl_label = "Unequip"
@@ -18,11 +19,12 @@ class MPFB_OT_Unload_Library_Clothes_Operator(bpy.types.Operator):
 
     filepath: StringProperty(name="filepath", description="Asset source fragment", default="")
 
-    def execute(self, context):
+    def get_logger(self):
+        return _LOG
+
+    def hardened_execute(self, context):
 
         _LOG.debug("filepath", self.filepath)
-
-        scene = context.scene
 
         blender_object = context.active_object
 

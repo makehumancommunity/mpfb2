@@ -53,7 +53,7 @@ class MPFB_OT_Show_Strategy_Vertices_Operator(AbstractBoneOperator):
 
         return None
 
-    def execute(self, context):
+    def hardened_execute(self, context):
         bone = self.get_bone(context)
 
         mesh_obj = self.get_vertex_mesh(bone)

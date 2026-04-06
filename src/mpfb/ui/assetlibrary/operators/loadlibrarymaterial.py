@@ -9,31 +9,36 @@ from ....services import MaterialService
 from ....services import AssetService
 from ....entities.material.makeskinmaterial import MakeSkinMaterial
 from .... import ClassManager
+from ...mpfboperator import MpfbOperator
 
 _LOG = LogService.get_logger("assetlibrary.loadlibrarymaterial")
 
 
-class MPFB_OT_Load_Library_Material_Operator(bpy.types.Operator):
+class MPFB_OT_Load_Library_Material_Operator(MpfbOperator):
     """Replace the current material with the selected alternative material"""
     bl_idname = "mpfb.load_library_material"
     bl_label = "Load"
     bl_options = {'REGISTER', 'UNDO'}
 
-    def execute(self, context):
+    def get_logger(self):
+        return _LOG
+
+    def hardened_execute(self, context):
 
         from ...assetlibrary.alternativematerialpanel import ALTMAT_PROPERTIES  # pylint: disable=C0415
+        from ....mpfbcontext import MpfbContext
 
-        scene = context.scene
-        obj = context.object
+        ctx = MpfbContext(context=context, scene_properties=ALTMAT_PROPERTIES)
+        obj = ctx.active_object
 
-        selected_material = ALTMAT_PROPERTIES.get_value("available_materials", entity_reference=scene)
+        selected_material = ctx.available_materials
 
         if not selected_material or selected_material == "DEFAULT":
             pass
         else:
-            asset_type = ObjectService.get_object_type(context.object)
+            asset_type = ObjectService.get_object_type(obj)
             from ....entities.objectproperties import GeneralObjectProperties
-            source = GeneralObjectProperties.get_value("asset_source", entity_reference=context.object)
+            source = GeneralObjectProperties.get_value("asset_source", entity_reference=obj)
             altmats = AssetService.alternative_materials_for_asset(source, str(asset_type).lower())
             found_material = None
             for mat in altmats:

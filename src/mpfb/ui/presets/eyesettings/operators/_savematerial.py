@@ -12,7 +12,7 @@ _LOG = LogService.get_logger("eyesettings._save_material")
 
 def _save_material(self, context, file_name):
 
-    eyes = ObjectService.find_object_of_type_amongst_nearest_relatives(context.object, "Eyes")
+    eyes = ObjectService.find_object_of_type_amongst_nearest_relatives(context.active_object, "Eyes")
 
     if not eyes:
         self.report({'ERROR'}, "Could not find eyes amongst nearest relatives")

@@ -1,43 +1,47 @@
 from .....services import LogService
 from .....services import ObjectService
 from ..... import ClassManager
+from ....mpfboperator import MpfbOperator
 import bpy
 
 
 _LOG = LogService.get_logger("basemeshops.operators.addcorrectivesmooth")
 
 
-class MPFB_OT_Add_Corrective_Smooth_Operator(bpy.types.Operator):
+class MPFB_OT_Add_Corrective_Smooth_Operator(MpfbOperator):
     """Add a corrective smooth modifier."""
     bl_idname = "mpfb.add_corrective_smooth"
     bl_label = "Add Corrective Smooth"
     bl_options = {'REGISTER', 'UNDO'}
 
+    def get_logger(self):
+        return _LOG
+
     @classmethod
     def poll(cls, context):
         _LOG.enter()
-        if context.object is None:
+        if context.active_object is None:
             return False
 
-        objtype = ObjectService.get_object_type(context.object)
+        objtype = ObjectService.get_object_type(context.active_object)
 
-        if not objtype or context.object.type != "MESH":
+        if not objtype or context.active_object.type != "MESH":
             return False
 
-        for modifier in context.object.modifiers:
+        for modifier in context.active_object.modifiers:
             if modifier.type == 'CORRECTIVE_SMOOTH':
                 return False
 
         return True
 
-    def execute(self, context):
+    def hardened_execute(self, context):
         _LOG.enter()
 
-        if context.object is None:
+        if context.active_object is None:
             self.report({'ERROR'}, "Must have an active object")
             return {'CANCELLED'}
 
-        obj = context.object
+        obj = context.active_object
         objtype = ObjectService.get_object_type(obj)
 
         if not objtype or obj.type != "MESH":

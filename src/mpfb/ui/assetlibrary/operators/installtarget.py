@@ -6,10 +6,11 @@ from bpy.props import StringProperty
 from ....services import LogService
 from ....services import LocationService
 from .... import ClassManager
+from ...mpfboperator import MpfbOperator
 
 _LOG = LogService.get_logger("assetlibrary.installtarget")
 
-class MPFB_OT_Install_Target_Operator(bpy.types.Operator, ImportHelper):
+class MPFB_OT_Install_Target_Operator(MpfbOperator, ImportHelper):
     """Install a custom target from a target file. Note that Blender need to be restarted for the
     target to be visible in the custom target list"""
     bl_idname = "mpfb.install_target"
@@ -18,7 +19,10 @@ class MPFB_OT_Install_Target_Operator(bpy.types.Operator, ImportHelper):
 
     filter_glob: StringProperty(default='*.target', options={'HIDDEN'})
 
-    def execute(self, context):
+    def get_logger(self):
+        return _LOG
+
+    def hardened_execute(self, context):
 
         if not self.filepath:
             self.report({'ERROR'}, "Must select a file")

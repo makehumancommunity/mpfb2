@@ -13,7 +13,7 @@ from .....entities.material.makeskinmaterial import MakeSkinMaterial
 _LOG = LogService.get_logger("makeclothes.clothescommon")
 
 
-class ClothesCommon(bpy.types.Operator):
+class ClothesCommon:
     """Common functionality for saving a MHCLO file."""
 
     def generic_execute(self, context, file_name):

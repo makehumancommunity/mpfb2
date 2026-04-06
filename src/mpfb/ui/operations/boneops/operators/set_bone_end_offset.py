@@ -24,7 +24,7 @@ class MPFB_OT_Set_Bone_End_Offset_Operator(AbstractBoneOperator):
     def poll(cls, context):
         return cls.is_developer_bone_edit(context)
 
-    def execute(self, context):
+    def hardened_execute(self, context):
         bone = self.get_bone(context)
 
         # Check the strategy is valid

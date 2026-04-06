@@ -5,13 +5,17 @@ from .....services import LogService
 from .....services import ObjectService
 from .....services import MaterialService
 from ..makeuppresetspanel import MAKEUP_PRESETS_PROPERTIES
+from ....mpfboperator import MpfbOperator
 import bpy, os, json
 
 _LOG = LogService.get_logger("makeuppresets.genericpresets")
 
 
-class generic_makeup_presets(bpy.types.Operator):
+class generic_makeup_presets(MpfbOperator):
     """This is the base class for all makeup presets operators"""
+
+    def get_logger(self):
+        return _LOG
 
     def write_preset(self, context, file_name):
         """
@@ -27,7 +31,7 @@ class generic_makeup_presets(bpy.types.Operator):
         Returns:
         None
         """
-        basemesh = context.object
+        basemesh = context.active_object
         material = MaterialService.get_material(basemesh)
         number_of_layers = MaterialService.get_number_of_ink_layers(material)
 
@@ -55,13 +59,13 @@ class generic_makeup_presets(bpy.types.Operator):
         Returns:
         str or None: Returns 'FINISHED' if validation fails with an error message reported, or None if validation is successful.
         """
-        if context.object is None:
+        if context.active_object is None:
             self.report({'ERROR'}, "Must have a selected object")
             return {'FINISHED'}
 
         basemesh = None
-        if ObjectService.object_is_basemesh(context.object):
-            basemesh = context.object
+        if ObjectService.object_is_basemesh(context.active_object):
+            basemesh = context.active_object
 
         if basemesh is None:
             self.report({'ERROR'}, "Must have basemesh selected")

@@ -9,16 +9,20 @@ from .....services import ObjectService
 from .....services import TargetService
 from ...maketarget import MakeTargetObjectProperties
 from ..... import ClassManager
+from ....mpfboperator import MpfbOperator
 
 _LOG = LogService.get_logger("maketarget.importtarget")
 
-class MPFB_OT_ImportTargetOperator(bpy.types.Operator, ImportHelper):
+class MPFB_OT_ImportTargetOperator(MpfbOperator, ImportHelper):
     """Import target"""
     bl_idname = "mpfb.import_maketarget_target"
     bl_label = "Import target"
     bl_options = {'REGISTER', 'UNDO'}
 
     filter_glob: StringProperty(default='*.target', options={'HIDDEN'})
+
+    def get_logger(self):
+        return _LOG
 
     @classmethod
     def poll(cls, context):
@@ -44,17 +48,18 @@ class MPFB_OT_ImportTargetOperator(bpy.types.Operator, ImportHelper):
         self.filepath = bpy.path.clean_name(name, replace="-") + ".target"
         return super().invoke(context, event)
 
-    def execute(self, context):
+    def hardened_execute(self, context):
+        from ....mpfbcontext import MpfbContext, ContextFocusObject  # pylint: disable=C0415
+        ctx = MpfbContext(context=context, object_properties=MakeTargetObjectProperties,
+                          focus_object_type=ContextFocusObject.ACTIVE)
 
-        blender_object = context.active_object
         target_string = Path(self.filepath).read_text()
 
-        TargetService.target_string_to_shape_key(target_string, "PrimaryTarget", blender_object)
+        TargetService.target_string_to_shape_key(target_string, "PrimaryTarget", ctx.active_object)
 
         # This might look strange, but it is to ensure the name attribute of the object
         # is not still null if left at its default
-        name = MakeTargetObjectProperties.get_value("name", entity_reference=blender_object)
-        MakeTargetObjectProperties.set_value("name", name, entity_reference=blender_object)
+        MakeTargetObjectProperties.set_value("name", ctx.name, entity_reference=ctx.active_object)
 
         self.report({'INFO'}, "Target was imported as shape key")
         return {'FINISHED'}

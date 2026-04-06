@@ -1,16 +1,20 @@
 from .....services import LogService
 from .....services import RigService
 from ..... import ClassManager
+from ....mpfboperator import MpfbOperator
 import bpy
 
 _LOG = LogService.get_logger("ai.operators.scenesettings")
 #_LOG.set_level(LogService.DEBUG)
 
-class MPFB_OT_OpenPose_Scene_Settings_Operator(bpy.types.Operator):
+class MPFB_OT_OpenPose_Scene_Settings_Operator(MpfbOperator):
     """Try to change modes, background and settings to something suitable for OpenPose. Hide all unrelated object. WARNING: This will mess up a lot in the scene and much of it is not possible to undo automatically"""
     bl_idname = "mpfb.openpose_scene_settings"
     bl_label = "Change scene settings"
     bl_options = {'REGISTER', 'UNDO'}
+
+    def get_logger(self):
+        return _LOG
 
     @classmethod
     def poll(cls, context):
@@ -24,7 +28,7 @@ class MPFB_OT_OpenPose_Scene_Settings_Operator(bpy.types.Operator):
                     return True
         return False
 
-    def execute(self, context):
+    def hardened_execute(self, context):
         _LOG.enter()
 
         from ...ai.aipanel import AI_PROPERTIES
