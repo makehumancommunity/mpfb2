@@ -33,7 +33,7 @@ class MPFB_OT_OverwriteEnhancedSettingsOperator(MpfbOperator):
             self.report({'ERROR'}, "Must have a selected object")
             return {'FINISHED'}
 
-        from .....mpfbcontext import MpfbContext  # pylint: disable=C0415
+        from ....mpfbcontext import MpfbContext  # pylint: disable=C0415
 
         ctx = MpfbContext(context=context, scene_properties=ENHANCED_SETTINGS_PROPERTIES)
         name = ctx.available_settings

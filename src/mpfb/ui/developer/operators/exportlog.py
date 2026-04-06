@@ -25,7 +25,7 @@ class MPFB_OT_Export_Log_Operator(MpfbOperator, ExportHelper):
         loggers = LogService.get_loggers()
 
         from ...developer.developerpanel import DEVELOPER_PROPERTIES  # pylint: disable=C0415
-        from ....mpfbcontext import MpfbContext
+        from ...mpfbcontext import MpfbContext
 
         ctx = MpfbContext(context=context, scene_properties=DEVELOPER_PROPERTIES)
 

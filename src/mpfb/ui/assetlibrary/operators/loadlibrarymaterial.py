@@ -26,7 +26,7 @@ class MPFB_OT_Load_Library_Material_Operator(MpfbOperator):
     def hardened_execute(self, context):
 
         from ...assetlibrary.alternativematerialpanel import ALTMAT_PROPERTIES  # pylint: disable=C0415
-        from ....mpfbcontext import MpfbContext
+        from ...mpfbcontext import MpfbContext
 
         ctx = MpfbContext(context=context, scene_properties=ALTMAT_PROPERTIES)
         obj = ctx.active_object

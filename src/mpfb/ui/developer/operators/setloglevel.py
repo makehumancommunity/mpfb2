@@ -21,7 +21,7 @@ class MPFB_OT_Set_Log_Level_Operator(MpfbOperator):
         _LOG.enter()
 
         from ...developer.developerpanel import DEVELOPER_PROPERTIES  # pylint: disable=C0415
-        from ....mpfbcontext import MpfbContext
+        from ...mpfbcontext import MpfbContext
 
         ctx = MpfbContext(context=context, scene_properties=DEVELOPER_PROPERTIES)
 
