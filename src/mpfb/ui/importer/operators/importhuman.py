@@ -246,7 +246,7 @@ class MPFB_OT_ImportHumanOperator(MpfbOperator):
         slot_number = blender_object.material_slots.find(material.name)
         _LOG.dump("slot_number", slot_number)
 
-        bpy.context.object.active_material_index = slot_number
+        bpy.context.active_object.active_material_index = slot_number
 
         bpy.ops.object.mode_set(mode='EDIT', toggle=False)
         bpy.ops.mesh.select_all(action='DESELECT')

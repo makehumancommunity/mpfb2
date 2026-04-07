@@ -40,15 +40,15 @@ class MPFB_PT_MatopsPanel(Abstract_Panel):
         layout = self.layout
         scene = context.scene
 
-        if context.object is None:
+        if context.active_object is None:
             return
 
-        objtype = ObjectService.get_object_type(context.object)
+        objtype = ObjectService.get_object_type(context.active_object)
 
         if not objtype or objtype == "Skeleton":
             return
 
-        # material = MaterialService.get_material(context.object)
+        # material = MaterialService.get_material(context.active_object)
         # _LOG.dump("Material", (material, MaterialService.identify_material(material)))
 
         self._makeup(scene, layout)

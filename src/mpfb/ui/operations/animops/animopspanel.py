@@ -41,7 +41,7 @@ class MPFB_PT_AnimopsPanel(Abstract_Panel):
             src = armatures[0]
             dst = armatures[1]
         if not src:
-            src = bpy.context.object
+            src = bpy.context.active_object
             if src == armatures[0]:
                 dst = armatures[1]
             else:
@@ -77,14 +77,14 @@ class MPFB_PT_AnimopsPanel(Abstract_Panel):
         layout = self.layout
         scene = context.scene
 
-        _LOG.debug("Object", context.object)
-        if context.object is None:
+        _LOG.debug("Object", context.active_object)
+        if context.active_object is None:
             return
 
         self._create_mixamo(scene, layout)
 
-        _LOG.debug("Type", context.object.type)
-        if context.object.type != "ARMATURE":
+        _LOG.debug("Type", context.active_object.type)
+        if context.active_object.type != "ARMATURE":
             return
 
         self._map_mixamo(scene, layout)

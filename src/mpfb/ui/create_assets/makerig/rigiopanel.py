@@ -33,7 +33,7 @@ class MPFB_PT_MakeRigIO_Panel(Abstract_Panel):
         weights_box.operator("mpfb.load_weights")
         weights_box.operator("mpfb.save_weights")
 
-        if context.object is not None and context.object.type == 'ARMATURE':
+        if context.active_object is not None and context.active_object.type == 'ARMATURE':
             library_box = self._create_box(layout, "Save to library", "TOOL_SETTINGS")
             MakeRigProperties.draw_properties(scene, library_box, [
                 "library_rig_name",

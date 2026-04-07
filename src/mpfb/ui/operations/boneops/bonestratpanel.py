@@ -207,7 +207,7 @@ class MPFB_PT_BonestratPanel(Abstract_Panel):
 
         layout = self.layout
         scene = context.scene
-        armature = context.object
+        armature = context.active_object
 
         if context.edit_bone:
             bone = context.edit_bone

@@ -4,20 +4,29 @@ from ....services import UiService
 from ....services import LocationService
 from ...importerpresets.importerpresetspanel import IMPORTER_PRESETS_PROPERTIES
 from .... import ClassManager
+from ...mpfboperator import MpfbOperator
 import bpy, os
 
 _LOG = LogService.get_logger("importeroperators.savenewpresets")
 
 
-class MPFB_OT_SaveNewImporterPresetsOperator(bpy.types.Operator):
+class MPFB_OT_SaveNewImporterPresetsOperator(MpfbOperator):
     """This will save new importer presets with a name from the text field above, using values from the fields below"""
     bl_idname = "mpfb.importerpresets_save_new_importer_presets"
     bl_label = "Save new importer presets"
     bl_options = {'REGISTER'}
 
-    def execute(self, context):
+    def get_logger(self):
+        return _LOG
+
+    def hardened_execute(self, context):
         _LOG.enter()
-        name = IMPORTER_PRESETS_PROPERTIES.get_value("name", entity_reference=context.scene)
+
+        from ...mpfbcontext import MpfbContext, ContextResolveEffort  # pylint: disable=C0415
+
+        ctx = MpfbContext(context=context, scene_properties=IMPORTER_PRESETS_PROPERTIES, effort=ContextResolveEffort.NONE)
+
+        name = ctx.name
         if not name is None:
             name = str(name).strip()
         if name == "" or name is None:

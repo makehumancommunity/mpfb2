@@ -59,10 +59,10 @@ class MPFB_PT_ExportOpsPanel(Abstract_Panel):
         layout = self.layout
         scene = context.scene
 
-        if context.object is None:
+        if context.active_object is None:
             return
 
-        basemesh = ObjectService.find_object_of_type_amongst_nearest_relatives(context.object)
+        basemesh = ObjectService.find_object_of_type_amongst_nearest_relatives(context.active_object)
         if basemesh is None:
             return
 
