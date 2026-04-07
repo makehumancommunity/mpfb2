@@ -117,7 +117,6 @@ _OPENPOSE_BONES = {
         }
     }
 
-
 class MPFB_OT_OpenPose_Visible_Bones_Operator(MpfbOperator):
     """Add path objects around all bones in the selected armature"""
     bl_idname = "mpfb.openpose_visible_bones"
@@ -202,6 +201,5 @@ class MPFB_OT_OpenPose_Visible_Bones_Operator(MpfbOperator):
                 sphere.data.materials.append(joint_material)
 
         return {'FINISHED'}
-
 
 ClassManager.add_class(MPFB_OT_OpenPose_Visible_Bones_Operator)

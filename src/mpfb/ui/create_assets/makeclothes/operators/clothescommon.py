@@ -12,7 +12,6 @@ from .....entities.material.makeskinmaterial import MakeSkinMaterial
 
 _LOG = LogService.get_logger("makeclothes.clothescommon")
 
-
 class ClothesCommon:
     """Common functionality for saving a MHCLO file."""
 

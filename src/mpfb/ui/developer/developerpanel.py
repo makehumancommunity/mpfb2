@@ -102,6 +102,5 @@ class MPFB_PT_Developer_Panel(bpy.types.Panel):
         self._targets(scene, layout)
         self._tests(scene, layout)
 
-
 ClassManager.add_class(MPFB_PT_Developer_Panel)
 

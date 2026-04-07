@@ -10,7 +10,6 @@ from ....pollstrategy import pollstrategy, PollStrategy
 
 _LOG = LogService.get_logger("faceops.configurelipsync")
 
-
 @pollstrategy(PollStrategy.BASEMESH_AMONGST_RELATIVES)
 class MPFB_OT_Configure_Lip_Sync_Operator(MpfbOperator):
     """Map loaded visemes02 shape keys to the Lip Sync addon's property slots"""
@@ -45,6 +44,5 @@ class MPFB_OT_Configure_Lip_Sync_Operator(MpfbOperator):
             self.report({'INFO'}, "Lip Sync configured successfully with all visemes02 shape keys")
 
         return {'FINISHED'}
-
 
 ClassManager.add_class(MPFB_OT_Configure_Lip_Sync_Operator)

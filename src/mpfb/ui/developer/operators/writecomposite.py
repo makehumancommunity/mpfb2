@@ -14,7 +14,6 @@ from string import Template
 
 _LOG = LogService.get_logger("developer.operators.writecomposite")
 
-
 def _identify_socket(all_sockets, socket):
     name_count = 0
     for s in all_sockets:
@@ -23,7 +22,6 @@ def _identify_socket(all_sockets, socket):
     if name_count < 2:
         return socket.name
     return socket.identifier
-
 
 def _build_tree_def(node_tree):
     wrappers = dict(PRIMITIVE_NODE_WRAPPERS)
@@ -78,7 +76,6 @@ def _build_tree_def(node_tree):
         tree_def["links"].append(link_def)
 
     return round_floats(tree_def)
-
 
 class MPFB_OT_Write_Composite_Operator(MpfbOperator):
     """Generate the code representing a selected node group to the composite directory"""
@@ -254,6 +251,5 @@ class MPFB_OT_Write_Composite_Operator(MpfbOperator):
             pyfile.write("    NodeService.destroy_node_tree(node_tree)\n")
 
         return {'FINISHED'}
-
 
 ClassManager.add_class(MPFB_OT_Write_Composite_Operator)

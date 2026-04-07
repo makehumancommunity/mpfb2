@@ -14,7 +14,6 @@ _LOC = os.path.dirname(__file__)
 HUMAN_PRESETS_PROPERTIES_DIR = os.path.join(_LOC, "properties")
 HUMAN_PRESETS_PROPERTIES = SceneConfigSet.from_definitions_in_json_directory(HUMAN_PRESETS_PROPERTIES_DIR, prefix="HPR_")
 
-
 def _populate_settings(self, context):
     _LOG.enter()
     _LOG.trace("Context is scene", isinstance(context, bpy.types.Scene))

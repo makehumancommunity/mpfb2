@@ -18,7 +18,6 @@ _LOG = LogService.get_logger("makeclothes.checkclothes")
 
 CLOTHES_CHECKS = dict()
 
-
 @pollstrategy(PollStrategy.ANY_OBJECT_ACTIVE)
 class MPFB_OT_CheckClothesOperator(MpfbOperator):
     """Perform basic sanity checks on the active object. You need to click this again if changing the clothes, the panel will not update automatically. Note that this operation might a long time depending on the number of vertex groups and the number of vertices"""
@@ -63,6 +62,5 @@ class MPFB_OT_CheckClothesOperator(MpfbOperator):
             _LOG.error("Clothes check failed with exception", exc)
             self.report({'ERROR'}, "Clothes check failed: " + str(exc))
             return {'CANCELLED'}
-
 
 ClassManager.add_class(MPFB_OT_CheckClothesOperator)

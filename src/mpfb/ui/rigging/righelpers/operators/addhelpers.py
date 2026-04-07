@@ -12,7 +12,6 @@ import bpy
 
 _LOG = LogService.get_logger("setupikoperators.fingerfk")
 
-
 @pollstrategy(PollStrategy.ANY_ARMATURE_OBJECT_ACTIVE)
 class MPFB_OT_AddHelpersOperator(MpfbOperator):
     """This will add all selected helpers to the active armature"""
@@ -91,6 +90,5 @@ class MPFB_OT_AddHelpersOperator(MpfbOperator):
         RigService.normalize_rotation_mode(armature_object)
 
         return {'FINISHED'}
-
 
 ClassManager.add_class(MPFB_OT_AddHelpersOperator)

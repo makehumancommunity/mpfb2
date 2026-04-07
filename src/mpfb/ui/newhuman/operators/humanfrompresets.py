@@ -8,10 +8,10 @@ from ....services import ObjectService
 from ....services import MeshService
 from ....services import SystemService
 from ...mpfboperator import MpfbOperator
+from ...mpfbcontext import MpfbContext
 from .... import ClassManager
 
 _LOG = LogService.get_logger("newhuman.humanfrompresets")
-
 
 class MPFB_OT_HumanFromPresetsOperator(MpfbOperator):
     """Create a new human from presets"""
@@ -26,7 +26,6 @@ class MPFB_OT_HumanFromPresetsOperator(MpfbOperator):
 
         _LOG.reset_timer()
         from ...newhuman.frompresetspanel import PRESETS_HUMAN_PROPERTIES  # pylint: disable=C0415
-        from ...mpfbcontext import MpfbContext  # pylint: disable=C0415
 
         ctx = MpfbContext(context=context, scene_properties=PRESETS_HUMAN_PROPERTIES)
 
@@ -100,7 +99,6 @@ class MPFB_OT_HumanFromPresetsOperator(MpfbOperator):
 
         self.report({'INFO'}, "Human created")
         return {'FINISHED'}
-
 
 ClassManager.add_class(MPFB_OT_HumanFromPresetsOperator)
 

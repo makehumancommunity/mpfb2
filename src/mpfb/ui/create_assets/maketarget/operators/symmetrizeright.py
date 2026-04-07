@@ -44,5 +44,4 @@ class MPFB_OT_SymmetrizeRightOperator(MpfbOperator):
         self.report({'INFO'}, "Target symmetrized")
         return {'FINISHED'}
 
-
 ClassManager.add_class(MPFB_OT_SymmetrizeRightOperator)

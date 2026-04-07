@@ -5,6 +5,7 @@ from .....services import RigService
 from .....entities.rig import Rig
 from ..... import ClassManager
 from ....mpfboperator import MpfbOperator
+from ....mpfbcontext import MpfbContext
 import bpy, json, math, re
 from bpy.types import StringProperty
 from bpy_extras.io_utils import ExportHelper
@@ -38,7 +39,6 @@ class MPFB_OT_Save_Weights_Operator(MpfbOperator, ExportHelper):
         _LOG.enter()
 
         from ...makerig import MakeRigProperties  # pylint: disable=C0415
-        from ....mpfbcontext import MpfbContext
         ctx = MpfbContext(context=context, scene_properties=MakeRigProperties)
 
         subrig_object = None
@@ -114,6 +114,5 @@ class MPFB_OT_Save_Weights_Operator(MpfbOperator, ExportHelper):
             self.report({'INFO'}, "JSON file written to " + absolute_file_path)
 
         return {'FINISHED'}
-
 
 ClassManager.add_class(MPFB_OT_Save_Weights_Operator)

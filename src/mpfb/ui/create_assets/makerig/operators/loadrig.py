@@ -4,12 +4,12 @@ from .....services import ObjectService
 from .....entities.rig import Rig
 from ..... import ClassManager
 from ....mpfboperator import MpfbOperator
+from ....mpfbcontext import MpfbContext
 import bpy, json, math
 from bpy.types import StringProperty
 from bpy_extras.io_utils import ImportHelper
 
 _LOG = LogService.get_logger("makerig.operators.loadrig")
-
 
 class MPFB_OT_Load_Rig_Operator(MpfbOperator, ImportHelper):
     """Load rig from definition in json"""
@@ -53,7 +53,6 @@ class MPFB_OT_Load_Rig_Operator(MpfbOperator, ImportHelper):
         _LOG.enter()
 
         from ...makerig import MakeRigProperties
-        from ....mpfbcontext import MpfbContext
         ctx = MpfbContext(context=context, scene_properties=MakeRigProperties)
 
         mesh = context.active_object
@@ -104,6 +103,5 @@ class MPFB_OT_Load_Rig_Operator(MpfbOperator, ImportHelper):
                 armature_object.parent = skeleton
 
         return {'FINISHED'}
-
 
 ClassManager.add_class(MPFB_OT_Load_Rig_Operator)

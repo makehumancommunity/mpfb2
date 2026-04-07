@@ -10,9 +10,9 @@ from ....services import AssetService
 from ....entities.material.makeskinmaterial import MakeSkinMaterial
 from .... import ClassManager
 from ...mpfboperator import MpfbOperator
+from ...mpfbcontext import MpfbContext
 
 _LOG = LogService.get_logger("assetlibrary.loadlibrarymaterial")
-
 
 class MPFB_OT_Load_Library_Material_Operator(MpfbOperator):
     """Replace the current material with the selected alternative material"""
@@ -26,7 +26,6 @@ class MPFB_OT_Load_Library_Material_Operator(MpfbOperator):
     def hardened_execute(self, context):
 
         from ...assetlibrary.alternativematerialpanel import ALTMAT_PROPERTIES  # pylint: disable=C0415
-        from ...mpfbcontext import MpfbContext
 
         ctx = MpfbContext(context=context, scene_properties=ALTMAT_PROPERTIES)
         obj = ctx.active_object
@@ -81,6 +80,5 @@ class MPFB_OT_Load_Library_Material_Operator(MpfbOperator):
 
         self.report({'INFO'}, "Material was loaded: " + selected_material)
         return {'FINISHED'}
-
 
 ClassManager.add_class(MPFB_OT_Load_Library_Material_Operator)

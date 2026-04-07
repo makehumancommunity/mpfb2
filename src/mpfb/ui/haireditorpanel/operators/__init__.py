@@ -22,7 +22,6 @@ from .apply_material_operator import MPFB_OT_ApplyMaterial_Operator
 
 
 
-
 __all__ = [
     "MPFB_OT_SetupHair_Operator",
     "MPFB_OT_ApplyMaterial_Operator",

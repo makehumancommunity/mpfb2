@@ -15,7 +15,6 @@ _LOC = os.path.dirname(__file__)
 EYE_SETTINGS_PROPERTIES_DIR = os.path.join(_LOC, "properties")
 EYE_SETTINGS_PROPERTIES = SceneConfigSet.from_definitions_in_json_directory(EYE_SETTINGS_PROPERTIES_DIR, prefix="EYE_")
 
-
 def _populate_settings(self, context):
     _LOG.enter()
     _LOG.trace("Context is scene", isinstance(context, bpy.types.Scene))

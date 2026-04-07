@@ -8,7 +8,6 @@ from .abstract import AbstractBoneOperator
 
 _LOG = LogService.get_logger("boneops.reapply_strategy")
 
-
 class MPFB_OT_Reapply_Bone_Strategy_Operator(AbstractBoneOperator):
     """Recompute bone end position from strategy"""
     bl_idname = "mpfb.reapply_strategy"
@@ -42,6 +41,5 @@ class MPFB_OT_Reapply_Bone_Strategy_Operator(AbstractBoneOperator):
                 tgt_bone.head = pos
 
         return {'FINISHED'}
-
 
 ClassManager.add_class(MPFB_OT_Reapply_Bone_Strategy_Operator)

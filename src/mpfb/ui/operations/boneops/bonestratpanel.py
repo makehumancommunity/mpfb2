@@ -15,7 +15,6 @@ from .operators import MPFB_OT_Reapply_Bone_Strategy_Operator, MPFB_OT_Set_Roll_
 
 _LOG = LogService.get_logger("poseops.bonestratpanel")
 
-
 class MPFB_PT_BonestratPanel(Abstract_Panel):
     bl_label = "MPFB Bone Strategies"
     bl_space_type = "PROPERTIES"
@@ -229,6 +228,5 @@ class MPFB_PT_BonestratPanel(Abstract_Panel):
         self._draw_end_strategy(context, properties, armature, bone, True)
 
         self._draw_roll_strategy(properties, armature, bone)
-
 
 ClassManager.add_class(MPFB_PT_BonestratPanel)

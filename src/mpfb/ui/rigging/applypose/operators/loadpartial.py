@@ -4,6 +4,7 @@ from .....services import RigService
 from ..... import ClassManager
 from ....pollstrategy import pollstrategy, PollStrategy
 from ....mpfboperator import MpfbOperator
+from ....mpfbcontext import MpfbContext
 import bpy, json, os
 
 _LOG = LogService.get_logger("developer.operators.loadpartial")
@@ -22,7 +23,6 @@ class MPFB_OT_Load_Partial_Operator(MpfbOperator):
         _LOG.enter()
 
         from ...applypose.applyposepanel import POSES_PROPERTIES  # pylint: disable=C0415
-        from ....mpfbcontext import MpfbContext  # pylint: disable=C0415
 
         ctx = MpfbContext(context=context, scene_properties=POSES_PROPERTIES)
 

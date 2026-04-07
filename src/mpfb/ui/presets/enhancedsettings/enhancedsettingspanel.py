@@ -14,7 +14,6 @@ _LOC = os.path.dirname(__file__)
 ENHANCED_SETTINGS_PROPERTIES_DIR = os.path.join(_LOC, "properties")
 ENHANCED_SETTINGS_PROPERTIES = SceneConfigSet.from_definitions_in_json_directory(ENHANCED_SETTINGS_PROPERTIES_DIR, prefix="ES_")
 
-
 def _populate_settings(self, context):
     _LOG.enter()
     _LOG.trace("Context is scene", isinstance(context, bpy.types.Scene))

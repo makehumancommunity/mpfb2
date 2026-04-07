@@ -12,9 +12,9 @@ from ..makeuppanel import MAKEUP_PROPERTIES
 from ..... import ClassManager
 from ....pollstrategy import pollstrategy, PollStrategy
 from ....mpfboperator import MpfbOperator
+from ....mpfbcontext import MpfbContext
 
 _LOG = LogService.get_logger("makeup.createink")
-
 
 @pollstrategy(PollStrategy.ANY_MESH_OBJECT_ACTIVE)
 class MPFB_OT_CreateInkOperator(MpfbOperator):
@@ -29,7 +29,6 @@ class MPFB_OT_CreateInkOperator(MpfbOperator):
 
     def hardened_execute(self, context):
         """Create a new empty ink layer on the selected object, optionally importing a specific UV map."""
-        from ....mpfbcontext import MpfbContext  # pylint: disable=C0415
 
         ctx = MpfbContext(context=context, scene_properties=MAKEUP_PROPERTIES)
 
@@ -111,6 +110,5 @@ class MPFB_OT_CreateInkOperator(MpfbOperator):
         self.report({'INFO'}, f"Ink layer 'inkLayer{ink_layer_id}' added. Make sure to select it in the texture paint editor before painting.")
 
         return {'FINISHED'}
-
 
 ClassManager.add_class(MPFB_OT_CreateInkOperator)

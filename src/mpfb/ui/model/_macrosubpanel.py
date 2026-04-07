@@ -38,7 +38,6 @@ _MACROTARGETS = {
             ]
     }
 
-
 class MPFB_PT_Macro_Sub_Panel(bpy.types.Panel):
     """Human macro modeling panel."""
 
@@ -81,7 +80,6 @@ class MPFB_PT_Macro_Sub_Panel(bpy.types.Panel):
         if basemesh is None:
             return False
         return TargetService.has_any_shapekey(basemesh)
-
 
 ClassManager.add_class(MPFB_PT_Macro_Sub_Panel)
 

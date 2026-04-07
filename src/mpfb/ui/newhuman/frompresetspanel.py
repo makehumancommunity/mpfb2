@@ -14,12 +14,10 @@ _LOC = os.path.dirname(__file__)
 PRESETS_HUMAN_PROPERTIES_DIR = os.path.join(_LOC, "properties")
 PRESETS_HUMAN_PROPERTIES = SceneConfigSet.from_definitions_in_json_directory(PRESETS_HUMAN_PROPERTIES_DIR, prefix="FPR_")
 
-
 def _populate_settings(self, context):
     _LOG.enter()
     _LOG.trace("Context is scene", isinstance(context, bpy.types.Scene))
     return HumanService.get_list_of_human_presets(use_cache=False)
-
 
 _SETTINGS_LIST_PROP = {
     "type": "enum",
@@ -29,7 +27,6 @@ _SETTINGS_LIST_PROP = {
     "default": None
 }
 PRESETS_HUMAN_PROPERTIES.add_property(_SETTINGS_LIST_PROP, _populate_settings)
-
 
 def _populate_override_rig(self, context):
     from ...services import AssetService  # pylint: disable=C0415
@@ -51,7 +48,6 @@ def _populate_override_rig(self, context):
         items.append(("custom." + cr["name"], "Custom: " + cr["name"], "Use custom rig " + cr["name"]))
     return items
 
-
 _OVERRIDE_RIG_PROP = {
     "type": "enum",
     "name": "override_rig",
@@ -60,7 +56,6 @@ _OVERRIDE_RIG_PROP = {
     "default": 0
 }
 PRESETS_HUMAN_PROPERTIES.add_property(_OVERRIDE_RIG_PROP, _populate_override_rig)
-
 
 class MPFB_PT_From_Presets_Panel(Abstract_Panel):
     """Create human from preset main panel."""
@@ -97,7 +92,6 @@ class MPFB_PT_From_Presets_Panel(Abstract_Panel):
         layout = self.layout
         scene = context.scene
         self._create(scene, layout)
-
 
 ClassManager.add_class(MPFB_PT_From_Presets_Panel)
 

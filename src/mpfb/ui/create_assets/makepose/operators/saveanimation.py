@@ -6,6 +6,7 @@ from .....services import AnimationService
 from .....services import RigService
 from ..... import ClassManager
 from ....mpfboperator import MpfbOperator
+from ....mpfbcontext import MpfbContext
 from ....pollstrategy import pollstrategy, PollStrategy
 import bpy, json, math, os
 from bpy.types import StringProperty
@@ -33,7 +34,6 @@ class MPFB_OT_Save_Animation_Operator(MpfbOperator):
         armature_object = context.active_object
 
         from ...makepose import MakePoseProperties
-        from ....mpfbcontext import MpfbContext
         ctx = MpfbContext(context=context, scene_properties=MakePoseProperties)
 
         bpy.ops.object.mode_set(mode='POSE', toggle=False)
@@ -48,6 +48,5 @@ class MPFB_OT_Save_Animation_Operator(MpfbOperator):
 
         self.report({'INFO'}, "Done")
         return {'FINISHED'}
-
 
 ClassManager.add_class(MPFB_OT_Save_Animation_Operator)

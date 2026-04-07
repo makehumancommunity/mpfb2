@@ -37,5 +37,4 @@ class MPFB_PT_BasemeshOpsPanel(Abstract_Panel):
         if objtype and context.active_object.type == "MESH":
             layout.operator("mpfb.add_corrective_smooth")
 
-
 ClassManager.add_class(MPFB_PT_BasemeshOpsPanel)

@@ -10,9 +10,9 @@ from ..makeuppanel import MAKEUP_PROPERTIES
 from ..... import ClassManager
 from ....pollstrategy import pollstrategy, PollStrategy
 from ....mpfboperator import MpfbOperator
+from ....mpfbcontext import MpfbContext
 
 _LOG = LogService.get_logger("makeup.writeuvmap")
-
 
 @pollstrategy(PollStrategy.ANY_MESH_OBJECT_ACTIVE)
 class MPFB_OT_WriteUvMapOperator(MpfbOperator, ExportHelper):
@@ -36,7 +36,6 @@ class MPFB_OT_WriteUvMapOperator(MpfbOperator, ExportHelper):
 
     def hardened_execute(self, context):
         """Write the UV map to a JSON file."""
-        from ....mpfbcontext import MpfbContext  # pylint: disable=C0415
 
         ctx = MpfbContext(context=context, scene_properties=MAKEUP_PROPERTIES)
 
@@ -60,6 +59,5 @@ class MPFB_OT_WriteUvMapOperator(MpfbOperator, ExportHelper):
 
         self.report({'INFO'}, f"UV map '{uv_layer.name}' written to '{self.filepath}'.")
         return {'FINISHED'}
-
 
 ClassManager.add_class(MPFB_OT_WriteUvMapOperator)

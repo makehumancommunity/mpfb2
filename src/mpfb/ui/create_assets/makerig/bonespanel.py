@@ -62,4 +62,3 @@ class MPFB_PT_MakeRigBones_Panel(Abstract_Panel):
 
 ClassManager.add_class(MPFB_PT_MakeRigBones_Panel)
 
-

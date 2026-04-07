@@ -3,6 +3,7 @@
 from ....services import LogService
 from .... import ClassManager
 from ...mpfboperator import MpfbOperator
+from ...mpfbcontext import MpfbContext
 from bpy_extras.io_utils import ExportHelper
 import bpy, shutil
 
@@ -25,7 +26,6 @@ class MPFB_OT_Export_Log_Operator(MpfbOperator, ExportHelper):
         loggers = LogService.get_loggers()
 
         from ...developer.developerpanel import DEVELOPER_PROPERTIES  # pylint: disable=C0415
-        from ...mpfbcontext import MpfbContext
 
         ctx = MpfbContext(context=context, scene_properties=DEVELOPER_PROPERTIES)
 
@@ -42,6 +42,5 @@ class MPFB_OT_Export_Log_Operator(MpfbOperator, ExportHelper):
         shutil.copy(input_path, output_path)
 
         return {'FINISHED'}
-
 
 ClassManager.add_class(MPFB_OT_Export_Log_Operator)

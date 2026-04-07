@@ -19,13 +19,11 @@ import tempfile
 
 _LOG = LogService.get_logger("haireditorpanel.bake_hair_operator")
 
-
 class MPFB_OT_BakeHair_Operator(bpy.types.Operator):
     """Bakes hair asset as a texture for card asset"""
     bl_idname = "mpfb.bake_hair_operator"
     bl_label = "Bake hair cards"
     bl_options = {'REGISTER'}
-
 
     hair_asset: bpy.props.StringProperty()
     card_asset: bpy.props.StringProperty()
@@ -191,7 +189,6 @@ class MPFB_OT_BakeHair_Operator(bpy.types.Operator):
             bpy.ops.object.bake(type='DIFFUSE')
 
 
-
         # Save texture and plug it into principledBSDF shader of card asset
         if getattr(scene, f"{self.card_asset}_texture_dst"):
             bake_path = os.path.join(getattr(scene, f"{self.card_asset}_texture_dst"), f"{self.hair_asset}_texture.png")
@@ -238,7 +235,6 @@ class MPFB_OT_BakeHair_Operator(bpy.types.Operator):
 
         bpy.data.materials.remove(human_mat, do_unlink=True)
         bpy.data.materials.remove(card_mat, do_unlink=True)
-
 
         bpy.data.objects.remove(light_obj_f, do_unlink=True)
         bpy.data.objects.remove(light_obj_b, do_unlink=True)

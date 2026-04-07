@@ -16,7 +16,6 @@ from ....pollstrategy import pollstrategy, PollStrategy
 
 _LOG = LogService.get_logger("makeclothes.gendelete")
 
-
 @pollstrategy(PollStrategy.ANY_MESH_OBJECT_ACTIVE)
 class MPFB_OT_GenDeleteOperator(MpfbOperator):
     """Create a (very) rough delete group on the base mesh based on which vertices are matched by the clothes. You will need to edit this manually afterwards as it is most likely patchy and too large"""
@@ -74,6 +73,5 @@ class MPFB_OT_GenDeleteOperator(MpfbOperator):
 
         self.report({'INFO'}, "A very rough delete group has been created on the basemesh. You should check and edit this manually before using it.")
         return {'FINISHED'}
-
 
 ClassManager.add_class(MPFB_OT_GenDeleteOperator)

@@ -4,6 +4,7 @@ from .....services import LogService
 from .....services import ObjectService
 from ..... import ClassManager
 from ....mpfboperator import MpfbOperator
+from ....mpfbcontext import MpfbContext
 import bpy, math
 
 _LOG = LogService.get_logger("makerig.movetocube")
@@ -99,7 +100,6 @@ class MPFB_OT_Move_To_Cube_Operator(MpfbOperator):
         _LOG.debug("Head, tail", (head, tail))
 
         from ...makerig import MakeRigProperties
-        from ....mpfbcontext import MpfbContext  # pylint: disable=C0415
         ctx = MpfbContext(context=context, scene_properties=MakeRigProperties)
 
         self._move(head, ctx.head_cube, basemesh)
@@ -108,6 +108,5 @@ class MPFB_OT_Move_To_Cube_Operator(MpfbOperator):
         self.report({"INFO"}, "Done")
 
         return {'FINISHED'}
-
 
 ClassManager.add_class(MPFB_OT_Move_To_Cube_Operator)

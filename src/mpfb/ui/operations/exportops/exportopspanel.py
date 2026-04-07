@@ -17,7 +17,6 @@ _LOC = os.path.dirname(__file__)
 EXPORTOPS_PROPERTIES_DIR = os.path.join(_LOC, "properties")
 EXPORTOPS_PROPERTIES = SceneConfigSet.from_definitions_in_json_directory(EXPORTOPS_PROPERTIES_DIR, prefix="EXPO_")
 
-
 class MPFB_PT_ExportOpsPanel(Abstract_Panel):
     """UI for creating an export copy."""
 
@@ -69,6 +68,5 @@ class MPFB_PT_ExportOpsPanel(Abstract_Panel):
         self._basemesh(scene, layout)
         self._visemes(scene, layout)
         self._create(scene, layout)
-
 
 ClassManager.add_class(MPFB_PT_ExportOpsPanel)

@@ -10,6 +10,7 @@ from ...developer.developerpanel import DEVELOPER_PROPERTIES
 from .rewritenodetypes import shorten_name, round_floats
 from .writecomposite import _identify_socket, _build_tree_def
 from ...mpfboperator import MpfbOperator
+from ...mpfbcontext import MpfbContext, ContextResolveEffort
 import bpy, os, json, pprint
 from string import Template
 
@@ -35,8 +36,6 @@ class MPFB_OT_Write_Material_Operator(MpfbOperator):
 
     def hardened_execute(self, context):
         _LOG.enter()
-
-        from ...mpfbcontext import MpfbContext, ContextResolveEffort  # pylint: disable=C0415
 
         ctx = MpfbContext(context=context, scene_properties=DEVELOPER_PROPERTIES, effort=ContextResolveEffort.NONE)
 
@@ -149,7 +148,6 @@ class MPFB_OT_Write_Material_Operator(MpfbOperator):
             if principled and ctx.mhmat_based:
                 pyfile.write("\n        principled = nodes[\"" + principled + "\"]\n");
                 pyfile.write("        self.update_principled_sockets_from_mhmat(principled, mhmat)\n")
-
 
             pyfile.write("\n" + shorten_name("NodeWrapper" + output_name) + " = _NodeWrapper" + output_name+ "()\n")
 

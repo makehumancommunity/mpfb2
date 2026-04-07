@@ -9,7 +9,6 @@ from ....services import ObjectService
 from ....services import SceneConfigSet
 from ...abstractpanel import Abstract_Panel
 
-
 class MPFB_PT_Add_Cycle_Panel(Abstract_Panel):
     """Deprecated functionality for adding/setting walk cycle"""
 

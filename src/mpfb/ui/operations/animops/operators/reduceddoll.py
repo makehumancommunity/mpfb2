@@ -5,6 +5,7 @@ from .....services import ObjectService
 from .....services import RigService
 from ..... import ClassManager
 from ....mpfboperator import MpfbOperator
+from ....mpfbcontext import MpfbContext
 from ....pollstrategy import pollstrategy, PollStrategy
 import bpy, math
 
@@ -24,7 +25,6 @@ class MPFB_OT_Reduced_Doll_Operator(MpfbOperator):
         _LOG.enter()
 
         from ...animops.animopspanel import ANIMOPS_PROPERTIES  # pylint: disable=C0415
-        from ....mpfbcontext import MpfbContext  # pylint: disable=C0415
 
         ctx = MpfbContext(context=context, scene_properties=ANIMOPS_PROPERTIES)
 
@@ -78,6 +78,5 @@ class MPFB_OT_Reduced_Doll_Operator(MpfbOperator):
             bpy.ops.export_scene.fbx('INVOKE_DEFAULT', use_selection=True)
 
         return {'FINISHED'}
-
 
 ClassManager.add_class(MPFB_OT_Reduced_Doll_Operator)

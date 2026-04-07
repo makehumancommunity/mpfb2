@@ -43,7 +43,6 @@ class MPFB_PT_MakePose_Panel(Abstract_Panel):
         box.operator('mpfb.load_animation')
 
 
-
 #===============================================================================
 #     def _initialize_pose(self, blender_object, layout):
 #         box = self._create_box(layout, "Initialize", "TOOL_SETTINGS")
@@ -82,7 +81,5 @@ class MPFB_PT_MakePose_Panel(Abstract_Panel):
         self._save_animation(scene, layout)
         self._load_animation(scene, layout)
 
-
 ClassManager.add_class(MPFB_PT_MakePose_Panel)
-
 

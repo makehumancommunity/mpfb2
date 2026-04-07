@@ -75,5 +75,4 @@ class MPFB_PT_SculptPanel(Abstract_Panel):
         SCULPT_PROPERTIES.draw_properties(scene, layout, props)
         layout.operator("mpfb.setup_sculpt")
 
-
 ClassManager.add_class(MPFB_PT_SculptPanel)

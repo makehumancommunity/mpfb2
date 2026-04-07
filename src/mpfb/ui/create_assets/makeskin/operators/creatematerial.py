@@ -7,9 +7,9 @@ from .....entities.material.makeskinmaterial import MakeSkinMaterial
 from ..... import ClassManager
 from ....pollstrategy import pollstrategy, PollStrategy
 from ....mpfboperator import MpfbOperator
+from ....mpfbcontext import MpfbContext
 
 _LOG = LogService.get_logger("makeskin.creatematerial")
-
 
 @pollstrategy(PollStrategy.ANY_MESH_OBJECT_ACTIVE)
 class MPFB_OT_CreateMaterialOperator(MpfbOperator):
@@ -24,7 +24,6 @@ class MPFB_OT_CreateMaterialOperator(MpfbOperator):
     def hardened_execute(self, context):
         from ...makeskin.makeskinpanel import MAKESKIN_PROPERTIES  # pylint: disable=C0415
         from ...makeskin import MakeSkinObjectProperties  # pylint: disable=C0415
-        from ....mpfbcontext import MpfbContext  # pylint: disable=C0415
 
         ctx = MpfbContext(context=context, scene_properties=MAKESKIN_PROPERTIES, object_properties=MakeSkinObjectProperties)
 
@@ -41,6 +40,5 @@ class MPFB_OT_CreateMaterialOperator(MpfbOperator):
 
         self.report({'INFO'}, "Material was created")
         return {'FINISHED'}
-
 
 ClassManager.add_class(MPFB_OT_CreateMaterialOperator)

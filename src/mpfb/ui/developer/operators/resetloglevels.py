@@ -7,7 +7,6 @@ import bpy
 
 _LOG = LogService.get_logger("loglevels.operators.resetloglevels")
 
-
 class MPFB_OT_Reset_Log_Levels_Operator(MpfbOperator):
     """Reset log levels to the default. This will remove all log level overrides"""
     bl_idname = "mpfb.reset_log_levels"
@@ -22,6 +21,5 @@ class MPFB_OT_Reset_Log_Levels_Operator(MpfbOperator):
         LogService.reset_log_levels()
         self.report({"INFO"}, "All log level overrides were removed and default level was set to INFO")
         return {'FINISHED'}
-
 
 ClassManager.add_class(MPFB_OT_Reset_Log_Levels_Operator)

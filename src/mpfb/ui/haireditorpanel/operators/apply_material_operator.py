@@ -14,13 +14,11 @@ import bpy, os, json, shutil
 
 _LOG = LogService.get_logger("haireditorpanel.apply_material_operator")
 
-
 class MPFB_OT_ApplyMaterial_Operator(bpy.types.Operator):
     """Adds material to selected hair asset"""
     bl_idname = "mpfb.apply_material_operator"
     bl_label = "Apply material"
     bl_options = {'REGISTER'}
-
 
     #material_complexity: bpy.props.StringProperty()
 
@@ -30,13 +28,11 @@ class MPFB_OT_ApplyMaterial_Operator(bpy.types.Operator):
 
         self.report({'INFO'}, ("Applying hair material..."))
 
-
         # Get Human mesh
         obj = context.object
         if (not obj or not obj.name == 'Human'):
             self.report({'ERROR'}, "Object Human must be active")
             return {'CANCELLED'}
-
 
 
         return {'FINISHED'}

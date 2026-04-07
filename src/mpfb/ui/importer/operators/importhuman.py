@@ -493,5 +493,4 @@ class MPFB_OT_ImportHumanOperator(MpfbOperator):
 
         return {'FINISHED'}
 
-
 ClassManager.add_class(MPFB_OT_ImportHumanOperator)

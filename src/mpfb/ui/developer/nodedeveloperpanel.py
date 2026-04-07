@@ -11,7 +11,6 @@ from .developerpanel import DEVELOPER_PROPERTIES
 
 _LOG = LogService.get_logger("ui.nodedeveloperpanel")
 
-
 class MPFB_PT_Node_Developer_Panel(Abstract_Panel):
     """UI for various node developer functions."""
     bl_idname = "NODE_PT_mpfb_node_developer_panel"

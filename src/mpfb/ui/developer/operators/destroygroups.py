@@ -38,7 +38,6 @@ class MPFB_OT_Destroy_Groups_Operator(MpfbOperator):
             self.report({'ERROR'}, "Could not deduce current node tree")
             return {'FINISHED'}
 
-
         for node_tree in bpy.data.node_groups:
             if str(node_tree.name).lower().startswith("mpfb"):
                 bpy.data.node_groups.remove(node_tree)

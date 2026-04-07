@@ -7,7 +7,6 @@ import bpy
 
 _LOG = LogService.get_logger("developer.listloglevels")
 
-
 class MPFB_OT_List_Log_Levels_Operator(MpfbOperator):
     """List log levels to the console"""
     bl_idname = "mpfb.list_log_levels"
@@ -35,6 +34,5 @@ class MPFB_OT_List_Log_Levels_Operator(MpfbOperator):
         self.report({"INFO"}, "Levels were printed to the console")
 
         return {'FINISHED'}
-
 
 ClassManager.add_class(MPFB_OT_List_Log_Levels_Operator)

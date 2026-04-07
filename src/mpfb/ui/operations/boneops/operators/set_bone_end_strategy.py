@@ -10,7 +10,6 @@ from .abstract import AbstractBoneOperator
 
 _LOG = LogService.get_logger("boneops.set_bone_end_strategy")
 
-
 class MPFB_OT_Set_Bone_End_Strategy_Operator(AbstractBoneOperator):
     """Set bone end strategy"""
     bl_idname = "mpfb.set_bone_end_strategy"
@@ -99,6 +98,5 @@ class MPFB_OT_Set_Bone_End_Strategy_Operator(AbstractBoneOperator):
         self.set_cursor_pos(context, rig_entity, info)
 
         return {'FINISHED'}
-
 
 ClassManager.add_class(MPFB_OT_Set_Bone_End_Strategy_Operator)

@@ -19,13 +19,11 @@ import tempfile
 
 _LOG = LogService.get_logger("haireditorpanel.generate_hair_cards_operator")
 
-
 class MPFB_OT_GenerateHairCards_Operator(bpy.types.Operator):
     """Converts curve based hair to card object"""
     bl_idname = "mpfb.generate_hair_cards_operator"
     bl_label = "Generate hair cards"
     bl_options = {'REGISTER'}
-
 
     hair_asset: bpy.props.StringProperty()
     card_asset: bpy.props.StringProperty()
@@ -44,7 +42,6 @@ class MPFB_OT_GenerateHairCards_Operator(bpy.types.Operator):
                 if hasattr(mod, "node_group") and mod.node_group:
                     mod.node_group.interface_update(bpy.context)
         return callback
-
 
     def execute(self, context):
 
@@ -98,7 +95,6 @@ class MPFB_OT_GenerateHairCards_Operator(bpy.types.Operator):
                 self.report({'INFO'}, f"'{self.hair_asset}' successfully imported. You might need to manualy align it to fit correctly.")
 
                 cards_loaded = True
-
 
         except Exception as e:
             self.report({'INFO'}, f"No cards to load, generating new.")
@@ -164,7 +160,6 @@ class MPFB_OT_GenerateHairCards_Operator(bpy.types.Operator):
             tangent_node.location = (-50, 250)
 
 
-
             # Link tangent to vector and axis
             links.new(tangent_node.outputs['Tangent'], vec_rot.inputs['Vector'])
             links.new(tangent_node.outputs['Tangent'], vec_rot.inputs['Axis'])
@@ -226,7 +221,6 @@ class MPFB_OT_GenerateHairCards_Operator(bpy.types.Operator):
             links.new(group_in.outputs['Shape'], rand.inputs['Seed'])
             # TODO: maybe place along huma normals + random offset with slider in ui/add option to create own card asset
 
-
             # Define card generation properties
             prop_prefix = f"{self.card_asset}_"
 
@@ -235,7 +229,6 @@ class MPFB_OT_GenerateHairCards_Operator(bpy.types.Operator):
                 "density": ("HairCards", "Socket_3", (0.0, 0.01), 0.001),
                 "placement": ("HairCards", "Socket_4", (0.0, 1000.0), 1)
             }
-
 
             #TODO: Placement should be int...
             for name, (mod_name, attr, rng, default) in props.items():
@@ -259,7 +252,6 @@ class MPFB_OT_GenerateHairCards_Operator(bpy.types.Operator):
                 geo_mod["Socket_4"] = 1
             except KeyError:
                 self.report({'WARNING'}, "Modifier inputs not found to set default values.")
-
 
         # Property to update UI
         prop_id = f"{self.card_asset}_generated"

@@ -5,10 +5,10 @@ from ....services import LocationService
 from ...importerpresets.importerpresetspanel import IMPORTER_PRESETS_PROPERTIES
 from .... import ClassManager
 from ...mpfboperator import MpfbOperator
+from ...mpfbcontext import MpfbContext, ContextResolveEffort
 import bpy, os
 
 _LOG = LogService.get_logger("importeroperators.savenewpresets")
-
 
 class MPFB_OT_SaveNewImporterPresetsOperator(MpfbOperator):
     """This will save new importer presets with a name from the text field above, using values from the fields below"""
@@ -21,8 +21,6 @@ class MPFB_OT_SaveNewImporterPresetsOperator(MpfbOperator):
 
     def hardened_execute(self, context):
         _LOG.enter()
-
-        from ...mpfbcontext import MpfbContext, ContextResolveEffort  # pylint: disable=C0415
 
         ctx = MpfbContext(context=context, scene_properties=IMPORTER_PRESETS_PROPERTIES, effort=ContextResolveEffort.NONE)
 
@@ -49,6 +47,5 @@ class MPFB_OT_SaveNewImporterPresetsOperator(MpfbOperator):
         UiService.rebuild_importer_panel_list()
         self.report({'INFO'}, "Presets were written to " + file_name)
         return {'FINISHED'}
-
 
 ClassManager.add_class(MPFB_OT_SaveNewImporterPresetsOperator)

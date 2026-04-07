@@ -56,4 +56,3 @@ class MPFB_PT_MakeRigWeights_Panel(Abstract_Panel):
 
 ClassManager.add_class(MPFB_PT_MakeRigWeights_Panel)
 
-

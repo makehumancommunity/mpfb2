@@ -6,12 +6,12 @@ from ...eyesettings.eyesettingspanel import EYE_SETTINGS_PROPERTIES
 from ..... import ClassManager
 from ....pollstrategy import pollstrategy, PollStrategy
 from ....mpfboperator import MpfbOperator
+from ....mpfbcontext import MpfbContext
 import bpy, os
 
 from ._savematerial import _save_material
 
 _LOG = LogService.get_logger("eyesettings.savenewsettings")
-
 
 @pollstrategy(PollStrategy.ANY_OBJECT_ACTIVE)
 class MPFB_OT_SaveNewEyeSettingsOperator(MpfbOperator):
@@ -29,8 +29,6 @@ class MPFB_OT_SaveNewEyeSettingsOperator(MpfbOperator):
         if context.active_object is None:
             self.report({'ERROR'}, "Must have a selected object")
             return {'FINISHED'}
-
-        from ....mpfbcontext import MpfbContext  # pylint: disable=C0415
 
         ctx = MpfbContext(context=context, scene_properties=EYE_SETTINGS_PROPERTIES)
         name = ctx.name

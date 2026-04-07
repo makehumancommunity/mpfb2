@@ -9,7 +9,6 @@ from bpy_extras.io_utils import ImportHelper
 
 _LOG = LogService.get_logger("applypose.loadmhbvh")
 
-
 @pollstrategy(PollStrategy.ANY_ARMATURE_OBJECT_ACTIVE)
 class MPFB_OT_Load_MH_BVH_Operator(MpfbOperator, ImportHelper):
     """Destructively load a pose from a MH BVH file. WARNING: This will change the bone rolls of all bones, making further posing a bit unpredictable"""
@@ -37,6 +36,5 @@ class MPFB_OT_Load_MH_BVH_Operator(MpfbOperator, ImportHelper):
 
         self.report({'INFO'}, "The pose was destructively loaded from " + self.filepath)
         return {'FINISHED'}
-
 
 ClassManager.add_class(MPFB_OT_Load_MH_BVH_Operator)

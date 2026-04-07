@@ -7,10 +7,10 @@ from ....services import HumanService
 from ....services import SystemService
 from ....services import MeshService
 from ...mpfboperator import MpfbOperator
+from ...mpfbcontext import MpfbContext
 from .... import ClassManager
 
 _LOG = LogService.get_logger("newhuman.createhuman")
-
 
 class MPFB_OT_CreateHumanOperator(MpfbOperator):
     """Create a new human"""
@@ -24,7 +24,6 @@ class MPFB_OT_CreateHumanOperator(MpfbOperator):
     def hardened_execute(self, context):
 
         from ...newhuman.newhumanpanel import NEW_HUMAN_PROPERTIES  # pylint: disable=C0415
-        from ...mpfbcontext import MpfbContext  # pylint: disable=C0415
 
         ctx = MpfbContext(context=context, scene_properties=NEW_HUMAN_PROPERTIES)
 
@@ -158,7 +157,6 @@ class MPFB_OT_CreateHumanOperator(MpfbOperator):
         bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
 
         return {'FINISHED'}
-
 
 ClassManager.add_class(MPFB_OT_CreateHumanOperator)
 

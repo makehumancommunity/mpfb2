@@ -77,11 +77,9 @@ class MPFB_OT_ApplyHair_Operator(bpy.types.Operator):
                 brace_obj.parent = basemesh
                 brace_obj.matrix_parent_inverse = basemesh.matrix_world.inverted()
 
-
         except Exception as e:
             self.report({'ERROR'}, f"Failed to load hair object: {str(e)}")
             return {'CANCELLED'}
-
 
         # Activate hair object
         bpy.ops.object.select_all(action='DESELECT')

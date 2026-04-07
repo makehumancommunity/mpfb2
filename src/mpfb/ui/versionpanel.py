@@ -8,7 +8,6 @@ from .. import BUILD_INFO, VERSION
 
 _LOG = LogService.get_logger("ui.versionpanel")
 
-
 class MPFB_PT_Version_Panel(bpy.types.Panel):
 
     bl_label = "Too old blender"
@@ -25,6 +24,5 @@ class MPFB_PT_Version_Panel(bpy.types.Panel):
         layout.label(text="Blender Version: %s" % str(bpy.app.version))
         pyver = [sys.version_info[0], sys.version_info[1], sys.version_info[2]]
         layout.label(text="Python Version: %s" % str(pyver))
-
 
 ClassManager.add_class(MPFB_PT_Version_Panel)

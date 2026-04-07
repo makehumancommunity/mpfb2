@@ -9,6 +9,7 @@ from .....services import MaterialService
 from ..... import ClassManager
 from ....pollstrategy import pollstrategy, PollStrategy
 from ....mpfboperator import MpfbOperator
+from ....mpfbcontext import MpfbContext
 
 _LOG = LogService.get_logger("makeskin.importmaterial")
 
@@ -26,7 +27,6 @@ class MPFB_OT_ImportMaterialOperator(MpfbOperator, ImportHelper):
 
     def hardened_execute(self, context):
         from ...makeskin.makeskinpanel import MAKESKIN_PROPERTIES  # pylint: disable=C0415
-        from ....mpfbcontext import MpfbContext  # pylint: disable=C0415
 
         ctx = MpfbContext(context=context, scene_properties=MAKESKIN_PROPERTIES)
 

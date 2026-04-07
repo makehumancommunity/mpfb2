@@ -10,6 +10,7 @@ from ...makeweight.makeweightpanel import MAKEWEIGHT_PROPERTIES
 from ..... import ClassManager
 from ....pollstrategy import pollstrategy, PollStrategy
 from ....mpfboperator import MpfbOperator
+from ....mpfbcontext import MpfbContext
 
 _LOG = LogService.get_logger("makeweight.truncateweights")
 
@@ -24,7 +25,6 @@ class MPFB_OT_TruncateWeightsOperator(MpfbOperator):
         return _LOG
 
     def hardened_execute(self, context):
-        from ....mpfbcontext import MpfbContext  # pylint: disable=C0415
 
         ctx = MpfbContext(context=context, scene_properties=MAKEWEIGHT_PROPERTIES)
 

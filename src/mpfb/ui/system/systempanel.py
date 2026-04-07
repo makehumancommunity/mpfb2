@@ -8,7 +8,6 @@ from ... import BUILD_INFO, VERSION
 
 _LOG = LogService.get_logger("ui.systempanel")
 
-
 class MPFB_PT_System_Panel(Abstract_Panel):
     bl_label = "System and resources"
     bl_category = UiService.get_value("DEVELOPERCATEGORY")
@@ -25,6 +24,5 @@ class MPFB_PT_System_Panel(Abstract_Panel):
         layout = self.layout
         scene = context.scene
         self._system_info(context, scene, layout)
-
 
 ClassManager.add_class(MPFB_PT_System_Panel)

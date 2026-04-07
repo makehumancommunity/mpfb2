@@ -8,10 +8,10 @@ from .....services import MaterialService
 from ...eyesettings.eyesettingspanel import EYE_SETTINGS_PROPERTIES
 from ..... import ClassManager
 from ....mpfboperator import MpfbOperator
+from ....mpfbcontext import MpfbContext
 import bpy, os, json
 
 _LOG = LogService.get_logger("eyesettings.applysettings")
-
 
 class MPFB_OT_ApplyEyeSettingsOperator(MpfbOperator):
     """This will load the eye material setting selected in the dropdown above, and use these to update the materials on the selected object"""
@@ -28,8 +28,6 @@ class MPFB_OT_ApplyEyeSettingsOperator(MpfbOperator):
         if context.active_object is None:
             self.report({'ERROR'}, "Must have a selected object")
             return {'FINISHED'}
-
-        from ....mpfbcontext import MpfbContext  # pylint: disable=C0415
 
         ctx = MpfbContext(context=context, scene_properties=EYE_SETTINGS_PROPERTIES)
         name = ctx.available_settings

@@ -3,11 +3,11 @@
 from .....services import LogService
 from .....services import FaceService
 from ....mpfboperator import MpfbOperator
+from ....mpfbcontext import MpfbContext
 from ..... import ClassManager
 from ....pollstrategy import pollstrategy, PollStrategy
 
 _LOG = LogService.get_logger("faceops.loadfaceshapekeys")
-
 
 @pollstrategy(PollStrategy.BASEMESH_AMONGST_RELATIVES)
 class MPFB_OT_Load_Face_Shape_Keys_Operator(MpfbOperator):
@@ -23,7 +23,6 @@ class MPFB_OT_Load_Face_Shape_Keys_Operator(MpfbOperator):
         _LOG.enter()
 
         from ..faceopspanel import FACEOPS_PROPERTIES  # pylint: disable=C0415
-        from ....mpfbcontext import MpfbContext  # pylint: disable=C0415
 
         ctx = MpfbContext(context=context, scene_properties=FACEOPS_PROPERTIES)
 
@@ -51,6 +50,5 @@ class MPFB_OT_Load_Face_Shape_Keys_Operator(MpfbOperator):
 
         self.report({'INFO'}, "Loaded shape key pack(s): " + ", ".join(loaded))
         return {'FINISHED'}
-
 
 ClassManager.add_class(MPFB_OT_Load_Face_Shape_Keys_Operator)

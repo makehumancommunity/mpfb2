@@ -10,7 +10,6 @@ from bpy_extras.io_utils import ExportHelper
 
 _LOG = LogService.get_logger("savenodes.operators.savenodes")
 
-
 class MPFB_OT_Save_Nodes_Operator(MpfbOperator, ExportHelper):
     """Save node tree as json"""
     bl_idname = "mpfb.save_nodes"
@@ -53,6 +52,5 @@ class MPFB_OT_Save_Nodes_Operator(MpfbOperator, ExportHelper):
             json.dump(as_dict, json_file, indent=4, sort_keys=True)
             self.report({'INFO'}, "JSON file written to " + absolute_file_path)
         return {'FINISHED'}
-
 
 ClassManager.add_class(MPFB_OT_Save_Nodes_Operator)

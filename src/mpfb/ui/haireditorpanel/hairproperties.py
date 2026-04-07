@@ -153,7 +153,6 @@ class HairGetterSetterFactory():
             self.is_material_property = True
         self.managed_to_deduce_property = True
 
-
     def _interpolate_hair_object_name(self):
         hair_name = re.sub("^" + self.prefix, "", self.full_property_name)
         hair_name = re.sub("_" + self.short_property_name + "$", "", hair_name)
@@ -473,7 +472,6 @@ class HairGetterSetterFactory():
                 modifier.node_group.interface_update(bpy.context)
             _LOG.debug("Modifier, value after", (modifier, modifier[self.modifier_attribute]))
         return setter
-
 
     def generate_getter(self):
         if self.is_hair_property:

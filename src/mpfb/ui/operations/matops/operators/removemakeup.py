@@ -12,7 +12,6 @@ from ....pollstrategy import pollstrategy, PollStrategy
 
 _LOG = LogService.get_logger("matops.removemakeup")
 
-
 @pollstrategy(PollStrategy.ANY_MAKEHUMAN_OBJECT_ACTIVE)
 class MPFB_OT_Remove_Makeup_Operator(MpfbOperator):
     """Remove all ink layers from a material"""
@@ -40,6 +39,5 @@ class MPFB_OT_Remove_Makeup_Operator(MpfbOperator):
 
         self.report({'INFO'}, "Makeup was removed")
         return {'FINISHED'}
-
 
 ClassManager.add_class(MPFB_OT_Remove_Makeup_Operator)

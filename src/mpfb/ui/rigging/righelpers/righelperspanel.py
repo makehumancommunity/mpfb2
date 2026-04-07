@@ -29,7 +29,6 @@ class MPFB_PT_RigHelpersPanel(Abstract_Panel):
             ]
         SETUP_HELPERS_PROPERTIES.draw_properties(scene, box, props)
 
-
     def _leg_helpers(self, scene, layout):
         box = self._create_box(layout, "Leg helpers", "BONE_DATA")
         props = [
@@ -92,6 +91,5 @@ class MPFB_PT_RigHelpersPanel(Abstract_Panel):
             self._finger_helpers(scene, layout)
             self._eye_helpers(scene, layout)
             self._apply_helpers(scene, layout)
-
 
 ClassManager.add_class(MPFB_PT_RigHelpersPanel)

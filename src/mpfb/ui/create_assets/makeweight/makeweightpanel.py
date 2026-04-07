@@ -108,4 +108,3 @@ class MPFB_PT_MakeWeight_Panel(Abstract_Panel):
 
 ClassManager.add_class(MPFB_PT_MakeWeight_Panel)
 
-

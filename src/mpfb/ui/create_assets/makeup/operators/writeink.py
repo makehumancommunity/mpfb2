@@ -10,9 +10,9 @@ from ..makeuppanel import MAKEUP_PROPERTIES
 from ..... import ClassManager
 from ....pollstrategy import pollstrategy, PollStrategy
 from ....mpfboperator import MpfbOperator
+from ....mpfbcontext import MpfbContext
 
 _LOG = LogService.get_logger("makeup.writeink")
-
 
 @pollstrategy(PollStrategy.ANY_MESH_OBJECT_ACTIVE)
 class MPFB_OT_WriteInkOperator(MpfbOperator):
@@ -29,7 +29,6 @@ class MPFB_OT_WriteInkOperator(MpfbOperator):
 
     def hardened_execute(self, context):
         """Write ink layer to library."""
-        from ....mpfbcontext import MpfbContext  # pylint: disable=C0415
 
         ctx = MpfbContext(context=context, scene_properties=MAKEUP_PROPERTIES)
 
@@ -90,6 +89,5 @@ class MPFB_OT_WriteInkOperator(MpfbOperator):
 
         self.report({'INFO'}, f"Ink layer '{ctx.ink_layer_name}' written to library at {ink_layer_fn}.")
         return {'FINISHED'}
-
 
 ClassManager.add_class(MPFB_OT_WriteInkOperator)

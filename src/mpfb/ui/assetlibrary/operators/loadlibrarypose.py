@@ -11,7 +11,6 @@ from ...mpfboperator import MpfbOperator
 
 _LOG = LogService.get_logger("assetlibrary.loadlibrarypose")
 
-
 class MPFB_OT_Load_Library_Pose_Operator(MpfbOperator):
     """Destructively load a pose from a MH BVH file. WARNING: This will change the bone rolls of all bones, making further posing a bit unpredictable"""
     bl_idname = "mpfb.load_library_pose"
@@ -55,6 +54,5 @@ class MPFB_OT_Load_Library_Pose_Operator(MpfbOperator):
             return {'CANCELLED'}
 
         return {'FINISHED'}
-
 
 ClassManager.add_class(MPFB_OT_Load_Library_Pose_Operator)

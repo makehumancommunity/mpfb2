@@ -14,7 +14,6 @@ from ...mpfboperator import MpfbOperator
 
 _LOG = LogService.get_logger("developer.operators.savetarget")
 
-
 class MPFB_OT_Save_Target_Operator(MpfbOperator, ExportHelper):
     """Write the active shape key as a target file"""
     bl_idname = "mpfb.save_target"
@@ -102,6 +101,5 @@ class MPFB_OT_Save_Target_Operator(MpfbOperator, ExportHelper):
 
         self.report({'INFO'}, "Target was saved as " + str(self.filepath))
         return {'FINISHED'}
-
 
 ClassManager.add_class(MPFB_OT_Save_Target_Operator)

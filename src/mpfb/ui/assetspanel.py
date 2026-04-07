@@ -33,7 +33,6 @@ FILTER_PROPERTIES = SceneConfigSet([
     }
     ], 'APAS_')
 
-
 class MPFB_PT_Assets_Panel(Abstract_Panel):
     bl_label = "Apply assets"
     bl_category = UiService.get_value("MATERIALSCATEGORY")
@@ -77,6 +76,5 @@ class MPFB_PT_Assets_Panel(Abstract_Panel):
             _LOG.debug("There is no pack metadata")
         show_props.append("only_equipped")
         FILTER_PROPERTIES.draw_properties(context.scene, box, show_props)
-
 
 ClassManager.add_class(MPFB_PT_Assets_Panel)

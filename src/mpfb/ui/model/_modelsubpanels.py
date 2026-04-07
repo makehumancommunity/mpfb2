@@ -21,7 +21,6 @@ _LOG.debug("Target dir:", _TARGETS_DIR)
 _TARGETS_JSON = os.path.join(_TARGETS_DIR, "target.json")
 _LOG.debug("Targets json:", _TARGETS_JSON)
 
-
 class _Abstract_Model_Panel(Abstract_Panel):
     """Human modeling panel"""
 
@@ -96,7 +95,6 @@ class _Abstract_Model_Panel(Abstract_Panel):
     def poll(cls, context):
         return cls.active_object_is_basemesh(context, also_check_relatives=True, also_check_for_shapekeys=True)
 
-
 _sections = dict()
 with open(_TARGETS_JSON, "r") as _json_file:
     _sections = json.load(_json_file)
@@ -169,7 +167,6 @@ for key in _sections.keys():
         _CATEGORIES_BY_LABEL[str(key)][cat["label"]] = cat
     _SORTED_CATEGORIES[str(key)].sort()
 
-
 def _set_simple_modifier_value(scene, blender_object, section, category, value, side="unsided", load_target_if_needed=True):
     """This modifier is not a combination of opposing targets ("decr-incr", "in-out"...)"""
     _LOG.debug("_set_simple_modifier_value", (section, category, value, side))
@@ -195,7 +192,6 @@ def _set_simple_modifier_value(scene, blender_object, section, category, value, 
         prune = MODEL_PROPERTIES.get_value("prune", entity_reference=bpy.context.scene)
         TargetService.set_target_value(blender_object, name, value, delete_target_on_zero=prune)
 
-
 def _get_simple_modifier_value(scene, blender_object, section, category, side="unsided"):
     """This modifier is not a combination of opposing targets ("decr-incr", "in-out"...)"""
     name = category["name"]
@@ -204,7 +200,6 @@ def _get_simple_modifier_value(scene, blender_object, section, category, side="u
     if side == "left":
         name = "l-" + name
     return TargetService.get_target_value(blender_object, name)
-
 
 def _get_opposed_modifier_value(scene, blender_object, section, category, side="unsided"):
     """This modifier is a combination of opposing targets ("decr-incr", "in-out"...)"""
@@ -218,7 +213,6 @@ def _get_opposed_modifier_value(scene, blender_object, section, category, side="
         return -TargetService.get_target_value(blender_object, negative)
 
     return 0.0
-
 
 def _set_opposed_modifier_value(scene, blender_object, section, category, value, side="unsided"):
     """This modifier is a combination of opposing targets ("decr-incr", "in-out"...)"""
@@ -261,7 +255,6 @@ def _set_opposed_modifier_value(scene, blender_object, section, category, value,
             else:
                 TargetService.set_target_value(blender_object, negative, abs(value), delete_target_on_zero=prune)
 
-
 def _set_modifier_value(scene, blender_object, section, category, value, side="unsided"):
     _LOG.dump("_set_modifier_value", (blender_object, category, value, side))
     ObjectService.activate_blender_object(blender_object)
@@ -273,13 +266,11 @@ def _set_modifier_value(scene, blender_object, section, category, value, side="u
     if MODEL_PROPERTIES.get_value("refit", entity_reference=bpy.context.scene):
         HumanService.refit(blender_object)
 
-
 def _get_modifier_value(scene, blender_object, section, category, side="unsided"):
     _LOG.dump("enter _get_modifier_value", (blender_object, category, side))
     if "opposites" in category:
         return _get_opposed_modifier_value(scene, blender_object, section, category, side)
     return _get_simple_modifier_value(scene, blender_object, section, category, side)
-
 
 _section_names = list(_sections.keys())
 _section_names.sort()
@@ -365,7 +356,6 @@ for name in _section_names:
 
     sub_panel = type("MPFB_PT_Model_Sub_Panel_" + name, (_Abstract_Model_Panel, Abstract_Panel), definition)
     _LOG.debug("sub_panel", (sub_panel, sub_panel.__bases__))
-
 
     ClassManager.add_class(sub_panel)
 

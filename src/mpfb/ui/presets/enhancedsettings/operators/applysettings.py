@@ -7,10 +7,10 @@ from .....services import MaterialService
 from ...enhancedsettings.enhancedsettingspanel import ENHANCED_SETTINGS_PROPERTIES
 from ..... import ClassManager
 from ....mpfboperator import MpfbOperator
+from ....mpfbcontext import MpfbContext
 import bpy, os, json
 
 _LOG = LogService.get_logger("enhancedsettings.applysettings")
-
 
 class MPFB_OT_ApplyEnhancedSettingsOperator(MpfbOperator):
     """This will load the enhanced material setting selected in the dropdown above, and use these to update the materials on the selected object"""
@@ -27,8 +27,6 @@ class MPFB_OT_ApplyEnhancedSettingsOperator(MpfbOperator):
         if context.active_object is None:
             self.report({'ERROR'}, "Must have a selected object")
             return {'FINISHED'}
-
-        from ....mpfbcontext import MpfbContext  # pylint: disable=C0415
 
         ctx = MpfbContext(context=context, scene_properties=ENHANCED_SETTINGS_PROPERTIES)
         name = ctx.available_settings

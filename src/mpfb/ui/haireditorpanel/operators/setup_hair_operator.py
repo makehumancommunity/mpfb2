@@ -16,7 +16,6 @@ import bpy, os, json, shutil
 
 _LOG = LogService.get_logger("haireditorpanel.setup_hair_operator")
 
-
 class MPFB_OT_SetupHair_Operator(bpy.types.Operator):
     """Adds empty hair to mesh and actualizes UI"""
     bl_idname = "mpfb.setup_hair_operator"

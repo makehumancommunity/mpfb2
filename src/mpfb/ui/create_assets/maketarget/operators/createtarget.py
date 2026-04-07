@@ -7,9 +7,9 @@ from .....services import TargetService
 from ...maketarget import MakeTargetObjectProperties
 from ..... import ClassManager
 from ....mpfboperator import MpfbOperator
+from ....mpfbcontext import MpfbContext, ContextFocusObject
 
 _LOG = LogService.get_logger("maketarget.createtarget")
-
 
 class MPFB_OT_CreateTargetOperator(MpfbOperator):
     """Create primary target"""
@@ -44,7 +44,6 @@ class MPFB_OT_CreateTargetOperator(MpfbOperator):
         return not TargetService.has_target(blender_object, expected_name)
 
     def hardened_execute(self, context):
-        from ....mpfbcontext import MpfbContext, ContextFocusObject  # pylint: disable=C0415
         ctx = MpfbContext(context=context, object_properties=MakeTargetObjectProperties,
                           focus_object_type=ContextFocusObject.ACTIVE)
 
@@ -60,6 +59,5 @@ class MPFB_OT_CreateTargetOperator(MpfbOperator):
 
         self.report({'INFO'}, "Primary target created")
         return {'FINISHED'}
-
 
 ClassManager.add_class(MPFB_OT_CreateTargetOperator)

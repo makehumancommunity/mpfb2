@@ -9,7 +9,6 @@ import json
 
 _LOG = LogService.get_logger("makeuppresets.loadpresets")
 
-
 class MPFB_OT_Load_Makeup_Presets_Operator(generic_makeup_presets):
     """This will load the selected makeup presets, overwriting any existing makeup on the body"""
     bl_idname = "mpfb.load_makeup_presets"
@@ -51,6 +50,5 @@ class MPFB_OT_Load_Makeup_Presets_Operator(generic_makeup_presets):
 
         self.report({'INFO'}, "Makeup preset was loaded successfully")
         return {'FINISHED'}
-
 
 ClassManager.add_class(MPFB_OT_Load_Makeup_Presets_Operator)
