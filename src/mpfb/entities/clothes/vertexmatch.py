@@ -232,6 +232,13 @@ class VertexMatch:
 
         (vector, index, distance) = closest[0]
         if distance < 0.001:
+            # Check if the matched vertex belongs to the same vertex group
+            if index not in self.target_crossref.vertices_by_group[self.target_group_idx]:
+                _LOG.debug("Closest vertex not in matching vertex group", {
+                    "vertex_index": index,
+                    "expected_group": self.focus_vert_group_name
+                })
+                return
             self.final_strategy = "EXACT"
             self.exact_match_index = index
             self.exact_match_coord = vector
