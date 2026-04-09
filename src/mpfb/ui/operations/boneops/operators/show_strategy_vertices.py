@@ -10,7 +10,6 @@ from .abstract import AbstractBoneOperator
 
 _LOG = LogService.get_logger("boneops.show_strategy_vertices")
 
-
 class MPFB_OT_Show_Strategy_Vertices_Operator(AbstractBoneOperator):
     """Switch to mesh and select strategy vertices"""
     bl_idname = "mpfb.show_strategy_vertices"
@@ -90,6 +89,5 @@ class MPFB_OT_Show_Strategy_Vertices_Operator(AbstractBoneOperator):
                 bmesh.update_edit_mesh(mesh_obj.data, loop_triangles=False, destructive=False)
 
         return {'FINISHED'}
-
 
 ClassManager.add_class(MPFB_OT_Show_Strategy_Vertices_Operator)

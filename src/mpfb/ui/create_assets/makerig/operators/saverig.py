@@ -5,13 +5,13 @@ from .....services import ObjectService
 from .....entities.rig import Rig
 from ..... import ClassManager
 from ....mpfboperator import MpfbOperator
+from ....mpfbcontext import MpfbContext
 from ....pollstrategy import pollstrategy, PollStrategy
 import bpy, json, math
 from bpy.types import StringProperty
 from bpy_extras.io_utils import ExportHelper
 
 _LOG = LogService.get_logger("makerig.operators.saverig")
-
 
 @pollstrategy(PollStrategy.ANY_ARMATURE_OBJECT_ACTIVE)
 class MPFB_OT_Save_Rig_Operator(MpfbOperator, ExportHelper):
@@ -36,7 +36,6 @@ class MPFB_OT_Save_Rig_Operator(MpfbOperator, ExportHelper):
         armature_object = context.active_object
 
         from ...makerig import MakeRigProperties
-        from ....mpfbcontext import MpfbContext
         ctx = MpfbContext(context=context, scene_properties=MakeRigProperties)
 
         bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
@@ -77,6 +76,5 @@ class MPFB_OT_Save_Rig_Operator(MpfbOperator, ExportHelper):
             _LOG.warn("Bad target bone names:", list(rig.bad_constraint_targets))
 
         return {'FINISHED'}
-
 
 ClassManager.add_class(MPFB_OT_Save_Rig_Operator)

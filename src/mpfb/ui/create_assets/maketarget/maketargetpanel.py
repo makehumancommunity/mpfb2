@@ -11,7 +11,6 @@ from ..maketarget import MakeTargetObjectProperties
 
 _LOG = LogService.get_logger("maketarget.maketargetpanel")
 
-
 class MPFB_PT_MakeTarget_Panel(Abstract_Panel):
     """MakeTarget main panel."""
 
@@ -65,7 +64,6 @@ class MPFB_PT_MakeTarget_Panel(Abstract_Panel):
                 if object_type == "Basemesh":
                     self._symmetrize_target(scene, layout)
                 self._debug_target(scene, layout)
-
 
 ClassManager.add_class(MPFB_PT_MakeTarget_Panel)
 

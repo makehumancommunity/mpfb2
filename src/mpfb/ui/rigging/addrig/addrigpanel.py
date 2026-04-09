@@ -16,11 +16,9 @@ _LOC = os.path.dirname(__file__)
 ADD_RIG_PROPERTIES_DIR = os.path.join(_LOC, "properties")
 ADD_RIG_PROPERTIES = SceneConfigSet.from_definitions_in_json_directory(ADD_RIG_PROPERTIES_DIR, prefix="ADR_")
 
-
 def _populate_custom_rigs(self, context):
     from ....services import AssetService  # pylint: disable=C0415
     return AssetService.get_custom_rigs_enum_items()
-
 
 _CUSTOM_RIG_PROP = {
     "type": "enum",

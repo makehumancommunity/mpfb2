@@ -5,6 +5,7 @@ from .....services import LogService
 from .....services import ObjectService
 from ..... import ClassManager
 from ....mpfboperator import MpfbOperator
+from ....mpfbcontext import MpfbContext
 from ....pollstrategy import pollstrategy, PollStrategy
 
 _LOG = LogService.get_logger("makeclothes.extractclothes")
@@ -21,7 +22,6 @@ class MPFB_OT_ExtractClothesOperator(MpfbOperator):
 
     def hardened_execute(self, context):
         from ...makeclothes.makeclothespanel import MAKECLOTHES_PROPERTIES  # pylint: disable=C0415
-        from ....mpfbcontext import MpfbContext  # pylint: disable=C0415
         ctx = MpfbContext(context=context, scene_properties=MAKECLOTHES_PROPERTIES)
 
         ObjectService.extract_vertex_group_to_new_object(ctx.active_object, ctx.available_groups)

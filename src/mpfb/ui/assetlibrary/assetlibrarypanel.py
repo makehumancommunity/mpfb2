@@ -19,7 +19,6 @@ _NOASSETS = [
     "or install assets in MPFB user data"
     ]
 
-
 class _Abstract_Asset_Library_Panel(bpy.types.Panel):
     """Asset library panel"""
 
@@ -157,7 +156,6 @@ class _Abstract_Asset_Library_Panel(bpy.types.Panel):
             self.equipped = []
 
         self._draw_section(scene, layout)
-
 
 for _definition in ASSET_LIBRARY_SECTIONS:
     _LOG.dump("Definition", _definition)

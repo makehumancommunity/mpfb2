@@ -76,5 +76,4 @@ class MPFB_OT_OpenPose_Scene_Settings_Operator(MpfbOperator):
         _LOG.info("Scene settings changed")
         return {'FINISHED'}
 
-
 ClassManager.add_class(MPFB_OT_OpenPose_Scene_Settings_Operator)

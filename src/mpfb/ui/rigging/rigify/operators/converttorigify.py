@@ -10,7 +10,6 @@ import bpy, json
 
 _LOG = LogService.get_logger("rigify.operators.converttorigify")
 
-
 @pollstrategy(PollStrategy.RIG_ACTIVE)
 class MPFB_OT_Convert_To_Rigify_Operator(MpfbOperator):
     """Convert rig to rigify"""
@@ -49,6 +48,5 @@ class MPFB_OT_Convert_To_Rigify_Operator(MpfbOperator):
 
         self.report({'INFO'}, "Converted to rigify")
         return {'FINISHED'}
-
 
 ClassManager.add_class(MPFB_OT_Convert_To_Rigify_Operator)

@@ -40,5 +40,4 @@ class MPFB_OT_WriteClothesOperator(MpfbOperator, ClothesCommon, ExportHelper):
 
         return self.generic_execute(context, file_name)
 
-
 ClassManager.add_class(MPFB_OT_WriteClothesOperator)

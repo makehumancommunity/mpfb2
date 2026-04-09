@@ -10,7 +10,6 @@ from bpy_extras.io_utils import ImportHelper
 
 _LOG = LogService.get_logger("loadnodes.operators.loadnodes")
 
-
 class MPFB_OT_Load_Nodes_Operator(MpfbOperator, ImportHelper):
     """Load node tree from json"""
     bl_idname = "mpfb.load_nodes"
@@ -59,6 +58,5 @@ class MPFB_OT_Load_Nodes_Operator(MpfbOperator, ImportHelper):
         NodeService.apply_node_tree_from_dict(material.node_tree, as_dict, True)
 
         return {'FINISHED'}
-
 
 ClassManager.add_class(MPFB_OT_Load_Nodes_Operator)

@@ -6,6 +6,7 @@ from .....services import FaceService
 from .....services import ObjectService
 from .....services import TargetService
 from ....mpfboperator import MpfbOperator
+from ....mpfbcontext import MpfbContext
 from ..... import ClassManager
 from ....pollstrategy import pollstrategy, PollStrategy
 import bpy
@@ -27,7 +28,6 @@ class MPFB_OT_Create_Export_Copy_Operator(MpfbOperator):
         _LOG.enter()
 
         from ..exportopspanel import EXPORTOPS_PROPERTIES  # pylint: disable=C0415
-        from ....mpfbcontext import MpfbContext  # pylint: disable=C0415
 
         ctx = MpfbContext(context=context, scene_properties=EXPORTOPS_PROPERTIES)
 

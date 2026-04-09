@@ -10,9 +10,9 @@ from ..makeuppanel import MAKEUP_PROPERTIES
 from ..... import ClassManager
 from ....pollstrategy import pollstrategy, PollStrategy
 from ....mpfboperator import MpfbOperator
+from ....mpfbcontext import MpfbContext
 
 _LOG = LogService.get_logger("makeup.importuvmap")
-
 
 @pollstrategy(PollStrategy.ANY_MESH_OBJECT_ACTIVE)
 class MPFB_OT_ImportUvMapOperator(MpfbOperator, ImportHelper):
@@ -34,7 +34,6 @@ class MPFB_OT_ImportUvMapOperator(MpfbOperator, ImportHelper):
 
     def hardened_execute(self, context):
         """Import the UV map from a JSON file."""
-        from ....mpfbcontext import MpfbContext  # pylint: disable=C0415
 
         ctx = MpfbContext(context=context, scene_properties=MAKEUP_PROPERTIES)
 
@@ -49,6 +48,5 @@ class MPFB_OT_ImportUvMapOperator(MpfbOperator, ImportHelper):
 
         self.report({'INFO'}, f"UV map '{ctx.uv_map_name}' imported from '{self.filepath}'.")
         return {'FINISHED'}
-
 
 ClassManager.add_class(MPFB_OT_ImportUvMapOperator)

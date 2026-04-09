@@ -26,10 +26,10 @@ class MPFB_PT_SculptPanel(Abstract_Panel):
         layout = self.layout
         scene = context.scene
 
-        if context.object is None:
+        if context.active_object is None:
             return
 
-        objtype = ObjectService.get_object_type(context.object)
+        objtype = ObjectService.get_object_type(context.active_object)
 
         if not objtype or objtype == "Skeleton":
             return
@@ -74,6 +74,5 @@ class MPFB_PT_SculptPanel(Abstract_Panel):
 
         SCULPT_PROPERTIES.draw_properties(scene, layout, props)
         layout.operator("mpfb.setup_sculpt")
-
 
 ClassManager.add_class(MPFB_PT_SculptPanel)

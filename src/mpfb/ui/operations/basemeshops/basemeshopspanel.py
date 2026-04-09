@@ -25,17 +25,16 @@ class MPFB_PT_BasemeshOpsPanel(Abstract_Panel):
         layout = self.layout
         scene = context.scene
 
-        if context.object is None:
+        if context.active_object is None:
             return
 
-        objtype = ObjectService.get_object_type(context.object)
+        objtype = ObjectService.get_object_type(context.active_object)
 
         if objtype == "Basemesh":
             layout.operator("mpfb.bake_shapekeys")
             layout.operator("mpfb.delete_helpers")
 
-        if objtype and context.object.type == "MESH":
+        if objtype and context.active_object.type == "MESH":
             layout.operator("mpfb.add_corrective_smooth")
-
 
 ClassManager.add_class(MPFB_PT_BasemeshOpsPanel)

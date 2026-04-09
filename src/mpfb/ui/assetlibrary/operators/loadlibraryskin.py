@@ -7,9 +7,9 @@ from ....services import ObjectService
 from ....services import HumanService
 from .... import ClassManager
 from ...mpfboperator import MpfbOperator
+from ...mpfbcontext import MpfbContext
 
 _LOG = LogService.get_logger("assetlibrary.loadlibraryskin")
-
 
 class MPFB_OT_Load_Library_Skin_Operator(MpfbOperator):
     """Load skin MHMAT from asset library"""
@@ -27,7 +27,6 @@ class MPFB_OT_Load_Library_Skin_Operator(MpfbOperator):
         _LOG.debug("filepath", self.filepath)
 
         from ...assetlibrary.assetsettingspanel import ASSET_SETTINGS_PROPERTIES  # pylint: disable=C0415
-        from ...mpfbcontext import MpfbContext
 
         ctx = MpfbContext(context=context, scene_properties=ASSET_SETTINGS_PROPERTIES)
 
@@ -53,6 +52,5 @@ class MPFB_OT_Load_Library_Skin_Operator(MpfbOperator):
 
         self.report({'INFO'}, "Skin was loaded")
         return {'FINISHED'}
-
 
 ClassManager.add_class(MPFB_OT_Load_Library_Skin_Operator)

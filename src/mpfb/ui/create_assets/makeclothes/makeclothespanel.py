@@ -25,7 +25,6 @@ MAKECLOTHES_PROPERTIES = SceneConfigSet.from_definitions_in_json_directory(MAKEC
 
 _LOG = LogService.get_logger("makeclothes.makeclothespanel")
 
-
 def _populate_groups(self, context):
     _LOG.enter()
     _LOG.trace("Context is scene", isinstance(context, bpy.types.Scene))
@@ -43,7 +42,6 @@ def _populate_groups(self, context):
         return groups
     return []
 
-
 _GROUPS_LIST_PROP = {
     "type": "enum",
     "name": "available_groups",
@@ -52,7 +50,6 @@ _GROUPS_LIST_PROP = {
     "default": None
 }
 MAKECLOTHES_PROPERTIES.add_property(_GROUPS_LIST_PROP, _populate_groups)
-
 
 class MPFB_PT_MakeClothes_Panel(Abstract_Panel):
     """MakeClothes main panel."""
@@ -287,7 +284,6 @@ class MPFB_PT_MakeClothes_Panel(Abstract_Panel):
         self._generate_delete(blender_object, scene, layout)
         self._check_clothes(blender_object, scene, layout)
         self._write_clothes(blender_object, scene, layout)
-
 
 ClassManager.add_class(MPFB_PT_MakeClothes_Panel)
 

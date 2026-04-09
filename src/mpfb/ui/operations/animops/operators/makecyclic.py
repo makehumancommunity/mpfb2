@@ -6,6 +6,7 @@ from .....services import AnimationService
 from .....services import RigService
 from ..... import ClassManager
 from ....mpfboperator import MpfbOperator
+from ....mpfbcontext import MpfbContext
 from ....pollstrategy import pollstrategy, PollStrategy
 import bpy, json, math, os
 from bpy.types import StringProperty
@@ -29,7 +30,6 @@ class MPFB_OT_Make_Cyclic_Operator(MpfbOperator):
         armature_object = context.active_object
 
         from ...animops.animopspanel import ANIMOPS_PROPERTIES  # pylint: disable=C0415
-        from ....mpfbcontext import MpfbContext  # pylint: disable=C0415
 
         ctx = MpfbContext(context=context, scene_properties=ANIMOPS_PROPERTIES)
 
@@ -45,6 +45,5 @@ class MPFB_OT_Make_Cyclic_Operator(MpfbOperator):
 
         self.report({'INFO'}, "Done")
         return {'FINISHED'}
-
 
 ClassManager.add_class(MPFB_OT_Make_Cyclic_Operator)

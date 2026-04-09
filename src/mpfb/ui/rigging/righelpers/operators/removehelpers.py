@@ -11,7 +11,6 @@ import bpy
 
 _LOG = LogService.get_logger("setupikoperators.fingerfk")
 
-
 class MPFB_OT_RemoveHelpersOperator(MpfbOperator):
     """This will remove all helpers from the active armature"""
     bl_idname = "mpfb.remove_helpers"
@@ -87,6 +86,5 @@ class MPFB_OT_RemoveHelpersOperator(MpfbOperator):
         eye_mode = RigHelpersProperties.get_value("eye_mode", entity_reference=armature_object)
 
         return finger_mode or leg_mode or arm_mode or eye_mode
-
 
 ClassManager.add_class(MPFB_OT_RemoveHelpersOperator)

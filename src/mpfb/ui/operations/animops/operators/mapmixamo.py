@@ -113,7 +113,6 @@ class MPFB_OT_Map_Mixamo_Operator(MpfbOperator):
             constraint.target = src
             constraint.subtarget = src_bone.name
 
-
         constraint = RigService.add_bone_constraint_to_pose_bone(dst_hips.name, dst, "COPY_LOCATION")
         constraint.target = src
         constraint.subtarget = src_hips.name
@@ -126,6 +125,5 @@ class MPFB_OT_Map_Mixamo_Operator(MpfbOperator):
         bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
 
         return {'FINISHED'}
-
 
 ClassManager.add_class(MPFB_OT_Map_Mixamo_Operator)

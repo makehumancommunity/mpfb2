@@ -9,6 +9,7 @@ from .....entities.nodemodel.v2.materials import NodeWrapperSkin
 from ..... import ClassManager
 from ....developer.developerpanel import DEVELOPER_PROPERTIES
 from ....mpfboperator import MpfbOperator
+from ....mpfbcontext import MpfbContext
 from ....pollstrategy import pollstrategy, PollStrategy
 import bpy, os, json, pprint
 
@@ -62,7 +63,6 @@ class MPFB_OT_Create_V2_Skin_Operator(MpfbOperator):
         _LOG.enter()
 
         from ...matops.matopspanel import MATOPS_PROPERTIES  # pylint: disable=C0415
-        from ....mpfbcontext import MpfbContext  # pylint: disable=C0415
 
         ctx = MpfbContext(context=context, scene_properties=MATOPS_PROPERTIES)
 

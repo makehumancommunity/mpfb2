@@ -7,6 +7,7 @@ from ....services import ObjectService
 from ....services import HumanService
 from .... import ClassManager
 from ...mpfboperator import MpfbOperator
+from ...mpfbcontext import MpfbContext
 
 _LOG = LogService.get_logger("assetlibrary.loadlibraryclothes")
 
@@ -30,7 +31,6 @@ class MPFB_OT_Load_Library_Clothes_Operator(MpfbOperator):
         _LOG.debug("material_type", self.material_type)
 
         from ...assetlibrary.assetsettingspanel import ASSET_SETTINGS_PROPERTIES  # pylint: disable=C0415
-        from ...mpfbcontext import MpfbContext
 
         ctx = MpfbContext(context=context, scene_properties=ASSET_SETTINGS_PROPERTIES)
 

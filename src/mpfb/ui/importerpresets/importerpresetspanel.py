@@ -12,7 +12,6 @@ _LOC = os.path.dirname(__file__)
 IMPORTER_PRESETS_PROPERTIES_DIR = os.path.join(_LOC, "properties")
 IMPORTER_PRESETS_PROPERTIES = SceneConfigSet.from_definitions_in_json_directory(IMPORTER_PRESETS_PROPERTIES_DIR, prefix="IP_")
 
-
 def _populate_presets(self, context):
     _LOG.enter()
     _LOG.trace("Context is scene", isinstance(context, bpy.types.Scene))
@@ -20,7 +19,6 @@ def _populate_presets(self, context):
     if available_presets is None:
         available_presets = []
     return available_presets
-
 
 _PRESETS_LIST_PROP = {
     "type": "enum",
@@ -30,7 +28,6 @@ _PRESETS_LIST_PROP = {
     "default": 0
 }
 IMPORTER_PRESETS_PROPERTIES.add_property(_PRESETS_LIST_PROP, _populate_presets)
-
 
 class MPFB_PT_Importer_Presets_Panel(Abstract_Panel):
     bl_label = "Importer Presets"
@@ -126,6 +123,5 @@ class MPFB_PT_Importer_Presets_Panel(Abstract_Panel):
         self._mesh_and_groups_box(scene, self._create_box(layout, "Mesh and vGroups", "MODIFIER"))
         self._materials_box(scene, self._create_box(layout, "Materials", "MODIFIER"))
         self._network_box(scene, self._create_box(layout, "Network", "MODIFIER"))
-
 
 ClassManager.add_class(MPFB_PT_Importer_Presets_Panel)

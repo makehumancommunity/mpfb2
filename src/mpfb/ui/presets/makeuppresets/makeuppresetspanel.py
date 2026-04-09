@@ -14,7 +14,6 @@ _LOC = os.path.dirname(__file__)
 MAKEUP_PRESETS_PROPERTIES_DIR = os.path.join(_LOC, "properties")
 MAKEUP_PRESETS_PROPERTIES = SceneConfigSet.from_definitions_in_json_directory(MAKEUP_PRESETS_PROPERTIES_DIR, prefix="MUPR_")
 
-
 def _populate_settings(self, context):
     _LOG.enter()
     _LOG.trace("Context is scene", isinstance(context, bpy.types.Scene))
@@ -32,7 +31,6 @@ def _populate_settings(self, context):
         current_id = current_id + 1
     return presets
 
-
 _SETTINGS_LIST_PROP = {
     "type": "enum",
     "name": "available_presets",
@@ -41,7 +39,6 @@ _SETTINGS_LIST_PROP = {
     "default": 0
 }
 MAKEUP_PRESETS_PROPERTIES.add_property(_SETTINGS_LIST_PROP, _populate_settings)
-
 
 class MPFB_PT_Makeup_Presets_Panel(Abstract_Panel):
     """Panel for managing makeup save files."""
@@ -76,6 +73,5 @@ class MPFB_PT_Makeup_Presets_Panel(Abstract_Panel):
             return False
 
         return True
-
 
 ClassManager.add_class(MPFB_PT_Makeup_Presets_Panel)

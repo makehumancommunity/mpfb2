@@ -10,7 +10,6 @@ import bpy, os, json
 
 _LOG = LogService.get_logger("makeuppresets.genericpresets")
 
-
 class generic_makeup_presets(MpfbOperator):
     """This is the base class for all makeup presets operators"""
 

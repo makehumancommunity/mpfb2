@@ -11,6 +11,7 @@ from ..... import ClassManager
 from .....entities.material.makeskinmaterial import MakeSkinMaterial
 from ....pollstrategy import pollstrategy, PollStrategy
 from ....mpfboperator import MpfbOperator
+from ....mpfbcontext import MpfbContext
 
 _LOG = LogService.get_logger("makeskin.writelibrary")
 
@@ -26,7 +27,6 @@ class MPFB_OT_WriteLibraryOperator(MpfbOperator):
 
     def hardened_execute(self, context):
         from ...makeskin import MakeSkinObjectProperties  # pylint: disable=C0415
-        from ....mpfbcontext import MpfbContext  # pylint: disable=C0415
 
         ctx = MpfbContext(context=context, object_properties=MakeSkinObjectProperties)
 

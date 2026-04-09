@@ -52,7 +52,6 @@ class MPFB_PT_Hair_Editor_Panel(Abstract_Panel):
 
         #_LOG.debug("Hair keys", HAIR_PROPERTIES.get_keys(basemesh))
 
-
         # Column with applied assets
         col = layout.column()
 
@@ -170,7 +169,6 @@ class MPFB_PT_Hair_Editor_Panel(Abstract_Panel):
                         pass
 
 
-
 # TODO: fur card and delete stuff
 #===============================================================================
 #
@@ -208,7 +206,6 @@ class MPFB_PT_Hair_Editor_Panel(Abstract_Panel):
 
 
 
-
     def draw(self, context):
         _LOG.enter()
 
@@ -234,6 +231,5 @@ class MPFB_PT_Hair_Editor_Panel(Abstract_Panel):
         else:
             self._hair_panel(basemesh, layout)
             self._fur_panel(basemesh, layout)
-
 
 ClassManager.add_class(MPFB_PT_Hair_Editor_Panel)

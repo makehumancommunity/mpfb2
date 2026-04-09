@@ -6,7 +6,6 @@ from ..... import ClassManager
 
 _LOG = LogService.get_logger("makeuppresets.overwritepresets")
 
-
 class MPFB_OT_Overwrite_Makeup_Presets_Operator(generic_makeup_presets):
     """This will overwrite the selected makeup presets, using values from the selected object"""
     bl_idname = "mpfb.overwrite_makeup_presets"
@@ -42,6 +41,5 @@ class MPFB_OT_Overwrite_Makeup_Presets_Operator(generic_makeup_presets):
     @classmethod
     def poll(cls, context):
         return generic_makeup_presets.is_bm(context)
-
 
 ClassManager.add_class(MPFB_OT_Overwrite_Makeup_Presets_Operator)

@@ -11,7 +11,6 @@ _LOC = os.path.dirname(__file__)
 IMPORTER_PROPERTIES_DIR = os.path.join(_LOC, "properties")
 IMPORTER_PROPERTIES = SceneConfigSet.from_definitions_in_json_directory(IMPORTER_PROPERTIES_DIR, prefix="IMP_")
 
-
 def _populate_presets(self, context):
     _LOG.enter()
     _LOG.trace("Context is scene", isinstance(context, bpy.types.Scene))
@@ -35,7 +34,6 @@ def _populate_eye_settings(self, context):
     if available_settings is None:
         available_settings = []
     return available_settings
-
 
 _PRESETS_LIST_PROP = {
     "type": "enum",
@@ -99,6 +97,5 @@ class MPFB_PT_Importer_Panel(Abstract_Panel):
             "eye_settings_for_import"
             ])
         layout.operator('mpfb.importer_import_body')
-
 
 ClassManager.add_class(MPFB_PT_Importer_Panel)

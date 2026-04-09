@@ -335,7 +335,6 @@ LEFT_HAND.append({
     })
 
 
-
 RIGHT_HAND = []
 
 # 0

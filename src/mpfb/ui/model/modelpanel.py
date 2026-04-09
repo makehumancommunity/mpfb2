@@ -13,7 +13,6 @@ _LOC = os.path.dirname(__file__)
 MODEL_PROPERTIES_DIR = os.path.join(_LOC, "properties")
 MODEL_PROPERTIES = SceneConfigSet.from_definitions_in_json_directory(MODEL_PROPERTIES_DIR, prefix="MDP_")
 
-
 class MPFB_PT_Model_Panel(bpy.types.Panel):
     """Human modeling panel."""
 
@@ -72,7 +71,6 @@ class MPFB_PT_Model_Panel(bpy.types.Panel):
             return False
         basemesh = ObjectService.find_object_of_type_amongst_nearest_relatives(context.active_object, "Basemesh")
         return basemesh is not None
-
 
 ClassManager.add_class(MPFB_PT_Model_Panel)
 

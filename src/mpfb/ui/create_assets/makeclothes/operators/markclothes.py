@@ -5,6 +5,7 @@ from .....services import LogService
 from .....entities.objectproperties import GeneralObjectProperties
 from ..... import ClassManager
 from ....mpfboperator import MpfbOperator
+from ....mpfbcontext import MpfbContext
 from ....pollstrategy import pollstrategy, PollStrategy
 
 _LOG = LogService.get_logger("makeclothes.markclothes")
@@ -21,7 +22,6 @@ class MPFB_OT_MarkClothesOperator(MpfbOperator):
 
     def hardened_execute(self, context):
         from ...makeclothes.makeclothespanel import MAKECLOTHES_PROPERTIES  # pylint: disable=C0415
-        from ....mpfbcontext import MpfbContext  # pylint: disable=C0415
         ctx = MpfbContext(context=context, scene_properties=MAKECLOTHES_PROPERTIES)
 
         GeneralObjectProperties.set_value("object_type", ctx.object_type, entity_reference=ctx.active_object)

@@ -65,5 +65,4 @@ class MPFB_OT_Load_Walk_Cycle_Operator(MpfbOperator):
         self.report({'INFO'}, "Done")
         return {'FINISHED'}
 
-
 ClassManager.add_class(MPFB_OT_Load_Walk_Cycle_Operator)

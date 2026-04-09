@@ -4,9 +4,7 @@ from ..... import ClassManager
 from ....mpfboperator import MpfbOperator
 import bpy
 
-
 _LOG = LogService.get_logger("basemeshops.operators.addcorrectivesmooth")
-
 
 class MPFB_OT_Add_Corrective_Smooth_Operator(MpfbOperator):
     """Add a corrective smooth modifier."""
@@ -96,6 +94,5 @@ class MPFB_OT_Add_Corrective_Smooth_Operator(MpfbOperator):
 
         self.report({'INFO'}, "Corrective smooth added")
         return {'FINISHED'}
-
 
 ClassManager.add_class(MPFB_OT_Add_Corrective_Smooth_Operator)

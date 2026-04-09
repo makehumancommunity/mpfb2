@@ -7,6 +7,7 @@ from .....services import LocationService
 from .....services import TargetService
 from ..... import ClassManager
 from ....mpfboperator import MpfbOperator
+from ....mpfbcontext import MpfbContext
 import bpy, json, math, os
 from bpy.types import StringProperty
 from bpy_extras.io_utils import ImportHelper
@@ -185,7 +186,6 @@ class MPFB_OT_Setup_Sculpt_Operator(MpfbOperator):
         bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
 
         from ...sculpt.sculptpanel import SCULPT_PROPERTIES  # pylint: disable=C0415
-        from ....mpfbcontext import MpfbContext  # pylint: disable=C0415
 
         ctx = MpfbContext(context=context, scene_properties=SCULPT_PROPERTIES)
 

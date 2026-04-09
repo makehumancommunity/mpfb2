@@ -7,7 +7,6 @@ import os
 
 _LOG = LogService.get_logger("makeuppresets.savenewpresets")
 
-
 class MPFB_OT_Save_New_Makeup_Presets_Operator(generic_makeup_presets):
     """This will save new makeup preset"""
     bl_idname = "mpfb.save_new_makeup_presets"
@@ -47,6 +46,5 @@ class MPFB_OT_Save_New_Makeup_Presets_Operator(generic_makeup_presets):
     @classmethod
     def poll(cls, context):
         return generic_makeup_presets.is_bm(context)
-
 
 ClassManager.add_class(MPFB_OT_Save_New_Makeup_Presets_Operator)

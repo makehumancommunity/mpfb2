@@ -24,7 +24,6 @@ _FOCUS_LIST_PROP = {
     "default": 0
 }
 
-
 def _populate_list(self, context):
     _LOG.enter()
     names = []
@@ -55,7 +54,6 @@ def _populate_list(self, context):
 
     return output_list
 
-
 MAKEUP_PROPERTIES.add_property(_FOCUS_LIST_PROP, _populate_list)
 
 _LAYER_LIST_PROP = {
@@ -65,7 +63,6 @@ _LAYER_LIST_PROP = {
     "label": "Layer",
     "default": None
 }
-
 
 def _populate_layer(self, context):
     _LOG.enter()
@@ -94,9 +91,7 @@ def _populate_layer(self, context):
 
     return names
 
-
 MAKEUP_PROPERTIES.add_property(_LAYER_LIST_PROP, _populate_layer)
-
 
 class MPFB_PT_MakeUp_Panel(Abstract_Panel):
     """UI for various makeup related functions."""
@@ -136,6 +131,5 @@ class MPFB_PT_MakeUp_Panel(Abstract_Panel):
         self._add_ink_layer(scene, layout)
         self._write_ink_layer(scene, layout)
         self._developer(scene, layout)
-
 
 ClassManager.add_class(MPFB_PT_MakeUp_Panel)

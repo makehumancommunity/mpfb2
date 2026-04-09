@@ -93,5 +93,4 @@ class MPFB_OT_Auto_Transfer_Weights_Operator(MpfbOperator):
 
         return {'FINISHED'}
 
-
 ClassManager.add_class(MPFB_OT_Auto_Transfer_Weights_Operator)

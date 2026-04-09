@@ -8,10 +8,10 @@ from ....services import HumanService
 from ....services import ObjectService
 from ....services import SystemService
 from ...mpfboperator import MpfbOperator
+from ...mpfbcontext import MpfbContext
 from .... import ClassManager
 
 _LOG = LogService.get_logger("newhuman.humanfrommhm")
-
 
 class MPFB_OT_HumanFromMHMOperator(MpfbOperator, ImportHelper):
     """Create a new human from MHM"""
@@ -29,7 +29,6 @@ class MPFB_OT_HumanFromMHMOperator(MpfbOperator, ImportHelper):
         _LOG.reset_timer()
 
         from ...newhuman.frompresetspanel import PRESETS_HUMAN_PROPERTIES  # pylint: disable=C0415
-        from ...mpfbcontext import MpfbContext  # pylint: disable=C0415
 
         ctx = MpfbContext(context=context, scene_properties=PRESETS_HUMAN_PROPERTIES)
 
@@ -86,7 +85,6 @@ class MPFB_OT_HumanFromMHMOperator(MpfbOperator, ImportHelper):
 
         self.report({'INFO'}, "Human created. You should check the model, as the MHM might not map exactly to what is available in MPFB2.")
         return {'FINISHED'}
-
 
 ClassManager.add_class(MPFB_OT_HumanFromMHMOperator)
 

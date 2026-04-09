@@ -3,10 +3,10 @@
 from ....services import LogService
 from .... import ClassManager
 from ...mpfboperator import MpfbOperator
+from ...mpfbcontext import MpfbContext
 import bpy
 
 _LOG = LogService.get_logger("loglevels.operators.setloglevel")
-
 
 class MPFB_OT_Set_Log_Level_Operator(MpfbOperator):
     """Set a log level override for a channel. If the "default" channel is selected, set the default log level"""
@@ -21,7 +21,6 @@ class MPFB_OT_Set_Log_Level_Operator(MpfbOperator):
         _LOG.enter()
 
         from ...developer.developerpanel import DEVELOPER_PROPERTIES  # pylint: disable=C0415
-        from ...mpfbcontext import MpfbContext
 
         ctx = MpfbContext(context=context, scene_properties=DEVELOPER_PROPERTIES)
 
@@ -39,6 +38,5 @@ class MPFB_OT_Set_Log_Level_Operator(MpfbOperator):
         self.report({"INFO"}, "Set logger " + logger_name + " to level " + LogService.LOGLEVELS[int(level_string)])
 
         return {'FINISHED'}
-
 
 ClassManager.add_class(MPFB_OT_Set_Log_Level_Operator)

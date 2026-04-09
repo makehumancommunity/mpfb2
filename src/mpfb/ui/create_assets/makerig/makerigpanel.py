@@ -22,4 +22,3 @@ class MPFB_PT_MakeRig_Panel(Abstract_Panel):
 
 ClassManager.add_class(MPFB_PT_MakeRig_Panel)
 
-

@@ -33,6 +33,5 @@ class MPFB_PT_Dir_Resources_Panel(Abstract_Panel):
         self._path(layout, "System data", system_data)
         self._path(layout, "Log files", log_files)
 
-
 ClassManager.add_class(MPFB_PT_Dir_Resources_Panel)
 

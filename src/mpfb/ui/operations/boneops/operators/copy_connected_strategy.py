@@ -8,7 +8,6 @@ from .abstract import AbstractBoneOperator
 
 _LOG = LogService.get_logger("boneops.copy_connected_strategy")
 
-
 class MPFB_OT_Copy_Connected_Strategy_Operator(AbstractBoneOperator):
     """Copy strategies from adjacent bones that touch ends with this one. Will not replace locked strategies, unless the other bone's strategy is also locked""" # noqa
     bl_idname = "mpfb.copy_connected_strategy"
@@ -55,6 +54,5 @@ class MPFB_OT_Copy_Connected_Strategy_Operator(AbstractBoneOperator):
             self.report({'WARNING'}, "No suitable matches found.")
 
         return {'FINISHED'}
-
 
 ClassManager.add_class(MPFB_OT_Copy_Connected_Strategy_Operator)

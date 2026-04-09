@@ -231,5 +231,4 @@ class MPFB_OT_Save_Openpose_Operator(MpfbOperator, ExportHelper):
 
         return {'FINISHED'}
 
-
 ClassManager.add_class(MPFB_OT_Save_Openpose_Operator)

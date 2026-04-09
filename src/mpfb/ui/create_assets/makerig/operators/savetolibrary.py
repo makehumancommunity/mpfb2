@@ -9,10 +9,10 @@ from .....services import RigService
 from .....entities.rig import Rig
 from ..... import ClassManager
 from ....mpfboperator import MpfbOperator
+from ....mpfbcontext import MpfbContext
 from ....pollstrategy import pollstrategy, PollStrategy
 
 _LOG = LogService.get_logger("makerig.operators.savetolibrary")
-
 
 @pollstrategy(PollStrategy.ANY_ARMATURE_OBJECT_ACTIVE)
 class MPFB_OT_Save_Rig_To_Library_Operator(MpfbOperator):
@@ -35,7 +35,6 @@ class MPFB_OT_Save_Rig_To_Library_Operator(MpfbOperator):
         armature_object = context.active_object
 
         from ...makerig import MakeRigProperties  # pylint: disable=C0415
-        from ....mpfbcontext import MpfbContext
         ctx = MpfbContext(context=context, scene_properties=MakeRigProperties)
 
         # Validate rig name
@@ -99,6 +98,5 @@ class MPFB_OT_Save_Rig_To_Library_Operator(MpfbOperator):
         AssetService.invalidate_custom_rig_cache()
 
         return {'FINISHED'}
-
 
 ClassManager.add_class(MPFB_OT_Save_Rig_To_Library_Operator)

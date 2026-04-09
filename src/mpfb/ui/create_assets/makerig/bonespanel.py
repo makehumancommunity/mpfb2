@@ -23,11 +23,11 @@ class MPFB_PT_MakeRigBones_Panel(Abstract_Panel):
         basemesh = None
         armature = None
 
-        if not context.object or context.object.type != "ARMATURE":
+        if not context.active_object or context.active_object.type != "ARMATURE":
             box.label(text="Need armature as active")
             return
 
-        armature = context.object
+        armature = context.active_object
         basemesh = ObjectService.find_object_of_type_amongst_nearest_relatives(armature, "Basemesh")
 
         if not basemesh:
@@ -61,5 +61,4 @@ class MPFB_PT_MakeRigBones_Panel(Abstract_Panel):
         self._adjust_bone(context, scene, layout)
 
 ClassManager.add_class(MPFB_PT_MakeRigBones_Panel)
-
 

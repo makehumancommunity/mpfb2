@@ -5,6 +5,7 @@ from .....services import ObjectService
 from .....services import RigService
 from ..... import ClassManager
 from ....mpfboperator import MpfbOperator
+from ....mpfbcontext import MpfbContext
 from ....pollstrategy import pollstrategy, PollStrategy
 import bpy, json, math, os
 from bpy.types import StringProperty
@@ -32,7 +33,6 @@ class MPFB_OT_Save_Pose_Operator(MpfbOperator):
         armature_object = context.active_object
 
         from ...makepose import MakePoseProperties
-        from ....mpfbcontext import MpfbContext
         ctx = MpfbContext(context=context, scene_properties=MakePoseProperties)
 
         name = str(ctx.name).strip() if ctx.name else ctx.name
@@ -54,7 +54,6 @@ class MPFB_OT_Save_Pose_Operator(MpfbOperator):
         rig_type = RigService.identify_rig(armature_object)
         if "default" in rig_type:
             rig_type = "default"
-
 
         save_pose_as = "fk"
 
@@ -97,6 +96,5 @@ class MPFB_OT_Save_Pose_Operator(MpfbOperator):
             self.report({'WARNING'}, "Posing ungenerated rigify rigs is probably a very bad idea. Better to generate first and pose later.")
 
         return {'FINISHED'}
-
 
 ClassManager.add_class(MPFB_OT_Save_Pose_Operator)

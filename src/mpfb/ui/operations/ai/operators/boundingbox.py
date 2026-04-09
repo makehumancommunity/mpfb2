@@ -55,5 +55,4 @@ class MPFB_OT_Boundingbox_Operator(MpfbOperator):
 
         return {'FINISHED'}
 
-
 ClassManager.add_class(MPFB_OT_Boundingbox_Operator)

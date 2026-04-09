@@ -76,7 +76,6 @@ class MPFB_OT_DeleteHair_Operator(bpy.types.Operator):
         if hasattr(scene, prop_name):
             setattr(scene, prop_name, False)
 
-
         # Remove assetes properties
         prop_prefix = f"{self.hair_asset}_"
         for name in [
@@ -134,6 +133,5 @@ class MPFB_OT_DeleteHair_Operator(bpy.types.Operator):
 
         self.report({'INFO'}, "Hair asset deleted successfully.")
         return {'FINISHED'}
-
 
 ClassManager.add_class(MPFB_OT_DeleteHair_Operator)

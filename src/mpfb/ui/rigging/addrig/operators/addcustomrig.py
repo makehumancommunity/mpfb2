@@ -6,9 +6,9 @@ from .....services import ObjectService
 from ..... import ClassManager
 from ....pollstrategy import pollstrategy, PollStrategy
 from ....mpfboperator import MpfbOperator
+from ....mpfbcontext import MpfbContext
 
 _LOG = LogService.get_logger("addrig.add_custom_rig")
-
 
 @pollstrategy(PollStrategy.BASEMESH_ACTIVE)
 class MPFB_OT_Add_Custom_Rig_Operator(MpfbOperator):
@@ -23,7 +23,6 @@ class MPFB_OT_Add_Custom_Rig_Operator(MpfbOperator):
 
     def hardened_execute(self, context):
         from ...addrig.addrigpanel import ADD_RIG_PROPERTIES  # pylint: disable=C0415
-        from ....mpfbcontext import MpfbContext  # pylint: disable=C0415
 
         ctx = MpfbContext(context=context, scene_properties=ADD_RIG_PROPERTIES)
 
@@ -39,6 +38,5 @@ class MPFB_OT_Add_Custom_Rig_Operator(MpfbOperator):
 
         self.report({'INFO'}, "Custom rig '" + ctx.custom_rig + "' was added")
         return {'FINISHED'}
-
 
 ClassManager.add_class(MPFB_OT_Add_Custom_Rig_Operator)

@@ -11,7 +11,6 @@ from .abstract import AbstractBoneOperator
 
 _LOG = LogService.get_logger("boneops.set_roll_strategy")
 
-
 class MPFB_OT_Set_Roll_Strategy_Operator(AbstractBoneOperator):
     """Set roll strategy"""
     bl_idname = "mpfb.set_roll_strategy"
@@ -65,6 +64,5 @@ class MPFB_OT_Set_Roll_Strategy_Operator(AbstractBoneOperator):
             Rig.apply_bone_roll_strategy(bone, self.strategy)
 
         return {'FINISHED'}
-
 
 ClassManager.add_class(MPFB_OT_Set_Roll_Strategy_Operator)

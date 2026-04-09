@@ -8,9 +8,9 @@ from .....services import RigService
 from .....services import SystemService
 from ..... import ClassManager
 from ....mpfboperator import MpfbOperator
+from ....mpfbcontext import MpfbContext
 
 _LOG = LogService.get_logger("addrig.generate_rigify_rig")
-
 
 class MPFB_OT_GenerateRigifyRigOperator(MpfbOperator):
     """Generate a rigify rig from a meta-rig"""
@@ -33,7 +33,6 @@ class MPFB_OT_GenerateRigifyRigOperator(MpfbOperator):
 
     def hardened_execute(self, context):
         from ...addrig.addrigpanel import ADD_RIG_PROPERTIES  # pylint: disable=C0415
-        from ....mpfbcontext import MpfbContext  # pylint: disable=C0415
 
         ctx = MpfbContext(context=context, scene_properties=ADD_RIG_PROPERTIES)
 
@@ -94,6 +93,5 @@ class MPFB_OT_GenerateRigifyRigOperator(MpfbOperator):
 
         self.report({'INFO'}, "A rig was generated")
         return {'FINISHED'}
-
 
 ClassManager.add_class(MPFB_OT_GenerateRigifyRigOperator)

@@ -15,7 +15,6 @@ _LOC = os.path.dirname(__file__)
 FACEOPS_PROPERTIES_DIR = os.path.join(_LOC, "properties")
 FACEOPS_PROPERTIES = SceneConfigSet.from_definitions_in_json_directory(FACEOPS_PROPERTIES_DIR, prefix="FAOP_")
 
-
 class MPFB_PT_FaceOpsPanel(Abstract_Panel):
     """UI panel for loading facial shape key packs and configuring Lip Sync integration."""
 
@@ -60,15 +59,14 @@ class MPFB_PT_FaceOpsPanel(Abstract_Panel):
         layout = self.layout
         scene = context.scene
 
-        if context.object is None:
+        if context.active_object is None:
             return
 
-        basemesh = ObjectService.find_object_of_type_amongst_nearest_relatives(context.object)
+        basemesh = ObjectService.find_object_of_type_amongst_nearest_relatives(context.active_object)
         if basemesh is None:
             return
 
         self._shape_key_packs(scene, layout)
         self._lip_sync(basemesh, layout)
-
 
 ClassManager.add_class(MPFB_PT_FaceOpsPanel)

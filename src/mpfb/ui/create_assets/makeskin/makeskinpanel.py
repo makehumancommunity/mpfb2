@@ -15,7 +15,6 @@ MAKESKIN_PROPERTIES = SceneConfigSet.from_definitions_in_json_directory(MAKESKIN
 
 _LOG = LogService.get_logger("makeskin.makeskinpanel")
 
-
 class MPFB_PT_MakeSkin_Panel(Abstract_Panel):
     """MakeSkin main panel."""
 
@@ -117,7 +116,6 @@ class MPFB_PT_MakeSkin_Panel(Abstract_Panel):
             self._path_prop(blender_object, layout)
             self._save_file(blender_object, layout)
             self._save_library(blender_object, layout)
-
 
 ClassManager.add_class(MPFB_PT_MakeSkin_Panel)
 

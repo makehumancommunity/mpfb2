@@ -12,7 +12,6 @@ _LOC = os.path.dirname(__file__)
 NEW_HUMAN_PROPERTIES_DIR = os.path.join(_LOC, "properties")
 NEW_HUMAN_PROPERTIES = SceneConfigSet.from_definitions_in_json_directory(NEW_HUMAN_PROPERTIES_DIR, prefix="NH_")
 
-
 class MPFB_PT_NewHuman_Panel(bpy.types.Panel):
     """Create human from scratch main panel."""
 
@@ -71,7 +70,6 @@ class MPFB_PT_NewHuman_Panel(bpy.types.Panel):
         self._phenotype(scene, layout)
         self._breast(scene, layout)
         self._create(scene, layout)
-
 
 ClassManager.add_class(MPFB_PT_NewHuman_Panel)
 

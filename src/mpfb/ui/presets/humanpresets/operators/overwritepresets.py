@@ -7,10 +7,10 @@ from ...humanpresets.humanpresetspanel import HUMAN_PRESETS_PROPERTIES
 from ..... import ClassManager
 from ....pollstrategy import pollstrategy, PollStrategy
 from ....mpfboperator import MpfbOperator
+from ....mpfbcontext import MpfbContext
 import bpy, os
 
 _LOG = LogService.get_logger("humanpresets.overwritepresets")
-
 
 @pollstrategy(PollStrategy.BASEMESH_OR_BODY_PROXY_OR_SKELETON_ACTIVE)
 class MPFB_OT_Overwrite_Human_Presets_Operator(MpfbOperator):
@@ -28,8 +28,6 @@ class MPFB_OT_Overwrite_Human_Presets_Operator(MpfbOperator):
         if context.active_object is None:
             self.report({'ERROR'}, "Must have a selected object")
             return {'FINISHED'}
-
-        from ....mpfbcontext import MpfbContext  # pylint: disable=C0415
 
         ctx = MpfbContext(context=context, scene_properties=HUMAN_PRESETS_PROPERTIES)
         name = ctx.available_presets
@@ -61,6 +59,5 @@ class MPFB_OT_Overwrite_Human_Presets_Operator(MpfbOperator):
             self.report({'INFO'}, "Human saved as " + file_name)
 
         return {'FINISHED'}
-
 
 ClassManager.add_class(MPFB_OT_Overwrite_Human_Presets_Operator)

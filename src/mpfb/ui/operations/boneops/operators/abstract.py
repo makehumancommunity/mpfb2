@@ -15,7 +15,6 @@ _LOG = LogService.get_logger("boneops.abstract")
 
 TBone = typing.TypeVar("TBone", bound=bpy.types.EditBone | bpy.types.Bone)
 
-
 class AbstractBoneOperator(MpfbOperator):
 
     def get_logger(self):

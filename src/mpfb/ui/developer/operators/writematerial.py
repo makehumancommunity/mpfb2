@@ -10,6 +10,7 @@ from ...developer.developerpanel import DEVELOPER_PROPERTIES
 from .rewritenodetypes import shorten_name, round_floats
 from .writecomposite import _identify_socket, _build_tree_def
 from ...mpfboperator import MpfbOperator
+from ...mpfbcontext import MpfbContext, ContextResolveEffort
 import bpy, os, json, pprint
 from string import Template
 
@@ -36,8 +37,6 @@ class MPFB_OT_Write_Material_Operator(MpfbOperator):
     def hardened_execute(self, context):
         _LOG.enter()
 
-        from ...mpfbcontext import MpfbContext, ContextResolveEffort  # pylint: disable=C0415
-
         ctx = MpfbContext(context=context, scene_properties=DEVELOPER_PROPERTIES, effort=ContextResolveEffort.NONE)
 
         node_tree = bpy.context.space_data.edit_tree
@@ -47,7 +46,6 @@ class MPFB_OT_Write_Material_Operator(MpfbOperator):
             return {'FINISHED'}
 
         output_name = ctx.output_material_name
-        mhmat_based = ctx.mhmat_based
 
         if not output_name or not output_name.strip():
             self.report({'ERROR'}, "Must provide valid name")
@@ -70,7 +68,7 @@ class MPFB_OT_Write_Material_Operator(MpfbOperator):
             pyfile.write("class _NodeWrapper" + output_name + "(AbstractMaterialWrapper):\n")
             pyfile.write("    def __init__(self):\n")
             pyfile.write("        AbstractMaterialWrapper.__init__(self, \"" + output_name + "\", _ORIGINAL_TREE_DEF)\n\n")
-            if mhmat_based:
+            if ctx.mhmat_based:
                 pyfile.write("    def setup_group_nodes(self, node_tree, nodes, mhmat=None):\n\n")
                 pyfile.write("        def node(node_class_name, name, label=None, input_socket_values=None, attribute_values=None, output_socket_values=None, mhmat_key=None):\n")
                 pyfile.write("            if not mhmat_key:\n")
@@ -96,7 +94,7 @@ class MPFB_OT_Write_Material_Operator(MpfbOperator):
             pyfile.write("\n")
             principled = None
             #===================================================================
-            # if mhmat_based:
+            # if ctx.mhmat_based:
             #     pyfile.write("        if mhmat:\n")
             #     from mpfb.entities.material.mhmatkeys import MHMAT_KEYS
             #     for key in MHMAT_KEYS:
@@ -118,7 +116,7 @@ class MPFB_OT_Write_Material_Operator(MpfbOperator):
                         pyfile.write(", input_socket_values=" + json.dumps(node["input_socket_values"]))
                     if node["output_socket_values"] and len(node["output_socket_values"].keys()) > 0:
                         pyfile.write(", output_socket_values=" + json.dumps(node["output_socket_values"]))
-                    if mhmat_based:
+                    if ctx.mhmat_based:
                         pyfile.write(", mhmat_key=\"\"")
                     pyfile.write(")\n")
             pyfile.write("\n")
@@ -136,7 +134,7 @@ class MPFB_OT_Write_Material_Operator(MpfbOperator):
                     pyfile.write("\"" + link["from_socket"] + "\", ")
                     pyfile.write("\"" + link["to_node"] + "\", ")
                     pyfile.write("\"" + link["to_socket"] + "\"")
-                    if mhmat_based:
+                    if ctx.mhmat_based:
                         pyfile.write(", mhmat_key=\"\"")
                     pyfile.write(")\n")
             for link in tree_def["links"]:
@@ -147,10 +145,9 @@ class MPFB_OT_Write_Material_Operator(MpfbOperator):
                     pyfile.write("\"" + link["to_node"] + "\", ")
                     pyfile.write("\"" + link["to_socket"] + "\")\n")
 
-            if principled and mhmat_based:
+            if principled and ctx.mhmat_based:
                 pyfile.write("\n        principled = nodes[\"" + principled + "\"]\n");
                 pyfile.write("        self.update_principled_sockets_from_mhmat(principled, mhmat)\n")
-
 
             pyfile.write("\n" + shorten_name("NodeWrapper" + output_name) + " = _NodeWrapper" + output_name+ "()\n")
 
@@ -159,7 +156,7 @@ class MPFB_OT_Write_Material_Operator(MpfbOperator):
             pyfile.write("from pytest import approx\n")
             pyfile.write("from ....services import ObjectService\n")
             pyfile.write("from ....services import NodeService\n")
-            if mhmat_based:
+            if ctx.mhmat_based:
                 pyfile.write("from ....services import LocationService\n")
                 pyfile.write("from mpfb.entities.material.mhmaterial import MhMaterial\n")
             pyfile.write("from mpfb.entities.nodemodel.v2.materials.nodewrapper" + output_name.lower() + " import NodeWrapper" + output_name + "\n\n")
@@ -168,7 +165,7 @@ class MPFB_OT_Write_Material_Operator(MpfbOperator):
             pyfile.write("def test_composite_can_create_instance():\n")
             pyfile.write("    node_tree_name = ObjectService.random_name()\n")
             pyfile.write("    node_tree = NodeService.create_node_tree(node_tree_name)\n")
-            if mhmat_based:
+            if ctx.mhmat_based:
                 pyfile.write("    td = LocationService.get_mpfb_test(\"testdata\")\n")
                 pyfile.write("    matfile = os.path.join(td, \"materials\", \"almost_all_textures.mhmat\")\n")
                 pyfile.write("    assert os.path.exists(matfile)\n")
@@ -191,7 +188,7 @@ class MPFB_OT_Write_Material_Operator(MpfbOperator):
             pyfile.write("def test_composite_validate_tree():\n")
             pyfile.write("    node_tree_name = ObjectService.random_name()\n")
             pyfile.write("    node_tree = NodeService.create_node_tree(node_tree_name)\n")
-            if mhmat_based:
+            if ctx.mhmat_based:
                 pyfile.write("    NodeWrapper" + output_name + ".create_instance(node_tree, mhmat=None)\n")
                 pyfile.write("    assert NodeWrapper" + output_name + ".validate_tree_against_original_def(fail_hard=False, node_tree=node_tree)\n")
             else:

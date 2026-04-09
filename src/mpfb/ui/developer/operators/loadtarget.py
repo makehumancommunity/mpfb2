@@ -12,7 +12,6 @@ from ...mpfboperator import MpfbOperator
 
 _LOG = LogService.get_logger("developer.operators.loadtarget")
 
-
 @pollstrategy(PollStrategy.BASEMESH_ACTIVE)
 class MPFB_OT_Load_Target_Operator(MpfbOperator, ImportHelper):
     """Import one or more targets as shape keys"""
@@ -60,6 +59,5 @@ class MPFB_OT_Load_Target_Operator(MpfbOperator, ImportHelper):
 
         self.report({'INFO'}, "Targets were imported as shape keys")
         return {'FINISHED'}
-
 
 ClassManager.add_class(MPFB_OT_Load_Target_Operator)

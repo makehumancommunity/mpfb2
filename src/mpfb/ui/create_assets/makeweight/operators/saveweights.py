@@ -56,5 +56,4 @@ class MPFB_OT_SaveWeightsOperator(MpfbOperator, ExportHelper):
             json.dump(weights, json_file, indent=4, sort_keys=True)
             self.report({'INFO'}, "JSON file written to " + absolute_file_path)
 
-
 ClassManager.add_class(MPFB_OT_SaveWeightsOperator)

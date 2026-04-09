@@ -10,6 +10,7 @@ from .....services import TargetService
 from ...maketarget import MakeTargetObjectProperties
 from ..... import ClassManager
 from ....mpfboperator import MpfbOperator
+from ....mpfbcontext import MpfbContext, ContextFocusObject
 
 _LOG = LogService.get_logger("maketarget.importptarget")
 
@@ -49,7 +50,6 @@ class MPFB_OT_ImportPtargetOperator(MpfbOperator, ImportHelper):
         return super().invoke(context, event)
 
     def hardened_execute(self, context):
-        from ....mpfbcontext import MpfbContext, ContextFocusObject  # pylint: disable=C0415
         ctx = MpfbContext(context=context, object_properties=MakeTargetObjectProperties,
                           focus_object_type=ContextFocusObject.ACTIVE)
 

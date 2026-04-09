@@ -9,12 +9,12 @@ from ...enhancedsettings.enhancedsettingspanel import ENHANCED_SETTINGS_PROPERTI
 from ..... import ClassManager
 from ....pollstrategy import pollstrategy, PollStrategy
 from ....mpfboperator import MpfbOperator
+from ....mpfbcontext import MpfbContext
 import bpy, os, json
 
 from ._savematerial import _save_material
 
 _LOG = LogService.get_logger("enhancedsettings.savenewsettings")
-
 
 @pollstrategy(PollStrategy.ANY_OBJECT_ACTIVE)
 class MPFB_OT_SaveNewEnhancedSettingsOperator(MpfbOperator):
@@ -32,8 +32,6 @@ class MPFB_OT_SaveNewEnhancedSettingsOperator(MpfbOperator):
         if context.active_object is None:
             self.report({'ERROR'}, "Must have a selected object")
             return {'FINISHED'}
-
-        from ....mpfbcontext import MpfbContext  # pylint: disable=C0415
 
         ctx = MpfbContext(context=context, scene_properties=ENHANCED_SETTINGS_PROPERTIES)
         name = ctx.name

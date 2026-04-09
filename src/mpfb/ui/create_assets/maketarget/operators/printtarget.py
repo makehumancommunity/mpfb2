@@ -47,5 +47,4 @@ class MPFB_OT_PrintTargetOperator(MpfbOperator):
         self.report({'INFO'}, "Target printed to console")
         return {'FINISHED'}
 
-
 ClassManager.add_class(MPFB_OT_PrintTargetOperator)

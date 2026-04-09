@@ -10,7 +10,6 @@ from ...mpfboperator import MpfbOperator
 
 _LOG = LogService.get_logger("assetlibrary.loadlibraryink")
 
-
 class MPFB_OT_Load_Library_Ink_Operator(MpfbOperator):
     """Add an ink layer to the current material"""
     bl_idname = "mpfb.load_library_ink"
@@ -53,6 +52,5 @@ class MPFB_OT_Load_Library_Ink_Operator(MpfbOperator):
             self.report({'INFO'}, "Ink layer was loaded: " + str(self.filepath))
 
         return {'FINISHED'}
-
 
 ClassManager.add_class(MPFB_OT_Load_Library_Ink_Operator)

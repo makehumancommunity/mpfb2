@@ -10,7 +10,6 @@ from .abstract import AbstractBoneOperator
 
 _LOG = LogService.get_logger("boneops.save_strategy_vertices")
 
-
 class MPFB_OT_Save_Strategy_Vertices_Operator(AbstractBoneOperator):
     """Save selected vertices to strategy"""
     bl_idname = "mpfb.save_strategy_vertices"
@@ -132,6 +131,5 @@ class MPFB_OT_Save_Strategy_Vertices_Operator(AbstractBoneOperator):
             bpy.ops.object.mode_set(mode="EDIT", toggle=False)
 
         return {'FINISHED'}
-
 
 ClassManager.add_class(MPFB_OT_Save_Strategy_Vertices_Operator)

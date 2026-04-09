@@ -46,7 +46,6 @@ class MPFB_OT_WriteClothesLibraryOperator(MpfbOperator, ClothesCommon):
             self.report({'ERROR'}, "No clothes selected")
             return {'CANCELLED'}
 
-
         name = MakeClothesObjectProperties.get_value("name", entity_reference=clothes)
         if not name or not str(name).strip():
             self.report({'ERROR'}, "No asset name specified")
@@ -80,6 +79,5 @@ class MPFB_OT_WriteClothesLibraryOperator(MpfbOperator, ClothesCommon):
         AssetService.update_all_asset_lists()
 
         return result
-
 
 ClassManager.add_class(MPFB_OT_WriteClothesLibraryOperator)

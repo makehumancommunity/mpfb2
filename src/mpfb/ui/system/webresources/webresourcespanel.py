@@ -29,6 +29,5 @@ class MPFB_PT_Web_Resources_Panel(Abstract_Panel):
         self._url(layout, "Report a bug", "https://github.com/makehumancommunity/mpfb2/issues")
         self._url(layout, "Asset packs", "http://static.makehumancommunity.org/assets/assetpacks.html")
 
-
 ClassManager.add_class(MPFB_PT_Web_Resources_Panel)
 

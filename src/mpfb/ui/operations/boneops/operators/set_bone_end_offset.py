@@ -11,7 +11,6 @@ from .abstract import AbstractBoneOperator
 
 _LOG = LogService.get_logger("boneops.set_bone_end_offset")
 
-
 class MPFB_OT_Set_Bone_End_Offset_Operator(AbstractBoneOperator):
     """Set bone end offset from the difference between end position and strategy result"""
     bl_idname = "mpfb.set_bone_end_offset"
@@ -62,6 +61,5 @@ class MPFB_OT_Set_Bone_End_Offset_Operator(AbstractBoneOperator):
             Rig.assign_bone_end_strategy(tgt_bone, info, tgt_tail, force=True)
 
         return {'FINISHED'}
-
 
 ClassManager.add_class(MPFB_OT_Set_Bone_End_Offset_Operator)

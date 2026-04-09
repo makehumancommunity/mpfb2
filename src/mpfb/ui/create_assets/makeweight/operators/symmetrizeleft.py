@@ -43,5 +43,4 @@ class MPFB_OT_SymmetrizeLeftOperator(MpfbOperator):
         self.report({'INFO'}, "Weight symmetrized")
         return {'FINISHED'}
 
-
 ClassManager.add_class(MPFB_OT_SymmetrizeLeftOperator)
