@@ -7,16 +7,20 @@ from bpy.props import StringProperty
 from .....services import LogService
 from .....services import ObjectService
 from ..... import ClassManager
+from ....mpfboperator import MpfbOperator
 
 _LOG = LogService.get_logger("makeweight.importweights")
 
-class MPFB_OT_ImportWeightsOperator(bpy.types.Operator, ImportHelper):
+class MPFB_OT_ImportWeightsOperator(MpfbOperator, ImportHelper):
     """Import weights from json"""
     bl_idname = "mpfb.import_makeweight_weight"
     bl_label = "Import weights"
     bl_options = {'REGISTER', 'UNDO'}
 
     filter_glob: StringProperty(default='*.json', options={'HIDDEN'})
+
+    def get_logger(self):
+        return _LOG
 
     @classmethod
     def poll(cls, context):
@@ -37,7 +41,7 @@ class MPFB_OT_ImportWeightsOperator(bpy.types.Operator, ImportHelper):
         #self.filepath = bpy.path.clean_name(name, replace="-") + ".weight"
         return super().invoke(context, event)
 
-    def execute(self, context):
+    def hardened_execute(self, context):
 
         blender_object = context.active_object
         weight_string = Path(self.filepath).read_text()

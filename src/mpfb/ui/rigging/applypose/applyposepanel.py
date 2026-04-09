@@ -14,9 +14,9 @@ POSES_PROPERTIES = SceneConfigSet([], prefix="POSES_")
 
 def _populate_partials(self, context):
     _LOG.enter()
-    if context.object is None or context.object.type != 'ARMATURE':
+    if context.active_object is None or context.active_object.type != 'ARMATURE':
         return []
-    armature_object = context.object
+    armature_object = context.active_object
     rig_type = RigService.identify_rig(armature_object)
     if "default" in rig_type:
         rig_type = "default"
@@ -50,9 +50,9 @@ def _populate_partials(self, context):
 
 def _populate_poses(self, context):
     _LOG.enter()
-    if context.object is None or context.object.type != 'ARMATURE':
+    if context.active_object is None or context.active_object.type != 'ARMATURE':
         return []
-    armature_object = context.object
+    armature_object = context.active_object
     rig_type = RigService.identify_rig(armature_object)
     if "default" in rig_type:
         rig_type = "default"
@@ -127,10 +127,10 @@ class MPFB_PT_ApplyPosePanel(Abstract_Panel):
         layout = self.layout
         scene = context.scene
 
-        if context.object is None or context.object.type != 'ARMATURE':
+        if context.active_object is None or context.active_object.type != 'ARMATURE':
             return
 
-        armature_object = context.object
+        armature_object = context.active_object
 
         props = ["available_poses"]
         POSES_PROPERTIES.draw_properties(scene, layout, props)

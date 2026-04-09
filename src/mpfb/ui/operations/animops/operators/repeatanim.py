@@ -26,11 +26,7 @@ class MPFB_OT_Repeat_Animation_Operator(MpfbOperator):
     def hardened_execute(self, context):
         _LOG.enter()
 
-        if context.object is None or context.object.type != 'ARMATURE':
-            self.report({'ERROR'}, "Must have armature as active object")
-            return {'CANCELLED'}
-
-        armature_object = context.object
+        armature_object = context.active_object
 
         from ...animops.animopspanel import ANIMOPS_PROPERTIES  # pylint: disable=C0415
         from ....mpfbcontext import MpfbContext  # pylint: disable=C0415

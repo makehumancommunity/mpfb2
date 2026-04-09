@@ -32,7 +32,7 @@ def test_save_rig_executes_successfully():
         os.close(fd)
         try:
             mockself = MockOperatorBase(filepath=tmp_path)
-            result = MPFB_OT_Save_Rig_Operator.execute(mockself, bpy.context)
+            result = MPFB_OT_Save_Rig_Operator.hardened_execute(mockself, bpy.context)
             assert result == {'FINISHED'}
             assert os.path.getsize(tmp_path) > 0
             # Verify it's valid JSON

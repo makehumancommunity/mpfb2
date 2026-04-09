@@ -2,12 +2,13 @@
 
 from ....services import LogService
 from .... import ClassManager
+from ...mpfboperator import MpfbOperator
 from bpy_extras.io_utils import ExportHelper
 import bpy, shutil
 
 _LOG = LogService.get_logger("developer.exportlog")
 
-class MPFB_OT_Export_Log_Operator(bpy.types.Operator, ExportHelper):
+class MPFB_OT_Export_Log_Operator(MpfbOperator, ExportHelper):
     """Export log to file"""
     bl_idname = "mpfb.export_log"
     bl_label = "Export log"
@@ -15,15 +16,20 @@ class MPFB_OT_Export_Log_Operator(bpy.types.Operator, ExportHelper):
 
     filename_ext = '.txt'
 
-    def execute(self, context):
+    def get_logger(self):
+        return _LOG
+
+    def hardened_execute(self, context):
         _LOG.enter()
 
         loggers = LogService.get_loggers()
 
-        scene = context.scene
-        from ...developer.developerpanel import DEVELOPER_PROPERTIES # pylint: disable=C0415
+        from ...developer.developerpanel import DEVELOPER_PROPERTIES  # pylint: disable=C0415
+        from ...mpfbcontext import MpfbContext
 
-        logger_name = DEVELOPER_PROPERTIES.get_value("available_loggers", entity_reference=scene)
+        ctx = MpfbContext(context=context, scene_properties=DEVELOPER_PROPERTIES)
+
+        logger_name = ctx.available_loggers
 
         if logger_name == "default":
             input_path = LogService.get_path_to_combined_log_file()

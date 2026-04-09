@@ -30,7 +30,7 @@ def test_write_target_execute_writes_file():
         os.close(fd)
         try:
             mockself = MockOperatorBase(filepath=tmp_path)
-            result = MPFB_OT_WriteTargetOperator.execute(mockself, bpy.context)
+            result = MPFB_OT_WriteTargetOperator.hardened_execute(mockself, bpy.context)
             assert result == {'FINISHED'}
             mockself.mock_report.assert_no_errors()
             assert os.path.exists(tmp_path)

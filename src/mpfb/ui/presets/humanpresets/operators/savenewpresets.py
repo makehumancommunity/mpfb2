@@ -9,26 +9,33 @@ from .....services import RigService
 from ...humanpresets.humanpresetspanel import HUMAN_PRESETS_PROPERTIES
 from ..... import ClassManager
 from ....pollstrategy import pollstrategy, PollStrategy
+from ....mpfboperator import MpfbOperator
 import bpy, os, json
 
 _LOG = LogService.get_logger("humanpresets.savenewpresets")
 
 
 @pollstrategy(PollStrategy.BASEMESH_OR_BODY_PROXY_OR_SKELETON_ACTIVE)
-class MPFB_OT_Save_New_Presets_Operator(bpy.types.Operator):
+class MPFB_OT_Save_New_Presets_Operator(MpfbOperator):
     """This will save new human preset"""
     bl_idname = "mpfb.save_new_human_presets"
     bl_label = "Save new presets"
     bl_options = {'REGISTER'}
 
-    def execute(self, context):
+    def get_logger(self):
+        return _LOG
+
+    def hardened_execute(self, context):
         _LOG.enter()
 
         if context.active_object is None:
             self.report({'ERROR'}, "Must have a selected object")
             return {'FINISHED'}
 
-        name = HUMAN_PRESETS_PROPERTIES.get_value("name", entity_reference=context)
+        from ....mpfbcontext import MpfbContext  # pylint: disable=C0415
+
+        ctx = MpfbContext(context=context, scene_properties=HUMAN_PRESETS_PROPERTIES)
+        name = ctx.name
         if not name is None:
             name = str(name).strip()
         if name == "" or name is None:

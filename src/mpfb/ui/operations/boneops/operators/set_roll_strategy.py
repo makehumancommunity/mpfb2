@@ -50,7 +50,7 @@ class MPFB_OT_Set_Roll_Strategy_Operator(AbstractBoneOperator):
             return "Set roll strategy: " + info[1]
         return None
 
-    def execute(self, context):
+    def hardened_execute(self, context):
         assert self.strategy in self.known_strategies
 
         bone = context.edit_bone

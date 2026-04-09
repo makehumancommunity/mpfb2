@@ -27,7 +27,7 @@ def test_write_ink_layer_errors_without_ink_layer_name():
     with HumanFixture() as fixture:
         MAKEUP_PROPERTIES.set_value("ink_layer_name", "", entity_reference=bpy.context.scene)
         mockself = MockOperatorBase()
-        result = MPFB_OT_WriteInkOperator.execute(mockself, bpy.context)
+        result = MPFB_OT_WriteInkOperator.hardened_execute(mockself, bpy.context)
         assert result == {'CANCELLED'}
         mockself.mock_report.assert_reported('ERROR', "ink layer name")
 
@@ -37,7 +37,7 @@ def test_write_ink_layer_errors_not_basemesh():
         MAKEUP_PROPERTIES.set_value("ink_layer_name", "test_ink", entity_reference=bpy.context.scene)
         # The basemesh IS a basemesh, but has no material
         mockself = MockOperatorBase()
-        result = MPFB_OT_WriteInkOperator.execute(mockself, bpy.context)
+        result = MPFB_OT_WriteInkOperator.hardened_execute(mockself, bpy.context)
         assert result == {'CANCELLED'}
         # Should report error about no materials or no MakeSkin material
         assert len(mockself.mock_report.reports) > 0

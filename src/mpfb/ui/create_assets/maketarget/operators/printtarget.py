@@ -5,14 +5,18 @@ from .....services import LogService
 from .....services import ObjectService
 from .....services import TargetService
 from ..... import ClassManager
+from ....mpfboperator import MpfbOperator
 
 _LOG = LogService.get_logger("maketarget.printtarget")
 
-class MPFB_OT_PrintTargetOperator(bpy.types.Operator):
+class MPFB_OT_PrintTargetOperator(MpfbOperator):
     """Dump target data to console"""
     bl_idname = "mpfb.print_maketarget_target"
     bl_label = "Print target"
     bl_options = {'REGISTER'}
+
+    def get_logger(self):
+        return _LOG
 
     @classmethod
     def poll(cls, context):
@@ -32,7 +36,7 @@ class MPFB_OT_PrintTargetOperator(bpy.types.Operator):
 
         return TargetService.has_target(blender_object, "PrimaryTarget")
 
-    def execute(self, context):
+    def hardened_execute(self, context):
         blender_object = context.active_object
         info = TargetService.get_shape_key_as_dict(blender_object, "PrimaryTarget")
 

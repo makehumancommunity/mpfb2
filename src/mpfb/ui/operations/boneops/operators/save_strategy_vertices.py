@@ -103,7 +103,7 @@ class MPFB_OT_Save_Strategy_Vertices_Operator(AbstractBoneOperator):
 
         return info
 
-    def execute(self, context):
+    def hardened_execute(self, context):
         bone = context.bone
         mesh = context.active_object
 

@@ -11,14 +11,18 @@ from .....services import ObjectService
 from .....entities.objectproperties import GeneralObjectProperties
 from ..... import ClassManager
 from .....entities.material.makeskinmaterial import MakeSkinMaterial
+from ....mpfboperator import MpfbOperator
 
 _LOG = LogService.get_logger("makeskin.writealternate")
 
-class MPFB_OT_WriteAlternateOperator(bpy.types.Operator):
+class MPFB_OT_WriteAlternateOperator(MpfbOperator):
     """Save material along the mesh asset to make it available as an alternate material. The name property will be used as filename. For skins, use store skin operator instead"""
     bl_idname = "mpfb.write_alternate"
     bl_label = "Store as alternate"
     bl_options = {'REGISTER'}
+
+    def get_logger(self):
+        return _LOG
 
     @classmethod
     def poll(cls, context):
@@ -26,29 +30,28 @@ class MPFB_OT_WriteAlternateOperator(bpy.types.Operator):
             return False
         return ObjectService.object_is_any_makehuman_mesh(context.active_object)
 
-    def execute(self, context):
+    def hardened_execute(self, context):
+        from ...makeskin import MakeSkinObjectProperties  # pylint: disable=C0415
+        from ....mpfbcontext import MpfbContext  # pylint: disable=C0415
 
-        blender_object = context.active_object
+        ctx = MpfbContext(context=context, object_properties=MakeSkinObjectProperties)
 
-        from ...makeskin import MakeSkinObjectProperties
-        name = MakeSkinObjectProperties.get_value("name", entity_reference=blender_object)
-
-        if not MaterialService.has_materials(blender_object):
+        if not MaterialService.has_materials(ctx.active_object):
             self.report({'ERROR'}, "Object does not have a material")
             return {'FINISHED'}
 
-        if not name:
+        if not ctx.name:
             self.report({'ERROR'}, "The material must have a name")
             return {'FINISHED'}
 
-        name = str(name).replace(" ", "_").lower()
+        name = str(ctx.name).replace(" ", "_").lower()
 
-        otype = ObjectService.get_object_type(blender_object)
+        otype = ObjectService.get_object_type(ctx.active_object)
         _LOG.debug("otype", otype)
         if not otype:
             self.report({'ERROR'}, "Object is not a makehuman mesh")
             return {'FINISHED'}
-        source = GeneralObjectProperties.get_value("asset_source", entity_reference=blender_object)
+        source = GeneralObjectProperties.get_value("asset_source", entity_reference=ctx.active_object)
         _LOG.debug("source", source)
         if not source:
             self.report({'ERROR'}, "Object does not have an asset source")
@@ -70,12 +73,12 @@ class MPFB_OT_WriteAlternateOperator(bpy.types.Operator):
         _LOG.debug("file_name", file_name)
 
         material = MakeSkinMaterial()
-        material.populate_from_object(blender_object)
+        material.populate_from_object(ctx.active_object)
 
         dirn = os.path.dirname(file_name)
         bn = os.path.basename(file_name).replace(".mhmat", "")
 
-        image_file_error = material.check_that_all_textures_are_saved(blender_object, dirn, bn)
+        image_file_error = material.check_that_all_textures_are_saved(ctx.active_object, dirn, bn)
         if image_file_error is not None:
             self.report({'ERROR'}, image_file_error)
             return {'FINISHED'}

@@ -6,25 +6,32 @@ from .....services import NodeService
 from .....services import MaterialService
 from ...enhancedsettings.enhancedsettingspanel import ENHANCED_SETTINGS_PROPERTIES
 from ..... import ClassManager
+from ....mpfboperator import MpfbOperator
 import bpy, os, json
 
 _LOG = LogService.get_logger("enhancedsettings.applysettings")
 
 
-class MPFB_OT_ApplyEnhancedSettingsOperator(bpy.types.Operator):
+class MPFB_OT_ApplyEnhancedSettingsOperator(MpfbOperator):
     """This will load the enhanced material setting selected in the dropdown above, and use these to update the materials on the selected object"""
     bl_idname = "mpfb.enhancedsettings_apply_settings"
     bl_label = "Apply selected presets"
     bl_options = {'REGISTER'}
 
-    def execute(self, context):
+    def get_logger(self):
+        return _LOG
+
+    def hardened_execute(self, context):
         _LOG.enter()
 
-        if context.object is None:
+        if context.active_object is None:
             self.report({'ERROR'}, "Must have a selected object")
             return {'FINISHED'}
 
-        name = ENHANCED_SETTINGS_PROPERTIES.get_value("available_settings", entity_reference=context)
+        from ....mpfbcontext import MpfbContext  # pylint: disable=C0415
+
+        ctx = MpfbContext(context=context, scene_properties=ENHANCED_SETTINGS_PROPERTIES)
+        name = ctx.available_settings
 
         if not name:
             self.report({'ERROR'}, "Must select settings to load")
@@ -42,9 +49,9 @@ class MPFB_OT_ApplyEnhancedSettingsOperator(bpy.types.Operator):
         with open(file_name, "r") as json_file:
             settings = json.load(json_file)
 
-        body = ObjectService.find_object_of_type_amongst_nearest_relatives(context.object, "Basemesh")
+        body = ObjectService.find_object_of_type_amongst_nearest_relatives(context.active_object, "Basemesh")
         if not body:
-            body = ObjectService.find_object_of_type_amongst_nearest_relatives(context.object, "Proxymesh")
+            body = ObjectService.find_object_of_type_amongst_nearest_relatives(context.active_object, "Proxymesh")
 
         if not body:
             self.report({'ERROR'}, "Could not find basemesh or body proxy amongst nearest relatives")
@@ -79,7 +86,7 @@ class MPFB_OT_ApplyEnhancedSettingsOperator(bpy.types.Operator):
     @classmethod
     def poll(cls, context):
         _LOG.enter()
-        if context.object is None:
+        if context.active_object is None:
             return False
         name = ENHANCED_SETTINGS_PROPERTIES.get_value("available_settings", entity_reference=context)
         if not name:

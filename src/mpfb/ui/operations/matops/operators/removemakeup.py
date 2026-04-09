@@ -7,19 +7,23 @@ from .....services import LogService
 from .....services import ObjectService
 from .....services import MaterialService
 from ..... import ClassManager
+from ....mpfboperator import MpfbOperator
 from ....pollstrategy import pollstrategy, PollStrategy
 
 _LOG = LogService.get_logger("matops.removemakeup")
 
 
 @pollstrategy(PollStrategy.ANY_MAKEHUMAN_OBJECT_ACTIVE)
-class MPFB_OT_Remove_Makeup_Operator(bpy.types.Operator):
+class MPFB_OT_Remove_Makeup_Operator(MpfbOperator):
     """Remove all ink layers from a material"""
     bl_idname = "mpfb.remove_makeup"
     bl_label = "Remove makeup"
     bl_options = {'REGISTER', 'UNDO'}
 
-    def execute(self, context):
+    def get_logger(self):
+        return _LOG
+
+    def hardened_execute(self, context):
         obj = context.active_object
         basemesh = ObjectService.find_object_of_type_amongst_nearest_relatives(obj)
         if basemesh is None:

@@ -6,16 +6,20 @@ from .....entities.rigging.righelpers.armhelpers.armhelpers import ArmHelpers
 from .....entities.rigging.righelpers.leghelpers.leghelpers import LegHelpers
 from .....entities.rigging.righelpers.fingerhelpers.fingerhelpers import FingerHelpers
 from .....entities.rigging.righelpers.eyehelpers.eyehelpers import EyeHelpers
+from ....mpfboperator import MpfbOperator
 import bpy
 
 _LOG = LogService.get_logger("setupikoperators.fingerfk")
 
 
-class MPFB_OT_RemoveHelpersOperator(bpy.types.Operator):
+class MPFB_OT_RemoveHelpersOperator(MpfbOperator):
     """This will remove all helpers from the active armature"""
     bl_idname = "mpfb.remove_helpers"
     bl_label = "Remove helpers"
     bl_options = {'REGISTER', 'UNDO'}
+
+    def get_logger(self):
+        return _LOG
 
     def _arm_helpers(self, armature_object, settings):
         for side in ["left", "right"]:
@@ -40,9 +44,9 @@ class MPFB_OT_RemoveHelpersOperator(bpy.types.Operator):
         helpers.remove_ik(armature_object)
         RigHelpersProperties.set_value("eye_mode", "", entity_reference=armature_object)
 
-    def execute(self, context):
+    def hardened_execute(self, context):
         _LOG.enter()
-        armature_object = context.object
+        armature_object = context.active_object
 
         from ...righelpers.righelperspanel import SETUP_HELPERS_PROPERTIES  # pylint: disable=C0415
         settings = SETUP_HELPERS_PROPERTIES.as_dict(entity_reference=context.scene)
@@ -72,10 +76,10 @@ class MPFB_OT_RemoveHelpersOperator(bpy.types.Operator):
     @classmethod
     def poll(cls, context):
         _LOG.enter()
-        if context.object is None or context.object.type != 'ARMATURE':
+        if context.active_object is None or context.active_object.type != 'ARMATURE':
             return False
 
-        armature_object = context.object
+        armature_object = context.active_object
 
         finger_mode = RigHelpersProperties.get_value("finger_mode", entity_reference=armature_object)
         leg_mode = RigHelpersProperties.get_value("leg_mode", entity_reference=armature_object)

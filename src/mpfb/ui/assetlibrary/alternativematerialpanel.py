@@ -18,10 +18,10 @@ def _populate_settings(self, context):
     _LOG.enter()
     _LOG.trace("Context is scene", isinstance(context, bpy.types.Scene))
     materials = [("DEFAULT", "Default material", "Default material", 0)]
-    if not context.object:
+    if not context.active_object:
         return materials
-    asset_type = ObjectService.get_object_type(context.object)
-    source = GeneralObjectProperties.get_value("asset_source", entity_reference=context.object)
+    asset_type = ObjectService.get_object_type(context.active_object)
+    source = GeneralObjectProperties.get_value("asset_source", entity_reference=context.active_object)
     altmats = AssetService.alternative_materials_for_asset(source, str(asset_type).lower())
     altmats.sort()
     i = 1
@@ -54,11 +54,11 @@ class MPFB_PT_Alternative_Material_Panel(Abstract_Panel):
         layout = self.layout
         scene = context.scene
 
-        if not context.object:
+        if not context.active_object:
             layout.label(text="Select a mesh object")
             return
 
-        asset_type = ObjectService.get_object_type(context.object)
+        asset_type = ObjectService.get_object_type(context.active_object)
 
         if not asset_type:
             layout.label(text="Only MH objects supported")

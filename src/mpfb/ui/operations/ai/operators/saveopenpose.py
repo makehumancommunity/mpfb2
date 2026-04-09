@@ -3,6 +3,7 @@ from .....services import LogService
 from .....services import ObjectService
 from .....services import RigService
 from ..... import ClassManager
+from ....mpfboperator import MpfbOperator
 import bpy, json, math, bmesh
 from mathutils import Vector, Matrix
 from bpy.types import StringProperty
@@ -14,7 +15,7 @@ _LOG = LogService.get_logger("ai.operators.saveopenpose")
 
 _CREATE_DEBUG_EMPTIES = False
 
-class MPFB_OT_Save_Openpose_Operator(bpy.types.Operator, ExportHelper):
+class MPFB_OT_Save_Openpose_Operator(MpfbOperator, ExportHelper):
     """Save pose as openpose json"""
     bl_idname = "mpfb.save_openpose"
     bl_label = "Save openpose"
@@ -22,6 +23,9 @@ class MPFB_OT_Save_Openpose_Operator(bpy.types.Operator, ExportHelper):
 
     filename_ext = '.json'
     check_extension = False
+
+    def get_logger(self):
+        return _LOG
 
     @classmethod
     def poll(cls, context):
@@ -119,12 +123,8 @@ class MPFB_OT_Save_Openpose_Operator(bpy.types.Operator, ExportHelper):
         _LOG.debug("coord_mapping", (type(coord_mapping), len(coord_mapping), coord_mapping))
         return coord_mapping
 
-    def execute(self, context):
+    def hardened_execute(self, context):
         _LOG.enter()
-
-        if context.object is None:
-            self.report({'ERROR'}, "Must have armature(s) as selected object")
-            return {'FINISHED'}
 
         for armature_object in context.selected_objects:
 

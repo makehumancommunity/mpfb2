@@ -27,7 +27,10 @@ class MpfbOperator(bpy.types.Operator):
 
     def get_logger(self):
         """Return the logger associated with this operator. This should be overriden by subclasses."""
+
+        # Use module level logger here since the problem is that the child class did not have a logger assigned
         _LOG.warn("Subclass of MpfbOperator did not override the get_logger() method.", self.__class__.__name__)
+
         return _LOG
 
     def _generate_error_information(self, context, error, tb=""):
@@ -90,7 +93,7 @@ class MpfbOperator(bpy.types.Operator):
         return out
 
     def execute(self, context):
-        """The excute method called by blender. This will wrap the actual execute method in a try/except block. If an exception is raised, it will be logged
+        """The execute method called by blender. This will wrap the actual execute method in a try/except block. If an exception is raised, it will be logged
         and a summary of the error will be written to a log file. In the default behaviour, the exception will then be silently swallowed.
 
         For unit testing, it is possible to override the default behavior by setting _RAISE_EXCEPTIONS to True. The exception
@@ -98,7 +101,10 @@ class MpfbOperator(bpy.types.Operator):
         """
         self.LOG.enter()
         global _RAISE_EXCEPTIONS
-        _LOG.debug("Executing %s" % self.__class__.__name__)
+
+        # Use module level logger here since the purpose of this log entry is to be able to track uses of the MpfbOperator base class
+        _LOG.debug("In execute method of MpfbOperator child", self.__class__.__name__)
+
         caught_exception = None
         try:
             return self.hardened_execute(context)

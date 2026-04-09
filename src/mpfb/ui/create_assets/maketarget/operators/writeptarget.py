@@ -8,10 +8,11 @@ from .....services import ObjectService
 from .....services import TargetService
 from ...maketarget import MakeTargetObjectProperties
 from ..... import ClassManager
+from ....mpfboperator import MpfbOperator
 
 _LOG = LogService.get_logger("maketarget.writetarget")
 
-class MPFB_OT_WritePtargetOperator(bpy.types.Operator, ExportHelper):
+class MPFB_OT_WritePtargetOperator(MpfbOperator, ExportHelper):
     """Write proxy-specific target to ptarget file"""
     bl_idname = "mpfb.write_maketarget_ptarget"
     bl_label = "Save proxy-specific target"
@@ -21,6 +22,9 @@ class MPFB_OT_WritePtargetOperator(bpy.types.Operator, ExportHelper):
 
     filter_glob: StringProperty(default='*.ptarget', options={'HIDDEN'})
     filepath: StringProperty(name="File Path", description="Filepath used for exporting the file", maxlen=1024, subtype='FILE_PATH')
+
+    def get_logger(self):
+        return _LOG
 
     @classmethod
     def poll(cls, context):
@@ -45,7 +49,7 @@ class MPFB_OT_WritePtargetOperator(bpy.types.Operator, ExportHelper):
         self.filepath = bpy.path.clean_name(name, replace="-") + ".ptarget"
         return super().invoke(context, event)
 
-    def execute(self, context):
+    def hardened_execute(self, context):
         blender_object = context.active_object
 
         if blender_object.mode != "OBJECT":

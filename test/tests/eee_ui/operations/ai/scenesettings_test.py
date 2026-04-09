@@ -34,6 +34,6 @@ def test_openpose_scene_settings_executes_with_openpose_rig():
         AI_PROPERTIES.set_value("background", False, entity_reference=bpy.context.scene)
         AI_PROPERTIES.set_value("render", False, entity_reference=bpy.context.scene)
         mockself = MockOperatorBase()
-        result = MPFB_OT_OpenPose_Scene_Settings_Operator.execute(mockself, bpy.context)
+        result = MPFB_OT_OpenPose_Scene_Settings_Operator.hardened_execute(mockself, bpy.context)
         assert result == {'FINISHED'}
         mockself.mock_report.assert_no_errors()

@@ -3,6 +3,7 @@ from .....services import LogService
 from .....services import ObjectService
 from .....services import RigService
 from ..... import ClassManager
+from ....mpfboperator import MpfbOperator
 from ....pollstrategy import pollstrategy, PollStrategy
 import bpy, json, math
 from mathutils import Vector, Matrix
@@ -10,13 +11,16 @@ from mathutils import Vector, Matrix
 _LOG = LogService.get_logger("ai.operators.boundingbox")
 
 @pollstrategy(PollStrategy.ANY_MESH_OBJECT_ACTIVE)
-class MPFB_OT_Boundingbox_Operator(bpy.types.Operator):
+class MPFB_OT_Boundingbox_Operator(MpfbOperator):
     """Populate the bounding box settings from the active mesh object"""
     bl_idname = "mpfb.boundingbox"
     bl_label = "From active"
     bl_options = {'REGISTER'}
 
-    def execute(self, context):
+    def get_logger(self):
+        return _LOG
+
+    def hardened_execute(self, context):
         _LOG.enter()
 
         if context.active_object is None or context.active_object.type != 'MESH':

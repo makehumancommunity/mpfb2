@@ -6,11 +6,12 @@ from ....services import LogService
 from ....services import ObjectService
 from ....services import MaterialService
 from .... import ClassManager
+from ...mpfboperator import MpfbOperator
 
 _LOG = LogService.get_logger("assetlibrary.loadlibraryink")
 
 
-class MPFB_OT_Load_Library_Ink_Operator(bpy.types.Operator):
+class MPFB_OT_Load_Library_Ink_Operator(MpfbOperator):
     """Add an ink layer to the current material"""
     bl_idname = "mpfb.load_library_ink"
     bl_label = "Load"
@@ -20,9 +21,12 @@ class MPFB_OT_Load_Library_Ink_Operator(bpy.types.Operator):
     object_type: StringProperty(name="object_type", description="type of the object", default="Basemesh")
     material_type: StringProperty(name="material_type", description="type of material", default="MAKESKIN")
 
-    def execute(self, context):
+    def get_logger(self):
+        return _LOG
 
-        obj = context.object
+    def hardened_execute(self, context):
+
+        obj = context.active_object
 
         basemesh = ObjectService.find_object_of_type_amongst_nearest_relatives(obj)
         if not basemesh:

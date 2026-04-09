@@ -4,6 +4,7 @@ from .....services import ObjectService
 from .....services import RigService
 from .....services import NodeService
 from ..... import ClassManager
+from ....mpfboperator import MpfbOperator
 import bpy, json, math
 #from ._openposeconstants import COCO, LEFT_HAND, RIGHT_HAND
 
@@ -117,11 +118,14 @@ _OPENPOSE_BONES = {
     }
 
 
-class MPFB_OT_OpenPose_Visible_Bones_Operator(bpy.types.Operator):
+class MPFB_OT_OpenPose_Visible_Bones_Operator(MpfbOperator):
     """Add path objects around all bones in the selected armature"""
     bl_idname = "mpfb.openpose_visible_bones"
     bl_label = "Add OpenPose visible bones"
     bl_options = {'REGISTER', 'UNDO'}
+
+    def get_logger(self):
+        return _LOG
 
     @classmethod
     def poll(cls, context):
@@ -131,12 +135,8 @@ class MPFB_OT_OpenPose_Visible_Bones_Operator(bpy.types.Operator):
                 return True
         return False
 
-    def execute(self, context):
+    def hardened_execute(self, context):
         _LOG.enter()
-
-        if context.object is None:
-            self.report({'ERROR'}, "Must have armature(s) as selected object")
-            return {'FINISHED'}
 
         from ...ai.aipanel import AI_PROPERTIES
         bone_size = AI_PROPERTIES.get_value("bone_size", entity_reference=context.scene)

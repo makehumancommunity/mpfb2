@@ -28,7 +28,7 @@ def test_bake_shapekeys_poll_true_with_basemesh():
 def test_bake_shapekeys_executes_with_basemesh():
     with HumanFixture() as fixture:
         mockself = MockOperatorBase()
-        result = MPFB_OT_Bake_Shapekeys_Operator.execute(mockself, bpy.context)
+        result = MPFB_OT_Bake_Shapekeys_Operator.hardened_execute(mockself, bpy.context)
         assert result == {'FINISHED'}
         mockself.mock_report.assert_no_errors()
 
@@ -36,6 +36,6 @@ def test_bake_shapekeys_executes_with_basemesh():
 def test_bake_shapekeys_executes_with_target():
     with BasemeshWithTargetFixture() as fixture:
         mockself = MockOperatorBase()
-        result = MPFB_OT_Bake_Shapekeys_Operator.execute(mockself, bpy.context)
+        result = MPFB_OT_Bake_Shapekeys_Operator.hardened_execute(mockself, bpy.context)
         assert result == {'FINISHED'}
         mockself.mock_report.assert_no_errors()

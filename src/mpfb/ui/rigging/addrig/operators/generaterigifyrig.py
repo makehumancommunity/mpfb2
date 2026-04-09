@@ -7,16 +7,20 @@ from .....entities.rigging.rigifyhelpers.rigifyhelpers import RigifyHelpers
 from .....services import RigService
 from .....services import SystemService
 from ..... import ClassManager
+from ....mpfboperator import MpfbOperator
 
 _LOG = LogService.get_logger("addrig.generate_rigify_rig")
 
 
-class MPFB_OT_GenerateRigifyRigOperator(bpy.types.Operator):
+class MPFB_OT_GenerateRigifyRigOperator(MpfbOperator):
     """Generate a rigify rig from a meta-rig"""
 
     bl_idname = "mpfb.generate_rigify_rig"
     bl_label = "Generate"
     bl_options = {'REGISTER', 'UNDO'}
+
+    def get_logger(self):
+        return _LOG
 
     @classmethod
     def poll(cls, context):
@@ -27,10 +31,13 @@ class MPFB_OT_GenerateRigifyRigOperator(bpy.types.Operator):
             return rig_type.startswith("rigify.")
         return False
 
-    def execute(self, context):
-        scene = context.scene
+    def hardened_execute(self, context):
+        from ...addrig.addrigpanel import ADD_RIG_PROPERTIES  # pylint: disable=C0415
+        from ....mpfbcontext import MpfbContext  # pylint: disable=C0415
 
-        if not ObjectService.object_is_any_skeleton(context.active_object):
+        ctx = MpfbContext(context=context, scene_properties=ADD_RIG_PROPERTIES)
+
+        if not ObjectService.object_is_any_skeleton(ctx.active_object):
             self.report({'ERROR'}, "Must have armature object selected")
             return {'FINISHED'}
 
@@ -38,12 +45,8 @@ class MPFB_OT_GenerateRigifyRigOperator(bpy.types.Operator):
             self.report({'ERROR'}, "The rigify addon isn't enabled. You need to enable it under preferences.")
             return {'FINISHED'}
 
-        from ...addrig.addrigpanel import ADD_RIG_PROPERTIES  # pylint: disable=C0415
-
-        armature_object = context.active_object
-        delete_after_generate = ADD_RIG_PROPERTIES.get_value("delete_after_generate", entity_reference=scene)
-
-        explicit_name = str(ADD_RIG_PROPERTIES.get_value("name", entity_reference=scene)).strip()
+        armature_object = ctx.active_object
+        explicit_name = str(ctx.name).strip()
 
         # If the metarig is named incorrectly (e.g. in case of sub-rigs), rename it
         if armature_object.name.endswith(".rig"):
@@ -76,7 +79,7 @@ class MPFB_OT_GenerateRigifyRigOperator(bpy.types.Operator):
 
         RigifyHelpers.adjust_children_for_rigify(rigify_object, armature_object)
 
-        if delete_after_generate:
+        if ctx.delete_after_generate:
             objs = bpy.data.objects
             objs.remove(objs[armature_object.name], do_unlink=True)
 
@@ -94,4 +97,3 @@ class MPFB_OT_GenerateRigifyRigOperator(bpy.types.Operator):
 
 
 ClassManager.add_class(MPFB_OT_GenerateRigifyRigOperator)
-

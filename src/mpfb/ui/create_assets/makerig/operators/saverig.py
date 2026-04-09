@@ -4,6 +4,7 @@ from .....services import MaterialService
 from .....services import ObjectService
 from .....entities.rig import Rig
 from ..... import ClassManager
+from ....mpfboperator import MpfbOperator
 from ....pollstrategy import pollstrategy, PollStrategy
 import bpy, json, math
 from bpy.types import StringProperty
@@ -13,7 +14,7 @@ _LOG = LogService.get_logger("makerig.operators.saverig")
 
 
 @pollstrategy(PollStrategy.ANY_ARMATURE_OBJECT_ACTIVE)
-class MPFB_OT_Save_Rig_Operator(bpy.types.Operator, ExportHelper):
+class MPFB_OT_Save_Rig_Operator(MpfbOperator, ExportHelper):
     """Save rig definition as json"""
     bl_idname = "mpfb.save_rig"
     bl_label = "Save rig"
@@ -22,33 +23,35 @@ class MPFB_OT_Save_Rig_Operator(bpy.types.Operator, ExportHelper):
     filename_ext = '.mpfbskel'
     check_extension = False
 
-    def execute(self, context):
+    def get_logger(self):
+        return _LOG
+
+    def hardened_execute(self, context):
         _LOG.enter()
 
-        if context.object is None or context.object.type != 'ARMATURE':
+        if context.active_object is None or context.active_object.type != 'ARMATURE':
             self.report({'ERROR'}, "Must have armature as active object")
             return {'FINISHED'}
 
-        armature_object = context.object
+        armature_object = context.active_object
 
         from ...makerig import MakeRigProperties
-        rig_subrig = MakeRigProperties.get_value("rig_subrig", entity_reference=context.scene)
-        rig_save_rigify = MakeRigProperties.get_value("rig_save_rigify", entity_reference=context.scene)
-        rig_refit = MakeRigProperties.get_value("rig_refit", entity_reference=context.scene)
+        from ....mpfbcontext import MpfbContext
+        ctx = MpfbContext(context=context, scene_properties=MakeRigProperties)
 
         bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
 
         rig = Rig.from_given_armature_context(
-            armature_object, operator=self, is_subrig=bool(rig_subrig), rigify_ui=rig_save_rigify)
+            armature_object, operator=self, is_subrig=bool(ctx.rig_subrig), rigify_ui=ctx.rig_save_rigify)
 
         if not rig:
             return {'FINISHED'}
 
-        if rig_refit:
+        if ctx.rig_refit:
             rig.save_strategies(refit=True)
             rig.reposition_edit_bone(developer=True)
 
-            object_type = "Subrig" if rig_subrig else "Skeleton"
+            object_type = "Subrig" if ctx.rig_subrig else "Skeleton"
             GeneralObjectProperties.set_value("object_type", object_type, entity_reference=armature_object)
 
         _LOG.dump("final rig_definition", rig.rig_definition)

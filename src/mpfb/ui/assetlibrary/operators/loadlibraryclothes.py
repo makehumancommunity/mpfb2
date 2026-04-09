@@ -6,10 +6,11 @@ from ....services import LogService
 from ....services import ObjectService
 from ....services import HumanService
 from .... import ClassManager
+from ...mpfboperator import MpfbOperator
 
 _LOG = LogService.get_logger("assetlibrary.loadlibraryclothes")
 
-class MPFB_OT_Load_Library_Clothes_Operator(bpy.types.Operator):
+class MPFB_OT_Load_Library_Clothes_Operator(MpfbOperator):
     """Load MHCLO from asset library"""
     bl_idname = "mpfb.load_library_clothes"
     bl_label = "Load"
@@ -19,26 +20,21 @@ class MPFB_OT_Load_Library_Clothes_Operator(bpy.types.Operator):
     object_type: StringProperty(name="object_type", description="type of the object", default="Clothes")
     material_type: StringProperty(name="material_type", description="type of material", default="MAKESKIN")
 
-    def execute(self, context):
+    def get_logger(self):
+        return _LOG
+
+    def hardened_execute(self, context):
 
         _LOG.debug("filepath", self.filepath)
         _LOG.debug("object_type", self.object_type)
         _LOG.debug("material_type", self.material_type)
 
-        from ...assetlibrary.assetsettingspanel import ASSET_SETTINGS_PROPERTIES # pylint: disable=C0415
+        from ...assetlibrary.assetsettingspanel import ASSET_SETTINGS_PROPERTIES  # pylint: disable=C0415
+        from ...mpfbcontext import MpfbContext
 
-        scene = context.scene
+        ctx = MpfbContext(context=context, scene_properties=ASSET_SETTINGS_PROPERTIES)
 
-        fit_to_body = ASSET_SETTINGS_PROPERTIES.get_value("fit_to_body", entity_reference=scene)
-        delete_group = ASSET_SETTINGS_PROPERTIES.get_value("delete_group", entity_reference=scene)
-        # TODO: specific_delete_group = ASSET_SETTINGS_PROPERTIES.get_value("specific_delete_group", entity_reference=scene)
-        set_up_rigging = ASSET_SETTINGS_PROPERTIES.get_value("set_up_rigging", entity_reference=scene)
-        interpolate_weights = ASSET_SETTINGS_PROPERTIES.get_value("interpolate_weights", entity_reference=scene)
-        import_subrig = ASSET_SETTINGS_PROPERTIES.get_value("import_subrig", entity_reference=scene)
-        import_weights = ASSET_SETTINGS_PROPERTIES.get_value("import_weights", entity_reference=scene)
-        # TODO: makeclothes_metadata = ASSET_SETTINGS_PROPERTIES.get_value("makeclothes_metadata", entity_reference=scene)
-        add_subdiv_modifier = ASSET_SETTINGS_PROPERTIES.get_value("add_subdiv_modifier", entity_reference=scene)
-        subdiv_levels = ASSET_SETTINGS_PROPERTIES.get_value("subdiv_levels", entity_reference=scene)
+        subdiv_levels = ctx.subdiv_levels
 
         blender_object = context.active_object
 
@@ -53,23 +49,23 @@ class MPFB_OT_Load_Library_Clothes_Operator(bpy.types.Operator):
 
             rig = ObjectService.find_object_of_type_amongst_nearest_relatives(blender_object, "Skeleton")
 
-        if fit_to_body and basemesh is None:
+        if ctx.fit_to_body and basemesh is None:
             self.report({'ERROR'}, "Fit to body is enabled, but active object is not a base mesh")
             return {'FINISHED'}
 
-        if delete_group and basemesh is None:
+        if ctx.delete_group and basemesh is None:
             self.report({'ERROR'}, "Set up delete group is enabled, but active object is not a base mesh")
             return {'FINISHED'}
 
-        if interpolate_weights and basemesh is None:
+        if ctx.interpolate_weights and basemesh is None:
             self.report({'ERROR'}, "interpolate weights is enabled, but active object is not a base mesh")
             return {'FINISHED'}
 
-        if set_up_rigging and rig is None:
+        if ctx.set_up_rigging and rig is None:
             self.report({'ERROR'}, "set up rigging is enabled, but could not find a rig to attach to")
             return {'FINISHED'}
 
-        if not add_subdiv_modifier:
+        if not ctx.add_subdiv_modifier:
             subdiv_levels = 0
 
         bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
@@ -77,8 +73,8 @@ class MPFB_OT_Load_Library_Clothes_Operator(bpy.types.Operator):
         _LOG.debug("Will call add_mhclo_asset: (asset_type, material_type)", (self.object_type, self.material_type))
         HumanService.add_mhclo_asset(
             self.filepath, basemesh, asset_type=self.object_type, subdiv_levels=subdiv_levels,
-            material_type=self.material_type, set_up_rigging=set_up_rigging,
-            interpolate_weights=interpolate_weights, import_subrig=import_subrig, import_weights=import_weights)
+            material_type=self.material_type, set_up_rigging=ctx.set_up_rigging,
+            interpolate_weights=ctx.interpolate_weights, import_subrig=ctx.import_subrig, import_weights=ctx.import_weights)
 
         self.report({'INFO'}, "Clothes were loaded")
         return {'FINISHED'}

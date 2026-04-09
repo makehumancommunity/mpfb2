@@ -4,6 +4,7 @@ from .....services import MaterialService
 from .....services import ObjectService
 from .....services import RigService
 from ..... import ClassManager
+from ....mpfboperator import MpfbOperator
 from ....pollstrategy import pollstrategy, PollStrategy
 import bpy, json, math, os
 from bpy.types import StringProperty
@@ -12,31 +13,29 @@ from bpy_extras.io_utils import ExportHelper
 _LOG = LogService.get_logger("makepose.operators.savepose")
 
 @pollstrategy(PollStrategy.ANY_ARMATURE_OBJECT_ACTIVE)
-class MPFB_OT_Save_Pose_Operator(bpy.types.Operator):
+class MPFB_OT_Save_Pose_Operator(MpfbOperator):
     """Save pose as json"""
     bl_idname = "mpfb.save_pose"
     bl_label = "Save pose"
     bl_options = {'REGISTER'}
 
-    def execute(self, context):
+    def get_logger(self):
+        return _LOG
+
+    def hardened_execute(self, context):
         _LOG.enter()
 
-        if context.object is None or context.object.type != 'ARMATURE':
+        if context.active_object is None or context.active_object.type != 'ARMATURE':
             self.report({'ERROR'}, "Must have armature as active object")
             return {'FINISHED'}
 
-        armature_object = context.object
+        armature_object = context.active_object
 
         from ...makepose import MakePoseProperties
-        name = MakePoseProperties.get_value('name', entity_reference=context.scene)
-        pose_type = MakePoseProperties.get_value('pose_type', entity_reference=context.scene)
-        overwrite = MakePoseProperties.get_value('overwrite', entity_reference=context.scene)
-        roottrans = MakePoseProperties.get_value('roottrans', entity_reference=context.scene)
-        iktrans = MakePoseProperties.get_value('iktrans', entity_reference=context.scene)
-        fktrans = MakePoseProperties.get_value('fktrans', entity_reference=context.scene)
+        from ....mpfbcontext import MpfbContext
+        ctx = MpfbContext(context=context, scene_properties=MakePoseProperties)
 
-        if name:
-            name = str(name).strip()
+        name = str(ctx.name).strip() if ctx.name else ctx.name
 
         if not name:
             self.report({'ERROR'}, "Must give a valid name")
@@ -59,19 +58,19 @@ class MPFB_OT_Save_Pose_Operator(bpy.types.Operator):
 
         save_pose_as = "fk"
 
-        if pose_type == "IKFK":
+        if ctx.pose_type == "IKFK":
             save_pose_as = "ik"
 
         onlyselected = False
 
-        if pose_type == "PARTIAL":
+        if ctx.pose_type == "PARTIAL":
             save_pose_as = "partial"
             onlyselected = True
 
-        pose = RigService.get_pose_as_dict(armature_object, ik_bone_translation=iktrans, root_bone_translation=roottrans, fk_bone_translation=fktrans, onlyselected=onlyselected)
+        pose = RigService.get_pose_as_dict(armature_object, ik_bone_translation=ctx.iktrans, root_bone_translation=ctx.roottrans, fk_bone_translation=ctx.fktrans, onlyselected=onlyselected)
         _LOG.dump("Pose", pose)
 
-        if pose_type == "AUTO" and pose["has_ik_bones"]:
+        if ctx.pose_type == "AUTO" and pose["has_ik_bones"]:
             save_pose_as = "ik"
 
         poses_root = LocationService.get_user_data("poses")
@@ -84,7 +83,7 @@ class MPFB_OT_Save_Pose_Operator(bpy.types.Operator):
         absolute_file_path = os.path.join(pose_root, name + ".json")
         _LOG.debug("absolute_file_path", absolute_file_path)
 
-        if not overwrite and os.path.exists(absolute_file_path):
+        if not ctx.overwrite and os.path.exists(absolute_file_path):
             self.report({'ERROR'}, "Pose file already exists: " + absolute_file_path)
             return {'FINISHED'}
 

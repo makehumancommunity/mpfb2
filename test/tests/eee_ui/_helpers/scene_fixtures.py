@@ -217,7 +217,7 @@ class BasemeshWithMakeSkinFixture:
         )
         from .mock_operator_base import MockOperatorBase
         import bpy
-        result = MPFB_OT_CreateMaterialOperator.execute(MockOperatorBase(), bpy.context)
+        result = MPFB_OT_CreateMaterialOperator.hardened_execute(MockOperatorBase(), bpy.context)
         assert result == {'FINISHED'}, f"BasemeshWithMakeSkinFixture: material creation returned {result}"
         assert MaterialService.has_materials(self.basemesh), "BasemeshWithMakeSkinFixture: no material on basemesh"
         self.material = self.basemesh.data.materials[0]
@@ -257,7 +257,7 @@ class BasemeshWithV2SkinFixture:
         )
         from .mock_operator_base import MockOperatorBase
         import bpy
-        result = MPFB_OT_Create_V2_Skin_Operator.execute(MockOperatorBase(), bpy.context)
+        result = MPFB_OT_Create_V2_Skin_Operator.hardened_execute(MockOperatorBase(), bpy.context)
         assert result == {'FINISHED'}, f"BasemeshWithV2SkinFixture: v2 skin creation returned {result}"
         assert MaterialService.has_materials(self.basemesh), "BasemeshWithV2SkinFixture: no material on basemesh"
         self.material = self.basemesh.data.materials[0]

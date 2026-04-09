@@ -83,7 +83,7 @@ class MPFB_PT_Importer_Panel(Abstract_Panel):
             layout.label(text="preference is enabled.")
             return
 
-        from ..eyesettings.eyesettingspanel import ensure_eye_settings_default_exists
+        from ..presets.eyesettings.eyesettingspanel import ensure_eye_settings_default_exists
         ensure_eye_settings_default_exists()
 
         if UiService.get_importer_panel_list() is None:

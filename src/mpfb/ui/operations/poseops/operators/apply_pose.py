@@ -8,18 +8,22 @@ from .....services import LogService
 from .....services import ObjectService
 from .....services import RigService
 from ..... import ClassManager
+from ....mpfboperator import MpfbOperator
 from ....pollstrategy import pollstrategy, PollStrategy
 
 _LOG = LogService.get_logger("poseops.apply_pose")
 
 @pollstrategy(PollStrategy.RIG_ACTIVE)
-class MPFB_OT_Apply_Pose_Operator(bpy.types.Operator):
+class MPFB_OT_Apply_Pose_Operator(MpfbOperator):
     """Apply pose as rest pose. WARNING: This will also bake all shape keys and make it impossible to do further modeling"""
     bl_idname = "mpfb.apply_pose"
     bl_label = "Apply as rest pose"
     bl_options = {'REGISTER', 'UNDO'}
 
-    def execute(self, context):
+    def get_logger(self):
+        return _LOG
+
+    def hardened_execute(self, context):
         obj = context.active_object
         scn = context.scene
 

@@ -26,7 +26,7 @@ def test_create_material_poll_true_with_active_mesh():
 def test_create_material_executes_successfully():
     with HumanFixture() as fixture:
         mockself = MockOperatorBase()
-        result = MPFB_OT_CreateMaterialOperator.execute(mockself, bpy.context)
+        result = MPFB_OT_CreateMaterialOperator.hardened_execute(mockself, bpy.context)
         mockself.mock_report.assert_no_errors()
         assert result == {'FINISHED'}
         MaterialService = dynamic_import("mpfb.services.materialservice", "MaterialService")
@@ -38,7 +38,7 @@ def test_create_material_errors_when_specular_and_roughness_both_set():
         MAKESKIN_PROPERTIES.set_value("create_specularmap", True, entity_reference=bpy.context.scene)
         MAKESKIN_PROPERTIES.set_value("create_roughnessmap", True, entity_reference=bpy.context.scene)
         mockself = MockOperatorBase()
-        result = MPFB_OT_CreateMaterialOperator.execute(mockself, bpy.context)
+        result = MPFB_OT_CreateMaterialOperator.hardened_execute(mockself, bpy.context)
         assert result == {'CANCELLED'}
         mockself.mock_report.assert_reported('ERROR', 'specular')
         MAKESKIN_PROPERTIES.set_value("create_specularmap", False, entity_reference=bpy.context.scene)

@@ -11,18 +11,22 @@ from .....entities.objectproperties import GeneralObjectProperties
 from .....entities.material.makeskinmaterial import MakeSkinMaterial
 from ...makeclothes.operators.clothescommon import ClothesCommon
 from ..... import ClassManager
+from ....mpfboperator import MpfbOperator
 from ....pollstrategy import pollstrategy, PollStrategy
 
 _LOG = LogService.get_logger("makeclothes.writeclotheslibrary")
 
 @pollstrategy(PollStrategy.ANY_OBJECT_ACTIVE)
-class MPFB_OT_WriteClothesLibraryOperator(ClothesCommon):
+class MPFB_OT_WriteClothesLibraryOperator(MpfbOperator, ClothesCommon):
     """Export the asset to the relevant section in the asset library. The file name will be based on the 'name' text box"""
     bl_idname = "mpfb.write_makeclothes_library"
     bl_label = "Store in library"
     bl_options = {'REGISTER'}
 
-    def execute(self, context):
+    def get_logger(self):
+        return _LOG
+
+    def hardened_execute(self, context):
 
         basemesh = None
         clothes = None

@@ -6,11 +6,12 @@ from ....services import LogService
 from ....services import ObjectService
 from ....services import HumanService
 from .... import ClassManager
+from ...mpfboperator import MpfbOperator
 
 _LOG = LogService.get_logger("assetlibrary.loadlibraryskin")
 
 
-class MPFB_OT_Load_Library_Skin_Operator(bpy.types.Operator):
+class MPFB_OT_Load_Library_Skin_Operator(MpfbOperator):
     """Load skin MHMAT from asset library"""
     bl_idname = "mpfb.load_library_skin"
     bl_label = "Load"
@@ -18,25 +19,28 @@ class MPFB_OT_Load_Library_Skin_Operator(bpy.types.Operator):
 
     filepath: StringProperty(name="filepath", description="Full path to asset", default="")
 
-    def execute(self, context):
+    def get_logger(self):
+        return _LOG
+
+    def hardened_execute(self, context):
 
         _LOG.debug("filepath", self.filepath)
 
         from ...assetlibrary.assetsettingspanel import ASSET_SETTINGS_PROPERTIES  # pylint: disable=C0415
+        from ...mpfbcontext import MpfbContext
 
-        scene = context.scene
+        ctx = MpfbContext(context=context, scene_properties=ASSET_SETTINGS_PROPERTIES)
 
-        skin_type = ASSET_SETTINGS_PROPERTIES.get_value("skin_type", entity_reference=scene)
-        material_instances = ASSET_SETTINGS_PROPERTIES.get_value("material_instances", entity_reference=scene)
+        material_instances = ctx.material_instances
 
         blender_object = context.active_object
         basemesh = ObjectService.find_object_of_type_amongst_nearest_relatives(blender_object, "Basemesh")
         bodyproxy = ObjectService.find_object_of_type_amongst_nearest_relatives(blender_object, "Proxymeshes")
 
-        if skin_type in ["LAYERED", "GAMEENGINE", "MAKESKIN"]:
+        if ctx.skin_type in ["LAYERED", "GAMEENGINE", "MAKESKIN"]:
             material_instances = False
 
-        HumanService.set_character_skin(self.filepath, basemesh, bodyproxy=bodyproxy, skin_type=skin_type, material_instances=material_instances)
+        HumanService.set_character_skin(self.filepath, basemesh, bodyproxy=bodyproxy, skin_type=ctx.skin_type, material_instances=material_instances)
 
         for slot in basemesh.material_slots:
             if str(slot.material.name).lower().endswith("body"):

@@ -46,6 +46,6 @@ def test_remove_helpers_executes_with_no_helpers_applied():
     with HumanWithRigFixture() as fixture:
         bpy.context.view_layer.objects.active = fixture.rig
         mockself = MockOperatorBase()
-        result = MPFB_OT_RemoveHelpersOperator.execute(mockself, bpy.context)
+        result = MPFB_OT_RemoveHelpersOperator.hardened_execute(mockself, bpy.context)
         assert result == {"FINISHED"}
         mockself.mock_report.assert_no_errors()

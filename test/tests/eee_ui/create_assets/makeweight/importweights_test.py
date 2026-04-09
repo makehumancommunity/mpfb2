@@ -34,7 +34,7 @@ def test_import_makeweight_weight_execute_reads_file():
             with open(tmp_path, 'w') as f:
                 json.dump({}, f)
             mockself = MockOperatorBase(filepath=tmp_path)
-            result = MPFB_OT_ImportWeightsOperator.execute(mockself, bpy.context)
+            result = MPFB_OT_ImportWeightsOperator.hardened_execute(mockself, bpy.context)
             # Stub operator just reads file and reports success
             assert result == {'FINISHED'}
             mockself.mock_report.assert_no_errors()

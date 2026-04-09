@@ -8,17 +8,21 @@ from .....services import ObjectService
 from .....entities.nodemodel.v2.materials import NodeWrapperSkin
 from ..... import ClassManager
 from ....developer.developerpanel import DEVELOPER_PROPERTIES
+from ....mpfboperator import MpfbOperator
 from ....pollstrategy import pollstrategy, PollStrategy
 import bpy, os, json, pprint
 
 _LOG = LogService.get_logger("matops.createv2skin")
 
 @pollstrategy(PollStrategy.BASEMESH_OR_BODY_PROXY_ACTIVE)
-class MPFB_OT_Create_V2_Skin_Operator(bpy.types.Operator):
+class MPFB_OT_Create_V2_Skin_Operator(MpfbOperator):
     """Wipe all current materials and add a v2 skin material on the selected object"""
     bl_idname = "mpfb.create_v2_skin"
     bl_label = "Create v2 skin"
     bl_options = {'REGISTER'}
+
+    def get_logger(self):
+        return _LOG
 
     def _find_textures_in_enhanced_skin(self, material):
         textures = { "diffuse": None, "normal": None }
@@ -54,32 +58,30 @@ class MPFB_OT_Create_V2_Skin_Operator(bpy.types.Operator):
 
         return textures
 
-    def execute(self, context):
+    def hardened_execute(self, context):
         _LOG.enter()
 
-        scene = context.scene
-        object = context.object
+        from ...matops.matopspanel import MATOPS_PROPERTIES  # pylint: disable=C0415
+        from ....mpfbcontext import MpfbContext  # pylint: disable=C0415
 
-        from ...matops.matopspanel import MATOPS_PROPERTIES
-        recreate_groups = MATOPS_PROPERTIES.get_value("recreate_groups", entity_reference=scene)
-        reuse_textures = MATOPS_PROPERTIES.get_value("reuse_textures", entity_reference=scene)
+        ctx = MpfbContext(context=context, scene_properties=MATOPS_PROPERTIES)
 
         textures = { "diffuse": None, "normal": None }
-        if reuse_textures:
-            material = MaterialService.get_material(object)
+        if ctx.reuse_textures:
+            material = MaterialService.get_material(ctx.active_object)
             if material:
                 mat_type = MaterialService.identify_material(material)
                 if mat_type == "enhanced_skin":
                     textures = self._find_textures_in_enhanced_skin(material)
             _LOG.debug("textures", textures)
 
-        if recreate_groups:
+        if ctx.recreate_groups:
             for node_tree in bpy.data.node_groups:
                 if str(node_tree.name).lower().startswith("mpfb"):
                     bpy.data.node_groups.remove(node_tree)
 
-        MaterialService.delete_all_materials(object)
-        material = MaterialService.create_empty_material("v2 skin material", object)
+        MaterialService.delete_all_materials(ctx.active_object)
+        material = MaterialService.create_empty_material("v2 skin material", ctx.active_object)
         node_tree = material.node_tree
 
         if not node_tree:
@@ -88,7 +90,7 @@ class MPFB_OT_Create_V2_Skin_Operator(bpy.types.Operator):
 
         NodeWrapperSkin.create_instance(node_tree)
 
-        if reuse_textures and textures and material:
+        if ctx.reuse_textures and textures and material:
             texco = NodeService.create_node(node_tree, "ShaderNodeTexCoord", name="TexCoord", label="Texture Coordinates", xpos=-901, ypos=425)
             uvsocket = texco.outputs["UV"]
             if textures["diffuse"]:
