@@ -5,7 +5,7 @@ from ... import dynamic_import
 from .._helpers import MockOperatorBase
 
 MPFB_OT_SaveNewImporterPresetsOperator = dynamic_import(
-    "mpfb.ui.importerpresets.operators.savenewpresets",
+    "mpfb.ui.new_human.importerpresets.operators.savenewpresets",
     "MPFB_OT_SaveNewImporterPresetsOperator"
 )
 

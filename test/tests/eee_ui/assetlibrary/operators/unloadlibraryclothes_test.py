@@ -6,15 +6,15 @@ from .... import ObjectService, LocationService, dynamic_import
 from ..._helpers import MockOperatorBase, HumanFixture
 
 MPFB_OT_Unload_Library_Clothes_Operator = dynamic_import(
-    "mpfb.ui.assetlibrary.operators.unloadlibraryclothes",
+    "mpfb.ui.apply_assets.assetlibrary.operators.unloadlibraryclothes",
     "MPFB_OT_Unload_Library_Clothes_Operator"
 )
 MPFB_OT_Load_Library_Clothes_Operator = dynamic_import(
-    "mpfb.ui.assetlibrary.operators.loadlibraryclothes",
+    "mpfb.ui.apply_assets.assetlibrary.operators.loadlibraryclothes",
     "MPFB_OT_Load_Library_Clothes_Operator"
 )
 ASSET_SETTINGS_PROPERTIES = dynamic_import(
-    "mpfb.ui.assetlibrary.assetsettingspanel",
+    "mpfb.ui.apply_assets.assetlibrary.assetsettingspanel",
     "ASSET_SETTINGS_PROPERTIES"
 )
 GeneralObjectProperties = dynamic_import(

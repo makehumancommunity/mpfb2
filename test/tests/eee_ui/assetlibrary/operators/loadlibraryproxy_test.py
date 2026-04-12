@@ -6,11 +6,11 @@ from .... import ObjectService, LocationService, dynamic_import
 from ..._helpers import MockOperatorBase, HumanFixture
 
 MPFB_OT_Load_Library_Proxy_Operator = dynamic_import(
-    "mpfb.ui.assetlibrary.operators.loadlibraryproxy",
+    "mpfb.ui.apply_assets.assetlibrary.operators.loadlibraryproxy",
     "MPFB_OT_Load_Library_Proxy_Operator"
 )
 ASSET_SETTINGS_PROPERTIES = dynamic_import(
-    "mpfb.ui.assetlibrary.assetsettingspanel",
+    "mpfb.ui.apply_assets.assetlibrary.assetsettingspanel",
     "ASSET_SETTINGS_PROPERTIES"
 )
 

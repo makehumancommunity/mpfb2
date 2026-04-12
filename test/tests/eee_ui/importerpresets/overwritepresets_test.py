@@ -4,7 +4,7 @@ import bpy
 from ... import dynamic_import
 
 MPFB_OT_OverwriteImporterPresetsOperator = dynamic_import(
-    "mpfb.ui.importerpresets.operators.overwritepresets",
+    "mpfb.ui.new_human.importerpresets.operators.overwritepresets",
     "MPFB_OT_OverwriteImporterPresetsOperator"
 )
 

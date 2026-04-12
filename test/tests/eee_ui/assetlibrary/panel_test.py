@@ -3,8 +3,8 @@
 import bpy
 from ... import dynamic_import
 
-ASSET_SETTINGS_PROPERTIES = dynamic_import("mpfb.ui.assetlibrary.assetsettingspanel", "ASSET_SETTINGS_PROPERTIES")
-ALTMAT_PROPERTIES = dynamic_import("mpfb.ui.assetlibrary.alternativematerialpanel", "ALTMAT_PROPERTIES")
+ASSET_SETTINGS_PROPERTIES = dynamic_import("mpfb.ui.apply_assets.assetlibrary.assetsettingspanel", "ASSET_SETTINGS_PROPERTIES")
+ALTMAT_PROPERTIES = dynamic_import("mpfb.ui.apply_assets.assetlibrary.alternativematerialpanel", "ALTMAT_PROPERTIES")
 
 
 def test_asset_settings_panel_is_registered():

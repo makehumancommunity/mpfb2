@@ -4,7 +4,7 @@ from .. import ObjectService
 from .. import LocationService
 from .. import dynamic_import
 from ._helpers import MockOperatorBase
-MPFB_OT_Install_Target_Operator = dynamic_import("mpfb.ui.assetlibrary.operators", "MPFB_OT_Install_Target_Operator")
+MPFB_OT_Install_Target_Operator = dynamic_import("mpfb.ui.apply_assets.assetlibrary.operators", "MPFB_OT_Install_Target_Operator")
 
 
 def test_operators_exist():

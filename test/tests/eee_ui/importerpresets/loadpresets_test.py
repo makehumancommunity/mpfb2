@@ -4,7 +4,7 @@ import bpy
 from ... import dynamic_import
 
 MPFB_OT_LoadImporterPresetsOperator = dynamic_import(
-    "mpfb.ui.importerpresets.operators.loadpresets",
+    "mpfb.ui.new_human.importerpresets.operators.loadpresets",
     "MPFB_OT_LoadImporterPresetsOperator"
 )
 

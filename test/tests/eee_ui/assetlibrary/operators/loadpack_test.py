@@ -4,7 +4,7 @@ import bpy
 from .... import dynamic_import
 
 MPFB_OT_Load_Pack_Operator = dynamic_import(
-    "mpfb.ui.assetlibrary.operators.loadpack",
+    "mpfb.ui.apply_assets.assetlibrary.operators.loadpack",
     "MPFB_OT_Load_Pack_Operator"
 )
 

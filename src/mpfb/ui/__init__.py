@@ -15,16 +15,12 @@ if SystemService.is_blender_version_at_least():
     from .pollstrategy import pollstrategy, PollStrategy
 
     # Top level panels
-    from .newpanel import *
     from .model import *
-    from .assetspanel import *
     from .developer import *
     from .haireditorpanel import *
 
     # New human panels
-    from .newhuman import *
-    from .importer import *
-    from .importerpresets import *
+    from .new_human import *
 
     # Create assets panels
     from .create_assets import *
@@ -36,8 +32,7 @@ if SystemService.is_blender_version_at_least():
     from .presets import *
 
     # Assets
-    from .assetlibrary import *
-    from .loadclothes import *
+    from .apply_assets import *
 
     # Operations
     from .operations import *
