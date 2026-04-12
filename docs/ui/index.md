@@ -104,6 +104,7 @@ When validation is enabled, `ClassManager.add_class()` checks:
 Documentation for individual UI sections:
 
 - [New Human](new_human/index.md) — creating characters from scratch, from presets, from MHM files, or by importing from MakeHuman
+- [Rigging](rigging/index.md) — adding rigs, Rigify conversion, IK helpers, poses, and walk cycles
 
 ## Further reading
 
