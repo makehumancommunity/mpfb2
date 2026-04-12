@@ -92,6 +92,13 @@ These are services and classes which are only relevant when interacting with a r
 - [SocketService](services/socketservice.md) — MakeHuman socket server communication
 - [JsonCall](services/jsoncall.md) — JSON-serializable function call model. 
 
+## UI layer
+
+The UI layer contains all Blender panels and operators. It lives in `src/mpfb/ui/` and is documented in `docs/ui/`.
+
+- [UI Layer Overview](ui/index.md) — directory structure, registration pattern, and internal feature layout
+- [Meta Classes](ui/meta.md) — `Abstract_Panel`, `MpfbOperator`, `MpfbContext`, and the `pollstrategy` decorator
+
 ## Entities
 
 Entity classes are in `src/mpfb/entities/`. Entities are data-oriented classes that encapsulate state and domain logic, in contrast to the stateless singleton services.
