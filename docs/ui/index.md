@@ -99,6 +99,12 @@ When validation is enabled, `ClassManager.add_class()` checks:
 - Panels must have `bl_label`, `bl_space_type`, `bl_region_type`, and `bl_category` defined.
 - Panels must inherit from `Abstract_Panel`.
 
+## Section documentation
+
+Documentation for individual UI sections:
+
+- [New Human](new_human/index.md) — creating characters from scratch, from presets, from MHM files, or by importing from MakeHuman
+
 ## Further reading
 
 - [Code Structure Guide](../code-structure.md) — how all four layers (services, entities, ui, data) relate to each other and how registration works end-to-end
