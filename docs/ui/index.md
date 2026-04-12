@@ -108,6 +108,7 @@ Documentation for individual UI sections:
 - [Rigging](rigging/index.md) — adding rigs, Rigify conversion, IK helpers, poses, and walk cycles
 - [Apply Assets](apply_assets/index.md) — browsing the installed asset library and loading clothes, skins, poses, topologies, and other assets onto a character
 - [Create Assets](create_assets/index.md) — authoring clothes, skin materials, morph targets, rigs, poses, makeup layers, and vertex weights
+- [Operations](operations/index.md) — mesh operations, material operations, pose tools, animation tools, facial shape keys, sculpt setup, and export copy
 
 ## Further reading
 
