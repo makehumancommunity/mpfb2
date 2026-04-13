@@ -99,6 +99,10 @@ When validation is enabled, `ClassManager.add_class()` checks:
 - Panels must have `bl_label`, `bl_space_type`, `bl_region_type`, and `bl_category` defined.
 - Panels must inherit from `Abstract_Panel`.
 
+## Reference tables
+
+If you are looking for a specific operator see [the operator reference table](operators_reference.md).
+
 ## Section documentation
 
 Documentation for individual UI sections:
