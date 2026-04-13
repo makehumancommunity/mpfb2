@@ -5,7 +5,7 @@ from .... import ObjectService, dynamic_import
 from ..._helpers import MockOperatorBase, HumanFixture
 
 MPFB_OT_Load_Library_Material_Operator = dynamic_import(
-    "mpfb.ui.assetlibrary.operators.loadlibrarymaterial",
+    "mpfb.ui.apply_assets.assetlibrary.operators.loadlibrarymaterial",
     "MPFB_OT_Load_Library_Material_Operator"
 )
 

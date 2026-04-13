@@ -1,3 +1,5 @@
+"""This is the root directory of the UI layer."""
+
 from ..services import LogService
 from ..services import SystemService
 
@@ -8,52 +10,42 @@ UI_DUMMY_VALUE = None  # To be able to import something independent of blender v
 
 if SystemService.is_blender_version_at_least():
 
-    # Meta classes
+    # Meta classes. These are used by most panels and operators.
     from .abstractpanel import Abstract_Panel
     from .mpfboperator import MpfbOperator
     from .mpfbcontext import MpfbContext, ContextFocusObject, ContextResolveEffort
     from .pollstrategy import pollstrategy, PollStrategy
 
-    # Top level panels
-    from .newpanel import *
+    # Special cases in the UI layer. These contain specific complex logic which makes them
+    # unsuitable to arrange in the same manner as the rest of the UI layer.
     from .model import *
-    from .assetspanel import *
     from .developer import *
     from .haireditorpanel import *
 
-    # New human panels
-    from .newhuman import *
-    from .importer import *
-    from .importerpresets import *
-
-    # Create assets panels
+    # Most of the UI layer follows a common pattern: A top level directory matching a main panel
+    # in the ui, with subdirectories matching subpanels.
+    from .new_human import *
     from .create_assets import *
-
-    # Rig panels
     from .rigging import *
-
-    # Presets
     from .presets import *
-
-    # Assets
-    from .assetlibrary import *
-    from .loadclothes import *
-
-    # Operations
+    from .apply_assets import *
     from .operations import *
-
-    # System
     from .system import *
 
     __all__ = [
+        "Abstract_Panel",
+        "MpfbOperator",
+        "MpfbContext",
+        "ContextFocusObject",
+        "ContextResolveEffort",
+        "pollstrategy",
+        "PollStrategy",
         "MPFB_PT_New_Panel",
         "MPFB_PT_Create_Panel",
         "MPFB_PT_Add_Rig_Panel",
         "MPFB_PT_Importer_Panel",
         "MPFB_PT_Importer_Presets_Panel",
         "MPFB_PT_Presets_Panel",
-        # "MPFB_PT_Targets_Panel",
-        # "MPFB_PT_Clothes_Panel",
         "MPFB_PT_Save_Nodes_Panel",
         "MPFB_PT_RigHelpersPanel",
         "MPFB_PT_Enhanced_Settings_Panel",

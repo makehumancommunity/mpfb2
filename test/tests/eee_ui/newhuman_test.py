@@ -7,9 +7,9 @@ from .. import UiService
 from .. import dynamic_import
 from ._helpers import MockOperatorBase
 
-MPFB_OT_CreateHumanOperator = dynamic_import("mpfb.ui.newhuman.operators.createhuman", "MPFB_OT_CreateHumanOperator")
-MPFB_OT_HumanFromMHMOperator = dynamic_import("mpfb.ui.newhuman.operators.humanfrommhm", "MPFB_OT_HumanFromMHMOperator")
-MPFB_OT_HumanFromPresetsOperator = dynamic_import("mpfb.ui.newhuman.operators.humanfrompresets", "MPFB_OT_HumanFromPresetsOperator")
+MPFB_OT_CreateHumanOperator = dynamic_import("mpfb.ui.new_human.newhuman.operators.createhuman", "MPFB_OT_CreateHumanOperator")
+MPFB_OT_HumanFromMHMOperator = dynamic_import("mpfb.ui.new_human.newhuman.operators.humanfrommhm", "MPFB_OT_HumanFromMHMOperator")
+MPFB_OT_HumanFromPresetsOperator = dynamic_import("mpfb.ui.new_human.newhuman.operators.humanfrompresets", "MPFB_OT_HumanFromPresetsOperator")
 
 def test_operators_exist():
     """Operators are not none"""
@@ -58,7 +58,7 @@ def test_create_human_from_preset():
     assert os.path.exists(dst_preset_file)
 
     UiService.rebuild_importer_presets_panel_list()
-    PRESETS_HUMAN_PROPERTIES = dynamic_import("mpfb.ui.newhuman.frompresetspanel", "PRESETS_HUMAN_PROPERTIES")
+    PRESETS_HUMAN_PROPERTIES = dynamic_import("mpfb.ui.new_human.newhuman.frompresetspanel", "PRESETS_HUMAN_PROPERTIES")
     assert(PRESETS_HUMAN_PROPERTIES)
 
     PRESETS_HUMAN_PROPERTIES.set_value("available_presets", randname, entity_reference=bpy.context.scene)

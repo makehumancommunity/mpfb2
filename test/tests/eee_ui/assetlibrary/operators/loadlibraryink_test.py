@@ -6,7 +6,7 @@ from .... import ObjectService, LocationService, MaterialService, dynamic_import
 from ..._helpers import MockOperatorBase, HumanFixture, BasemeshWithMakeSkinFixture
 
 MPFB_OT_Load_Library_Ink_Operator = dynamic_import(
-    "mpfb.ui.assetlibrary.operators.loadlibraryink",
+    "mpfb.ui.apply_assets.assetlibrary.operators.loadlibraryink",
     "MPFB_OT_Load_Library_Ink_Operator"
 )
 

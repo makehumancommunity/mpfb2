@@ -5,7 +5,7 @@ from .... import ObjectService, dynamic_import
 from ..._helpers import MockOperatorBase, HumanFixture, OpenPoseRigFixture
 
 MPFB_OT_Load_Library_Pose_Operator = dynamic_import(
-    "mpfb.ui.assetlibrary.operators.loadlibrarypose",
+    "mpfb.ui.apply_assets.assetlibrary.operators.loadlibrarypose",
     "MPFB_OT_Load_Library_Pose_Operator"
 )
 
