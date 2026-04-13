@@ -47,7 +47,7 @@ Some directories such as `developer/` and `haireditorpanel/` contain multiple pa
 | `presets/` | Presets | `MATERIALSCATEGORY` | Saving and loading character presets and settings |
 | `apply_assets/` | Load Assets | `CLOTHESCATEGORY` | Applying pre-made clothes and other assets to a character |
 | `operations/` | Operations | `OPERATIONSCATEGORY` | Character manipulation: mesh operations, material operations, export, AI tools, and more |
-| `system/` | System | `OPERATIONSCATEGORY` | System configuration, directory management, and web resources |
+| `system/` | System | `DEVELOPERCATEGORY` | System configuration, directory management, and web resources |
 
 Category keys are string constants managed by `UiService`. They determine which sidebar tab a panel appears in. See [UiService](../services/uiservice.md) for the full list.
 
@@ -110,6 +110,8 @@ Documentation for individual UI sections:
 - [Create Assets](create_assets/index.md) — authoring clothes, skin materials, morph targets, rigs, poses, makeup layers, and vertex weights
 - [Presets](presets/index.md) — saving and loading human character presets, skin material settings, eye material settings, and makeup configurations
 - [Operations](operations/index.md) — mesh operations, material operations, pose tools, animation tools, facial shape keys, sculpt setup, and export copy
+- [System](system/index.md) — system diagnostics, web resource links, and directory quick-access
+- [Developer](developer/developer.md) — logging controls, node tree I/O, target file I/O, and code-generation tools for addon developers
 
 ## Further reading
 
