@@ -44,7 +44,7 @@ Some directories such as `developer/` and `haireditorpanel/` contain multiple pa
 | `new_human/` | New Human | `IMPORTERCATEGORY` | Creating new characters and importing from MakeHuman |
 | `create_assets/` | Create Assets | `TARGETSCATEGORY` | Tools for authoring clothes, skin materials, morph targets, rigs, poses, and makeup |
 | `rigging/` | Add Rig | `RIGCATEGORY` | Applying rigs, Rigify integration, rig helpers, and pose tools |
-| `presets/` | Presets | `OPERATIONSCATEGORY` | Saving and loading character presets and settings |
+| `presets/` | Presets | `MATERIALSCATEGORY` | Saving and loading character presets and settings |
 | `apply_assets/` | Load Assets | `CLOTHESCATEGORY` | Applying pre-made clothes and other assets to a character |
 | `operations/` | Operations | `OPERATIONSCATEGORY` | Character manipulation: mesh operations, material operations, export, AI tools, and more |
 | `system/` | System | `OPERATIONSCATEGORY` | System configuration, directory management, and web resources |
@@ -108,6 +108,7 @@ Documentation for individual UI sections:
 - [Rigging](rigging/index.md) — adding rigs, Rigify conversion, IK helpers, poses, and walk cycles
 - [Apply Assets](apply_assets/index.md) — browsing the installed asset library and loading clothes, skins, poses, topologies, and other assets onto a character
 - [Create Assets](create_assets/index.md) — authoring clothes, skin materials, morph targets, rigs, poses, makeup layers, and vertex weights
+- [Presets](presets/index.md) — saving and loading human character presets, skin material settings, eye material settings, and makeup configurations
 - [Operations](operations/index.md) — mesh operations, material operations, pose tools, animation tools, facial shape keys, sculpt setup, and export copy
 
 ## Further reading
