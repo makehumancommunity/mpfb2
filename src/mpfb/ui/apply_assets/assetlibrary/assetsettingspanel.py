@@ -17,6 +17,10 @@ ASSET_SETTINGS_PROPERTIES = SceneConfigSet.from_definitions_in_json_directory(AS
 
 _CURRENT_SECOND_ROOT = None
 
+ASSET_PACK_STATUS = {
+    "status": None
+    }
+
 class MPFB_PT_Asset_Settings_Panel(Abstract_Panel):
     """Settings for loading asset files."""
 
@@ -65,6 +69,37 @@ class MPFB_PT_Asset_Settings_Panel(Abstract_Panel):
     def _assets(self, scene, layout):
         box = layout.box()
         box.label(text="Install assets")
+        ASSET_SETTINGS_PROPERTIES.draw_properties(scene, box, ["check_zip"])
+        if ASSET_PACK_STATUS["status"] is not None:
+            box.label(text="FOUND ERROR:")
+            if ASSET_PACK_STATUS["status"] == "MACOS":
+                box.label(text="Asset pack contains MACOS")
+                box.label(text="metadata, which is a strong")
+                box.label(text="indication it has been")
+                box.label(text="corrupted by Safari.")
+                box.label(text="Switch off auto-unpacking")
+                box.label(text="and/or auto-opening zips")
+                box.label(text="in Safari and download")
+                box.label(text="the asset pack zip again.")
+            if ASSET_PACK_STATUS["status"] == "STRUCTURE":
+                box.label(text="Something looking like a")
+                box.label(text="pack name was found at")
+                box.label(text="root level in this zip.")
+                box.label(text="Was it re-packaged with")
+                box.label(text="one directory level")
+                box.label(text="too many?")
+            if ASSET_PACK_STATUS["status"] == "NO_PACKS":
+                box.label(text="There is no packs dir")
+                box.label(text="at root level in this zip.")
+                box.label(text="This makes it unlikely")
+                box.label(text="that it is a valid")
+                box.label(text="asset pack.")
+            if "INVALID_ZIP" in ASSET_PACK_STATUS["status"]:
+                box.label(text="Broken zip file was not")
+                box.label(text="possible to open.")
+            if ASSET_PACK_STATUS["status"] == "UNKNOWN":
+                box.label(text="Something unforeseen was")
+                box.label(text="wrong with the zip file.")
         box.operator("mpfb.load_pack")
         box.operator("mpfb.install_target")
 

@@ -1,0 +1,12 @@
+{
+    "type": "enum",
+    "name": "check_zip",
+    "description": "What action to take if the zip file looks as it is not a valid asset pack. This primarily happens when someone has downloaded a zip with Safari, gotten it unpacked, repacked it with a different directory structure and then tries to install the repackaged version",
+    "label": "On bad zip",
+    "default": "BLOCK",
+    "items": [
+        ["BLOCK", "Refuse to install", "Refuse to install a zip file which looks as if it is broken", 1],
+        ["INSTALL", "Install anyway", "Install the zip as is anyway", 2],
+        ["FIX", "Try to fix (not recommended)", "Make a spirited attempt at fixing the zip. There is no guarrantee this will work except in the simplest cases", 3]
+    ]
+}

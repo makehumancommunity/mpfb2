@@ -400,7 +400,7 @@ class AssetService:
                     _ASSET_THUMBS.load(thumb, thumb, 'IMAGE')
                 item["thumb"] = _ASSET_THUMBS[thumb]
             else:
-                _LOG.warn("Missing thumb", thumb)
+                _LOG.debug("Missing thumb", thumb)
 
             _LOG.dump("Item", item)
             asset_list[label] = item
@@ -648,3 +648,32 @@ class AssetService:
         if not custom_rigs:
             return [("NONE", "No custom rigs found", "")]
         return [(r["name"], "Custom: " + r["name"], "") for r in custom_rigs]
+
+    @staticmethod
+    def check_asset_pack_zip(filename):
+        """Check if a file is a valid zip file containing a makehuman asset pack.
+
+        Args:
+            filename (str): The file to check.
+
+        Returns:
+            str or None: None if everything is fine, otherwise a string describing the error.
+        """
+        import zipfile
+        try:
+            with zipfile.ZipFile(filename, "r") as zf:
+                for name in zf.namelist():
+                    print(name)
+                for name in zf.namelist():
+                    if "_macos" in name.lower():
+                        # This is a file corrupted by safari
+                        return "MACOS"
+                    if name.endswith("_cc0/") or name.endswith("_ccby/"):
+                        # This seems like the wrong directory structure
+                        return "STRUCTURE"
+                if "packs" in zf.namelist():
+                    return True
+                return "NO_PACKS"
+        except (zipfile.BadZipFile, zipfile.LargeZipFile) as e:
+            return f"INVALID_ZIP: {str(e)}"
+        return "UNKNOWN"

@@ -70,3 +70,27 @@ def test_asset_lists():
     assert alist, "The asset list should not be empty"
     assert len(alist) > 0, "The asset list should not be empty"
 
+def test_bad_mac_pack():
+    """Test AssetService.check_asset_pack_zip for detecting zip files corrupted by mac"""
+    testdata = LocationService.get_mpfb_test("testdata")
+    mac_corrupted_zip = os.path.abspath(os.path.join(testdata, "packs", "mac_corrupted.zip"))
+    assert os.path.exists(mac_corrupted_zip), f"The path {mac_corrupted_zip} should exist"
+    assert AssetService.check_asset_pack_zip(mac_corrupted_zip) == "MACOS", "A corrupted zip file should be detected"
+
+def test_too_deep_pack():
+    """Test AssetService.check_asset_pack_zip for detecting zip files with one dir level too many"""
+    testdata = LocationService.get_mpfb_test("testdata")
+    too_deep_cc0 = os.path.abspath(os.path.join(testdata, "packs", "too_deep_cc0.zip"))
+    assert os.path.exists(too_deep_cc0), f"The path {too_deep_cc0} should exist"
+    too_deep_ccby = os.path.abspath(os.path.join(testdata, "packs", "too_deep_ccby.zip"))
+    assert os.path.exists(too_deep_ccby), f"The path {too_deep_ccby} should exist"
+    assert AssetService.check_asset_pack_zip(too_deep_cc0) == "STRUCTURE", "A zip with too deep structure (cc0) should be detected"
+    assert AssetService.check_asset_pack_zip(too_deep_ccby) == "STRUCTURE", "A zip with too deep structure (cc0) should be detected"
+
+def test_no_packs_pack():
+    """Test AssetService.check_asset_pack_zip for detecting zip files with no packs directory"""
+    testdata = LocationService.get_mpfb_test("testdata")
+    no_packs = os.path.abspath(os.path.join(testdata, "packs", "no_packs.zip"))
+    assert os.path.exists(no_packs), f"The path {no_packs} should exist"
+    assert AssetService.check_asset_pack_zip(no_packs) == "NO_PACKS", "A zip file with no packs dir should be detected"
+
