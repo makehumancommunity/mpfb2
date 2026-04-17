@@ -9,6 +9,7 @@ from .....services import AssetService
 import zipfile
 from ..... import ClassManager
 from ....mpfboperator import MpfbOperator
+from ....mpfbcontext import MpfbContext, ContextResolveEffort
 
 _LOG = LogService.get_logger("assetlibrary.loadpack")
 
@@ -27,6 +28,9 @@ class MPFB_OT_Load_Pack_Operator(MpfbOperator, ImportHelper):
 
     def hardened_execute(self, context):
 
+        from ...assetlibrary.assetsettingspanel import ASSET_SETTINGS_PROPERTIES, ASSET_PACK_STATUS  # pylint: disable=C0415
+        ctx = MpfbContext(context=context, scene_properties=ASSET_SETTINGS_PROPERTIES)
+
         if not self.filepath:
             self.report({'ERROR'}, "Must select a file")
             return {'FINISHED'}
@@ -36,6 +40,26 @@ class MPFB_OT_Load_Pack_Operator(MpfbOperator, ImportHelper):
             return {'FINISHED'}
 
         data_dir = LocationService.get_user_data()
+
+        ASSET_PACK_STATUS["status"] = None
+
+        if ctx.check_zip == "BLOCK":
+            check = AssetService.check_asset_pack_zip(self.filepath)
+            if check is not None:
+                ASSET_PACK_STATUS["status"] = check
+                self.report({'WARNING'}, "Bad zip file, see text")
+                return {'FINISHED'}
+        elif ctx.check_zip == "FIX":
+            check = AssetService.check_asset_pack_zip(self.filepath)
+            if check is not None:
+                result = AssetService.fix_and_extract_asset_pack_zip(self.filepath, data_dir)
+                if result is not None:
+                    ASSET_PACK_STATUS["status"] = result
+                    self.report({'WARNING'}, "Failed to fix zip, see text")
+                    return {'FINISHED'}
+                AssetService.update_all_asset_lists()
+                self.report({'INFO'}, "Assets fixed and installed. If not visible, restart Blender.")
+                return {'FINISHED'}
 
         with zipfile.ZipFile(self.filepath, 'r') as zip_ref:
             zip_ref.extractall(data_dir)
