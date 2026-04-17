@@ -1,6 +1,6 @@
 """This module contains utility functions scanning asset repositories."""
 
-import os, bpy, json
+import os, bpy, json, zipfile, shutil, tempfile
 from pathlib import Path
 from .logservice import LogService
 from .locationservice import LocationService
@@ -658,22 +658,87 @@ class AssetService:
 
         Returns:
             str or None: None if everything is fine, otherwise a string describing the error.
+            Possible error strings: "MACOS", "STRUCTURE", "NO_PACKS", "INVALID_ZIP: <reason>"
         """
-        import zipfile
         try:
             with zipfile.ZipFile(filename, "r") as zf:
-                for name in zf.namelist():
-                    print(name)
-                for name in zf.namelist():
-                    if "_macos" in name.lower():
-                        # This is a file corrupted by safari
+                namelist = zf.namelist()
+
+            for name in namelist:
+                _LOG.debug("Zip entry:", name)
+
+            # A valid zip has packs/ at root level
+            if "packs/" in namelist:
+                return None
+
+            has_macos = any(name.startswith("__MACOSX") for name in namelist)
+
+            # Collect distinct root-level directory names, ignoring __MACOSX and dotfiles
+            root_dirs = set()
+            for name in namelist:
+                parts = name.split("/")
+                if parts[0] and not parts[0].startswith(".") and parts[0] != "__MACOSX":
+                    root_dirs.add(parts[0])
+
+            # If there is exactly one root directory and it contains packs/, this is fixable
+            if len(root_dirs) == 1:
+                root = next(iter(root_dirs))
+                if any(n.startswith(f"{root}/packs/") for n in namelist):
+                    if has_macos:
                         return "MACOS"
-                    if name.endswith("_cc0/") or name.endswith("_ccby/"):
-                        # This seems like the wrong directory structure
-                        return "STRUCTURE"
-                if "packs" in zf.namelist():
-                    return True
-                return "NO_PACKS"
+                    return "STRUCTURE"
+
+            return "NO_PACKS"
         except (zipfile.BadZipFile, zipfile.LargeZipFile) as e:
             return f"INVALID_ZIP: {str(e)}"
-        return "UNKNOWN"
+
+    @staticmethod
+    def fix_and_extract_asset_pack_zip(filename, target_dir):
+        """Extract an asset pack zip to target_dir, stripping one extra root directory if needed.
+
+        Handles the common re-packaging error where the zip has a single extra root directory
+        (e.g., from Safari auto-unpacking and the user re-zipping the resulting folder).
+        __MACOSX metadata directories are always stripped during extraction.
+
+        Args:
+            filename (str): Path to the zip file.
+            target_dir (str): Destination directory (user data dir).
+
+        Returns:
+            None on success, or a string describing the error.
+        """
+        tmp_dir = tempfile.mkdtemp()
+        try:
+            with zipfile.ZipFile(filename, "r") as zf:
+                for member in zf.infolist():
+                    if member.filename.startswith("__MACOSX"):
+                        continue
+                    zf.extract(member, tmp_dir)
+
+            root_entries = [e for e in os.listdir(tmp_dir) if not e.startswith(".")]
+
+            if "packs" in root_entries:
+                source_root = tmp_dir
+            else:
+                root_dirs = [e for e in root_entries if os.path.isdir(os.path.join(tmp_dir, e))]
+                if len(root_dirs) != 1:
+                    return "FIX_FAILED"
+                candidate = os.path.join(tmp_dir, root_dirs[0])
+                if "packs" not in os.listdir(candidate):
+                    return "FIX_FAILED"
+                source_root = candidate
+
+            for entry in os.listdir(source_root):
+                if entry.startswith("."):
+                    continue
+                src = os.path.join(source_root, entry)
+                dst = os.path.join(target_dir, entry)
+                if os.path.isdir(src):
+                    shutil.copytree(src, dst, dirs_exist_ok=True)
+                else:
+                    shutil.copy2(src, dst)
+            return None
+        except Exception as e:  # pylint: disable=broad-except
+            return f"FIX_ERROR: {str(e)}"
+        finally:
+            shutil.rmtree(tmp_dir, ignore_errors=True)

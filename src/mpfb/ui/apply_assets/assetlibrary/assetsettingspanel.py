@@ -100,6 +100,14 @@ class MPFB_PT_Asset_Settings_Panel(Abstract_Panel):
             if ASSET_PACK_STATUS["status"] == "UNKNOWN":
                 box.label(text="Something unforeseen was")
                 box.label(text="wrong with the zip file.")
+            if ASSET_PACK_STATUS["status"] == "FIX_FAILED":
+                box.label(text="Could not automatically fix")
+                box.label(text="the zip structure. No packs")
+                box.label(text="directory was found at any")
+                box.label(text="expected location.")
+            if ASSET_PACK_STATUS["status"].startswith("FIX_ERROR"):
+                box.label(text="An error occurred while")
+                box.label(text="trying to fix the zip.")
         box.operator("mpfb.load_pack")
         box.operator("mpfb.install_target")
 

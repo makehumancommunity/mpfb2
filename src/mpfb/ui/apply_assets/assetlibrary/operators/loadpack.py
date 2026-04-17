@@ -49,6 +49,17 @@ class MPFB_OT_Load_Pack_Operator(MpfbOperator, ImportHelper):
                 ASSET_PACK_STATUS["status"] = check
                 self.report({'WARNING'}, "Bad zip file, see text")
                 return {'FINISHED'}
+        elif ctx.check_zip == "FIX":
+            check = AssetService.check_asset_pack_zip(self.filepath)
+            if check is not None:
+                result = AssetService.fix_and_extract_asset_pack_zip(self.filepath, data_dir)
+                if result is not None:
+                    ASSET_PACK_STATUS["status"] = result
+                    self.report({'WARNING'}, "Failed to fix zip, see text")
+                    return {'FINISHED'}
+                AssetService.update_all_asset_lists()
+                self.report({'INFO'}, "Assets fixed and installed. If not visible, restart Blender.")
+                return {'FINISHED'}
 
         with zipfile.ZipFile(self.filepath, 'r') as zip_ref:
             zip_ref.extractall(data_dir)

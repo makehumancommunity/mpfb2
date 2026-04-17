@@ -94,3 +94,39 @@ def test_no_packs_pack():
     assert os.path.exists(no_packs), f"The path {no_packs} should exist"
     assert AssetService.check_asset_pack_zip(no_packs) == "NO_PACKS", "A zip file with no packs dir should be detected"
 
+def test_valid_pack():
+    """Test AssetService.check_asset_pack_zip returns None for a valid zip"""
+    testdata = LocationService.get_mpfb_test("testdata")
+    valid_zip = os.path.abspath(os.path.join(testdata, "packs", "valid.zip"))
+    assert os.path.exists(valid_zip), f"The path {valid_zip} should exist"
+    assert AssetService.check_asset_pack_zip(valid_zip) is None, "A valid zip should return None"
+
+def test_fix_too_deep_pack():
+    """Test AssetService.fix_and_extract_asset_pack_zip handles a one-level-too-deep zip"""
+    import tempfile
+    testdata = LocationService.get_mpfb_test("testdata")
+    too_deep_cc0 = os.path.abspath(os.path.join(testdata, "packs", "too_deep_cc0.zip"))
+    with tempfile.TemporaryDirectory() as tmp:
+        result = AssetService.fix_and_extract_asset_pack_zip(too_deep_cc0, tmp)
+        assert result is None, f"fix_and_extract should succeed, got: {result}"
+        assert os.path.isdir(os.path.join(tmp, "packs")), "packs/ should exist in target after fix"
+
+def test_fix_mac_corrupted_pack():
+    """Test AssetService.fix_and_extract_asset_pack_zip handles a Safari-repackaged zip"""
+    import tempfile
+    testdata = LocationService.get_mpfb_test("testdata")
+    mac_zip = os.path.abspath(os.path.join(testdata, "packs", "mac_corrupted.zip"))
+    with tempfile.TemporaryDirectory() as tmp:
+        result = AssetService.fix_and_extract_asset_pack_zip(mac_zip, tmp)
+        assert result is None, f"fix_and_extract should succeed on mac zip, got: {result}"
+        assert os.path.isdir(os.path.join(tmp, "packs")), "packs/ should exist after fixing mac zip"
+
+def test_fix_no_packs_fails():
+    """Test AssetService.fix_and_extract_asset_pack_zip fails gracefully when zip has no packs dir"""
+    import tempfile
+    testdata = LocationService.get_mpfb_test("testdata")
+    no_packs = os.path.abspath(os.path.join(testdata, "packs", "no_packs.zip"))
+    with tempfile.TemporaryDirectory() as tmp:
+        result = AssetService.fix_and_extract_asset_pack_zip(no_packs, tmp)
+        assert result is not None, "fix_and_extract should fail for a zip with no packs dir"
+
