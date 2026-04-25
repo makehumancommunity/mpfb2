@@ -5,6 +5,7 @@ from .....services import RigService
 from .....entities.rig import Rig
 from ..... import ClassManager
 from ....mpfboperator import MpfbOperator
+from ....mpfbcontext import MpfbContext
 import bpy, json, math
 from bpy.types import StringProperty
 from bpy_extras.io_utils import ImportHelper
@@ -52,6 +53,15 @@ class MPFB_OT_Load_Weights_Operator(MpfbOperator, ImportHelper):
         if not rig:
             self.report({'ERROR'}, "Could not find skeleton")
             return {'FINISHED'}
+
+        from ...makerig import MakeRigProperties  # pylint: disable=C0415
+        ctx = MpfbContext(context=context, scene_properties=MakeRigProperties)
+
+        if ctx.clear_weights:
+            for bone in rig.data.bones:
+                vg = basemesh.vertex_groups.get(bone.name)
+                if vg is not None:
+                    basemesh.vertex_groups.remove(vg)
 
         absolute_file_path = bpy.path.abspath(self.filepath)
         _LOG.debug("absolute_file_path", absolute_file_path)

@@ -29,7 +29,7 @@ class MPFB_PT_MakeRigIO_Panel(Abstract_Panel):
         rig_box.operator("mpfb.save_rig")
 
         weights_box = self._create_box(layout, "Load/Save weights", "TOOL_SETTINGS")
-        MakeRigProperties.draw_properties(scene, weights_box, ["weights_mask", "save_masks", "save_evaluated"])
+        MakeRigProperties.draw_properties(scene, weights_box, ["weights_mask", "save_masks", "save_evaluated", "clear_weights"])
         weights_box.operator("mpfb.load_weights")
         weights_box.operator("mpfb.save_weights")
 
