@@ -3,5 +3,5 @@
     "name": "clear_weights",
     "description": "Remove all bone vertex groups from the mesh before loading new weights",
     "label": "Clear existing weights",
-    "default": false
+    "default": true
 }
