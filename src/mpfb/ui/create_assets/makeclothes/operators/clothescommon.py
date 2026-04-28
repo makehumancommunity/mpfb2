@@ -57,9 +57,12 @@ class ClothesCommon:
 
         delete_group = MakeClothesObjectProperties.get_value("delete_group", entity_reference=clothes)
 
+        from ...makeclothes.makeclothespanel import MAKECLOTHES_PROPERTIES
+        disable_exact_strategy = MAKECLOTHES_PROPERTIES.get_value("disable_exact_strategy", entity_reference=context.scene)
+
         mhclo = None
         try:
-            mhclo = ClothesService.create_mhclo_from_clothes_matching(basemesh, clothes, properties_dict=props_dict, delete_group=delete_group)
+            mhclo = ClothesService.create_mhclo_from_clothes_matching(basemesh, clothes, properties_dict=props_dict, delete_group=delete_group, allow_exact=not disable_exact_strategy)
             _LOG.debug("mhclo", mhclo)
         except ValueError as e:
             _LOG.error("Error creating MHCLO", e)

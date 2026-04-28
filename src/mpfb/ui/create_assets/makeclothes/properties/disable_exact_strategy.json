@@ -1,0 +1,7 @@
+{
+    "type": "boolean",
+    "name": "disable_exact_strategy",
+    "description": "Prevent MakeClothes from using exact vertex coincidence as a matching strategy. Useful for dense meshes where accidental exact matches produce incorrect results.",
+    "label": "Disable exact vertex matching",
+    "default": false
+}
