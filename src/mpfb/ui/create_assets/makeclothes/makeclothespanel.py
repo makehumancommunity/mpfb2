@@ -167,6 +167,7 @@ class MPFB_PT_MakeClothes_Panel(Abstract_Panel):
             box.label(text="Need xref cache")
             return
 
+        MAKECLOTHES_PROPERTIES.draw_properties(scene, box, ["disable_exact_strategy"])
         box.operator('mpfb.write_makeclothes_library')
         box.operator('mpfb.write_makeclothes_clothes')
 

@@ -721,7 +721,7 @@ class ClothesService:
         return report
 
     @staticmethod
-    def create_mhclo_from_clothes_matching(basemesh, clothes, properties_dict=None, delete_group=None):
+    def create_mhclo_from_clothes_matching(basemesh, clothes, properties_dict=None, delete_group=None, allow_exact=True):
         """Create a MHCLO object by matching vertices on the clothes to vertices on the basemesh."""
         mhclo = Mhclo()
         mhclo.verts = dict()
@@ -768,7 +768,7 @@ class ClothesService:
         before = time.time()
         for vert in range(len(clothes_xref.vertex_coordinates)):
             before_internal = time.time()
-            vmatch = VertexMatch(clothes, vert, clothes_xref, basemesh, basemesh_xref, scale_factor=scale_factor, reference_scale=reference_scale)
+            vmatch = VertexMatch(clothes, vert, clothes_xref, basemesh, basemesh_xref, scale_factor=scale_factor, reference_scale=reference_scale, allow_exact=allow_exact)
             after_internal = time.time()
             duration_internal = int((after_internal - before_internal) * 1000.0)
             _LOG.dump("vmatch", (duration_internal, vmatch.final_strategy))

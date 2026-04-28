@@ -108,6 +108,39 @@ def test_match_exact():
     assert vmatch.final_strategy == "EXACT"
     assert vmatch.exact_match_index == 21
 
+def test_match_exact_disabled():
+    """When allow_exact=False, a coincident vertex must not match via EXACT strategy."""
+    target_obj = _create_target_mesh()
+    assert target_obj is not None
+    target_xref = MeshService.get_mesh_cross_references(target_obj, build_faces_by_group_reference=True)
+    assert target_xref is not None
+
+    focus_obj = _create_exact_focus()
+    assert focus_obj is not None
+    focus_xref = MeshService.get_mesh_cross_references(focus_obj, build_faces_by_group_reference=True)
+    assert focus_xref is not None
+
+    vmatch = VertexMatch(focus_obj, 3, focus_xref, target_obj, target_xref, allow_exact=False)
+    assert vmatch
+    assert vmatch.final_strategy != "EXACT"
+
+def test_match_exact_enabled_regression():
+    """When allow_exact=True (default), a coincident vertex still matches via EXACT."""
+    target_obj = _create_target_mesh()
+    assert target_obj is not None
+    target_xref = MeshService.get_mesh_cross_references(target_obj, build_faces_by_group_reference=True)
+    assert target_xref is not None
+
+    focus_obj = _create_exact_focus()
+    assert focus_obj is not None
+    focus_xref = MeshService.get_mesh_cross_references(focus_obj, build_faces_by_group_reference=True)
+    assert focus_xref is not None
+
+    vmatch = VertexMatch(focus_obj, 3, focus_xref, target_obj, target_xref, allow_exact=True)
+    assert vmatch
+    assert vmatch.final_strategy == "EXACT"
+    assert vmatch.exact_match_index == 21
+
 def test_match_simple_face():
     target_obj = _create_target_mesh()
     assert target_obj is not None
