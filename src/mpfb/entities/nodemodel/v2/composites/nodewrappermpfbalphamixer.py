@@ -120,18 +120,6 @@ _ORIGINAL_TREE_DEF = json.loads("""
 {
     "links": [
         {
-            "from_node": "Math",
-            "from_socket": "Value",
-            "to_node": "Group Output",
-            "to_socket": "ResultingAlpha"
-        },
-        {
-            "from_node": "Group Input",
-            "from_socket": "LowerLayerAlpha",
-            "to_node": "LowerLayerBackground",
-            "to_socket": "Factor_Float"
-        },
-        {
             "from_node": "Group Input",
             "from_socket": "BackgroundColor",
             "to_node": "LowerLayerBackground",
@@ -145,39 +133,51 @@ _ORIGINAL_TREE_DEF = json.loads("""
         },
         {
             "from_node": "Group Input",
+            "from_socket": "LowerLayerAlpha",
+            "to_node": "LowerLayerBackground",
+            "to_socket": "Factor_Float"
+        },
+        {
+            "from_node": "Group Input",
             "from_socket": "UpperLayerColor",
-            "to_node": "UpperLayerAlpha",
+            "to_node": "UpperPremultiplied",
             "to_socket": "B_Color"
         },
         {
             "from_node": "Group Input",
             "from_socket": "UpperLayerAlpha",
-            "to_node": "UpperLayerAlpha",
+            "to_node": "UpperPremultiplied",
             "to_socket": "Factor_Float"
-        },
-        {
-            "from_node": "Group Input",
-            "from_socket": "UpperLayerAlpha",
-            "to_node": "UpperLowerLayer",
-            "to_socket": "Factor_Float"
-        },
-        {
-            "from_node": "UpperLowerLayer",
-            "from_socket": "Result_Color",
-            "to_node": "Group Output",
-            "to_socket": "ResultingColor"
         },
         {
             "from_node": "LowerLayerBackground",
             "from_socket": "Result_Color",
-            "to_node": "UpperLowerLayer",
+            "to_node": "LowerAttenuated",
             "to_socket": "A_Color"
         },
         {
-            "from_node": "UpperLayerAlpha",
+            "from_node": "Group Input",
+            "from_socket": "UpperLayerAlpha",
+            "to_node": "LowerAttenuated",
+            "to_socket": "Factor_Float"
+        },
+        {
+            "from_node": "LowerAttenuated",
             "from_socket": "Result_Color",
-            "to_node": "UpperLowerLayer",
+            "to_node": "Composite",
+            "to_socket": "A_Color"
+        },
+        {
+            "from_node": "UpperPremultiplied",
+            "from_socket": "Result_Color",
+            "to_node": "Composite",
             "to_socket": "B_Color"
+        },
+        {
+            "from_node": "Composite",
+            "from_socket": "Result_Color",
+            "to_node": "Group Output",
+            "to_socket": "ResultingColor"
         },
         {
             "from_node": "Group Input",
@@ -192,36 +192,18 @@ _ORIGINAL_TREE_DEF = json.loads("""
             "to_socket": "Value_001"
         },
         {
-            "from_node": "Group Input",
-            "from_socket": "BackgroundColor",
-            "to_node": "UpperLayerBackground",
-            "to_socket": "A_Color"
-        },
-        {
-            "from_node": "Group Input",
-            "from_socket": "LowerLayerColor",
-            "to_node": "UpperLayerBackground",
-            "to_socket": "B_Color"
-        },
-        {
-            "from_node": "Group Input",
-            "from_socket": "LowerLayerAlpha",
-            "to_node": "UpperLayerBackground",
-            "to_socket": "Factor_Float"
-        },
-        {
-            "from_node": "UpperLayerBackground",
-            "from_socket": "Result_Color",
-            "to_node": "UpperLayerAlpha",
-            "to_socket": "A_Color"
+            "from_node": "Math",
+            "from_socket": "Value",
+            "to_node": "Group Output",
+            "to_socket": "ResultingAlpha"
         }
     ],
     "nodes": [
         {
             "attribute_values": {
                 "location": [
-                    541.6492,
-                    60.4625
+                    600.0,
+                    100.0
                 ]
             },
             "class": "NodeGroupOutput",
@@ -233,8 +215,8 @@ _ORIGINAL_TREE_DEF = json.loads("""
         {
             "attribute_values": {
                 "location": [
-                    -758.4173,
-                    111.93
+                    -760.0,
+                    100.0
                 ]
             },
             "class": "NodeGroupInput",
@@ -247,8 +229,8 @@ _ORIGINAL_TREE_DEF = json.loads("""
             "attribute_values": {
                 "data_type": "RGBA",
                 "location": [
-                    -213.2941,
-                    32.4271
+                    -440.0,
+                    -100.0
                 ]
             },
             "class": "ShaderNodeMix",
@@ -270,9 +252,98 @@ _ORIGINAL_TREE_DEF = json.loads("""
         },
         {
             "attribute_values": {
+                "data_type": "RGBA",
                 "location": [
-                    240.4412,
-                    29.344
+                    -440.0,
+                    300.0
+                ]
+            },
+            "class": "ShaderNodeMix",
+            "input_socket_values": {
+                "A_Color": [
+                    0.0,
+                    0.0,
+                    0.0,
+                    1.0
+                ],
+                "A_Rotation": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "B_Rotation": [
+                    0.0,
+                    0.0,
+                    0.0
+                ]
+            },
+            "label": "Upper layer premultiplied",
+            "name": "UpperPremultiplied",
+            "output_socket_values": {}
+        },
+        {
+            "attribute_values": {
+                "data_type": "RGBA",
+                "location": [
+                    -100.0,
+                    -100.0
+                ]
+            },
+            "class": "ShaderNodeMix",
+            "input_socket_values": {
+                "B_Color": [
+                    0.0,
+                    0.0,
+                    0.0,
+                    1.0
+                ],
+                "A_Rotation": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "B_Rotation": [
+                    0.0,
+                    0.0,
+                    0.0
+                ]
+            },
+            "label": "Lower layer attenuated",
+            "name": "LowerAttenuated",
+            "output_socket_values": {}
+        },
+        {
+            "attribute_values": {
+                "blend_type": "ADD",
+                "data_type": "RGBA",
+                "location": [
+                    240.0,
+                    100.0
+                ]
+            },
+            "class": "ShaderNodeMix",
+            "input_socket_values": {
+                "Factor_Float": 1.0,
+                "A_Rotation": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "B_Rotation": [
+                    0.0,
+                    0.0,
+                    0.0
+                ]
+            },
+            "label": "Composite",
+            "name": "Composite",
+            "output_socket_values": {}
+        },
+        {
+            "attribute_values": {
+                "location": [
+                    240.0,
+                    -200.0
                 ],
                 "use_clamp": true
             },
@@ -280,81 +351,6 @@ _ORIGINAL_TREE_DEF = json.loads("""
             "input_socket_values": {},
             "label": "Math",
             "name": "Math",
-            "output_socket_values": {}
-        },
-        {
-            "attribute_values": {
-                "data_type": "RGBA",
-                "location": [
-                    239.0526,
-                    324.0063
-                ]
-            },
-            "class": "ShaderNodeMix",
-            "input_socket_values": {
-                "A_Rotation": [
-                    0.0,
-                    0.0,
-                    0.0
-                ],
-                "B_Rotation": [
-                    0.0,
-                    0.0,
-                    0.0
-                ]
-            },
-            "label": "Upper vs lower layer",
-            "name": "UpperLowerLayer",
-            "output_socket_values": {}
-        },
-        {
-            "attribute_values": {
-                "data_type": "RGBA",
-                "location": [
-                    -114.4676,
-                    379.7975
-                ]
-            },
-            "class": "ShaderNodeMix",
-            "input_socket_values": {
-                "A_Rotation": [
-                    0.0,
-                    0.0,
-                    0.0
-                ],
-                "B_Rotation": [
-                    0.0,
-                    0.0,
-                    0.0
-                ]
-            },
-            "label": "Upper layer alpha",
-            "name": "UpperLayerAlpha",
-            "output_socket_values": {}
-        },
-        {
-            "attribute_values": {
-                "data_type": "RGBA",
-                "location": [
-                    -455.638,
-                    395.9911
-                ]
-            },
-            "class": "ShaderNodeMix",
-            "input_socket_values": {
-                "A_Rotation": [
-                    0.0,
-                    0.0,
-                    0.0
-                ],
-                "B_Rotation": [
-                    0.0,
-                    0.0,
-                    0.0
-                ]
-            },
-            "label": "Upper layer background",
-            "name": "UpperLayerBackground",
             "output_socket_values": {}
         }
     ]
@@ -374,30 +370,40 @@ class _NodeWrapperMpfbAlphaMixer(AbstractGroupWrapper):
         def link(from_node, from_socket, to_node, to_socket):
             AbstractGroupWrapper.create_link(node_tree, nodes[from_node], from_socket, nodes[to_node], to_socket)
 
-        nodes["Group Output"].location = [541.6492, 60.4625]
-        nodes["Group Input"].location = [-758.4173, 111.93]
+        nodes["Group Output"].location = [600.0, 100.0]
+        nodes["Group Input"].location = [-760.0, 100.0]
 
-        node("ShaderNodeMix", "LowerLayerBackground", label="Lower layer background", attribute_values={"data_type": "RGBA", "location": [-213.2941, 32.4271]}, input_socket_values={"A_Rotation": [0.0, 0.0, 0.0], "B_Rotation": [0.0, 0.0, 0.0]})
-        node("ShaderNodeMath", "Math", attribute_values={"location": [240.4412, 29.344], "use_clamp": True})
-        node("ShaderNodeMix", "UpperLowerLayer", label="Upper vs lower layer", attribute_values={"data_type": "RGBA", "location": [239.0526, 324.0063]}, input_socket_values={"A_Rotation": [0.0, 0.0, 0.0], "B_Rotation": [0.0, 0.0, 0.0]})
-        node("ShaderNodeMix", "UpperLayerAlpha", label="Upper layer alpha", attribute_values={"data_type": "RGBA", "location": [-114.4676, 379.7975]}, input_socket_values={"A_Rotation": [0.0, 0.0, 0.0], "B_Rotation": [0.0, 0.0, 0.0]})
-        node("ShaderNodeMix", "UpperLayerBackground", label="Upper layer background", attribute_values={"data_type": "RGBA", "location": [-455.638, 395.9911]}, input_socket_values={"A_Rotation": [0.0, 0.0, 0.0], "B_Rotation": [0.0, 0.0, 0.0]})
+        node("ShaderNodeMix", "LowerLayerBackground", label="Lower layer background",
+             attribute_values={"data_type": "RGBA", "location": [-440.0, -100.0]},
+             input_socket_values={"A_Rotation": [0.0, 0.0, 0.0], "B_Rotation": [0.0, 0.0, 0.0]})
+        node("ShaderNodeMix", "UpperPremultiplied", label="Upper layer premultiplied",
+             attribute_values={"data_type": "RGBA", "location": [-440.0, 300.0]},
+             input_socket_values={"A_Color": [0.0, 0.0, 0.0, 1.0], "A_Rotation": [0.0, 0.0, 0.0], "B_Rotation": [0.0, 0.0, 0.0]})
+        node("ShaderNodeMix", "LowerAttenuated", label="Lower layer attenuated",
+             attribute_values={"data_type": "RGBA", "location": [-100.0, -100.0]},
+             input_socket_values={"B_Color": [0.0, 0.0, 0.0, 1.0], "A_Rotation": [0.0, 0.0, 0.0], "B_Rotation": [0.0, 0.0, 0.0]})
+        node("ShaderNodeMix", "Composite", label="Composite",
+             attribute_values={"blend_type": "ADD", "data_type": "RGBA", "location": [240.0, 100.0]},
+             input_socket_values={"Factor_Float": 1.0, "A_Rotation": [0.0, 0.0, 0.0], "B_Rotation": [0.0, 0.0, 0.0]})
+        node("ShaderNodeMath", "Math", attribute_values={"location": [240.0, -200.0], "use_clamp": True})
 
-        link("Group Input", "LowerLayerAlpha", "LowerLayerBackground", "Factor_Float")
         link("Group Input", "BackgroundColor", "LowerLayerBackground", "A_Color")
         link("Group Input", "LowerLayerColor", "LowerLayerBackground", "B_Color")
-        link("Group Input", "UpperLayerColor", "UpperLayerAlpha", "B_Color")
-        link("Group Input", "UpperLayerAlpha", "UpperLayerAlpha", "Factor_Float")
-        link("Group Input", "UpperLayerAlpha", "UpperLowerLayer", "Factor_Float")
+        link("Group Input", "LowerLayerAlpha", "LowerLayerBackground", "Factor_Float")
+
+        link("Group Input", "UpperLayerColor", "UpperPremultiplied", "B_Color")
+        link("Group Input", "UpperLayerAlpha", "UpperPremultiplied", "Factor_Float")
+
+        link("LowerLayerBackground", "Result_Color", "LowerAttenuated", "A_Color")
+        link("Group Input", "UpperLayerAlpha", "LowerAttenuated", "Factor_Float")
+
+        link("LowerAttenuated", "Result_Color", "Composite", "A_Color")
+        link("UpperPremultiplied", "Result_Color", "Composite", "B_Color")
+
+        link("Composite", "Result_Color", "Group Output", "ResultingColor")
+
         link("Group Input", "UpperLayerAlpha", "Math", "Value")
         link("Group Input", "LowerLayerAlpha", "Math", "Value_001")
-        link("Group Input", "BackgroundColor", "UpperLayerBackground", "A_Color")
-        link("Group Input", "LowerLayerColor", "UpperLayerBackground", "B_Color")
-        link("Group Input", "LowerLayerAlpha", "UpperLayerBackground", "Factor_Float")
-        link("LowerLayerBackground", "Result_Color", "UpperLowerLayer", "A_Color")
-        link("UpperLayerAlpha", "Result_Color", "UpperLowerLayer", "B_Color")
-        link("UpperLayerBackground", "Result_Color", "UpperLayerAlpha", "A_Color")
         link("Math", "Value", "Group Output", "ResultingAlpha")
-        link("UpperLowerLayer", "Result_Color", "Group Output", "ResultingColor")
 
 NodeWrapperMpfbAlphaMixer = _NodeWrapperMpfbAlphaMixer()
