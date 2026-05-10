@@ -65,6 +65,9 @@ def _make_slider_update(face_unit_name):
         weight = getattr(self, "MPFB_EX_" + face_unit_name, 0.0)
         try:
             FaceService.set_expression(basemesh, {face_unit_name: float(weight)})
+            if MakeExpressionProperties.get_value("auto_refit", entity_reference=context.scene):
+                from ....services import HumanService  # pylint: disable=C0415
+                HumanService.refit(active)
         except Exception as e:  # pylint: disable=W0703
             _LOG.error("Failed to apply slider value live", (face_unit_name, weight, e))
 

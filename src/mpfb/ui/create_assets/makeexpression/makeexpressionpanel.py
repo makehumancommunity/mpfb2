@@ -46,6 +46,11 @@ class MPFB_PT_MakeExpression_Panel(Abstract_Panel):
             context.active_object, "Basemesh"
         ) is not None
 
+    def _draw_refit(self, scene, layout):
+        box = self._create_box(layout, "Refit", "TOOL_SETTINGS")
+        MakeExpressionProperties.draw_properties(scene, box, ["auto_refit"])
+        box.operator("mpfb.refit_human")
+
     def _draw_region(self, scene, layout, region_key, names):
         box = self._create_box(layout, _REGION_LABELS.get(region_key, region_key.title()), "TOOL_SETTINGS")
         MakeExpressionProperties.draw_properties(scene, box, list(names))
@@ -67,6 +72,8 @@ class MPFB_PT_MakeExpression_Panel(Abstract_Panel):
         _LOG.enter()
         layout = self.layout
         scene = context.scene
+
+        self._draw_refit(scene, layout)
 
         for region_key, names in FACEUNIT_REGIONS.items():
             self._draw_region(scene, layout, region_key, names)
