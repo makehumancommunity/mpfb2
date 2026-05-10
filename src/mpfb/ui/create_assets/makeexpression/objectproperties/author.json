@@ -1,0 +1,7 @@
+{
+    "type": "string",
+    "name": "author",
+    "description": "Asset author",
+    "label": "Author",
+    "default": ""
+}

@@ -231,7 +231,7 @@ class BlenderConfigSet(ConfigurationSet):
         value = self.get_value(name, entity_reference=entity_reference)
         return not value is None
 
-    def _create_property_by_type(self, proptype, name, description, default, items=None, items_callback=None, min=None, max=None):
+    def _create_property_by_type(self, proptype, name, description, default, items=None, items_callback=None, min=None, max=None, update_callback=None):
         entity_property = None
         getter = None
         setter = None
@@ -243,30 +243,35 @@ class BlenderConfigSet(ConfigurationSet):
         _LOG.debug("Getter, setter factories", (self.getter_factory, self.setter_factory))
         _LOG.debug("Getter, setter", (getter, setter))
 
+        # Blender refuses an explicit update= when get/set are also provided. Only forward the
+        # update callback when no custom getter/setter is registered, which is the common case for
+        # statically-defined properties.
+        use_update = update_callback if (getter is None and setter is None) else None
+
         if proptype == "boolean":
-            entity_property = BoolProperty(name=name, description=description, default=default, get=getter, set=setter)  # pylint: disable=E1111
+            entity_property = BoolProperty(name=name, description=description, default=default, get=getter, set=setter, update=use_update)  # pylint: disable=E1111
         if proptype == "string":
-            entity_property = StringProperty(name=name, description=description, default=default, get=getter, set=setter)  # pylint: disable=E1111
+            entity_property = StringProperty(name=name, description=description, default=default, get=getter, set=setter, update=use_update)  # pylint: disable=E1111
 
         if proptype == "path":
             entity_property = StringProperty(name=name, description=description, default=default,
-                                         subtype='FILE_PATH', get=getter, set=setter)
+                                         subtype='FILE_PATH', get=getter, set=setter, update=use_update)
         if proptype == "dir_path":
             entity_property = StringProperty(name=name, description=description, default=default,
-                                         subtype='DIR_PATH', get=getter, set=setter)
+                                         subtype='DIR_PATH', get=getter, set=setter, update=use_update)
         if proptype == "int":
-            entity_property = IntProperty(name=name, description=description, default=default, get=getter, set=setter)  # pylint: disable=E1111
+            entity_property = IntProperty(name=name, description=description, default=default, get=getter, set=setter, update=use_update)  # pylint: disable=E1111
         if proptype == "float":
             if min is None:
-                entity_property = FloatProperty(name=name, description=description, default=default, get=getter, set=setter)  # pylint: disable=E1111
+                entity_property = FloatProperty(name=name, description=description, default=default, get=getter, set=setter, update=use_update)  # pylint: disable=E1111
             else:
-                entity_property = FloatProperty(name=name, description=description, default=default, min=min, max=max, get=getter, set=setter)  # pylint: disable=E1111
+                entity_property = FloatProperty(name=name, description=description, default=default, min=min, max=max, get=getter, set=setter, update=use_update)  # pylint: disable=E1111
         if proptype == "vector_location":
             entity_property = FloatVectorProperty(name=name, description=description, default=default,
-                                                  size=3, subtype='XYZ', unit='LENGTH', get=getter, set=setter)
+                                                  size=3, subtype='XYZ', unit='LENGTH', get=getter, set=setter, update=use_update)
         if proptype == "color":
                 entity_property = FloatVectorProperty(name=name, description=description, default=default,
-                                                      size=4, subtype='COLOR', min=0.0, max=1.0, get=getter, set=setter)
+                                                      size=4, subtype='COLOR', min=0.0, max=1.0, get=getter, set=setter, update=use_update)
 
         if proptype == "enum":
             enumitems = []
@@ -279,11 +284,11 @@ class BlenderConfigSet(ConfigurationSet):
                 name=name,
                 description=description,
                 default=default,
-                items=enumitems, get=getter, set=setter)
+                items=enumitems, get=getter, set=setter, update=use_update)
 
         return entity_property
 
-    def add_property(self, prop, items_callback=None, override_prefix=None):
+    def add_property(self, prop, items_callback=None, override_prefix=None, update_callback=None):
         """
         Adds a new property to the configuration set and defines it on the Blender entity type.
 
@@ -298,6 +303,8 @@ class BlenderConfigSet(ConfigurationSet):
                 - max (optional): The maximum value for the property (if applicable).
                 - items (list, optional): A list of items for enum properties.
             items_callback (callable, optional): A callback function to provide items for enum properties.
+            update_callback (callable, optional): An update callback for the bpy property; called when
+                the value changes in the UI. Signature: ``fn(self, context)``.
 
         Raises:
             ValueError: If the property type is not recognized.
@@ -334,7 +341,8 @@ class BlenderConfigSet(ConfigurationSet):
             items,
             items_callback,
             min=min,
-            max=max)
+            max=max,
+            update_callback=update_callback)
 
         _LOG.dump("Adding entity property:", (str(copied_property["full_name"]), entity_property))
 

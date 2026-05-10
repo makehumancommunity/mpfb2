@@ -342,6 +342,30 @@ Convert a macro detail filename to a shape key name. Convenience wrapper around 
 
 ---
 
+#### expression_name_to_shapekey_name(face_unit_name)
+
+Translate a bare ARKit face unit name to its expression shape key name by prepending the `!ex-` prefix. Expression shape keys on the basemesh are tagged with this prefix so they can be told apart from modeling shape keys (which use the `$md-` prefix) and from visemes. The JSON representation of an expression always uses bare ARKit names; the prefix is a Blender-only detail.
+
+| Argument | Type | Default | Description |
+|----------|------|---------|-------------|
+| `face_unit_name` | `str` | — | The bare ARKit face unit name, e.g. `"browDownLeft"` |
+
+**Returns:** `str` — The corresponding shape key name, e.g. `"!ex-browDownLeft"`.
+
+---
+
+#### shapekey_name_to_expression_name(shapekey_name)
+
+Translate an expression shape key name back to its bare ARKit face unit name. Returns `None` for shape keys that do not begin with `!ex-`.
+
+| Argument | Type | Default | Description |
+|----------|------|---------|-------------|
+| `shapekey_name` | `str` | — | A Blender shape key name |
+
+**Returns:** `str | None` — The bare ARKit name if the input starts with `!ex-`, otherwise `None`.
+
+---
+
 ### Macro Target System
 
 #### get_default_macro_info_dict()

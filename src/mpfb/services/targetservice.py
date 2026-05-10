@@ -1266,6 +1266,39 @@ class TargetService:
         return name
 
     @staticmethod
+    def expression_name_to_shapekey_name(face_unit_name):
+        """
+        Translate a bare ARKit face unit name to its expression shape key name.
+
+        Expression shape keys on the basemesh are prefixed with ``!ex-`` so they can be told apart
+        from modeling shape keys (which use the ``$md-`` prefix) and from visemes. The JSON
+        representation of an expression always uses bare ARKit names; the prefix is a Blender-only
+        detail.
+
+        Args:
+            face_unit_name (str): The bare ARKit face unit name, e.g. ``"browDownLeft"``.
+
+        Returns:
+            str: The corresponding shape key name, e.g. ``"!ex-browDownLeft"``.
+        """
+        return "!ex-" + str(face_unit_name)
+
+    @staticmethod
+    def shapekey_name_to_expression_name(shapekey_name):
+        """
+        Translate an expression shape key name back to its bare ARKit face unit name.
+
+        Args:
+            shapekey_name (str): A Blender shape key name.
+
+        Returns:
+            str | None: The bare ARKit name if ``shapekey_name`` starts with ``!ex-``, otherwise None.
+        """
+        if not shapekey_name or not str(shapekey_name).startswith("!ex-"):
+            return None
+        return str(shapekey_name)[len("!ex-"):]
+
+    @staticmethod
     def prune_shapekeys(blender_object, cutoff=0.0001):
         """
         Remove shape keys with a weight lower than the cutoff.

@@ -1,0 +1,7 @@
+{
+    "type": "string",
+    "name": "license",
+    "description": "Asset license identifier (e.g. CC0, CC-BY-4.0)",
+    "label": "License",
+    "default": "CC0"
+}

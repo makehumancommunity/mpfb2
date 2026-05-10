@@ -1,0 +1,7 @@
+{
+    "type": "string",
+    "name": "expression_name",
+    "description": "Filename to save the expression as. Will be lowercased and dash-separated when saved",
+    "label": "Expression name",
+    "default": ""
+}

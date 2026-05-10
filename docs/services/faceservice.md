@@ -54,6 +54,91 @@ Bulk-loads facial animation shape keys onto the basemesh from the installed targ
 
 ---
 
+### is_faceunits01_installed(force_recheck=False)
+
+Returns `True` if the `faceunits01` ARKit asset pack appears to be installed.
+
+The probe calls `TargetService.target_full_path("cheekPuff")` once per session and caches the result in a module-level sentinel. Pass `force_recheck=True` to bust the cache (used by tests, and by callers that just installed the pack at runtime). Note: the cache is process-scoped, so installing the pack mid-session will not flip the result until Blender is restarted, unless `force_recheck=True` is used.
+
+| Argument | Type | Default | Description |
+|----------|------|---------|-------------|
+| `force_recheck` | `bool` | `False` | Re-probe even if a cached result is available |
+
+**Returns:** `bool` — `True` if the pack is installed, `False` otherwise.
+
+---
+
+### set_expression(basemesh, expression_dict)
+
+Applies a partial expression to the basemesh. Additive: face units that are not mentioned in the dict are left untouched. Use `clear_expression` to zero everything first.
+
+For each `(face_unit_name, weight)` pair: validates that `face_unit_name` is in `ARKIT_FACEUNITS` (warns and skips otherwise); computes the matching `!ex-{name}` shape key name via `TargetService.expression_name_to_shapekey_name`; if the shape key already exists on the basemesh, sets its value; otherwise looks up the corresponding target via `TargetService.target_full_path` and loads it on demand at the requested weight (this is the path the composer uses for first-touch slider drags).
+
+| Argument | Type | Default | Description |
+|----------|------|---------|-------------|
+| `basemesh` | `bpy.types.Object` | — | The basemesh object |
+| `expression_dict` | `dict[str, float]` | — | Bare ARKit name → weight in [0, 1] |
+
+**Returns:** None
+
+---
+
+### clear_expression(basemesh)
+
+Sets every `!ex-{name}` shape key on the basemesh to `0.0`. Iterates over `ARKIT_FACEUNITS`; missing shape keys are silently ignored. Modeling shape keys (with the `$md-` prefix) and visemes are not touched.
+
+| Argument | Type | Default | Description |
+|----------|------|---------|-------------|
+| `basemesh` | `bpy.types.Object` | — | The basemesh object |
+
+**Returns:** None
+
+---
+
+### read_current_expression(basemesh)
+
+Reads the current `!ex-` shape key values into a dict keyed by bare ARKit names. The returned dict always contains all 52 ARKIT_FACEUNITS keys; face units whose shape key is missing on the basemesh are reported as `0.0`. The composer uses this to populate sliders from the current basemesh state without missing entries.
+
+| Argument | Type | Default | Description |
+|----------|------|---------|-------------|
+| `basemesh` | `bpy.types.Object` | — | The basemesh object |
+
+**Returns:** `dict[str, float]` — Bare ARKit face unit name → current shape key value.
+
+---
+
+### save_expression(filename, expression_dict, metadata)
+
+Serialises an expression to a JSON file (see [Expression file format](../fileformats/expression.md)). Filters zero-valued entries and rounds weights to four decimals for stable diffs. The `metadata` dict supplies the top-level fields (`name`, `description`, `tags`, `author`, `copyright`, `license`, `homepage`); missing keys are written with empty-string defaults (or an empty list for `tags`). `tags` may also be passed as a comma-separated string and will be split into a list.
+
+If `filename` is a bare basename (no directory part), it is resolved under `LocationService.get_user_data("expressions")` and the directory is created on demand.
+
+| Argument | Type | Default | Description |
+|----------|------|---------|-------------|
+| `filename` | `str` | — | Output path. Bare names resolve under `<user_data>/expressions/` |
+| `expression_dict` | `dict[str, float]` | — | Bare ARKit name → weight; zero entries are dropped |
+| `metadata` | `dict` | — | Top-level metadata fields |
+
+**Returns:** `str` — The absolute path actually written to.
+
+**Raises:** `ValueError` — if `filename` is empty.
+
+---
+
+### load_expression(filename)
+
+Loads an expression JSON file (see [Expression file format](../fileformats/expression.md)). Tolerant of missing optional fields: `description`, `tags`, `author`, `copyright`, `license`, `homepage` default to empty string (or empty list for `tags`). Unknown `face_units` keys produce a warning and are skipped. Unknown top-level keys are ignored (forward compatibility).
+
+| Argument | Type | Default | Description |
+|----------|------|---------|-------------|
+| `filename` | `str` | — | Path to the JSON file |
+
+**Returns:** `tuple[dict[str, float], dict]` — `(expression_dict, metadata)`. `expression_dict` only contains face units whose names are members of `ARKIT_FACEUNITS`. `metadata` contains the seven top-level metadata fields with defaults.
+
+**Raises:** `IOError` — if the file does not exist; `ValueError` — if the document is not a JSON object.
+
+---
+
 ### interpolate_targets(basemesh)
 
 Transfers viseme and face-unit shape keys from the basemesh to every child mesh that has an associated MHCLO file. For each child, MHCLO vertex correspondence data (three basemesh vertex indices and barycentric weights per child vertex) is used to compute interpolated offsets. A shape key is only created on the child if at least one vertex offset exceeds `SIGNIFICANT_SHIFT_MINIMUM`; otherwise the shape key is skipped to avoid noise.
@@ -96,6 +181,30 @@ The mapping is driven by the `VISEMES02_TO_LIPSYNC` constant. For each entry, th
 `SIGNIFICANT_SHIFT_MINIMUM = 0.0001`
 
 Minimum vertex offset (in Blender units) for a shape key deformation to be considered significant. Used in `interpolate_targets` when deciding whether to create a shape key on a child mesh, and re-exported by `ExportService` for the same purpose during modifier baking.
+
+---
+
+### EXPRESSION_FORMAT_VERSION
+
+`EXPRESSION_FORMAT_VERSION = 1`
+
+On-disk schema version for expression JSON files (see [Expression file format](../fileformats/expression.md)). Bumped when a backwards-incompatible change is made to the format.
+
+---
+
+### FACEUNIT_REGIONS
+
+`FACEUNIT_REGIONS: dict[str, list[str]]`
+
+Region grouping for the 52 ARKit face units. Keys are region identifiers (`"brow"`, `"eye"`, `"cheek"`, `"jaw"`, `"mouth"`, `"nose"`, `"tongue"`); values are ordered lists of bare ARKit names belonging to each region. The `MakeExpression` composer panel uses this to render one slider box per region. Together, the lists are a partition of `ARKIT_FACEUNITS` — every name appears in exactly one region.
+
+---
+
+### FACEUNIT_DESCRIPTIONS
+
+`FACEUNIT_DESCRIPTIONS: dict[str, str]`
+
+One-sentence descriptions for each ARKit face unit, suitable for slider tooltips. Source: the ARKit blendshape reference at <https://pooyadeperson.com/the-ultimate-guide-to-creating-arkits-52-facial-blendshapes/>.
 
 ---
 
