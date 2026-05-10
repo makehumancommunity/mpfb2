@@ -1,0 +1,7 @@
+{
+    "type": "boolean",
+    "name": "auto_refit",
+    "description": "When adjusting an expression slider, automatically refit attached assets (clothes, rigs) to the new basemesh shape. Disabling may improve responsiveness when many assets are attached",
+    "label": "Auto refit assets",
+    "default": false
+}
