@@ -26,8 +26,7 @@ _LOG = LogService.get_logger("makeexpression.init")
 _LOG.trace("initializing makeexpression module")
 
 _ROOT = os.path.dirname(__file__)
-_METADATA_DIR = os.path.join(_ROOT, "objectproperties")
-_METADATA_DEFS = SceneConfigSet.get_definitions_in_json_directory(_METADATA_DIR)
+_PROPERTIES_DIR = os.path.join(_ROOT, "properties")
 
 # Module-level guard. The load operator flips this to True around its bulk slider assignment so the
 # 52 per-slider update callbacks no-op; the operator then calls FaceService.set_expression once on
@@ -72,14 +71,14 @@ def _make_slider_update(face_unit_name):
     return _update
 
 
-MakeExpressionProperties = SceneConfigSet([], prefix="EX_")  # pylint: disable=C0103
-
-# Metadata properties (8) — name, description, tags, author/copyright/license/homepage, overwrite —
-# plus the load enum. The enum's items_callback is registered separately below.
-for _meta in _METADATA_DEFS:
-    if _meta.get("name") == "available_expression":
-        continue  # registered below with items_callback
-    MakeExpressionProperties.add_property(_meta)
+# Register all simple metadata properties + the overwrite toggle in one call.
+# `available_expression` needs an items_callback, so it is excluded here and
+# registered explicitly below.
+_definitions = [
+    d for d in SceneConfigSet.get_definitions_in_json_directory(_PROPERTIES_DIR)
+    if d.get("name") != "available_expression"
+]
+MakeExpressionProperties = SceneConfigSet(_definitions, prefix="EX_")  # pylint: disable=C0103
 
 
 def _populate_available_expressions(self, context):
@@ -118,14 +117,13 @@ def _populate_available_expressions(self, context):
 
 
 _AVAILABLE_EXPRESSION_DEF = next(
-    (d for d in _METADATA_DEFS if d.get("name") == "available_expression"),
-    None,
+    d for d in SceneConfigSet.get_definitions_in_json_directory(_PROPERTIES_DIR)
+    if d.get("name") == "available_expression"
 )
-if _AVAILABLE_EXPRESSION_DEF is not None:
-    MakeExpressionProperties.add_property(
-        _AVAILABLE_EXPRESSION_DEF,
-        items_callback=_populate_available_expressions,
-    )
+MakeExpressionProperties.add_property(
+    _AVAILABLE_EXPRESSION_DEF,
+    items_callback=_populate_available_expressions,
+)
 
 # 52 face-unit slider properties, generated dynamically from ARKIT_FACEUNITS. Each slider is a
 # float in [0, 1] with a per-unit update callback that drives the matching shape key on the
