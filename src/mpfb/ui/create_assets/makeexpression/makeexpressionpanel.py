@@ -38,8 +38,6 @@ class MPFB_PT_MakeExpression_Panel(Abstract_Panel):
 
     @classmethod
     def poll(cls, context):
-        if not FaceService.is_faceunits01_installed():
-            return False
         if context.active_object is None:
             return False
         return ObjectService.find_object_of_type_amongst_nearest_relatives(
@@ -67,6 +65,10 @@ class MPFB_PT_MakeExpression_Panel(Abstract_Panel):
         _LOG.enter()
         layout = self.layout
         scene = context.scene
+
+        if not FaceService.is_faceunits01_installed():
+            layout.label(text="Faceunits01 asset pack is not installed.")
+            return
 
         for region_key, names in FACEUNIT_REGIONS.items():
             self._draw_region(scene, layout, region_key, names)
