@@ -1,5 +1,6 @@
 import bpy, os, json, tempfile
 from pytest import approx
+from .. import AssetService
 from .. import FaceService
 from .. import HumanService
 from .. import LocationService
@@ -321,3 +322,206 @@ def test_save_expression_to_user_data(monkeypatch, tmp_path):
     assert os.path.exists(target_path)
     assert target_path.endswith("smile-bare.json")
     assert os.path.dirname(target_path).endswith("expressions")
+
+
+def _write_expression_file(directory, basename, face_units, name=None):
+    """Helper: write a minimal-but-valid expression JSON file and return its absolute path."""
+    os.makedirs(str(directory), exist_ok=True)
+    full = os.path.join(str(directory), basename)
+    payload = {
+        "format_version": 1,
+        "name": name or os.path.splitext(basename)[0],
+        "description": "",
+        "tags": [],
+        "face_units": face_units,
+        "author": "",
+        "copyright": "",
+        "license": "",
+        "homepage": "",
+    }
+    with open(full, "w", encoding="utf-8") as f:
+        json.dump(payload, f)
+    return full
+
+
+def _patch_expressions_root(monkeypatch, expressions_dir):
+    """Patch the asset-root scan so only the given expressions/ directory is visible.
+
+    Used by tests that exercise apply_expression_file, aggregate_expression_stack, and
+    list_available_expressions without depending on whatever expressions exist on the host's
+    real user_data root.
+    """
+    parent = os.path.dirname(str(expressions_dir))
+
+    def fake_get_available_data_roots():
+        return [parent]
+
+    monkeypatch.setattr(AssetService, "get_available_data_roots", fake_get_available_data_roots)
+
+
+def test_aggregate_expression_stack_sums_with_clamp(tmp_path, monkeypatch):
+    """aggregate_expression_stack() sums per face unit across rows and clamps to [0, 1]."""
+    expressions_dir = tmp_path / "user" / "expressions"
+    _write_expression_file(expressions_dir, "smile.json", {"jawOpen": 0.4, "mouthSmileLeft": 0.6})
+    _write_expression_file(expressions_dir, "surprise.json", {"jawOpen": 0.3, "browInnerUp": 0.5})
+    _patch_expressions_root(monkeypatch, expressions_dir)
+
+    stack = [
+        {"asset": "smile.json", "weight": 1.0},
+        {"asset": "surprise.json", "weight": 1.0},
+    ]
+    aggregated = FaceService.aggregate_expression_stack(stack)
+    # jawOpen: 0.4 + 0.3 = 0.7 (within [0,1])
+    assert aggregated["jawOpen"] == approx(0.7)
+    assert aggregated["mouthSmileLeft"] == approx(0.6)
+    assert aggregated["browInnerUp"] == approx(0.5)
+
+
+def test_aggregate_expression_stack_clamps_at_one(tmp_path, monkeypatch):
+    """Three rows whose summed contribution exceeds 1.0 for a face unit are clamped."""
+    expressions_dir = tmp_path / "user" / "expressions"
+    _write_expression_file(expressions_dir, "a.json", {"jawOpen": 0.6})
+    _write_expression_file(expressions_dir, "b.json", {"jawOpen": 0.6})
+    _write_expression_file(expressions_dir, "c.json", {"jawOpen": 0.6})
+    _patch_expressions_root(monkeypatch, expressions_dir)
+
+    stack = [
+        {"asset": "a.json", "weight": 1.0},
+        {"asset": "b.json", "weight": 1.0},
+        {"asset": "c.json", "weight": 1.0},
+    ]
+    aggregated = FaceService.aggregate_expression_stack(stack)
+    assert aggregated["jawOpen"] == approx(1.0)
+
+
+def test_aggregate_expression_stack_applies_row_weight(tmp_path, monkeypatch):
+    """Each face-unit contribution is loaded_weight * row_weight."""
+    expressions_dir = tmp_path / "user" / "expressions"
+    _write_expression_file(expressions_dir, "half.json", {"jawOpen": 1.0})
+    _patch_expressions_root(monkeypatch, expressions_dir)
+
+    aggregated = FaceService.aggregate_expression_stack([{"asset": "half.json", "weight": 0.25}])
+    assert aggregated["jawOpen"] == approx(0.25)
+
+
+def test_aggregate_expression_stack_skips_missing_files(tmp_path, monkeypatch):
+    """A row whose asset cannot be resolved is skipped, others still apply."""
+    expressions_dir = tmp_path / "user" / "expressions"
+    _write_expression_file(expressions_dir, "real.json", {"jawOpen": 0.4})
+    _patch_expressions_root(monkeypatch, expressions_dir)
+
+    stack = [
+        {"asset": "real.json", "weight": 1.0},
+        {"asset": "nonexistent.json", "weight": 1.0},
+    ]
+    aggregated = FaceService.aggregate_expression_stack(stack)
+    assert aggregated["jawOpen"] == approx(0.4)
+
+
+def test_apply_expression_file_writes_property_and_shape_keys(tmp_path, monkeypatch):
+    """apply_expression_file() writes the stack property and the live !ex- shape keys."""
+    expressions_dir = tmp_path / "user" / "expressions"
+    smile = _write_expression_file(expressions_dir, "smile.json", {"jawOpen": 0.4, "mouthSmileLeft": 0.6})
+    surprise = _write_expression_file(expressions_dir, "surprise.json", {"jawOpen": 0.3, "browInnerUp": 0.5})
+    _patch_expressions_root(monkeypatch, expressions_dir)
+
+    basemesh = _make_basemesh_with_fake_faceunits(["jawOpen", "mouthSmileLeft", "browInnerUp"])
+    try:
+        FaceService.apply_expression_file(basemesh, smile, weight=1.0, append=True)
+        FaceService.apply_expression_file(basemesh, surprise, weight=1.0, append=True)
+
+        # Stack property: two rows, sorted by asset.
+        raw = basemesh.get("mpfb_applied_expressions", "[]")
+        stack = json.loads(raw)
+        assert [r["asset"] for r in stack] == ["smile.json", "surprise.json"]
+        assert all(r["weight"] == approx(1.0) for r in stack)
+
+        # Live values: summed and clamped.
+        assert basemesh.data.shape_keys.key_blocks["!ex-jawOpen"].value == approx(0.7)
+        assert basemesh.data.shape_keys.key_blocks["!ex-mouthSmileLeft"].value == approx(0.6)
+        assert basemesh.data.shape_keys.key_blocks["!ex-browInnerUp"].value == approx(0.5)
+    finally:
+        ObjectService.delete_object(basemesh)
+
+
+def test_apply_expression_file_latest_wins_dedup(tmp_path, monkeypatch):
+    """Applying the same file twice replaces the existing row's weight (latest-wins)."""
+    expressions_dir = tmp_path / "user" / "expressions"
+    smile = _write_expression_file(expressions_dir, "smile.json", {"jawOpen": 0.5})
+    _patch_expressions_root(monkeypatch, expressions_dir)
+
+    basemesh = _make_basemesh_with_fake_faceunits(["jawOpen"])
+    try:
+        FaceService.apply_expression_file(basemesh, smile, weight=0.5, append=True)
+        FaceService.apply_expression_file(basemesh, smile, weight=0.8, append=True)
+
+        stack = json.loads(basemesh.get("mpfb_applied_expressions", "[]"))
+        assert len(stack) == 1
+        assert stack[0]["asset"] == "smile.json"
+        assert stack[0]["weight"] == approx(0.8)
+        # Live value: 0.5 * 0.8 = 0.4
+        assert basemesh.data.shape_keys.key_blocks["!ex-jawOpen"].value == approx(0.4)
+    finally:
+        ObjectService.delete_object(basemesh)
+
+
+def test_apply_expression_file_replace_mode(tmp_path, monkeypatch):
+    """With append=False the stack is replaced by a single row regardless of prior contents."""
+    expressions_dir = tmp_path / "user" / "expressions"
+    smile = _write_expression_file(expressions_dir, "smile.json", {"jawOpen": 0.4})
+    surprise = _write_expression_file(expressions_dir, "surprise.json", {"browInnerUp": 0.5})
+    _patch_expressions_root(monkeypatch, expressions_dir)
+
+    basemesh = _make_basemesh_with_fake_faceunits(["jawOpen", "browInnerUp"])
+    try:
+        FaceService.apply_expression_file(basemesh, smile, weight=1.0, append=True)
+        FaceService.apply_expression_file(basemesh, surprise, weight=1.0, append=False)
+
+        stack = json.loads(basemesh.get("mpfb_applied_expressions", "[]"))
+        assert [r["asset"] for r in stack] == ["surprise.json"]
+        assert basemesh.data.shape_keys.key_blocks["!ex-jawOpen"].value == approx(0.0)
+        assert basemesh.data.shape_keys.key_blocks["!ex-browInnerUp"].value == approx(0.5)
+    finally:
+        ObjectService.delete_object(basemesh)
+
+
+def test_clear_applied_expressions_empties_stack_and_values(tmp_path, monkeypatch):
+    """clear_applied_expressions() empties the stack and zeroes every !ex- shape key."""
+    expressions_dir = tmp_path / "user" / "expressions"
+    smile = _write_expression_file(expressions_dir, "smile.json", {"jawOpen": 0.4, "mouthSmileLeft": 0.6})
+    _patch_expressions_root(monkeypatch, expressions_dir)
+
+    basemesh = _make_basemesh_with_fake_faceunits(["jawOpen", "mouthSmileLeft"])
+    try:
+        FaceService.apply_expression_file(basemesh, smile, weight=1.0, append=True)
+        assert basemesh.data.shape_keys.key_blocks["!ex-jawOpen"].value == approx(0.4)
+
+        FaceService.clear_applied_expressions(basemesh)
+
+        assert basemesh.get("mpfb_applied_expressions", "[]") == "[]"
+        assert basemesh.data.shape_keys.key_blocks["!ex-jawOpen"].value == approx(0.0)
+        assert basemesh.data.shape_keys.key_blocks["!ex-mouthSmileLeft"].value == approx(0.0)
+    finally:
+        ObjectService.delete_object(basemesh)
+
+
+def test_list_available_expressions_user_root_wins(tmp_path, monkeypatch):
+    """When the same relative path exists in multiple roots, the higher-priority root wins."""
+    # Two roots; we set get_available_data_roots to return [low_priority, high_priority] — the
+    # AssetService scan walks them in order, and FaceService.list_available_expressions takes
+    # the first occurrence per relative path (so the first root in the list wins).
+    high_root = tmp_path / "high"
+    low_root = tmp_path / "low"
+    _write_expression_file(high_root / "expressions", "smile.json", {"jawOpen": 0.9}, name="high")
+    _write_expression_file(low_root / "expressions", "smile.json", {"jawOpen": 0.1}, name="low")
+
+    def fake_get_available_data_roots():
+        return [str(high_root), str(low_root)]
+
+    monkeypatch.setattr(AssetService, "get_available_data_roots", fake_get_available_data_roots)
+
+    items = FaceService.list_available_expressions()
+    relative_names = [rel for _abs, rel, _meta in items]
+    assert relative_names == ["smile.json"]  # de-duplicated
+    _abs, _rel, meta = items[0]
+    assert meta["name"] == "high"  # higher-priority root wins

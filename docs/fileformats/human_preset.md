@@ -61,6 +61,21 @@ Asset source paths for each body part slot. Each is a string (empty if no asset 
 
 - `clothes` (array) — A list of assets
 
+#### Expressions
+
+- `expressions` (array of objects, optional) — Applied ARKit-style expressions. Each entry is
+  `{"asset": "<library-relative path>", "weight": <float>}` and references a JSON file under any
+  `expressions/` asset root (see [Expression file format](expression.md)). The array is sorted
+  by `asset` for deterministic output and never contains duplicate `asset` entries (the persistent
+  stack uses latest-wins per asset). The field is optional — older presets that omit it load
+  cleanly with no expression applied. The `weight` field is the row weight in `[0, 1]`; the
+  per-face-unit values from the referenced file are multiplied by this weight, summed across
+  rows and clamped before being written into the basemesh's `!ex-*` shape keys.
+
+  When a preset containing `expressions` is loaded on a machine where the `faceunits01` asset
+  pack is not installed, the list is preserved verbatim on the basemesh so it round-trips on
+  re-save, but no shape-key values are written (the `!ex-*` keys do not exist).
+
 #### Makeup
 
 - `makeup` (array of strings) — File named pointing to Ink layer JSON files.

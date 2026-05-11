@@ -139,6 +139,90 @@ Loads an expression JSON file (see [Expression file format](../fileformats/expre
 
 ---
 
+### list_available_expressions()
+
+Scans every standard MPFB asset root under `expressions/` and returns one entry per discovered
+`.json` file. When the same library-relative path is present in multiple roots, the higher-priority
+root wins — matching the precedence rule for poses. Files that fail to parse are skipped with a
+warning so a single malformed file does not break the picker.
+
+**Returns:** `list[tuple[str, str, dict]]` — Each tuple is
+`(absolute_path, library_relative_path, metadata)` where `metadata` is the dict returned by
+`load_expression`.
+
+---
+
+### aggregate_expression_stack(stack)
+
+Pure aggregation helper. Given a list of applied-expression rows (each
+`{"asset": <library-relative path>, "weight": <float>}`), loads every referenced file via
+`load_expression`, multiplies each face unit's loaded weight by the row weight, sums per face unit,
+clamps to `[0, 1]`, and returns the result. Rows whose `asset` cannot be resolved on disk are
+skipped with a warning. Used by `apply_expression_file`, `rebuild_expression_stack`, and the
+human-preset deserialization path.
+
+| Argument | Type | Default | Description |
+|----------|------|---------|-------------|
+| `stack` | `list[dict]` | — | Applied-expressions list (typically read from `basemesh["mpfb_applied_expressions"]`) |
+
+**Returns:** `dict[str, float]` — `{face_unit_name: weight}` containing only non-zero entries.
+
+---
+
+### apply_expression_file(basemesh, filename, weight=1.0, append=True)
+
+Central apply path used by the use-panel, the asset-library loader, and the composer's load
+operator. Validates the file up-front via `load_expression`, updates the persistent stack on
+the basemesh (`basemesh["mpfb_applied_expressions"]` — sorted by `asset`, latest-wins per asset),
+re-aggregates the stack, and writes the result to the `!ex-*` shape keys via a single
+`clear_expression` + `set_expression` pass. Also mirrors the aggregated values back into the
+composer's 52 scene slider properties so the composer panel reflects current state if/when
+opened.
+
+The auto-refit / `HumanService.refit` call is intentionally not done here — that decision
+belongs to the calling operator, which reads its panel's `auto_refit` toggle.
+
+| Argument | Type | Default | Description |
+|----------|------|---------|-------------|
+| `basemesh` | `bpy.types.Object` | — | The basemesh object |
+| `filename` | `str` | — | Absolute path to an expression JSON file |
+| `weight` | `float` | `1.0` | Row weight for this expression |
+| `append` | `bool` | `True` | If `True`, append/replace by asset. If `False`, replace the stack with a single row. |
+
+**Returns:** `dict[str, float]` — The aggregated `{face_unit_name: weight}` dict that was written via `set_expression`.
+
+**Raises:** `IOError` — if the file does not exist; `ValueError` — if `basemesh` is `None` or the file is not a JSON object.
+
+---
+
+### rebuild_expression_stack(basemesh)
+
+Re-aggregates `basemesh["mpfb_applied_expressions"]` into live `!ex-*` shape-key values. Used by
+the use-panel operators that mutate the stack (`set_expression_weight`, `remove_expression`)
+where the list itself is already correct but the live face values need refreshing.
+
+| Argument | Type | Default | Description |
+|----------|------|---------|-------------|
+| `basemesh` | `bpy.types.Object` | — | The basemesh object |
+
+**Returns:** `dict[str, float]` — The aggregated dict that was written.
+
+---
+
+### clear_applied_expressions(basemesh)
+
+Empties the persistent stack (`basemesh["mpfb_applied_expressions"]`), zeroes every `!ex-*`
+shape key, and resets the composer's slider scene properties. Used by the use-panel's
+"Clear all" operator.
+
+| Argument | Type | Default | Description |
+|----------|------|---------|-------------|
+| `basemesh` | `bpy.types.Object` | — | The basemesh object |
+
+**Returns:** None
+
+---
+
 ### interpolate_targets(basemesh)
 
 Transfers viseme and face-unit shape keys from the basemesh to every child mesh that has an associated MHCLO file. For each child, MHCLO vertex correspondence data (three basemesh vertex indices and barycentric weights per child vertex) is used to compute interpolated offsets. A shape key is only created on the child if at least one vertex offset exceeds `SIGNIFICANT_SHIFT_MINIMUM`; otherwise the shape key is skipped to avoid noise.
@@ -189,6 +273,17 @@ Minimum vertex offset (in Blender units) for a shape key deformation to be consi
 `EXPRESSION_FORMAT_VERSION = 1`
 
 On-disk schema version for expression JSON files (see [Expression file format](../fileformats/expression.md)). Bumped when a backwards-incompatible change is made to the format.
+
+---
+
+### APPLIED_EXPRESSIONS_PROP
+
+`APPLIED_EXPRESSIONS_PROP = "mpfb_applied_expressions"`
+
+Name of the object-level property on the basemesh that stores the JSON-encoded persistent
+expression stack. Each entry is `{"asset": "<library-relative path>", "weight": <float>}`,
+sorted by `asset`. The use-panel operators, `apply_expression_file`,
+`rebuild_expression_stack`, and `clear_applied_expressions` read and write this property.
 
 ---
 

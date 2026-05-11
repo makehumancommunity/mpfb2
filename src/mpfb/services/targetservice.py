@@ -546,8 +546,10 @@ class TargetService:
 
         Args:
             blender_object (bpy.types.Object): The Blender object from which to retrieve shape keys.
-            exclude_starts_with (str, optional): Exclude shape keys whose names start with this string. Defaults to None.
-            exclude_ends_with (str, optional): Exclude shape keys whose names end with this string. Defaults to None.
+            exclude_starts_with (str | iterable[str], optional): Exclude shape keys whose names start with this
+                string or any string in the given iterable. Defaults to None.
+            exclude_ends_with (str | iterable[str], optional): Exclude shape keys whose names end with this
+                string or any string in the given iterable. Defaults to None.
 
         Returns:
             list: A list of dictionaries, each containing a shape key name and its value.
@@ -570,14 +572,28 @@ class TargetService:
 
         stack = []
 
+        if exclude_starts_with is None:
+            starts_with_prefixes = ()
+        elif isinstance(exclude_starts_with, str):
+            starts_with_prefixes = (exclude_starts_with.lower(),)
+        else:
+            starts_with_prefixes = tuple(str(p).lower() for p in exclude_starts_with)
+
+        if exclude_ends_with is None:
+            ends_with_suffixes = ()
+        elif isinstance(exclude_ends_with, str):
+            ends_with_suffixes = (exclude_ends_with.lower(),)
+        else:
+            ends_with_suffixes = tuple(str(s).lower() for s in exclude_ends_with)
+
         for shape_key in keys.key_blocks:
             sk_name = str(shape_key.name).lower()
 
             exclude = "basis" in sk_name
 
-            if not exclude_starts_with is None and sk_name.startswith(str(exclude_starts_with).lower()):
+            if starts_with_prefixes and any(sk_name.startswith(p) for p in starts_with_prefixes):
                 exclude = True
-            if not exclude_ends_with is None and sk_name.endswith(str(exclude_ends_with).lower()):
+            if ends_with_suffixes and any(sk_name.endswith(s) for s in ends_with_suffixes):
                 exclude = True
 
             if not exclude:

@@ -13,7 +13,6 @@ callbacks so that dragging a slider drives the corresponding ``!ex-<name>`` shap
 import os, bpy
 
 from ....services import LogService
-from ....services import LocationService
 from ....services import ObjectService
 from ....services import SceneConfigSet
 from ....services.faceservice import (
@@ -87,35 +86,18 @@ MakeExpressionProperties = SceneConfigSet(_definitions, prefix="EX_")  # pylint:
 def _populate_available_expressions(self, context):
     """Items callback for the load_expression enum.
 
-    Scans two roots in priority order — user expressions under
-    ``<user_data>/expressions/`` and system-shipped expressions under
-    ``<mpfb_data>/expressions/``. Files are deduplicated by basename with the user copy winning
-    when names collide, matching the convention used for poses.
+    Delegates to ``FaceService.list_available_expressions`` so the composer, the use-panel
+    picker, and the asset library all share a single scan implementation. Items are tuples
+    of ``(absolute_path, library_relative_path, metadata)``; the enum needs only the absolute
+    path (as the enum value) and the relative path (as the visible label).
     """
     _LOG.enter()
 
-    def _scan(directory):
-        items = []
-        if not directory or not os.path.isdir(directory):
-            return items
-        for name in os.listdir(directory):
-            if not name.lower().endswith(".json"):
-                continue
-            items.append((os.path.splitext(name)[0], os.path.join(directory, name)))
-        return items
-
-    user_dir = LocationService.get_user_data("expressions")
-    system_dir = LocationService.get_mpfb_data("expressions")
-
-    seen = {}
-    for label, path in _scan(user_dir):
-        seen[label] = path
-    for label, path in _scan(system_dir):
-        seen.setdefault(label, path)
-
     enum_items = []
-    for idx, label in enumerate(sorted(seen.keys())):
-        enum_items.append((seen[label], label, label, idx))
+    for idx, (abs_path, rel_path, _metadata) in enumerate(FaceService.list_available_expressions()):
+        # Label is the relative path without the .json extension for readability.
+        label = os.path.splitext(rel_path)[0]
+        enum_items.append((abs_path, label, label, idx))
     return enum_items
 
 

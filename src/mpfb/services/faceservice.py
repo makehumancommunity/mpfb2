@@ -244,6 +244,10 @@ FACEUNIT_DESCRIPTIONS = {
 # format defined in docs/fileformats/expression.md.
 EXPRESSION_FORMAT_VERSION = 1
 
+# Name of the object-level property on the basemesh that stores the JSON-encoded list of
+# currently-applied expressions. Each entry is {"asset": <library-relative path>, "weight": <float>}.
+APPLIED_EXPRESSIONS_PROP = "mpfb_applied_expressions"
+
 # Cache for is_faceunits01_installed(). None means "not yet probed". Filled lazily on first call;
 # can be busted by passing force_recheck=True (used by tests).
 _FACEUNITS01_INSTALLED = None
@@ -710,3 +714,303 @@ class FaceService:
         }
 
         return expression_dict, metadata
+
+    @staticmethod
+    def _compute_expression_library_relative_path(absolute_path):
+        """Strip the matching expressions asset root prefix from an absolute path.
+
+        Returns a forward-slash relative path (e.g. ``"smile.json"`` or
+        ``"my_collection/smile.json"``). If the path is not under any known expressions root
+        the basename is returned, so callers always get a stable, transferable identifier.
+        """
+        # Imported lazily to avoid a service-layer import cycle at module load.
+        from .assetservice import AssetService  # pylint: disable=C0415
+        if not absolute_path:
+            return ""
+        abs_path = os.path.abspath(absolute_path)
+        roots = AssetService.get_asset_roots("expressions")
+        for root in roots:
+            root_norm = os.path.abspath(root)
+            try:
+                rel = os.path.relpath(abs_path, root_norm)
+            except ValueError:
+                continue
+            if not rel.startswith(".."):
+                return rel.replace(os.sep, "/")
+        return os.path.basename(abs_path)
+
+    @staticmethod
+    def list_available_expressions():
+        """List every expression JSON discovered across the four standard MPFB asset roots.
+
+        Scans ``<root>/expressions/*.json`` for every root returned by
+        ``AssetService.get_asset_roots("expressions")`` (priority order: mpfb_data, mh_data,
+        user_data, second_root). When the same library-relative path is present in multiple
+        roots, the highest-priority root wins — matching the precedence rule used for poses.
+
+        Returns:
+            list[tuple[str, str, dict]]: A list of ``(absolute_path, library_relative_path,
+                metadata)`` tuples. ``metadata`` is the dict returned by ``load_expression``.
+                Files that fail to parse are skipped with a warning so a single malformed file
+                does not break the picker.
+        """
+        _LOG.enter()
+        # Imported lazily to avoid a service-layer import cycle at module load.
+        from .assetservice import AssetService  # pylint: disable=C0415
+        roots = AssetService.get_asset_roots("expressions")
+
+        seen = {}
+        for root in roots:
+            root_norm = os.path.abspath(root)
+            if not os.path.isdir(root_norm):
+                continue
+            for dirpath, _dirs, files in os.walk(root_norm):
+                for name in files:
+                    if not name.lower().endswith(".json"):
+                        continue
+                    abs_path = os.path.abspath(os.path.join(dirpath, name))
+                    rel = os.path.relpath(abs_path, root_norm).replace(os.sep, "/")
+                    if rel in seen:
+                        continue
+                    try:
+                        _expr, meta = FaceService.load_expression(abs_path)
+                    except (IOError, ValueError, json.JSONDecodeError) as exc:
+                        _LOG.warn("Skipping unreadable expression file", (abs_path, exc))
+                        continue
+                    seen[rel] = (abs_path, rel, meta)
+
+        return [seen[rel] for rel in sorted(seen.keys())]
+
+    @staticmethod
+    def aggregate_expression_stack(stack):
+        """Aggregate a list of applied-expression rows into a single clamped face-unit dict.
+
+        Each row is a ``{"asset": <library-relative path>, "weight": <row weight>}`` dict.
+        Each referenced file is loaded via ``load_expression``; per face unit, the value is the
+        sum of ``loaded_weight * row_weight`` across every row, clamped to ``[0, 1]``. Rows
+        whose ``asset`` cannot be resolved on disk are skipped with a warning, so a preset can
+        still partially apply when one referenced file is missing.
+
+        Args:
+            stack (list[dict]): Applied-expressions list as stored in
+                ``basemesh["mpfb_applied_expressions"]``.
+
+        Returns:
+            dict[str, float]: ``{face_unit_name: weight}`` containing only face units with a
+                non-zero clamped value. Empty if the input stack is empty.
+        """
+        _LOG.enter()
+        # Imported lazily to avoid a service-layer import cycle at module load.
+        from .assetservice import AssetService  # pylint: disable=C0415
+
+        aggregated = {}
+        for row in stack or []:
+            asset = row.get("asset") if isinstance(row, dict) else None
+            if not asset:
+                _LOG.warn("Skipping stack row without an asset field", row)
+                continue
+            try:
+                row_weight = float(row.get("weight", 1.0))
+            except (TypeError, ValueError):
+                _LOG.warn("Skipping stack row with non-numeric weight", row)
+                continue
+
+            absolute_path = AssetService.find_asset_absolute_path(asset, asset_subdir="expressions")
+            if not absolute_path or not os.path.isfile(absolute_path):
+                _LOG.warn("Could not resolve expression asset, skipping", asset)
+                continue
+
+            try:
+                expression_dict, _meta = FaceService.load_expression(absolute_path)
+            except (IOError, ValueError, json.JSONDecodeError) as exc:
+                _LOG.warn("Could not load expression asset, skipping", (asset, exc))
+                continue
+
+            for face_unit_name, value in expression_dict.items():
+                if face_unit_name not in ARKIT_FACEUNITS:
+                    continue
+                try:
+                    contribution = float(value) * row_weight
+                except (TypeError, ValueError):
+                    continue
+                aggregated[face_unit_name] = aggregated.get(face_unit_name, 0.0) + contribution
+
+        clamped = {}
+        for name, value in aggregated.items():
+            if value <= 0.0:
+                continue
+            clamped[name] = 1.0 if value > 1.0 else value
+        return clamped
+
+    @staticmethod
+    def _read_applied_expressions(basemesh):
+        """Return the applied-expressions list stored on the basemesh (empty list if absent)."""
+        if basemesh is None:
+            return []
+        raw = basemesh.get(APPLIED_EXPRESSIONS_PROP, None)
+        if not raw:
+            return []
+        if isinstance(raw, str):
+            try:
+                value = json.loads(raw)
+            except (ValueError, json.JSONDecodeError):
+                _LOG.warn("Could not decode mpfb_applied_expressions, treating as empty", raw)
+                return []
+        else:
+            value = raw
+        if not isinstance(value, list):
+            return []
+        return value
+
+    @staticmethod
+    def _write_applied_expressions(basemesh, stack):
+        """Sort the stack by asset and write it as a JSON-encoded string on the basemesh."""
+        if basemesh is None:
+            return
+        normalized = []
+        for row in stack or []:
+            if not isinstance(row, dict):
+                continue
+            asset = row.get("asset")
+            if not asset:
+                continue
+            try:
+                weight = float(row.get("weight", 1.0))
+            except (TypeError, ValueError):
+                continue
+            normalized.append({"asset": str(asset), "weight": weight})
+        normalized.sort(key=lambda r: r["asset"])
+        basemesh[APPLIED_EXPRESSIONS_PROP] = json.dumps(normalized)
+
+    @staticmethod
+    def apply_expression_file(basemesh, filename, weight=1.0, append=True):
+        """Apply a saved expression file to the basemesh through the persistent stack.
+
+        Central apply path used by the use-panel, the asset-library load operator, and the
+        composer's load operator. Steps:
+
+        1. Validates the file via ``load_expression`` (so a malformed file is rejected before
+           the stack is mutated).
+        2. Resolves the file's library-relative path so the row is portable across machines.
+        3. Updates ``basemesh[APPLIED_EXPRESSIONS_PROP]`` — appending or replacing by ``asset``
+           (latest-wins per asset). When ``append`` is False the stack is replaced with a
+           single row.
+        4. Rebuilds the aggregated ``{face_unit: weight}`` dict via
+           ``aggregate_expression_stack``, calls ``clear_expression`` then ``set_expression``.
+        5. Mirrors the aggregated values back into the composer's 52 scene slider properties
+           so the composer panel reflects current state if/when opened.
+
+        The auto-refit / ``HumanService.refit`` call is intentionally not done here — that
+        belongs to the operator layer, which knows the panel's ``auto_refit`` toggle.
+
+        Args:
+            basemesh (bpy.types.Object): The basemesh object.
+            filename (str): Absolute path to an expression JSON file.
+            weight (float): Row weight for this expression. Defaults to 1.0.
+            append (bool): If True (default), append/replace by asset. If False, replace the
+                stack with a single row.
+
+        Returns:
+            dict[str, float]: The aggregated ``{face_unit_name: weight}`` dict that was
+                written via ``set_expression``.
+        """
+        _LOG.enter()
+        if basemesh is None:
+            raise ValueError("apply_expression_file requires a basemesh")
+        if not filename or not os.path.isfile(filename):
+            raise IOError("Expression file does not exist: " + str(filename))
+
+        # Validate the file up-front so we don't mutate the stack on a bad file.
+        FaceService.load_expression(filename)
+
+        library_path = FaceService._compute_expression_library_relative_path(filename)
+
+        if append:
+            stack = FaceService._read_applied_expressions(basemesh)
+            stack = [row for row in stack if isinstance(row, dict) and row.get("asset") != library_path]
+            stack.append({"asset": library_path, "weight": float(weight)})
+        else:
+            stack = [{"asset": library_path, "weight": float(weight)}]
+
+        FaceService._write_applied_expressions(basemesh, stack)
+
+        aggregated = FaceService.aggregate_expression_stack(
+            FaceService._read_applied_expressions(basemesh)
+        )
+
+        FaceService.clear_expression(basemesh)
+        if aggregated:
+            FaceService.set_expression(basemesh, aggregated)
+
+        FaceService._mirror_to_composer_sliders(aggregated)
+
+        return aggregated
+
+    @staticmethod
+    def rebuild_expression_stack(basemesh):
+        """Re-aggregate ``basemesh[APPLIED_EXPRESSIONS_PROP]`` into live ``!ex-*`` values.
+
+        Used after the use-panel mutates a single row's weight or removes a row, where the
+        stack list itself is already correct but the live shape-key values need to be redone.
+        """
+        _LOG.enter()
+        if basemesh is None:
+            return {}
+        stack = FaceService._read_applied_expressions(basemesh)
+        aggregated = FaceService.aggregate_expression_stack(stack)
+        FaceService.clear_expression(basemesh)
+        if aggregated:
+            FaceService.set_expression(basemesh, aggregated)
+        FaceService._mirror_to_composer_sliders(aggregated)
+        return aggregated
+
+    @staticmethod
+    def clear_applied_expressions(basemesh):
+        """Empty the stack and zero every ``!ex-*`` shape key.
+
+        Used by the use-panel's "Clear all" operator. Also resets the composer's slider
+        scene properties so the composer panel reflects the cleared state.
+        """
+        _LOG.enter()
+        if basemesh is None:
+            return
+        basemesh[APPLIED_EXPRESSIONS_PROP] = json.dumps([])
+        FaceService.clear_expression(basemesh)
+        # Mirror a zero dict into the composer sliders.
+        zero = {name: 0.0 for name in ARKIT_FACEUNITS}
+        FaceService._mirror_to_composer_sliders(zero, write_zeros=True)
+
+    @staticmethod
+    def _mirror_to_composer_sliders(expression_dict, write_zeros=False):
+        """Write an aggregated face-unit dict back into the composer's 52 scene properties.
+
+        Imported lazily because the composer lives in ``ui.create_assets.makeexpression`` and
+        importing the UI from a service at module load would invert MPFB's registration order.
+        When ``write_zeros`` is False, only the face units present in the dict are written —
+        but the composer's ``write_slider_values`` already fills missing entries with 0.0, so
+        an aggregated dict that omits zero face units is still correct.
+        """
+        try:
+            # pylint: disable=C0415
+            from ..ui.create_assets.makeexpression import write_slider_values
+        except Exception as exc:  # pylint: disable=W0703
+            # The UI module may not be importable in headless test contexts. That is fine —
+            # mirroring sliders is a UI-only convenience.
+            _LOG.trace("Skipping composer slider mirror (UI not importable)", exc)
+            return
+
+        scene = bpy.context.scene if bpy.context else None
+        if scene is None:
+            return
+
+        if write_zeros:
+            payload = {name: 0.0 for name in ARKIT_FACEUNITS}
+        else:
+            payload = {name: 0.0 for name in ARKIT_FACEUNITS}
+            for name, value in (expression_dict or {}).items():
+                if name in ARKIT_FACEUNITS:
+                    payload[name] = float(value)
+        try:
+            write_slider_values(scene, payload)
+        except Exception as exc:  # pylint: disable=W0703
+            _LOG.trace("Could not mirror to composer sliders", exc)

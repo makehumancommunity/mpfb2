@@ -4,7 +4,7 @@ import os
 
 from .....services import LogService
 from .....services import ObjectService
-from .....services.faceservice import FaceService, ARKIT_FACEUNITS
+from .....services.faceservice import FaceService
 from ..... import ClassManager
 from ....mpfboperator import MpfbOperator
 from ....pollstrategy import pollstrategy, PollStrategy
@@ -37,7 +37,7 @@ class MPFB_OT_Compose_Expression_Load_Operator(MpfbOperator):
         _LOG.enter()
 
         scene = context.scene
-        from .. import MakeExpressionProperties, write_slider_values  # pylint: disable=C0415
+        from .. import MakeExpressionProperties  # pylint: disable=C0415
 
         active = context.active_object
         basemesh = ObjectService.find_object_of_type_amongst_nearest_relatives(active, "Basemesh") if active else None
@@ -54,20 +54,20 @@ class MPFB_OT_Compose_Expression_Load_Operator(MpfbOperator):
             self.report({'ERROR'}, "Expression file does not exist: " + str(selected))
             return {'FINISHED'}
 
-        expression_dict, metadata = FaceService.load_expression(selected)
+        # Re-read metadata for the composer's metadata fields. apply_expression_file does its
+        # own load_expression internally for the face-unit values; this second call is cheap and
+        # keeps the helper's return contract simple.
+        _expr, metadata = FaceService.load_expression(selected)
 
-        # Slider scene properties: zero everything first, then write loaded values. Suppress
-        # per-slider update callbacks during the bulk write — we apply the dict to the basemesh
-        # in a single set_expression call afterwards.
-        zero_dict = {name: 0.0 for name in ARKIT_FACEUNITS}
-        write_slider_values(scene, zero_dict)
-        write_slider_values(scene, expression_dict)
-
-        # Clear the basemesh first so a slider-by-slider apply doesn't accidentally accumulate
-        # over a previous composition, then apply the loaded weights in bulk.
-        FaceService.clear_expression(basemesh)
-        if expression_dict:
-            FaceService.set_expression(basemesh, expression_dict)
+        # A composer load is a "replace what I'm composing with this file" action, so the stack
+        # is replaced with a single row (append=False). The helper handles clear + set + the
+        # composer slider mirror in one pass.
+        try:
+            FaceService.apply_expression_file(basemesh, selected, weight=1.0, append=False)
+        except (IOError, ValueError) as exc:
+            _LOG.error("Failed to load expression", exc)
+            self.report({'ERROR'}, f"Failed to load expression: {exc}")
+            return {'CANCELLED'}
 
         # Restore metadata fields.
         MakeExpressionProperties.set_value("expression_name", metadata.get("name", ""), entity_reference=scene)
