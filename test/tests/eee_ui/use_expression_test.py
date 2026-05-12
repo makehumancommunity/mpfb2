@@ -1,36 +1,28 @@
-"""Operator-level tests for the use-expression panel.
+"""Tests for the expressions-library panel.
 
 These tests fabricate `!ex-*` shape keys without geometric content so they run without the
-`faceunits01` asset pack — mirroring the pattern in `bbb_services/faceservice_test.py`. The
-faceunits01-installed probe is monkey-patched to True so the operators don't refuse to run.
+`faceunits01` asset pack, mirroring the pattern in `bbb_services/faceservice_test.py`. The
+faceunits01-installed probe is monkey-patched to True so the slider update callback applies
+shape keys instead of treating the pack as missing.
 """
 
 import json, os
 import bpy
+from bpy.props import FloatProperty
 from pytest import approx
 from .. import AssetService
 from .. import FaceService
 from .. import HumanService
 from .. import ObjectService
 from .. import TargetService
+from .. import UiService
 from .. import dynamic_import
-from ._helpers import MockOperatorBase
 
-MPFB_OT_Apply_Expression_Operator = dynamic_import(
-    "mpfb.ui.apply_assets.useexpression.operators.applyexpression",
-    "MPFB_OT_Apply_Expression_Operator",
-)
-MPFB_OT_Set_Expression_Weight_Operator = dynamic_import(
-    "mpfb.ui.apply_assets.useexpression.operators.setexpressionweight",
-    "MPFB_OT_Set_Expression_Weight_Operator",
-)
-MPFB_OT_Remove_Expression_Operator = dynamic_import(
-    "mpfb.ui.apply_assets.useexpression.operators.removeexpression",
-    "MPFB_OT_Remove_Expression_Operator",
-)
-MPFB_OT_Clear_Expression_Operator = dynamic_import(
-    "mpfb.ui.apply_assets.useexpression.operators.clearexpression",
-    "MPFB_OT_Clear_Expression_Operator",
+_EXPRESSION_PROP_MAP = dynamic_import("mpfb.ui.apply_assets.useexpression", "_EXPRESSION_PROP_MAP")
+_make_slider_update = dynamic_import("mpfb.ui.apply_assets.useexpression", "_make_slider_update")
+write_slider_values = dynamic_import("mpfb.ui.apply_assets.useexpression", "write_slider_values")
+ExpressionsLibraryProperties = dynamic_import(
+    "mpfb.ui.apply_assets.useexpression", "ExpressionsLibraryProperties"
 )
 
 
@@ -44,12 +36,12 @@ def _fabricate_ex_shape_keys(basemesh, names):
         basemesh.data.shape_keys.key_blocks[sk_name].value = 0.0
 
 
-def _write_expression_file(directory, basename, face_units):
+def _write_expression_file(directory, basename, face_units, display_name=None):
     os.makedirs(str(directory), exist_ok=True)
     full = os.path.join(str(directory), basename)
     payload = {
         "format_version": 1,
-        "name": os.path.splitext(basename)[0],
+        "name": display_name if display_name is not None else os.path.splitext(basename)[0],
         "description": "",
         "tags": [],
         "face_units": face_units,
@@ -68,89 +60,115 @@ def _make_basemesh_active(face_units):
     basemesh = HumanService.create_human()
     _fabricate_ex_shape_keys(basemesh, face_units)
     bpy.context.view_layer.objects.active = basemesh
-    # Auto-refit triggers HumanService.refit, which is fine on a freshly-created human but
-    # offers nothing to test in this file. Turn it off so we exercise just the operator's
-    # core behaviour.
-    UseExpressionProperties = dynamic_import(
-        "mpfb.ui.apply_assets.useexpression", "UseExpressionProperties"
-    )
-    UseExpressionProperties.set_value("auto_refit", False, entity_reference=bpy.context.scene)
     return basemesh
 
 
-def test_operators_exist():
-    """The four use-expression operators are registered with bpy.ops."""
-    assert bpy.ops.mpfb.apply_expression is not None
-    assert bpy.ops.mpfb.set_expression_weight is not None
-    assert bpy.ops.mpfb.remove_expression is not None
-    assert bpy.ops.mpfb.clear_expression is not None
+def _register_temp_slider(asset_fragment, label):
+    """Inject a slider entry into _EXPRESSION_PROP_MAP and register its scene FloatProperty.
+
+    Returns the scene-prop identifier. Use _unregister_temp_slider to clean up.
+    """
+    identifier = UiService.as_valid_identifier("expr_" + asset_fragment)
+    _EXPRESSION_PROP_MAP[identifier] = {
+        "asset": asset_fragment,
+        "label": label,
+        "absolute_path": "",
+    }
+    prop = FloatProperty(
+        name=label,
+        description=label,
+        default=0.0,
+        min=0.0,
+        max=1.0,
+        soft_min=0.0,
+        soft_max=1.0,
+        update=_make_slider_update(identifier),
+    )
+    setattr(bpy.types.Scene, identifier, prop)
+    return identifier
 
 
-def test_apply_then_edit_then_remove_then_clear(tmp_path, monkeypatch):
-    """Full sequence: apply → set_weight → remove → clear, asserting state at each step."""
+def _unregister_temp_slider(identifier):
+    if hasattr(bpy.types.Scene, identifier):
+        try:
+            delattr(bpy.types.Scene, identifier)
+        except (AttributeError, RuntimeError):
+            pass
+    _EXPRESSION_PROP_MAP.pop(identifier, None)
+
+
+def test_slider_drag_updates_stack_and_shape_keys(tmp_path, monkeypatch):
+    """Setting the slider scene-prop writes to the stack and refreshes the !ex-* shape keys."""
     expressions_dir = tmp_path / "user" / "expressions"
-    smile = _write_expression_file(expressions_dir, "smile.json", {"jawOpen": 0.4, "mouthSmileLeft": 0.6})
-    surprise = _write_expression_file(expressions_dir, "surprise.json", {"jawOpen": 0.3, "browInnerUp": 0.5})
+    _write_expression_file(expressions_dir, "smile.json", {"jawOpen": 0.4, "mouthSmileLeft": 0.6})
+    _write_expression_file(expressions_dir, "surprise.json", {"jawOpen": 0.3, "browInnerUp": 0.5})
 
     monkeypatch.setattr(AssetService, "get_available_data_roots", lambda: [str(tmp_path / "user")])
     monkeypatch.setattr(FaceService, "is_faceunits01_installed", lambda force_recheck=False: True)
 
+    ExpressionsLibraryProperties.set_value(
+        "auto_refit", False, entity_reference=bpy.context.scene
+    )
+
+    smile_id = _register_temp_slider("smile.json", "Smile")
+    surprise_id = _register_temp_slider("surprise.json", "Surprise")
+
     basemesh = _make_basemesh_active(["jawOpen", "mouthSmileLeft", "browInnerUp"])
     try:
-        # --- apply_expression x2 ---
-        mockself = MockOperatorBase(filepath=smile, weight=1.0)
-        MPFB_OT_Apply_Expression_Operator.hardened_execute(mockself, bpy.context)
-        mockself.mock_report.assert_no_errors()
+        scene = bpy.context.scene
 
-        mockself = MockOperatorBase(filepath=surprise, weight=1.0)
-        MPFB_OT_Apply_Expression_Operator.hardened_execute(mockself, bpy.context)
-        mockself.mock_report.assert_no_errors()
-
-        stack = json.loads(basemesh["mpfb_applied_expressions"])
-        assert [r["asset"] for r in stack] == ["smile.json", "surprise.json"]
-        assert basemesh.data.shape_keys.key_blocks["!ex-jawOpen"].value == approx(0.7)
-
-        # --- set_expression_weight: dial surprise down to 0.5 ---
-        mockself = MockOperatorBase(asset="surprise.json", weight=0.5)
-        MPFB_OT_Set_Expression_Weight_Operator.hardened_execute(mockself, bpy.context)
-        mockself.mock_report.assert_no_errors()
-
-        # smile contributes jawOpen=0.4, surprise now contributes 0.3*0.5=0.15 → sum 0.55
-        assert basemesh.data.shape_keys.key_blocks["!ex-jawOpen"].value == approx(0.55)
-        assert basemesh.data.shape_keys.key_blocks["!ex-browInnerUp"].value == approx(0.25)
-
-        # --- remove_expression: drop surprise ---
-        mockself = MockOperatorBase(asset="surprise.json")
-        MPFB_OT_Remove_Expression_Operator.hardened_execute(mockself, bpy.context)
-        mockself.mock_report.assert_no_errors()
-
+        # Drag the smile slider to 1.0 — stack gains one row, !ex-* values match the file.
+        setattr(scene, smile_id, 1.0)
         stack = json.loads(basemesh["mpfb_applied_expressions"])
         assert [r["asset"] for r in stack] == ["smile.json"]
         assert basemesh.data.shape_keys.key_blocks["!ex-jawOpen"].value == approx(0.4)
-        assert basemesh.data.shape_keys.key_blocks["!ex-browInnerUp"].value == approx(0.0)
+        assert basemesh.data.shape_keys.key_blocks["!ex-mouthSmileLeft"].value == approx(0.6)
 
-        # --- clear_expression ---
-        mockself = MockOperatorBase()
-        MPFB_OT_Clear_Expression_Operator.hardened_execute(mockself, bpy.context)
-        mockself.mock_report.assert_no_errors()
+        # Drag the surprise slider to 0.5 — second row, jawOpen sums (0.4 + 0.15).
+        setattr(scene, surprise_id, 0.5)
+        stack = json.loads(basemesh["mpfb_applied_expressions"])
+        assert sorted(r["asset"] for r in stack) == ["smile.json", "surprise.json"]
+        assert basemesh.data.shape_keys.key_blocks["!ex-jawOpen"].value == approx(0.55)
+        assert basemesh.data.shape_keys.key_blocks["!ex-browInnerUp"].value == approx(0.25)
 
+        # Drag the smile slider back to 0 — the row is removed, shape keys reflect just surprise.
+        setattr(scene, smile_id, 0.0)
+        stack = json.loads(basemesh["mpfb_applied_expressions"])
+        assert [r["asset"] for r in stack] == ["surprise.json"]
+        assert basemesh.data.shape_keys.key_blocks["!ex-jawOpen"].value == approx(0.15)
+        assert basemesh.data.shape_keys.key_blocks["!ex-mouthSmileLeft"].value == approx(0.0)
+
+        # And finally drop surprise too — stack is empty, all !ex-* zeroed.
+        setattr(scene, surprise_id, 0.0)
         assert basemesh["mpfb_applied_expressions"] == "[]"
         assert basemesh.data.shape_keys.key_blocks["!ex-jawOpen"].value == approx(0.0)
-        assert basemesh.data.shape_keys.key_blocks["!ex-mouthSmileLeft"].value == approx(0.0)
+        assert basemesh.data.shape_keys.key_blocks["!ex-browInnerUp"].value == approx(0.0)
     finally:
         ObjectService.delete_object(basemesh)
+        _unregister_temp_slider(smile_id)
+        _unregister_temp_slider(surprise_id)
 
 
-def test_apply_expression_refuses_without_pack(tmp_path, monkeypatch):
-    """The apply operator must refuse cleanly when faceunits01 isn't installed."""
-    monkeypatch.setattr(FaceService, "is_faceunits01_installed", lambda force_recheck=False: False)
+def test_write_slider_values_syncs_props_without_firing_callbacks(tmp_path, monkeypatch):
+    """write_slider_values writes weights into the registered scene props with updates suppressed."""
+    expressions_dir = tmp_path / "user" / "expressions"
+    _write_expression_file(expressions_dir, "smile.json", {"jawOpen": 0.4})
 
-    basemesh = _make_basemesh_active([])
+    monkeypatch.setattr(AssetService, "get_available_data_roots", lambda: [str(tmp_path / "user")])
+    monkeypatch.setattr(FaceService, "is_faceunits01_installed", lambda force_recheck=False: True)
+
+    smile_id = _register_temp_slider("smile.json", "Smile")
+
+    basemesh = _make_basemesh_active(["jawOpen"])
     try:
-        mockself = MockOperatorBase(filepath="anything.json", weight=1.0)
-        result = MPFB_OT_Apply_Expression_Operator.hardened_execute(mockself, bpy.context)
-        assert result == {'CANCELLED'}
-        errors = [r for r in mockself.mock_report.reports if r[0] == 'ERROR']
-        assert errors, "Expected an ERROR report when faceunits01 is not installed"
+        scene = bpy.context.scene
+        # Pre-condition: nothing stored.
+        assert basemesh.get("mpfb_applied_expressions", None) is None
+        # Write a loaded stack into the sliders. The update callback would normally mutate
+        # the stack, but write_slider_values suppresses callbacks, so the stack stays empty.
+        write_slider_values(scene, [{"asset": "smile.json", "weight": 0.7}])
+        assert getattr(scene, smile_id) == approx(0.7)
+        assert basemesh.get("mpfb_applied_expressions", None) is None
     finally:
         ObjectService.delete_object(basemesh)
+        _unregister_temp_slider(smile_id)

@@ -54,16 +54,21 @@ class MPFB_OT_Compose_Expression_Load_Operator(MpfbOperator):
             self.report({'ERROR'}, "Expression file does not exist: " + str(selected))
             return {'FINISHED'}
 
-        # Re-read metadata so the composer's metadata fields can be restored below.
-        _expr, metadata = FaceService.load_expression(selected)
-
-        # A composer load replaces the stack rather than appending.
+        # Composer loads are transient: drive the live !ex-* shape keys directly and let the
+        # composer's own write_slider_values keep its 52 scene sliders in sync. The
+        # mpfb_applied_expressions stack and the expressions-library panel sliders are
+        # deliberately not touched here.
         try:
-            FaceService.apply_expression_file(basemesh, selected, weight=1.0, append=False)
+            expression, metadata = FaceService.load_expression(selected)
+            FaceService.clear_expression(basemesh)
+            FaceService.set_expression(basemesh, expression)
         except (IOError, ValueError) as exc:
             _LOG.error("Failed to load expression", exc)
             self.report({'ERROR'}, f"Failed to load expression: {exc}")
             return {'CANCELLED'}
+
+        from .. import write_slider_values  # pylint: disable=C0415
+        write_slider_values(scene, expression)
 
         MakeExpressionProperties.set_value("expression_name", metadata.get("name", ""), entity_reference=scene)
         MakeExpressionProperties.set_value("description", metadata.get("description", ""), entity_reference=scene)

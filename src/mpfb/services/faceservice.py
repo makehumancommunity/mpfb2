@@ -772,6 +772,14 @@ class FaceService:
                     except (IOError, ValueError, json.JSONDecodeError) as exc:
                         _LOG.warn("Skipping unreadable expression file", (abs_path, exc))
                         continue
+                    meta = dict(meta) if isinstance(meta, dict) else {}
+                    raw_name = meta.get("name", "")
+                    if isinstance(raw_name, str) and raw_name.strip():
+                        label = raw_name.strip()
+                    else:
+                        basename = os.path.splitext(os.path.basename(rel))[0]
+                        label = basename.replace("_", " ")
+                    meta["label"] = label
                     seen[rel] = (abs_path, rel, meta)
 
         return [seen[rel] for rel in sorted(seen.keys())]
@@ -886,8 +894,8 @@ class FaceService:
     def apply_expression_file(basemesh, filename, weight=1.0, append=True):
         """Apply a saved expression file to the basemesh through the persistent stack.
 
-        Central apply path used by the use-panel, the asset-library load operator, and the
-        composer's load operator. Steps:
+        Retained as a low-level helper. The expressions-library panel drives the use-side via
+        ``set_stack_weight`` instead. Steps:
 
         1. Validates the file via ``load_expression`` (so a malformed file is rejected before
            the stack is mutated).
@@ -897,8 +905,6 @@ class FaceService:
            single row.
         4. Rebuilds the aggregated ``{face_unit: weight}`` dict via
            ``aggregate_expression_stack``, calls ``clear_expression`` then ``set_expression``.
-        5. Mirrors the aggregated values back into the composer's 52 scene slider properties
-           so the composer panel reflects current state if/when opened.
 
         The auto-refit / ``HumanService.refit`` call is intentionally not done here — that
         belongs to the operator layer, which knows the panel's ``auto_refit`` toggle.
@@ -948,16 +954,14 @@ class FaceService:
         if aggregated:
             FaceService.set_expression(basemesh, aggregated)
 
-        FaceService._mirror_to_composer_sliders(aggregated)
-
         return aggregated
 
     @staticmethod
     def rebuild_expression_stack(basemesh):
         """Re-aggregate ``basemesh[APPLIED_EXPRESSIONS_PROP]`` into live ``!ex-*`` values.
 
-        Used after the use-panel mutates a single row's weight or removes a row, where the
-        stack list itself is already correct but the live shape-key values need to be redone.
+        Used after the stack list has been mutated externally and the live shape-key values
+        need to be rebuilt from scratch.
         """
         _LOG.enter()
         if basemesh is None:
@@ -967,49 +971,74 @@ class FaceService:
         FaceService.clear_expression(basemesh)
         if aggregated:
             FaceService.set_expression(basemesh, aggregated)
-        FaceService._mirror_to_composer_sliders(aggregated)
         return aggregated
 
     @staticmethod
     def clear_applied_expressions(basemesh):
-        """Empty the stack and zero every ``!ex-*`` shape key.
-
-        Used by the use-panel's "Clear all" operator. Also resets the composer's slider
-        scene properties so the composer panel reflects the cleared state.
-        """
+        """Empty the stack and zero every ``!ex-*`` shape key."""
         _LOG.enter()
         if basemesh is None:
             return
         basemesh[APPLIED_EXPRESSIONS_PROP] = json.dumps([])
         FaceService.clear_expression(basemesh)
-        # Mirror a zero dict into the composer sliders.
-        zero = {name: 0.0 for name in ARKIT_FACEUNITS}
-        FaceService._mirror_to_composer_sliders(zero, write_zeros=True)
 
     @staticmethod
-    def _mirror_to_composer_sliders(expression_dict, write_zeros=False):
-        """Write an aggregated face-unit dict back into the composer's 52 scene properties."""
-        try:
-            # pylint: disable=C0415
-            from ..ui.create_assets.makeexpression import write_slider_values
-        except Exception as exc:  # pylint: disable=W0703
-            # The UI module may not be importable in headless test contexts. That is fine —
-            # mirroring sliders is a UI-only convenience.
-            _LOG.trace("Skipping composer slider mirror (UI not importable)", exc)
-            return
+    def set_stack_weight(basemesh, asset_fragment, weight):
+        """Set the weight of one expression in the applied-expressions stack.
 
-        scene = bpy.context.scene if bpy.context else None
-        if scene is None:
-            return
+        Entry point used by the expressions-library panel's per-slider update callbacks.
+        Steps:
 
-        if write_zeros:
-            payload = {name: 0.0 for name in ARKIT_FACEUNITS}
-        else:
-            payload = {name: 0.0 for name in ARKIT_FACEUNITS}
-            for name, value in (expression_dict or {}).items():
-                if name in ARKIT_FACEUNITS:
-                    payload[name] = float(value)
+        1. Read the current stack from ``basemesh[APPLIED_EXPRESSIONS_PROP]``.
+        2. If ``weight <= 0.0``, drop any row whose ``asset`` matches ``asset_fragment``.
+           Otherwise upsert ``{"asset": asset_fragment, "weight": weight}`` with latest-wins
+           per asset.
+        3. Write the new stack back (sorted by asset).
+        4. Re-aggregate the whole stack via ``aggregate_expression_stack``, then
+           ``clear_expression`` + ``set_expression`` to refresh the live ``!ex-*`` shape keys.
+
+        Auto-refit is the caller's responsibility (the panel's update callback decides
+        whether to invoke ``HumanService.refit`` based on its own scene toggle).
+
+        Args:
+            basemesh (bpy.types.Object): The basemesh object.
+            asset_fragment (str): Library-relative path of the expression file.
+            weight (float): New slider value in ``[0, 1]``.
+
+        Returns:
+            dict[str, float]: The aggregated ``{face_unit_name: weight}`` dict that was
+                written via ``set_expression``.
+        """
+        _LOG.enter()
+        if basemesh is None:
+            raise ValueError("set_stack_weight requires a basemesh")
+        if not asset_fragment:
+            raise ValueError("set_stack_weight requires an asset fragment")
+
         try:
-            write_slider_values(scene, payload)
-        except Exception as exc:  # pylint: disable=W0703
-            _LOG.trace("Could not mirror to composer sliders", exc)
+            new_weight = float(weight)
+        except (TypeError, ValueError):
+            new_weight = 0.0
+
+        existing = FaceService._read_applied_expressions(basemesh)
+        stack = []
+        for row in existing:
+            if not isinstance(row, dict):
+                continue
+            if row.get("asset") == asset_fragment:
+                continue
+            stack.append(row)
+        if new_weight > 0.0:
+            stack.append({"asset": asset_fragment, "weight": new_weight})
+
+        FaceService._write_applied_expressions(basemesh, stack)
+
+        aggregated = FaceService.aggregate_expression_stack(
+            FaceService._read_applied_expressions(basemesh)
+        )
+
+        FaceService.clear_expression(basemesh)
+        if aggregated:
+            FaceService.set_expression(basemesh, aggregated)
+
+        return aggregated

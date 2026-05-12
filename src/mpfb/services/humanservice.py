@@ -987,6 +987,18 @@ class HumanService:
         normalized.sort(key=lambda r: r["asset"])
         basemesh[APPLIED_EXPRESSIONS_PROP] = json.dumps(normalized)
 
+        # Sync the expressions-library panel sliders with the loaded stack regardless of
+        # whether faceunits01 is installed — the stack itself was preserved verbatim, so the
+        # sliders should reflect that intent.
+        try:
+            import bpy as _bpy  # pylint: disable=C0415
+            from ..ui.apply_assets.useexpression import write_slider_values  # pylint: disable=C0415
+            scene = _bpy.context.scene if _bpy.context else None
+            if scene is not None:
+                write_slider_values(scene, normalized)
+        except Exception as exc:  # pylint: disable=W0703
+            _LOG.trace("Could not sync expressions-library sliders", exc)
+
         if not normalized:
             return
 

@@ -158,8 +158,8 @@ Pure aggregation helper. Given a list of applied-expression rows (each
 `{"asset": <library-relative path>, "weight": <float>}`), loads every referenced file via
 `load_expression`, multiplies each face unit's loaded weight by the row weight, sums per face unit,
 clamps to `[0, 1]`, and returns the result. Rows whose `asset` cannot be resolved on disk are
-skipped with a warning. Used by `apply_expression_file`, `rebuild_expression_stack`, and the
-human-preset deserialization path.
+skipped with a warning. Used by `set_stack_weight`, `apply_expression_file`,
+`rebuild_expression_stack`, and the human-preset deserialization path.
 
 | Argument | Type | Default | Description |
 |----------|------|---------|-------------|
@@ -169,15 +169,40 @@ human-preset deserialization path.
 
 ---
 
+### set_stack_weight(basemesh, asset_fragment, weight)
+
+Entry point used by the expressions-library panel's per-slider update callbacks. Reads the
+current stack from `basemesh["mpfb_applied_expressions"]`; if `weight <= 0.0`, drops any row
+whose `asset` matches `asset_fragment`; otherwise upserts a row
+`{"asset": asset_fragment, "weight": weight}` with latest-wins per asset. Writes the new
+stack back (sorted by `asset`), re-aggregates via `aggregate_expression_stack`, and refreshes
+the live `!ex-*` shape keys with a single `clear_expression` + `set_expression` pass.
+
+Auto-refit is the caller's responsibility — the panel's update callback decides whether to
+invoke `HumanService.refit` based on its own scene toggle.
+
+| Argument | Type | Default | Description |
+|----------|------|---------|-------------|
+| `basemesh` | `bpy.types.Object` | — | The basemesh object |
+| `asset_fragment` | `str` | — | Library-relative path of the expression file (the value stored in the stack's `asset` field) |
+| `weight` | `float` | — | New slider value in `[0, 1]`; `0.0` removes the row |
+
+**Returns:** `dict[str, float]` — The aggregated `{face_unit_name: weight}` dict that was written via `set_expression`.
+
+**Raises:** `ValueError` — if `basemesh` is `None` or `asset_fragment` is empty.
+
+---
+
 ### apply_expression_file(basemesh, filename, weight=1.0, append=True)
 
-Central apply path used by the use-panel, the asset-library loader, and the composer's load
-operator. Validates the file up-front via `load_expression`, updates the persistent stack on
+Low-level helper that validates a file via `load_expression`, updates the persistent stack on
 the basemesh (`basemesh["mpfb_applied_expressions"]` — sorted by `asset`, latest-wins per asset),
 re-aggregates the stack, and writes the result to the `!ex-*` shape keys via a single
-`clear_expression` + `set_expression` pass. Also mirrors the aggregated values back into the
-composer's 52 scene slider properties so the composer panel reflects current state if/when
-opened.
+`clear_expression` + `set_expression` pass.
+
+The expressions-library panel drives the use-side through `set_stack_weight` rather than this
+helper. `apply_expression_file` is retained for callers that want an absolute-path,
+weight-and-append entry point.
 
 The auto-refit / `HumanService.refit` call is intentionally not done here — that decision
 belongs to the calling operator, which reads its panel's `auto_refit` toggle.
@@ -197,9 +222,9 @@ belongs to the calling operator, which reads its panel's `auto_refit` toggle.
 
 ### rebuild_expression_stack(basemesh)
 
-Re-aggregates `basemesh["mpfb_applied_expressions"]` into live `!ex-*` shape-key values. Used by
-the use-panel operators that mutate the stack (`set_expression_weight`, `remove_expression`)
-where the list itself is already correct but the live face values need refreshing.
+Re-aggregates `basemesh["mpfb_applied_expressions"]` into live `!ex-*` shape-key values. Used
+after the stack list itself has been mutated externally and the live face values need
+refreshing.
 
 | Argument | Type | Default | Description |
 |----------|------|---------|-------------|
@@ -211,9 +236,8 @@ where the list itself is already correct but the live face values need refreshin
 
 ### clear_applied_expressions(basemesh)
 
-Empties the persistent stack (`basemesh["mpfb_applied_expressions"]`), zeroes every `!ex-*`
-shape key, and resets the composer's slider scene properties. Used by the use-panel's
-"Clear all" operator.
+Empties the persistent stack (`basemesh["mpfb_applied_expressions"]`) and zeroes every
+`!ex-*` shape key.
 
 | Argument | Type | Default | Description |
 |----------|------|---------|-------------|
@@ -282,8 +306,11 @@ On-disk schema version for expression JSON files (see [Expression file format](.
 
 Name of the object-level property on the basemesh that stores the JSON-encoded persistent
 expression stack. Each entry is `{"asset": "<library-relative path>", "weight": <float>}`,
-sorted by `asset`. The use-panel operators, `apply_expression_file`,
-`rebuild_expression_stack`, and `clear_applied_expressions` read and write this property.
+sorted by `asset`. `set_stack_weight`, `apply_expression_file`,
+`rebuild_expression_stack`, `clear_applied_expressions`, and the human-preset
+serialize/deserialize path read and write this property. The composer panel does **not**
+touch it — composer changes drive `!ex-*` shape keys directly and are transient unless saved
+as a `.json`.
 
 ---
 

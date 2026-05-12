@@ -110,8 +110,6 @@ class _Abstract_Asset_Library_Panel(bpy.types.Panel):
                     operator = box.operator("mpfb.load_library_proxy")
                 if self.asset_type == "bvh":
                     operator = box.operator("mpfb.load_library_pose")
-                if self.asset_type == "json" and self.asset_subdir == "expressions":
-                    operator = box.operator("mpfb.load_library_expression")
                 if self.asset_type == "json" and self.ink_overrides:
                     operator = box.operator("mpfb.load_library_ink")
                 if self.asset_type == "mhmat" and self.skin_overrides:

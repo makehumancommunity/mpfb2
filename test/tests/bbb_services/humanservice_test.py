@@ -1,4 +1,5 @@
 import bpy, os, json
+from bpy.props import FloatProperty
 from pytest import approx
 from .. import AssetService
 from .. import FaceService
@@ -7,6 +8,8 @@ from .. import HumanService
 from .. import MaterialService
 from .. import LocationService
 from .. import TargetService
+from .. import UiService
+from .. import dynamic_import
 
 HUMAN_PRESET_DICT = {
         "clothes": [
@@ -329,3 +332,80 @@ def test_apply_expressions_from_human_info_with_pack_applies_aggregated(tmp_path
         assert [r["asset"] for r in stored] == ["smile.json", "surprise.json"]
     finally:
         ObjectService.delete_object(basemesh)
+
+
+def test_apply_expressions_from_human_info_syncs_library_sliders(tmp_path, monkeypatch):
+    """After loading a preset, the expressions-library scene sliders must match the loaded stack.
+
+    The library panel registers one slider per discovered .json at addon load. The
+    deserialization flow has to push the loaded weights into those scene props (with the
+    panel's update callback suppressed) so the UI reflects the loaded character.
+    """
+    expressions_dir = tmp_path / "user" / "expressions"
+    os.makedirs(str(expressions_dir), exist_ok=True)
+
+    def _write(name, face_units):
+        with open(os.path.join(str(expressions_dir), name), "w", encoding="utf-8") as f:
+            json.dump({
+                "format_version": 1,
+                "name": name,
+                "face_units": face_units,
+                "description": "",
+                "tags": [],
+                "author": "",
+                "copyright": "",
+                "license": "",
+                "homepage": "",
+            }, f)
+
+    _write("smile.json", {"jawOpen": 0.4})
+    _write("surprise.json", {"browInnerUp": 0.5})
+
+    monkeypatch.setattr(AssetService, "get_available_data_roots", lambda: [str(tmp_path / "user")])
+    monkeypatch.setattr(FaceService, "is_faceunits01_installed", lambda force_recheck=False: True)
+
+    expression_prop_map = dynamic_import(
+        "mpfb.ui.apply_assets.useexpression", "_EXPRESSION_PROP_MAP"
+    )
+    make_slider_update = dynamic_import(
+        "mpfb.ui.apply_assets.useexpression", "_make_slider_update"
+    )
+
+    smile_id = UiService.as_valid_identifier("expr_smile.json")
+    surprise_id = UiService.as_valid_identifier("expr_surprise.json")
+    stale_id = UiService.as_valid_identifier("expr_stale.json")
+    for asset, identifier in [
+        ("smile.json", smile_id),
+        ("surprise.json", surprise_id),
+        ("stale.json", stale_id),
+    ]:
+        expression_prop_map[identifier] = {"asset": asset, "label": asset, "absolute_path": ""}
+        setattr(bpy.types.Scene, identifier, FloatProperty(
+            name=asset, default=0.0, min=0.0, max=1.0, update=make_slider_update(identifier),
+        ))
+
+    # Pre-set the stale slider non-zero to verify it gets reset to 0 on load.
+    setattr(bpy.context.scene, stale_id, 0.42)
+
+    basemesh = HumanService.create_human()
+    try:
+        _fabricate_ex_shape_keys(basemesh, ["jawOpen", "browInnerUp"])
+        human_info = {"expressions": [
+            {"asset": "smile.json", "weight": 0.7},
+            {"asset": "surprise.json", "weight": 0.3},
+        ]}
+        HumanService._apply_expressions_from_human_info(human_info, basemesh)
+
+        assert getattr(bpy.context.scene, smile_id) == approx(0.7)
+        assert getattr(bpy.context.scene, surprise_id) == approx(0.3)
+        # The slider for an asset not present in the loaded stack must be zeroed.
+        assert getattr(bpy.context.scene, stale_id) == approx(0.0)
+    finally:
+        ObjectService.delete_object(basemesh)
+        for identifier in [smile_id, surprise_id, stale_id]:
+            expression_prop_map.pop(identifier, None)
+            if hasattr(bpy.types.Scene, identifier):
+                try:
+                    delattr(bpy.types.Scene, identifier)
+                except (AttributeError, RuntimeError):
+                    pass

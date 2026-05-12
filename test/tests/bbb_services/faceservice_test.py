@@ -505,6 +505,85 @@ def test_clear_applied_expressions_empties_stack_and_values(tmp_path, monkeypatc
         ObjectService.delete_object(basemesh)
 
 
+def test_set_stack_weight_inserts_row(tmp_path, monkeypatch):
+    """set_stack_weight() inserts a row when the asset isn't yet on the stack."""
+    expressions_dir = tmp_path / "user" / "expressions"
+    _write_expression_file(expressions_dir, "smile.json", {"jawOpen": 0.4, "mouthSmileLeft": 0.6})
+    _patch_expressions_root(monkeypatch, expressions_dir)
+
+    basemesh = _make_basemesh_with_fake_faceunits(["jawOpen", "mouthSmileLeft"])
+    try:
+        FaceService.set_stack_weight(basemesh, "smile.json", 1.0)
+
+        stack = json.loads(basemesh.get("mpfb_applied_expressions", "[]"))
+        assert stack == [{"asset": "smile.json", "weight": 1.0}]
+        assert basemesh.data.shape_keys.key_blocks["!ex-jawOpen"].value == approx(0.4)
+        assert basemesh.data.shape_keys.key_blocks["!ex-mouthSmileLeft"].value == approx(0.6)
+    finally:
+        ObjectService.delete_object(basemesh)
+
+
+def test_set_stack_weight_upsert_latest_wins(tmp_path, monkeypatch):
+    """A second call for the same asset replaces the existing row (latest-wins)."""
+    expressions_dir = tmp_path / "user" / "expressions"
+    _write_expression_file(expressions_dir, "smile.json", {"jawOpen": 0.5})
+    _patch_expressions_root(monkeypatch, expressions_dir)
+
+    basemesh = _make_basemesh_with_fake_faceunits(["jawOpen"])
+    try:
+        FaceService.set_stack_weight(basemesh, "smile.json", 0.5)
+        FaceService.set_stack_weight(basemesh, "smile.json", 0.8)
+
+        stack = json.loads(basemesh.get("mpfb_applied_expressions", "[]"))
+        assert len(stack) == 1
+        assert stack[0]["asset"] == "smile.json"
+        assert stack[0]["weight"] == approx(0.8)
+        assert basemesh.data.shape_keys.key_blocks["!ex-jawOpen"].value == approx(0.4)
+    finally:
+        ObjectService.delete_object(basemesh)
+
+
+def test_set_stack_weight_zero_removes_row(tmp_path, monkeypatch):
+    """Setting weight to 0.0 removes the row entirely; the live values reflect the rest."""
+    expressions_dir = tmp_path / "user" / "expressions"
+    _write_expression_file(expressions_dir, "smile.json", {"jawOpen": 0.4})
+    _write_expression_file(expressions_dir, "surprise.json", {"browInnerUp": 0.5})
+    _patch_expressions_root(monkeypatch, expressions_dir)
+
+    basemesh = _make_basemesh_with_fake_faceunits(["jawOpen", "browInnerUp"])
+    try:
+        FaceService.set_stack_weight(basemesh, "smile.json", 1.0)
+        FaceService.set_stack_weight(basemesh, "surprise.json", 1.0)
+        FaceService.set_stack_weight(basemesh, "smile.json", 0.0)
+
+        stack = json.loads(basemesh.get("mpfb_applied_expressions", "[]"))
+        assert [r["asset"] for r in stack] == ["surprise.json"]
+        assert basemesh.data.shape_keys.key_blocks["!ex-jawOpen"].value == approx(0.0)
+        assert basemesh.data.shape_keys.key_blocks["!ex-browInnerUp"].value == approx(0.5)
+    finally:
+        ObjectService.delete_object(basemesh)
+
+
+def test_set_stack_weight_sorts_by_asset(tmp_path, monkeypatch):
+    """The written stack is sorted by asset regardless of insertion order."""
+    expressions_dir = tmp_path / "user" / "expressions"
+    _write_expression_file(expressions_dir, "zeta.json", {"jawOpen": 0.1})
+    _write_expression_file(expressions_dir, "alpha.json", {"jawOpen": 0.1})
+    _write_expression_file(expressions_dir, "mid.json", {"jawOpen": 0.1})
+    _patch_expressions_root(monkeypatch, expressions_dir)
+
+    basemesh = _make_basemesh_with_fake_faceunits(["jawOpen"])
+    try:
+        FaceService.set_stack_weight(basemesh, "zeta.json", 1.0)
+        FaceService.set_stack_weight(basemesh, "alpha.json", 1.0)
+        FaceService.set_stack_weight(basemesh, "mid.json", 1.0)
+
+        stack = json.loads(basemesh.get("mpfb_applied_expressions", "[]"))
+        assert [r["asset"] for r in stack] == ["alpha.json", "mid.json", "zeta.json"]
+    finally:
+        ObjectService.delete_object(basemesh)
+
+
 def test_list_available_expressions_user_root_wins(tmp_path, monkeypatch):
     """When the same relative path exists in multiple roots, the higher-priority root wins."""
     # Two roots; we set get_available_data_roots to return [low_priority, high_priority] — the

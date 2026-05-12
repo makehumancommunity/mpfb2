@@ -102,14 +102,6 @@ ASSET_LIBRARY_SECTIONS = [
             "object_type": "Pose",
             "eye_overrides": False,
             "skin_overrides": False
-            },
-        {
-            "bl_label": "Expressions library",
-            "asset_subdir": "expressions",
-            "asset_type": "json",
-            "object_type": "Other",
-            "eye_overrides": False,
-            "skin_overrides": False
             }
 
     ]
