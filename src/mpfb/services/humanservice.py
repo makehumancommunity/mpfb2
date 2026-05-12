@@ -239,7 +239,6 @@ class HumanService:
         deterministic JSON output. Empty list when the property is absent.
         """
         _LOG.enter()
-        # Lazy import to avoid creating a service-layer cycle at module load.
         from .faceservice import FaceService  # pylint: disable=C0415
         stack = FaceService._read_applied_expressions(basemesh)  # pylint: disable=W0212
         normalized = []

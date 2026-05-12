@@ -1,14 +1,4 @@
-"""Composer for ARKit-based facial expressions.
-
-Adds the ``MakeExpression`` panel under the ``Create assets`` parent panel. The panel exposes one
-slider per ARKit face unit (52 in total, grouped by region) plus metadata fields, and three
-operators (reset, save, load) that produce/consume the JSON format documented in
-``docs/fileformats/expression.md``.
-
-Slider properties are not defined as JSON files (they would be 52 near-identical files); they are
-built dynamically from ``ARKIT_FACEUNITS`` and registered with per-unit Blender ``update``
-callbacks so that dragging a slider drives the corresponding ``!ex-<name>`` shape key live.
-"""
+"""This module provides the composer panel for ARKit-based facial expressions."""
 
 import os, bpy
 
@@ -27,10 +17,7 @@ _LOG.trace("initializing makeexpression module")
 _ROOT = os.path.dirname(__file__)
 _PROPERTIES_DIR = os.path.join(_ROOT, "properties")
 
-# Module-level guard. The load operator flips this to True around its bulk slider assignment so the
-# 52 per-slider update callbacks no-op; the operator then calls FaceService.set_expression once on
-# the basemesh. Blender drives property-change callbacks on the main thread, so a plain global
-# flag is sufficient — concurrent slider drags are not possible.
+# Flipped by bulk slider writes to make the per-slider update callbacks no-op.
 _SUPPRESS_UPDATE = False
 
 
@@ -44,13 +31,7 @@ def _set_update_suppressed(value):
 
 
 def _make_slider_update(face_unit_name):
-    """Build an update callback for a single ARKit face unit slider.
-
-    The callback runs whenever the user drags the slider in the UI. It locates the basemesh among
-    the active object's nearest relatives and routes the new weight through
-    ``FaceService.set_expression`` — which handles on-demand shape key load if the corresponding
-    ``!ex-<name>`` shape key has not yet been created on the basemesh.
-    """
+    """Build an update callback for a single ARKit face unit slider."""
 
     def _update(self, context):
         if _is_update_suppressed():
@@ -73,9 +54,7 @@ def _make_slider_update(face_unit_name):
     return _update
 
 
-# Register all simple metadata properties + the overwrite toggle in one call.
-# `available_expression` needs an items_callback, so it is excluded here and
-# registered explicitly below.
+# `available_expression` needs an items_callback, so it is registered separately below.
 _definitions = [
     d for d in SceneConfigSet.get_definitions_in_json_directory(_PROPERTIES_DIR)
     if d.get("name") != "available_expression"
@@ -84,18 +63,11 @@ MakeExpressionProperties = SceneConfigSet(_definitions, prefix="EX_")  # pylint:
 
 
 def _populate_available_expressions(self, context):
-    """Items callback for the load_expression enum.
-
-    Delegates to ``FaceService.list_available_expressions`` so the composer, the use-panel
-    picker, and the asset library all share a single scan implementation. Items are tuples
-    of ``(absolute_path, library_relative_path, metadata)``; the enum needs only the absolute
-    path (as the enum value) and the relative path (as the visible label).
-    """
+    """Items callback for the load_expression enum."""
     _LOG.enter()
 
     enum_items = []
     for idx, (abs_path, rel_path, _metadata) in enumerate(FaceService.list_available_expressions()):
-        # Label is the relative path without the .json extension for readability.
         label = os.path.splitext(rel_path)[0]
         enum_items.append((abs_path, label, label, idx))
     return enum_items
@@ -110,9 +82,7 @@ MakeExpressionProperties.add_property(
     items_callback=_populate_available_expressions,
 )
 
-# 52 face-unit slider properties, generated dynamically from ARKIT_FACEUNITS. Each slider is a
-# float in [0, 1] with a per-unit update callback that drives the matching shape key on the
-# basemesh in real time.
+# 52 face-unit sliders are registered procedurally rather than as one JSON file each.
 for _name in ARKIT_FACEUNITS:
     _slider_def = {
         "type": "float",
@@ -142,9 +112,7 @@ def reset_slider_values(scene):
 
 
 def write_slider_values(scene, expression_dict):
-    """Write a {face_unit_name: weight} dict into the slider scene properties without triggering
-    the per-slider update callbacks. Caller is responsible for applying the values to the basemesh
-    in bulk afterwards (typically via FaceService.set_expression)."""
+    """Write a {face_unit_name: weight} dict into the slider scene properties without firing update callbacks."""
     _set_update_suppressed(True)
     try:
         for face_unit_name in ARKIT_FACEUNITS:

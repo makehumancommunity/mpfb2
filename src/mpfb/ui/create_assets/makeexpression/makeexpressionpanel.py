@@ -1,9 +1,4 @@
-"""Composer panel for ARKit-based facial expressions.
-
-Lives under the ``Create assets`` parent panel. The panel is hidden when the ``faceunits01`` asset
-pack is not installed (probed once per session via ``FaceService.is_faceunits01_installed``) or
-when the active object is not associated with a basemesh.
-"""
+"""File containing main UI for makeexpression."""
 
 import bpy
 

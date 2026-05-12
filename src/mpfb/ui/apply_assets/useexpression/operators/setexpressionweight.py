@@ -39,7 +39,6 @@ class MPFB_OT_Set_Expression_Weight_Operator(MpfbOperator):
             self.report({'ERROR'}, "No basemesh found")
             return {'CANCELLED'}
 
-        # Read, mutate, write back. Sorting + JSON-encoding happens in _write_applied_expressions.
         stack = FaceService._read_applied_expressions(basemesh)  # pylint: disable=W0212
         found = False
         new_stack = []

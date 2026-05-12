@@ -54,14 +54,10 @@ class MPFB_OT_Compose_Expression_Load_Operator(MpfbOperator):
             self.report({'ERROR'}, "Expression file does not exist: " + str(selected))
             return {'FINISHED'}
 
-        # Re-read metadata for the composer's metadata fields. apply_expression_file does its
-        # own load_expression internally for the face-unit values; this second call is cheap and
-        # keeps the helper's return contract simple.
+        # Re-read metadata so the composer's metadata fields can be restored below.
         _expr, metadata = FaceService.load_expression(selected)
 
-        # A composer load is a "replace what I'm composing with this file" action, so the stack
-        # is replaced with a single row (append=False). The helper handles clear + set + the
-        # composer slider mirror in one pass.
+        # A composer load replaces the stack rather than appending.
         try:
             FaceService.apply_expression_file(basemesh, selected, weight=1.0, append=False)
         except (IOError, ValueError) as exc:
@@ -69,7 +65,6 @@ class MPFB_OT_Compose_Expression_Load_Operator(MpfbOperator):
             self.report({'ERROR'}, f"Failed to load expression: {exc}")
             return {'CANCELLED'}
 
-        # Restore metadata fields.
         MakeExpressionProperties.set_value("expression_name", metadata.get("name", ""), entity_reference=scene)
         MakeExpressionProperties.set_value("description", metadata.get("description", ""), entity_reference=scene)
         tags = metadata.get("tags", [])

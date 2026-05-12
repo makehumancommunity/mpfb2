@@ -1,13 +1,4 @@
-"""Use-expression panel — apply saved ARKit expressions to a character.
-
-Lives under the ``Apply assets`` parent panel. Provides a persistent-stack model: one or more
-saved ``.json`` expressions can be applied with per-row weights, edited live, removed, or
-cleared. The stack lives in ``basemesh["mpfb_applied_expressions"]`` and round-trips through
-the human preset (see ``HumanService.serialize_to_json_string``).
-
-This module is parallel in structure to ``ui/apply_assets/assetlibrary/`` and intentionally
-*not* a sibling of the composer (the composer lives under ``ui/create_assets/``).
-"""
+"""This module provides the use-expression panel for applying saved ARKit expressions."""
 
 import os, bpy
 
@@ -20,12 +11,7 @@ _LOG.trace("initializing useexpression module")
 
 
 def _populate_picker_items(self, context):
-    """Items callback for the use-panel's expression picker enum.
-
-    Shares the scan with the composer via ``FaceService.list_available_expressions``. The
-    visible label is the library-relative path without ``.json``; metadata's ``description``
-    becomes the tooltip when available.
-    """
+    """Items callback for the use-panel's expression picker enum."""
     _LOG.enter()
     items = []
     for idx, (abs_path, rel_path, metadata) in enumerate(FaceService.list_available_expressions()):

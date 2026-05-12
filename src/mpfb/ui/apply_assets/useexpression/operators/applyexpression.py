@@ -40,8 +40,7 @@ class MPFB_OT_Apply_Expression_Operator(MpfbOperator):
             self.report({'ERROR'}, "No basemesh found")
             return {'CANCELLED'}
 
-        # If filepath wasn't supplied (e.g. when the operator is called from the panel via a
-        # button rather than the asset library), read from the picker enum.
+        # Fall back to the picker enum when no filepath was passed via the operator property.
         filepath = self.filepath
         if not filepath:
             from .. import UseExpressionProperties  # pylint: disable=C0415

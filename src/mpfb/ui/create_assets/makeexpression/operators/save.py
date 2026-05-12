@@ -53,7 +53,6 @@ class MPFB_OT_Compose_Expression_Save_Operator(MpfbOperator):
             self.report({'ERROR'}, "Name is invalid, must include alphanumeric characters")
             return {'FINISHED'}
 
-        # Read all 52 slider values from the scene.
         expression_dict = {}
         for face_unit_name in ARKIT_FACEUNITS:
             value = MakeExpressionProperties.get_value(face_unit_name, entity_reference=scene)

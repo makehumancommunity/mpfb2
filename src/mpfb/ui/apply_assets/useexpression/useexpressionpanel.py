@@ -1,9 +1,4 @@
-"""Use-expression panel — apply saved ARKit expressions to a character.
-
-Lives under the ``Apply assets`` parent panel. Reads the persistent stack from
-``basemesh["mpfb_applied_expressions"]`` and renders one row per applied expression with a
-weight slider and a remove button.
-"""
+"""File containing main UI for useexpression."""
 
 import json, bpy
 
@@ -63,10 +58,8 @@ class MPFB_PT_UseExpression_Panel(Abstract_Panel):
             weight = float(row.get("weight", 1.0))
             row_layout = box.row(align=True)
             row_layout.label(text=asset)
-            # The slider is a non-property control — its change fires the set_expression_weight
-            # operator with the new value. Blender's UI doesn't have a "slider that calls an
-            # operator on change" widget directly, so we render the current weight as a label
-            # plus two operators (one to bump up, one to bump down via the operator's dialog).
+            # Weight is rendered as a label + edit-operator because Blender has no "slider that
+            # calls an operator on change" widget.
             row_layout.label(text=f"{weight:.2f}")
             set_op = row_layout.operator("mpfb.set_expression_weight", text="", icon="GREASEPENCIL")
             set_op.asset = asset

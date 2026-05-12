@@ -35,7 +35,13 @@ class MPFB_OT_Remove_Expression_Operator(MpfbOperator):
             return {'CANCELLED'}
 
         stack = FaceService._read_applied_expressions(basemesh)  # pylint: disable=W0212
-        new_stack = [row for row in stack if isinstance(row, dict) and row.get("asset") != self.asset]
+        new_stack = []
+        for row in stack:
+            if not isinstance(row, dict):
+                continue
+            if row.get("asset") == self.asset:
+                continue
+            new_stack.append(row)
         FaceService._write_applied_expressions(basemesh, new_stack)  # pylint: disable=W0212
         FaceService.rebuild_expression_stack(basemesh)
 

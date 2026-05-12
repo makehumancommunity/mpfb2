@@ -530,10 +530,7 @@ class FaceService:
                 existing = basemesh.data.shape_keys.key_blocks.get(shape_key_name)
 
             if existing is None:
-                # Skip the on-demand target load if we'd be writing a zero — no point creating a
-                # shape key just to leave it neutral. This also keeps logs clean when the
-                # composer's per-slider update callback fires for a zero value (e.g. during the
-                # initial reset_slider_values() call).
+                # Don't load a target on demand just to write a zero into it.
                 if float(weight) == 0.0:
                     continue
                 full_path = TargetService.target_full_path(face_unit_name)
@@ -621,7 +618,6 @@ class FaceService:
         if not filename:
             raise ValueError("save_expression requires a filename")
 
-        # Resolve relative names under <user_data>/expressions/
         if os.path.dirname(filename):
             absolute_path = os.path.abspath(filename)
         else:
@@ -755,7 +751,6 @@ class FaceService:
                 does not break the picker.
         """
         _LOG.enter()
-        # Imported lazily to avoid a service-layer import cycle at module load.
         from .assetservice import AssetService  # pylint: disable=C0415
         roots = AssetService.get_asset_roots("expressions")
 
@@ -800,11 +795,13 @@ class FaceService:
                 non-zero clamped value. Empty if the input stack is empty.
         """
         _LOG.enter()
-        # Imported lazily to avoid a service-layer import cycle at module load.
         from .assetservice import AssetService  # pylint: disable=C0415
 
+        if not stack:
+            return {}
+
         aggregated = {}
-        for row in stack or []:
+        for row in stack:
             asset = row.get("asset") if isinstance(row, dict) else None
             if not asset:
                 _LOG.warn("Skipping stack row without an asset field", row)
@@ -867,8 +864,11 @@ class FaceService:
         """Sort the stack by asset and write it as a JSON-encoded string on the basemesh."""
         if basemesh is None:
             return
+        if not stack:
+            basemesh[APPLIED_EXPRESSIONS_PROP] = json.dumps([])
+            return
         normalized = []
-        for row in stack or []:
+        for row in stack:
             if not isinstance(row, dict):
                 continue
             asset = row.get("asset")
@@ -920,14 +920,20 @@ class FaceService:
         if not filename or not os.path.isfile(filename):
             raise IOError("Expression file does not exist: " + str(filename))
 
-        # Validate the file up-front so we don't mutate the stack on a bad file.
+        # Validate up-front so we don't mutate the stack on a bad file.
         FaceService.load_expression(filename)
 
         library_path = FaceService._compute_expression_library_relative_path(filename)
 
         if append:
-            stack = FaceService._read_applied_expressions(basemesh)
-            stack = [row for row in stack if isinstance(row, dict) and row.get("asset") != library_path]
+            existing = FaceService._read_applied_expressions(basemesh)
+            stack = []
+            for row in existing:
+                if not isinstance(row, dict):
+                    continue
+                if row.get("asset") == library_path:
+                    continue
+                stack.append(row)
             stack.append({"asset": library_path, "weight": float(weight)})
         else:
             stack = [{"asset": library_path, "weight": float(weight)}]
@@ -982,14 +988,7 @@ class FaceService:
 
     @staticmethod
     def _mirror_to_composer_sliders(expression_dict, write_zeros=False):
-        """Write an aggregated face-unit dict back into the composer's 52 scene properties.
-
-        Imported lazily because the composer lives in ``ui.create_assets.makeexpression`` and
-        importing the UI from a service at module load would invert MPFB's registration order.
-        When ``write_zeros`` is False, only the face units present in the dict are written —
-        but the composer's ``write_slider_values`` already fills missing entries with 0.0, so
-        an aggregated dict that omits zero face units is still correct.
-        """
+        """Write an aggregated face-unit dict back into the composer's 52 scene properties."""
         try:
             # pylint: disable=C0415
             from ..ui.create_assets.makeexpression import write_slider_values
