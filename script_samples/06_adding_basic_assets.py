@@ -32,7 +32,7 @@ basemesh = HumanService.create_human()
 
 # (subdir under the assets root, .mhclo filename, asset_type to assign)
 assets = [
-    ("eyes",      "brown.mhclo",       "Eyes"),
+    ("eyes",      "low-poly.mhclo",    "Eyes"),
     ("eyebrows",  "eyebrow001.mhclo",  "Eyebrows"),
     ("eyelashes", "eyelashes01.mhclo", "Eyelashes"),
     ("tongue",    "tongue01.mhclo",    "Tongue"),
