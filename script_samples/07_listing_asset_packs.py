@@ -18,22 +18,19 @@ def dynamic_import(absolute_package_str, key):
 # ------------------------------------------------------------------------------------------
 
 # Equivalent of imports
-HumanService = dynamic_import("mpfb.services.humanservice", "HumanService")
+AssetService = dynamic_import("mpfb.services.assetservice", "AssetService")
 
-# The built-in rigs that ship with MPFB live under src/mpfb/data/rigs/standard/ and can be
-# referenced by name. Available standard rigs:
-#
-#   "default"                  - the canonical MakeHuman rig
-#   "default_no_toes"          - same as default, but without individual toe bones
-#   "cmu_mb"                   - CMU motion capture compatible
-#   "game_engine"              - simplified rig suitable for game engines
-#   "game_engine_with_breast"  - game engine rig with extra breast bones
-#   "mixamo"                   - compatible with Adobe Mixamo
-#   "mixamo_unity"             - Mixamo variant tuned for Unity
-#   "openpose"                 - matches the OpenPose keypoint topology
-#
-# There is a separate example for rigify.
+# Asset packs are described by .json files dropped into the user data "packs" directory by
+# the pack installers. Force a fresh scan in case nothing has touched the cache yet in this
+# Blender session.
+AssetService.rescan_pack_metadata()
 
-basemesh = HumanService.create_human()
-
-rig = HumanService.add_builtin_rig(basemesh, "default")
+if not AssetService.have_any_pack_meta_data():
+    print("No asset packs are installed. See https://static.makehumancommunity.org/asset_packs/ for available packs.")
+else:
+    pack_names = AssetService.get_pack_names()
+    print(f"Found {len(pack_names)} installed asset pack(s):")
+    for pack_name in pack_names:
+        # get_asset_names_in_pack returns a sorted list of asset keys declared in the pack json.
+        asset_names = AssetService.get_asset_names_in_pack(pack_name)
+        print(f"  - {pack_name} ({len(asset_names)} assets)")

@@ -36,7 +36,7 @@ if mhmat_path is None:
         "Could not find young_caucasian_female.mhmat. "
         "Install the makehuman_system_assets pack and configure the assets directory in MPFB preferences.")
 
-# Valid skin_type values are "ENHANCED_SSS" (default), "MAKESKIN", "GAMEENGINE" and "LAYERED".
+# Valid skin_type values are "MAKESKIN", "GAMEENGINE", "ENHANCED_SSS" and "LAYERED".
 # MAKESKIN produces a single, easy-to-inspect node tree that is closest to the raw .mhmat file
 # and works the same across all renderers.
 HumanService.set_character_skin(mhmat_path, basemesh, skin_type="MAKESKIN")

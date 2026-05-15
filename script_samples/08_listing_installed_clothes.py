@@ -18,22 +18,21 @@ def dynamic_import(absolute_package_str, key):
 # ------------------------------------------------------------------------------------------
 
 # Equivalent of imports
-HumanService = dynamic_import("mpfb.services.humanservice", "HumanService")
+AssetService = dynamic_import("mpfb.services.assetservice", "AssetService")
 
-# The built-in rigs that ship with MPFB live under src/mpfb/data/rigs/standard/ and can be
-# referenced by name. Available standard rigs:
-#
-#   "default"                  - the canonical MakeHuman rig
-#   "default_no_toes"          - same as default, but without individual toe bones
-#   "cmu_mb"                   - CMU motion capture compatible
-#   "game_engine"              - simplified rig suitable for game engines
-#   "game_engine_with_breast"  - game engine rig with extra breast bones
-#   "mixamo"                   - compatible with Adobe Mixamo
-#   "mixamo_unity"             - Mixamo variant tuned for Unity
-#   "openpose"                 - matches the OpenPose keypoint topology
-#
-# There is a separate example for rigify.
+# AssetService maintains a cached, label-keyed dict of every .mhclo it found under each
+# configured asset root's "clothes" subdir. Force a refresh first so the listing reflects
+# the current state of the filesystem.
+AssetService.update_asset_list(asset_subdir="clothes", asset_type="mhclo")
+clothes = AssetService.get_asset_list(asset_subdir="clothes", asset_type="mhclo")
 
-basemesh = HumanService.create_human()
+# The same pattern works for any other asset_subdir, e.g. "eyes", "hair", "eyebrows",
+# "eyelashes", "tongue", "teeth", "proxymeshes" or "skins" (with asset_type="mhmat").
 
-rig = HumanService.add_builtin_rig(basemesh, "default")
+print(f"Found {len(clothes)} installed clothes asset(s):")
+for label in sorted(clothes.keys()):
+    item = clothes[label]
+    # Each entry holds the resolved label, the bare filename, and the absolute path.
+    print(f"  - {item['label']}")
+    print(f"      basename:  {item['basename']}")
+    print(f"      full_path: {item['full_path']}")
