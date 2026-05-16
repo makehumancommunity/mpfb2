@@ -1,0 +1,7 @@
+{
+    "type": "string",
+    "name": "copyright",
+    "description": "Copyright statement for the asset",
+    "label": "Copyright",
+    "default": ""
+}

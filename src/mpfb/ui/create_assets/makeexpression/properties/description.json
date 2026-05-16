@@ -1,0 +1,7 @@
+{
+    "type": "string",
+    "name": "description",
+    "description": "One- or two-sentence description of the expression, suitable for tooltip display",
+    "label": "Description",
+    "default": ""
+}

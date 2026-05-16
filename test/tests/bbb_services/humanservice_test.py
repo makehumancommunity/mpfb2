@@ -1,9 +1,15 @@
 import bpy, os, json
+from bpy.props import FloatProperty
 from pytest import approx
+from .. import AssetService
+from .. import FaceService
 from .. import ObjectService
 from .. import HumanService
 from .. import MaterialService
 from .. import LocationService
+from .. import TargetService
+from .. import UiService
+from .. import dynamic_import
 
 HUMAN_PRESET_DICT = {
         "clothes": [
@@ -190,3 +196,216 @@ def test_serialization():
     serialization_json = HumanService.serialize_to_json_string(basemesh)
     serilized_dict = json.loads(serialization_json)
     assert serilized_dict["hair"] == HUMAN_PRESET_DICT["hair"]
+
+
+def _fabricate_ex_shape_keys(basemesh, names):
+    """Add ``!ex-<name>`` shape keys to a basemesh without geometric content.
+
+    Mirrors the pattern used in ``faceservice_test._make_basemesh_with_fake_faceunits`` so
+    these tests stay pack-independent.
+    """
+    if not basemesh.data.shape_keys or "Basis" not in basemesh.data.shape_keys.key_blocks:
+        TargetService.create_shape_key(basemesh, "Basis", also_create_basis=False)
+    for name in names:
+        sk_name = TargetService.expression_name_to_shapekey_name(name)
+        if sk_name not in basemesh.data.shape_keys.key_blocks:
+            TargetService.create_shape_key(basemesh, sk_name, also_create_basis=False)
+        basemesh.data.shape_keys.key_blocks[sk_name].value = 0.0
+
+
+def test_serialize_excludes_ex_from_targets_and_emits_expressions_list():
+    """!ex-* shape keys must be excluded from `targets` and listed under `expressions`."""
+    basemesh = HumanService.create_human()
+    try:
+        _fabricate_ex_shape_keys(basemesh, ["jawOpen", "browInnerUp"])
+        # Non-zero values to confirm get_target_stack would otherwise include them.
+        basemesh.data.shape_keys.key_blocks["!ex-jawOpen"].value = 0.4
+        basemesh.data.shape_keys.key_blocks["!ex-browInnerUp"].value = 0.6
+        basemesh["mpfb_applied_expressions"] = json.dumps([
+            {"asset": "surprise.json", "weight": 0.3},
+            {"asset": "smile.json", "weight": 0.7},
+        ])
+
+        serialized = json.loads(HumanService.serialize_to_json_string(basemesh))
+        assert "expressions" in serialized
+        # Sorted by asset for deterministic output.
+        assert [r["asset"] for r in serialized["expressions"]] == ["smile.json", "surprise.json"]
+        assert serialized["expressions"][0]["weight"] == approx(0.7)
+        assert serialized["expressions"][1]["weight"] == approx(0.3)
+
+        # No !ex-* entries leak into the targets stack.
+        for entry in serialized["targets"]:
+            assert not entry["target"].startswith("!ex-"), entry
+    finally:
+        ObjectService.delete_object(basemesh)
+
+
+def test_serialize_populate_with_empty_property_yields_empty_list():
+    """A basemesh with no applied-expressions property serializes to an empty list."""
+    basemesh = HumanService.create_human()
+    try:
+        # No property set.
+        info = {}
+        HumanService._populate_human_info_with_expression_info(info, basemesh)
+        assert info["expressions"] == []
+    finally:
+        ObjectService.delete_object(basemesh)
+
+
+def test_apply_expressions_from_human_info_no_pack_stores_verbatim(monkeypatch):
+    """Without faceunits01 installed, the expressions list is stored on the basemesh but no
+    shape-key values are written (and no crash)."""
+    monkeypatch.setattr(FaceService, "is_faceunits01_installed", lambda force_recheck=False: False)
+
+    basemesh = HumanService.create_human()
+    try:
+        human_info = {"expressions": [
+            {"asset": "b.json", "weight": 0.4},
+            {"asset": "a.json", "weight": 0.6},
+        ]}
+        HumanService._apply_expressions_from_human_info(human_info, basemesh)
+
+        stored = json.loads(basemesh["mpfb_applied_expressions"])
+        # Sorted by asset, weights preserved.
+        assert [r["asset"] for r in stored] == ["a.json", "b.json"]
+        assert stored[0]["weight"] == approx(0.6)
+        # No !ex-* shape keys should have been created.
+        if basemesh.data.shape_keys and basemesh.data.shape_keys.key_blocks:
+            for block in basemesh.data.shape_keys.key_blocks:
+                assert not block.name.startswith("!ex-"), block.name
+    finally:
+        ObjectService.delete_object(basemesh)
+
+
+def test_apply_expressions_from_human_info_missing_key_is_noop():
+    """A preset without an `expressions` key must load without error and not touch the basemesh."""
+    basemesh = HumanService.create_human()
+    try:
+        HumanService._apply_expressions_from_human_info({}, basemesh)
+        assert "mpfb_applied_expressions" not in basemesh
+    finally:
+        ObjectService.delete_object(basemesh)
+
+
+def test_apply_expressions_from_human_info_with_pack_applies_aggregated(tmp_path, monkeypatch):
+    """With faceunits01 stubbed installed and fabricated !ex-* keys present, the aggregated
+    values are written via a single clear_expression + set_expression pass."""
+    # Build a fake expressions root and write two files.
+    expressions_dir = tmp_path / "user" / "expressions"
+    os.makedirs(str(expressions_dir), exist_ok=True)
+
+    def _write(name, face_units):
+        with open(os.path.join(str(expressions_dir), name), "w", encoding="utf-8") as f:
+            json.dump({
+                "format_version": 1,
+                "name": name,
+                "face_units": face_units,
+                "description": "",
+                "tags": [],
+                "author": "",
+                "copyright": "",
+                "license": "",
+                "homepage": "",
+            }, f)
+
+    _write("smile.json", {"jawOpen": 0.4, "mouthSmileLeft": 0.6})
+    _write("surprise.json", {"jawOpen": 0.3, "browInnerUp": 0.5})
+
+    monkeypatch.setattr(AssetService, "get_available_data_roots", lambda: [str(tmp_path / "user")])
+    monkeypatch.setattr(FaceService, "is_faceunits01_installed", lambda force_recheck=False: True)
+
+    basemesh = HumanService.create_human()
+    try:
+        _fabricate_ex_shape_keys(basemesh, ["jawOpen", "mouthSmileLeft", "browInnerUp"])
+        human_info = {"expressions": [
+            {"asset": "smile.json", "weight": 1.0},
+            {"asset": "surprise.json", "weight": 1.0},
+        ]}
+        HumanService._apply_expressions_from_human_info(human_info, basemesh)
+
+        # Live values are the aggregate, clamped.
+        assert basemesh.data.shape_keys.key_blocks["!ex-jawOpen"].value == approx(0.7)
+        assert basemesh.data.shape_keys.key_blocks["!ex-mouthSmileLeft"].value == approx(0.6)
+        assert basemesh.data.shape_keys.key_blocks["!ex-browInnerUp"].value == approx(0.5)
+        # And the list is stored verbatim, sorted.
+        stored = json.loads(basemesh["mpfb_applied_expressions"])
+        assert [r["asset"] for r in stored] == ["smile.json", "surprise.json"]
+    finally:
+        ObjectService.delete_object(basemesh)
+
+
+def test_apply_expressions_from_human_info_syncs_library_sliders(tmp_path, monkeypatch):
+    """After loading a preset, the expressions-library scene sliders must match the loaded stack.
+
+    The library panel registers one slider per discovered .json at addon load. The
+    deserialization flow has to push the loaded weights into those scene props (with the
+    panel's update callback suppressed) so the UI reflects the loaded character.
+    """
+    expressions_dir = tmp_path / "user" / "expressions"
+    os.makedirs(str(expressions_dir), exist_ok=True)
+
+    def _write(name, face_units):
+        with open(os.path.join(str(expressions_dir), name), "w", encoding="utf-8") as f:
+            json.dump({
+                "format_version": 1,
+                "name": name,
+                "face_units": face_units,
+                "description": "",
+                "tags": [],
+                "author": "",
+                "copyright": "",
+                "license": "",
+                "homepage": "",
+            }, f)
+
+    _write("smile.json", {"jawOpen": 0.4})
+    _write("surprise.json", {"browInnerUp": 0.5})
+
+    monkeypatch.setattr(AssetService, "get_available_data_roots", lambda: [str(tmp_path / "user")])
+    monkeypatch.setattr(FaceService, "is_faceunits01_installed", lambda force_recheck=False: True)
+
+    expression_prop_map = dynamic_import(
+        "mpfb.ui.apply_assets.useexpression", "_EXPRESSION_PROP_MAP"
+    )
+    make_slider_update = dynamic_import(
+        "mpfb.ui.apply_assets.useexpression", "_make_slider_update"
+    )
+
+    smile_id = UiService.as_valid_identifier("expr_smile.json")
+    surprise_id = UiService.as_valid_identifier("expr_surprise.json")
+    stale_id = UiService.as_valid_identifier("expr_stale.json")
+    for asset, identifier in [
+        ("smile.json", smile_id),
+        ("surprise.json", surprise_id),
+        ("stale.json", stale_id),
+    ]:
+        expression_prop_map[identifier] = {"asset": asset, "label": asset, "absolute_path": ""}
+        setattr(bpy.types.Scene, identifier, FloatProperty(
+            name=asset, default=0.0, min=0.0, max=1.0, update=make_slider_update(identifier),
+        ))
+
+    # Pre-set the stale slider non-zero to verify it gets reset to 0 on load.
+    setattr(bpy.context.scene, stale_id, 0.42)
+
+    basemesh = HumanService.create_human()
+    try:
+        _fabricate_ex_shape_keys(basemesh, ["jawOpen", "browInnerUp"])
+        human_info = {"expressions": [
+            {"asset": "smile.json", "weight": 0.7},
+            {"asset": "surprise.json", "weight": 0.3},
+        ]}
+        HumanService._apply_expressions_from_human_info(human_info, basemesh)
+
+        assert getattr(bpy.context.scene, smile_id) == approx(0.7)
+        assert getattr(bpy.context.scene, surprise_id) == approx(0.3)
+        # The slider for an asset not present in the loaded stack must be zeroed.
+        assert getattr(bpy.context.scene, stale_id) == approx(0.0)
+    finally:
+        ObjectService.delete_object(basemesh)
+        for identifier in [smile_id, surprise_id, stale_id]:
+            expression_prop_map.pop(identifier, None)
+            if hasattr(bpy.types.Scene, identifier):
+                try:
+                    delattr(bpy.types.Scene, identifier)
+                except (AttributeError, RuntimeError):
+                    pass

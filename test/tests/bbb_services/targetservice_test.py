@@ -61,3 +61,31 @@ def test_prune_shapekeys():
     TargetService.prune_shapekeys(obj)
 
     assert "yadayada" in obj.data.shape_keys.key_blocks
+
+
+def test_expression_name_to_shapekey_name():
+    """TargetService.expression_name_to_shapekey_name() prepends the !ex- prefix."""
+    assert TargetService.expression_name_to_shapekey_name("browDownLeft") == "!ex-browDownLeft"
+    assert TargetService.expression_name_to_shapekey_name("jawOpen") == "!ex-jawOpen"
+
+
+def test_shapekey_name_to_expression_name_strips_prefix():
+    """TargetService.shapekey_name_to_expression_name() strips !ex- and returns the bare name."""
+    assert TargetService.shapekey_name_to_expression_name("!ex-jawOpen") == "jawOpen"
+    assert TargetService.shapekey_name_to_expression_name("!ex-mouthSmileLeft") == "mouthSmileLeft"
+
+
+def test_shapekey_name_to_expression_name_returns_none_for_non_expression():
+    """TargetService.shapekey_name_to_expression_name() returns None for non-expression names."""
+    assert TargetService.shapekey_name_to_expression_name("Basis") is None
+    assert TargetService.shapekey_name_to_expression_name("$md-foo") is None
+    assert TargetService.shapekey_name_to_expression_name("hip-waist-up") is None
+    assert TargetService.shapekey_name_to_expression_name("") is None
+    assert TargetService.shapekey_name_to_expression_name(None) is None
+
+
+def test_expression_naming_helpers_round_trip():
+    """expression_name_to_shapekey_name/shapekey_name_to_expression_name are inverses."""
+    for name in ["browInnerUp", "cheekPuff", "tongueOut", "eyeWideRight"]:
+        sk = TargetService.expression_name_to_shapekey_name(name)
+        assert TargetService.shapekey_name_to_expression_name(sk) == name

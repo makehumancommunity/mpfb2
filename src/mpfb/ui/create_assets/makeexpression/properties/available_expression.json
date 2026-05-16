@@ -1,0 +1,7 @@
+{
+    "type": "enum",
+    "name": "available_expression",
+    "description": "Available saved expressions. User-saved expressions take priority over system-shipped ones with the same name",
+    "label": "Expression",
+    "default": null
+}

@@ -1,0 +1,7 @@
+{
+    "type": "boolean",
+    "name": "overwrite",
+    "description": "If an existing expression file with the same name exists, overwrite it",
+    "label": "Overwrite",
+    "default": false
+}

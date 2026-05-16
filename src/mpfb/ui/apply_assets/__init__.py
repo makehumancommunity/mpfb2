@@ -4,4 +4,5 @@ _LOG.trace("initializing apply_assets module")
 
 from .assetspanel import MPFB_PT_Assets_Panel  # parent panel — must be first
 from .assetlibrary import *
+from .useexpression import *
 from .loadclothes import *

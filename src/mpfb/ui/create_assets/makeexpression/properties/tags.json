@@ -1,0 +1,7 @@
+{
+    "type": "string",
+    "name": "tags",
+    "description": "Comma-separated list of free-form tags for the asset library tag filter",
+    "label": "Tags",
+    "default": ""
+}
