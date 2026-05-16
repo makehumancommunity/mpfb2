@@ -87,6 +87,13 @@ class MPFB_OT_Compose_Expression_Save_Operator(MpfbOperator):
             return {'FINISHED'}
 
         FaceService.save_expression(absolute_file_path, expression_dict, metadata)
+
+        try:
+            from .....ui.apply_assets.useexpression import refresh_expression_sliders  # pylint: disable=C0415
+            refresh_expression_sliders()
+        except Exception as exc:  # pylint: disable=W0703
+            _LOG.warn("Could not refresh expression library sliders after save", exc)
+
         self.report({'INFO'}, "Expression written to " + absolute_file_path)
         return {'FINISHED'}
 

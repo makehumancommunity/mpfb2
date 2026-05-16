@@ -129,6 +129,34 @@ def _register_expression_sliders():
 _register_expression_sliders()
 
 
+def refresh_expression_sliders(force_redraw=True):
+    """Re-scan expression assets and register scene props for any new ones.
+
+    Returns the number of newly registered sliders. The underlying registration
+    is idempotent, so calling this repeatedly is safe.
+    """
+    _LOG.enter()
+    before = len(_EXPRESSION_PROP_MAP)
+    _register_expression_sliders()
+    added = len(_EXPRESSION_PROP_MAP) - before
+
+    if force_redraw and added > 0:
+        try:
+            wm = bpy.context.window_manager
+            if wm is not None:
+                for window in wm.windows:
+                    screen = window.screen
+                    if screen is None:
+                        continue
+                    for area in screen.areas:
+                        if area.type == 'VIEW_3D':
+                            area.tag_redraw()
+        except Exception as exc:  # pylint: disable=W0703
+            _LOG.warn("Could not tag VIEW_3D areas for redraw after slider refresh", exc)
+
+    return added
+
+
 def write_slider_values(scene, applied_stack):
     """Write a list of {"asset": ..., "weight": ...} rows into the registered scene props.
 
@@ -168,5 +196,6 @@ from .useexpressionpanel import MPFB_PT_ExpressionsLibrary_Panel  # noqa: E402
 __all__ = [
     "MPFB_PT_ExpressionsLibrary_Panel",
     "ExpressionsLibraryProperties",
+    "refresh_expression_sliders",
     "write_slider_values",
 ]
