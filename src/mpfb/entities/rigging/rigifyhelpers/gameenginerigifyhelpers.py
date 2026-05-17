@@ -1,3 +1,8 @@
+# Part of the legacy "convert to rigify" workflow. This workflow is discouraged
+# in new projects; it remains supported only because it is the only viable
+# rigify path for characters imported from MakeHuman. For new characters, use
+# the modern workflow on the Rigging panel (Add rigify metarig + Generate).
+
 """This module contains the gameengine rig's implementation of the rigify helpers class"""
 
 from ....services import LogService

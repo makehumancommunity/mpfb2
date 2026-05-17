@@ -1,3 +1,8 @@
+# Part of the legacy "convert to rigify" workflow. This workflow is discouraged
+# in new projects; it remains supported only because it is the only viable
+# rigify path for characters imported from MakeHuman. For new characters, use
+# the modern workflow on the Rigging panel (Add rigify metarig + Generate).
+
 """This module provides functionality for converting a rig to rigify.
 
 The code is based on an approach suggested by Andrea Rossato in https://www.youtube.com/watch?v=zmsuLD7hAUA

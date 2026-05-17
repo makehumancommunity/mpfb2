@@ -1,4 +1,4 @@
-"""Tests for the Convert to Rigify operator.
+"""Tests for the Convert to Rigify operator (now hosted under Operations > Rig operations).
 
 The execute test uses the default rig (not the game-engine skeleton), so the operator
 reports an error about unsupported skeleton type — this is the expected, safe path.
@@ -9,7 +9,7 @@ from .... import dynamic_import, ObjectService
 from ..._helpers import MockOperatorBase, HumanWithRigFixture
 
 MPFB_OT_Convert_To_Rigify_Operator = dynamic_import(
-    "mpfb.ui.rigging.rigify.operators.converttorigify",
+    "mpfb.ui.operations.rigops.operators.converttorigify",
     "MPFB_OT_Convert_To_Rigify_Operator",
 )
 

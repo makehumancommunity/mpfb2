@@ -4,7 +4,7 @@
 
 `RigifyHelpers` converts an MPFB rig to a Rigify metarig by configuring `rigify_type` and `rigify_parameters` on each pose bone, then optionally generating the final production rig. 
 
-**Note that this is the old and stupid way of doing things: to first create a GameEngine rig and then convert it. There is no reason to use this for any other rigify-related workflow.**
+**Note that this is the old and stupid way of doing things: to first create a GameEngine rig and then convert it. There is no reason to use this for any other rigify-related workflow.** Both source files carry a discouraged-workflow header comment reflecting that the entire reason these classes exist is the legacy convert flow; the UI for that flow lives in [Rig operations](../../ui/operations/rigops.md).
 
 The `convert_to_rigify` method is the main entry point; it calls internal setup methods for spine, arms, legs, shoulders, head, and fingers in sequence.
 

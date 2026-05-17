@@ -1,3 +1,8 @@
+# Part of the legacy "convert to rigify" workflow. This workflow is discouraged
+# in new projects; it remains supported only because it is the only viable
+# rigify path for characters imported from MakeHuman. For new characters, use
+# the modern workflow on the Rigging panel (Add rigify metarig + Generate).
+
 from .....services import LogService
 from .....services import ObjectService
 from .....services import RigService
@@ -8,11 +13,11 @@ from ....pollstrategy import pollstrategy, PollStrategy
 from ....mpfboperator import MpfbOperator
 import bpy, json
 
-_LOG = LogService.get_logger("rigify.operators.converttorigify")
+_LOG = LogService.get_logger("rigops.operators.converttorigify")
 
 @pollstrategy(PollStrategy.RIG_ACTIVE)
 class MPFB_OT_Convert_To_Rigify_Operator(MpfbOperator):
-    """Convert rig to rigify"""
+    """Convert a MakeHuman-imported Game Engine rig to a Rigify rig. This is the legacy workflow; new characters should use the modern Add rigify metarig + Generate flow on the Rigging panel"""
     bl_idname = "mpfb.convert_to_rigify"
     bl_label = "Rigify"
     bl_options = {'REGISTER', 'UNDO'}
@@ -40,7 +45,7 @@ class MPFB_OT_Convert_To_Rigify_Operator(MpfbOperator):
 
         bpy.ops.object.transform_apply(location=True, scale=False, rotation=False)
 
-        from ...rigify.rigifypanel import RIGIFY_PROPERTIES
+        from ..rigopspanel import RIGIFY_PROPERTIES
         settings = RIGIFY_PROPERTIES.as_dict(entity_reference=context.scene)
 
         helpers = RigifyHelpers.get_instance(settings)

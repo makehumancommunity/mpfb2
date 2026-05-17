@@ -9,7 +9,7 @@
 The "Add rig" panel attaches a skeleton to an existing character basemesh. Three distinct workflows are offered:
 
 - **Standard rigs** — a set of built-in, pre-weighted rigs suitable for most use cases (default, game engine, Mixamo, etc.).
-- **Rigify metarigs** — adds one of the MPFB-customised Rigify metarigs. The metarig must then be converted into a functional rig using the separate Generate button, or via the [Convert to rigify](rigify.md) panel.
+- **Rigify metarigs** — adds one of the MPFB-customised Rigify metarigs. The metarig must then be converted into a functional rig using the separate Generate button, or via the [Rig operations](../operations/rigops.md) panel.
 - **Custom rigs** — user-supplied rig definition files from the asset library, if any exist.
 
 The panel requires the basemesh to be the active object (poll strategy: `BASEMESH_ACTIVE`).
@@ -56,7 +56,7 @@ Adds the rig selected in `standard_rig` to the active basemesh using `HumanServi
 | `bl_options` | `{'REGISTER', 'UNDO'}` |
 | Poll | `BASEMESH_ACTIVE` |
 
-Adds one of the MPFB Rigify metarigs to the active basemesh. The rig name passed to `HumanService.add_builtin_rig()` is `"rigify." + rigify_rig` (e.g. `"rigify.human_toes"`). Requires the Rigify addon to be enabled. The result is a metarig — it must be converted into a functional rig using the **Generate** button below or via the [Convert to rigify](rigify.md) panel.
+Adds one of the MPFB Rigify metarigs to the active basemesh. The rig name passed to `HumanService.add_builtin_rig()` is `"rigify." + rigify_rig` (e.g. `"rigify.human_toes"`). Requires the Rigify addon to be enabled. The result is a metarig — it must be converted into a functional rig using the **Generate** button below or via the [Rig operations](../operations/rigops.md) panel.
 
 ---
 
@@ -113,5 +113,5 @@ Attaches a custom rig from the user's asset library. Calls `HumanService.add_cus
 
 ## Related
 
-- [rigify.md](rigify.md) — alternative Rigify workflow that converts an existing Game Engine rig
+- [rigops.md](../operations/rigops.md) — alternative Rigify workflow that converts an existing Game Engine rig (legacy, for MakeHuman-imported characters)
 - [RigService](../../services/rigservice.md) — the service that handles rig creation and management

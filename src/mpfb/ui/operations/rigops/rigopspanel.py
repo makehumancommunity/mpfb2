@@ -1,4 +1,9 @@
-"""This is the UI for the convert to rigify functionality."""
+# Part of the legacy "convert to rigify" workflow. This workflow is discouraged
+# in new projects; it remains supported only because it is the only viable
+# rigify path for characters imported from MakeHuman. For new characters, use
+# the modern workflow on the Rigging panel (Add rigify metarig + Generate).
+
+"""UI for the legacy "convert to rigify" workflow, hosted under Operations."""
 
 from .... import ClassManager
 from ....services import LogService
@@ -9,19 +14,19 @@ from ....services import SystemService
 from ...abstractpanel import Abstract_Panel
 import bpy, os
 
-_LOG = LogService.get_logger("ui.rigifypanel")
+_LOG = LogService.get_logger("ui.rigopspanel")
 
 _LOC = os.path.dirname(__file__)
 RIGIFY_PROPERTIES_DIR = os.path.join(_LOC, "properties")
 RIGIFY_PROPERTIES = SceneConfigSet.from_definitions_in_json_directory(RIGIFY_PROPERTIES_DIR, prefix="RF_")
 
-class MPFB_PT_Rigify_Panel(Abstract_Panel):
-    """The rigfy functionality panel."""
+class MPFB_PT_Rig_Operations_Panel(Abstract_Panel):
+    """The rig operations panel, hosting the legacy convert-to-rigify workflow."""
 
-    bl_label = "Convert to rigify"
-    bl_category = UiService.get_value("RIGCATEGORY")
+    bl_label = "Rig operations"
+    bl_category = UiService.get_value("OPERATIONSCATEGORY")
     bl_options = {'DEFAULT_CLOSED'}
-    bl_parent_id = "MPFB_PT_Rig_Panel"
+    bl_parent_id = "MPFB_PT_Operations_Panel"
 
     def draw(self, context):
         _LOG.enter()
@@ -31,7 +36,8 @@ class MPFB_PT_Rigify_Panel(Abstract_Panel):
             if not SystemService.check_for_rigify():
                 layout.label(text="Rigify is not enabled")
             else:
+                layout.label(text="Legacy work flow.", icon="INFO")
                 RIGIFY_PROPERTIES.draw_properties(scene, layout, ["name", "produce", "keep_meta"])
                 layout.operator("mpfb.convert_to_rigify")
 
-ClassManager.add_class(MPFB_PT_Rigify_Panel)
+ClassManager.add_class(MPFB_PT_Rig_Operations_Panel)

@@ -144,6 +144,6 @@ documented appear with plain text class names.
 | `rigging/applypose/operators/loadpose.py` | `mpfb.load_pose` | "Load pose" | [MPFB_OT_Load_Pose_Operator](rigging/applypose.md) | `MpfbOperator` |
 | `rigging/righelpers/operators/addhelpers.py` | `mpfb.add_helpers` | "Add helpers" | [MPFB_OT_AddHelpersOperator](rigging/righelpers.md) | `MpfbOperator` |
 | `rigging/righelpers/operators/removehelpers.py` | `mpfb.remove_helpers` | "Remove helpers" | [MPFB_OT_RemoveHelpersOperator](rigging/righelpers.md) | `MpfbOperator` |
-| `rigging/rigify/operators/converttorigify.py` | `mpfb.convert_to_rigify` | "Rigify" | [MPFB_OT_Convert_To_Rigify_Operator](rigging/rigify.md) | `MpfbOperator` |
+| `operations/rigops/operators/converttorigify.py` | `mpfb.convert_to_rigify` | "Rigify" | [MPFB_OT_Convert_To_Rigify_Operator](operations/rigops.md) | `MpfbOperator` |
 | `system/dirresources/operators/dirresource.py` | `mpfb.dir_resource` | "Open" | [MPFB_OT_Dir_Resource_Operator](system/dirresources.md) | `MpfbOperator` |
 | `system/webresources/operators/webresource.py` | `mpfb.web_resource` | "Open" | [MPFB_OT_Web_Resource_Operator](system/webresources.md) | `MpfbOperator` |
