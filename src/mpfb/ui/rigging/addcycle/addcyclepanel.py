@@ -15,6 +15,7 @@ class MPFB_PT_Add_Cycle_Panel(Abstract_Panel):
     bl_label = "Add walk cycle"
     bl_category = UiService.get_value("MODELCATEGORY")
     bl_parent_id = "MPFB_PT_Rig_Panel"
+    bl_options = {'DEFAULT_CLOSED'}
 
     def _load_cycle(self, scene, layout):
         box = self._create_box(layout, "Load walk cycle", "TOOL_SETTINGS")

@@ -19,8 +19,11 @@ The original intent of this section was to load a pre-authored walk cycle animat
 | `bl_label` | "Add walk cycle" |
 | `bl_category` | `MODELCATEGORY` |
 | `bl_parent_id` | `MPFB_PT_Rig_Panel` |
+| `bl_options` | `{'DEFAULT_CLOSED'}` |
 | Base class | `Abstract_Panel` |
 | Poll | Visible when the active object has a skeleton amongst its nearest relatives |
+
+The panel is collapsed by default since it only contains the deprecation notice.
 
 The `draw()` method displays a single box containing the message:
 

@@ -105,4 +105,4 @@ Mirrors weight values from the negative-X side of the mesh to the corresponding 
 ## Related
 
 - [MakeRig](makerig.md) — load/save rig and weight files as part of the rig authoring workflow
-- [Rigging — Add Rig](../rigging/addrig.md) — attaches a rig and its associated weight file to a character
+- [Rigging — Standard rig](../rigging/standardrig.md) — attaches a standard rig and its associated weight file to a character

@@ -64,5 +64,5 @@ The `bl_idname` (`mpfb.convert_to_rigify`) is preserved from the prior location 
 
 ## Related
 
-- [addrig.md](../rigging/addrig.md) — the modern Rigify workflow (add metarig + generate)
+- [rigifyrig.md](../rigging/rigifyrig.md) — the modern Rigify workflow (add metarig + generate)
 - [RigifyHelpers](../../entities/rigging/rigifyhelpers.md) — the entity class that implements the conversion logic
