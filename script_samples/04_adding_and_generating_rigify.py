@@ -21,9 +21,8 @@ import bpy
 
 # Equivalent of imports
 HumanService = dynamic_import("mpfb.services.humanservice", "HumanService")
+RigService = dynamic_import("mpfb.services.rigservice", "RigService")
 SystemService = dynamic_import("mpfb.services.systemservice", "SystemService")
-RigifyHelpers = dynamic_import("mpfb.entities.rigging.rigifyhelpers.rigifyhelpers", "RigifyHelpers")
-GeneralObjectProperties = dynamic_import("mpfb.entities.objectproperties", "GeneralObjectProperties")
 
 # Rigify is shipped with Blender but must be enabled under Preferences -> Add-ons.
 # Bail out cleanly if it isn't available rather than trace-backing inside rigify_generate().
@@ -42,34 +41,12 @@ if not SystemService.check_for_rigify():
 basemesh = HumanService.create_human()
 metarig = HumanService.add_builtin_rig(basemesh, "rigify.human")
 
-# bpy.ops.pose.rigify_generate() reads its input from the active object, so make sure the
-# metarig is selected and active, and that we are in Object mode.
-bpy.ops.object.select_all(action='DESELECT')
-metarig.select_set(True)
-bpy.context.view_layer.objects.active = metarig
-bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
-
-# Newer rigify versions split the face rig into a separate sub-rig; upgrade if available.
-if bpy.ops.pose.rigify_upgrade_face.poll():
-    bpy.ops.pose.rigify_upgrade_face()
-
-# Generate the control rig. After this call, the active object is the generated rig
-# (typically named "RIG-Human.rigify").
-bpy.ops.pose.rigify_generate()
-rigify_object = bpy.context.active_object
-rigify_object.show_in_front = True
-rigify_object.parent = metarig.parent
-
-# Re-parent the basemesh (and any sub-rigs / assets) from the metarig to the generated rig
-# and remap their Armature modifiers / constraints accordingly.
-RigifyHelpers.adjust_children_for_rigify(rigify_object, metarig)
-
-# Tell MPFB that the new object is a Skeleton so downstream features (pose loading,
-# export, ...) recognise it.
-GeneralObjectProperties.set_value("object_type", "Skeleton", entity_reference=rigify_object)
-
-# Remove the now-superfluous metarig.
-bpy.data.objects.remove(metarig, do_unlink=True)
+# Generate the full rigify rig. RigService.generate_rigify_rig handles everything that
+# the UI operator does: selecting the meta rig, optionally upgrading the face rig,
+# validating with rigify.utils.rig.is_valid_metarig, running pose.rigify_generate,
+# re-parenting the new rig, calling RigifyHelpers.adjust_children_for_rigify, copying
+# object_type onto the rigify rig, and optionally deleting the meta rig.
+rigify_object = RigService.generate_rigify_rig(metarig, delete_meta_rig=True)
 
 # Leave the generated rig as the active selection.
 bpy.ops.object.select_all(action='DESELECT')
