@@ -1,0 +1,7 @@
+{
+    "type": "boolean",
+    "name": "auto_generate",
+    "description": "Recommended: also generate the full rigify rig directly after the meta rig has been added. Disable this to get only the meta rig and use the two-step workflow",
+    "label": "Also generate full rig",
+    "default": true
+}

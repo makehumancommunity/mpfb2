@@ -1042,6 +1042,93 @@ class RigService:
         return [rig_type, *fallback_table.get(rig_type, [])]
 
     @staticmethod
+    def generate_rigify_rig(meta_rig, *, name: str = "", delete_meta_rig: bool = False):
+        """Run rigify generation on `meta_rig` and return the generated rigify rig.
+
+        Caller is responsible for verifying that `meta_rig` is a rigify meta rig
+        (typically via `RigService.identify_rig()`) and that the rigify addon is
+        enabled (typically via `SystemService.check_for_rigify()`). The helper
+        additionally calls `rigify.utils.rig.is_valid_metarig` as a final gate;
+        if Rigify itself considers the meta rig invalid, the helper returns
+        `None` without running `pose.rigify_generate`.
+
+        Args:
+            meta_rig (bpy.types.Object): The rigify meta rig armature.
+            name (str): Optional basename for the generated rig.
+            delete_meta_rig (bool): Whether to delete the meta rig after a
+                successful generation.
+
+        Returns:
+            bpy.types.Object: The generated (or in-place updated) rigify rig,
+            or None if `is_valid_metarig` rejected the meta rig.
+        """
+        _LOG.enter()
+        from ..entities.rigging.rigifyhelpers.rigifyhelpers import RigifyHelpers  # pylint: disable=C0415
+        from ..entities.objectproperties import GeneralObjectProperties  # pylint: disable=C0415
+
+        explicit_name = str(name).strip()
+
+        # If the metarig is named incorrectly (e.g. in case of sub-rigs), rename it
+        if meta_rig.name.endswith(".rig"):
+            meta_rig.name = meta_rig.data.name = meta_rig.name.replace(".rig", ".metarig")
+
+        if explicit_name:
+            if hasattr(meta_rig.data, 'rigify_rig_basename'):
+                meta_rig.data.rigify_rig_basename = explicit_name
+            else:
+                meta_rig.name = explicit_name.replace("rig", "metarig")
+
+        elif hasattr(meta_rig.data, 'rigify_generate_mode'):
+            # Try to preserve fix for issue #17 in legacy rigify, which has issues if the object exists.
+            fallback_name = meta_rig.name.replace("metarig", "rig")
+            meta_rig.data.rigify_rig_basename = ObjectService.ensure_unique_name(fallback_name)
+
+        bpy.ops.object.select_all(action='DESELECT')
+        meta_rig.select_set(True)
+        bpy.context.view_layer.objects.active = meta_rig
+        if bpy.context.mode != 'OBJECT':
+            bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
+
+        # Switch to the new face rig
+        if bpy.ops.pose.rigify_upgrade_face.poll():
+            bpy.ops.pose.rigify_upgrade_face()
+
+        # Final validity gate: defer to Rigify itself. Import is guarded the same
+        # way SystemService.check_for_rigify() guards: Rigify may not be enabled.
+        try:
+            from rigify.utils.rig import is_valid_metarig  # pylint: disable=C0415
+        except ImportError:
+            _LOG.warn("Could not import rigify.utils.rig.is_valid_metarig, skipping validity check")
+            is_valid_metarig = None
+
+        if is_valid_metarig is not None and not is_valid_metarig(bpy.context):
+            _LOG.warn("Rigify considers the meta rig invalid; not running rigify_generate")
+            return None
+
+        bpy.ops.pose.rigify_generate()  # Rigify availability checked by caller
+
+        rigify_object = bpy.context.active_object
+        rigify_object.show_in_front = True
+        rigify_object.parent = meta_rig.parent
+
+        _LOG.debug("rigify", rigify_object)
+
+        RigifyHelpers.adjust_children_for_rigify(rigify_object, meta_rig)
+
+        object_type = ObjectService.get_object_type(meta_rig)
+        GeneralObjectProperties.set_value("object_type", object_type, entity_reference=rigify_object)
+
+        if delete_meta_rig:
+            objs = bpy.data.objects
+            objs.remove(objs[meta_rig.name], do_unlink=True)
+
+        rigify_object.select_set(True)
+        bpy.context.view_layer.objects.active = rigify_object
+        bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
+
+        return rigify_object
+
+    @staticmethod
     def mirror_bone_weights_to_other_side_bone(armature_object, source_bone_name, target_bone_name):
         """
         Mirror bone weights from one side bone to the other side bone.

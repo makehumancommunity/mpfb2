@@ -1,0 +1,7 @@
+{
+    "type": "boolean",
+    "name": "auto_generate_rigify",
+    "description": "Recommended: if the loaded character ends up with a rigify meta rig, also generate the full rigify rig from it. Disable this to get only the meta rig and run Generate manually later",
+    "label": "If rigify, also generate",
+    "default": true
+}

@@ -37,9 +37,14 @@ class MPFB_PT_Rigify_Rig_Panel(Abstract_Panel):
         box.label(text="rigify-based characters.")
         props = [
             "rigify_rig",
-            "import_weights_rigify"
+            "import_weights_rigify",
+            "name",
+            "auto_generate",
             ]
         RIGIFY_RIG_PROPERTIES.draw_properties(scene, box, props)
+        keep_row = box.row()
+        keep_row.enabled = bool(RIGIFY_RIG_PROPERTIES.get_value("auto_generate", entity_reference=scene))
+        RIGIFY_RIG_PROPERTIES.draw_properties(scene, keep_row, ["keep_meta_rig"])
         box.operator('mpfb.add_rigify_rig')
 
     def _generate_rigify_rig(self, scene, layout):

@@ -3,6 +3,7 @@
 from .....services import HumanService
 from .....services import LogService
 from .....services import ObjectService
+from .....services import RigService
 from .....services import SystemService
 from ..... import ClassManager
 from ....pollstrategy import pollstrategy, PollStrategy
@@ -35,9 +36,30 @@ class MPFB_OT_AddRigifyRigOperator(MpfbOperator):
             self.report({'ERROR'}, "Rigs can only be added to the base mesh")
             return {'FINISHED'}
 
-        HumanService.add_builtin_rig(ctx.basemesh, "rigify." + ctx.rigify_rig, import_weights=ctx.import_weights_rigify, operator=self)
+        meta_rig = HumanService.add_builtin_rig(ctx.basemesh, "rigify." + ctx.rigify_rig, import_weights=ctx.import_weights_rigify, operator=self)
 
-        self.report({'INFO'}, "A rig was added")
+        if not ctx.auto_generate:
+            self.report({'INFO'}, "A rig was added")
+            return {'FINISHED'}
+
+        if meta_rig is None:
+            meta_rig = ObjectService.find_object_of_type_amongst_nearest_relatives(ctx.basemesh, "Skeleton")
+
+        if meta_rig is None:
+            self.report({'WARNING'}, "Rig was added but the meta rig could not be located for auto-generation.")
+            return {'FINISHED'}
+
+        rigify_object = RigService.generate_rigify_rig(
+            meta_rig,
+            name=ctx.name,
+            delete_meta_rig=not bool(ctx.keep_meta_rig),
+        )
+
+        if rigify_object is None:
+            self.report({'WARNING'}, "Meta rig was added but Rigify considers it invalid; the full rig was not generated.")
+            return {'FINISHED'}
+
+        self.report({'INFO'}, "A rig was added and generated")
         return {'FINISHED'}
 
 ClassManager.add_class(MPFB_OT_AddRigifyRigOperator)
