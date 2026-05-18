@@ -1017,6 +1017,32 @@ class RigService:
         return guessed_rig
 
     @staticmethod
+    def infer_metarig_type_from_generated(rigify_object):
+        """
+        Infer the corresponding rigify meta-rig type for a generated rigify rig.
+
+        This is the inverse of the `rigify_generated.*` rows in `identify_rig` and is used
+        when a generated rigify rig needs to be serialized back to a meta-rig type string
+        (for example when saving a character whose only remaining rig is a generated one).
+
+        Args:
+            rigify_object (bpy.types.Object): The generated rigify rig armature. Caller is
+                responsible for verifying that this is in fact a generated rigify rig,
+                typically via `ObjectService.object_is_generated_rigify_rig`.
+
+        Returns:
+            str | None: `"rigify.human_toes"`, `"rigify.human"`, or `None` if no
+            recognisable signature matches.
+        """
+        _LOG.enter()
+        bones = rigify_object.data.bones
+        if "ORG-brow.T.R.002" in bones:
+            if "ORG-toe2-1.L" in bones:
+                return "rigify.human_toes"
+            return "rigify.human"
+        return None
+
+    @staticmethod
     def get_rig_weight_fallbacks(rig_type):
         """
         Get a list of rig types to try loading weights for in order.

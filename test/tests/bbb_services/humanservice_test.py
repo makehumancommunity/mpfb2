@@ -1,4 +1,5 @@
 import bpy, os, json
+import pytest
 from bpy.props import FloatProperty
 from pytest import approx
 from .. import AssetService
@@ -7,6 +8,8 @@ from .. import ObjectService
 from .. import HumanService
 from .. import MaterialService
 from .. import LocationService
+from .. import RigService
+from .. import SystemService
 from .. import TargetService
 from .. import UiService
 from .. import dynamic_import
@@ -409,3 +412,53 @@ def test_apply_expressions_from_human_info_syncs_library_sliders(tmp_path, monke
                     delattr(bpy.types.Scene, identifier)
                 except (AttributeError, RuntimeError):
                     pass
+
+
+def _serialize_rig_after_rigify_generate(basemesh, metarig_type):
+    """Add `metarig_type` (e.g. 'rigify.human'), generate with delete_meta_rig=True, serialize, return the 'rig' field."""
+    HumanObjectProperties = dynamic_import("mpfb.entities.objectproperties", "HumanObjectProperties")
+    HumanObjectProperties.set_value("is_human_project", True, entity_reference=basemesh)
+    meta_rig = HumanService.add_builtin_rig(basemesh, metarig_type)
+    assert meta_rig is not None
+    generated = RigService.generate_rigify_rig(meta_rig, delete_meta_rig=True)
+    assert generated is not None
+    serialized = json.loads(HumanService.serialize_to_json_string(basemesh))
+    return serialized.get("rig")
+
+
+def _cleanup_named_with_relatives(basemesh_name):
+    """Remove the named basemesh plus any objects currently parented to it."""
+    for obj in list(bpy.data.objects):
+        parent = obj.parent
+        if parent is not None and parent.name == basemesh_name:
+            bpy.data.objects.remove(obj, do_unlink=True)
+    if basemesh_name in bpy.data.objects:
+        bpy.data.objects.remove(bpy.data.objects[basemesh_name], do_unlink=True)
+
+
+def test_serialize_human_with_generated_rigify_human_infers_human():
+    """HumanService.serialize_to_json_string() returns 'rigify.human' for a generated rigify rig from rigify.human"""
+    if not SystemService.check_for_rigify():
+        pytest.skip("Rigify is not enabled in this Blender install")
+
+    basemesh = HumanService.create_human()
+    basemesh_name = basemesh.name
+    try:
+        rig = _serialize_rig_after_rigify_generate(basemesh, "rigify.human")
+        assert rig == "rigify.human", f"Expected 'rigify.human', got {rig!r}"
+    finally:
+        _cleanup_named_with_relatives(basemesh_name)
+
+
+def test_serialize_human_with_generated_rigify_human_toes_infers_human_toes():
+    """HumanService.serialize_to_json_string() returns 'rigify.human_toes' for a generated rigify rig from rigify.human_toes"""
+    if not SystemService.check_for_rigify():
+        pytest.skip("Rigify is not enabled in this Blender install")
+
+    basemesh = HumanService.create_human()
+    basemesh_name = basemesh.name
+    try:
+        rig = _serialize_rig_after_rigify_generate(basemesh, "rigify.human_toes")
+        assert rig == "rigify.human_toes", f"Expected 'rigify.human_toes', got {rig!r}"
+    finally:
+        _cleanup_named_with_relatives(basemesh_name)

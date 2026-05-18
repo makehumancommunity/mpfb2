@@ -73,7 +73,7 @@ class MPFB_OT_HumanFromMHMOperator(MpfbOperator, ImportHelper):
             basemesh.select_set(False)
             rig.select_set(True)
 
-        HumanService.refit(basemesh)
+        HumanService.refit(basemesh, operator=self)
 
         _LOG.time("Human created in")
 

@@ -540,6 +540,24 @@ Identify the rig type by checking for characteristic bone names. Uses a prioriti
 
 ---
 
+#### infer_metarig_type_from_generated(rigify_object)
+
+Infer the corresponding rigify meta-rig type for a generated rigify rig. This is the inverse of the `rigify_generated.*` rows in `identify_rig` and is used when a generated rigify rig must be serialized back to a meta-rig type string — for example when saving a character whose only remaining rig is a generated one. The caller is responsible for verifying that the input is in fact a generated rigify rig, typically via `ObjectService.object_is_generated_rigify_rig`.
+
+| Bones present on the generated rig                | Returns               |
+|---------------------------------------------------|-----------------------|
+| `ORG-brow.T.R.002` AND `ORG-toe2-1.L`             | `"rigify.human_toes"` |
+| `ORG-brow.T.R.002` (no toes marker)               | `"rigify.human"`      |
+| anything else                                     | `None`                |
+
+| Argument | Type | Default | Description |
+|----------|------|---------|-------------|
+| `rigify_object` | `bpy.types.Object` | — | The generated rigify rig armature |
+
+**Returns:** `str` or `None` — A `"rigify.<variant>"` meta-rig type string, or `None` if no signature matches. Callers should fall back to a sensible default and emit a warning when `None` is returned.
+
+---
+
 #### get_rig_weight_fallbacks(rig_type)
 
 Get an ordered list of rig types to try when loading weights. Provides fallbacks so that compatible weight files can be used across similar rig types (e.g., toes vs. no-toes variants).
@@ -615,6 +633,8 @@ Copy the pose from one armature to another by matching bone names. By default on
 #### refit_existing_armature(armature_object, basemesh)
 
 Refit an armature to a new basemesh shape. For Rigify generated rigs, automatically finds and refits the metarig instead, then regenerates. For custom rigs (identified by `"custom."` prefix), looks up the rig JSON file via `AssetService.get_custom_rigs()` and calls the internal refit helper directly. Uses rig JSON definition files to determine bone-to-vertex mappings.
+
+Raises `ValueError("Cannot refit a generated rigify rig")` when the input is a generated rigify rig and no meta rig is present in the scene; reconstructing the meta rig in that case is more invasive than is justified, so the user-visible remedy is to enable "Keep meta rig" before generating. Callers — for instance `HumanService.refit`, which accepts an `operator` keyword for exactly this purpose — should catch the `ValueError` and surface it as an operator-level `{'ERROR'}` report rather than letting it propagate.
 
 | Argument | Type | Default | Description |
 |----------|------|---------|-------------|

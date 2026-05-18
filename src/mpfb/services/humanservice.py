@@ -265,8 +265,12 @@ class HumanService:
             if rig_type is None or rig_type in ("unknown", "unkown"):
                 raise ValueError("Could not identify rig type. Custom rigs cannot be serialized.")
             if rig_type.startswith("rigify_generated"):
-                _LOG.warn("Generated rigify should probably not be serialized. If you want to serialize the rig you should do it before generating the final rig.")
-                rig_type = "rigify.human_toes"
+                inferred = RigService.infer_metarig_type_from_generated(armature_object)
+                if inferred is not None:
+                    rig_type = inferred
+                else:
+                    _LOG.warn("Generated rigify rig signature not recognised; falling back to rigify.human_toes")
+                    rig_type = "rigify.human_toes"
             human_info["rig"] = rig_type
 
     @staticmethod
@@ -1655,12 +1659,15 @@ class HumanService:
         return armature_object
 
     @staticmethod
-    def refit(blender_object):
+    def refit(blender_object, *, operator=None):
         """
         Refits the given blender object, adjusting its basemesh and rig, and refitting any related mesh assets.
 
         Args:
             blender_object (bpy.types.Object): The Blender object to be refitted.
+            operator (bpy.types.Operator, optional): The operator calling this function, used for
+                reporting actionable errors (e.g. when the rig is a generated rigify rig with no
+                meta rig in the scene). Default is None.
 
         Raises:
             ValueError: If the basemesh cannot be found as a relative of the given object.
@@ -1683,7 +1690,18 @@ class HumanService:
             ClothesService.fit_clothes_to_human(child, basemesh, set_parent=False)
 
         if rig:
-            RigService.refit_existing_armature(rig, basemesh)
+            try:
+                RigService.refit_existing_armature(rig, basemesh)
+            except ValueError as exc:
+                if "generated rigify" in str(exc).lower():
+                    message = ("Cannot refit: the rig is a generated rigify rig and no meta rig is "
+                               "present in the scene. Enable 'Keep meta rig' on the rigify sub-panel "
+                               "before generating to allow refitting on the next generate.")
+                    _LOG.warn(message)
+                    if operator is not None:
+                        operator.report({'ERROR'}, message)
+                    return
+                raise
 
             subrigs = []
 
