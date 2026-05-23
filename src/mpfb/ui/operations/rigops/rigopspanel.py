@@ -37,7 +37,7 @@ class MPFB_PT_Rig_Operations_Panel(Abstract_Panel):
                 layout.label(text="Rigify is not enabled")
             else:
                 layout.label(text="Legacy work flow.", icon="INFO")
-                RIGIFY_PROPERTIES.draw_properties(scene, layout, ["name", "produce", "keep_meta"])
+                RIGIFY_PROPERTIES.draw_properties(scene, layout, ["name", "produce", "meta_rig_action"])
                 layout.operator("mpfb.convert_to_rigify")
 
 ClassManager.add_class(MPFB_PT_Rig_Operations_Panel)

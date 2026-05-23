@@ -23,4 +23,4 @@ def test_rigify_properties_not_none():
 def test_rigify_scene_properties_are_registered():
     assert hasattr(bpy.types.Scene, "MPFB_RF_name")
     assert hasattr(bpy.types.Scene, "MPFB_RF_produce")
-    assert hasattr(bpy.types.Scene, "MPFB_RF_keep_meta")
+    assert hasattr(bpy.types.Scene, "MPFB_RF_meta_rig_action")

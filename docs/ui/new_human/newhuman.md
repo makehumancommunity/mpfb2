@@ -49,7 +49,7 @@ This panel draws a single settings area with:
 - `available_presets` (dynamic dropdown) — lists saved character presets
 - `scale_factor`
 - `override_rig` (dynamic dropdown) — lets you use a different rig than the one stored in the preset
-- `auto_generate_rigify`, `keep_meta_rig_on_load` — auto-generate the full Rigify rig after deserialization when the loaded character ends up with a Rigify meta rig (default on). `keep_meta_rig_on_load` is greyed out when `auto_generate_rigify` is off.
+- `auto_generate_rigify`, `meta_rig_action` — auto-generate the full Rigify rig after deserialization when the loaded character ends up with a Rigify meta rig (default on). The "Meta-rig:" enum (keep / hide / delete, default hide) is greyed out when `auto_generate_rigify` is off.
 - `override_skin_model`, `override_clothes_model`, `override_eyes_model` — material model overrides
 - `material_instances`
 - `preselect_group`, `detailed_helpers`, `extra_vertex_groups`, `mask_helpers`
@@ -92,7 +92,7 @@ Steps:
 3. Checks whether Rigify is available if the chosen rig requires it (`SystemService.check_for_rigify()`).
 4. Calls `HumanService.deserialize_from_json_file()` with the resolved filename and deserialization settings.
 5. After creation, pre-selects `preselect_group` on both the basemesh and any proxy mesh. If a rig was created, makes it the active object.
-6. If `auto_generate_rigify` is enabled and the resolved rig identifies as `rigify.*` (`RigService.identify_rig()`), calls `RigService.generate_rigify_rig()` to produce the full Rigify control rig, deleting the meta rig unless `keep_meta_rig_on_load` is enabled. If the Rigify addon is not enabled at this point, the load still succeeds and the operator emits a `{'WARNING'}` instructing the user to enable Rigify under Edit → Preferences → Add-ons and to run Generate manually.
+6. If `auto_generate_rigify` is enabled and the resolved rig identifies as `rigify.*` (`RigService.identify_rig()`), calls `RigService.generate_rigify_rig()` to produce the full Rigify control rig, passing the panel's `meta_rig_action` (keep / hide / delete; default hide) through to the helper. If the Rigify addon is not enabled at this point, the load still succeeds and the operator emits a `{'WARNING'}` instructing the user to enable Rigify under Edit → Preferences → Add-ons and to run Generate manually.
 
 ---
 
@@ -132,7 +132,7 @@ Both `MPFB_PT_NewHuman_Panel` and `MPFB_PT_From_Presets_Panel` read properties f
 | `clothes_deep_search` | boolean | `false` | Search all configured asset library locations for clothes. Slower than the default search. |
 | `detailed_helpers` | boolean | `true` | Assign vertex groups for special mesh helper regions such as skirt helpers and hair helpers. |
 | `extra_vertex_groups` | boolean | `true` | Create additional detailed vertex groups for fine regions such as lips, fingernails, and toenails. |
-| `keep_meta_rig_on_load` | boolean | `false` | Used by `MPFB_PT_From_Presets_Panel`. When auto-generating the Rigify rig on load, also keep the Rigify meta rig in the scene. Greyed out unless `auto_generate_rigify` is enabled. Keeping the meta rig is what enables Rigify's in-place re-generation (via `rigify_target_rig`); deleting it discards any Rigify action layers configured on it. |
+| `meta_rig_action` | enum | `"hide"` | Used by `MPFB_PT_From_Presets_Panel`. Label "Meta-rig:". What to do with the loaded Rigify meta rig after auto-generation. Options: `keep` (leave it visible), `hide` (recommended default — `hide_viewport` and `hide_render`, but the meta rig stays in the scene so Rigify's in-place re-generation works and any action layers on it survive), `delete` (remove it entirely). Greyed out unless `auto_generate_rigify` is enabled. |
 | `load_clothes` | boolean | `true` | Load the clothes that are referenced in the preset file. If disabled, only the body is created. |
 | `mask_helpers` | boolean | `true` | Add a MASK modifier to the basemesh to hide the helper geometry in the viewport while keeping it available for rigging and other operations. |
 | `material_instances` | enum | `"ENHANCED"` | Whether and how to create material instances for body vertex groups (nipple, lips, etc.). Options: `NEVER` (no instances), `ENHANCED` (enhanced skin instances), `ENHANCEDMS` (enhanced multiscatter instances). |

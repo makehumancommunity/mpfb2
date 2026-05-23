@@ -24,6 +24,5 @@ def test_rigify_rig_scene_properties_are_registered():
     assert hasattr(bpy.types.Scene, "MPFB_ADR_rigify_rig")
     assert hasattr(bpy.types.Scene, "MPFB_ADR_import_weights_rigify")
     assert hasattr(bpy.types.Scene, "MPFB_ADR_name")
-    assert hasattr(bpy.types.Scene, "MPFB_ADR_delete_after_generate")
     assert hasattr(bpy.types.Scene, "MPFB_ADR_auto_generate")
-    assert hasattr(bpy.types.Scene, "MPFB_ADR_keep_meta_rig")
+    assert hasattr(bpy.types.Scene, "MPFB_ADR_meta_rig_action")

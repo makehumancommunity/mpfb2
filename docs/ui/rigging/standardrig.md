@@ -16,12 +16,15 @@ object:
 
 - **No armature associated with the active object** — draws the "Add standard
   rig" controls (rig type, import weights, **Add standard rig**).
-- **Active object is a standard (non-rigify) skeleton** — draws the absorbed
-  "Rig helpers" controls; when no helpers are active, it shows configuration
-  boxes and an **Add helpers** button; when at least one helper mode is set,
-  it shows only a **Remove helpers** button.
-- **Otherwise** (rigify meta/generated rig, or other rig type) — a single
-  label explaining the panel is not applicable.
+- **Active object is a default rig** (`RigService.identify_rig()` returns
+  `"default"` or `"default_no_toes"`) — draws the absorbed "Rig helpers"
+  controls; when no helpers are active, it shows configuration boxes and an
+  **Add helpers** button; when at least one helper mode is set, it shows only
+  a **Remove helpers** button.
+- **Otherwise** (rigify meta rig, generated rigify rig, game engine, mixamo,
+  CMU MB, OpenPose, a custom rig, or any other non-default rig) — a single
+  label explaining the panel is not applicable. Adding helpers is only
+  supported on the default rig variants.
 
 ## Panel
 

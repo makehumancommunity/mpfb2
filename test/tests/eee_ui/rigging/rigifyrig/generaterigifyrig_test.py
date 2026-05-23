@@ -32,7 +32,7 @@ def test_generate_rigify_rig_poll_false_with_standard_rig():
         assert not MPFB_OT_GenerateRigifyRigOperator.poll(bpy.context)
 
 
-def test_generate_rigify_rig_helper_produces_generated_rig():
+def test_generate_rigify_rig_helper_deletes_meta_rig():
     if not SystemService.check_for_rigify():
         pytest.skip("Rigify is not enabled in this Blender install")
 
@@ -42,12 +42,12 @@ def test_generate_rigify_rig_helper_produces_generated_rig():
         assert RigService.identify_rig(meta_rig).startswith("rigify.")
         meta_rig_name = meta_rig.name
 
-        rigify_object = RigService.generate_rigify_rig(meta_rig, delete_meta_rig=True)
+        rigify_object = RigService.generate_rigify_rig(meta_rig, meta_rig_action="delete")
 
         assert rigify_object is not None
         assert rigify_object.type == "ARMATURE"
         assert not RigService.identify_rig(rigify_object).startswith("rigify.")
-        # delete_meta_rig=True should remove the meta rig from the scene
+        # meta_rig_action="delete" should remove the meta rig from the scene
         assert meta_rig_name not in bpy.data.objects
 
 
@@ -59,10 +59,29 @@ def test_generate_rigify_rig_helper_keeps_meta_rig_when_requested():
         meta_rig = HumanService.add_builtin_rig(fixture.basemesh, "rigify.human")
         meta_rig_name = meta_rig.name
 
-        rigify_object = RigService.generate_rigify_rig(meta_rig, delete_meta_rig=False)
+        rigify_object = RigService.generate_rigify_rig(meta_rig, meta_rig_action="keep")
 
         assert rigify_object is not None
         assert meta_rig_name in bpy.data.objects
+        # keep should not flip the hide flags
+        assert not bpy.data.objects[meta_rig_name].hide_viewport
+        assert not bpy.data.objects[meta_rig_name].hide_render
+
+
+def test_generate_rigify_rig_helper_hides_meta_rig():
+    if not SystemService.check_for_rigify():
+        pytest.skip("Rigify is not enabled in this Blender install")
+
+    with HumanFixture() as fixture:
+        meta_rig = HumanService.add_builtin_rig(fixture.basemesh, "rigify.human")
+        meta_rig_name = meta_rig.name
+
+        rigify_object = RigService.generate_rigify_rig(meta_rig, meta_rig_action="hide")
+
+        assert rigify_object is not None
+        assert meta_rig_name in bpy.data.objects
+        assert bpy.data.objects[meta_rig_name].hide_viewport
+        assert bpy.data.objects[meta_rig_name].hide_render
 
 
 def test_generate_rigify_rig_operator_smoke():

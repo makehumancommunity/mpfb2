@@ -32,7 +32,7 @@ class RigifyHelpers():
         self.settings = settings
         _LOG.dump("settings", self.settings)
         self.produce = "produce" in settings and settings["produce"]
-        self.keep_meta = "keep_meta" in settings and settings["keep_meta"]
+        self.meta_rig_action = str(settings.get("meta_rig_action", "hide") or "hide").lower()
 
     @staticmethod
     def get_instance(settings, rigtype="Default"):
@@ -87,8 +87,11 @@ class RigifyHelpers():
 
             self.adjust_children_for_rigify(rigify_object, armature_object)
 
-            if not self.keep_meta:
+            if self.meta_rig_action == "delete":
                 bpy.data.objects.remove(armature_object, do_unlink=True)
+            elif self.meta_rig_action == "hide":
+                armature_object.hide_viewport = True
+                armature_object.hide_render = True
 
             GeneralObjectProperties.set_value("scale_factor", scale_factor, entity_reference=rigify_object)
             GeneralObjectProperties.set_value("object_type", "Skeleton", entity_reference=rigify_object)

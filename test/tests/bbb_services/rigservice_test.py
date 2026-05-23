@@ -159,7 +159,7 @@ def test_refit_existing_armature_rejects_generated_rigify():
     try:
         meta_rig = HumanService.add_builtin_rig(basemesh, "rigify.human")
         assert meta_rig is not None
-        generated = RigService.generate_rigify_rig(meta_rig, delete_meta_rig=True)
+        generated = RigService.generate_rigify_rig(meta_rig, meta_rig_action="delete")
         assert generated is not None
 
         with pytest.raises(ValueError) as excinfo:
@@ -179,15 +179,158 @@ def test_humanservice_refit_reports_generated_rigify_error():
     try:
         meta_rig = HumanService.add_builtin_rig(basemesh, "rigify.human")
         assert meta_rig is not None
-        generated = RigService.generate_rigify_rig(meta_rig, delete_meta_rig=True)
+        generated = RigService.generate_rigify_rig(meta_rig, meta_rig_action="delete")
         assert generated is not None
 
         mock = _MockOperator()
-        # Should not re-raise; should emit an ERROR report mentioning 'Keep meta rig'.
+        # Should not re-raise; should emit an ERROR report mentioning the meta-rig option.
         HumanService.refit(basemesh, operator=mock)
         errors = [r for r in mock.reports if r[0] == 'ERROR']
         assert errors, f"Expected an ERROR report, got: {mock.reports}"
-        assert any("Keep meta rig" in r[1] for r in errors), f"Expected report mentioning 'Keep meta rig', got: {errors}"
+        assert any("meta rig" in r[1].lower() for r in errors), f"Expected report mentioning meta rig, got: {errors}"
     finally:
         _cleanup_named_with_relatives(basemesh_name)
+
+
+def _make_armature_with_pose_bone(name, bone_name, rotation_mode):
+    """Create an armature with a single bone, then return the armature object and its pose bone."""
+    arm = _make_bare_armature(name, [bone_name])
+    pose_bone = arm.pose.bones[bone_name]
+    pose_bone.rotation_mode = rotation_mode
+    return arm, pose_bone
+
+
+def test_get_pose_as_dict_captures_quaternion_rotations():
+    """get_pose_as_dict stores quaternion-mode bones as 4-element arrays + records rotation mode."""
+    arm, pose_bone = _make_armature_with_pose_bone("quat_arm", "qbone", "QUATERNION")
+    try:
+        pose_bone.rotation_quaternion = (0.7071, 0.7071, 0.0, 0.0)
+        pose = RigService.get_pose_as_dict(arm)
+        assert "qbone" in pose["bone_rotations"], f"Expected qbone in rotations, got {pose['bone_rotations']}"
+        assert len(pose["bone_rotations"]["qbone"]) == 4
+        assert pose["bone_rotation_modes"].get("qbone") == "QUATERNION"
+    finally:
+        ObjectService.delete_object(arm)
+
+
+def test_get_pose_as_dict_skips_identity_quaternion():
+    """get_pose_as_dict prunes quaternion-mode bones whose quaternion is the identity."""
+    arm, pose_bone = _make_armature_with_pose_bone("quat_id_arm", "qid", "QUATERNION")
+    try:
+        # default rotation_quaternion is (1, 0, 0, 0) — identity
+        pose = RigService.get_pose_as_dict(arm)
+        assert "qid" not in pose["bone_rotations"]
+        assert "qid" not in pose["bone_rotation_modes"]
+    finally:
+        ObjectService.delete_object(arm)
+
+
+def test_set_pose_from_dict_applies_quaternion_rotations():
+    """set_pose_from_dict writes rotation_quaternion and rotation_mode for quaternion entries."""
+    arm, pose_bone = _make_armature_with_pose_bone("quat_load_arm", "qload", "XYZ")
+    try:
+        pose = {
+            "skeleton_type": "unknown",
+            "bone_rotations": {"qload": [0.7071, 0.7071, 0.0, 0.0]},
+            "bone_rotation_modes": {"qload": "QUATERNION"},
+            "bone_translations": {},
+            "has_ik_bones": False,
+            "original_spine_length": 0,
+            "original_shoulder_width": 0,
+        }
+        # set_pose_from_dict needs pose mode; activate the rig and switch.
+        bpy.context.view_layer.objects.active = arm
+        bpy.ops.object.mode_set(mode='POSE')
+        try:
+            RigService.set_pose_from_dict(arm, pose, from_rest_pose=True)
+        finally:
+            bpy.ops.object.mode_set(mode='OBJECT')
+
+        reloaded = arm.pose.bones["qload"]
+        assert reloaded.rotation_mode == "QUATERNION"
+        assert reloaded.rotation_quaternion[0] == approx(0.7071, abs=1e-4)
+        assert reloaded.rotation_quaternion[1] == approx(0.7071, abs=1e-4)
+    finally:
+        ObjectService.delete_object(arm)
+
+
+def test_set_pose_from_dict_loads_legacy_euler_format():
+    """A pose dict missing bone_rotation_modes still loads as 3-element euler (back-compat)."""
+    arm, pose_bone = _make_armature_with_pose_bone("legacy_arm", "ebone", "XYZ")
+    try:
+        pose = {
+            "skeleton_type": "unknown",
+            "bone_rotations": {"ebone": [0.1, 0.2, 0.3]},
+            "bone_translations": {},
+            "has_ik_bones": False,
+            "original_spine_length": 0,
+            "original_shoulder_width": 0,
+        }
+        bpy.context.view_layer.objects.active = arm
+        bpy.ops.object.mode_set(mode='POSE')
+        try:
+            RigService.set_pose_from_dict(arm, pose, from_rest_pose=True)
+        finally:
+            bpy.ops.object.mode_set(mode='OBJECT')
+
+        reloaded = arm.pose.bones["ebone"]
+        assert reloaded.rotation_mode == "XYZ"
+        assert reloaded.rotation_euler[0] == approx(0.1, abs=1e-4)
+        assert reloaded.rotation_euler[1] == approx(0.2, abs=1e-4)
+        assert reloaded.rotation_euler[2] == approx(0.3, abs=1e-4)
+    finally:
+        ObjectService.delete_object(arm)
+
+
+def test_pose_roundtrip_on_generated_rigify_hand_ik():
+    """End-to-end: a non-identity rotation on a generated-rigify quaternion bone survives save+load."""
+    if not SystemService.check_for_rigify():
+        pytest.skip("Rigify is not enabled in this Blender install")
+
+    basemesh = HumanService.create_human()
+    basemesh_name = basemesh.name
+    try:
+        meta_rig = HumanService.add_builtin_rig(basemesh, "rigify.human")
+        generated = RigService.generate_rigify_rig(meta_rig, meta_rig_action="delete")
+        assert generated is not None
+
+        # Pick a known quaternion-mode bone in a generated rigify rig.
+        target_bone_name = None
+        for candidate in ("hand_ik.R", "hand_ik.L", "head", "torso"):
+            pb = generated.pose.bones.get(candidate)
+            if pb is not None and pb.rotation_mode == "QUATERNION":
+                target_bone_name = candidate
+                break
+        if target_bone_name is None:
+            pytest.skip("Generated rigify rig has no quaternion-mode bone to test")
+
+        bpy.context.view_layer.objects.active = generated
+        bpy.ops.object.mode_set(mode='POSE')
+        target_pb = generated.pose.bones[target_bone_name]
+        target_pb.rotation_quaternion = (0.7071, 0.7071, 0.0, 0.0)
+        bpy.ops.object.mode_set(mode='OBJECT')
+
+        pose = RigService.get_pose_as_dict(generated)
+        assert target_bone_name in pose["bone_rotations"], \
+            f"Expected {target_bone_name} in saved rotations"
+
+        # Reset and reload
+        bpy.ops.object.mode_set(mode='POSE')
+        target_pb.rotation_quaternion = (1.0, 0.0, 0.0, 0.0)
+        try:
+            RigService.set_pose_from_dict(generated, pose, from_rest_pose=True)
+        finally:
+            bpy.ops.object.mode_set(mode='OBJECT')
+
+        reloaded = generated.pose.bones[target_bone_name]
+        assert reloaded.rotation_mode == "QUATERNION"
+        assert reloaded.rotation_quaternion[0] == approx(0.7071, abs=1e-3)
+        assert reloaded.rotation_quaternion[1] == approx(0.7071, abs=1e-3)
+    finally:
+        for obj in list(bpy.data.objects):
+            parent = obj.parent
+            if parent is not None and parent.name == basemesh_name:
+                bpy.data.objects.remove(obj, do_unlink=True)
+        if basemesh_name in bpy.data.objects:
+            bpy.data.objects.remove(bpy.data.objects[basemesh_name], do_unlink=True)
 

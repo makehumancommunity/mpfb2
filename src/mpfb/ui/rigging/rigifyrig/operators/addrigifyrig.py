@@ -52,7 +52,7 @@ class MPFB_OT_AddRigifyRigOperator(MpfbOperator):
         rigify_object = RigService.generate_rigify_rig(
             meta_rig,
             name=ctx.name,
-            delete_meta_rig=not bool(ctx.keep_meta_rig),
+            meta_rig_action=ctx.meta_rig_action,
         )
 
         if rigify_object is None:

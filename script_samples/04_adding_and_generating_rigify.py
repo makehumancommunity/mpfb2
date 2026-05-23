@@ -45,8 +45,9 @@ metarig = HumanService.add_builtin_rig(basemesh, "rigify.human")
 # the UI operator does: selecting the meta rig, optionally upgrading the face rig,
 # validating with rigify.utils.rig.is_valid_metarig, running pose.rigify_generate,
 # re-parenting the new rig, calling RigifyHelpers.adjust_children_for_rigify, copying
-# object_type onto the rigify rig, and optionally deleting the meta rig.
-rigify_object = RigService.generate_rigify_rig(metarig, delete_meta_rig=True)
+# object_type onto the rigify rig, and applying the chosen meta_rig_action
+# ("keep" / "hide" / "delete"; default is "hide").
+rigify_object = RigService.generate_rigify_rig(metarig, meta_rig_action="delete")
 
 # Leave the generated rig as the active selection.
 bpy.ops.object.select_all(action='DESELECT')

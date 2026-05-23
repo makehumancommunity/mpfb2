@@ -26,14 +26,14 @@ enabled and on the state of the active object:
   no other controls.
 - **No armature associated with the active object** — draws the "Add rigify
   meta rig" controls (rig type, import weights, name, **Also generate full
-  rig**, **Keep meta rig**, **Add rigify rig**). When **Also generate full
+  rig**, **Meta-rig:**, **Add rigify rig**). When **Also generate full
   rig** is enabled (default), clicking **Add rigify rig** also runs the
   Rigify generation step immediately after adding the meta rig, in a single
-  click; **Keep meta rig** is greyed out when **Also generate full rig** is
+  click; **Meta-rig:** is greyed out when **Also generate full rig** is
   off.
 - **Active object is a rigify meta rig** (`RigService.identify_rig()` returns
   a value starting with `"rigify."`) — draws the "Generate rigify rig"
-  controls (name, delete after generate, **Generate**).
+  controls (name, **Meta-rig:**, **Generate**).
 - **Otherwise** (already-generated rigify rig, standard rig, or custom rig) —
   a single label explaining the panel is not applicable.
 
@@ -70,11 +70,11 @@ example `"rigify.human_toes"`). Requires the Rigify addon to be enabled.
 
 When the panel's `auto_generate` property is true (the default), the operator
 also calls `RigService.generate_rigify_rig` on the freshly-added meta rig
-straight away — passing the panel's `name` and `not keep_meta_rig` for the
-`delete_meta_rig` argument — so the end result is a fully generated Rigify
-control rig in a single click. When `auto_generate` is false the operator
-stops at the meta rig, leaving the user to run **Generate** (or the [Rig
-operations](../operations/rigops.md) panel) manually.
+straight away — passing the panel's `name` and `meta_rig_action` — so the end
+result is a fully generated Rigify control rig in a single click. When
+`auto_generate` is false the operator stops at the meta rig, leaving the user
+to run **Generate** (or the [Rig operations](../operations/rigops.md) panel)
+manually.
 
 ---
 
@@ -101,7 +101,9 @@ the operator delegates to `RigService.generate_rigify_rig`, which performs:
    `RigifyHelpers.adjust_children_for_rigify` to remap children's parent
    assignments / armature modifiers / constraints.
 4. Copies `object_type` onto the generated rig via `GeneralObjectProperties`.
-5. If `delete_after_generate` is enabled, removes the metarig from the scene.
+5. Applies the `meta_rig_action` chosen on the panel — `keep` leaves the
+   metarig untouched, `hide` (default) sets `hide_viewport` and `hide_render`
+   on it, `delete` removes it from the scene.
 
 If `rigify.utils.rig.is_valid_metarig` rejects the active meta rig, the
 helper returns `None` and the operator emits a `{'WARNING'}` instead of an
@@ -115,11 +117,11 @@ After a successful generate, Rigify stores a reference to the generated rig
 on the meta rig as `rigify_target_rig`. Running **Generate** again on the
 same meta rig then *updates* the existing rig in place rather than producing
 a new one, preserving widgets, drivers, action assignments, and any external
-references that point at the generated rig. This is what the
-`keep_meta_rig` / `delete_after_generate` choice ultimately controls: with
-the meta rig kept around, re-generation works; with the meta rig deleted any
-Rigify action layers / corrective actions configured on it are discarded
-together with it and re-generation is no longer available.
+references that point at the generated rig. This is what the `meta_rig_action`
+choice ultimately controls: with `keep` or `hide` (default) the meta rig stays
+in the scene and re-generation works; with `delete` any Rigify action layers /
+corrective actions configured on the meta rig are discarded together with it
+and re-generation is no longer available.
 
 ## Properties
 
@@ -131,8 +133,7 @@ together with it and re-generation is no longer available.
 | `import_weights_rigify` | boolean | `true` | When adding a Rigify metarig, also import the corresponding vertex weight file. |
 | `name` | string | `""` | Name to use for the generated Rigify rig. If empty, the name configured in the metarig's Object Data Properties (Advanced Options → Rig Name) is used. Rendered in the Add section (where it feeds the auto-generate chain) and also in the explicit Generate section — both render the same scene property. |
 | `auto_generate` | boolean | `true` | Recommended: when adding a Rigify meta rig, also immediately generate the full rigify rig. Rendered only in the Add section. Disable to obtain only the meta rig (two-step / advanced workflow). |
-| `keep_meta_rig` | boolean | `false` | When auto-generating, also keep the meta rig in the scene. Rendered only in the Add section, and greyed out when `auto_generate` is off. Deliberately separate from `delete_after_generate` so the explicit-generate flow stays byte-compatible with existing scenes. |
-| `delete_after_generate` | boolean | `false` | After generating the final rig from the explicit Generate section, delete the Rigify metarig from the scene. Rendered only in the Generate section. |
+| `meta_rig_action` | enum | `"hide"` | Label "Meta-rig:". What to do with the meta rig after the full rigify rig has been generated. `keep` leaves it visible, `hide` (recommended default) sets `hide_viewport` and `hide_render` so it stays in the scene (preserving Rigify's in-place re-generation target) but is out of the way, and `delete` removes it from the scene. Rendered in both the Add section (greyed out when `auto_generate` is off) and the Generate section. |
 
 ## Related
 

@@ -102,7 +102,7 @@ class MPFB_OT_HumanFromPresetsOperator(MpfbOperator):
                 if SystemService.check_for_rigify():
                     rigify_object = RigService.generate_rigify_rig(
                         rig,
-                        delete_meta_rig=not bool(ctx.keep_meta_rig_on_load),
+                        meta_rig_action=ctx.meta_rig_action,
                     )
                     if rigify_object is None:
                         self.report({'WARNING'}, "Rigify considers the loaded meta rig invalid; the full rig was not generated.")

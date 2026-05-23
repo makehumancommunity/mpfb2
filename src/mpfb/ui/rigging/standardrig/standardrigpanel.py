@@ -119,7 +119,7 @@ class MPFB_PT_Standard_Rig_Panel(Abstract_Panel):
 
         if ObjectService.object_is_any_skeleton(context.active_object):
             rig_type = RigService.identify_rig(context.active_object)
-            if rig_type and not rig_type.startswith("rigify."):
+            if rig_type in ("default", "default_no_toes"):
                 self._draw_helpers(scene, layout, context.active_object)
                 return
 

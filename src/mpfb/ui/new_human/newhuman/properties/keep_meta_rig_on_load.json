@@ -1,7 +1,0 @@
-{
-    "type": "boolean",
-    "name": "keep_meta_rig_on_load",
-    "description": "When auto-generating the rigify rig on load, also keep the meta rig in the scene. By default the meta rig is removed once the full rig has been generated. Keeping it makes Rigify's in-place re-generation possible and preserves any Rigify action layers configured on the meta rig",
-    "label": "If generating, keep meta rig",
-    "default": false
-}

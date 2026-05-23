@@ -39,7 +39,7 @@ Private methods (prefixed `_`) handle spine, arm, leg, shoulder, head, and finge
 |-----------|------|-------------|
 | `settings` | `dict` | Configuration dict passed at construction |
 | `produce` | `bool` | Whether to call `bpy.ops.pose.rigify_generate` after metarig setup |
-| `keep_meta` | `bool` | Whether to keep the metarig object after the generated rig is produced |
+| `meta_rig_action` | `str` | What to do with the metarig after the generated rig is produced. One of `"keep"`, `"hide"` (default), or `"delete"`. |
 
 ## Public API — `RigifyHelpers`
 
@@ -47,11 +47,11 @@ Private methods (prefixed `_`) handle spine, arm, leg, shoulder, head, and finge
 
 **`__init__(settings)`**
 
-Initialise the helper with a configuration dict, extracting `produce` and `keep_meta` flags.
+Initialise the helper with a configuration dict, extracting `produce` and `meta_rig_action` flags.
 
 | Argument | Type | Description |
 |----------|------|-------------|
-| `settings` | `dict` | May include `produce` (bool), `keep_meta` (bool), and `name` (str for the output rig name) |
+| `settings` | `dict` | May include `produce` (bool), `meta_rig_action` (str — `"keep"`, `"hide"` or `"delete"`; default `"hide"`), and `name` (str for the output rig name) |
 
 **Returns:** `RigifyHelpers` instance.
 

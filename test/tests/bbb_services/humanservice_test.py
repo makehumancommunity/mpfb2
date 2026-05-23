@@ -415,12 +415,12 @@ def test_apply_expressions_from_human_info_syncs_library_sliders(tmp_path, monke
 
 
 def _serialize_rig_after_rigify_generate(basemesh, metarig_type):
-    """Add `metarig_type` (e.g. 'rigify.human'), generate with delete_meta_rig=True, serialize, return the 'rig' field."""
+    """Add `metarig_type` (e.g. 'rigify.human'), generate with meta_rig_action='delete', serialize, return the 'rig' field."""
     HumanObjectProperties = dynamic_import("mpfb.entities.objectproperties", "HumanObjectProperties")
     HumanObjectProperties.set_value("is_human_project", True, entity_reference=basemesh)
     meta_rig = HumanService.add_builtin_rig(basemesh, metarig_type)
     assert meta_rig is not None
-    generated = RigService.generate_rigify_rig(meta_rig, delete_meta_rig=True)
+    generated = RigService.generate_rigify_rig(meta_rig, meta_rig_action="delete")
     assert generated is not None
     serialized = json.loads(HumanService.serialize_to_json_string(basemesh))
     return serialized.get("rig")

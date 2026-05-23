@@ -1695,8 +1695,8 @@ class HumanService:
             except ValueError as exc:
                 if "generated rigify" in str(exc).lower():
                     message = ("Cannot refit: the rig is a generated rigify rig and no meta rig is "
-                               "present in the scene. Enable 'Keep meta rig' on the rigify sub-panel "
-                               "before generating to allow refitting on the next generate.")
+                               "present in the scene. Set 'Meta-rig:' to Keep or Hide on the rigify "
+                               "sub-panel before generating to allow refitting on the next generate.")
                     _LOG.warn(message)
                     if operator is not None:
                         operator.report({'ERROR'}, message)

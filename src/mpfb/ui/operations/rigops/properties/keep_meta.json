@@ -1,7 +1,0 @@
-{
-    "type": "boolean",
-    "name": "keep_meta",
-    "description": "Do not delete the meta rig after producing. Only relevant when converting a MakeHuman-imported Game Engine rig",
-    "label": "Keep meta rig",
-    "default": false
-}

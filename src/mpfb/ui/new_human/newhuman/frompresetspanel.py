@@ -74,9 +74,9 @@ class MPFB_PT_From_Presets_Panel(Abstract_Panel):
             "override_rig",
             "auto_generate_rigify",
             ])
-        keep_row = layout.row()
-        keep_row.enabled = bool(PRESETS_HUMAN_PROPERTIES.get_value("auto_generate_rigify", entity_reference=scene))
-        PRESETS_HUMAN_PROPERTIES.draw_properties(scene, keep_row, ["keep_meta_rig_on_load"])
+        action_row = layout.row()
+        action_row.enabled = bool(PRESETS_HUMAN_PROPERTIES.get_value("auto_generate_rigify", entity_reference=scene))
+        PRESETS_HUMAN_PROPERTIES.draw_properties(scene, action_row, ["meta_rig_action"])
         PRESETS_HUMAN_PROPERTIES.draw_properties(scene, layout, [
             "override_skin_model",
             "override_clothes_model",
