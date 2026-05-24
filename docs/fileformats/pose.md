@@ -16,9 +16,14 @@ A pose file is a JSON object with bone transform data and metadata about the ske
 
 ### Top-level keys
 
-- `skeleton_type` (string, required) — The rig type this pose was captured from. Used to organize poses by directory and to apply scale corrections. Values include `"default"`, `"default_no_toes"`, `"game_engine"`, `"rigify.human"`, `"rigify.human_toes"`, `"cmu_mb"`, `"mixamo"`, `"unknown"`, and others.
+- `skeleton_type` (string, required) — The rig type this pose was captured from. Used to organize poses by directory and to apply scale corrections. Values include `"default"`, `"default_no_toes"`, `"game_engine"`, `"rigify.human"`, `"rigify.human_toes"`, `"rigify_generated.human"`, `"rigify_generated.human_toes"`, `"rigify_generated.game_engine"`, `"cmu_mb"`, `"mixamo"`, `"unknown"`, and others.
 
-- `bone_rotations` (object, required) — Dictionary mapping bone names to Euler angle rotations. Each value is a 3-element array `[X, Y, Z]` in **radians**, using XYZ rotation order. Only bones with rotation > 0.0001 radians on any axis are included.
+- `bone_rotations` (object, required) — Dictionary mapping bone names to rotations. The exact array length depends on the bone's rotation mode:
+  - **Euler-mode bones** (`"XYZ"`, `"XZY"`, `"YXZ"`, `"YZX"`, `"ZXY"`, `"ZYX"`): 3-element array `[X, Y, Z]` in radians, in the order indicated by the rotation mode. Only bones with rotation > 0.0001 radians on any axis are included.
+  - **Quaternion-mode bones** (`"QUATERNION"`): 4-element array `[W, X, Y, Z]`. Only bones whose quaternion is not effectively the identity (i.e. `|W-1| > 0.0001` or any of `|X|,|Y|,|Z| > 0.0001`) are included.
+  - **Axis-angle bones** (`"AXIS_ANGLE"`): 4-element array `[angle, X, Y, Z]`, where `angle` is in radians. Only bones with a non-zero angle are included.
+
+- `bone_rotation_modes` (object, optional) — Dictionary mapping bone names to their `rotation_mode` string (e.g. `"XYZ"`, `"QUATERNION"`, `"AXIS_ANGLE"`). Used by `set_pose_from_dict()` to apply the rotation to the correct attribute on each bone. If absent (old-format files), the loader infers the mode from the length of the rotation array (3 → `"XYZ"`, 4 → `"QUATERNION"`).
 
 - `bone_translations` (object, required) — Dictionary mapping bone names to local translations. Each value is a 3-element array `[X, Y, Z]` in Blender units. Typically only present for root bones and IK control bones.
 

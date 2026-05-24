@@ -135,15 +135,15 @@ documented appear with plain text class names.
 | `presets/makeuppresets/operators/overwritepresets.py` | `mpfb.overwrite_makeup_presets` | "Overwrite presets" | [MPFB_OT_Overwrite_Makeup_Presets_Operator](presets/makeuppresets.md) | `generic_makeup_presets` |
 | `presets/makeuppresets/operators/savenewpresets.py` | `mpfb.save_new_makeup_presets` | "Save new presets" | [MPFB_OT_Save_New_Makeup_Presets_Operator](presets/makeuppresets.md) | `generic_makeup_presets` |
 | `rigging/addcycle/operators/loadcycle.py` | `mpfb.load_walk_cycle` | "Load walk cycle" | [MPFB_OT_Load_Walk_Cycle_Operator](rigging/addcycle.md) | `MpfbOperator` |
-| `rigging/addrig/operators/addcustomrig.py` | `mpfb.add_custom_rig` | "Add custom rig" | [MPFB_OT_Add_Custom_Rig_Operator](rigging/addrig.md) | `MpfbOperator` |
-| `rigging/addrig/operators/addrigifyrig.py` | `mpfb.add_rigify_rig` | "Add rigify rig" | [MPFB_OT_AddRigifyRigOperator](rigging/addrig.md) | `MpfbOperator` |
-| `rigging/addrig/operators/addstandardrig.py` | `mpfb.add_standard_rig` | "Add standard rig" | [MPFB_OT_AddStandardRigOperator](rigging/addrig.md) | `MpfbOperator` |
-| `rigging/addrig/operators/generaterigifyrig.py` | `mpfb.generate_rigify_rig` | "Generate" | [MPFB_OT_GenerateRigifyRigOperator](rigging/addrig.md) | `MpfbOperator` |
+| `rigging/customrig/operators/addcustomrig.py` | `mpfb.add_custom_rig` | "Add custom rig" | [MPFB_OT_Add_Custom_Rig_Operator](rigging/customrig.md) | `MpfbOperator` |
+| `rigging/rigifyrig/operators/addrigifyrig.py` | `mpfb.add_rigify_rig` | "Add rigify rig" | [MPFB_OT_AddRigifyRigOperator](rigging/rigifyrig.md) | `MpfbOperator` |
+| `rigging/standardrig/operators/addstandardrig.py` | `mpfb.add_standard_rig` | "Add standard rig" | [MPFB_OT_AddStandardRigOperator](rigging/standardrig.md) | `MpfbOperator` |
+| `rigging/rigifyrig/operators/generaterigifyrig.py` | `mpfb.generate_rigify_rig` | "Generate" | [MPFB_OT_GenerateRigifyRigOperator](rigging/rigifyrig.md) | `MpfbOperator` |
 | `rigging/applypose/operators/loadmhbvh.py` | `mpfb.load_mhbvh_pose` | "Import MH BVH Pose" | [MPFB_OT_Load_MH_BVH_Operator](rigging/applypose.md) | `MpfbOperator`, `ImportHelper` |
 | `rigging/applypose/operators/loadpartial.py` | `mpfb.load_partial` | "Load partial pose" | [MPFB_OT_Load_Partial_Operator](rigging/applypose.md) | `MpfbOperator` |
 | `rigging/applypose/operators/loadpose.py` | `mpfb.load_pose` | "Load pose" | [MPFB_OT_Load_Pose_Operator](rigging/applypose.md) | `MpfbOperator` |
-| `rigging/righelpers/operators/addhelpers.py` | `mpfb.add_helpers` | "Add helpers" | [MPFB_OT_AddHelpersOperator](rigging/righelpers.md) | `MpfbOperator` |
-| `rigging/righelpers/operators/removehelpers.py` | `mpfb.remove_helpers` | "Remove helpers" | [MPFB_OT_RemoveHelpersOperator](rigging/righelpers.md) | `MpfbOperator` |
-| `rigging/rigify/operators/converttorigify.py` | `mpfb.convert_to_rigify` | "Rigify" | [MPFB_OT_Convert_To_Rigify_Operator](rigging/rigify.md) | `MpfbOperator` |
+| `rigging/standardrig/operators/addhelpers.py` | `mpfb.add_helpers` | "Add helpers" | [MPFB_OT_AddHelpersOperator](rigging/standardrig.md) | `MpfbOperator` |
+| `rigging/standardrig/operators/removehelpers.py` | `mpfb.remove_helpers` | "Remove helpers" | [MPFB_OT_RemoveHelpersOperator](rigging/standardrig.md) | `MpfbOperator` |
+| `operations/rigops/operators/converttorigify.py` | `mpfb.convert_to_rigify` | "Rigify" | [MPFB_OT_Convert_To_Rigify_Operator](operations/rigops.md) | `MpfbOperator` |
 | `system/dirresources/operators/dirresource.py` | `mpfb.dir_resource` | "Open" | [MPFB_OT_Dir_Resource_Operator](system/dirresources.md) | `MpfbOperator` |
 | `system/webresources/operators/webresource.py` | `mpfb.web_resource` | "Open" | [MPFB_OT_Web_Resource_Operator](system/webresources.md) | `MpfbOperator` |

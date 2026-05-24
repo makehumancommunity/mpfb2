@@ -1017,6 +1017,32 @@ class RigService:
         return guessed_rig
 
     @staticmethod
+    def infer_metarig_type_from_generated(rigify_object):
+        """
+        Infer the corresponding rigify meta-rig type for a generated rigify rig.
+
+        This is the inverse of the `rigify_generated.*` rows in `identify_rig` and is used
+        when a generated rigify rig needs to be serialized back to a meta-rig type string
+        (for example when saving a character whose only remaining rig is a generated one).
+
+        Args:
+            rigify_object (bpy.types.Object): The generated rigify rig armature. Caller is
+                responsible for verifying that this is in fact a generated rigify rig,
+                typically via `ObjectService.object_is_generated_rigify_rig`.
+
+        Returns:
+            str | None: `"rigify.human_toes"`, `"rigify.human"`, or `None` if no
+            recognisable signature matches.
+        """
+        _LOG.enter()
+        bones = rigify_object.data.bones
+        if "ORG-brow.T.R.002" in bones:
+            if "ORG-toe2-1.L" in bones:
+                return "rigify.human_toes"
+            return "rigify.human"
+        return None
+
+    @staticmethod
     def get_rig_weight_fallbacks(rig_type):
         """
         Get a list of rig types to try loading weights for in order.
@@ -1040,6 +1066,103 @@ class RigService:
         }
 
         return [rig_type, *fallback_table.get(rig_type, [])]
+
+    @staticmethod
+    def generate_rigify_rig(meta_rig, *, name: str = "", meta_rig_action: str = "hide"):
+        """Run rigify generation on `meta_rig` and return the generated rigify rig.
+
+        Caller is responsible for verifying that `meta_rig` is a rigify meta rig
+        (typically via `RigService.identify_rig()`) and that the rigify addon is
+        enabled (typically via `SystemService.check_for_rigify()`). The helper
+        additionally calls `rigify.utils.rig.is_valid_metarig` as a final gate;
+        if Rigify itself considers the meta rig invalid, the helper returns
+        `None` without running `pose.rigify_generate`.
+
+        Args:
+            meta_rig (bpy.types.Object): The rigify meta rig armature.
+            name (str): Optional basename for the generated rig.
+            meta_rig_action (str): What to do with the meta rig after a successful
+                generation. One of ``"keep"`` (leave it untouched), ``"hide"``
+                (default; keep in scene but set ``hide_viewport`` and
+                ``hide_render``) or ``"delete"`` (remove from ``bpy.data.objects``).
+
+        Returns:
+            bpy.types.Object: The generated (or in-place updated) rigify rig,
+            or None if `is_valid_metarig` rejected the meta rig.
+        """
+        _LOG.enter()
+        from ..entities.rigging.rigifyhelpers.rigifyhelpers import RigifyHelpers  # pylint: disable=C0415
+        from ..entities.objectproperties import GeneralObjectProperties  # pylint: disable=C0415
+
+        explicit_name = str(name).strip()
+
+        # If the metarig is named incorrectly (e.g. in case of sub-rigs), rename it
+        if meta_rig.name.endswith(".rig"):
+            meta_rig.name = meta_rig.data.name = meta_rig.name.replace(".rig", ".metarig")
+
+        if explicit_name:
+            if hasattr(meta_rig.data, 'rigify_rig_basename'):
+                meta_rig.data.rigify_rig_basename = explicit_name
+            else:
+                meta_rig.name = explicit_name.replace("rig", "metarig")
+
+        elif hasattr(meta_rig.data, 'rigify_generate_mode'):
+            # Try to preserve fix for issue #17 in legacy rigify, which has issues if the object exists.
+            fallback_name = meta_rig.name.replace("metarig", "rig")
+            meta_rig.data.rigify_rig_basename = ObjectService.ensure_unique_name(fallback_name)
+
+        bpy.ops.object.select_all(action='DESELECT')
+        meta_rig.select_set(True)
+        bpy.context.view_layer.objects.active = meta_rig
+        if bpy.context.mode != 'OBJECT':
+            bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
+
+        # Switch to the new face rig
+        if bpy.ops.pose.rigify_upgrade_face.poll():
+            bpy.ops.pose.rigify_upgrade_face()
+
+        # Final validity gate: defer to Rigify itself. Import is guarded the same
+        # way SystemService.check_for_rigify() guards: Rigify may not be enabled.
+        try:
+            from rigify.utils.rig import is_valid_metarig  # pylint: disable=C0415
+        except ImportError:
+            _LOG.warn("Could not import rigify.utils.rig.is_valid_metarig, skipping validity check")
+            is_valid_metarig = None
+
+        if is_valid_metarig is not None and not is_valid_metarig(bpy.context):
+            _LOG.warn("Rigify considers the meta rig invalid; not running rigify_generate")
+            return None
+
+        bpy.ops.pose.rigify_generate()  # Rigify availability checked by caller
+
+        rigify_object = bpy.context.active_object
+        rigify_object.show_in_front = True
+        rigify_object.parent = meta_rig.parent
+
+        _LOG.debug("rigify", rigify_object)
+
+        RigifyHelpers.adjust_children_for_rigify(rigify_object, meta_rig)
+
+        object_type = ObjectService.get_object_type(meta_rig)
+        GeneralObjectProperties.set_value("object_type", object_type, entity_reference=rigify_object)
+
+        action = (meta_rig_action or "hide").lower()
+        if action == "delete":
+            objs = bpy.data.objects
+            objs.remove(objs[meta_rig.name], do_unlink=True)
+        elif action == "hide":
+            meta_rig.hide_viewport = True
+            meta_rig.hide_render = True
+        elif action != "keep":
+            _LOG.warn("Unknown meta_rig_action; defaulting to hide", action)
+            meta_rig.hide_viewport = True
+            meta_rig.hide_render = True
+
+        rigify_object.select_set(True)
+        bpy.context.view_layer.objects.active = rigify_object
+        bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
+
+        return rigify_object
 
     @staticmethod
     def mirror_bone_weights_to_other_side_bone(armature_object, source_bone_name, target_bone_name):
@@ -1170,10 +1293,22 @@ class RigService:
                 trans[1] = pose["bone_translations"][name][1] * trans_factor_y
                 trans[2] = pose["bone_translations"][name][2] * trans_factor_z
                 bone.location = bone.location + Vector(trans)
+        rotation_modes = pose.get("bone_rotation_modes", {})
         for name in pose["bone_rotations"]:
             bone = RigService.find_pose_bone_by_name(name, armature_object)
-            if bone:
-                bone.rotation_euler = pose["bone_rotations"][name]
+            if not bone:
+                continue
+            value = pose["bone_rotations"][name]
+            mode = rotation_modes.get(name)
+            if mode is None:
+                mode = "QUATERNION" if len(value) == 4 else "XYZ"
+            bone.rotation_mode = mode
+            if mode == "QUATERNION":
+                bone.rotation_quaternion = value
+            elif mode == "AXIS_ANGLE":
+                bone.rotation_axis_angle = value
+            else:
+                bone.rotation_euler = value
 
     @staticmethod
     def get_pose_as_dict(armature_object, root_bone_translation=True, ik_bone_translation=True, fk_bone_translation=False, onlyselected=False):
@@ -1219,23 +1354,35 @@ class RigService:
         pose["original_shoulder_width"] = shoulder_width
 
         pose["bone_rotations"] = dict()
+        pose["bone_rotation_modes"] = dict()
         pose["bone_translations"] = dict()
         pose["has_ik_bones"] = False
 
         _LOG.debug("onlyselected", onlyselected)
 
-        for bone in bpy.context.selected_pose_bones_from_active_object:
+        selected_active = bpy.context.selected_pose_bones_from_active_object or []
+        for bone in selected_active:
             _LOG.debug("bone in selected", bone)
 
         for bone in armature_object.pose.bones:
-            euler = bone.rotation_euler
-            x = abs(euler[0])
-            y = abs(euler[1])
-            z = abs(euler[2])
-
+            mode = bone.rotation_mode
             if not onlyselected or bone in bpy.context.selected_pose_bones:
-                if x > 0.0001 or y > 0.0001 or z > 0.0001:
-                    pose["bone_rotations"][bone.name] = [euler[0], euler[1], euler[2]]
+                if mode == "QUATERNION":
+                    quat = bone.rotation_quaternion
+                    if (abs(quat[0] - 1.0) > 0.0001 or abs(quat[1]) > 0.0001
+                            or abs(quat[2]) > 0.0001 or abs(quat[3]) > 0.0001):
+                        pose["bone_rotations"][bone.name] = [quat[0], quat[1], quat[2], quat[3]]
+                        pose["bone_rotation_modes"][bone.name] = "QUATERNION"
+                elif mode == "AXIS_ANGLE":
+                    aa = bone.rotation_axis_angle
+                    if abs(aa[0]) > 0.0001:
+                        pose["bone_rotations"][bone.name] = [aa[0], aa[1], aa[2], aa[3]]
+                        pose["bone_rotation_modes"][bone.name] = "AXIS_ANGLE"
+                else:
+                    euler = bone.rotation_euler
+                    if abs(euler[0]) > 0.0001 or abs(euler[1]) > 0.0001 or abs(euler[2]) > 0.0001:
+                        pose["bone_rotations"][bone.name] = [euler[0], euler[1], euler[2]]
+                        pose["bone_rotation_modes"][bone.name] = mode
 
             is_ik = False
             for term in ik_terms:

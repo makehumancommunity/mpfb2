@@ -23,7 +23,7 @@ class MPFB_OT_RefitHumanOperator(MpfbOperator):
     def hardened_execute(self, context):
 
         blender_object = context.active_object
-        HumanService.refit(blender_object)
+        HumanService.refit(blender_object, operator=self)
 
         self.report({'INFO'}, "Assets have been refitted")
         return {'FINISHED'}

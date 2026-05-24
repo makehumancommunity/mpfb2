@@ -18,6 +18,7 @@ One child panel, "MPFB Bone Strategies", is unusual: rather than appearing in th
 | `faceops/` | "Face operations" | Load facial shape key packs (visemes, face units) and configure the Lip Sync addon |
 | `matops/` | "Material" | Material operations: remove makeup, set a normal map, replace with v2 skin material |
 | `poseops/` | "Poses" | Apply current pose as rest pose, or copy a pose from one rig to another |
+| `rigops/` | "Rig operations" | Rig-level operations, including the legacy "convert to rigify" workflow for MakeHuman-imported characters |
 | `sculpt/` | "Set up for sculpt" | Prepare a character mesh for sculpting with optional multiresolution setup and baking configuration |
 
 ## Further reading
@@ -30,6 +31,7 @@ One child panel, "MPFB Bone Strategies", is unusual: rather than appearing in th
 - [faceops.md](faceops.md) — "Face operations" panel
 - [matops.md](matops.md) — "Material" panel
 - [poseops.md](poseops.md) — "Poses" panel
+- [rigops.md](rigops.md) — "Rig operations" panel
 - [sculpt.md](sculpt.md) — "Set up for sculpt" panel
 - [UI Layer overview](../index.md)
 - [Meta classes](../meta.md) — `Abstract_Panel`, `MpfbOperator`, `MpfbContext`, `pollstrategy`

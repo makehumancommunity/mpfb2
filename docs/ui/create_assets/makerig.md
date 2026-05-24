@@ -193,6 +193,6 @@ MakeRig uses `MakeRigProperties` (prefix `"MRP_"`), combining JSON-defined prope
 
 ## Related
 
-- [Rigging — Add Rig](../rigging/addrig.md) — apply a finished rig definition to a character
+- [Rigging — Custom rig](../rigging/customrig.md) — apply a finished custom rig definition to a character
 - [MakeWeight](makeweight.md) — standalone weight editing tools (truncation, symmetrisation, import/export)
 - [RigService](../../services/rigservice.md) — the service underlying rig loading and saving

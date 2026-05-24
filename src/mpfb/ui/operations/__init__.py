@@ -12,3 +12,4 @@ from .boneops import *
 from .exportops import *
 from .faceops import *
 from .ai import *
+from .rigops import *

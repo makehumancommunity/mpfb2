@@ -6,6 +6,7 @@ from .....services import LocationService
 from .....services import HumanService
 from .....services import ObjectService
 from .....services import MeshService
+from .....services import RigService
 from .....services import SystemService
 from ....mpfboperator import MpfbOperator
 from ....mpfbcontext import MpfbContext
@@ -94,6 +95,19 @@ class MPFB_OT_HumanFromPresetsOperator(MpfbOperator):
            bpy.context.view_layer.objects.active = rig
            basemesh.select_set(False)
            rig.select_set(True)
+
+        if rig and ctx.auto_generate_rigify:
+            rig_type = RigService.identify_rig(rig)
+            if rig_type and rig_type.startswith("rigify."):
+                if SystemService.check_for_rigify():
+                    rigify_object = RigService.generate_rigify_rig(
+                        rig,
+                        meta_rig_action=ctx.meta_rig_action,
+                    )
+                    if rigify_object is None:
+                        self.report({'WARNING'}, "Rigify considers the loaded meta rig invalid; the full rig was not generated.")
+                else:
+                    self.report({'WARNING'}, "The loaded character has a rigify meta rig, but the Rigify addon is not enabled. Enable it under Edit > Preferences > Add-ons and click Generate manually to obtain the full rig.")
 
         _LOG.time("Human created in")
 

@@ -4,7 +4,7 @@
 
 `RigifyHelpers` converts an MPFB rig to a Rigify metarig by configuring `rigify_type` and `rigify_parameters` on each pose bone, then optionally generating the final production rig. 
 
-**Note that this is the old and stupid way of doing things: to first create a GameEngine rig and then convert it. There is no reason to use this for any other rigify-related workflow.**
+**Note that this is the old and stupid way of doing things: to first create a GameEngine rig and then convert it. There is no reason to use this for any other rigify-related workflow.** Both source files carry a discouraged-workflow header comment reflecting that the entire reason these classes exist is the legacy convert flow; the UI for that flow lives in [Rig operations](../../ui/operations/rigops.md).
 
 The `convert_to_rigify` method is the main entry point; it calls internal setup methods for spine, arms, legs, shoulders, head, and fingers in sequence.
 
@@ -39,7 +39,7 @@ Private methods (prefixed `_`) handle spine, arm, leg, shoulder, head, and finge
 |-----------|------|-------------|
 | `settings` | `dict` | Configuration dict passed at construction |
 | `produce` | `bool` | Whether to call `bpy.ops.pose.rigify_generate` after metarig setup |
-| `keep_meta` | `bool` | Whether to keep the metarig object after the generated rig is produced |
+| `meta_rig_action` | `str` | What to do with the metarig after the generated rig is produced. One of `"keep"`, `"hide"` (default), or `"delete"`. |
 
 ## Public API — `RigifyHelpers`
 
@@ -47,11 +47,11 @@ Private methods (prefixed `_`) handle spine, arm, leg, shoulder, head, and finge
 
 **`__init__(settings)`**
 
-Initialise the helper with a configuration dict, extracting `produce` and `keep_meta` flags.
+Initialise the helper with a configuration dict, extracting `produce` and `meta_rig_action` flags.
 
 | Argument | Type | Description |
 |----------|------|-------------|
-| `settings` | `dict` | May include `produce` (bool), `keep_meta` (bool), and `name` (str for the output rig name) |
+| `settings` | `dict` | May include `produce` (bool), `meta_rig_action` (str — `"keep"`, `"hide"` or `"delete"`; default `"hide"`), and `name` (str for the output rig name) |
 
 **Returns:** `RigifyHelpers` instance.
 
