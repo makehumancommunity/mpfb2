@@ -67,7 +67,7 @@ class MPFB_PT_Custom_Rig_Panel(Abstract_Panel):
 
         armature_object = ObjectService.find_object_of_type_amongst_nearest_relatives(context.active_object, "Skeleton")
         if armature_object:
-            layout.label(text="Not applicable for the current rig.")
+            layout.label(text="Not applicable for the current state.")
             return
 
         self._add_custom_rig(scene, layout)

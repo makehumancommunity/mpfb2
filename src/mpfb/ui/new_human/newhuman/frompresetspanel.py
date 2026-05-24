@@ -68,19 +68,29 @@ class MPFB_PT_From_Presets_Panel(Abstract_Panel):
     bl_parent_id = "MPFB_PT_New_Panel"
 
     def _create(self, scene, layout):
-        PRESETS_HUMAN_PROPERTIES.draw_properties(scene, layout, [
+
+        box = self.create_box(layout, "Basic")
+        PRESETS_HUMAN_PROPERTIES.draw_properties(scene, box, [
             "available_presets",
-            "scale_factor",
-            "override_rig",
-            "auto_generate_rigify",
+            "scale_factor"
             ])
-        action_row = layout.row()
-        action_row.enabled = bool(PRESETS_HUMAN_PROPERTIES.get_value("auto_generate_rigify", entity_reference=scene))
-        PRESETS_HUMAN_PROPERTIES.draw_properties(scene, action_row, ["meta_rig_action"])
-        PRESETS_HUMAN_PROPERTIES.draw_properties(scene, layout, [
+
+        box = self.create_box(layout, "Overrides")
+        PRESETS_HUMAN_PROPERTIES.draw_properties(scene, box, [
+            "override_rig",
             "override_skin_model",
             "override_clothes_model",
             "override_eyes_model",
+            ])
+
+        box = self.create_box(layout, "Rigify")
+        PRESETS_HUMAN_PROPERTIES.draw_properties(scene, box, [
+            "auto_generate_rigify",
+            "meta_rig_action"
+            ])
+
+        box = self.create_box(layout, "Various")
+        PRESETS_HUMAN_PROPERTIES.draw_properties(scene, box, [
             "material_instances",
             "preselect_group",
             "detailed_helpers",
@@ -90,6 +100,7 @@ class MPFB_PT_From_Presets_Panel(Abstract_Panel):
             "bodypart_deep_search",
             "clothes_deep_search"
             ])
+
         layout.operator('mpfb.human_from_presets')
         layout.operator('mpfb.human_from_mhm')
 

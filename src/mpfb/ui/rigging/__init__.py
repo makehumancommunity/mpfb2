@@ -7,4 +7,4 @@ from .standardrig import *
 from .rigifyrig import *
 from .customrig import *
 from .applypose import *
-from .addcycle import *
+#from .addcycle import *  <-- This is dead code now

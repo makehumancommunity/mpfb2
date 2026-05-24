@@ -26,17 +26,15 @@ class MPFB_PT_Standard_Rig_Panel(Abstract_Panel):
     bl_label = "Standard rig"
     bl_category = UiService.get_value("MODELCATEGORY")
     bl_parent_id = "MPFB_PT_Rig_Panel"
-    bl_options = set()
+    bl_options = {'DEFAULT_CLOSED'}
 
     def _add_standard_rig(self, scene, layout):
-        box = self.create_box(layout, "Add standard rig")
-        box.label(text="Recommended when rigify is not desired.")
         props = [
             "standard_rig",
             "import_weights"
             ]
-        STANDARD_RIG_PROPERTIES.draw_properties(scene, box, props)
-        box.operator('mpfb.add_standard_rig')
+        STANDARD_RIG_PROPERTIES.draw_properties(scene, layout, props)
+        layout.operator('mpfb.add_standard_rig')
 
     def _arm_helpers(self, scene, layout):
         box = self.create_box(layout, "Arm helpers")
@@ -123,7 +121,7 @@ class MPFB_PT_Standard_Rig_Panel(Abstract_Panel):
                 self._draw_helpers(scene, layout, context.active_object)
                 return
 
-        layout.label(text="Not applicable for the current rig.")
+        layout.label(text="Not applicable for the current state.")
 
 
 ClassManager.add_class(MPFB_PT_Standard_Rig_Panel)

@@ -23,7 +23,7 @@ class MPFB_PT_Rigify_Rig_Panel(Abstract_Panel):
     bl_label = "Rigify rig"
     bl_category = UiService.get_value("MODELCATEGORY")
     bl_parent_id = "MPFB_PT_Rig_Panel"
-    bl_options = set()
+    bl_options = {'DEFAULT_CLOSED'}
 
     def _rigify_not_enabled(self, layout):
         box = self.create_box(layout, "Rigify not enabled")
@@ -32,20 +32,15 @@ class MPFB_PT_Rigify_Rig_Panel(Abstract_Panel):
         box.label(text="to use this workflow.")
 
     def _add_rigify_rig(self, scene, layout):
-        box = self.create_box(layout, "Add rigify meta rig")
-        box.label(text="Recommended workflow for")
-        box.label(text="rigify-based characters.")
         props = [
             "rigify_rig",
             "import_weights_rigify",
             "name",
             "auto_generate",
+            "meta_rig_action"
             ]
-        RIGIFY_RIG_PROPERTIES.draw_properties(scene, box, props)
-        action_row = box.row()
-        action_row.enabled = bool(RIGIFY_RIG_PROPERTIES.get_value("auto_generate", entity_reference=scene))
-        RIGIFY_RIG_PROPERTIES.draw_properties(scene, action_row, ["meta_rig_action"])
-        box.operator('mpfb.add_rigify_rig')
+        RIGIFY_RIG_PROPERTIES.draw_properties(scene, layout, props)
+        layout.operator('mpfb.add_rigify_rig')
 
     def _generate_rigify_rig(self, scene, layout):
         box = self.create_box(layout, "Generate rigify rig")
@@ -82,7 +77,7 @@ class MPFB_PT_Rigify_Rig_Panel(Abstract_Panel):
                 self._generate_rigify_rig(scene, layout)
                 return
 
-        layout.label(text="Not applicable for the current rig.")
+        layout.label(text="Not applicable for the current state.")
 
 
 ClassManager.add_class(MPFB_PT_Rigify_Rig_Panel)
