@@ -150,3 +150,6 @@ reports
 *.bak
 *~
 
+# Transient notes about feature requests
+feature-requests/
+

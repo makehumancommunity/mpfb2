@@ -1,0 +1,16 @@
+{
+  "include": [
+    "src/mpfb/services",
+    "src/mpfb/entities"
+  ],
+  "exclude": [
+    "src/mpfb/entities/nodemodel",
+    "**/__pycache__"
+  ],
+  "ignore": [
+    "src/mpfb/ui"
+  ],
+  "pythonVersion": "3.12",
+  "typeCheckingMode": "basic",
+  "reportMissingModuleSource": "none"
+}

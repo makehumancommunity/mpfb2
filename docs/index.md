@@ -7,6 +7,10 @@ the [docs hierarchy](https://static.makehumancommunity.org/mpfb/docs.html) on th
 
 - [Code Structure Guide](code-structure.md) — how the codebase is organized, for new developers
 
+## Development tooling
+
+- [Type checking](type-checking.md) — setting up and running pyright for static type checking
+
 ## File formats
 
 These are format descriptions for various files used by MPFB.
