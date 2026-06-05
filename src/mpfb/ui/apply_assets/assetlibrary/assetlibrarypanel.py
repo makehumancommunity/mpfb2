@@ -7,6 +7,7 @@ from ....services import AssetService, ASSET_LIBRARY_SECTIONS
 from ....services import HumanService
 from ....services import ObjectService
 from ....services import TargetService
+from ....services import SystemService
 from ..assetlibrary.assetsettingspanel import ASSET_SETTINGS_PROPERTIES
 from ....services import UiService
 from ..assetspanel import FILTER_PROPERTIES
@@ -40,6 +41,11 @@ class _Abstract_Asset_Library_Panel(bpy.types.Panel):
 
     def _draw_section(self, scene, layout):
         _LOG.enter()
+
+        if self.asset_type == "bvh" and not SystemService.check_for_bvh():
+            layout.label(text="The BVH addon is not enabled", icon="ERROR")
+            return
+
         tot_width = bpy.context.region.width
         cols = max(1, math.floor(tot_width / 256))
         _LOG.debug("Number of UI columns to use", cols)

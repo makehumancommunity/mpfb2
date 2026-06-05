@@ -98,6 +98,15 @@ class SystemService:
         return True
 
     @staticmethod
+    def check_for_bvh() -> bool:
+        """Check if the Blender BVH importer addon is enabled, by verifying that its
+        import operator is available."""
+        if not hasattr(bpy.ops.import_anim, "bvh"):
+            _LOG.warn("BVH importer addon (io_anim_bvh) is not enabled")
+            return False
+        return True
+
+    @staticmethod
     def normalize_path_separators(path_string: str) -> str:
         """Replace all escaped backslashes with forward slashes."""
         if not path_string:
