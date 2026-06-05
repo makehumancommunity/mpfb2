@@ -1,0 +1,5 @@
+# Development-only dependencies for static type checking (see docs/type-checking.md).
+# NEVER add these to blender_manifest.toml or import them at runtime — at runtime the real
+# compiled bpy is present.
+pyright
+fake-bpy-module==20260501   # or the build matching the supported Blender version
