@@ -4,18 +4,18 @@ import os, sys, subprocess, bpy, addon_utils, re
 from .logservice import LogService
 _LOG = LogService.get_logger("services.systemservice")
 
-LOWEST_FUNCTIONAL_BLENDER_VERSION = (4, 2, 0)
+LOWEST_FUNCTIONAL_BLENDER_VERSION: tuple[int, int, int] = (4, 2, 0)
 
 
 class SystemService:
     """Utility functions for various system tasks."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         """You should not instance SystemService. Use its static methods instead."""
         raise RuntimeError("You should not instance SystemService. Use its static methods instead.")
 
     @staticmethod
-    def deduce_platform():
+    def deduce_platform() -> str:
         """Deduces the current system platform (ie the operating system)."""
         if sys.platform.startswith('linux'):
             return "LINUX"
@@ -33,7 +33,7 @@ class SystemService:
         return "WINDOWS"
 
     @staticmethod
-    def open_file_browser(path):
+    def open_file_browser(path: str) -> None:
         """Open a file browser window for the specified path."""
         platform = SystemService.deduce_platform()
         if platform == "LINUX":
@@ -48,13 +48,13 @@ class SystemService:
         raise NotImplementedError("Opening a file browser is not supported for platform " + platform)
 
     @staticmethod
-    def check_for_obj_importer():
+    def check_for_obj_importer() -> bool:
         """Check if the Blender OBJ importer is installed."""
         _LOG.warn("Doing superfluous check for Blender OBJ importer")
         return True
 
     @staticmethod
-    def check_for_lipsync():
+    def check_for_lipsync() -> bool:
         """Check if the Lip Sync addon is enabled. This method will both check for the addon per se,
         and for the specific operators which are commonly used."""
         lip_sync_name = None
@@ -75,7 +75,7 @@ class SystemService:
         return True
 
     @staticmethod
-    def check_for_rigify():
+    def check_for_rigify() -> bool:
         """Check if the Blender Rigify addon is enabled. This method will both check for the addon per se,
         and for the specific operators which are commonly used."""
         (loaded_default, loaded_state) = addon_utils.check('rigify')  # pylint: disable=W0612
@@ -98,14 +98,14 @@ class SystemService:
         return True
 
     @staticmethod
-    def normalize_path_separators(path_string):
+    def normalize_path_separators(path_string: str) -> str:
         """Replace all escaped backslashes with forward slashes."""
         if not path_string:
             return ""
         return re.sub(r"\\+", "/", str(path_string))
 
     @staticmethod
-    def string_contains_path_segment(full_path, path_segment, case_insensitive=True):
+    def string_contains_path_segment(full_path: str, path_segment: str, case_insensitive: bool = True) -> bool:
         """Check if the full path contains the path segment."""
         if not full_path or not path_segment:
             return False
@@ -122,7 +122,7 @@ class SystemService:
 
     # Method for finding if the currently running blender version is at least the specified version
     @staticmethod
-    def is_blender_version_at_least(version=LOWEST_FUNCTIONAL_BLENDER_VERSION):
+    def is_blender_version_at_least(version: tuple[int, int, int] = LOWEST_FUNCTIONAL_BLENDER_VERSION) -> bool:
         """Check if the currently running blender version is at least the specified version.
 
         Args:
