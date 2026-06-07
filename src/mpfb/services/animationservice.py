@@ -4,6 +4,7 @@ import bpy, os
 from .logservice import LogService
 from .rigservice import RigService
 from .objectservice import ObjectService
+from .systemservice import SystemService
 
 _LOG = LogService.get_logger("services.animationservice")
 
@@ -33,6 +34,12 @@ class AnimationService:
         if not os.path.exists(bvh_file_path):
             _LOG.error("bvh_file_path does not exist", bvh_file_path)
             raise IOError("BVH file does not exist " + bvh_file_path)
+
+        if not SystemService.check_for_bvh():
+            raise RuntimeError(
+                "The BVH importer addon is not enabled. "
+                "Go to Edit > Preferences > Add-ons and enable 'BVH format'."
+            )
 
         # First, import the bvh file as an armature
         bpy.ops.import_anim.bvh(filepath=bvh_file_path, axis_forward='Y', axis_up='Z', rotate_mode='XYZ')
