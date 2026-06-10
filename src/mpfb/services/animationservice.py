@@ -1,6 +1,7 @@
 """Service for working with animations and poses"""
 
 import bpy, os
+from typing import Optional
 from .logservice import LogService
 from .rigservice import RigService
 from .objectservice import ObjectService
@@ -25,7 +26,7 @@ class AnimationService:
         raise RuntimeError("You should not instance AnimationService. Use its static methods instead.")
 
     @staticmethod
-    def import_bvh_file_as_pose(dest_rig, bvh_file_path):
+    def import_bvh_file_as_pose(dest_rig: bpy.types.Object, bvh_file_path: str) -> None:
         """Destructively import a bvh file as a pose for the given armature. This will ruin the roll values
            of the bones in the dest_rig.
         """
@@ -87,7 +88,7 @@ class AnimationService:
         bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
 
     @staticmethod
-    def get_max_keyframe(armature_object):
+    def get_max_keyframe(armature_object: bpy.types.Object) -> Optional[int]:
         """
         Get the maximum keyframe number for the given armature object.
 
@@ -125,7 +126,7 @@ class AnimationService:
         return max_keyframe
 
     @staticmethod
-    def make_cyclic(armature_object, bone_with_offset=None):
+    def make_cyclic(armature_object: bpy.types.Object, bone_with_offset: Optional[str] = None) -> None:
         """Make an animation cyclic by adding a modifier to each fcurve. Optionally add offset parameter to one bone."""
 
         anim = armature_object.animation_data
@@ -141,7 +142,7 @@ class AnimationService:
                 modifier.mode_after = 'REPEAT_OFFSET'
 
     @staticmethod
-    def get_bone_movement_distance(armature_object, bone_name, start_keyframe, end_keyframe):
+    def get_bone_movement_distance(armature_object: bpy.types.Object, bone_name: str, start_keyframe: int, end_keyframe: int) -> list:
         """
         Calculate the movement distance of a bone between two keyframes.
 
@@ -181,7 +182,7 @@ class AnimationService:
         return [end_loc[0] - start_loc[0], end_loc[1] - start_loc[1], end_loc[2] - start_loc[2]]
 
     @staticmethod
-    def move_bone_for_all_keyframes(armature_object, bone_name, distance, start_keyframe, end_keyframe):
+    def move_bone_for_all_keyframes(armature_object: bpy.types.Object, bone_name: str, distance: list, start_keyframe: int, end_keyframe: int) -> None:
         """
         Move a bone by a specified distance for all keyframes within a given range.
 
@@ -213,7 +214,7 @@ class AnimationService:
             bone.keyframe_insert(data_path="location", frame=keyframe)
 
     @staticmethod
-    def duplicate_keyframes(armature_object, start_duplicate_at, first_keyframe, last_keyframe):
+    def duplicate_keyframes(armature_object: bpy.types.Object, start_duplicate_at: int, first_keyframe: int, last_keyframe: int) -> None:
         """
         Move a bone by a specified distance for all keyframes within a given range.
 
@@ -237,7 +238,7 @@ class AnimationService:
             AnimationService.duplicate_keyframe(armature_object, source_keyframe, target_keyframe)
 
     @staticmethod
-    def duplicate_keyframe(armature_object, source_keyframe, target_keyframe):
+    def duplicate_keyframe(armature_object: bpy.types.Object, source_keyframe: int, target_keyframe: int) -> None:
         """Duplicates a keyframe from one armature object to another.
 
         Args:
@@ -283,7 +284,7 @@ class AnimationService:
             new_keyframe.back = old_keyframe.back
 
     @staticmethod
-    def get_key_frames_as_dict(armature_object):
+    def get_key_frames_as_dict(armature_object: bpy.types.Object) -> dict:
         """Scan through all key frames set for pose bones and return a dict with all info."""
         _LOG.enter()
 
@@ -355,7 +356,7 @@ class AnimationService:
         return full_dict
 
     @staticmethod
-    def set_key_frames_from_dict(armature_object, animation_dict, frame_offset=0, skip_first_frame=False):
+    def set_key_frames_from_dict(armature_object: bpy.types.Object, animation_dict: dict, frame_offset: int = 0, skip_first_frame: bool = False) -> None:
         """Assign key frames for pose bones."""
         _LOG.enter()
 
