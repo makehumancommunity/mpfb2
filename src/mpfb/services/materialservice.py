@@ -33,7 +33,7 @@ class MaterialService():
         raise RuntimeError("You should not instance MaterialService. Use its static methods instead.")
 
     @staticmethod
-    def delete_all_materials(blender_object, also_destroy_groups=False):
+    def delete_all_materials(blender_object, also_destroy_groups: bool = False) -> None:
         """Deletes all materials from the given blender object.
 
         Args:
@@ -52,21 +52,21 @@ class MaterialService():
                 bpy.data.materials.remove(block)
 
     @staticmethod
-    def has_materials(blender_object):
+    def has_materials(blender_object) -> bool:
         """Check if object has any materials at all assigned"""
         if not blender_object.material_slots:
             return False
         return len(blender_object.material_slots) > 0
 
     @staticmethod
-    def get_material(blender_object, slot=0):
+    def get_material(blender_object, slot: int = 0) -> bpy.types.Material | None:
         """Return the material in the object's given material slot"""
         if not blender_object.material_slots or len(blender_object.material_slots) < 1:
             return None
         return blender_object.material_slots[slot].material
 
     @staticmethod
-    def identify_material(material):
+    def identify_material(material) -> str:
         """Try to figure out which kind of material we have"""
         if not material:
             return "empty"
@@ -159,7 +159,7 @@ class MaterialService():
         image_node.image = image
 
     @staticmethod
-    def set_normalmap(material, filename):
+    def set_normalmap(material, filename: str) -> None:
         """Try to modify the material so that it uses the normal map"""
         material_type = MaterialService.identify_material(material)
 
@@ -175,7 +175,7 @@ class MaterialService():
         raise ValueError('Cannot set normalmap in material of type ' + material_type)
 
     @staticmethod
-    def assign_new_or_existing_material(name, blender_object):
+    def assign_new_or_existing_material(name: str, blender_object) -> bpy.types.Material:
         """Assigns a new material to the given blender object.
 
         Args:
@@ -194,7 +194,7 @@ class MaterialService():
         return material
 
     @staticmethod
-    def create_empty_material(name, blender_object=None):
+    def create_empty_material(name: str, blender_object=None) -> bpy.types.Material:
         """
         Create a new empty material with the given name, and assign it to the blender object
         if given.
@@ -208,7 +208,7 @@ class MaterialService():
         return material
 
     @staticmethod
-    def create_v2_skin_material(name, blender_object=None, mhmat_file=None):
+    def create_v2_skin_material(name: str, blender_object=None, mhmat_file: str | None = None) -> bpy.types.Material:
         """Create a new v2 skin material with the given name, and assign it to the blender object.
 
         Args:
@@ -278,7 +278,7 @@ class MaterialService():
         return material
 
     @staticmethod
-    def as_blend_path(path):
+    def as_blend_path(path: str) -> tuple[str, str, str]:
         """
         Converts a relative path to an asset in a blender library to an absolute path to the blend,
         the location of the asset in the blend and the name of the asset, ie return:
@@ -289,7 +289,7 @@ class MaterialService():
         return blend_path, dir_name, asset_name
 
     @staticmethod
-    def save_material_in_blend_file(blender_object, path_to_blend_file, material_number=None, fake_user=False):
+    def save_material_in_blend_file(blender_object, path_to_blend_file, material_number: int | None = None, fake_user: bool = False) -> None:
         """
         Save the material(s) on the active object to a blend file. If material_number is None, save all
         the object's materials. Otherwise, save material slot with that number. This writes into the file
@@ -305,7 +305,7 @@ class MaterialService():
         print('Wrote blend file into:', path_to_blend_file)
 
     @staticmethod
-    def load_material_from_blend_file(path, blender_object=None):
+    def load_material_from_blend_file(path: str, blender_object=None) -> bpy.types.Material:
         """
         Load a material from a blend file determined by path, to a new material slot.
         """
@@ -348,7 +348,7 @@ class MaterialService():
         bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
 
     @staticmethod
-    def create_and_assign_material_slots(basemesh, bodyproxy=None):
+    def create_and_assign_material_slots(basemesh, bodyproxy=None) -> None:
         """Creates and assigns material slots for each body vertex group.
 
         Args:
@@ -384,7 +384,7 @@ class MaterialService():
                 _LOG.debug("Not adding slot to bodyproxy because it is none or group does not exist", (bodyproxy, group_name))
 
     @staticmethod
-    def find_color_adjustment(blender_object):
+    def find_color_adjustment(blender_object) -> dict | None:
         """Return a dict with all color adjustments that were applied to the blender object's material slots.
 
         Args:
@@ -423,7 +423,7 @@ class MaterialService():
         return info["values"]
 
     @staticmethod
-    def apply_color_adjustment(blender_object, color_adjustment):
+    def apply_color_adjustment(blender_object, color_adjustment) -> None:
         """Apply a color adjustment to the blender object's material slots.
 
         Args:
@@ -746,7 +746,7 @@ class MaterialService():
         return uvmap_node, texture_node, number_of_layers + 1
 
     @staticmethod
-    def get_number_of_ink_layers(material):
+    def get_number_of_ink_layers(material) -> int:
         """Return information about how many ink layers are present in the material."""
 
         if not material:
@@ -767,7 +767,7 @@ class MaterialService():
         return max_layer_number
 
     @staticmethod
-    def get_ink_layer_info(mesh_object, ink_layer=1):
+    def get_ink_layer_info(mesh_object, ink_layer: int = 1) -> tuple[str, str]:
         """Return information about UV map and texture name for a specific ink layer."""
 
         material = MaterialService.get_material(mesh_object)
@@ -852,7 +852,7 @@ class MaterialService():
         return uvmap_node, texture_node, ink_layer_id
 
     @staticmethod
-    def remove_all_makeup(material, basemesh=None):
+    def remove_all_makeup(material, basemesh=None) -> None:
         """Remove all ink layers from a material, and optionally remove ink layer UVs from the corresponding basemesh"""
         _LOG.debug("Removing all makeup")
         if not material:
@@ -897,32 +897,32 @@ class MaterialService():
                     basemesh.data.uv_layers.remove(uv_layer)
 
     @staticmethod
-    def get_skin_diffuse_color():
+    def get_skin_diffuse_color() -> list[float]:
         """Return a static color for the skin material, for example to be used in the viewport."""
         return [0.721, 0.568, 0.431, 1.0]
 
     @staticmethod
-    def get_generic_bodypart_diffuse_color():
+    def get_generic_bodypart_diffuse_color() -> list[float]:
         """Return a static color for a bodypart material, for example to be used in the viewport."""
         return [0.194, 0.030, 0.014, 1.0]
 
     @staticmethod
-    def get_generic_clothes_diffuse_color():
+    def get_generic_clothes_diffuse_color() -> list[float]:
         """Return a static color for a clothes material, for example to be used in the viewport."""
         return [0.6, 0.6, 0.6, 1.0]
 
     @staticmethod
-    def get_eye_diffuse_color():
+    def get_eye_diffuse_color() -> list[float]:
         """Return a static color for the eye material, for example to be used in the viewport."""
         return [0.95, 0.95, 0.95, 1.0]
 
     @staticmethod
-    def get_teeth_diffuse_color():
+    def get_teeth_diffuse_color() -> list[float]:
         """Return a static color for the teeth material, for example to be used in the viewport."""
         return [0.95, 0.95, 0.95, 1.0]
 
     @staticmethod
-    def get_diffuse_colors():
+    def get_diffuse_colors() -> dict[str, list[float]]:
         """Return all static colors for all materials."""
         colors = dict()
         colors["Eyes"] = MaterialService.get_eye_diffuse_color()
