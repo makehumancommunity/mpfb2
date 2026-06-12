@@ -2,6 +2,7 @@
 
 import os, bpy, json, zipfile, shutil, tempfile
 from pathlib import Path
+from typing import Any
 from .logservice import LogService
 from .locationservice import LocationService
 from .systemservice import SystemService
@@ -136,11 +137,11 @@ class AssetService:
     to define and manage different categories of assets within the project.
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         raise RuntimeError("You should not instance AssetService. Use its static methods instead.")
 
     @staticmethod
-    def find_asset_files_matching_pattern(asset_roots, pattern="*.mhclo"):
+    def find_asset_files_matching_pattern(asset_roots: list[str], pattern: str = "*.mhclo") -> list[Path]:
         """
         Scan the given asset roots for files matching the specified pattern.
 
@@ -175,7 +176,7 @@ class AssetService:
         return found_files
 
     @staticmethod
-    def find_asset_absolute_path(asset_path_fragment, asset_subdir="clothes"):
+    def find_asset_absolute_path(asset_path_fragment: str, asset_subdir: str = "clothes") -> str | None:
         """
         Find the absolute path of an asset given a path fragment and an asset subdirectory.
 
@@ -224,47 +225,51 @@ class AssetService:
         return os.path.abspath(matches[0])
 
     @staticmethod
-    def list_mhclo_assets(asset_subdir="clothes"):
+    def list_mhclo_assets(asset_subdir: str = "clothes") -> list[Path]:
         """Convenience wrapper for finding all mhclo assets for a subdir."""
         _LOG.enter()
         roots = AssetService.get_asset_roots(asset_subdir)
         return AssetService.find_asset_files_matching_pattern(roots, "*.mhclo")
 
     @staticmethod
-    def list_mhmat_assets(asset_subdir="skins"):
+    def list_mhmat_assets(asset_subdir: str = "skins") -> list[Path]:
         """Convenience wrapper for finding all mhmat assets for a subdir."""
         _LOG.enter()
         roots = AssetService.get_asset_roots(asset_subdir)
         return AssetService.find_asset_files_matching_pattern(roots, "*.mhmat")
 
     @staticmethod
-    def list_bvh_assets(asset_subdir="poses"):
+    def list_bvh_assets(asset_subdir: str = "poses") -> list[Path]:
         """Convenience wrapper for finding all bvh assets for a subdir."""
         _LOG.enter()
         roots = AssetService.get_asset_roots(asset_subdir)
         return AssetService.find_asset_files_matching_pattern(roots, "*.bvh")
 
     @staticmethod
-    def list_ink_layer_assets(asset_subdir="ink_layers"):
+    def list_ink_layer_assets(asset_subdir: str = "ink_layers") -> list[Path]:
         """Convenience wrapper for finding all ink layers."""
         _LOG.enter()
         roots = AssetService.get_asset_roots(asset_subdir)
         return AssetService.find_asset_files_matching_pattern(roots, "*.json")
 
     @staticmethod
-    def list_proxy_assets(asset_subdir="proxymeshes"):
+    def list_proxy_assets(asset_subdir: str = "proxymeshes") -> list[Path]:
         """Convenience wrapper for finding all proxy assets for a subdir."""
         _LOG.enter()
         roots = AssetService.get_asset_roots(asset_subdir)
         return AssetService.find_asset_files_matching_pattern(roots, "*.proxy")
 
     @staticmethod
-    def alternative_materials_for_asset(asset_source, asset_subdir="clothes", exclude_default=True):
+    def alternative_materials_for_asset(
+        asset_source: str | None,
+        asset_subdir: str = "clothes",
+        exclude_default: bool = True,
+    ) -> list[str]:
         """
         Find alternative materials for a given asset.
 
         Args:
-            asset_source (str): The source path fragment of the asset.
+            asset_source (str | None): The source path fragment of the asset.
             asset_subdir (str): The subdirectory under which to search for the asset (default is "clothes").
             exclude_default (bool): Whether to exclude the default material (default is True).
 
@@ -299,7 +304,7 @@ class AssetService:
         return possible_materials
 
     @staticmethod
-    def get_available_data_roots():
+    def get_available_data_roots() -> list[str]:
         """
         Retrieve the available data roots from various locations.
 
@@ -331,7 +336,7 @@ class AssetService:
         return roots
 
     @staticmethod
-    def get_asset_roots(asset_subdir="clothes"):
+    def get_asset_roots(asset_subdir: str = "clothes") -> list[str]:
         """
         Retrieve the available data roots from various locations.
 
@@ -354,7 +359,7 @@ class AssetService:
         return asset_roots
 
     @staticmethod
-    def update_asset_list(asset_subdir="clothes", asset_type="mhclo"):
+    def update_asset_list(asset_subdir: str = "clothes", asset_type: str = "mhclo") -> None:
         """
         Update the list of assets for a given subdirectory and asset type.
 
@@ -408,7 +413,7 @@ class AssetService:
         _ASSETS[asset_subdir] = asset_list
 
     @staticmethod
-    def update_all_asset_lists():
+    def update_all_asset_lists() -> None:
         """Update the global asset list cache"""
         for section in ASSET_LIBRARY_SECTIONS:
             asset_subdir = section["asset_subdir"]
@@ -416,7 +421,7 @@ class AssetService:
             AssetService.update_asset_list(asset_subdir, asset_type)
 
     @staticmethod
-    def get_asset_list(asset_subdir="clothes", asset_type="mhclo"):
+    def get_asset_list(asset_subdir: str = "clothes", asset_type: str = "mhclo") -> dict[str, dict[str, Any]]:
         """
         Retrieve the list of assets for a given subdirectory and asset type.
 
@@ -435,7 +440,11 @@ class AssetService:
         return _ASSETS[asset_subdir]
 
     @staticmethod
-    def path_to_fragment(asset_full_path, relative_to_fragment=None, asset_subdir="clothes"):
+    def path_to_fragment(
+        asset_full_path: str,
+        relative_to_fragment: str | None = None,
+        asset_subdir: str = "clothes",
+    ) -> str:
         """Convert an absolute path of an assset to a fragment path."""
         if not relative_to_fragment:
             return os.path.basename(os.path.dirname(asset_full_path)) + "/" + os.path.basename(asset_full_path)
@@ -443,7 +452,7 @@ class AssetService:
         raise NotImplementedError('Manually specified relative_to_fragment has not been implemented yet.')
 
     @staticmethod
-    def have_any_pack_meta_data():
+    def have_any_pack_meta_data() -> bool:
         """Check if any asset pack at all as been installed."""
         packs_dir = LocationService.get_user_data("packs")
         _LOG.debug("Packs dir, exists", (packs_dir, os.path.exists(packs_dir)))
@@ -458,7 +467,7 @@ class AssetService:
         return False
 
     @staticmethod
-    def check_if_modern_makehuman_system_assets_installed():
+    def check_if_modern_makehuman_system_assets_installed() -> tuple[bool, bool]:
         """Check if the makehuman system assets pack is installed in the user data directory. Also
         check whether the brown.mhmat file is installed. If the latter isn't available, then this is an
         indication that the user has a very old version of the makehuman system assets pack installed.
@@ -478,7 +487,7 @@ class AssetService:
         return system_assets_pack_installed, brown_mhmat_installed
 
     @staticmethod
-    def rescan_pack_metadata():
+    def rescan_pack_metadata() -> None:
         """
         Load pack metadata from JSON files in the packs directory.
 
@@ -501,7 +510,7 @@ class AssetService:
                     _PACKS[packname] = json.load(json_file)
 
     @staticmethod
-    def get_pack_names():
+    def get_pack_names() -> list[str]:
         """
         Retrieve the names of all available asset packs.
 
@@ -521,14 +530,14 @@ class AssetService:
         return names
 
     @staticmethod
-    def system_assets_pack_is_installed():
+    def system_assets_pack_is_installed() -> bool:
         """
         Scan the list of pack names to determine if there is a pack makehuman_system_assets seems to be installed.
         """
         return "makehuman_system_assets" in AssetService.get_pack_names()
 
     @staticmethod
-    def get_asset_names_in_pack(pack_name):
+    def get_asset_names_in_pack(pack_name: str) -> list[str]:
         """
         Retrieve the names of all assets in a specified pack.
 
@@ -552,7 +561,7 @@ class AssetService:
         return names
 
     @staticmethod
-    def get_asset_names_in_pack_pattern(pack_pattern):
+    def get_asset_names_in_pack_pattern(pack_pattern: str) -> list[str]:
         """
         Retrieve the names of all assets in packs that match a given pattern.
 
@@ -574,7 +583,7 @@ class AssetService:
         return asset_names
 
     @staticmethod
-    def get_custom_rigs(use_cache=True):
+    def get_custom_rigs(use_cache: bool = True) -> list[dict[str, Any]]:
         """Scan user asset roots for custom rig JSON files.
 
         Returns a list of dicts: {name, path, identifying_bones}.
@@ -632,13 +641,13 @@ class AssetService:
         return found
 
     @staticmethod
-    def invalidate_custom_rig_cache():
+    def invalidate_custom_rig_cache() -> None:
         """Clear the cached custom rig list so the next call to get_custom_rigs() rescans disk."""
         global _CUSTOM_RIGS_CACHE  # pylint: disable=W0603
         _CUSTOM_RIGS_CACHE = None
 
     @staticmethod
-    def get_custom_rigs_enum_items():
+    def get_custom_rigs_enum_items() -> list[tuple[str, str, str]]:
         """Return custom rig names as Blender enum item tuples for use in EnumProperty callbacks.
 
         Returns:
@@ -650,7 +659,7 @@ class AssetService:
         return [(r["name"], "Custom: " + r["name"], "") for r in custom_rigs]
 
     @staticmethod
-    def check_asset_pack_zip(filename):
+    def check_asset_pack_zip(filename: str) -> str | None:
         """Check if a file is a valid zip file containing a makehuman asset pack.
 
         Args:
@@ -693,7 +702,7 @@ class AssetService:
             return f"INVALID_ZIP: {str(e)}"
 
     @staticmethod
-    def fix_and_extract_asset_pack_zip(filename, target_dir):
+    def fix_and_extract_asset_pack_zip(filename: str, target_dir: str) -> str | None:
         """Extract an asset pack zip to target_dir, stripping one extra root directory if needed.
 
         Handles the common re-packaging error where the zip has a single extra root directory
