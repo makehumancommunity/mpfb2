@@ -2,7 +2,7 @@
     "type": "enum",
     "name": "meta_rig_action",
     "description": "What to do with the meta rig after the full rigify rig has been generated. Keep leaves it visible and in the scene. Hide is the recommended default - it stays in the scene but is hidden from the viewport and renders. Delete removes it entirely. Only relevant when converting a MakeHuman-imported Game Engine rig",
-    "label": "Meta-rig:",
+    "label": "Meta-rig",
     "default": "hide",
     "items": [
         ["keep", "Keep", "Keep the meta rig visible in the scene after generation", 0],
