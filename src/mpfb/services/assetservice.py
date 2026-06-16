@@ -675,10 +675,9 @@ class AssetService:
 
             for name in namelist:
                 _LOG.debug("Zip entry:", name)
-
-            # A valid zip has packs/ at root level
-            if "packs/" in namelist:
-                return None
+                if name.startswith("packs/"):
+                    # A valid zip has packs/ at root level
+                    return None
 
             has_macos = any(name.startswith("__MACOSX") for name in namelist)
 
