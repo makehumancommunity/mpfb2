@@ -18,7 +18,7 @@ class NodeTreeService:
         raise RuntimeError("You should not instance NodeTreeService. Use its static methods instead.")
 
     @staticmethod
-    def get_socket(node_tree, socket_name, in_out="INPUT"):
+    def get_socket(node_tree, socket_name, in_out="INPUT") -> bpy.types.NodeTreeInterfaceSocket | None:
         """Return an interface socket with the given name and in/out type, or None if it doesn't exist."""
         _LOG.enter()
         for item in node_tree.interface.items_tree:
@@ -37,50 +37,50 @@ class NodeTreeService:
         return None
 
     @staticmethod
-    def get_output_socket(node_tree, socket_name):
+    def get_output_socket(node_tree, socket_name) -> bpy.types.NodeTreeInterfaceSocket | None:
         """Return an interface output socket with the given name, or None if it doesn't exist."""
         _LOG.enter()
         return NodeTreeService.get_socket(node_tree, socket_name, in_out="OUTPUT")
 
     @staticmethod
-    def get_input_socket(node_tree, socket_name):
+    def get_input_socket(node_tree, socket_name) -> bpy.types.NodeTreeInterfaceSocket | None:
         """Return an interface input socket with the given name, or None if it doesn't exist."""
         _LOG.enter()
         return NodeTreeService.get_socket(node_tree, socket_name, in_out="INPUT")
 
     @staticmethod
-    def has_socket(node_tree, socket_name, in_out="INPUT"):
+    def has_socket(node_tree, socket_name, in_out="INPUT") -> bool:
         """Return True if the given socket exists, False otherwise."""
         _LOG.enter()
         socket = NodeTreeService.get_socket(node_tree, socket_name, in_out=in_out)
         return socket is not None
 
     @staticmethod
-    def has_input_socket(node_tree, socket_name):
+    def has_input_socket(node_tree, socket_name) -> bool:
         """Return True if the given input socket exists, False otherwise."""
         _LOG.enter()
         return NodeTreeService.has_socket(node_tree, socket_name, in_out="INPUT")
 
     @staticmethod
-    def has_output_socket(node_tree, socket_name):
+    def has_output_socket(node_tree, socket_name) -> bool:
         """Return True if the given output socket exists, False otherwise."""
         _LOG.enter()
         return NodeTreeService.has_socket(node_tree, socket_name, in_out="OUTPUT")
 
     @staticmethod
-    def create_socket(node_tree, socket_name, socket_type, in_out="INPUT"):
+    def create_socket(node_tree, socket_name, socket_type, in_out="INPUT") -> bpy.types.NodeTreeInterfaceSocket:
         """Create a new socket with the given name and type, and return it."""
         _LOG.enter()
         return node_tree.interface.new_socket(socket_name, socket_type=socket_type, in_out=in_out)
 
     @staticmethod
-    def create_input_socket(node_tree, socket_name, socket_type):
+    def create_input_socket(node_tree, socket_name, socket_type) -> bpy.types.NodeTreeInterfaceSocket:
         """Create a new input socket with the given name and type, and return it."""
         _LOG.enter()
         return NodeTreeService.create_socket(node_tree, socket_name, socket_type, in_out="INPUT")
 
     @staticmethod
-    def create_output_socket(node_tree, socket_name, socket_type):
+    def create_output_socket(node_tree, socket_name, socket_type) -> bpy.types.NodeTreeInterfaceSocket:
         """Create a new output socket with the given name and type, and return it."""
         _LOG.enter()
         return NodeTreeService.create_socket(node_tree, socket_name, socket_type, in_out="OUTPUT")
