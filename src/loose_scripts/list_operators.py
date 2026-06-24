@@ -2,7 +2,7 @@
 #
 # The script will print a list of operators in the format path + \t + class name + \t + inherited classes 
 
-import os, subprocess, io
+import os, io
 
 script_location = os.path.dirname(os.path.abspath(__file__))
 root_dir = os.path.join(script_location, "..", "..")
