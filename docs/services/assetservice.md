@@ -143,7 +143,7 @@ Find alternative `.mhmat` material files for a given asset. Searches for materia
 
 | Argument | Type | Default | Description |
 |----------|------|---------|-------------|
-| `asset_source` | `str` | — | The source path fragment of the asset |
+| `asset_source` | `str  | None` | — | The source path fragment of the asset |
 | `asset_subdir` | `str` | `"clothes"` | The asset subdirectory to search within |
 | `exclude_default` | `bool` | `True` | Whether to exclude the default material |
 
@@ -205,7 +205,7 @@ Retrieve the cached asset list for a subdirectory and type. If the list is not y
 | `asset_subdir` | `str` | `"clothes"` | The subdirectory to retrieve |
 | `asset_type` | `str` | `"mhclo"` | The file extension type |
 
-**Returns:** `dict` — Dictionary mapping asset labels to asset info dictionaries.
+**Returns:** `dict[str, dict[str, Any]]` — Dictionary mapping asset labels to asset info dictionaries.
 
 ---
 
@@ -216,7 +216,7 @@ Convert an absolute asset path to a relative fragment of the form `parent_dir/fi
 | Argument | Type | Default | Description |
 |----------|------|---------|-------------|
 | `asset_full_path` | `str` | — | The absolute path to convert |
-| `relative_to_fragment` | `str` | `None` | Reserved for future use |
+| `relative_to_fragment` | `str | None` | `None` | Reserved for future use |
 | `asset_subdir` | `str` | `"clothes"` | The asset subdirectory |
 
 **Returns:** `str` — The fragment path.
@@ -301,7 +301,7 @@ Scan the `rigs/` subdirectory of all user data roots for custom rig JSON files. 
 |----------|------|---------|-------------|
 | `use_cache` | `bool` | `True` | If `True`, return the cached list when available instead of rescanning disk |
 
-**Returns:** `list[dict]` — Each dict has keys `"name"` (str, bare filename without extension), `"path"` (str, absolute path to the JSON file), and `"identifying_bones"` (list of bone name strings).
+**Returns:** `list[dict[str, Any]]` — Each dict has keys `"name"` (str, bare filename without extension), `"path"` (str, absolute path to the JSON file), and `"identifying_bones"` (list of bone name strings).
 
 ---
 
@@ -317,7 +317,7 @@ Clear the cached custom rig list so that the next call to `get_custom_rigs()` pe
 
 Return the list of discovered custom rigs as Blender `EnumProperty` item tuples, suitable for use in a dynamic enum callback. If no custom rigs are found, returns a single placeholder entry.
 
-**Returns:** `list[tuple]` — List of `(identifier, label, description)` tuples. When no rigs exist, returns `[("NONE", "No custom rigs found", "")]`. Otherwise each entry is `(name, "Custom: " + name, "")`.
+**Returns:** `list[tuple[str, str, str]]` — List of `(identifier, label, description)` tuples. When no rigs exist, returns `[("NONE", "No custom rigs found", "")]`. Otherwise each entry is `(name, "Custom: " + name, "")`.
 
 ---
 
