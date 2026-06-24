@@ -12,29 +12,29 @@ _LOG.trace("initializing object properties module")
 
 from ...services import BlenderConfigSet
 
-_ROOT = os.path.dirname(__file__)
+_ROOT: str = os.path.dirname(__file__)
 
-_GENERAL_PROPERTIES_DIR = os.path.join(_ROOT, "generalproperties")
-_GENERAL_PROPERTIES = BlenderConfigSet.get_definitions_in_json_directory(_GENERAL_PROPERTIES_DIR)
+_GENERAL_PROPERTIES_DIR: str = os.path.join(_ROOT, "generalproperties")
+_GENERAL_PROPERTIES: list = BlenderConfigSet.get_definitions_in_json_directory(_GENERAL_PROPERTIES_DIR)
 
 # This is the general properties object that can be imported
-GeneralObjectProperties = BlenderConfigSet(_GENERAL_PROPERTIES, bpy.types.Object, prefix="GEN_") # pylint: disable=C0103
+GeneralObjectProperties: BlenderConfigSet = BlenderConfigSet(_GENERAL_PROPERTIES, bpy.types.Object, prefix="GEN_") # pylint: disable=C0103
 
 
-_HUMAN_PROPERTIES_DIR = os.path.join(_ROOT, "humanproperties")
-_HUMAN_PROPERTIES = BlenderConfigSet.get_definitions_in_json_directory(_HUMAN_PROPERTIES_DIR)
-
-# This is the human properties object that can be imported
-HumanObjectProperties = BlenderConfigSet(_HUMAN_PROPERTIES, bpy.types.Object, prefix="HUM_") # pylint: disable=C0103
-
-
-_RIG_PROPERTIES_DIR = os.path.join(_ROOT, "rigproperties")
-_RIG_PROPERTIES = BlenderConfigSet.get_definitions_in_json_directory(_RIG_PROPERTIES_DIR)
+_HUMAN_PROPERTIES_DIR: str = os.path.join(_ROOT, "humanproperties")
+_HUMAN_PROPERTIES: list = BlenderConfigSet.get_definitions_in_json_directory(_HUMAN_PROPERTIES_DIR)
 
 # This is the human properties object that can be imported
-SkeletonObjectProperties = BlenderConfigSet(_RIG_PROPERTIES, bpy.types.Object, prefix="SKEL_") # pylint: disable=C0103
+HumanObjectProperties: BlenderConfigSet = BlenderConfigSet(_HUMAN_PROPERTIES, bpy.types.Object, prefix="HUM_") # pylint: disable=C0103
 
-__all__ = [
+
+_RIG_PROPERTIES_DIR: str = os.path.join(_ROOT, "rigproperties")
+_RIG_PROPERTIES: list = BlenderConfigSet.get_definitions_in_json_directory(_RIG_PROPERTIES_DIR)
+
+# This is the human properties object that can be imported
+SkeletonObjectProperties: BlenderConfigSet = BlenderConfigSet(_RIG_PROPERTIES, bpy.types.Object, prefix="SKEL_") # pylint: disable=C0103
+
+__all__: list[str] = [
     "GeneralObjectProperties",
     "HumanObjectProperties",
     "SkeletonObjectProperties",

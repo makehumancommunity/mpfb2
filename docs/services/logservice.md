@@ -118,7 +118,7 @@ Return loggers in a format suitable for Blender UI property enums.
 |----------|------|---------|-------------|
 | `log_filter` | `str` | `""` | Prefix to filter logger names, or `"ALL"` for no filter |
 
-**Returns:** `list[tuple]` — List of `(identifier, name, description, index)` tuples for use with `bpy.props.EnumProperty`.
+**Returns:** `list[tuple[str, str, str, int]]` — List of `(identifier, name, description, index)` tuples for use with `bpy.props.EnumProperty`.
 
 The first entry is always `"default"` representing the default log level.
 
@@ -128,7 +128,7 @@ The first entry is always `"default"` representing the default log level.
 
 Return logger categories in a format suitable for Blender UI property enums.
 
-**Returns:** `list[tuple]` — List of `(identifier, name, description, index)` tuples.
+**Returns:** `list[tuple[str, str, str, int]]` — List of `(identifier, name, description, index)` tuples.
 
 Categories are derived from the prefix before the first `.` in logger names. The first entry is `"ALL"` for no filtering.
 
@@ -153,7 +153,7 @@ Report a crash message. Always reported regardless of log level.
 | Argument | Type | Default | Description |
 |----------|------|---------|-------------|
 | `message` | `str` | — | The message to log |
-| `extra_object` | `any` | `None` | Additional data to append to the message |
+| `extra_object` | `object | None` | `None` | Additional data to append to the message |
 
 ---
 
@@ -164,7 +164,7 @@ Report an error if log level is at least ERROR (1).
 | Argument | Type | Default | Description |
 |----------|------|---------|-------------|
 | `message` | `str` | — | The message to log |
-| `extra_object` | `any` | `None` | Additional data to append to the message |
+| `extra_object` | `object | None` | `None` | Additional data to append to the message |
 
 ---
 
@@ -175,7 +175,7 @@ Report a warning if log level is at least WARN (2).
 | Argument | Type | Default | Description |
 |----------|------|---------|-------------|
 | `message` | `str` | — | The message to log |
-| `extra_object` | `any` | `None` | Additional data to append to the message |
+| `extra_object` | `object | None` | `None` | Additional data to append to the message |
 
 ---
 
@@ -186,7 +186,7 @@ Report an informational message if log level is at least INFO (3).
 | Argument | Type | Default | Description |
 |----------|------|---------|-------------|
 | `message` | `str` | — | The message to log |
-| `extra_object` | `any` | `None` | Additional data to append to the message |
+| `extra_object` | `object | None` | `None` | Additional data to append to the message |
 
 ---
 
@@ -197,7 +197,7 @@ Report a debug message if log level is at least DEBUG (4).
 | Argument | Type | Default | Description |
 |----------|------|---------|-------------|
 | `message` | `str` | — | The message to log |
-| `extra_object` | `any` | `None` | Additional data to append to the message |
+| `extra_object` | `object | None` | `None` | Additional data to append to the message |
 
 ---
 
@@ -208,7 +208,7 @@ Report a trace message if log level is at least TRACE (5).
 | Argument | Type | Default | Description |
 |----------|------|---------|-------------|
 | `message` | `str` | — | The message to log |
-| `extra_object` | `any` | `None` | Additional data to append to the message |
+| `extra_object` | `object | None` | `None` | Additional data to append to the message |
 
 ---
 
@@ -219,7 +219,7 @@ Dump a large data structure to the log. Requires log level above TRACE (6).
 | Argument | Type | Default | Description |
 |----------|------|---------|-------------|
 | `message` | `str` | — | Label for the dump |
-| `extra_object` | `any` | — | The object to pretty-print (uses `pprint.pformat`) |
+| `extra_object` | `object` | — | The object to pretty-print (uses `pprint.pformat`) |
 
 ---
 

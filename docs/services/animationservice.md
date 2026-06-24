@@ -81,7 +81,7 @@ Make an animation cyclic by adding a `CYCLES` modifier to every F-curve. Optiona
 | Argument | Type | Default | Description |
 |----------|------|---------|-------------|
 | `armature_object` | `bpy.types.Object` | — | The armature object with animation data |
-| `bone_with_offset` | `str` | `None` | Name of the bone whose F-curves should use `REPEAT_OFFSET` mode |
+| `bone_with_offset` | `str | None` | `None` | Name of the bone whose F-curves should use `REPEAT_OFFSET` mode |
 
 **Returns:** None
 
