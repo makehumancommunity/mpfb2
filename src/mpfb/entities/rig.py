@@ -179,7 +179,8 @@ class Rig:
             rig.match_bone_positions_with_strategies(fast=True)
 
         else:
-            assert bpy.context.active_object == armature
+            if bpy.context.active_object != armature:
+                raise ValueError("Active object must be the armature")
 
             bpy.ops.object.mode_set(mode='EDIT', toggle=False)
             rig.add_edit_bone_info()
