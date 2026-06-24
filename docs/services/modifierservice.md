@@ -140,7 +140,7 @@ Find a modifier by type and optionally by name.
 |----------|------|---------|-------------|
 | `blender_object` | `bpy.types.Object` | — | The object to search |
 | `modifier_type` | `str` | — | The modifier type to find |
-| `modifier_name` | `str | None` | `None` | Optional specific modifier name |
+| `modifier_name` | `str \| None` | `None` | Optional specific modifier name |
 
 **Returns:** `bpy.types.Modifier` or `None` — The first matching modifier, or `None` if not found.
 

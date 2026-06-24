@@ -153,7 +153,7 @@ Report a crash message. Always reported regardless of log level.
 | Argument | Type | Default | Description |
 |----------|------|---------|-------------|
 | `message` | `str` | — | The message to log |
-| `extra_object` | `object | None` | `None` | Additional data to append to the message |
+| `extra_object` | `object \| None` | `None` | Additional data to append to the message |
 
 ---
 
@@ -164,7 +164,7 @@ Report an error if log level is at least ERROR (1).
 | Argument | Type | Default | Description |
 |----------|------|---------|-------------|
 | `message` | `str` | — | The message to log |
-| `extra_object` | `object | None` | `None` | Additional data to append to the message |
+| `extra_object` | `object \| None` | `None` | Additional data to append to the message |
 
 ---
 
@@ -175,7 +175,7 @@ Report a warning if log level is at least WARN (2).
 | Argument | Type | Default | Description |
 |----------|------|---------|-------------|
 | `message` | `str` | — | The message to log |
-| `extra_object` | `object | None` | `None` | Additional data to append to the message |
+| `extra_object` | `object \| None` | `None` | Additional data to append to the message |
 
 ---
 
@@ -186,7 +186,7 @@ Report an informational message if log level is at least INFO (3).
 | Argument | Type | Default | Description |
 |----------|------|---------|-------------|
 | `message` | `str` | — | The message to log |
-| `extra_object` | `object | None` | `None` | Additional data to append to the message |
+| `extra_object` | `object \| None` | `None` | Additional data to append to the message |
 
 ---
 
@@ -197,7 +197,7 @@ Report a debug message if log level is at least DEBUG (4).
 | Argument | Type | Default | Description |
 |----------|------|---------|-------------|
 | `message` | `str` | — | The message to log |
-| `extra_object` | `object | None` | `None` | Additional data to append to the message |
+| `extra_object` | `object \| None` | `None` | Additional data to append to the message |
 
 ---
 
@@ -208,7 +208,7 @@ Report a trace message if log level is at least TRACE (5).
 | Argument | Type | Default | Description |
 |----------|------|---------|-------------|
 | `message` | `str` | — | The message to log |
-| `extra_object` | `object | None` | `None` | Additional data to append to the message |
+| `extra_object` | `object \| None` | `None` | Additional data to append to the message |
 
 ---
 

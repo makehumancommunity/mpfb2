@@ -143,7 +143,7 @@ Find alternative `.mhmat` material files for a given asset. Searches for materia
 
 | Argument | Type | Default | Description |
 |----------|------|---------|-------------|
-| `asset_source` | `str  | None` | — | The source path fragment of the asset |
+| `asset_source` | `str \| None` | — | The source path fragment of the asset |
 | `asset_subdir` | `str` | `"clothes"` | The asset subdirectory to search within |
 | `exclude_default` | `bool` | `True` | Whether to exclude the default material |
 
@@ -216,7 +216,7 @@ Convert an absolute asset path to a relative fragment of the form `parent_dir/fi
 | Argument | Type | Default | Description |
 |----------|------|---------|-------------|
 | `asset_full_path` | `str` | — | The absolute path to convert |
-| `relative_to_fragment` | `str | None` | `None` | Reserved for future use |
+| `relative_to_fragment` | `str \| None` | `None` | Reserved for future use |
 | `asset_subdir` | `str` | `"clothes"` | The asset subdirectory |
 
 **Returns:** `str` — The fragment path.
