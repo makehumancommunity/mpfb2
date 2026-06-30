@@ -10,7 +10,6 @@ The Rigging section lives in `src/mpfb/ui/rigging/`. Its root panel is `MPFB_PT_
 | `rigifyrig/` | "Rigify rig" | Expanded | Recommended rigify workflow: add a rigify meta rig, then generate the final rigify rig |
 | `customrig/` | "Custom rig" | Collapsed | Attach a custom rig built with MakeRig or imported from a third-party source |
 | `applypose/` | "Load pose" | Collapsed | Apply a saved pose or partial pose to the active armature, or import a pose from a BVH file |
-| `addcycle/` | "Add walk cycle" | Collapsed | **Deprecated** — walk cycle panel, superseded by the Mixamo workflow; collapsed because it only contains a deprecation notice |
 
 ## Further reading
 
@@ -18,6 +17,5 @@ The Rigging section lives in `src/mpfb/ui/rigging/`. Its root panel is `MPFB_PT_
 - [rigifyrig.md](rigifyrig.md) — "Rigify rig" panel (recommended)
 - [customrig.md](customrig.md) — "Custom rig" panel
 - [applypose.md](applypose.md) — "Load pose" panel
-- [addcycle.md](addcycle.md) — "Add walk cycle" panel (deprecated, collapsed by default)
 - [UI Layer overview](../index.md)
 - [Meta classes](../meta.md) — `Abstract_Panel`, `MpfbOperator`, `MpfbContext`, `pollstrategy`
