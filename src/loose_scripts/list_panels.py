@@ -2,7 +2,8 @@
 #
 # The script will print a list of panels in the format path + \t + class name + \t + inherited classes 
 
-import os, subprocess, io
+import os, subprocess, io  # nosec B404
+import shutil
 
 script_location = os.path.dirname(os.path.abspath(__file__))
 root_dir = os.path.join(script_location, "..", "..")
@@ -10,7 +11,7 @@ src_dir = os.path.abspath(os.path.join(root_dir, "src"))
 
 os.chdir(root_dir)
 
-child = subprocess.run(["grep", "-Ir", "MPFB_PT_", "src"],stdout=subprocess.PIPE) 
+child = subprocess.run([shutil.which("grep") or "grep", "-Ir", "MPFB_PT_", "src"],stdout=subprocess.PIPE, shell=False) 
 
 s = io.StringIO(child.stdout.decode("utf-8"))
 
