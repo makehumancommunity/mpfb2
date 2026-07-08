@@ -1,9 +1,13 @@
 """Utility functions for working with meshes"""
 
-import bpy, mathutils, numpy
+import bpy, bpy.types, mathutils, numpy
+from typing import TYPE_CHECKING
 from mathutils import Vector
 from .logservice import LogService
 from .objectservice import ObjectService
+
+if TYPE_CHECKING:
+    from ..entities.meshcrossref import MeshCrossRef
 
 _LOG = LogService.get_logger("services.meshservice")
 
@@ -23,11 +27,11 @@ class MeshService:
 
     Note that some mesh operations are also available in ObjectService, for example loading wavefront files."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         raise RuntimeError("You should not instance MeshService. Use its static methods instead.")
 
     @staticmethod
-    def create_mesh_object(vertices, edges, faces, vertex_groups=None, name="sample_object", link=True):
+    def create_mesh_object(vertices, edges, faces, vertex_groups=None, name="sample_object", link=True) -> "bpy.types.Object":
         """
         Create a new mesh object from given vertices, edges, and faces, and optionally assign vertex groups.
 
@@ -53,7 +57,7 @@ class MeshService:
         return target_object
 
     @staticmethod
-    def create_sample_object(name="sample_object", link=True):
+    def create_sample_object(name="sample_object", link=True) -> "bpy.types.Object":
         """Create a sample plane mesh with four faces."""
         #  0   1   2
         #  3   4   5
@@ -102,7 +106,7 @@ class MeshService:
         return MeshService.create_mesh_object(vertices, edges, faces, vertex_groups=vgroups, name=name, link=link)
 
     @staticmethod
-    def find_vertices_in_vertex_group(mesh_object, vertex_group_name):
+    def find_vertices_in_vertex_group(mesh_object, vertex_group_name) -> list:
         """Find all vertices in a vertex group, return a list with vertex index and weight in group."""
         _LOG.enter()
         result = []
@@ -119,7 +123,7 @@ class MeshService:
         return result
 
     @staticmethod
-    def find_faces_in_vertex_group(mesh_object, vertex_group_name):
+    def find_faces_in_vertex_group(mesh_object, vertex_group_name) -> list:
         """
         Find all faces where all vertices are in the given vertex group.
 
@@ -152,13 +156,13 @@ class MeshService:
         return result
 
     @staticmethod
-    def get_uv_map_names(mesh_object):
+    def get_uv_map_names(mesh_object) -> list:
         """List all UV map names in the mesh object."""
         _LOG.enter()
         return [uv_map.name for uv_map in mesh_object.data.uv_layers]
 
     @staticmethod
-    def get_uv_map_as_dict(mesh_object, uv_map_name, only_include_vertex_group=None):
+    def get_uv_map_as_dict(mesh_object, uv_map_name, only_include_vertex_group=None) -> dict:
         """
         Return a dict where the key is the face index and the value is a dict where the key is the loop index and the value the uv coordinates.
         Optionally only include faces where all vertices are in the given vertex group.
@@ -200,7 +204,7 @@ class MeshService:
         return result
 
     @staticmethod
-    def add_uv_map_from_dict(mesh_object, uv_map_name, uv_map_as_dict):
+    def add_uv_map_from_dict(mesh_object, uv_map_name, uv_map_as_dict) -> None:
         """
         Create a new UV map from a given dict and add it to the mesh object. If an UV map with the same name already exists, it will be replaced.
         Otherwise, it will be created with the given name.
@@ -237,7 +241,7 @@ class MeshService:
                 uv_map.data[int(loop_index)].uv = uv_coords
 
     @staticmethod
-    def create_vertex_group(mesh_object, vertex_group_name, verts_and_weights, nuke_existing_group=False):
+    def create_vertex_group(mesh_object, vertex_group_name, verts_and_weights, nuke_existing_group=False) -> None:
         """Create a new vertex group and add verts and weights to it."""
         _LOG.enter()
         _LOG.debug("Creating new vertex group", {"mesh_object": mesh_object,
@@ -260,7 +264,7 @@ class MeshService:
             group.add([index], weight, 'REPLACE')
 
     @staticmethod
-    def get_kdtree(mesh_object, balance=True, limit_to_vertex_group=None, after_modifiers=False, world_coordinates=True):
+    def get_kdtree(mesh_object, balance=True, limit_to_vertex_group=None, after_modifiers=False, world_coordinates=True) -> "mathutils.kdtree.KDTree":
         """
         Get a kdtree from a mesh object.
 
@@ -318,7 +322,7 @@ class MeshService:
         return kd
 
     @staticmethod
-    def closest_vertices(focus_obj, focus_vert_idx, target_obj, target_obj_kdtree, number_of_matches=1, world_coordinates=True):
+    def closest_vertices(focus_obj, focus_vert_idx, target_obj, target_obj_kdtree, number_of_matches=1, world_coordinates=True) -> list:
         """
         For a given vertex on the focus object, find the closest vertex/vertices on the target object.
 
@@ -359,7 +363,7 @@ class MeshService:
         return target_obj_kdtree.find_n(coord, number_of_matches)
 
     @staticmethod
-    def get_vertex_coordinates_as_numpy_array(mesh_object, after_modifiers=False, world_coordinates=True):
+    def get_vertex_coordinates_as_numpy_array(mesh_object, after_modifiers=False, world_coordinates=True) -> numpy.ndarray:
         """Get the vertex coordinates as a numpy array where the vertex index is the row number."""
 
         _LOG.enter()
@@ -387,7 +391,7 @@ class MeshService:
         return vert_array
 
     @staticmethod
-    def get_faces_as_numpy_array(mesh_object):
+    def get_faces_as_numpy_array(mesh_object) -> numpy.ndarray:
         """Get the faces as a numpy array."""
 
         _LOG.enter()
@@ -410,7 +414,7 @@ class MeshService:
         return face_array
 
     @staticmethod
-    def get_edges_as_numpy_array(mesh_object):
+    def get_edges_as_numpy_array(mesh_object) -> numpy.ndarray:
         """Get the edges as a numpy array."""
 
         _LOG.enter()
@@ -434,14 +438,14 @@ class MeshService:
         return edge_array
 
     @staticmethod
-    def get_mesh_cross_references(mesh_object, after_modifiers=True, build_faces_by_group_reference=False):
+    def get_mesh_cross_references(mesh_object, after_modifiers=True, build_faces_by_group_reference=False) -> "MeshCrossRef":
         """Build a cross reference container for the mesh object."""
         _LOG.enter()
         from ..entities.meshcrossref import MeshCrossRef
         return MeshCrossRef(mesh_object, after_modifiers=after_modifiers, build_faces_by_group_reference=build_faces_by_group_reference)
 
     @staticmethod
-    def select_all_vertices_in_vertex_group_for_active_object(vertex_group_name, deselect_other=True):
+    def select_all_vertices_in_vertex_group_for_active_object(vertex_group_name, deselect_other=True) -> None:
         """Select all vertices in a specific vertex group for the currently active object.
         The object needs to be active."""
         _LOG.enter()

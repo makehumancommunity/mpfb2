@@ -8,6 +8,7 @@ from ..services import RigService
 from .objectproperties import GeneralObjectProperties
 
 import bpy, math, json, random, typing, re
+import secrets
 
 from bl_math import lerp
 from itertools import accumulate
@@ -187,7 +188,8 @@ class Rig:
             rig.match_bone_positions_with_strategies(fast=True)
 
         else:
-            assert bpy.context.active_object == armature
+            if bpy.context.active_object != armature:
+                raise ValueError("active_object must be the armature during rig load")
 
             bpy.ops.object.mode_set(mode='EDIT', toggle=False)
             rig.add_edit_bone_info()
@@ -536,7 +538,8 @@ class Rig:
                 tgt.weight = tgt_info["weight"]
 
             if parent_ref := info.get("target"):
-                assert parent_ref["strategy"] == "VERTEX"
+                if parent_ref["strategy"] != "VERTEX":
+                    raise ValueError(f"Expected strategy 'VERTEX', got {parent_ref['strategy']!r}")
 
                 vertex = parent_ref["vertex_index"]
 
@@ -558,7 +561,8 @@ class Rig:
             elif isinstance(target, dict):
                 typing.cast(typing.Any, con).target = self._restore_parent_ref(bone, target, info)
             else:
-                assert not target
+                if target:
+                    raise ValueError(f"Unexpected target value for constraint type: {target!r}")
 
         if info.get("space_object", False):
             typing.cast(typing.Any, con).space_object = self.armature_object
@@ -573,8 +577,10 @@ class Rig:
             typing.cast(bpy.types.ChildOfConstraint, con).set_inverse_pending = True
 
     def _restore_parent_ref(self, bone: bpy.types.PoseBone, bone_ref: dict, info: dict) -> bpy.types.Object:
-        assert self.parent
-        assert isinstance(bone_ref, dict)
+        if not self.parent:
+            raise ValueError("Cannot restore parent reference: rig has no parent")
+        if not isinstance(bone_ref, dict):
+            raise TypeError(f"bone_ref must be a dict, got {type(bone_ref).__name__}")
 
         arm = typing.cast(bpy.types.Object, self.parent.armature_object)
         strategy = bone_ref["strategy"]
@@ -582,7 +588,8 @@ class Rig:
         if strategy is None:
             return arm
 
-        assert strategy == "JOINTS"
+        if strategy != "JOINTS":
+            raise ValueError(f"Unsupported parent ref strategy: {strategy!r}")
 
         joint_head = bone_ref["joint_head"]
         joint_tail = bone_ref["joint_tail"]
@@ -872,7 +879,8 @@ class Rig:
 
         basemesh: bpy.types.Object = self.basemesh
 
-        assert isinstance(basemesh.data, bpy.types.Mesh)
+        if not isinstance(basemesh.data, bpy.types.Mesh):
+            raise TypeError(f"basemesh.data must be a Mesh, got {type(basemesh.data).__name__}")
         mesh = typing.cast(bpy.types.Mesh, basemesh.data)
 
         if self.parent:
@@ -902,7 +910,7 @@ class Rig:
                 coords = bm.verts
             else:
                 from ..services import TargetService
-                key_name = "temporary_fit_rig_key." + str(random.randrange(1000, 9999))
+                key_name = "temporary_fit_rig_key." + str(secrets.randbelow(9000) + 1000)
                 shape_key = TargetService.create_shape_key(basemesh, key_name, also_create_basis=True, create_from_mix=True)
                 coords = shape_key.data
 
@@ -934,7 +942,8 @@ class Rig:
         """Extract bone information from the bone data."""
 
         armature_object = typing.cast(bpy.types.Object, self.armature_object)
-        assert armature_object.mode != 'EDIT'
+        if armature_object.mode == 'EDIT':
+            raise ValueError("armature_object must not be in EDIT mode for add_data_bone_info()")
 
         for bone in typing.cast(bpy.types.Armature, armature_object.data).bones:
             bone_info = dict()
@@ -967,7 +976,8 @@ class Rig:
         from ..ui.operations.boneops import BoneOpsEditBoneProperties
 
         armature_object = typing.cast(bpy.types.Object, self.armature_object)
-        assert armature_object.mode == 'EDIT'
+        if armature_object.mode != 'EDIT':
+            raise ValueError(f"armature_object must be in EDIT mode for add_edit_bone_info(), current mode: {armature_object.mode!r}")
         properties = BoneOpsEditBoneProperties
 
         for bone in typing.cast(bpy.types.Armature, armature_object.data).edit_bones:
@@ -1037,7 +1047,8 @@ class Rig:
         """Extract information from the pose bones."""
 
         armature_object = typing.cast(bpy.types.Object, self.armature_object)
-        assert armature_object.mode != 'EDIT'
+        if armature_object.mode == 'EDIT':
+            raise ValueError("armature_object must not be in EDIT mode for add_pose_bone_info()")
 
         for bone in typing.cast(bpy.types.Pose, armature_object.pose).bones:
             bone_info = self.rig_definition[bone.name]
@@ -1239,7 +1250,8 @@ class Rig:
 
         mesh_obj: bpy.types.Object = self.basemesh
         mesh = mesh_obj.data
-        assert isinstance(mesh, bpy.types.Mesh)
+        if not isinstance(mesh, bpy.types.Mesh):
+            raise TypeError(f"basemesh.data must be a Mesh, got {type(mesh).__name__}")
 
         def_bones = set(RigService.get_deform_group_bones(self.armature_object))
         weights = {}
@@ -1417,7 +1429,8 @@ class Rig:
 
         vertices = self.position_info["vertices"]
 
-        assert len(vertices) > 0
+        if len(vertices) == 0:
+            raise ValueError("Cannot build vertex KDTree: vertices list is empty")
 
         vertex_tree = self.position_info["vertices_tree"] = KDTree(len(vertices))
 
@@ -1519,7 +1532,8 @@ class Rig:
 
 def matrix_from_axis_pair(y_axis: Vector | typing.Sequence[float], other_axis: Vector | typing.Sequence[float],
                           axis_name: str) -> Matrix:
-    assert axis_name in 'xz'
+    if axis_name not in 'xz':
+        raise ValueError(f"axis_name must be 'x' or 'z', got {axis_name!r}")
 
     # Vector.cross is typed as float | Vector in the stubs (it returns a scalar for 2D vectors),
     # so the 3D vector results are cast back to Vector. The stub also rejects a Vector as the
