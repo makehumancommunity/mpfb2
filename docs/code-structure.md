@@ -218,7 +218,6 @@ Static assets bundled with the addon:
 | `targets/` | Morph target files (`.target` format). |
 | `textures/` | Texture images. |
 | `uv_layers/` | UV mapping data. |
-| `walkcycles/` | Walk cycle animation data. |
 
 ## Testing
 
