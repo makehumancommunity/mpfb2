@@ -1,0 +1,7 @@
+{
+    "type": "boolean",
+    "name": "discrete_gender",
+    "description": "When enabled, gender is picked discretely as either woman or man rather than drawn anywhere along the female-to-male range",
+    "label": "Discrete gender",
+    "default": true
+}

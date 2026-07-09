@@ -41,6 +41,7 @@ if SystemService.is_blender_version_at_least():
         "pollstrategy",
         "PollStrategy",
         "MPFB_PT_New_Panel",
+        "MPFB_PT_Randomize_Panel",
         "MPFB_PT_Create_Panel",
         "MPFB_PT_Standard_Rig_Panel",
         "MPFB_PT_Rigify_Rig_Panel",
