@@ -1082,8 +1082,13 @@ class TargetService:
                             weight = weight * weight_component[1]
                             weight = weight * proportions_component[1]
                             if weight > cutoff:
-                                _LOG.debug("Appending gender-age-muscle-weight-proportions target", [complete_name, weight])
-                                targets.append([complete_name, weight])
+                                if "-baby-" in complete_name or "_baby_" in complete_name:
+                                    # There are no baby proportions targets on disk
+                                    _MACLOG.debug("Excluding forbidden proportions modifier combination", complete_name)
+                                    _LOG.debug("Excluding forbidden proportions modifier combination", complete_name)
+                                else:
+                                    _LOG.debug("Appending gender-age-muscle-weight-proportions target", [complete_name, weight])
+                                    targets.append([complete_name, weight])
                             else:
                                 _LOG.debug("Not appending gender-age-muscle-weight-proportions target", [complete_name, weight])
 
