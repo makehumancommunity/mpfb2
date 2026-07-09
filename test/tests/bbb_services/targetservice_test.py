@@ -89,3 +89,20 @@ def test_expression_naming_helpers_round_trip():
     for name in ["browInnerUp", "cheekPuff", "tongueOut", "eyeWideRight"]:
         sk = TargetService.expression_name_to_shapekey_name(name)
         assert TargetService.shapekey_name_to_expression_name(sk) == name
+
+
+def test_macro_target_stack_only_references_existing_targets():
+    """calculate_target_stack_from_macro_info_dict never references non-existent target files."""
+    # A baby with non-neutral proportions used to produce baby-proportions targets which do
+    # not exist on disk, crashing when loaded (there are no baby proportions or breast targets).
+    targets_dir = LocationService.get_mpfb_data("targets")
+    macro_info = TargetService.get_default_macro_info_dict()
+    macro_info["age"] = 0.0          # baby
+    macro_info["proportions"] = 1.0  # idealproportions
+    macro_info["cupsize"] = 1.0
+    macro_info["firmness"] = 1.0
+    stack = TargetService.calculate_target_stack_from_macro_info_dict(macro_info)
+    assert stack, "The baby macro stack should not be empty"
+    for target in stack:
+        full_path = os.path.join(targets_dir, target[0] + ".target.gz")
+        assert os.path.exists(full_path), full_path + " does not exist"
