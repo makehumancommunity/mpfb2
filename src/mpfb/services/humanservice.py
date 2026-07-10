@@ -573,9 +573,19 @@ class HumanService:
 
             if material_type == "GAMEENGINE":
                 from ..entities.nodemodel.v2.materials.nodewrappergameengine import NodeWrapperGameEngine
+                # Resolve an alternative material the same way the MAKESKIN branch does, so the
+                # randomize panel's alternative-material toggles also apply to game materials.
+                game_material = mhclo.material
+                if mhclo.uuid and alternative_materials and mhclo.uuid in alternative_materials:
+                    resolved = AssetService.find_asset_absolute_path(alternative_materials[mhclo.uuid], str(asset_type).lower())
+                    if not resolved or not os.path.exists(resolved):
+                        _LOG.warn("Failed to find full path to alternative material", alternative_materials[mhclo.uuid])
+                    else:
+                        game_material = resolved
+                        GeneralObjectProperties.set_value("alternative_material", alternative_materials[mhclo.uuid], entity_reference=clothes)
                 blender_material = MaterialService.create_empty_material(name, clothes)
                 mhmat = MhMaterial()
-                mhmat.populate_from_mhmat(mhclo.material)
+                mhmat.populate_from_mhmat(game_material)
                 NodeWrapperGameEngine.create_instance(blender_material.node_tree, mhmat=mhmat)
                 blender_material.diffuse_color = color
 
