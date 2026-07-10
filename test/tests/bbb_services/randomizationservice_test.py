@@ -16,12 +16,14 @@ def test_randomizationservice_exists():
 
 def test_default_spec_shape():
     spec = _spec()
-    assert spec["version"] == 4, "The default spec has a version"
+    assert spec["version"] == 5, "The default spec has a version"
     phenotype = spec["phenotype"]
     assert phenotype["distribution"] == "bell", "The default distribution is bell"
     assert phenotype["discrete_race"] is False
     assert phenotype["discrete_gender"] is True
-    assert phenotype["discrete_age"] is False
+    assert phenotype["discrete_age"] is True
+    assert phenotype["breast_gender_cutoff"] == 0.6, "The default breast gender cutoff is 0.6"
+    assert phenotype["breast_age_cutoff"] == 0.4, "The default breast age cutoff is 0.4"
     for name in ["gender", "age", "muscle", "weight", "height", "proportions", "cupsize", "firmness"]:
         attribute = phenotype["attributes"][name]
         assert attribute["include"] is True, name + " is included by default"
@@ -30,13 +32,13 @@ def test_default_spec_shape():
     assert phenotype["attributes"]["race"]["include"] is True
     # The discrete attributes allow all of their values by default.
     assert phenotype["attributes"]["gender"]["allowed"] == ["female", "male"]
-    assert phenotype["attributes"]["age"]["allowed"] == ["baby", "child", "young", "old"]
+    assert phenotype["attributes"]["age"]["allowed"] == ["baby", "child", "young", "middleage", "old"]
     assert phenotype["attributes"]["race"]["allowed"] == ["asian", "caucasian", "african"]
 
 
 def test_get_discrete_value_names():
     assert RandomizationService.get_discrete_value_names("gender") == ["female", "male"]
-    assert RandomizationService.get_discrete_value_names("age") == ["baby", "child", "young", "old"]
+    assert RandomizationService.get_discrete_value_names("age") == ["baby", "child", "young", "middleage", "old"]
     assert RandomizationService.get_discrete_value_names("race") == ["asian", "caucasian", "african"]
     # The names must match the allowed lists the default spec is built from.
     phenotype = _spec()["phenotype"]["attributes"]
@@ -111,10 +113,10 @@ def test_discrete_race_picks_exactly_one():
 def test_discrete_age_hits_an_anchor():
     spec = _spec()
     spec["phenotype"]["discrete_age"] = True
-    anchors = {0.0, 0.1875, 0.5, 1.0}
+    anchors = {0.0, 0.1875, 0.5, 0.75, 1.0}
     for seed in range(40):
         macro = RandomizationService.randomize_macro_info_dict(spec, random.Random(seed))
-        assert macro["age"] in anchors, "Discrete age is exactly one of the four anchors"
+        assert macro["age"] in anchors, "Discrete age is exactly one of the five anchors"
 
 
 def test_discrete_gender_respects_allowed_subset():
@@ -230,6 +232,46 @@ def test_breast_constraint_allows_adult_female():
     assert len(values) > 1, "An adult female gets a randomized (non-constant) cupsize"
 
 
+def test_breast_gender_cutoff_is_configurable():
+    # A mid-range (androgynous) gender of 0.3 is below the default 0.4 cutoff, so it gets breasts,
+    # but not below a lowered 0.2 cutoff, where it is forced neutral.
+    spec = _spec()
+    spec["phenotype"]["attributes"]["gender"]["include"] = False
+    spec["phenotype"]["attributes"]["gender"]["neutral"] = 0.3
+    spec["phenotype"]["attributes"]["age"]["include"] = False
+    spec["phenotype"]["attributes"]["age"]["neutral"] = 0.8
+    spec["phenotype"]["attributes"]["cupsize"]["deviation"] = 0.4
+
+    spec["phenotype"]["breast_gender_cutoff"] = 0.4
+    default_cutoff = {RandomizationService.randomize_macro_info_dict(spec, random.Random(seed))["cupsize"] for seed in range(20)}
+    assert len(default_cutoff) > 1, "Gender 0.3 is female enough at the default 0.4 cutoff and gets a randomized cupsize"
+
+    spec["phenotype"]["breast_gender_cutoff"] = 0.2
+    for seed in range(20):
+        macro = RandomizationService.randomize_macro_info_dict(spec, random.Random(seed))
+        assert macro["cupsize"] == 0.5, "Gender 0.3 is above a lowered 0.2 cutoff and gets neutral cupsize"
+
+
+def test_breast_age_cutoff_is_configurable():
+    # A young-ish age of 0.45 is at/above the default 0.4 cutoff, so it gets breasts, but below a
+    # raised 0.5 cutoff, where it is forced neutral.
+    spec = _spec()
+    spec["phenotype"]["attributes"]["gender"]["include"] = False
+    spec["phenotype"]["attributes"]["gender"]["neutral"] = 0.0
+    spec["phenotype"]["attributes"]["age"]["include"] = False
+    spec["phenotype"]["attributes"]["age"]["neutral"] = 0.45
+    spec["phenotype"]["attributes"]["cupsize"]["deviation"] = 0.4
+
+    spec["phenotype"]["breast_age_cutoff"] = 0.4
+    default_cutoff = {RandomizationService.randomize_macro_info_dict(spec, random.Random(seed))["cupsize"] for seed in range(20)}
+    assert len(default_cutoff) > 1, "Age 0.45 is above the default 0.4 cutoff and gets a randomized cupsize"
+
+    spec["phenotype"]["breast_age_cutoff"] = 0.5
+    for seed in range(20):
+        macro = RandomizationService.randomize_macro_info_dict(spec, random.Random(seed))
+        assert macro["cupsize"] == 0.5, "Age 0.45 is below a raised 0.5 cutoff and gets neutral cupsize"
+
+
 def test_result_matches_default_macro_dict_shape():
     spec = _spec()
     macro = RandomizationService.randomize_macro_info_dict(spec, random.Random(0))
@@ -262,7 +304,7 @@ def _macro(age, gender, race):
 
 
 def test_describe_age_label_is_closest_anchor():
-    for value, expected in [(0.0, "baby"), (0.1875, "child"), (0.5, "young"), (1.0, "old")]:
+    for value, expected in [(0.0, "baby"), (0.1875, "child"), (0.5, "young"), (0.75, "middleage"), (1.0, "old")]:
         macro = _macro(value, 0.0, {"african": 0.0, "asian": 0.0, "caucasian": 1.0})
         assert (" " + expected + " ") in RandomizationService.describe_macro_info_dict(macro, 1), \
             "Age anchor " + str(value) + " is labelled " + expected

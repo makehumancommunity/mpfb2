@@ -31,7 +31,7 @@ _LOG = LogService.get_logger("services.randomizationservice")
 
 # The current version of the randomization spec / preset format. Bump this if the format
 # changes in a way that older presets need migrating.
-_SPEC_VERSION: int = 4
+_SPEC_VERSION: int = 5
 
 # Built-in neutral and deviation used when nothing else is specified for an attribute.
 _DEFAULT_NEUTRAL: float = 0.5
@@ -173,14 +173,19 @@ _CLOTHES_DRAW_ORDER: list[str] = [
 # mode a value is picked uniformly among the allowed keys.
 _GENDER_VALUES: dict[str, float] = {"female": 0.0, "male": 1.0}
 
-# The four canonical age anchors (baby, child, young, old), keyed by the value name used in the
-# "allowed" list. These match the discrete age values used by the "create human" operator.
-_AGE_VALUES: dict[str, float] = {"baby": 0.0, "child": 0.1875, "young": 0.5, "old": 1.0}
+# The canonical age anchors, keyed by the value name used in the "allowed" list. Baby, child,
+# young and old are the discrete age values used by the "create human" operator; middleage is an
+# extra randomization-only anchor sitting at the center of the skin "middleage" band (see
+# _SKIN_AGE_BANDS below), so discrete age can land a plausible adult between "young" and "old".
+_AGE_VALUES: dict[str, float] = {"baby": 0.0, "child": 0.1875, "young": 0.5, "middleage": 0.75, "old": 1.0}
 
-# Breast attributes are only randomized when the age is at or above this threshold (the
-# "young" anchor). This is not (only) because of being prudish, but because there aren't
-# any relevant phenotype combinatory macro targets available for younger ages.
-_YOUNG_ADULT_THRESHOLD: float = 0.5
+# The default gender and age cutoffs for the breast constraint (see randomize_macro_info_dict).
+# Breast attributes are only randomized when the gender is on the female side of the gender cutoff
+# and the age is at or above the age cutoff. The age cutoff is not (only) about being prudish, but
+# also because there aren't any relevant phenotype combinatory macro targets available for younger
+# ages. Both cutoffs are user-configurable per spec; these are the built-in defaults.
+_DEFAULT_BREAST_GENDER_CUTOFF: float = 0.6
+_DEFAULT_BREAST_AGE_CUTOFF: float = 0.4
 
 # Gender label bands, used only when describing a generated character. Below the female
 # max the label is "female", above the male min it is "male" and in between it is "neutral".
@@ -215,8 +220,8 @@ class RandomizationService:
         Get the built-in randomization spec.
 
         The returned spec includes all attributes, uses the built-in neutral for each,
-        a moderate default deviation and a bell distribution. Gender is discrete by
-        default (discrete_gender on); race and age are continuous (their toggles off).
+        a moderate default deviation and a bell distribution. Gender and age are discrete
+        by default (discrete_gender / discrete_age on); race is continuous (its toggle off).
 
         Returns:
             dict: A fresh randomization spec dict.
@@ -239,7 +244,9 @@ class RandomizationService:
                 "distribution": _DEFAULT_DISTRIBUTION,
                 "discrete_race": False,
                 "discrete_gender": True,
-                "discrete_age": False,
+                "discrete_age": True,
+                "breast_gender_cutoff": _DEFAULT_BREAST_GENDER_CUTOFF,
+                "breast_age_cutoff": _DEFAULT_BREAST_AGE_CUTOFF,
                 "attributes": attributes
                 },
             "assets": {
@@ -379,12 +386,15 @@ class RandomizationService:
         # pick of exactly one race when the discrete race toggle is enabled.
         macro["race"] = _resolve_race(attributes.get("race", {}), phenotype.get("discrete_race", False), rng)
 
-        # Breast constraint: cupsize and firmness are only randomized when the gender falls
-        # on the female side and the age is above the young-adult threshold. Otherwise they
-        # are forced to their neutral value regardless of their include flag.
+        # Breast constraint: cupsize and firmness are only randomized when the gender falls on
+        # the female side of the (configurable) gender cutoff and the age is at or above the
+        # (configurable) age cutoff. Otherwise they are forced to their neutral value regardless
+        # of their include flag.
+        gender_cutoff = phenotype.get("breast_gender_cutoff", _DEFAULT_BREAST_GENDER_CUTOFF)
+        age_cutoff = phenotype.get("breast_age_cutoff", _DEFAULT_BREAST_AGE_CUTOFF)
         cupsize_cfg = attributes.get("cupsize", {})
         firmness_cfg = attributes.get("firmness", {})
-        if gender < 0.5 and age >= _YOUNG_ADULT_THRESHOLD:
+        if gender < gender_cutoff and age >= age_cutoff:
             macro["cupsize"] = _resolve_scalar(cupsize_cfg, distribution, rng)
             macro["firmness"] = _resolve_scalar(firmness_cfg, distribution, rng)
         else:

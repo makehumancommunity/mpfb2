@@ -51,7 +51,7 @@ _SCALAR_ATTRIBUTES: list[str] = [name for _group, attributes in _ATTRIBUTE_GROUP
 # so they cannot drift out of sync with the sampling code.
 _DISCRETE_LABELS: dict[str, dict[str, str]] = {
     "gender": {"female": "Female", "male": "Male"},
-    "age": {"baby": "Baby", "child": "Child", "young": "Young", "old": "Old"},
+    "age": {"baby": "Baby", "child": "Child", "young": "Young", "middleage": "Middle age", "old": "Old"},
     "race": {"asian": "Asian", "caucasian": "Caucasian", "african": "African"},
     }
 
@@ -332,6 +332,8 @@ def scene_to_spec(scene: "bpy.types.Scene") -> dict:
     phenotype["discrete_race"] = RANDOMIZE_PROPERTIES.get_value("discrete_race", entity_reference=scene)
     phenotype["discrete_gender"] = RANDOMIZE_PROPERTIES.get_value("discrete_gender", entity_reference=scene)
     phenotype["discrete_age"] = RANDOMIZE_PROPERTIES.get_value("discrete_age", entity_reference=scene)
+    phenotype["breast_gender_cutoff"] = RANDOMIZE_PROPERTIES.get_value("breast_gender_cutoff", entity_reference=scene)
+    phenotype["breast_age_cutoff"] = RANDOMIZE_PROPERTIES.get_value("breast_age_cutoff", entity_reference=scene)
 
     attributes = phenotype["attributes"]
     for name in _SCALAR_ATTRIBUTES:
@@ -430,7 +432,9 @@ def spec_to_scene(spec: dict, scene: "bpy.types.Scene") -> None:
     RANDOMIZE_PROPERTIES.set_value("distribution", phenotype.get("distribution", default["distribution"]), entity_reference=scene)
     RANDOMIZE_PROPERTIES.set_value("discrete_race", phenotype.get("discrete_race", False), entity_reference=scene)
     RANDOMIZE_PROPERTIES.set_value("discrete_gender", phenotype.get("discrete_gender", True), entity_reference=scene)
-    RANDOMIZE_PROPERTIES.set_value("discrete_age", phenotype.get("discrete_age", False), entity_reference=scene)
+    RANDOMIZE_PROPERTIES.set_value("discrete_age", phenotype.get("discrete_age", True), entity_reference=scene)
+    RANDOMIZE_PROPERTIES.set_value("breast_gender_cutoff", phenotype.get("breast_gender_cutoff", default["breast_gender_cutoff"]), entity_reference=scene)
+    RANDOMIZE_PROPERTIES.set_value("breast_age_cutoff", phenotype.get("breast_age_cutoff", default["breast_age_cutoff"]), entity_reference=scene)
 
     attributes = phenotype.get("attributes", {})
     for name in _SCALAR_ATTRIBUTES:
@@ -586,6 +590,17 @@ def draw_race_box(scene: "bpy.types.Scene", layout: "bpy.types.UILayout") -> Non
     RANDOMIZE_PROPERTIES.draw_properties(scene, box, ["race_include", "discrete_race"])
     if RANDOMIZE_PROPERTIES.get_value("discrete_race", entity_reference=scene):
         draw_allow_toggles(scene, box, "race")
+
+
+def draw_breast_cutoffs_box(scene: "bpy.types.Scene", layout: "bpy.types.UILayout") -> None:
+    """Draw the breast constraint cutoffs into their own labelled box.
+
+    Breasts (cup size and firmness) are only randomized for characters below the gender cutoff
+    and at or above the age cutoff; the two sliders let the user tune those bounds.
+    """
+    box = layout.box()
+    box.label(text="Cutoffs")
+    RANDOMIZE_PROPERTIES.draw_properties(scene, box, ["breast_gender_cutoff", "breast_age_cutoff"])
 
 
 def _draw_bodypart_filters(scene: "bpy.types.Scene", box: "bpy.types.UILayout", bodypart: str) -> None:

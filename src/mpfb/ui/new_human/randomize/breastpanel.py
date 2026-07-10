@@ -4,7 +4,7 @@ from .... import ClassManager
 from ....services import LogService
 from ....services import UiService
 from ...abstractpanel import Abstract_Panel
-from .randomizeproperties import _ATTRIBUTE_GROUPS, draw_attribute_group
+from .randomizeproperties import _ATTRIBUTE_GROUPS, draw_attribute_group, draw_breast_cutoffs_box
 
 _LOG = LogService.get_logger("ui.new_human.randomize.breastpanel")
 
@@ -25,6 +25,7 @@ class MPFB_PT_Randomize_Breast_Panel(Abstract_Panel):
         scene = context.scene
         layout = self.layout
         draw_attribute_group(scene, layout, _ATTRIBUTE_GROUPS[1][1])
+        draw_breast_cutoffs_box(scene, layout)
 
 
 ClassManager.add_class(MPFB_PT_Randomize_Breast_Panel)
