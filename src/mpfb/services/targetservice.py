@@ -206,15 +206,30 @@ class TargetService:
         """
         _LOG.enter()
 
+        # Within a directory an exact basename match is always preferred over a mere prefix
+        # match, so that a request for "l-eye-bag-in" resolves to "l-eye-bag-in.target.gz" and not
+        # to "l-eye-bag-incr.target.gz" (both start with the requested name). The prefix match is
+        # kept as a fallback for the historical callers that pass a partial name.
+        lowered = str(target_name).lower()
+
+        def _match_in(paths):
+            prefix_match = None
+            for path in paths:
+                basename = str(os.path.basename(path)).lower()
+                stem = basename[:-len(".target.gz")] if basename.endswith(".target.gz") else basename[:-len(".target")]
+                if stem == lowered:
+                    return str(path)
+                if prefix_match is None and basename.startswith(lowered):
+                    prefix_match = str(path)
+            return prefix_match
+
         # Strategy: First scan the system targets. This is the vast majority of cases,
         # so it makes sense to check if the target is there first
         targets_dir = LocationService.get_mpfb_data("targets")
         _LOG.debug("Target dir:", targets_dir)
-        for name in Path(targets_dir).rglob("*.target.gz"):
-            _LOG.dump("matching vs file", name)
-            basename = str(os.path.basename(name)).lower()
-            if basename.startswith(str(target_name).lower()):
-                return str(name)
+        found = _match_in(Path(targets_dir).rglob("*.target.gz"))
+        if found:
+            return found
         _LOG.debug("Did not find matching system target for", target_name)
 
         # Next scan the custom targets dir. This can be expected to be a small list of targets
@@ -222,22 +237,18 @@ class TargetService:
         custom_asset_roots.extend(AssetService.get_asset_roots("targets/custom"))
         custom_targets = AssetService.find_asset_files_matching_pattern(custom_asset_roots, "*.target")
         custom_targets.extend(AssetService.find_asset_files_matching_pattern(custom_asset_roots, "*.target.gz"))
-        for name in custom_targets:
-            _LOG.dump("matching vs file", name)
-            basename = str(os.path.basename(name)).lower()
-            if basename.startswith(str(target_name).lower()):
-                return str(name)
+        found = _match_in(custom_targets)
+        if found:
+            return found
         _LOG.debug("Did not find matching custom target for", target_name)
 
         # Finally scan all potential dirs for targets
         target_asset_roots = AssetService.get_asset_roots("targets")
         targets = AssetService.find_asset_files_matching_pattern(target_asset_roots, "*.target")
         targets.extend(AssetService.find_asset_files_matching_pattern(target_asset_roots, "*.target.gz"))
-        for name in targets:
-            _LOG.dump("matching vs file", name)
-            basename = str(os.path.basename(name)).lower()
-            if basename.startswith(str(target_name).lower()):
-                return str(name)
+        found = _match_in(targets)
+        if found:
+            return found
 
         _LOG.warn("Did not find matching target for", target_name)
         return None
