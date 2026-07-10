@@ -1,0 +1,7 @@
+{
+    "type": "boolean",
+    "name": "randomize_skin",
+    "description": "Assign a randomly picked skin material to the created human. When off, the human keeps the default material",
+    "label": "Randomize skin",
+    "default": true
+}

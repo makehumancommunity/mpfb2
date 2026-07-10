@@ -24,7 +24,7 @@ The panel's complete settings — including the creation settings duplicated fro
 | `bl_options` | `{'DEFAULT_CLOSED'}` |
 | Base class | `Abstract_Panel` |
 
-`MPFB_PT_Randomize_Panel` is only a container: it writes the `default` preset on first draw and otherwise draws nothing itself. The settings live in five collapsible child panels (`bl_parent_id = "MPFB_PT_Randomize_Panel"`), ordered by `bl_order`. Only **Presets** and **Creation settings** are open by default (`bl_options = set()`); the rest are `{'DEFAULT_CLOSED'}` so the panel is compact on first use.
+`MPFB_PT_Randomize_Panel` is only a container: it writes the `default` preset on first draw and otherwise draws nothing itself. The settings live in seven collapsible child panels (`bl_parent_id = "MPFB_PT_Randomize_Panel"`), ordered by `bl_order`. Only **Presets** and **Creation settings** are open by default (`bl_options = set()`); the rest are `{'DEFAULT_CLOSED'}` so the panel is compact on first use.
 
 ### Module layout
 
@@ -38,13 +38,17 @@ The panel package is split so that each sub-panel is its own module and the shar
 | `generalpanel.py` | `MPFB_PT_Randomize_General_Panel` |
 | `macrodetailspanel.py` | `MPFB_PT_Randomize_Macrodetails_Panel` |
 | `breastpanel.py` | `MPFB_PT_Randomize_Breast_Panel` |
+| `skinpanel.py` | `MPFB_PT_Randomize_Skin_Panel` |
+| `bodypartspanel.py` | `MPFB_PT_Randomize_Bodyparts_Panel` |
 | `creationpanel.py` | `MPFB_PT_Randomize_Creation_Panel` |
 
 - **Presets** (`MPFB_PT_Randomize_Presets_Panel`, open) — the `available_presets` dropdown, **Load selected preset** and **Overwrite selected preset** operators, the `name` field and the **Save new preset** operator.
 - **General settings** (`MPFB_PT_Randomize_General_Panel`, collapsed) — `seed` and `distribution`. The discrete/continuous toggles used to live here but now sit inside each attribute's box on the Macrodetails panel.
 - **Macrodetails** (`MPFB_PT_Randomize_Macrodetails_Panel`, collapsed) — one labelled box per attribute: the macrodetail scalars (`gender`, `age`, `muscle`, `weight`, `height`, `proportions`) each in a `"<Label> settings"` box, followed by a **Race settings** box. Every box shows its include toggle first. Gender and age additionally show their **Discrete** toggle (`discrete_gender`, `discrete_age`); the rest of the box is *mode-sensitive*: for an attribute drawn along a continuous scale it shows a neutral override and a max deviation, while for an attribute in **discrete** mode it instead shows one **"Allow value"** checkbox per discrete value. The other scalars are always continuous. The Race box shows `race_include` and `discrete_race`, plus one **"Allow value"** checkbox per race when `discrete_race` is on (race has no neutral/deviation). The neutral/deviation sliders are meaningless in discrete mode, which is why they are hidden there.
 - **Breast shape** (`MPFB_PT_Randomize_Breast_Panel`, collapsed) — the `cupsize` and `firmness` scalars, each in its own labelled box (both are always continuous).
-- **Creation settings** (`MPFB_PT_Randomize_Creation_Panel`, open) — `scale_factor`, `detailed_helpers`, `extra_vertex_groups`, `mask_helpers`, the `new_random_seed` checkbox and the **Create random human** operator button.
+- **Skin** (`MPFB_PT_Randomize_Skin_Panel`, `bl_order` 5, collapsed) — the skin material randomization settings, top to bottom: the `randomize_skin` master toggle; the `match_gender` / `match_age` / `match_race` phenotype-filter checkboxes; the `skin_fallback` toggle; the `skin_pack`, `skin_include` and `skin_exclude` name filters; and the `skin_type` and `skin_material_instances` settings applied to the picked material. When on, the created human gets a randomly picked installed skin instead of the default material. Filtering, fallback and the substring-matching rules live in [`RandomizationService.pick_random_skin`](../../services/randomizationservice.md); the panel only stores the settings and the operator discovers the installed skins. **Reproducibility caveat:** unlike the phenotype, the picked skin also depends on the set of installed skin assets, so the same preset and seed only reproduce the same skin on a machine with the same skins installed.
+- **Body parts** (`MPFB_PT_Randomize_Bodyparts_Panel`, `bl_order` 6, collapsed) — the body part child meshes attached to the created human, drawn as a shared `asset_material_type` enum (GameEngine / MakeSkin, applied to every attached part except the eyes) followed by one labelled box per type. The **Eyes** box is a drop-down (`eyes_mode`: do not add / high-poly / low-poly) plus an `eyes_material_type` enum (GameEngine / MakeSkin / Procedural) and an `eyes_randomize_alt_materials` (random iris colour) toggle — eyes are picked from a drop-down rather than randomized, since in practice only two eye sets exist. The **Hair** box has the `hair_randomize` master toggle, a `hair_match_gender` filter, a `hair_fallback` relax toggle, the `hair_pack` / `hair_include` / `hair_exclude` name filters and a `hair_randomize_alt_materials` (random hair colour) toggle. The **Eyebrows**, **Eyelashes**, **Teeth** and **Tongue** boxes each have an enable toggle plus pack / include / exclude filters. When a type is enabled, one installed asset of that type is picked and attached; when its pool is empty a WARNING is reported and nothing is added. Filtering and the hair gender fallback live in [`RandomizationService.pick_random_bodypart`](../../services/randomizationservice.md). **Reproducibility caveat:** as with skin, the attached body parts (and the picked alternative materials) depend on the set of installed assets, so the same preset and seed only reproduce the same result on a machine with the same assets installed.
+- **Creation settings** (`MPFB_PT_Randomize_Creation_Panel`, `bl_order` 7, open) — a **Rig** box (`rig` drop-down, `auto_generate_rigify` and `meta_rig_action`) followed by `scale_factor`, `detailed_helpers`, `extra_vertex_groups`, `mask_helpers`, the `new_random_seed` checkbox and the **Create random human** operator button. The rig drop-down mirrors the "From save file" panel's rig override (No rig, the built-in rigs, the two Rigify metarigs and the installed custom rigs) minus its "From preset" entry, and defaults to the **Default** rig so a fresh scene produces a rigged character out of the box. The rig is added right after the human is created (before the body parts) so the body parts are rigged as they attach.
 
 ## Operators
 
@@ -64,6 +68,10 @@ Creates a new basemesh with a randomized phenotype.
 4. Maps `scale_factor` to a scale (METER → 0.1, DECIMETER → 1.0, CENTIMETER → 10.0) and calls `HumanService.create_human()` with the macro dict and the creation settings.
 5. Enables shape-key edit mode, selects the new basemesh and pre-selects the `body` vertex group.
 6. Reports the seed that was used, so a random result can be reproduced by entering that seed.
+7. If a `rigify.*` rig is chosen while the Rigify addon is disabled, aborts with an ERROR before creating anything. Otherwise, right after the human is created and before any body parts, adds the chosen rig via `HumanService.add_builtin_rig()` (or `add_custom_rig()` for a `custom.*` value); "No rig" adds nothing. Adding a rig consumes no random draws. This happens before the body parts so `add_mhclo_asset` finds the Skeleton and rigs each child mesh as it attaches.
+8. If skin randomization is enabled, discovers the installed skins via `AssetService.list_mhmat_assets("skins")`, resolves each skin's pack membership from the pack metadata, and calls `RandomizationService.pick_random_skin(...)` (drawing from the same `random.Random` after the phenotype draws). A non-`None` pick is applied with `HumanService.set_character_skin()` — material instances are forced off for the LAYERED, GAMEENGINE and MAKESKIN skin types, and the active material slot is set to the body material afterwards. If the pool is empty (nothing matched, or no skins are installed) the human keeps its default material and a WARNING is reported. When skin randomization is disabled no skin draw happens at all, so a given seed produces the same phenotype either way.
+9. Attaches the body parts, in the fixed type order `eyebrows, eyelashes, eyes, hair, teeth, tongue`, drawing from the same `random.Random` after the skin. For each enabled randomized type it discovers the installed assets via `AssetService.list_mhclo_assets(<type>)`, resolves pack membership, calls `RandomizationService.pick_random_bodypart(...)` and attaches a non-`None` pick with `HumanService.add_mhclo_asset()` using the panel's `asset_material_type`; an empty pool gives a WARNING. Eyes are resolved from the `eyes_mode` drop-down to a hardcoded asset (`high-poly/high-poly.mhclo` or `low-poly/low-poly.mhclo`) with `AssetService.find_asset_absolute_path(..., "eyes")` — there is no random draw for the eyes mesh. For eyes and hair with their alternative-material toggle on (and a non-Procedural material), it discovers the asset's alternative materials, calls `RandomizationService.pick_random_alternative_material(...)` and passes a non-default pick to `add_mhclo_asset` keyed by the asset's uuid. A disabled type (or eyes set to "do not add", or Procedural eyes) consumes no draws.
+10. If a `rigify.*` rig was added and `auto_generate_rigify` is on, generates the full Rigify rig from the meta rig with `RigService.generate_rigify_rig(rig, meta_rig_action=...)` **after** all body parts are attached, so their weights and subrigs exist. Mirrors the "From save file" operator's warnings (invalid metarig, or the addon not enabled at this stage).
 
 ---
 
@@ -119,6 +127,26 @@ The panel loads its global and creation settings from `src/mpfb/ui/new_human/ran
 | `detailed_helpers` | boolean | `true` | Assign detailed vertex groups to helper geometry. |
 | `extra_vertex_groups` | boolean | `true` | Assign extra vertex groups to the body. |
 | `mask_helpers` | boolean | `true` | Add a mask modifier which hides the helper geometry. |
+| `randomize_skin` | boolean | `true` | Assign a randomly picked skin material to the created human. When off, the default material is kept and no skin draw happens. |
+| `match_gender` | boolean | `true` | Only pick skins whose name matches the randomized gender label (`female`/`male`, split at 0.5). |
+| `match_age` | boolean | `true` | Only pick skins whose name matches the randomized age label (`baby`, `child`, `young`, `middleage`, `old`). |
+| `match_race` | boolean | `true` | Only pick skins whose name matches the randomized dominant race label (`asian`, `caucasian`, `african`). Skipped for a mixed-race character. |
+| `skin_fallback` | boolean | `true` | If nothing matches, drop the phenotype filters one at a time (age, then race, then gender) until the pool is non-empty. The pack and keyword filters are never relaxed. |
+| `skin_pack` | string | `""` | Only pick skins in an asset pack whose name contains this string. Empty allows all packs. |
+| `skin_include` | string | `""` | Comma-separated keywords; keep only skins whose name contains at least one of them. Empty allows all names. |
+| `skin_exclude` | string | `"special_suit"` | Comma-separated keywords; never pick skins whose name contains any of them. Defaults to excluding the system pack's painted-on clothing textures. |
+| `skin_type` | enum | `"MAKESKIN"` | Skin material type used for the picked skin. Same options as the asset library: `GAMEENGINE`, `MAKESKIN`, `ENHANCED`, `ENHANCED_SSS`, `LAYERED`. |
+| `skin_material_instances` | boolean | `true` | Create material instances for extra vertex groups. Forced off internally for the LAYERED, GAMEENGINE and MAKESKIN skin types. |
+| `auto_generate_rigify` | boolean | `true` | If the chosen rig is a Rigify metarig, also generate the full Rigify rig from it after the body parts are attached. |
+| `meta_rig_action` | enum | `"hide"` | What to do with the metarig after generating the full Rigify rig: `keep`, `hide` or `delete`. |
+| `asset_material_type` | enum | `"MAKESKIN"` | Material type for the attached body parts (all except eyes). Options: `GAMEENGINE`, `MAKESKIN`. |
+| `eyes_mode` | enum | `"LOWPOLY"` | Which eyes to add: `DONOTADD`, `HIGHPOLY` or `LOWPOLY`. Eyes are picked from this drop-down rather than randomized. |
+| `eyes_material_type` | enum | `"MAKESKIN"` | Eyes material type. Options: `GAMEENGINE`, `MAKESKIN`, `PROCEDURAL_EYES`. |
+| `eyes_randomize_alt_materials` | boolean | `true` | Pick a random iris colour from the eye asset's alternative materials. No effect when the eye material is Procedural. |
+| `hair_randomize` | boolean | `true` | Attach a randomly picked hair style. When off, no hair is added. |
+| `hair_match_gender` | boolean | `false` | Only pick hair whose name matches the randomized gender label. Off by default since few hair styles are gender-labeled. |
+| `hair_fallback` | boolean | `true` | If the gender filter leaves no matching hair, drop only the gender filter and pick anyway. Pack/include/exclude are never relaxed. |
+| `hair_randomize_alt_materials` | boolean | `false` | Pick a random hair colour from the hair asset's alternative materials. |
 | `name` | string | `""` | Name used when saving a new preset. |
 
 ### Dynamic properties (defined in code, not JSON)
@@ -134,6 +162,9 @@ These are generated in `randomizeproperties.py` rather than stored in JSON prope
 | `gender_allow_<value>` | boolean (× 2) | Per-value toggle for discrete gender (`female`, `male`). In discrete mode a value is only eligible when its toggle is on. |
 | `age_allow_<value>` | boolean (× 4) | Per-value toggle for discrete age (`baby`, `child`, `young`, `old`). |
 | `race_allow_<value>` | boolean (× 3) | Per-value toggle for absolute race (`asian`, `caucasian`, `african`). |
+| `<type>_enable` | boolean (× 4) | Whether each plain body part type (`eyebrows`, `eyelashes`, `teeth`, `tongue`) is randomized. |
+| `<type>_pack` / `<type>_include` / `<type>_exclude` | string (× 5 types) | Pack, include and exclude name filters for each filtered body part type (`hair`, `eyebrows`, `eyelashes`, `teeth`, `tongue`), with the same semantics as the skin filters. |
+| `rig` | enum (dynamic) | The rig added to the created human. Mirrors the "From save file" rig override (No rig, the built-in rigs, the two Rigify metarigs, the installed custom rigs) minus its "From preset" entry. Defaults to the **Default** rig. |
 | `available_presets` | enum (dynamic) | Lists the saved `randomization.<name>.json` presets found in the user config directory. |
 
 In discrete mode a value is picked uniformly among the allowed toggles. If every value of a discrete attribute is unchecked, that attribute is treated as excluded (gender/age fall back to their neutral value, race to an even mix).

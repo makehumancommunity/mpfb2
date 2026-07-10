@@ -1,0 +1,7 @@
+{
+    "type": "boolean",
+    "name": "match_race",
+    "description": "Only pick skins whose name matches the randomized dominant race (asian, caucasian, african). Skipped for a mixed-race character",
+    "label": "Match race",
+    "default": false
+}

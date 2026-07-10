@@ -1,0 +1,7 @@
+{
+    "type": "boolean",
+    "name": "eyes_randomize_alt_materials",
+    "description": "Pick a random iris color from the eye asset's alternative materials. Has no effect when the eye material is Procedural",
+    "label": "Randomize alternative materials",
+    "default": true
+}

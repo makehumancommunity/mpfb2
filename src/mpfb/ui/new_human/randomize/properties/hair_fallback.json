@@ -1,0 +1,7 @@
+{
+    "type": "boolean",
+    "name": "hair_fallback",
+    "description": "If the gender filter leaves no matching hair, drop the gender filter and pick anyway. The pack, include and exclude filters are never relaxed",
+    "label": "Relax filter if nothing matches",
+    "default": true
+}

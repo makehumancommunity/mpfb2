@@ -1,0 +1,12 @@
+{
+    "type": "enum",
+    "name": "meta_rig_action",
+    "description": "What to do with the meta rig after the full rigify rig has been generated. Keep leaves it visible and in the scene. Hide is the recommended default - it stays in the scene (so Rigify's in-place re-generation works and any action layers on it survive) but is hidden from the viewport and renders. Delete removes it entirely",
+    "label": "Meta-rig",
+    "default": "hide",
+    "items": [
+        ["keep", "Keep", "Keep the meta rig visible in the scene after generation", 0],
+        ["hide", "Hide", "Keep the meta rig in the scene but hide it from the viewport and renders (recommended)", 1],
+        ["delete", "Delete", "Delete the meta rig from the scene after generation", 2]
+    ]
+}

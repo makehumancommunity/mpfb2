@@ -18,7 +18,7 @@ A "randomization spec" is a plain nested dict which is also what gets saved as a
 
 ```python
 {
-  "version": 1,
+  "version": 3,
   "phenotype": {
     "distribution": "bell",        # flat | bell | pyramid | peak
     "discrete_race": False,        # pick exactly one race vs normalized weights
@@ -30,9 +30,56 @@ A "randomization spec" is a plain nested dict which is also what gets saved as a
       # ...muscle, weight, height, proportions, cupsize, firmness...
       "race":   {"include": True, "allowed": ["asian", "caucasian", "african"]}
     }
+  },
+  "creation": {                    # duplicated creation settings, written by the UI layer
+    "scale_factor": "METER",
+    "detailed_helpers": True, "extra_vertex_groups": True, "mask_helpers": True,
+    "rig": "default",              # NONE | a built-in rig | rigify.* | custom.<name>
+    "auto_generate_rigify": True,  # generate the full rig from a rigify metarig
+    "meta_rig_action": "hide"      # keep | hide | delete the metarig after generation
+  },
+  "assets": {
+    "asset_material_type": "MAKESKIN",  # GAMEENGINE | MAKESKIN, applied to all bodyparts but eyes
+    "skin": {
+      "enabled": True,             # apply a randomly picked skin material
+      "match_gender": True,        # keep only skins whose name matches the gender label
+      "match_age": True,           # ...the age label
+      "match_race": True,          # ...the dominant race label
+      "fallback": True,            # relax phenotype filters (age, then race, then gender) if empty
+      "pack": "",                  # keep only skins in a pack whose name contains this
+      "include": "",               # keep skins whose name contains any of these keywords
+      "exclude": "special_suit",   # drop skins whose name contains any of these keywords
+      "skin_type": "MAKESKIN",     # GAMEENGINE | MAKESKIN | ENHANCED | ENHANCED_SSS | LAYERED
+      "material_instances": True
+    },
+    "eyes": {                      # eyes are a drop-down, not a randomized pool
+      "mode": "LOWPOLY",           # DONOTADD | HIGHPOLY | LOWPOLY
+      "material_type": "MAKESKIN", # GAMEENGINE | MAKESKIN | PROCEDURAL_EYES
+      "randomize_alt_materials": True   # pick a random iris colour
+    },
+    "hair": {
+      "enabled": True,             # attach a randomly picked hair
+      "match_gender": False,       # keep only hair whose name matches the gender label
+      "fallback": True,            # drop only the gender filter if nothing matches
+      "pack": "", "include": "", "exclude": "",
+      "randomize_alt_materials": False  # pick a random hair colour
+    },
+    "eyebrows": {"enabled": True, "pack": "", "include": "", "exclude": ""},
+    "eyelashes": {"enabled": True, "pack": "", "include": "", "exclude": ""},
+    "teeth": {"enabled": True, "pack": "", "include": "", "exclude": ""},
+    "tongue": {"enabled": True, "pack": "", "include": "", "exclude": ""}
   }
 }
 ```
+
+The spec format version is currently **3**. A preset written before a section existed is
+preserved untouched on load and that concern is then treated as **disabled**: a version-1
+preset (no `assets`) loads with skin and every bodypart disabled; a version-2 preset (skin
+only) loads with every bodypart disabled and no eyes; a preset without a `creation.rig` key
+loads with the rig set to **No rig**. So an older preset keeps producing exactly the
+character it did before. A **missing bodypart subsection means that type is disabled** (for
+eyes, not added), and the shared `assets.asset_material_type` applies to every attached
+bodypart except the eyes, which carry their own `material_type`.
 
 The attributes that have a discrete mode (`gender`, `age` and `race`) carry an `allowed` list of the value names eligible to be picked in that mode. A missing `allowed` list (as in presets written before this field existed) means every value is allowed. An empty `allowed` list means the attribute is treated as excluded — see the discrete sampling rules below.
 
@@ -55,9 +102,45 @@ All methods are static; the class should never be instantiated.
 
 #### get_default_phenotype_spec()
 
-Get the built-in randomization spec. All attributes are included, each with the built-in neutral (0.5), a moderate default deviation (0.15) and a bell distribution, and all toggles off.
+Get the built-in randomization spec. All attributes are included, each with the built-in neutral (0.5), a moderate default deviation (0.15) and a bell distribution, and all toggles off. The returned spec also carries the default `assets` sections: the `skin` section (skin randomization on, all three phenotype filters and the fallback on, an `exclude` of `special_suit`), the shared `asset_material_type`, and one section per bodypart type (all randomized types on, hair gender filter off, eyes low-poly with randomized iris).
 
 **Returns:** `dict` — A fresh randomization spec dict.
+
+---
+
+#### get_default_skin_asset_spec()
+
+Get a fresh copy of the default `assets.skin` section (the same dict nested inside `get_default_phenotype_spec()`). Used by the UI to reset the skin controls to their defaults.
+
+**Returns:** `dict` — A fresh skin asset spec dict.
+
+---
+
+#### get_bodypart_types()
+
+Get the bodypart types in the fixed order they are drawn in: `["eyebrows", "eyelashes", "eyes", "hair", "teeth", "tongue"]` (alphabetical, matching the asset subdir names). This order is the single source of truth for the UI and the operator, so a seed reproduces the same picks. `"eyes"` is included even though it is picked from a drop-down rather than a pool.
+
+**Returns:** `list` — The ordered bodypart type names.
+
+---
+
+#### get_plain_bodypart_types()
+
+Get the plain randomized bodypart types (those with only pack / include / exclude filters): `["eyebrows", "eyelashes", "teeth", "tongue"]` — i.e. every bodypart type except the special `"eyes"` and `"hair"`.
+
+**Returns:** `list` — The ordered plain bodypart type names.
+
+---
+
+#### get_default_bodypart_asset_spec(bodypart)
+
+Get a fresh copy of the default `assets.<bodypart>` section. Used by the UI to reset a bodypart's controls to their defaults.
+
+| Argument | Type | Default | Description |
+|----------|------|---------|-------------|
+| `bodypart` | `str` | — | One of the values returned by `get_bodypart_types()`. Any other value raises `ValueError`. |
+
+**Returns:** `dict` — A fresh bodypart asset spec dict (the shape depends on whether the type is `eyes`, `hair` or a plain type).
 
 ---
 
@@ -119,6 +202,90 @@ Produce a one-line human-readable summary of a generated character, used for the
 | `seed` | `int` | — | The seed the character was generated with. |
 
 **Returns:** `str` — For example `"Generated with seed 123: A young (0.6) caucasian (0.0/0.0/1.0) female (0.1)"`.
+
+---
+
+### Skin randomization
+
+These functions are pure and drive the "Skin" sub-panel. The phenotype label helpers translate a macro info dict into the labels a skin name is matched against; `pick_random_skin` applies the filters and draws a skin. The candidate list is passed in by the caller (the operator discovers the installed skins), so the service never touches `AssetService` and stays unit-testable without installed assets.
+
+#### skin_gender_label(macro)
+
+Get the gender label used when matching a skin against the randomized gender: `"female"` below 0.5, `"male"` at or above. This is a binary split, deliberately unlike the three-band display labels used by `describe_macro_info_dict`.
+
+**Returns:** `str` — `"female"` or `"male"`.
+
+---
+
+#### skin_age_label(macro)
+
+Get the age label used when matching a skin against the randomized age, one of five bands: `baby`, `child`, `young`, `middleage`, `old`. Unlike the four age anchors that drive sampling, this includes a dedicated `middleage` band (roughly 0.65–0.85) because the system skins use `middleage` in their names.
+
+**Returns:** `str` — One of `"baby"`, `"child"`, `"young"`, `"middleage"` or `"old"`.
+
+---
+
+#### skin_race_label(macro)
+
+Get the race label used when matching a skin against the randomized race: the race whose weight is above 0.5, or `None` for a mixed-race character (in which case the race filter is skipped).
+
+**Returns:** `str | None` — `"asian"`, `"caucasian"`, `"african"` or `None`.
+
+---
+
+#### pick_random_skin(spec, macro, candidates, rng)
+
+Pick one skin from a list of candidate dicts according to the spec's `assets.skin` section. Returns `None` when skin randomization is disabled, there are no candidates, or nothing matches (even after fallback).
+
+The candidate list is **sorted by name before drawing**, so the pick depends only on the seed, the spec and the set of candidates — never on the order the caller discovered them in (filesystem enumeration order is not deterministic).
+
+The **pack**, **include** and **exclude** filters express hard user intent and are always applied. The **include**/**exclude** filters take comma-separated keyword lists (whitespace trimmed, empty entries ignored; a single keyword behaves as a plain substring): include keeps a skin whose name contains *any* keyword, exclude drops a skin whose name contains *any* keyword. The three **phenotype** filters (gender, age, race) narrow the pool further; when the pool is empty and `fallback` is on, they are dropped one at a time in the order **age, then race, then gender**, until the pool is non-empty.
+
+All name matching is case-insensitive. Two labels are substrings of a longer label (`male` inside `female`, `asian` inside `caucasian`); the longer label is stripped from the name before the shorter one is tested, so `male` does not match inside `young_caucasian_female2` and `asian` does not match inside a `caucasian` name.
+
+| Argument | Type | Default | Description |
+|----------|------|---------|-------------|
+| `spec` | `dict` | — | A randomization spec; its `assets.skin` section is read. |
+| `macro` | `dict` | — | The randomized macro info dict, used to resolve the phenotype labels. |
+| `candidates` | `list` | — | Candidate dicts with `name`, `path` and `pack` (or `None`) keys. |
+| `rng` | `random.Random` | — | The random generator instance to draw from. |
+
+**Returns:** `dict | None` — The chosen candidate, or `None`.
+
+---
+
+### Bodypart randomization
+
+These functions are pure and drive the "Body parts" sub-panel. They reuse the same filter-and-pick core as `pick_random_skin` (pack / include / exclude filters, an optional name-label filter, fallback relaxation and sort-before-pick), and the same candidate-list-passed-in contract, so they stay unit-testable without installed assets.
+
+#### pick_random_bodypart(spec_section, macro, candidates, rng)
+
+Pick one bodypart asset from a list of candidate dicts according to one `assets.<bodypart>` section (hair or a plain type). Returns `None` when the type is disabled, there are no candidates, or nothing matches (even after fallback).
+
+The **pack**, **include** and **exclude** filters behave exactly as in `pick_random_skin` and are always applied. Only **hair** carries a phenotype filter: when its `match_gender` toggle is on the pool is narrowed to hair whose name contains the character's gender label (with the same `male`-inside-`female` handling as skin), and when the gender-filtered pool is empty and `fallback` is on **only the gender filter is dropped** and the pick retried — pack, include and exclude are never relaxed. The other bodypart types have no phenotype filter. Candidates are sorted by name before drawing.
+
+| Argument | Type | Default | Description |
+|----------|------|---------|-------------|
+| `spec_section` | `dict` | — | One `assets.<bodypart>` section (hair or a plain type). |
+| `macro` | `dict` | — | The randomized macro info dict, used to resolve the hair gender label. |
+| `candidates` | `list` | — | Candidate dicts with `name`, `path` and `pack` (or `None`) keys. |
+| `rng` | `random.Random` | — | The random generator instance to draw from. |
+
+**Returns:** `dict | None` — The chosen candidate, or `None`.
+
+---
+
+#### pick_random_alternative_material(default_name, alternatives, rng)
+
+Pick one material name uniformly from a default plus its alternatives, used for the eyes / hair alternative-material (iris / hair colour) randomization. The default and the alternatives are combined, **de-duplicated** (the eyes discovery can yield duplicates) and sorted by name before drawing, so the pick depends only on the seed and the set of names. When there are no distinct alternatives the default is returned **without drawing** from `rng`, so an asset with no alternatives does not shift the seed for later draws.
+
+| Argument | Type | Default | Description |
+|----------|------|---------|-------------|
+| `default_name` | `str` | — | The asset's default material name. |
+| `alternatives` | `list` | — | The alternative material names (may contain duplicates or the default). |
+| `rng` | `random.Random` | — | The random generator instance to draw from. |
+
+**Returns:** `str` — The chosen material name (the default when there are no alternatives).
 
 ---
 

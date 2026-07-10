@@ -18,12 +18,21 @@ class MPFB_PT_Randomize_Creation_Panel(Abstract_Panel):
     bl_category = UiService.get_value("MODELCATEGORY")
     bl_options = set()
     bl_parent_id = "MPFB_PT_Randomize_Panel"
-    bl_order = 5
+    bl_order = 7
 
     def draw(self, context):
         _LOG.enter()
         scene = context.scene
         layout = self.layout
+        # The rig is added right after the human is created, before the body parts, so they
+        # are rigged as they attach. The Rigify pair mirrors the from-save-file panel.
+        rig_box = layout.box()
+        rig_box.label(text="Rig")
+        RANDOMIZE_PROPERTIES.draw_properties(scene, rig_box, [
+            "rig",
+            "auto_generate_rigify",
+            "meta_rig_action"
+            ])
         RANDOMIZE_PROPERTIES.draw_properties(scene, layout, [
             "scale_factor",
             "detailed_helpers",

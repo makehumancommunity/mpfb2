@@ -1,0 +1,7 @@
+{
+    "type": "boolean",
+    "name": "match_age",
+    "description": "Only pick skins whose name matches the randomized age (baby, child, young, middleage, old)",
+    "label": "Match age",
+    "default": false
+}

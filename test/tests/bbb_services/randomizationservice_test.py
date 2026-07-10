@@ -16,7 +16,7 @@ def test_randomizationservice_exists():
 
 def test_default_spec_shape():
     spec = _spec()
-    assert spec["version"] == 1, "The default spec has a version"
+    assert spec["version"] == 3, "The default spec has a version"
     phenotype = spec["phenotype"]
     assert phenotype["distribution"] == "bell", "The default distribution is bell"
     assert phenotype["discrete_race"] is False
@@ -302,3 +302,351 @@ def test_describe_full_strings():
     mixed = {"african": 0.4, "asian": 0.4, "caucasian": 0.2}
     assert RandomizationService.describe_macro_info_dict(_macro(0.0, 0.55, mixed), 678) == \
         "Generated with seed 678: A baby (0.0) mixed race (0.4/0.4/0.2) neutral (0.55)"
+
+
+# --- Skin randomization -----------------------------------------------------------------
+
+_NO_RACE = {"asian": 0.0, "caucasian": 0.0, "african": 0.0}
+
+
+def _skin_spec(**overrides):
+    """A default spec with all skin filters off, so a test only turns on what it needs."""
+    spec = RandomizationService.get_default_phenotype_spec()
+    spec["assets"]["skin"].update({
+        "enabled": True, "match_gender": False, "match_age": False, "match_race": False,
+        "fallback": True, "pack": "", "include": "", "exclude": ""
+        })
+    spec["assets"]["skin"].update(overrides)
+    return spec
+
+
+def _cands(*names):
+    """Build candidate dicts (no pack) from a list of skin names."""
+    return [{"name": name, "path": "/skins/" + name + ".mhmat", "pack": None} for name in names]
+
+
+def _picks(spec, macro, candidates, seeds=range(25)):
+    """The set of names picked across several seeds (to exercise the whole pool)."""
+    return {RandomizationService.pick_random_skin(spec, macro, candidates, random.Random(seed))["name"]
+            for seed in seeds}
+
+
+def test_default_spec_has_skin_assets():
+    skin = _spec()["assets"]["skin"]
+    assert skin["enabled"] is True
+    assert skin["match_gender"] is True and skin["match_age"] is True and skin["match_race"] is True
+    assert skin["fallback"] is True
+    assert skin["pack"] == ""
+    assert skin["include"] == ""
+    assert skin["exclude"] == "special_suit"
+    assert skin["skin_type"] == "MAKESKIN"
+    assert skin["material_instances"] is True
+
+
+def test_skin_gender_label_splits_at_half():
+    assert RandomizationService.skin_gender_label({"gender": 0.0}) == "female"
+    assert RandomizationService.skin_gender_label({"gender": 0.49}) == "female"
+    assert RandomizationService.skin_gender_label({"gender": 0.5}) == "male"
+    assert RandomizationService.skin_gender_label({"gender": 1.0}) == "male"
+
+
+def test_skin_age_label_five_bands():
+    assert RandomizationService.skin_age_label({"age": 0.0}) == "baby"
+    assert RandomizationService.skin_age_label({"age": 0.2}) == "child"
+    assert RandomizationService.skin_age_label({"age": 0.5}) == "young"
+    assert RandomizationService.skin_age_label({"age": 0.75}) == "middleage"
+    assert RandomizationService.skin_age_label({"age": 0.9}) == "old"
+    # Band boundaries: middleage occupies [0.65, 0.85).
+    assert RandomizationService.skin_age_label({"age": 0.64}) == "young"
+    assert RandomizationService.skin_age_label({"age": 0.65}) == "middleage"
+    assert RandomizationService.skin_age_label({"age": 0.84}) == "middleage"
+    assert RandomizationService.skin_age_label({"age": 0.85}) == "old"
+
+
+def test_skin_race_label_dominant_or_none():
+    assert RandomizationService.skin_race_label({"race": {"asian": 0.6, "caucasian": 0.2, "african": 0.2}}) == "asian"
+    assert RandomizationService.skin_race_label({"race": {"asian": 0.2, "caucasian": 0.6, "african": 0.2}}) == "caucasian"
+    assert RandomizationService.skin_race_label({"race": {"asian": 0.2, "caucasian": 0.2, "african": 0.6}}) == "african"
+    assert RandomizationService.skin_race_label({"race": {"asian": 0.34, "caucasian": 0.33, "african": 0.33}}) is None
+
+
+def test_skin_gender_filter_male_not_matching_female():
+    macro = _macro(0.5, 1.0, _NO_RACE)
+    spec = _skin_spec(match_gender=True, fallback=False)
+    cands = _cands("young_caucasian_female2", "young_caucasian_male")
+    assert _picks(spec, macro, cands) == {"young_caucasian_male"}, "male filter must not match a female name"
+
+
+def test_skin_gender_filter_female_matches_female_name():
+    macro = _macro(0.5, 0.0, _NO_RACE)
+    spec = _skin_spec(match_gender=True, fallback=False)
+    cands = _cands("young_caucasian_female2", "young_caucasian_male")
+    assert _picks(spec, macro, cands) == {"young_caucasian_female2"}
+
+
+def test_skin_race_filter_asian_not_matching_caucasian():
+    macro = _macro(0.5, 0.0, {"asian": 1.0, "caucasian": 0.0, "african": 0.0})
+    spec = _skin_spec(match_race=True, fallback=False)
+    cands = _cands("young_caucasian_male", "young_asian_male")
+    assert _picks(spec, macro, cands) == {"young_asian_male"}, "asian filter must not match a caucasian name"
+
+
+def test_skin_race_filter_caucasian_and_african_match():
+    caucasian = _skin_spec(match_race=True, fallback=False)
+    cands = _cands("young_caucasian_male", "young_asian_male", "young_african_male")
+    assert _picks(caucasian, _macro(0.5, 0.0, {"asian": 0.0, "caucasian": 1.0, "african": 0.0}), cands) == {"young_caucasian_male"}
+    assert _picks(caucasian, _macro(0.5, 0.0, {"asian": 0.0, "caucasian": 0.0, "african": 1.0}), cands) == {"young_african_male"}
+
+
+def test_skin_matching_is_case_insensitive():
+    macro = _macro(0.5, 0.0, _NO_RACE)
+    spec = _skin_spec(match_gender=True, fallback=False)
+    cands = _cands("Young_Caucasian_FEMALE")
+    assert _picks(spec, macro, cands) == {"Young_Caucasian_FEMALE"}
+
+
+def test_skin_age_filter_middleage():
+    macro = _macro(0.75, 0.0, _NO_RACE)
+    spec = _skin_spec(match_age=True, fallback=False)
+    cands = _cands("young_female", "middleage_female", "old_female")
+    assert _picks(spec, macro, cands) == {"middleage_female"}
+
+
+def test_skin_combined_phenotype_filters():
+    macro = _macro(0.5, 0.0, {"asian": 0.0, "caucasian": 1.0, "african": 0.0})
+    spec = _skin_spec(match_gender=True, match_age=True, match_race=True, fallback=False)
+    cands = _cands("young_caucasian_female", "young_caucasian_male", "old_caucasian_female", "young_asian_female")
+    assert _picks(spec, macro, cands) == {"young_caucasian_female"}
+
+
+def test_skin_pack_filter():
+    macro = _macro(0.5, 0.0, _NO_RACE)
+    spec = _skin_spec(pack="system", fallback=False)
+    cands = [
+        {"name": "a", "path": "/a.mhmat", "pack": "makehuman_system_assets"},
+        {"name": "b", "path": "/b.mhmat", "pack": "third_party_pack"},
+        {"name": "c", "path": "/c.mhmat", "pack": None}
+        ]
+    assert _picks(spec, macro, cands) == {"a"}, "only skins from a matching pack (not None) are kept"
+
+
+def test_skin_include_keeps_any_of():
+    macro = _macro(0.5, 0.0, _NO_RACE)
+    spec = _skin_spec(include="brown, pale")
+    cands = _cands("skin_brown", "skin_pale", "skin_dark")
+    assert _picks(spec, macro, cands) == {"skin_brown", "skin_pale"}
+
+
+def test_skin_exclude_removes_any_of():
+    macro = _macro(0.5, 0.0, _NO_RACE)
+    spec = _skin_spec(exclude="special_suit, wip")
+    cands = _cands("normal", "young_male_special_suit", "test_wip")
+    assert _picks(spec, macro, cands) == {"normal"}
+
+
+def test_skin_keyword_whitespace_and_empty_entries_ignored():
+    macro = _macro(0.5, 0.0, _NO_RACE)
+    spec = _skin_spec(include=" brown , , ")
+    cands = _cands("skin_brown", "skin_pale")
+    assert _picks(spec, macro, cands) == {"skin_brown"}, "a single effective keyword behaves as a plain substring"
+
+
+def test_skin_single_keyword_without_commas_is_plain_substring():
+    macro = _macro(0.5, 0.0, _NO_RACE)
+    spec = _skin_spec(include="brown")
+    cands = _cands("skin_brown", "skin_pale")
+    assert _picks(spec, macro, cands) == {"skin_brown"}
+
+
+def test_skin_fallback_relaxes_age_first():
+    # Candidate matches gender and race but has the wrong age. With fallback, age is dropped.
+    macro = _macro(0.75, 0.0, {"asian": 0.0, "caucasian": 1.0, "african": 0.0})
+    spec = _skin_spec(match_gender=True, match_age=True, match_race=True, fallback=True)
+    cands = _cands("young_caucasian_female")
+    assert _picks(spec, macro, cands) == {"young_caucasian_female"}
+
+
+def test_skin_fallback_stops_at_first_non_empty_pool():
+    # Dropping age alone already matches, so race/gender must not be relaxed further: the
+    # asian candidate (wrong race) stays excluded.
+    macro = _macro(0.75, 0.0, {"asian": 0.0, "caucasian": 1.0, "african": 0.0})
+    spec = _skin_spec(match_gender=True, match_age=True, match_race=True, fallback=True)
+    cands = _cands("young_caucasian_female", "young_asian_female")
+    assert _picks(spec, macro, cands) == {"young_caucasian_female"}
+
+
+def test_skin_fallback_does_not_relax_exclude():
+    macro = _macro(0.5, 0.0, _NO_RACE)
+    spec = _skin_spec(exclude="suit", fallback=True)
+    cands = _cands("young_male_suit")
+    assert RandomizationService.pick_random_skin(spec, macro, cands, random.Random(0)) is None
+
+
+def test_skin_empty_pool_returns_none():
+    macro = _macro(0.5, 0.0, _NO_RACE)
+    assert RandomizationService.pick_random_skin(_skin_spec(), macro, [], random.Random(0)) is None
+
+
+def test_skin_disabled_returns_none_and_draws_nothing():
+    macro = _macro(0.5, 0.0, _NO_RACE)
+    spec = _skin_spec(enabled=False)
+    cands = _cands("a", "b", "c")
+    rng = random.Random(0)
+    assert RandomizationService.pick_random_skin(spec, macro, cands, rng) is None
+    # No draw was consumed, so the generator still yields its very first value.
+    assert rng.random() == random.Random(0).random()
+
+
+def test_v1_spec_without_assets_disables_skin():
+    macro = _macro(0.5, 0.0, _NO_RACE)
+    spec = _spec()
+    del spec["assets"]
+    cands = _cands("a", "b")
+    assert RandomizationService.pick_random_skin(spec, macro, cands, random.Random(0)) is None
+
+
+def test_skin_same_seed_same_pick():
+    macro = _macro(0.5, 0.0, _NO_RACE)
+    spec = _skin_spec()
+    cands = _cands("a", "b", "c", "d", "e")
+    first = RandomizationService.pick_random_skin(spec, macro, cands, random.Random(42))
+    second = RandomizationService.pick_random_skin(spec, macro, cands, random.Random(42))
+    assert first == second
+
+
+def test_skin_shuffling_candidates_does_not_change_pick():
+    macro = _macro(0.5, 0.0, _NO_RACE)
+    spec = _skin_spec()
+    cands = _cands("a", "b", "c", "d", "e")
+    original = RandomizationService.pick_random_skin(spec, macro, list(cands), random.Random(7))
+    shuffled = list(cands)
+    random.Random(99).shuffle(shuffled)
+    reshuffled = RandomizationService.pick_random_skin(spec, macro, shuffled, random.Random(7))
+    assert original["name"] == reshuffled["name"], "the pick is independent of candidate order"
+
+
+# --- Bodypart randomization -------------------------------------------------------------
+
+
+def _hair_spec(**overrides):
+    """A default hair section with all filters off, so a test only turns on what it needs."""
+    section = {
+        "enabled": True, "match_gender": False, "fallback": True,
+        "pack": "", "include": "", "exclude": "", "randomize_alt_materials": False
+        }
+    section.update(overrides)
+    return section
+
+
+def _bp_picks(section, macro, candidates, seeds=range(25)):
+    """The set of names pick_random_bodypart returns across several seeds."""
+    return {RandomizationService.pick_random_bodypart(section, macro, candidates, random.Random(seed))["name"]
+            for seed in seeds}
+
+
+def test_default_spec_has_bodypart_sections():
+    assets = _spec()["assets"]
+    assert assets["asset_material_type"] == "MAKESKIN", "the shared asset material defaults to MakeSkin"
+    assert assets["eyes"]["mode"] == "LOWPOLY", "eyes default to low-poly"
+    assert assets["eyes"]["randomize_alt_materials"] is True, "eyes randomize iris colour by default"
+    assert assets["hair"]["enabled"] is True
+    assert assets["hair"]["match_gender"] is False, "hair gender filter is off by default"
+    assert assets["hair"]["randomize_alt_materials"] is False
+    for name in ["eyebrows", "eyelashes", "teeth", "tongue"]:
+        assert assets[name]["enabled"] is True, name + " is enabled by default"
+
+
+def test_bodypart_type_lists_and_defaults():
+    assert RandomizationService.get_bodypart_types() == ["eyebrows", "eyelashes", "eyes", "hair", "teeth", "tongue"]
+    assert RandomizationService.get_plain_bodypart_types() == ["eyebrows", "eyelashes", "teeth", "tongue"]
+    assert RandomizationService.get_default_bodypart_asset_spec("eyes")["mode"] == "LOWPOLY"
+    assert RandomizationService.get_default_bodypart_asset_spec("hair")["match_gender"] is False
+    assert "enabled" in RandomizationService.get_default_bodypart_asset_spec("teeth")
+
+
+def test_bodypart_disabled_returns_none_and_draws_nothing():
+    macro = _macro(0.5, 0.0, _NO_RACE)
+    rng = random.Random(0)
+    assert RandomizationService.pick_random_bodypart(_hair_spec(enabled=False), macro, _cands("a", "b"), rng) is None
+    # No draw was consumed, so the generator still yields its very first value.
+    assert rng.random() == random.Random(0).random()
+
+
+def test_bodypart_missing_section_is_disabled():
+    # A version-2 preset has no bodypart subsection; an empty section is treated as disabled.
+    macro = _macro(0.5, 0.0, _NO_RACE)
+    assert RandomizationService.pick_random_bodypart({}, macro, _cands("a"), random.Random(0)) is None
+
+
+def test_bodypart_empty_pool_returns_none():
+    macro = _macro(0.5, 0.0, _NO_RACE)
+    assert RandomizationService.pick_random_bodypart(_hair_spec(), macro, [], random.Random(0)) is None
+
+
+def test_bodypart_include_exclude_pack_filters():
+    macro = _macro(0.5, 0.0, _NO_RACE)
+    assert _bp_picks(_hair_spec(include="long"), macro, _cands("long_hair", "short_hair")) == {"long_hair"}
+    assert _bp_picks(_hair_spec(exclude="short"), macro, _cands("long_hair", "short_hair")) == {"long_hair"}
+    cands = [
+        {"name": "a", "path": "/hair/a.mhclo", "pack": "PackOne"},
+        {"name": "b", "path": "/hair/b.mhclo", "pack": "Other"}
+        ]
+    assert _bp_picks(_hair_spec(pack="one"), macro, cands) == {"a"}
+
+
+def test_bodypart_hair_gender_filter_male_not_matching_female():
+    macro = _macro(0.5, 1.0, _NO_RACE)  # male side
+    section = _hair_spec(match_gender=True)
+    # "male" must not match inside "female_bun"; only the male-named style is eligible.
+    assert _bp_picks(section, macro, _cands("male_cut", "female_bun")) == {"male_cut"}
+
+
+def test_bodypart_hair_relax_drops_only_gender():
+    macro = _macro(0.5, 1.0, _NO_RACE)  # male side, but no male-named hair
+    # With fallback the gender filter is dropped and both unlabeled styles become eligible.
+    assert _bp_picks(_hair_spec(match_gender=True, fallback=True), macro, _cands("bun", "braid")) == {"bun", "braid"}
+    # But the exclude filter is never relaxed.
+    section = _hair_spec(match_gender=True, fallback=True, exclude="braid")
+    assert _bp_picks(section, macro, _cands("bun", "braid")) == {"bun"}
+
+
+def test_bodypart_hair_no_match_no_fallback_returns_none():
+    macro = _macro(0.5, 1.0, _NO_RACE)  # male side, no male-named hair
+    section = _hair_spec(match_gender=True, fallback=False)
+    assert RandomizationService.pick_random_bodypart(section, macro, _cands("bun", "braid"), random.Random(0)) is None
+
+
+def test_alt_material_uniform_over_default_and_alternatives():
+    picks = {RandomizationService.pick_random_alternative_material("d", ["a", "b"], random.Random(seed))
+             for seed in range(30)}
+    assert picks == {"d", "a", "b"}, "the pick is uniform over the default plus its alternatives"
+
+
+def test_alt_material_order_independent():
+    first = RandomizationService.pick_random_alternative_material("d", ["b", "a", "c"], random.Random(3))
+    second = RandomizationService.pick_random_alternative_material("d", ["c", "a", "b"], random.Random(3))
+    assert first == second, "the pick does not depend on the alternatives' order"
+
+
+def test_alt_material_dedups_default_and_duplicates():
+    picks = {RandomizationService.pick_random_alternative_material("d", ["d", "a", "a"], random.Random(seed))
+             for seed in range(25)}
+    assert picks == {"d", "a"}, "duplicates and the default are collapsed"
+
+
+def test_alt_material_no_alternatives_returns_default_without_drawing():
+    rng = random.Random(0)
+    assert RandomizationService.pick_random_alternative_material("d", [], rng) == "d"
+    # A single (or empty) pool consumes no draw, so a disabled toggle does not shift the seed.
+    assert rng.random() == random.Random(0).random()
+
+
+def test_v2_spec_deserializes_with_bodyparts_disabled():
+    # Simulate a version-2 preset: only the skin asset section exists.
+    spec = _spec()
+    spec["version"] = 2
+    spec["assets"] = {"skin": RandomizationService.get_default_skin_asset_spec()}
+    text = RandomizationService.serialize_spec_to_json_string(spec)
+    restored = RandomizationService.deserialize_spec_from_json_string(text)
+    macro = _macro(0.5, 0.0, _NO_RACE)
+    assert RandomizationService.pick_random_bodypart(restored["assets"].get("hair", {}), macro, _cands("a"), random.Random(0)) is None

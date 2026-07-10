@@ -31,7 +31,7 @@ _LOG = LogService.get_logger("services.randomizationservice")
 
 # The current version of the randomization spec / preset format. Bump this if the format
 # changes in a way that older presets need migrating.
-_SPEC_VERSION: int = 1
+_SPEC_VERSION: int = 3
 
 # Built-in neutral and deviation used when nothing else is specified for an attribute.
 _DEFAULT_NEUTRAL: float = 0.5
@@ -43,6 +43,69 @@ _SCALAR_ATTRIBUTES: list[str] = ["gender", "age", "muscle", "weight", "height", 
 
 # The three correlated race weights.
 _RACES: list[str] = ["asian", "caucasian", "african"]
+
+# The default "assets.skin" section. Skin randomization is on with all three phenotype
+# filters and the fallback relaxation enabled, no pack or include filter, and an exclude
+# filter that drops the painted-on clothing textures in the system pack. The skin_type and
+# material_instances mirror the asset library defaults so the same preset reproduces the
+# same material.
+_DEFAULT_SKIN_ASSET: dict = {
+    "enabled": True,
+    "match_gender": True,
+    "match_age": True,
+    "match_race": True,
+    "fallback": True,
+    "pack": "",
+    "include": "",
+    "exclude": "special_suit",
+    "skin_type": "MAKESKIN",
+    "material_instances": True
+    }
+
+# The default section for a plain randomized bodypart type (eyebrows, eyelashes, teeth,
+# tongue). Randomization is on with empty pack/include/exclude filters. There is no
+# phenotype analog of the skin's match filters for these types, since no installed bodypart
+# assets carry age or race labels in their names.
+_DEFAULT_BODYPART_ASSET: dict = {
+    "enabled": True,
+    "pack": "",
+    "include": "",
+    "exclude": ""
+    }
+
+# The default "assets.hair" section. Hair is a plain bodypart type with the same pack /
+# include / exclude filters, plus an optional gender filter (off by default, since
+# gender-labeled hair styles are few), a relax toggle that drops only the gender filter, and
+# an alternative-material randomization toggle (off by default).
+_DEFAULT_HAIR_ASSET: dict = {
+    "enabled": True,
+    "match_gender": False,
+    "fallback": True,
+    "pack": "",
+    "include": "",
+    "exclude": "",
+    "randomize_alt_materials": False
+    }
+
+# The default "assets.eyes" section. Eyes are a special case: rather than a randomized pool
+# they are a drop-down over the two installed eye sets (mapped to hardcoded asset paths). The
+# mode is one of "DONOTADD", "HIGHPOLY" or "LOWPOLY" (matching the eyes_mode enum ids). The
+# material type mirrors the asset library's eyes_type, and alternative-material (iris color)
+# randomization is on by default.
+_DEFAULT_EYES_ASSET: dict = {
+    "mode": "LOWPOLY",
+    "material_type": "MAKESKIN",
+    "randomize_alt_materials": True
+    }
+
+# The plain randomized bodypart types (those with only pack / include / exclude filters).
+# Eyes and hair are handled separately because they carry extra settings.
+_PLAIN_BODYPART_TYPES: list[str] = ["eyebrows", "eyelashes", "teeth", "tongue"]
+
+# All bodypart types in the fixed order the operator draws them (alphabetical, matching the
+# asset subdir names). Keeping the order here makes it the single source of truth, so a seed
+# reproduces the same picks regardless of how the UI or operator iterate.
+_BODYPART_TYPES: list[str] = ["eyebrows", "eyelashes", "eyes", "hair", "teeth", "tongue"]
 
 # The discrete gender values, keyed by the value name used in the "allowed" list. In discrete
 # mode a value is picked uniformly among the allowed keys.
@@ -62,6 +125,19 @@ _YOUNG_ADULT_THRESHOLD: float = 0.5
 # These bands are display-only and do not affect any randomization logic.
 _GENDER_FEMALE_MAX: float = 0.4
 _GENDER_MALE_MIN: float = 0.6
+
+# The five age bands used when matching a skin asset against the randomized age. Unlike the
+# four age anchors above (which drive sampling), these include a dedicated "middleage" band
+# because the system skins use "middleage" in their names, which is not an age anchor. Each
+# entry is an upper bound; a value below the bound gets that label. Anything at or above the
+# last bound falls through to "old", so middleage occupies roughly 0.65 - 0.85.
+_SKIN_AGE_BANDS: list[tuple[str, float]] = [("baby", 0.09), ("child", 0.34), ("young", 0.65), ("middleage", 0.85)]
+
+# When matching a skin name against a phenotype label, a couple of labels are substrings of
+# a longer label ("male" inside "female", "asian" inside "caucasian"). Testing for the short
+# label would then wrongly match a name carrying the long one. The superstring is stripped
+# from the name before the short label is tested; see _name_contains_label.
+_LABEL_SUPERSTRINGS: dict[str, str] = {"male": "female", "asian": "caucasian"}
 
 
 class RandomizationService:
@@ -103,6 +179,16 @@ class RandomizationService:
                 "discrete_gender": True,
                 "discrete_age": False,
                 "attributes": attributes
+                },
+            "assets": {
+                "asset_material_type": "MAKESKIN",
+                "skin": dict(_DEFAULT_SKIN_ASSET),
+                "eyes": dict(_DEFAULT_EYES_ASSET),
+                "hair": dict(_DEFAULT_HAIR_ASSET),
+                "eyebrows": dict(_DEFAULT_BODYPART_ASSET),
+                "eyelashes": dict(_DEFAULT_BODYPART_ASSET),
+                "teeth": dict(_DEFAULT_BODYPART_ASSET),
+                "tongue": dict(_DEFAULT_BODYPART_ASSET)
                 }
             }
 
@@ -295,6 +381,225 @@ class RandomizationService:
             )
 
     @staticmethod
+    def get_default_skin_asset_spec() -> dict:
+        """Get a fresh copy of the default "assets.skin" section."""
+        return dict(_DEFAULT_SKIN_ASSET)
+
+    @staticmethod
+    def get_bodypart_types() -> list[str]:
+        """
+        Get the bodypart types in the fixed order they are drawn in.
+
+        The order (alphabetical, matching the asset subdir names) is the single source of
+        truth for both the UI and the operator, so a seed reproduces the same picks. Note
+        "eyes" is included even though it is picked from a drop-down rather than a pool.
+
+        Returns:
+            list: ["eyebrows", "eyelashes", "eyes", "hair", "teeth", "tongue"].
+        """
+        return list(_BODYPART_TYPES)
+
+    @staticmethod
+    def get_plain_bodypart_types() -> list[str]:
+        """
+        Get the plain randomized bodypart types (only pack / include / exclude filters).
+
+        These are the types with no extra settings, i.e. all of get_bodypart_types() except
+        the special "eyes" and "hair".
+
+        Returns:
+            list: ["eyebrows", "eyelashes", "teeth", "tongue"].
+        """
+        return list(_PLAIN_BODYPART_TYPES)
+
+    @staticmethod
+    def get_default_bodypart_asset_spec(bodypart: str) -> dict:
+        """
+        Get a fresh copy of the default "assets.<bodypart>" section.
+
+        Args:
+            bodypart (str): One of the values returned by get_bodypart_types().
+
+        Returns:
+            dict: The default section for that bodypart type.
+        """
+        if bodypart == "eyes":
+            return dict(_DEFAULT_EYES_ASSET)
+        if bodypart == "hair":
+            return dict(_DEFAULT_HAIR_ASSET)
+        if bodypart in _PLAIN_BODYPART_TYPES:
+            return dict(_DEFAULT_BODYPART_ASSET)
+        raise ValueError("Unknown bodypart type: " + str(bodypart))
+
+    @staticmethod
+    def skin_gender_label(macro: dict) -> str:
+        """
+        Get the gender label used when matching a skin asset against the randomized gender.
+
+        This is a binary split at 0.5 ("female" below, "male" at or above), deliberately
+        unlike the three-band display labels used by describe_macro_info_dict.
+
+        Args:
+            macro (dict): A macro info dict as produced by randomize_macro_info_dict().
+
+        Returns:
+            str: "female" or "male".
+        """
+        return "female" if macro["gender"] < 0.5 else "male"
+
+    @staticmethod
+    def skin_age_label(macro: dict) -> str:
+        """
+        Get the age label used when matching a skin asset against the randomized age.
+
+        The value is placed in one of five bands (baby, child, young, middleage, old). The
+        middleage band exists because the system skins use "middleage" in their names.
+
+        Args:
+            macro (dict): A macro info dict as produced by randomize_macro_info_dict().
+
+        Returns:
+            str: One of "baby", "child", "young", "middleage" or "old".
+        """
+        age = macro["age"]
+        for label, upper in _SKIN_AGE_BANDS:
+            if age < upper:
+                return label
+        return "old"
+
+    @staticmethod
+    def skin_race_label(macro: dict) -> str | None:
+        """
+        Get the race label used when matching a skin asset against the randomized race.
+
+        Returns the race whose weight is above 0.5, or None when no race dominates (a
+        mixed-race character); the race filter is then skipped for that character.
+
+        Args:
+            macro (dict): A macro info dict as produced by randomize_macro_info_dict().
+
+        Returns:
+            str | None: "asian", "caucasian", "african" or None.
+        """
+        race = macro.get("race", {})
+        for name in _RACES:
+            if race.get(name, 0.0) > 0.5:
+                return name
+        return None
+
+    @staticmethod
+    def pick_random_skin(spec: dict, macro: dict, candidates: list[dict], rng: random.Random) -> dict | None:
+        """
+        Pick one skin asset from a list of candidates according to the spec's skin section.
+
+        This is a pure function: it takes the candidate list as plain data (the caller
+        discovers the installed skins), so it needs no bpy objects or installed assets and
+        is fully unit-testable. The candidate list is sorted by name before drawing, so the
+        pick only depends on the seed, the spec and the set of candidates, never on the
+        order they were discovered in.
+
+        The pack, include and exclude filters express hard user intent and are always
+        applied. The three phenotype filters (gender, age, race) narrow the pool further;
+        when the pool is empty and the fallback toggle is on, they are dropped one at a time
+        in the order age, then race, then gender, until the pool is non-empty.
+
+        Args:
+            spec (dict): A randomization spec; its "assets"/"skin" section is read.
+            macro (dict): The randomized macro info dict, used to resolve the phenotype labels.
+            candidates (list): Candidate dicts with "name", "path" and "pack" (or None) keys.
+            rng (random.Random): The random generator instance to draw from.
+
+        Returns:
+            dict | None: The chosen candidate, or None when skin randomization is disabled,
+            there are no candidates, or nothing matches (even after fallback).
+        """
+        skin = (spec.get("assets") or {}).get("skin") or {}
+        if not skin.get("enabled", False) or not candidates:
+            return None
+
+        # Phenotype filters, each keyed by its relaxation name. A filter is only present when
+        # it is enabled in the spec and yields a label (race yields none for a mixed-race
+        # character), so a filter missing from this dict is simply off.
+        labels: dict[str, str] = {}
+        if skin.get("match_gender", True):
+            labels["gender"] = RandomizationService.skin_gender_label(macro)
+        if skin.get("match_age", True):
+            labels["age"] = RandomizationService.skin_age_label(macro)
+        if skin.get("match_race", True):
+            race_label = RandomizationService.skin_race_label(macro)
+            if race_label is not None:
+                labels["race"] = race_label
+
+        # Age relaxes first because it is the most restrictive in practice, then race, then
+        # gender. Pack, include and exclude are hard filters and never relaxed.
+        return _filter_and_pick_candidates(skin, candidates, rng, labels, ["age", "race", "gender"])
+
+    @staticmethod
+    def pick_random_bodypart(spec_section: dict, macro: dict, candidates: list[dict], rng: random.Random) -> dict | None:
+        """
+        Pick one bodypart asset from a list of candidates according to a bodypart section.
+
+        This is a pure function, like pick_random_skin, sharing the same filter-and-pick
+        logic. The pack, include and exclude filters express hard user intent and are always
+        applied. Hair additionally has an optional gender filter (its "match_gender" toggle);
+        when the gender-filtered pool is empty and the section's "fallback" toggle is on,
+        only the gender filter is dropped and the pick retried (pack, include and exclude are
+        never relaxed). The other bodypart types have no phenotype filter.
+
+        Args:
+            spec_section (dict): One "assets.<bodypart>" section (hair or a plain type).
+            macro (dict): The randomized macro info dict, used to resolve the gender label.
+            candidates (list): Candidate dicts with "name", "path" and "pack" (or None) keys.
+            rng (random.Random): The random generator instance to draw from.
+
+        Returns:
+            dict | None: The chosen candidate, or None when the type is disabled, there are
+            no candidates, or nothing matches (even after fallback).
+        """
+        section = spec_section or {}
+        if not section.get("enabled", False) or not candidates:
+            return None
+
+        # Only hair carries a phenotype filter; a missing "match_gender" key means off.
+        labels: dict[str, str] = {}
+        if section.get("match_gender", False):
+            labels["gender"] = RandomizationService.skin_gender_label(macro)
+
+        return _filter_and_pick_candidates(section, candidates, rng, labels, ["gender"])
+
+    @staticmethod
+    def pick_random_alternative_material(default_name: str, alternatives: list[str], rng: random.Random) -> str:
+        """
+        Pick one material name uniformly from a default plus its alternatives.
+
+        Used for the eyes / hair alternative-material randomization. The default and the
+        alternatives are combined, de-duplicated (the eyes discovery can yield duplicates)
+        and sorted by name before drawing, so the pick only depends on the seed and the set
+        of names. When there are no distinct alternatives the default is returned without
+        drawing from rng, so an asset with no alternatives does not shift the seed for later
+        draws.
+
+        Args:
+            default_name (str): The asset's default material name.
+            alternatives (list): The alternative material names (may contain duplicates or
+                the default; they are de-duplicated together with the default).
+            rng (random.Random): The random generator instance to draw from.
+
+        Returns:
+            str: The chosen material name (the default when there are no alternatives).
+        """
+        unique: list[str] = []
+        seen: set = set()
+        for name in [default_name] + list(alternatives or []):
+            if name is not None and name not in seen:
+                seen.add(name)
+                unique.append(name)
+        if len(unique) <= 1:
+            return default_name
+        unique.sort(key=lambda value: str(value).lower())
+        return rng.choice(unique)
+
+    @staticmethod
     def serialize_spec_to_json_string(spec: dict) -> str:
         """Serialize a randomization spec to a JSON string."""
         return json.dumps(spec, indent=4, sort_keys=True)
@@ -363,6 +668,81 @@ def _filter_allowed(allowed: list[str] | None, valid_keys: dict[str, float] | li
     if allowed is None:
         return list(valid_keys)
     return [name for name in allowed if name in valid_keys]
+
+
+def _split_keywords(value: str) -> list[str]:
+    """Split a comma-separated keyword string into a list of lowercased, trimmed keywords.
+
+    Surrounding whitespace is stripped and empty entries (e.g. from a trailing comma) are
+    dropped, so a single plain string with no comma behaves as a one-keyword list.
+    """
+    if not value:
+        return []
+    return [keyword.strip().lower() for keyword in str(value).split(",") if keyword.strip()]
+
+
+def _name_contains_label(name: str, label: str) -> bool:
+    """Case-insensitively test whether an asset name contains a phenotype label.
+
+    A couple of labels are substrings of a longer label ("male" inside "female", "asian"
+    inside "caucasian"); the longer label is removed from the name before the shorter one is
+    tested, so for example "male" does not match inside "young_caucasian_female2".
+    """
+    lowered = str(name).lower()
+    label = str(label).lower()
+    superstring = _LABEL_SUPERSTRINGS.get(label)
+    if superstring:
+        lowered = lowered.replace(superstring, "")
+    return label in lowered
+
+
+def _filter_and_pick_candidates(section: dict, candidates: list[dict], rng: random.Random,
+                                labels: dict[str, str], fallback_order: list[str]) -> dict | None:
+    """Filter a candidate list by an asset section's filters and pick one at random.
+
+    This is the shared core of pick_random_skin and pick_random_bodypart. The section
+    supplies the hard pack / include / exclude filters (always applied) and the "fallback"
+    toggle. The caller resolves the phenotype filters into "labels" (filter name -> label)
+    and gives the order they relax in via "fallback_order"; a filter missing from "labels"
+    is simply off. Candidates are sorted by name before drawing so the pick is independent of
+    the caller's enumeration order. Returns the chosen candidate, or None when nothing matches
+    (even after fallback).
+    """
+    # Sort by name so the draw is independent of the caller's enumeration order.
+    pool = sorted(candidates, key=lambda candidate: str(candidate.get("name", "")).lower())
+
+    # Hard filters (pack, include, exclude): applied once and never relaxed.
+    pack = str(section.get("pack", "")).strip().lower()
+    if pack:
+        pool = [c for c in pool if c.get("pack") and pack in str(c["pack"]).lower()]
+    include = _split_keywords(section.get("include", ""))
+    if include:
+        pool = [c for c in pool if any(keyword in str(c.get("name", "")).lower() for keyword in include)]
+    exclude = _split_keywords(section.get("exclude", ""))
+    if exclude:
+        pool = [c for c in pool if not any(keyword in str(c.get("name", "")).lower() for keyword in exclude)]
+
+    active = [name for name in fallback_order if name in labels]
+
+    def _apply(active_filters: list[str]) -> list[dict]:
+        result = pool
+        for name in active_filters:
+            result = [c for c in result if _name_contains_label(c.get("name", ""), labels[name])]
+        return result
+
+    matched = _apply(active)
+    if not matched and section.get("fallback", True):
+        # Drop the label filters one at a time, in the given order, until something matches.
+        for name in fallback_order:
+            if name in active:
+                active.remove(name)
+                matched = _apply(active)
+                if matched:
+                    break
+
+    if not matched:
+        return None
+    return rng.choice(matched)
 
 
 def _resolve_race(race_cfg: dict, discrete_race: bool, rng: random.Random) -> dict[str, float]:
