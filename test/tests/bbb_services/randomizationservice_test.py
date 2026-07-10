@@ -16,7 +16,7 @@ def test_randomizationservice_exists():
 
 def test_default_spec_shape():
     spec = _spec()
-    assert spec["version"] == 3, "The default spec has a version"
+    assert spec["version"] == 4, "The default spec has a version"
     phenotype = spec["phenotype"]
     assert phenotype["distribution"] == "bell", "The default distribution is bell"
     assert phenotype["discrete_race"] is False
@@ -650,3 +650,233 @@ def test_v2_spec_deserializes_with_bodyparts_disabled():
     restored = RandomizationService.deserialize_spec_from_json_string(text)
     macro = _macro(0.5, 0.0, _NO_RACE)
     assert RandomizationService.pick_random_bodypart(restored["assets"].get("hair", {}), macro, _cands("a"), random.Random(0)) is None
+
+
+# --- Clothes randomization --------------------------------------------------------------
+
+
+def _slot(enabled=True, chance=100, pack="", include_any="", include_female="", include_male="", exclude=""):
+    """One clothes slot section, all filters empty by default (a test sets what it needs)."""
+    return {
+        "enabled": enabled, "chance": chance, "pack": pack,
+        "include_any": include_any, "include_female": include_female,
+        "include_male": include_male, "exclude": exclude
+        }
+
+
+def _clothes(**slots):
+    """A clothes section holding only the given slots; every other slot is absent (disabled)."""
+    return dict(slots)
+
+
+def _cc(*names):
+    """Build clothes candidate dicts (no pack) from a list of asset names."""
+    return [{"name": name, "path": "/clothes/" + name + ".mhclo", "pack": None} for name in names]
+
+
+def _picked(results, slot):
+    """The name picked for a slot in a pick_random_clothes result list, or None."""
+    for result in results:
+        if result["slot"] == slot:
+            return result["pick"]["name"] if result["pick"] else None
+    return None
+
+
+def _warning(results, slot):
+    """The warning code recorded for a slot in a pick_random_clothes result list, or None."""
+    for result in results:
+        if result["slot"] == slot:
+            return result["warning"]
+    return None
+
+
+def _clothes_picks(section, macro, candidates, slot, seeds=range(40)):
+    """The set of names picked for a slot across several seeds (to exercise the whole pool)."""
+    names = set()
+    for seed in seeds:
+        results = RandomizationService.pick_random_clothes(section, macro, candidates, random.Random(seed))
+        name = _picked(results, slot)
+        if name is not None:
+            names.add(name)
+    return names
+
+
+def test_default_spec_has_clothes_section():
+    clothes = _spec()["assets"]["clothes"]
+    assert set(clothes.keys()) == set(RandomizationService.get_clothes_slots())
+    # Default enablement is "casual everyday": full body, upper body, lower body and feet on.
+    for slot in ["full_body", "upper_body", "lower_body", "feet"]:
+        assert clothes[slot]["enabled"] is True, slot + " is enabled by default"
+    for slot in ["head", "hands", "underwear", "accessories"]:
+        assert clothes[slot]["enabled"] is False, slot + " is disabled by default"
+    assert clothes["full_body"]["chance"] == 25
+    assert clothes["upper_body"]["chance"] == 100
+    assert "dress,gown" in clothes["full_body"]["include_female"]
+
+
+def test_clothes_slot_lists_and_defaults():
+    assert RandomizationService.get_clothes_slots() == [
+        "head", "full_body", "upper_body", "lower_body", "hands", "feet", "underwear", "accessories"]
+    default_head = RandomizationService.get_default_clothes_asset_spec("head")
+    assert default_head["chance"] == 20
+    assert default_head["enabled"] is False
+    assert "hat" in default_head["include_any"]
+
+
+def test_clothes_all_disabled_draws_nothing():
+    macro = _macro(0.5, 0.0, _NO_RACE)
+    rng = random.Random(0)
+    results = RandomizationService.pick_random_clothes({}, macro, _cc("hat1"), rng)
+    assert results == [], "no enabled slot produces no results"
+    # No draw was consumed, so the generator still yields its very first value.
+    assert rng.random() == random.Random(0).random()
+
+
+def test_clothes_two_draws_per_enabled_slot_regardless_of_outcome():
+    macro = _macro(0.5, 0.0, _NO_RACE)
+    # A single enabled slot that never fires (chance 0) still consumes exactly two draws.
+    rng = random.Random(0)
+    RandomizationService.pick_random_clothes(
+        _clothes(head=_slot(chance=0, include_any="hat")), macro, _cc("hat1"), rng)
+    reference = random.Random(0)
+    reference.random()
+    reference.random()
+    assert rng.random() == reference.random(), "an enabled slot consumes exactly two draws"
+
+
+def test_clothes_gendered_include_is_a_union():
+    female = _macro(0.5, 0.0, _NO_RACE)
+    male = _macro(0.5, 1.0, _NO_RACE)
+    section = _clothes(upper_body=_slot(include_any="shirt", include_female="blouse", include_male="tanktop"))
+    cands = _cc("shirt1", "blouse1", "tanktop1")
+    # A female character draws from the common list unioned with the female list.
+    assert _clothes_picks(section, female, cands, "upper_body") == {"shirt1", "blouse1"}
+    # A male character draws from the common list unioned with the male list.
+    assert _clothes_picks(section, male, cands, "upper_body") == {"shirt1", "tanktop1"}
+
+
+def test_clothes_exclude_and_pack_filters():
+    macro = _macro(0.5, 0.0, _NO_RACE)
+    section = _clothes(head=_slot(include_any="hat", exclude="straw"))
+    assert _clothes_picks(section, macro, _cc("felt_hat", "straw_hat"), "head") == {"felt_hat"}
+    packed = [
+        {"name": "hat_a", "path": "/clothes/hat_a.mhclo", "pack": "PackOne"},
+        {"name": "hat_b", "path": "/clothes/hat_b.mhclo", "pack": "Other"}
+        ]
+    assert _clothes_picks(_clothes(head=_slot(include_any="hat", pack="one")), macro, packed, "head") == {"hat_a"}
+
+
+def test_clothes_empty_include_no_pack_is_empty_pool():
+    macro = _macro(0.5, 0.0, _NO_RACE)
+    # An unmapped slot (no include keywords, no pack) never picks arbitrary garments, even
+    # though candidates exist; the slot fires but its pool is empty.
+    results = RandomizationService.pick_random_clothes(
+        _clothes(head=_slot(chance=100)), macro, _cc("hat1", "coat1"), random.Random(0))
+    assert _picked(results, "head") is None
+    assert _warning(results, "head") == "empty_pool"
+
+
+def test_clothes_empty_include_with_pack_uses_pack():
+    macro = _macro(0.5, 0.0, _NO_RACE)
+    packed = [
+        {"name": "a", "path": "/clothes/a.mhclo", "pack": "PackOne"},
+        {"name": "b", "path": "/clothes/b.mhclo", "pack": "Other"}
+        ]
+    # With no include keywords but a pack term, the pool is the pack's clothes.
+    assert _clothes_picks(_clothes(head=_slot(pack="one")), macro, packed, "head") == {"a"}
+
+
+def test_clothes_chance_zero_never_fires_hundred_always_fires():
+    macro = _macro(0.5, 0.0, _NO_RACE)
+    never = _clothes(head=_slot(chance=0, include_any="hat"))
+    assert _clothes_picks(never, macro, _cc("hat1", "hat2"), "head") == set()
+    always = _clothes(head=_slot(chance=100, include_any="hat"))
+    assert _clothes_picks(always, macro, _cc("hat1", "hat2"), "head") == {"hat1", "hat2"}
+
+
+def test_clothes_full_body_suppresses_separates():
+    macro = _macro(0.5, 0.0, _NO_RACE)
+    section = _clothes(
+        full_body=_slot(chance=100, include_any="suit"),
+        upper_body=_slot(chance=100, include_any="shirt"),
+        lower_body=_slot(chance=100, include_any="pants"))
+    results = RandomizationService.pick_random_clothes(section, macro, _cc("suit1", "shirt1", "pants1"), random.Random(0))
+    assert _picked(results, "full_body") == "suit1"
+    assert _picked(results, "upper_body") is None, "upper body is suppressed by the full body garment"
+    assert _picked(results, "lower_body") is None, "lower body is suppressed by the full body garment"
+
+
+def test_clothes_full_body_miss_runs_separates():
+    macro = _macro(0.5, 0.0, _NO_RACE)
+    section = _clothes(
+        full_body=_slot(chance=0, include_any="suit"),
+        upper_body=_slot(chance=100, include_any="shirt"),
+        lower_body=_slot(chance=100, include_any="pants"))
+    results = RandomizationService.pick_random_clothes(section, macro, _cc("suit1", "shirt1", "pants1"), random.Random(0))
+    assert _picked(results, "full_body") is None
+    assert _picked(results, "upper_body") == "shirt1"
+    assert _picked(results, "lower_body") == "pants1"
+
+
+def test_clothes_full_body_empty_pool_falls_back_to_separates():
+    macro = _macro(0.5, 0.0, _NO_RACE)
+    section = _clothes(
+        full_body=_slot(chance=100, include_any="suit"),
+        upper_body=_slot(chance=100, include_any="shirt"),
+        lower_body=_slot(chance=100, include_any="pants"))
+    # No suit is installed, so the full body flip fires with an empty pool.
+    results = RandomizationService.pick_random_clothes(section, macro, _cc("shirt1", "pants1"), random.Random(0))
+    assert _picked(results, "full_body") is None
+    assert _warning(results, "full_body") == "full_body_empty_fallback"
+    assert _picked(results, "upper_body") == "shirt1", "the character falls back to separates"
+    assert _picked(results, "lower_body") == "pants1"
+
+
+def test_clothes_asset_is_picked_for_only_one_slot():
+    macro = _macro(0.5, 0.0, _NO_RACE)
+    # One garment matches both slots' keywords; it must not be attached twice.
+    section = _clothes(
+        accessories=_slot(chance=100, include_any="combo"),
+        head=_slot(chance=100, include_any="combo"))
+    results = RandomizationService.pick_random_clothes(section, macro, _cc("combo"), random.Random(0))
+    attached = [_picked(results, "accessories"), _picked(results, "head")]
+    assert attached.count("combo") == 1, "a shared asset is only picked once per character"
+    assert None in attached
+
+
+def test_clothes_changing_one_slot_does_not_shift_another():
+    macro = _macro(0.5, 0.0, _NO_RACE)
+    cands = _cc("hat1", "hat2", "glasses1", "glasses2", "glasses3")
+    # accessories is drawn before head; changing its filter changes its own pick but, because
+    # each enabled slot consumes a fixed two draws, must not shift head's pick for a seed.
+    base = _clothes(accessories=_slot(include_any="glasses"), head=_slot(include_any="hat"))
+    changed = _clothes(accessories=_slot(include_any="glasses", exclude="glasses1"), head=_slot(include_any="hat"))
+    for seed in range(20):
+        first = RandomizationService.pick_random_clothes(base, macro, cands, random.Random(seed))
+        second = RandomizationService.pick_random_clothes(changed, macro, cands, random.Random(seed))
+        assert _picked(first, "head") == _picked(second, "head"), "head is unaffected by accessories' filter"
+
+
+def test_clothes_pick_is_independent_of_candidate_order():
+    macro = _macro(0.5, 0.0, _NO_RACE)
+    section = _clothes(head=_slot(include_any="hat"))
+    cands = _cc("hat_a", "hat_b", "hat_c", "hat_d")
+    original = RandomizationService.pick_random_clothes(section, macro, list(cands), random.Random(7))
+    shuffled = list(cands)
+    random.Random(99).shuffle(shuffled)
+    reshuffled = RandomizationService.pick_random_clothes(section, macro, shuffled, random.Random(7))
+    assert _picked(original, "head") == _picked(reshuffled, "head"), "the pick is independent of candidate order"
+
+
+def test_v3_spec_deserializes_with_clothes_disabled():
+    # Simulate a version-3 preset: assets exist but there is no clothes section.
+    spec = _spec()
+    spec["version"] = 3
+    del spec["assets"]["clothes"]
+    text = RandomizationService.serialize_spec_to_json_string(spec)
+    restored = RandomizationService.deserialize_spec_from_json_string(text)
+    macro = _macro(0.5, 0.0, _NO_RACE)
+    rng = random.Random(0)
+    results = RandomizationService.pick_random_clothes(restored["assets"].get("clothes") or {}, macro, _cc("hat1"), rng)
+    assert results == [], "a preset without a clothes section adds no clothes"
+    assert rng.random() == random.Random(0).random(), "and consumes no draws"

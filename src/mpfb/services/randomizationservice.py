@@ -31,7 +31,7 @@ _LOG = LogService.get_logger("services.randomizationservice")
 
 # The current version of the randomization spec / preset format. Bump this if the format
 # changes in a way that older presets need migrating.
-_SPEC_VERSION: int = 3
+_SPEC_VERSION: int = 4
 
 # Built-in neutral and deviation used when nothing else is specified for an attribute.
 _DEFAULT_NEUTRAL: float = 0.5
@@ -106,6 +106,68 @@ _PLAIN_BODYPART_TYPES: list[str] = ["eyebrows", "eyelashes", "teeth", "tongue"]
 # asset subdir names). Keeping the order here makes it the single source of truth, so a seed
 # reproduces the same picks regardless of how the UI or operator iterate.
 _BODYPART_TYPES: list[str] = ["eyebrows", "eyelashes", "eyes", "hair", "teeth", "tongue"]
+
+# The default section for a clothes slot. Unlike bodyparts, clothes have a per-slot chance
+# (how often the slot produces a garment) and split their include filter into a common list
+# and two gendered lists; the character's gender (binary split at 0.5) decides which gendered
+# list is unioned with the common one. Empty include lists never mean "all clothes": with no
+# pack term either the slot pool is empty. The exclude list applies regardless of gender.
+_DEFAULT_CLOTHES_SLOT: dict = {
+    "enabled": False,
+    "chance": 100,
+    "pack": "",
+    "include_any": "",
+    "include_female": "",
+    "include_male": "",
+    "exclude": ""
+    }
+
+# The eight clothes slots, in body order (the order the UI lays them out). Each entry carries
+# the slot's default enablement, chance and include keyword lists; a fresh copy merged over
+# _DEFAULT_CLOTHES_SLOT gives the slot's default section. The default enablement is "casual
+# everyday": full body, upper body, lower body and feet on; head, hands, underwear and
+# accessories off. The keyword lists are the initial curated mapping (plain name-substring
+# matching); short keywords are avoided since they match greedily ("tie" inside "panties").
+_CLOTHES_SLOTS: list[tuple[str, dict]] = [
+    ("head", {
+        "enabled": False, "chance": 20,
+        "include_any": "hat,cap,helmet,beanie,beret,hood,turban"}),
+    ("full_body", {
+        "enabled": True, "chance": 25,
+        "include_any": "suit,uniform,overall,jumpsuit,robe,armor,armour,kimono,tunic",
+        "include_female": "dress,gown"}),
+    ("upper_body", {
+        "enabled": True, "chance": 100,
+        "include_any": "shirt,sweater,hoodie,jacket,vest,pullover,cardigan,coat,top",
+        "include_female": "blouse"}),
+    ("lower_body", {
+        "enabled": True, "chance": 100,
+        "include_any": "pants,jeans,shorts,trousers,slacks,leggings",
+        "include_female": "skirt"}),
+    ("hands", {
+        "enabled": False, "chance": 10,
+        "include_any": "glove,mitten"}),
+    ("feet", {
+        "enabled": True, "chance": 100,
+        "include_any": "shoe,boot,sandal,sneaker,trainer,sock,slipper,loafer",
+        "include_female": "heel"}),
+    ("underwear", {
+        "enabled": False, "chance": 100,
+        "include_any": "underwear,swimsuit",
+        "include_female": "bra,panties,bikini,lingerie",
+        "include_male": "boxers,briefs,trunks"}),
+    ("accessories", {
+        "enabled": False, "chance": 20,
+        "include_any": "glasses,necklace,bracelet,earring,watch,scarf,belt,backpack,bag"})
+    ]
+
+# The fixed order clothes slots are drawn in, the single source of truth for reproducibility.
+# Full body is drawn first so its coin-flip outcome can gate the upper-body and lower-body
+# slots; the remaining slots follow alphabetically. Each enabled slot consumes exactly one
+# chance draw and one pick draw regardless of outcome, so changing one slot's settings never
+# shifts another slot's result for a given seed.
+_CLOTHES_DRAW_ORDER: list[str] = [
+    "full_body", "accessories", "feet", "hands", "head", "lower_body", "underwear", "upper_body"]
 
 # The discrete gender values, keyed by the value name used in the "allowed" list. In discrete
 # mode a value is picked uniformly among the allowed keys.
@@ -188,7 +250,8 @@ class RandomizationService:
                 "eyebrows": dict(_DEFAULT_BODYPART_ASSET),
                 "eyelashes": dict(_DEFAULT_BODYPART_ASSET),
                 "teeth": dict(_DEFAULT_BODYPART_ASSET),
-                "tongue": dict(_DEFAULT_BODYPART_ASSET)
+                "tongue": dict(_DEFAULT_BODYPART_ASSET),
+                "clothes": {slot: _default_clothes_slot(slot) for slot, _ in _CLOTHES_SLOTS}
                 }
             }
 
@@ -432,6 +495,34 @@ class RandomizationService:
         raise ValueError("Unknown bodypart type: " + str(bodypart))
 
     @staticmethod
+    def get_clothes_slots() -> list[str]:
+        """
+        Get the clothes slot names in body order (the order the UI lays them out).
+
+        This is the canonical slot list; the UI supplies only the display labels. Note the
+        rng draw order is different (full body first, then alphabetical) and lives in
+        pick_random_clothes, so the UI order does not affect reproducibility.
+
+        Returns:
+            list: ["head", "full_body", "upper_body", "lower_body", "hands", "feet",
+            "underwear", "accessories"].
+        """
+        return [slot for slot, _ in _CLOTHES_SLOTS]
+
+    @staticmethod
+    def get_default_clothes_asset_spec(slot: str) -> dict:
+        """
+        Get a fresh copy of the default "assets.clothes.<slot>" section.
+
+        Args:
+            slot (str): One of the values returned by get_clothes_slots().
+
+        Returns:
+            dict: The default section for that clothes slot.
+        """
+        return _default_clothes_slot(slot)
+
+    @staticmethod
     def skin_gender_label(macro: dict) -> str:
         """
         Get the gender label used when matching a skin asset against the randomized gender.
@@ -568,6 +659,89 @@ class RandomizationService:
         return _filter_and_pick_candidates(section, candidates, rng, labels, ["gender"])
 
     @staticmethod
+    def pick_random_clothes(clothes_section: dict, macro: dict, candidates: list[dict],
+                            rng: random.Random) -> list[dict]:
+        """
+        Pick at most one clothes asset per enabled slot from a list of candidates.
+
+        This is a pure function, like the other pick methods, but it drives all eight clothes
+        slots in one call so it can enforce the full-body exclusivity and the strict draw
+        accounting. The slots are processed in a fixed order (full body first so its outcome
+        can gate the upper and lower body slots, then the rest alphabetically). Each enabled
+        slot consumes exactly one chance draw and one pick draw, in that order, regardless of
+        whether it fires, is suppressed or has an empty pool; disabled slots consume none. So
+        changing one slot's chance or filters never shifts another slot's result for a seed.
+
+        For each slot the pool is the candidates whose name matches the common include list or
+        the gendered include list applicable to the character's gender (binary split at 0.5),
+        minus the exclude matches, intersected with the pack filter. Empty include lists never
+        select all clothes: with no pack term either the pool is empty and the slot is skipped.
+        An asset picked for an earlier slot is removed from later slots' pools. When the full
+        body slot fires and attaches a garment, the upper and lower body slots are suppressed.
+
+        Args:
+            clothes_section (dict): The "assets.clothes" section (slot name -> slot section).
+            macro (dict): The randomized macro info dict, used to resolve the gender label.
+            candidates (list): Candidate dicts with "name", "path" and "pack" (or None) keys.
+            rng (random.Random): The random generator instance to draw from.
+
+        Returns:
+            list: One dict per enabled slot, in draw order, with keys "slot", "pick" (the
+            chosen candidate or None) and "warning" (None, "empty_pool" when a non-full-body
+            slot fired with an empty pool, or "full_body_empty_fallback" when the full body
+            slot fired with an empty pool and the character falls back to separates).
+        """
+        clothes = clothes_section or {}
+        gender_label = RandomizationService.skin_gender_label(macro)
+
+        picked_names: set = set()
+        full_body_attached = False
+        results: list[dict] = []
+
+        for slot in _CLOTHES_DRAW_ORDER:
+            section = clothes.get(slot) or {}
+            if not section.get("enabled", False):
+                continue
+
+            # Two draws per enabled slot, always consumed and always in this order.
+            chance_roll = rng.random()
+            pick_roll = rng.random()
+
+            suppressed = full_body_attached and slot in ("upper_body", "lower_body")
+            fires = (chance_roll < float(section.get("chance", 0)) / 100.0) and not suppressed
+
+            pick = None
+            warning = None
+            if fires:
+                # The common include list unioned with the gendered list for this character.
+                gendered = section.get("include_female" if gender_label == "female" else "include_male", "")
+                parts = [part for part in [section.get("include_any", ""), gendered] if part and str(part).strip()]
+                combined_include = ",".join(parts)
+                pack = str(section.get("pack", "")).strip()
+
+                if not _split_keywords(combined_include) and not pack:
+                    # An unmapped slot with no pack term never picks arbitrary garments.
+                    pool: list[dict] = []
+                else:
+                    synthesized = {"pack": pack, "include": combined_include, "exclude": section.get("exclude", "")}
+                    pool = _filter_candidates(synthesized, candidates, {}, [])
+                    pool = [candidate for candidate in pool if candidate.get("name") not in picked_names]
+
+                if pool:
+                    pick = pool[int(pick_roll * len(pool))]
+                    picked_names.add(pick.get("name"))
+                    if slot == "full_body":
+                        full_body_attached = True
+                elif slot == "full_body":
+                    warning = "full_body_empty_fallback"
+                else:
+                    warning = "empty_pool"
+
+            results.append({"slot": slot, "pick": pick, "warning": warning})
+
+        return results
+
+    @staticmethod
     def pick_random_alternative_material(default_name: str, alternatives: list[str], rng: random.Random) -> str:
         """
         Pick one material name uniformly from a default plus its alternatives.
@@ -670,6 +844,17 @@ def _filter_allowed(allowed: list[str] | None, valid_keys: dict[str, float] | li
     return [name for name in allowed if name in valid_keys]
 
 
+def _default_clothes_slot(slot: str) -> dict:
+    """Build a fresh default section for a clothes slot by merging its overrides over the
+    shared _DEFAULT_CLOTHES_SLOT template. Raises ValueError for an unknown slot name."""
+    for name, overrides in _CLOTHES_SLOTS:
+        if name == slot:
+            section = dict(_DEFAULT_CLOTHES_SLOT)
+            section.update(overrides)
+            return section
+    raise ValueError("Unknown clothes slot: " + str(slot))
+
+
 def _split_keywords(value: str) -> list[str]:
     """Split a comma-separated keyword string into a list of lowercased, trimmed keywords.
 
@@ -696,19 +881,18 @@ def _name_contains_label(name: str, label: str) -> bool:
     return label in lowered
 
 
-def _filter_and_pick_candidates(section: dict, candidates: list[dict], rng: random.Random,
-                                labels: dict[str, str], fallback_order: list[str]) -> dict | None:
-    """Filter a candidate list by an asset section's filters and pick one at random.
+def _filter_candidates(section: dict, candidates: list[dict],
+                       labels: dict[str, str], fallback_order: list[str]) -> list[dict]:
+    """Filter a candidate list by an asset section's filters and return the matching pool.
 
-    This is the shared core of pick_random_skin and pick_random_bodypart. The section
-    supplies the hard pack / include / exclude filters (always applied) and the "fallback"
-    toggle. The caller resolves the phenotype filters into "labels" (filter name -> label)
-    and gives the order they relax in via "fallback_order"; a filter missing from "labels"
-    is simply off. Candidates are sorted by name before drawing so the pick is independent of
-    the caller's enumeration order. Returns the chosen candidate, or None when nothing matches
-    (even after fallback).
+    This is the pure (rng-free) core of the pick helpers. The section supplies the hard pack
+    / include / exclude filters (always applied) and the "fallback" toggle. The caller
+    resolves the phenotype filters into "labels" (filter name -> label) and gives the order
+    they relax in via "fallback_order"; a filter missing from "labels" is simply off.
+    Candidates are sorted by name so a later pick is independent of the caller's enumeration
+    order. Returns the matching pool (possibly empty), sorted by name.
     """
-    # Sort by name so the draw is independent of the caller's enumeration order.
+    # Sort by name so a later draw is independent of the caller's enumeration order.
     pool = sorted(candidates, key=lambda candidate: str(candidate.get("name", "")).lower())
 
     # Hard filters (pack, include, exclude): applied once and never relaxed.
@@ -740,6 +924,18 @@ def _filter_and_pick_candidates(section: dict, candidates: list[dict], rng: rand
                 if matched:
                     break
 
+    return matched
+
+
+def _filter_and_pick_candidates(section: dict, candidates: list[dict], rng: random.Random,
+                                labels: dict[str, str], fallback_order: list[str]) -> dict | None:
+    """Filter a candidate list by an asset section's filters and pick one at random.
+
+    This is the shared core of pick_random_skin and pick_random_bodypart; the filtering is
+    done by _filter_candidates and the single rng draw happens here. Returns the chosen
+    candidate, or None when nothing matches (even after fallback).
+    """
+    matched = _filter_candidates(section, candidates, labels, fallback_order)
     if not matched:
         return None
     return rng.choice(matched)

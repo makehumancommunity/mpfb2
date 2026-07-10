@@ -94,6 +94,11 @@ class MPFB_OT_Create_Random_Human_Operator(MpfbOperator):
         _apply_random_skin(self.report, spec, macro_details, basemesh, rng)
         _apply_random_bodyparts(self.report, spec, macro_details, basemesh, rng)
 
+        # Clothes are attached after the body parts (so the clothes draws come last) but before
+        # Rigify generation, so each garment is rigged as it is attached and its weights exist
+        # when the meta rig is turned into the full rig.
+        _apply_random_clothes(self.report, spec, macro_details, basemesh, rng)
+
         # Rigify generation happens after the body parts, so their weights and subrigs exist
         # when the meta rig is turned into the full rig.
         if str(rig_name).startswith("rigify.") and creation.get("auto_generate_rigify", True):
@@ -288,3 +293,43 @@ def _apply_random_bodyparts(report, spec, macro_details, basemesh, rng):
 
         HumanService.add_mhclo_asset(pick["path"], basemesh, asset_type=bodypart, material_type=material_type,
                                      alternative_materials=alternative_materials)
+
+
+def _apply_random_clothes(report, spec, macro_details, basemesh, rng):
+    """Pick and attach one garment per enabled clothes slot, in the fixed draw order.
+
+    The pure pick_random_clothes drives all eight slots (chance draws, full-body exclusivity,
+    cross-slot dedup); this wrapper only discovers the installed clothes once and attaches the
+    picks. A firing slot with an empty pool gives a WARNING and no garment; when the full body
+    slot fires with an empty pool the character falls back to separates (upper and lower body
+    run per their own settings). When no slot is enabled nothing is discovered or drawn.
+    """
+    assets = spec.get("assets") or {}
+    clothes_section = assets.get("clothes") or {}
+    if not any((clothes_section.get(slot) or {}).get("enabled", False)
+               for slot in RandomizationService.get_clothes_slots()):
+        return
+
+    material_type = assets.get("asset_material_type", "MAKESKIN")
+
+    # Resolve pack membership once and discover the installed clothes, the same way the skin and
+    # body part candidates are built.
+    name_to_pack = {}
+    for pack_name in AssetService.get_pack_names():
+        for asset_name in AssetService.get_asset_names_in_pack(pack_name):
+            name_to_pack[asset_name] = pack_name
+
+    candidates = _bodypart_candidates("clothes", name_to_pack)
+
+    for result in RandomizationService.pick_random_clothes(clothes_section, macro_details, candidates, rng):
+        warning = result.get("warning")
+        if warning == "empty_pool":
+            report({'WARNING'}, "No matching clothes were found for the " + result["slot"] + " slot; none was added")
+        elif warning == "full_body_empty_fallback":
+            report({'WARNING'}, "No matching full body clothes were found; dressing with separates instead")
+
+        pick = result.get("pick")
+        if pick is None:
+            continue
+
+        HumanService.add_mhclo_asset(pick["path"], basemesh, asset_type="Clothes", material_type=material_type)

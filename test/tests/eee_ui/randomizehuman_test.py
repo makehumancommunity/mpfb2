@@ -1,4 +1,6 @@
+import os
 import bpy
+import pytest
 from pytest import approx
 from .. import AssetService
 from .. import ObjectService
@@ -15,8 +17,15 @@ _SKINS_AVAILABLE = len(AssetService.list_mhmat_assets("skins")) > 0
 # Body part meshes are not bundled with MPFB, so the bodypart tests are gated on availability.
 _HAIR_AVAILABLE = len(AssetService.list_mhclo_assets("hair")) > 0
 _EYES_AVAILABLE = AssetService.find_asset_absolute_path("low-poly/low-poly.mhclo", "eyes") is not None
+# Clothes are not bundled with MPFB either, so the clothes test is gated on availability.
+_CLOTHES_AVAILABLE = len(AssetService.list_mhclo_assets("clothes")) > 0
 
 _PLAIN_BODYPART_ENABLES = ["eyebrows_enable", "eyelashes_enable", "teeth_enable", "tongue_enable"]
+
+# The clothes slots, enabled by default for full body / upper body / lower body / feet. The
+# tests disable every slot and re-enable only what they exercise.
+_CLOTHES_SLOTS = ["head", "full_body", "upper_body", "lower_body", "hands", "feet", "underwear", "accessories"]
+_CLOTHES_DEFAULT_ENABLED = ["full_body", "upper_body", "lower_body", "feet"]
 
 
 def _set_props(**values):
@@ -28,12 +37,20 @@ def _set_props(**values):
 _set_skin_props = _set_props
 
 
+def _disable_clothes():
+    """Turn off every clothes slot, so the operator attaches no garments."""
+    for slot in _CLOTHES_SLOTS:
+        _set_props(**{"clothes_" + slot + "_enable": False})
+
+
 def _disable_bodyparts_and_rig():
-    """Turn off the rig and every body part, so the operator produces just a basemesh (plus,
-    if skin is on, a skin material). Skin is left untouched so the skin tests control it."""
+    """Turn off the rig and every body part (and all clothes), so the operator produces just a
+    basemesh (plus, if skin is on, a skin material). Skin is left untouched so the skin tests
+    control it."""
     _set_props(rig="NONE", eyes_mode="DONOTADD", hair_randomize=False)
     for name in _PLAIN_BODYPART_ENABLES:
         _set_props(**{name: False})
+    _disable_clothes()
 
 
 def _find_basemesh():
@@ -54,6 +71,28 @@ def _delete_human():
         if relative is not basemesh:
             ObjectService.delete_object(relative)
     ObjectService.delete_object(basemesh)
+
+
+def _delete_all_humans():
+    """Delete every basemesh in the scene together with its relatives.
+
+    These tests share one Blender session with every other test module, and _find_basemesh()
+    returns the first basemesh in the scene. A human left behind by an earlier test or module
+    (this module's helpers assume the human they just created is the only one) would otherwise be
+    picked up here and read instead of the freshly created one. Clearing them keeps the module
+    independent of scene state it did not create."""
+    guard = 0
+    while guard < 1000 and _find_basemesh() is not None:
+        _delete_human()
+        guard += 1
+
+
+@pytest.fixture(autouse=True)
+def _isolate_scene():
+    """Start and end every test in this module with a scene free of basemeshes."""
+    _delete_all_humans()
+    yield
+    _delete_all_humans()
 
 
 def _flatten_macro(macro):
@@ -236,6 +275,8 @@ def _restore_all_defaults():
     _set_props(rig="default", eyes_mode="LOWPOLY", hair_randomize=True)
     for name in _PLAIN_BODYPART_ENABLES:
         _set_props(**{name: True})
+    for slot in _CLOTHES_SLOTS:
+        _set_props(**{"clothes_" + slot + "_enable": slot in _CLOTHES_DEFAULT_ENABLED})
 
 
 def test_no_assets_and_no_rig_creates_only_basemesh():
@@ -310,5 +351,80 @@ def test_same_seed_attaches_same_hair():
         second = sorted(a.name for a in ObjectService.find_related_mesh_assets(_find_basemesh()))
         _delete_human()
         assert first and first == second, "The same seed attaches the same hair"
+    finally:
+        _restore_all_defaults()
+
+
+# --- Clothes ----------------------------------------------------------------------------
+
+
+def _enable_only_clothes_slot(slot, **overrides):
+    """Disable every clothes slot, then enable one slot with the given filter overrides."""
+    _disable_clothes()
+    props = {"clothes_" + slot + "_enable": True, "clothes_" + slot + "_chance": 100,
+             "clothes_" + slot + "_include_female": "", "clothes_" + slot + "_include_male": "",
+             "clothes_" + slot + "_pack": "", "clothes_" + slot + "_exclude": ""}
+    for name, value in overrides.items():
+        props["clothes_" + slot + "_" + name] = value
+    _set_props(**props)
+
+
+def test_clothes_are_attached_and_rigged():
+    if not _CLOTHES_AVAILABLE:
+        return
+    try:
+        _disable_all_assets()
+        # Map one slot onto a specific installed garment by its full name, so the pool is not
+        # empty regardless of which clothes happen to be installed.
+        first_name = os.path.splitext(os.path.basename(str(AssetService.list_mhclo_assets("clothes")[0])))[0]
+        _set_props(rig="default", asset_material_type="MAKESKIN")
+        _enable_only_clothes_slot("head", include_any=first_name)
+        mockself = _run(555)
+        mockself.mock_report.assert_no_errors()
+        basemesh = _find_basemesh()
+        assert basemesh is not None
+        rig = ObjectService.find_object_of_type_amongst_nearest_relatives(basemesh, "Skeleton")
+        assert rig is not None, "A Skeleton was created"
+        assets = list(ObjectService.find_related_mesh_assets(basemesh))
+        assert len(assets) >= 1, "A garment was attached"
+        # A rigged garment is parented to the armature rather than to the basemesh.
+        for asset in assets:
+            assert asset.parent is rig, "Garment " + asset.name + " is rigged to the skeleton"
+        _delete_human()
+    finally:
+        _restore_all_defaults()
+
+
+def test_disabled_clothes_attach_nothing():
+    if not _CLOTHES_AVAILABLE:
+        return
+    try:
+        _disable_all_assets()
+        _set_props(rig="default")
+        mockself = _run(556)
+        mockself.mock_report.assert_no_errors()
+        basemesh = _find_basemesh()
+        assert basemesh is not None
+        assert len(list(ObjectService.find_related_mesh_assets(basemesh))) == 0, \
+            "No garments are attached when every clothes slot is disabled"
+        _delete_human()
+    finally:
+        _restore_all_defaults()
+
+
+def test_same_seed_attaches_same_clothes():
+    if not _CLOTHES_AVAILABLE:
+        return
+    try:
+        _disable_all_assets()
+        first_name = os.path.splitext(os.path.basename(str(AssetService.list_mhclo_assets("clothes")[0])))[0]
+        _enable_only_clothes_slot("head", include_any=first_name)
+        _run(4322)
+        first = sorted(a.name for a in ObjectService.find_related_mesh_assets(_find_basemesh()))
+        _delete_human()
+        _run(4322)
+        second = sorted(a.name for a in ObjectService.find_related_mesh_assets(_find_basemesh()))
+        _delete_human()
+        assert first and first == second, "The same seed attaches the same clothes"
     finally:
         _restore_all_defaults()

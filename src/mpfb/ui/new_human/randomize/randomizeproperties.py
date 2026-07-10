@@ -166,6 +166,87 @@ for _bodypart in _FILTERED_BODYPART_TYPES:
         "default": ""
         })
 
+# The eight clothes slots, paired with the label shown for their box in the panel. The slot
+# names and their defaults are canonical in RandomizationService; only the display labels live
+# here. The list is in body order (head to feet), which is how the panel lays the boxes out.
+_CLOTHES_SLOTS: list[str] = RandomizationService.get_clothes_slots()
+_CLOTHES_SLOT_LABELS: list[tuple[str, str]] = [
+    ("head", "Head"),
+    ("full_body", "Full body"),
+    ("upper_body", "Upper body"),
+    ("lower_body", "Lower body"),
+    ("hands", "Hands"),
+    ("feet", "Feet"),
+    ("underwear", "Underwear"),
+    ("accessories", "Accessories"),
+    ]
+
+# Each slot gets eight near-identical properties, generated in a loop rather than as JSON files.
+# The "_open" toggle is UI state only (whether the slot's box is expanded) and is not part of
+# the spec; the other seven map to the slot's spec section. Per-slot defaults (enablement,
+# chance, keyword lists) come from RandomizationService so they cannot drift out of sync.
+for _slot in _CLOTHES_SLOTS:
+    _slot_default = RandomizationService.get_default_clothes_asset_spec(_slot)
+    RANDOMIZE_PROPERTIES.add_property({
+        "type": "boolean",
+        "name": "clothes_" + _slot + "_open",
+        "description": "Expand this slot to show its filters",
+        "label": "",
+        "default": False,
+        "subtype": "panel_toggle"
+        })
+    RANDOMIZE_PROPERTIES.add_property({
+        "type": "boolean",
+        "name": "clothes_" + _slot + "_enable",
+        "description": "Attach a randomly picked garment to this slot. When off, this slot is skipped",
+        "label": "Randomize",
+        "default": _slot_default["enabled"]
+        })
+    RANDOMIZE_PROPERTIES.add_property({
+        "type": "int",
+        "name": "clothes_" + _slot + "_chance",
+        "description": "The percent chance, per character, that this slot produces a garment",
+        "label": "Chance (%)",
+        "default": _slot_default["chance"],
+        "min": 0,
+        "max": 100
+        })
+    RANDOMIZE_PROPERTIES.add_property({
+        "type": "string",
+        "name": "clothes_" + _slot + "_pack",
+        "description": "Only pick garments belonging to an asset pack whose name contains this string. Leave empty to allow all packs",
+        "label": "Asset pack name filter",
+        "default": _slot_default["pack"]
+        })
+    RANDOMIZE_PROPERTIES.add_property({
+        "type": "string",
+        "name": "clothes_" + _slot + "_include_any",
+        "description": "Pick garments whose name contains at least one of these comma-separated keywords, regardless of gender",
+        "label": "Name must contain (any)",
+        "default": _slot_default["include_any"]
+        })
+    RANDOMIZE_PROPERTIES.add_property({
+        "type": "string",
+        "name": "clothes_" + _slot + "_include_female",
+        "description": "Additional keywords used only for female characters (unioned with the common list)",
+        "label": "Name must contain (female)",
+        "default": _slot_default["include_female"]
+        })
+    RANDOMIZE_PROPERTIES.add_property({
+        "type": "string",
+        "name": "clothes_" + _slot + "_include_male",
+        "description": "Additional keywords used only for male characters (unioned with the common list)",
+        "label": "Name must contain (male)",
+        "default": _slot_default["include_male"]
+        })
+    RANDOMIZE_PROPERTIES.add_property({
+        "type": "string",
+        "name": "clothes_" + _slot + "_exclude",
+        "description": "Never pick garments whose name contains any of these comma-separated keywords",
+        "label": "Name must not contain",
+        "default": _slot_default["exclude"]
+        })
+
 # The list of saved randomization presets is cached so that the enum property below keeps
 # references to the option strings alive (see the equivalent handling in HumanService).
 _EXISTING_PRESETS: list[str] | None = None
@@ -318,6 +399,21 @@ def scene_to_spec(scene: "bpy.types.Scene") -> dict:
         section["pack"] = RANDOMIZE_PROPERTIES.get_value(bodypart + "_pack", entity_reference=scene)
         section["include"] = RANDOMIZE_PROPERTIES.get_value(bodypart + "_include", entity_reference=scene)
         section["exclude"] = RANDOMIZE_PROPERTIES.get_value(bodypart + "_exclude", entity_reference=scene)
+
+    # The assets.clothes section: one subsection per slot. The default spec already carries
+    # every slot, so only their values are overwritten here. The "_open" toggle is UI state and
+    # is deliberately not written to the spec.
+    clothes = assets["clothes"]
+    for slot in _CLOTHES_SLOTS:
+        slot_section = clothes[slot]
+        prefix = "clothes_" + slot + "_"
+        slot_section["enabled"] = RANDOMIZE_PROPERTIES.get_value(prefix + "enable", entity_reference=scene)
+        slot_section["chance"] = RANDOMIZE_PROPERTIES.get_value(prefix + "chance", entity_reference=scene)
+        slot_section["pack"] = RANDOMIZE_PROPERTIES.get_value(prefix + "pack", entity_reference=scene)
+        slot_section["include_any"] = RANDOMIZE_PROPERTIES.get_value(prefix + "include_any", entity_reference=scene)
+        slot_section["include_female"] = RANDOMIZE_PROPERTIES.get_value(prefix + "include_female", entity_reference=scene)
+        slot_section["include_male"] = RANDOMIZE_PROPERTIES.get_value(prefix + "include_male", entity_reference=scene)
+        slot_section["exclude"] = RANDOMIZE_PROPERTIES.get_value(prefix + "exclude", entity_reference=scene)
     return spec
 
 
@@ -413,6 +509,24 @@ def spec_to_scene(spec: dict, scene: "bpy.types.Scene") -> None:
         RANDOMIZE_PROPERTIES.set_value(bodypart + "_pack", section.get("pack", default_bodypart["pack"]), entity_reference=scene)
         RANDOMIZE_PROPERTIES.set_value(bodypart + "_include", section.get("include", default_bodypart["include"]), entity_reference=scene)
         RANDOMIZE_PROPERTIES.set_value(bodypart + "_exclude", section.get("exclude", default_bodypart["exclude"]), entity_reference=scene)
+
+    # The assets.clothes section. As with the bodyparts, a preset written before this section
+    # existed has no "clothes" key (or is missing a given slot); that slot is then set to
+    # disabled so the old preset keeps producing exactly what it did before. The remaining slot
+    # controls fall back to the built-in clothes defaults. The "_open" toggles are UI state and
+    # are left at their default.
+    clothes = assets.get("clothes") or {}
+    for slot in _CLOTHES_SLOTS:
+        default_slot = RandomizationService.get_default_clothes_asset_spec(slot)
+        slot_section = clothes.get(slot, {})
+        prefix = "clothes_" + slot + "_"
+        RANDOMIZE_PROPERTIES.set_value(prefix + "enable", slot_section.get("enabled", False), entity_reference=scene)
+        RANDOMIZE_PROPERTIES.set_value(prefix + "chance", slot_section.get("chance", default_slot["chance"]), entity_reference=scene)
+        RANDOMIZE_PROPERTIES.set_value(prefix + "pack", slot_section.get("pack", default_slot["pack"]), entity_reference=scene)
+        RANDOMIZE_PROPERTIES.set_value(prefix + "include_any", slot_section.get("include_any", default_slot["include_any"]), entity_reference=scene)
+        RANDOMIZE_PROPERTIES.set_value(prefix + "include_female", slot_section.get("include_female", default_slot["include_female"]), entity_reference=scene)
+        RANDOMIZE_PROPERTIES.set_value(prefix + "include_male", slot_section.get("include_male", default_slot["include_male"]), entity_reference=scene)
+        RANDOMIZE_PROPERTIES.set_value(prefix + "exclude", slot_section.get("exclude", default_slot["exclude"]), entity_reference=scene)
 
 
 # The scalar attributes which have a discrete mode, mapped to the scene property toggling it.
@@ -514,3 +628,32 @@ def draw_bodyparts(scene: "bpy.types.Scene", layout: "bpy.types.UILayout") -> No
         box.label(text=label)
         RANDOMIZE_PROPERTIES.draw_properties(scene, box, [bodypart + "_enable"])
         _draw_bodypart_filters(scene, box, bodypart)
+
+
+def draw_clothes(scene: "bpy.types.Scene", layout: "bpy.types.UILayout") -> None:
+    """Draw the clothes panel: a shared material enum, then one collapsible box per slot.
+
+    Each slot's box always shows a header row (an expand toggle, the enable checkbox and the
+    chance slider); its filter fields (pack and the four keyword lists) are only drawn when the
+    slot is expanded. Eight always-open boxes would make the panel very tall, so the filters
+    fold away by default.
+    """
+    RANDOMIZE_PROPERTIES.draw_properties(scene, layout, ["asset_material_type"])
+
+    for slot, label in _CLOTHES_SLOT_LABELS:
+        box = layout.box()
+        header = box.row()
+        header.label(text=label)
+        RANDOMIZE_PROPERTIES.draw_properties(scene, header, [
+            "clothes_" + slot + "_open",
+            "clothes_" + slot + "_enable",
+            "clothes_" + slot + "_chance"
+            ])
+        if RANDOMIZE_PROPERTIES.get_value("clothes_" + slot + "_open", entity_reference=scene):
+            RANDOMIZE_PROPERTIES.draw_properties(scene, box, [
+                "clothes_" + slot + "_pack",
+                "clothes_" + slot + "_include_any",
+                "clothes_" + slot + "_include_female",
+                "clothes_" + slot + "_include_male",
+                "clothes_" + slot + "_exclude"
+                ])
