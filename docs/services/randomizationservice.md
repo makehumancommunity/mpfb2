@@ -22,7 +22,7 @@ sub-features can add sibling sections without breaking older presets:
 
 ```python
 {
-  "version": 4,
+  "version": 6,
   "phenotype": {
     "distribution": "bell",        # flat | bell | pyramid | peak
     "discrete_race": False,        # pick exactly one race vs normalized weights
@@ -85,18 +85,33 @@ sub-features can add sibling sections without breaking older presets:
       }
       # ...the other seven slots have the same shape...
     }
+  },
+  "details": {                       # detail (non-macro) shape targets; one entry per section
+    "enabled": True,                 # apply randomized detail targets
+    "symmetry": True,                # sided categories get one value on both sides vs independent
+    "sections": {                    # keyed by target.json section (arms, head, ...) minus measure
+      "arms": {
+        "min": 0, "max": 3,          # pick count drawn uniformly in [min, max]; min=max=0 disables
+        "include": "",               # keep only categories whose name contains any of these keywords
+        "exclude": "",               # drop categories whose name contains any of these keywords
+        "deviation": 0.5             # max weight a picked category may reach (0.0 - 1.0)
+      }
+      # ...the other 20 sections have the same shape; breast and genitals default to min=max=0...
+    }
   }
 }
 ```
 
-The spec format version is currently **4**. A preset written before a section existed is
+The spec format version is currently **6**. A preset written before a section existed is
 preserved untouched on load and that concern is then treated as **disabled**: a version-1
 preset (no `assets`) loads with skin and every bodypart disabled; a version-2 preset (skin
 only) loads with every bodypart disabled and no eyes; a version-3 preset (no `assets.clothes`)
-loads with clothes randomization disabled; a preset without a `creation.rig` key loads with the
-rig set to **No rig**. So an older preset keeps producing exactly the character it did before.
+loads with clothes randomization disabled; a version-5-or-older preset (no `details`) loads with
+detail randomization disabled; a preset without a `creation.rig` key loads with the rig set to
+**No rig**. So an older preset keeps producing exactly the character it did before.
 A **missing bodypart subsection means that type is disabled** (for eyes, not added); likewise a
-**missing `assets.clothes` section, or a missing slot subsection, means that slot is disabled**.
+**missing `assets.clothes` section, or a missing slot subsection, means that slot is disabled**,
+and a **missing `details.sections` entry means that detail section is disabled** (min=max=0).
 The shared `assets.asset_material_type` applies to every attached bodypart and garment except
 the eyes, which carry their own `material_type`.
 
@@ -191,6 +206,21 @@ Get a fresh copy of the default `assets.clothes.<slot>` section. Used by the UI 
 | `slot` | `str` | — | One of the values returned by `get_clothes_slots()`. Any other value raises `ValueError`. |
 
 **Returns:** `dict` — A fresh clothes slot spec dict (`enabled`, `chance`, `pack`, `include_any`, `include_female`, `include_male`, `exclude`).
+
+---
+
+#### get_default_detail_spec(section_names)
+
+Build the default `details` section for the given `target.json` section names. Detail randomization is on with symmetry on. Every section gets min 0 / max 3,
+empty include/exclude filters and a 0.5 max deviation, except the canonical disabled sections (`breast`, `genitals`) which get `min=max=0`. The caller supplies
+the section names (derived from `target.json`), so the service stays free of any filesystem or `target.json` knowledge, mirroring the candidates-passed-in
+pattern used by the asset picks.
+
+| Argument | Type | Default | Description |
+|----------|------|---------|-------------|
+| `section_names` | `list` | — | The `target.json` section names to configure (minus `measure`). |
+
+**Returns:** `dict` — A fresh `details` section dict (`enabled`, `symmetry`, `sections`).
 
 ---
 
@@ -418,6 +448,45 @@ empty pool; and `"full_body_empty_fallback"` as above. The service reports nothi
 | `rng` | `random.Random` | — | The random generator instance to draw from. |
 
 **Returns:** `list` — One dict per enabled slot (`slot`, `pick`, `warning`), in draw order.
+
+---
+
+### Detail randomization
+
+This function is pure and drives the "Details" sub-panel. Unlike the asset picks (which choose an installed asset) it randomizes the **detail shape targets** — the
+same non-macro targets the model panel exposes as sliders, grouped in `target.json` into sections (`arms`, `head`, ...) and, within each section, into *categories*
+(one category is one slider, bundling the opposing `-decr`/`-incr` targets via its `opposites` table). The section/category structure is passed in as plain data
+(the caller parses `target.json`), so the service touches neither `TargetService` nor the filesystem and stays unit-testable.
+
+#### pick_random_details(spec_details, sections, rng)
+
+Pick random detail targets and return a flat stack of `{"target": name, "value": float}` dicts ready for `TargetService.bulk_load_targets`. Returns an empty list
+(and consumes **no** rng draws) when detail randomization is disabled.
+
+For each section a pick count is drawn uniformly in `[min, max]` (max below min behaves as min), clamped to the filtered pool size, and that many distinct
+categories are picked from the pool. The pool is the section's categories after the **include**/**exclude** keyword filters (same comma-separated,
+case-insensitive substring semantics as the asset filters, matched against the category name), sorted by category name before the pick.
+
+**Value model.** Each pick draws a **magnitude uniformly in `[0.25 × deviation, deviation]`** and a separate **50/50 sign draw** selecting the decr (`negative`)
+or incr (`positive`) target from the category's `opposites` table; a category without an opposites table is one-sided and only ever gets a positive value. This
+deliberately differs from `sample_value`: the global **distribution setting does not apply to detail values** — a bell draw centred on the neutral 0.0 would leave
+most picks invisibly close to zero. A zero magnitude (deviation 0) yields no stack entry, but its draws are still made so one section's deviation never shifts
+another section's picks.
+
+**Symmetry.** A sided category (`has_left_and_right`) counts as one pick either way. With `symmetry` on a single value is applied to both the `l-` and `r-`
+targets; with `symmetry` off the left and right sides get independent draws (left first).
+
+**Reproducibility.** Sections are iterated in **sorted name order** and the pool is **sorted by category name** before the pick; per pick the draws are sign, then
+value (left before right for an asymmetric sided category). A section missing from the spec contributes nothing and consumes no draws. Iterating `target.json`
+dict order or an unsorted category list would silently break seed reproducibility.
+
+| Argument | Type | Default | Description |
+|----------|------|---------|-------------|
+| `spec_details` | `dict` | — | The spec's `details` section (`None` or empty means disabled). |
+| `sections` | `dict` | — | Section name → list of category dicts, as parsed from `target.json`. |
+| `rng` | `random.Random` | — | The random generator instance to draw from. |
+
+**Returns:** `list` — A flat list of `{"target": name, "value": float}` dicts, empty when disabled.
 
 ---
 

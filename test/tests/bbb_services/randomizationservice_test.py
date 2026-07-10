@@ -16,7 +16,7 @@ def test_randomizationservice_exists():
 
 def test_default_spec_shape():
     spec = _spec()
-    assert spec["version"] == 5, "The default spec has a version"
+    assert spec["version"] == 6, "The default spec has a version"
     phenotype = spec["phenotype"]
     assert phenotype["distribution"] == "bell", "The default distribution is bell"
     assert phenotype["discrete_race"] is False
@@ -922,3 +922,207 @@ def test_v3_spec_deserializes_with_clothes_disabled():
     results = RandomizationService.pick_random_clothes(restored["assets"].get("clothes") or {}, macro, _cc("hat1"), rng)
     assert results == [], "a preset without a clothes section adds no clothes"
     assert rng.random() == random.Random(0).random(), "and consumes no draws"
+
+
+# --- Detail randomization ----------------------------------------------------------------------
+
+def _cat(name, has_lr=False, opposites=True):
+    """Build a synthetic target.json category dict for the detail tests."""
+    if not opposites:
+        return {"name": name, "label": name, "has_left_and_right": has_lr, "targets": [name]}
+    if has_lr:
+        opp = {
+            "positive-left": "l-" + name + "-incr", "negative-left": "l-" + name + "-decr",
+            "positive-right": "r-" + name + "-incr", "negative-right": "r-" + name + "-decr",
+            "positive-unsided": "", "negative-unsided": ""}
+    else:
+        opp = {
+            "positive-unsided": name + "-incr", "negative-unsided": name + "-decr",
+            "positive-left": "", "negative-left": "", "positive-right": "", "negative-right": ""}
+    return {"name": name, "label": name, "has_left_and_right": has_lr, "opposites": opp,
+            "targets": [value for value in opp.values() if value]}
+
+
+def _sec_cfg(mn, mx, deviation=0.5, include="", exclude=""):
+    """Build one details section config."""
+    return {"min": mn, "max": mx, "include": include, "exclude": exclude, "deviation": deviation}
+
+
+def _detail_spec(sections_cfg, enabled=True, symmetry=True):
+    """Build a details spec from a {section: sec_cfg} mapping."""
+    return {"enabled": enabled, "symmetry": symmetry, "sections": sections_cfg}
+
+
+def _names(stack):
+    """The target names in a detail stack."""
+    return [entry["target"] for entry in stack]
+
+
+def test_default_detail_spec_defaults_and_disabled_sections():
+    spec = RandomizationService.get_default_detail_spec(["arms", "breast", "genitals", "head"])
+    assert spec["enabled"] is True and spec["symmetry"] is True
+    assert spec["sections"]["arms"] == {"min": 0, "max": 3, "include": "", "exclude": "", "deviation": 0.5}
+    assert spec["sections"]["breast"]["min"] == 0 and spec["sections"]["breast"]["max"] == 0, "breast ships disabled"
+    assert spec["sections"]["genitals"]["min"] == 0 and spec["sections"]["genitals"]["max"] == 0, "genitals ships disabled"
+
+
+def test_detail_master_off_returns_empty_without_drawing():
+    sections = {"arms": [_cat("arm-a"), _cat("arm-b")]}
+    spec = _detail_spec({"arms": _sec_cfg(2, 2)}, enabled=False)
+    rng = random.Random(3)
+    assert RandomizationService.pick_random_details(spec, sections, rng) == [], "disabled details produce an empty stack"
+    assert rng.random() == random.Random(3).random(), "and consume no draws"
+
+
+def test_detail_pick_count_exact_and_clamped():
+    pool = [_cat("arm-a"), _cat("arm-b"), _cat("arm-c")]
+    sections = {"arms": pool}
+    # min=max=2 picks exactly two categories (each unsided category yields exactly one entry).
+    for seed in range(20):
+        stack = RandomizationService.pick_random_details(_detail_spec({"arms": _sec_cfg(2, 2)}), sections, random.Random(seed))
+        assert len(stack) == 2, "min=max=2 picks exactly two categories"
+    # A count above the pool size clamps to the pool.
+    stack = RandomizationService.pick_random_details(_detail_spec({"arms": _sec_cfg(10, 10)}), sections, random.Random(0))
+    assert len(stack) == 3, "the count clamps to the pool size"
+    # min=max=0 disables the section.
+    assert RandomizationService.pick_random_details(_detail_spec({"arms": _sec_cfg(0, 0)}), sections, random.Random(0)) == []
+
+
+def test_detail_pick_count_within_range_and_max_below_min():
+    pool = [_cat("arm-" + letter) for letter in "abcdefgh"]
+    sections = {"arms": pool}
+    for seed in range(40):
+        stack = RandomizationService.pick_random_details(_detail_spec({"arms": _sec_cfg(1, 4)}), sections, random.Random(seed))
+        assert 1 <= len(stack) <= 4, "the count stays within [min, max]"
+    # max below min behaves as min.
+    for seed in range(20):
+        stack = RandomizationService.pick_random_details(_detail_spec({"arms": _sec_cfg(3, 1)}), sections, random.Random(seed))
+        assert len(stack) == 3, "max below min behaves as min"
+
+
+def test_detail_include_exclude_filters():
+    pool = [_cat("nose-wide"), _cat("nose-narrow"), _cat("chin-size")]
+    sections = {"nose": pool}
+    # Include keeps categories matching any keyword; matching is case-insensitive and trims spaces.
+    stack = RandomizationService.pick_random_details(_detail_spec({"nose": _sec_cfg(9, 9, include=" WIDE , chin ")}), sections, random.Random(0))
+    assert set(_names(stack)) == {"nose-wide-incr", "chin-size-incr"} or set(_names(stack)) == {"nose-wide-decr", "chin-size-decr"} \
+        or {n.rsplit("-", 1)[0] for n in _names(stack)} == {"nose-wide", "chin-size"}, "include keeps only matching categories"
+    # Exclude removes categories matching any keyword.
+    stack = RandomizationService.pick_random_details(_detail_spec({"nose": _sec_cfg(9, 9, exclude="narrow,chin")}), sections, random.Random(0))
+    assert {n.rsplit("-", 1)[0] for n in _names(stack)} == {"nose-wide"}, "exclude removes matching categories"
+    # An empty filtered pool yields no picks.
+    assert RandomizationService.pick_random_details(_detail_spec({"nose": _sec_cfg(9, 9, include="zzz")}), sections, random.Random(0)) == []
+
+
+def test_detail_value_magnitude_within_bounds():
+    sections = {"nose": [_cat("nose-a")]}
+    spec = _detail_spec({"nose": _sec_cfg(1, 1, deviation=0.4)})
+    for seed in range(200):
+        stack = RandomizationService.pick_random_details(spec, sections, random.Random(seed))
+        value = stack[0]["value"]
+        assert 0.1 - 1e-9 <= value <= 0.4 + 1e-9, "the magnitude falls within [0.25 * deviation, deviation]"
+
+
+def test_detail_sign_maps_to_correct_opposite_and_both_signs_occur():
+    sections = {"nose": [_cat("nose-a")]}
+    spec = _detail_spec({"nose": _sec_cfg(1, 1)})
+    names = set()
+    for seed in range(200):
+        stack = RandomizationService.pick_random_details(spec, sections, random.Random(seed))
+        name = stack[0]["target"]
+        assert name in ("nose-a-incr", "nose-a-decr"), "the sign selects one of the two opposing targets"
+        assert stack[0]["value"] > 0.0, "the magnitude is always positive"
+        names.add(name)
+    assert names == {"nose-a-incr", "nose-a-decr"}, "both signs occur over many draws"
+
+
+def test_detail_one_sided_category_only_positive():
+    sections = {"custom": [_cat("special", opposites=False)]}
+    spec = _detail_spec({"custom": _sec_cfg(1, 1)})
+    for seed in range(50):
+        stack = RandomizationService.pick_random_details(spec, sections, random.Random(seed))
+        assert stack[0]["target"] == "special", "a category without opposites uses its own name"
+        assert stack[0]["value"] > 0.0, "and only ever gets a positive value"
+
+
+def test_detail_symmetry_on_gives_both_sides_the_same_value():
+    sections = {"ears": [_cat("ear-scale", has_lr=True)]}
+    spec = _detail_spec({"ears": _sec_cfg(1, 1)}, symmetry=True)
+    for seed in range(50):
+        stack = RandomizationService.pick_random_details(spec, sections, random.Random(seed))
+        assert len(stack) == 2, "a sided category with symmetry on emits both sides"
+        left = [e for e in stack if e["target"].startswith("l-")][0]
+        right = [e for e in stack if e["target"].startswith("r-")][0]
+        assert left["value"] == right["value"], "both sides get the same value"
+        assert left["target"][2:] == right["target"][2:], "both sides use the same polarity"
+
+
+def test_detail_symmetry_off_draws_sides_independently():
+    sections = {"ears": [_cat("ear-scale", has_lr=True)]}
+    spec = _detail_spec({"ears": _sec_cfg(1, 1)}, symmetry=False)
+    saw_difference = False
+    for seed in range(50):
+        stack = RandomizationService.pick_random_details(spec, sections, random.Random(seed))
+        sides = {e["target"][0] for e in stack}
+        assert sides == {"l", "r"}, "both sides are present"
+        values = [e["value"] for e in stack]
+        if abs(values[0] - values[1]) > 1e-9 or stack[0]["target"][2:] != stack[1]["target"][2:]:
+            saw_difference = True
+    assert saw_difference, "with symmetry off the two sides are drawn independently"
+
+
+def test_detail_reproducible_and_order_independent():
+    sections = {
+        "arms": [_cat("arm-a"), _cat("arm-b"), _cat("arm-c")],
+        "ears": [_cat("ear-scale", has_lr=True), _cat("ear-lobe", has_lr=True)],
+        "nose": [_cat("nose-a"), _cat("nose-b")]}
+    spec = _detail_spec({name: _sec_cfg(0, 2) for name in sections})
+    first = RandomizationService.pick_random_details(spec, sections, random.Random(555))
+    second = RandomizationService.pick_random_details(spec, sections, random.Random(555))
+    assert first == second, "the same seed and spec give the same stack"
+    shuffled = {name: list(reversed(cats)) for name, cats in sections.items()}
+    third = RandomizationService.pick_random_details(spec, shuffled, random.Random(555))
+    assert first == third, "shuffling the category input order does not change the stack"
+
+
+def test_detail_missing_section_entry_is_disabled():
+    sections = {"arms": [_cat("arm-a")], "nose": [_cat("nose-a")]}
+    # Only "nose" is configured; "arms" has no entry and must contribute nothing.
+    spec = _detail_spec({"nose": _sec_cfg(1, 1)})
+    stack = RandomizationService.pick_random_details(spec, sections, random.Random(1))
+    assert all(name.startswith("nose-a") for name in _names(stack)), "a section missing from the spec contributes nothing"
+    assert len(stack) == 1
+
+
+def test_detail_spec_round_trip_is_lossless():
+    spec = _spec()
+    spec["details"] = RandomizationService.get_default_detail_spec(["arms", "breast", "head"])
+    text = RandomizationService.serialize_spec_to_json_string(spec)
+    restored = RandomizationService.deserialize_spec_from_json_string(text)
+    assert restored["details"] == spec["details"], "version 6 round-trips losslessly"
+    sections = {"arms": [_cat("arm-a"), _cat("arm-b")], "head": [_cat("head-a")]}
+    original_stack = RandomizationService.pick_random_details(spec["details"], sections, random.Random(9))
+    restored_stack = RandomizationService.pick_random_details(restored["details"], sections, random.Random(9))
+    assert original_stack == restored_stack, "the restored spec draws the same stack"
+
+
+def test_v5_spec_deserializes_with_details_disabled():
+    # Simulate a version-5 preset: no details section at all.
+    spec = _spec()
+    spec["version"] = 5
+    assert "details" not in spec
+    text = RandomizationService.serialize_spec_to_json_string(spec)
+    restored = RandomizationService.deserialize_spec_from_json_string(text)
+    sections = {"arms": [_cat("arm-a")]}
+    rng = random.Random(0)
+    assert RandomizationService.pick_random_details(restored.get("details"), sections, rng) == [], "a version-5 preset adds no details"
+    assert rng.random() == random.Random(0).random(), "and consumes no draws"
+
+
+def test_detail_unknown_sibling_section_survives():
+    spec = _spec()
+    spec["details"] = RandomizationService.get_default_detail_spec(["arms"])
+    spec["batch"] = {"count": 5}
+    restored = RandomizationService.deserialize_spec_from_json_string(RandomizationService.serialize_spec_to_json_string(spec))
+    assert restored["batch"] == {"count": 5}, "an unrecognized sibling section is preserved"
+    assert restored["details"]["sections"]["arms"]["max"] == 3

@@ -1,14 +1,16 @@
 """Operator for creating a new human with a randomized phenotype."""
 
-import os, random, bpy
+import os, json, random, bpy
 from .....services import LogService
 from .....services import AssetService
 from .....services import HumanService
+from .....services import LocationService
 from .....services import MeshService
 from .....services import ObjectService
 from .....services import RandomizationService
 from .....services import RigService
 from .....services import SystemService
+from .....services import TargetService
 from .....entities.clothes.mhclo import Mhclo
 from ..randomizeproperties import RANDOMIZE_PROPERTIES, scene_to_spec
 from ....mpfboperator import MpfbOperator
@@ -70,6 +72,11 @@ class MPFB_OT_Create_Random_Human_Operator(MpfbOperator):
             feet_on_ground=True,
             scale=scale,
             macro_detail_dict=macro_details)
+
+        # Detail targets are drawn after the phenotype draws and before any asset draws, and are
+        # applied right after create_human (before the rig and the body parts) so that joint
+        # fitting and mhclo fitting see the final shape. Disabled details consume no draws.
+        _apply_random_details(spec, basemesh, rng)
 
         # Otherwise all targets will be set to 100% when entering edit mode
         basemesh.use_shape_key_edit_mode = True
@@ -154,6 +161,29 @@ def _apply_random_skin(report, spec, macro_details, basemesh, rng):
     for slot in basemesh.material_slots:
         if str(slot.material.name).lower().endswith("body"):
             basemesh.active_material_index = slot.slot_index
+
+
+def _apply_random_details(spec, basemesh, rng):
+    """Draw and apply random detail targets when detail randomization is enabled.
+
+    When disabled this returns immediately (drawing nothing from rng). The target.json sections
+    (minus the empty "measure" section) are parsed once here and passed to the pure pick as plain
+    data; the returned stack is loaded in a single bulk_load_targets call. A target name that
+    cannot be resolved to a file is skipped with a warning by bulk_load_targets, never a crash.
+    """
+    details = (spec.get("details") or {})
+    if not details.get("enabled", False):
+        return
+
+    targets_json = os.path.join(LocationService.get_mpfb_data("targets"), "target.json")
+    with open(targets_json, "r") as json_file:
+        target_data = json.load(json_file)
+    sections = {name: section.get("categories", [])
+                for name, section in target_data.items() if name != "measure"}
+
+    stack = RandomizationService.pick_random_details(details, sections, rng)
+    if stack:
+        TargetService.bulk_load_targets(basemesh, stack)
 
 
 def _add_rig(report, rig_name, basemesh):

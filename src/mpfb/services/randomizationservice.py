@@ -31,7 +31,7 @@ _LOG = LogService.get_logger("services.randomizationservice")
 
 # The current version of the randomization spec / preset format. Bump this if the format
 # changes in a way that older presets need migrating.
-_SPEC_VERSION: int = 5
+_SPEC_VERSION: int = 6
 
 # Built-in neutral and deviation used when nothing else is specified for an attribute.
 _DEFAULT_NEUTRAL: float = 0.5
@@ -205,6 +205,23 @@ _SKIN_AGE_BANDS: list[tuple[str, float]] = [("baby", 0.09), ("child", 0.34), ("y
 # label would then wrongly match a name carrying the long one. The superstring is stripped
 # from the name before the short label is tested; see _name_contains_label.
 _LABEL_SUPERSTRINGS: dict[str, str] = {"male": "female", "asian": "caucasian"}
+
+# The detail sections which ship disabled (min=max=0). Genital morphs should be opt-in, and the
+# breast detail categories are dropped because the Breast shape sub-panel already randomizes the
+# cupsize/firmness macros of the same body area.
+_DEFAULT_DETAIL_DISABLED_SECTIONS: list[str] = ["breast", "genitals"]
+
+# The built-in per-section detail defaults: a pick count between 0 and 3 and a moderate 0.5 max
+# deviation. Disabled sections use min=max=0 instead.
+_DEFAULT_DETAIL_MIN: int = 0
+_DEFAULT_DETAIL_MAX: int = 3
+_DEFAULT_DETAIL_DEVIATION: float = 0.5
+
+# A picked detail category draws its magnitude uniformly in [factor * deviation, deviation], so
+# every pick produces a visible change (a plain draw centered on the neutral 0.0 would mostly
+# land near zero and be invisible). The sign is a separate 50/50 draw. The global distribution
+# setting deliberately does not apply to detail values.
+_DETAIL_MAGNITUDE_FLOOR_FACTOR: float = 0.25
 
 
 class RandomizationService:
@@ -533,6 +550,35 @@ class RandomizationService:
         return _default_clothes_slot(slot)
 
     @staticmethod
+    def get_default_detail_spec(section_names: list[str]) -> dict:
+        """
+        Build the default "details" section for the given target.json section names.
+
+        Detail randomization is on with symmetry on. Every section gets min 0 / max 3, empty
+        include/exclude filters and a 0.5 max deviation, except the canonical disabled sections
+        (breast, genitals) which get min=max=0. The caller supplies the section names (derived
+        from target.json), so the service stays free of any filesystem or target.json knowledge,
+        mirroring the candidates-passed-in pattern used by the asset picks.
+
+        Args:
+            section_names (list): The target.json section names to configure (minus "measure").
+
+        Returns:
+            dict: A fresh "details" section dict (enabled, symmetry, sections).
+        """
+        sections: dict = {}
+        for name in section_names:
+            disabled = name in _DEFAULT_DETAIL_DISABLED_SECTIONS
+            sections[name] = {
+                "min": 0 if disabled else _DEFAULT_DETAIL_MIN,
+                "max": 0 if disabled else _DEFAULT_DETAIL_MAX,
+                "include": "",
+                "exclude": "",
+                "deviation": _DEFAULT_DETAIL_DEVIATION
+                }
+        return {"enabled": True, "symmetry": True, "sections": sections}
+
+    @staticmethod
     def skin_gender_label(macro: dict) -> str:
         """
         Get the gender label used when matching a skin asset against the randomized gender.
@@ -784,6 +830,63 @@ class RandomizationService:
         return rng.choice(unique)
 
     @staticmethod
+    def pick_random_details(spec_details: dict, sections: dict, rng: random.Random) -> list[dict]:
+        """
+        Pick random detail targets and return a flat stack ready for bulk loading.
+
+        This is a pure function, like the asset picks: "sections" is plain data (a dict mapping
+        each target.json section name to its list of category dicts, as parsed by the caller),
+        so it needs no bpy objects or filesystem access and is fully unit-testable. For each
+        section a pick count is drawn uniformly in [min, max] (clamped to the filtered pool
+        size), that many distinct categories are picked from the name-sorted pool, and a value
+        is drawn per pick. The value is a magnitude uniform in [0.25 * deviation, deviation] with
+        a separate 50/50 sign draw selecting the decr ("negative") or incr ("positive") target
+        from the category's "opposites" table; a category without opposites is one-sided and only
+        ever gets a positive value. The global distribution setting does not apply here.
+
+        Reproducibility depends on a fixed number and order of draws: sections are iterated in
+        sorted name order and the pool is sorted by category name before the pick; per pick the
+        draws are sign, then value (left before right for an asymmetric sided category). A sided
+        category counts as one pick; with symmetry on a single value is mirrored to both sides,
+        with symmetry off the two sides get independent draws. Nothing is drawn at all when
+        detail randomization is disabled, and a section missing from the spec contributes nothing
+        and consumes no draws.
+
+        Args:
+            spec_details (dict): The spec's "details" section (None or empty means disabled).
+            sections (dict): Section name -> list of category dicts, as parsed from target.json.
+            rng (random.Random): The random generator instance to draw from.
+
+        Returns:
+            list: A flat list of {"target": name, "value": float} dicts ready for
+            TargetService.bulk_load_targets. Empty when detail randomization is disabled.
+        """
+        details = spec_details or {}
+        if not details.get("enabled", False):
+            return []
+
+        symmetry = details.get("symmetry", True)
+        section_specs = details.get("sections") or {}
+
+        stack: list[dict] = []
+        for section_name in sorted(sections.keys()):
+            section_cfg = section_specs.get(section_name)
+            if not section_cfg:
+                # A section missing from the spec is disabled (an older preset, or a section the
+                # UI did not write). It contributes nothing and consumes no draws.
+                continue
+
+            categories = sorted(sections[section_name] or [], key=lambda category: str(category.get("name", "")).lower())
+            pool = _filter_detail_categories(section_cfg, categories)
+            picked = _pick_detail_categories(section_cfg, pool, rng)
+
+            deviation = float(section_cfg.get("deviation", _DEFAULT_DETAIL_DEVIATION))
+            for category in picked:
+                stack.extend(_detail_targets_for_category(category, deviation, symmetry, rng))
+
+        return stack
+
+    @staticmethod
     def serialize_spec_to_json_string(spec: dict) -> str:
         """Serialize a randomization spec to a JSON string."""
         return json.dumps(spec, indent=4, sort_keys=True)
@@ -969,3 +1072,118 @@ def _resolve_race(race_cfg: dict, discrete_race: bool, rng: random.Random) -> di
     if total <= 0.0:
         return even_mix
     return {name: weights[name] / total for name in _RACES}
+
+
+def _filter_detail_categories(section_cfg: dict, categories: list[dict]) -> list[dict]:
+    """Filter a section's categories by its include / exclude keyword lists.
+
+    Include keeps a category whose name contains at least one include keyword; exclude drops a
+    category whose name contains any exclude keyword. Both are case-insensitive substring matches
+    with the same comma-separated keyword semantics as the asset filters, and empty lists are
+    no-ops. The input is assumed already sorted by category name, and order is preserved.
+    """
+    pool = categories
+    include = _split_keywords(section_cfg.get("include", ""))
+    if include:
+        pool = [c for c in pool if any(keyword in str(c.get("name", "")).lower() for keyword in include)]
+    exclude = _split_keywords(section_cfg.get("exclude", ""))
+    if exclude:
+        pool = [c for c in pool if not any(keyword in str(c.get("name", "")).lower() for keyword in exclude)]
+    return pool
+
+
+def _pick_detail_categories(section_cfg: dict, pool: list[dict], rng: random.Random) -> list[dict]:
+    """Draw a pick count and select that many distinct categories from a name-sorted pool.
+
+    The count is drawn uniformly in [min, max] (max below min behaves as min) and clamped to the
+    pool size, so an empty pool yields no picks. The count draw is always made when the section
+    is enabled, even for an empty pool, so one section's pool size never shifts another section's
+    draws. Categories are sampled without replacement.
+    """
+    section_min = int(section_cfg.get("min", 0))
+    section_max = int(section_cfg.get("max", 0))
+    if section_max < section_min:
+        section_max = section_min
+    count = rng.randint(section_min, section_max)
+    count = min(count, len(pool))
+    if count <= 0:
+        return []
+    return rng.sample(pool, count)
+
+
+def _draw_detail_value(deviation: float, has_opposites: bool, rng: random.Random) -> tuple[float, str]:
+    """Draw one (magnitude, polarity) pair for a detail pick.
+
+    The sign is drawn first (a 50/50 "positive"/"negative" pick, only when the category has an
+    opposites table), then the magnitude uniformly in [0.25 * deviation, deviation]. Even a zero
+    deviation consumes exactly the same draws, so a section's deviation never shifts the picks.
+    """
+    polarity = "positive"
+    if has_opposites:
+        polarity = "positive" if rng.random() < 0.5 else "negative"
+    magnitude = rng.uniform(deviation * _DETAIL_MAGNITUDE_FLOOR_FACTOR, deviation)
+    return magnitude, polarity
+
+
+def _detail_targets_for_category(category: dict, deviation: float, symmetry: bool,
+                                 rng: random.Random) -> list[dict]:
+    """Build the target stack entries for one picked category.
+
+    For a plain (unsided) category one value is drawn and applied to the unsided target. For a
+    sided category (has_left_and_right) the "left"/"right" opposite keys are used: with symmetry
+    on a single value is mirrored to both sides, with symmetry off the left and right sides get
+    independent draws (left first). A zero magnitude yields no entry, but its draws are still made.
+    """
+    opposites = category.get("opposites") or {}
+    has_opposites = bool(opposites)
+    has_lr = bool(category.get("has_left_and_right"))
+
+    entries: list[dict] = []
+    if has_lr and not symmetry:
+        for side in ("left", "right"):
+            magnitude, polarity = _draw_detail_value(deviation, has_opposites, rng)
+            _append_detail_entry(entries, category, opposites, has_opposites, side, polarity, magnitude)
+        return entries
+
+    # One draw, applied to the unsided target or mirrored across both sides of a sided category.
+    magnitude, polarity = _draw_detail_value(deviation, has_opposites, rng)
+    for side in (("left", "right") if has_lr else ("unsided",)):
+        _append_detail_entry(entries, category, opposites, has_opposites, side, polarity, magnitude)
+    return entries
+
+
+def _append_detail_entry(entries: list[dict], category: dict, opposites: dict, has_opposites: bool,
+                         side: str, polarity: str, magnitude: float) -> None:
+    """Append one {"target", "value"} entry for a category side, skipping zero magnitudes.
+
+    The magnitude is always positive (the sign is expressed by which opposing target is chosen),
+    matching how the model panel loads a decr/incr target with a positive weight.
+    """
+    if magnitude <= 0.0:
+        return
+    if has_opposites:
+        target_name = opposites.get(polarity + "-" + side, "")
+    else:
+        target_name = _one_sided_target_name(category, side)
+    if target_name:
+        entries.append({"target": target_name, "value": magnitude})
+
+
+def _one_sided_target_name(category: dict, side: str) -> str:
+    """Resolve the single target name for a category that has no opposites table.
+
+    Such a category is one-sided (0.0 - 1.0 range); its name is used directly, with an "l-"/"r-"
+    prefix for the left/right side of a sided category. This is a defensive fallback: the system
+    categories in target.json all carry an opposites table.
+    """
+    name = str(category.get("name", ""))
+    if not name:
+        targets = category.get("targets") or []
+        name = str(targets[0]) if targets else ""
+    if not name:
+        return ""
+    if side == "left":
+        return "l-" + name
+    if side == "right":
+        return "r-" + name
+    return name

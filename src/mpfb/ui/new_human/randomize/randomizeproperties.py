@@ -8,7 +8,7 @@ live in one file each (randomizepanel.py, presetspanel.py, ...); the operators i
 config set and the translators from here.
 """
 
-import os, re
+import os, re, json
 from typing import TYPE_CHECKING
 from ....services import LogService
 from ....services import LocationService
@@ -23,6 +23,18 @@ _LOG = LogService.get_logger("ui.new_human.randomize.randomizeproperties")
 _LOC: str = os.path.dirname(__file__)
 RANDOMIZE_PROPERTIES_DIR: str = os.path.join(_LOC, "properties")
 RANDOMIZE_PROPERTIES: SceneConfigSet = SceneConfigSet.from_definitions_in_json_directory(RANDOMIZE_PROPERTIES_DIR, prefix="RAND_")
+
+# The detail randomization sections are the top-level target.json sections that carry categories,
+# minus the empty "measure" section. They are derived from target.json at import time (the model
+# panel does the same), so the UI cannot drift out of sync with the sections that actually exist.
+# The list is sorted, matching the iteration order used by the service when it draws.
+_TARGETS_JSON: str = os.path.join(LocationService.get_mpfb_data("targets"), "target.json")
+DETAIL_SECTIONS: list[str] = []
+with open(_TARGETS_JSON, "r") as _details_json_file:
+    _DETAILS_DATA = json.load(_details_json_file)
+for _section_name in sorted(_DETAILS_DATA.keys()):
+    if _section_name != "measure" and _DETAILS_DATA[_section_name].get("categories"):
+        DETAIL_SECTIONS.append(_section_name)
 
 # The scalar phenotype attributes which have an include/neutral/deviation triple, together
 # with the label shown in the UI and the box they are grouped under. The grouping mirrors the
@@ -247,6 +259,56 @@ for _slot in _CLOTHES_SLOTS:
         "default": _slot_default["exclude"]
         })
 
+# The per-section detail properties (min / max pick counts, include / exclude keyword filters and
+# a max deviation) are generated in a loop rather than as JSON files, mirroring the per-attribute
+# and per-slot properties above. There are 21 sections, so this is roughly a hundred properties.
+# The per-section defaults come from RandomizationService, so they cannot drift out of sync.
+_DETAIL_DEFAULT: dict = RandomizationService.get_default_detail_spec(DETAIL_SECTIONS)
+
+for _section_name in DETAIL_SECTIONS:
+    _detail_default = _DETAIL_DEFAULT["sections"][_section_name]
+    RANDOMIZE_PROPERTIES.add_property({
+        "type": "int",
+        "name": "detail_" + _section_name + "_min",
+        "description": "The minimum number of detail categories to randomize in the " + _section_name + " section",
+        "label": "Min picks",
+        "default": _detail_default["min"],
+        "min": 0,
+        "max": 100
+        })
+    RANDOMIZE_PROPERTIES.add_property({
+        "type": "int",
+        "name": "detail_" + _section_name + "_max",
+        "description": "The maximum number of detail categories to randomize in the " + _section_name + " section. Set both min and max to 0 to disable the section",
+        "label": "Max picks",
+        "default": _detail_default["max"],
+        "min": 0,
+        "max": 100
+        })
+    RANDOMIZE_PROPERTIES.add_property({
+        "type": "string",
+        "name": "detail_" + _section_name + "_include",
+        "description": "Only pick categories whose name contains at least one of these comma-separated keywords. Leave empty to allow all",
+        "label": "Name must contain",
+        "default": _detail_default["include"]
+        })
+    RANDOMIZE_PROPERTIES.add_property({
+        "type": "string",
+        "name": "detail_" + _section_name + "_exclude",
+        "description": "Never pick categories whose name contains any of these comma-separated keywords",
+        "label": "Name must not contain",
+        "default": _detail_default["exclude"]
+        })
+    RANDOMIZE_PROPERTIES.add_property({
+        "type": "float",
+        "name": "detail_" + _section_name + "_deviation",
+        "description": "The maximum weight a picked category may reach. The global distribution setting does not apply to detail values",
+        "label": "Max deviation",
+        "default": _detail_default["deviation"],
+        "min": 0.0,
+        "max": 1.0
+        })
+
 # The list of saved randomization presets is cached so that the enum property below keeps
 # references to the option strings alive (see the equivalent handling in HumanService).
 _EXISTING_PRESETS: list[str] | None = None
@@ -315,6 +377,24 @@ RANDOMIZE_PROPERTIES.add_property({
     "label": "Rig",
     "default": 1
     }, _populate_rig)
+
+
+def _populate_detail_sections(self, context: "bpy.types.Context") -> list[tuple[str, str, str]]:
+    """Build the detail section drop-down items from the sections derived from target.json.
+
+    The selector only controls which section's settings are displayed; every section is stored in
+    the preset and randomized regardless of what is selected here.
+    """
+    return [(name, name.capitalize(), "Show the randomization settings for the " + name + " section") for name in DETAIL_SECTIONS]
+
+
+RANDOMIZE_PROPERTIES.add_property({
+    "type": "enum",
+    "name": "details_section",
+    "description": "Which section's detail settings to display. All sections are stored and randomized; this only controls what is shown",
+    "label": "Section",
+    "default": 0
+    }, _populate_detail_sections)
 
 
 def scene_to_spec(scene: "bpy.types.Scene") -> dict:
@@ -416,6 +496,25 @@ def scene_to_spec(scene: "bpy.types.Scene") -> dict:
         slot_section["include_female"] = RANDOMIZE_PROPERTIES.get_value(prefix + "include_female", entity_reference=scene)
         slot_section["include_male"] = RANDOMIZE_PROPERTIES.get_value(prefix + "include_male", entity_reference=scene)
         slot_section["exclude"] = RANDOMIZE_PROPERTIES.get_value(prefix + "exclude", entity_reference=scene)
+
+    # The details section: the master toggle, the symmetry toggle and one entry per section. Every
+    # section is written explicitly (min=max=0 for the disabled ones), so the preset is a complete
+    # record. The "details_section" selector is UI state and is deliberately not written.
+    detail_sections = {}
+    for section_name in DETAIL_SECTIONS:
+        prefix = "detail_" + section_name + "_"
+        detail_sections[section_name] = {
+            "min": RANDOMIZE_PROPERTIES.get_value(prefix + "min", entity_reference=scene),
+            "max": RANDOMIZE_PROPERTIES.get_value(prefix + "max", entity_reference=scene),
+            "include": RANDOMIZE_PROPERTIES.get_value(prefix + "include", entity_reference=scene),
+            "exclude": RANDOMIZE_PROPERTIES.get_value(prefix + "exclude", entity_reference=scene),
+            "deviation": RANDOMIZE_PROPERTIES.get_value(prefix + "deviation", entity_reference=scene)
+            }
+    spec["details"] = {
+        "enabled": RANDOMIZE_PROPERTIES.get_value("randomize_details", entity_reference=scene),
+        "symmetry": RANDOMIZE_PROPERTIES.get_value("details_symmetry", entity_reference=scene),
+        "sections": detail_sections
+        }
     return spec
 
 
@@ -531,6 +630,36 @@ def spec_to_scene(spec: dict, scene: "bpy.types.Scene") -> None:
         RANDOMIZE_PROPERTIES.set_value(prefix + "include_female", slot_section.get("include_female", default_slot["include_female"]), entity_reference=scene)
         RANDOMIZE_PROPERTIES.set_value(prefix + "include_male", slot_section.get("include_male", default_slot["include_male"]), entity_reference=scene)
         RANDOMIZE_PROPERTIES.set_value(prefix + "exclude", slot_section.get("exclude", default_slot["exclude"]), entity_reference=scene)
+
+    # The details section. A preset written before this section existed (version 5 or older) has no
+    # "details" key; detail randomization is then set to disabled so the old preset keeps producing
+    # exactly what it did before. A section missing from an existing details section is likewise
+    # disabled (min=max=0). The remaining per-section controls fall back to the built-in defaults.
+    default_details = RandomizationService.get_default_detail_spec(DETAIL_SECTIONS)
+    details = spec.get("details") or {}
+    RANDOMIZE_PROPERTIES.set_value("randomize_details", details.get("enabled", False), entity_reference=scene)
+    RANDOMIZE_PROPERTIES.set_value("details_symmetry", details.get("symmetry", default_details["symmetry"]), entity_reference=scene)
+    detail_sections = details.get("sections") or {}
+    for section_name in DETAIL_SECTIONS:
+        default_section = default_details["sections"][section_name]
+        prefix = "detail_" + section_name + "_"
+        if section_name in detail_sections:
+            section_cfg = detail_sections[section_name] or {}
+            section_min = section_cfg.get("min", default_section["min"])
+            section_max = section_cfg.get("max", default_section["max"])
+            include = section_cfg.get("include", default_section["include"])
+            exclude = section_cfg.get("exclude", default_section["exclude"])
+            deviation = section_cfg.get("deviation", default_section["deviation"])
+        else:
+            # A section missing from an existing details section is disabled.
+            section_min, section_max = 0, 0
+            include, exclude = default_section["include"], default_section["exclude"]
+            deviation = default_section["deviation"]
+        RANDOMIZE_PROPERTIES.set_value(prefix + "min", section_min, entity_reference=scene)
+        RANDOMIZE_PROPERTIES.set_value(prefix + "max", section_max, entity_reference=scene)
+        RANDOMIZE_PROPERTIES.set_value(prefix + "include", include, entity_reference=scene)
+        RANDOMIZE_PROPERTIES.set_value(prefix + "exclude", exclude, entity_reference=scene)
+        RANDOMIZE_PROPERTIES.set_value(prefix + "deviation", deviation, entity_reference=scene)
 
 
 # The scalar attributes which have a discrete mode, mapped to the scene property toggling it.
@@ -672,3 +801,30 @@ def draw_clothes(scene: "bpy.types.Scene", layout: "bpy.types.UILayout") -> None
                 "clothes_" + slot + "_include_male",
                 "clothes_" + slot + "_exclude"
                 ])
+
+
+def draw_details(scene: "bpy.types.Scene", layout: "bpy.types.UILayout") -> None:
+    """Draw the details panel: the master toggle, symmetry, a section selector and that section.
+
+    With 21 sections, showing every section's settings at once would dwarf the rest of the
+    randomize panel, so only the selected section's settings are drawn. The selector is display
+    state only: every section is stored in the preset and randomized regardless of what is shown.
+    The "Apply to all sections" button copies the shown section's settings to every section.
+    """
+    RANDOMIZE_PROPERTIES.draw_properties(scene, layout, ["randomize_details", "details_symmetry", "details_section"])
+
+    section_name = RANDOMIZE_PROPERTIES.get_value("details_section", entity_reference=scene)
+    if not section_name:
+        return
+
+    box = layout.box()
+    box.label(text=str(section_name).capitalize() + " settings")
+    prefix = "detail_" + section_name + "_"
+    RANDOMIZE_PROPERTIES.draw_properties(scene, box, [
+        prefix + "min",
+        prefix + "max",
+        prefix + "include",
+        prefix + "exclude",
+        prefix + "deviation"
+        ])
+    layout.operator("mpfb.randomize_detail_apply_all")

@@ -10,6 +10,7 @@ from ._helpers import MockOperatorBase
 
 MPFB_OT_Create_Random_Human_Operator = dynamic_import("mpfb.ui.new_human.randomize.operators.createrandomhuman", "MPFB_OT_Create_Random_Human_Operator")
 RANDOMIZE_PROPERTIES = dynamic_import("mpfb.ui.new_human.randomize.randomizeproperties", "RANDOMIZE_PROPERTIES")
+DETAIL_SECTIONS = dynamic_import("mpfb.ui.new_human.randomize.randomizeproperties", "DETAIL_SECTIONS")
 HumanObjectProperties = dynamic_import("mpfb.entities.objectproperties", "HumanObjectProperties")
 
 # The system skins ship as installed assets; the skin tests only run when some are present.
@@ -43,14 +44,26 @@ def _disable_clothes():
         _set_props(**{"clothes_" + slot + "_enable": False})
 
 
+def _disable_details():
+    """Turn off detail randomization, so the operator applies no detail shape targets."""
+    _set_props(randomize_details=False)
+
+
+def _disable_all_detail_sections():
+    """Disable every detail section (min=max=0), so only the sections a test re-enables draw."""
+    for section in DETAIL_SECTIONS:
+        _set_props(**{"detail_" + section + "_min": 0, "detail_" + section + "_max": 0})
+
+
 def _disable_bodyparts_and_rig():
-    """Turn off the rig and every body part (and all clothes), so the operator produces just a
-    basemesh (plus, if skin is on, a skin material). Skin is left untouched so the skin tests
+    """Turn off the rig and every body part (and all clothes and details), so the operator produces
+    just a basemesh (plus, if skin is on, a skin material). Skin is left untouched so the skin tests
     control it."""
     _set_props(rig="NONE", eyes_mode="DONOTADD", hair_randomize=False)
     for name in _PLAIN_BODYPART_ENABLES:
         _set_props(**{name: False})
     _disable_clothes()
+    _disable_details()
 
 
 def _find_basemesh():
@@ -277,6 +290,84 @@ def _restore_all_defaults():
         _set_props(**{name: True})
     for slot in _CLOTHES_SLOTS:
         _set_props(**{"clothes_" + slot + "_enable": slot in _CLOTHES_DEFAULT_ENABLED})
+    _set_props(randomize_details=True)
+
+
+def _shape_key_names(basemesh):
+    """The set of shape-key names on a basemesh (empty when it has none)."""
+    keys = basemesh.data.shape_keys
+    if keys is None or keys.key_blocks is None:
+        return set()
+    return {block.name for block in keys.key_blocks}
+
+
+def _shape_key_values(basemesh):
+    """A name -> value dict of the basemesh's shape keys."""
+    keys = basemesh.data.shape_keys
+    if keys is None or keys.key_blocks is None:
+        return {}
+    return {block.name: round(block.value, 5) for block in keys.key_blocks}
+
+
+def test_details_master_off_ignores_section_settings():
+    # With the master toggle off, the section settings must have no effect at all, so the basemesh
+    # matches exactly what it produced before this sub-feature existed.
+    try:
+        _disable_all_assets()
+        _set_props(randomize_details=False)
+        _disable_all_detail_sections()
+        _set_props(detail_nose_min=5, detail_nose_max=5)
+        mockself = _run(4321)
+        mockself.mock_report.assert_no_errors()
+        off_configured = _shape_key_names(_find_basemesh())
+        _delete_human()
+        _set_props(detail_nose_min=0, detail_nose_max=0)
+        _run(4321)
+        off_zero = _shape_key_names(_find_basemesh())
+        _delete_human()
+        assert off_configured == off_zero, "with detail randomization off, the section settings have no effect"
+    finally:
+        _restore_all_defaults()
+
+
+def test_details_enabled_adds_shape_keys():
+    try:
+        _disable_all_assets()
+        # Baseline: details off produces just the macro shape keys.
+        _set_props(randomize_details=False)
+        _run(4321)
+        baseline = _shape_key_names(_find_basemesh())
+        _delete_human()
+        # Details on, with a single section drawing a fixed number of categories.
+        _set_props(randomize_details=True)
+        _disable_all_detail_sections()
+        _set_props(detail_nose_min=3, detail_nose_max=3)
+        mockself = _run(4321)
+        mockself.mock_report.assert_no_errors()
+        with_details = _shape_key_names(_find_basemesh())
+        assert baseline <= with_details, "the macro shape keys are unchanged by detail randomization"
+        assert len(with_details) > len(baseline), "detail randomization adds shape keys to the basemesh"
+        assert any(name.startswith("nose-") for name in with_details - baseline), "the extra shape keys are nose detail targets"
+        _delete_human()
+    finally:
+        _restore_all_defaults()
+
+
+def test_details_same_seed_produces_same_shape_keys():
+    try:
+        _disable_all_assets()
+        _set_props(randomize_details=True)
+        _disable_all_detail_sections()
+        _set_props(detail_nose_min=2, detail_nose_max=4, detail_head_min=1, detail_head_max=2)
+        _run(2024)
+        first = _shape_key_values(_find_basemesh())
+        _delete_human()
+        _run(2024)
+        second = _shape_key_values(_find_basemesh())
+        _delete_human()
+        assert first == second, "the same seed produces the same detail shape keys and values"
+    finally:
+        _restore_all_defaults()
 
 
 def test_no_assets_and_no_rig_creates_only_basemesh():

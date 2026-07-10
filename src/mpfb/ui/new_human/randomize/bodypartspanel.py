@@ -18,7 +18,7 @@ class MPFB_PT_Randomize_Bodyparts_Panel(Abstract_Panel):
     bl_category = UiService.get_value("MODELCATEGORY")
     bl_options = {'DEFAULT_CLOSED'}
     bl_parent_id = "MPFB_PT_Randomize_Panel"
-    bl_order = 6
+    bl_order = 7
 
     def draw(self, context):
         _LOG.enter()
