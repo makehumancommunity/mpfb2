@@ -99,7 +99,7 @@ class JsonCall():
             return True
         if isinstance(val, float):
             return True
-        num_format = re.compile("^[\-]?[0-9][0-9]*\.?[0-9]+$")
+        num_format = re.compile(r"^[\-]?[0-9][0-9]*\.?[0-9]+$")
         isnumber = re.match(num_format, str(val))
         return isnumber
 

@@ -1,0 +1,11 @@
+{
+    "type": "enum",
+    "name": "batch_strategy",
+    "description": "How the generated characters are placed in the scene",
+    "label": "Placement",
+    "default": "GRID",
+    "items": [
+        ["GRID", "Grid", "Lay the characters out on a regular grid", 1],
+        ["RANDOM", "Random within area", "Scatter the characters at random positions within a rectangle", 2]
+    ]
+}

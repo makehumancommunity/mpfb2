@@ -109,6 +109,7 @@ These are not services per se but are imported alongside them:
 | `FaceService` | Facial animation targets: loading and interpolating viseme and ARKit face unit shape keys. |
 | `ExportService` | Character copy creation and modifier baking. |
 | `HairEditorService` | Convenience methods for the hair editor. |
+| `RandomizationService` | Pure, `bpy`-free randomization of phenotype macro values. Depends on `TargetService` for the neutral macro dict. |
 
 #### Aggregator services
 

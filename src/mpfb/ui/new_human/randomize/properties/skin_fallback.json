@@ -1,0 +1,7 @@
+{
+    "type": "boolean",
+    "name": "skin_fallback",
+    "description": "If no installed skin matches the phenotype filters, drop them one at a time (age, then race, then gender) until something matches. The pack and keyword filters are never relaxed",
+    "label": "Relax filters if nothing matches",
+    "default": true
+}

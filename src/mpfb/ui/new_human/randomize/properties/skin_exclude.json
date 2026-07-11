@@ -1,0 +1,7 @@
+{
+    "type": "string",
+    "name": "skin_exclude",
+    "description": "Never pick skins whose name contains any of these comma-separated keywords. Defaults to excluding the painted-on clothing textures in the system pack",
+    "label": "Name must not contain",
+    "default": "special_suit"
+}

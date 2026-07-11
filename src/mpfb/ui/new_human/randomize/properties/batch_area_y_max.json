@@ -1,0 +1,7 @@
+{
+    "type": "float",
+    "name": "batch_area_y_max",
+    "description": "The upper Y bound of the rectangle characters are scattered within (random placement)",
+    "label": "Y max",
+    "default": 5.0
+}

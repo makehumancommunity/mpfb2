@@ -1,0 +1,7 @@
+{
+    "type": "boolean",
+    "name": "hair_randomize_alt_materials",
+    "description": "Pick a random hair color from the hair asset's alternative materials",
+    "label": "Randomize alternative materials",
+    "default": false
+}

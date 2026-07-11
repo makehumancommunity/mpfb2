@@ -1,0 +1,9 @@
+{
+    "type": "float",
+    "name": "batch_spacing_x",
+    "description": "The distance in blender units between characters along the X axis of a grid row",
+    "label": "X spacing",
+    "default": 1.0,
+    "min": 0.0,
+    "max": 1000.0
+}

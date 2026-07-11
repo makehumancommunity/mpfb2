@@ -1,0 +1,7 @@
+{
+    "type": "boolean",
+    "name": "details_symmetry",
+    "description": "Apply the same value to both sides of a left/right detail category. When off, the two sides are randomized independently",
+    "label": "Symmetry",
+    "default": true
+}

@@ -1,0 +1,7 @@
+{
+    "type": "boolean",
+    "name": "add_subdiv_modifier",
+    "description": "Add a subdivision surface modifier to the character. The viewport level is kept at 0 (so the viewport stays responsive) while the render level is set below",
+    "label": "Add subdivision modifier",
+    "default": true
+}

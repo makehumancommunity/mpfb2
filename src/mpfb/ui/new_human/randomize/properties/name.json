@@ -1,0 +1,7 @@
+{
+    "type": "string",
+    "name": "name",
+    "description": "Name of the randomization preset to save",
+    "label": "Save file name",
+    "default": ""
+}

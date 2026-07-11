@@ -1,0 +1,13 @@
+{
+    "type": "enum",
+    "name": "distribution",
+    "description": "The probability distribution used when drawing values around the neutral value. This choice applies to all randomized attributes",
+    "label": "Distribution",
+    "default": "bell",
+    "items": [
+        ["flat", "Flat", "Uniform: every value in the deviation range is equally likely", 1],
+        ["bell", "Bell", "Normal distribution: values near the neutral value are more likely", 2],
+        ["pyramid", "Pyramid", "Triangular distribution: a softer bias towards the neutral value", 3],
+        ["peak", "Peak", "Laplace distribution: a strong bias towards the neutral value", 4]
+    ]
+}

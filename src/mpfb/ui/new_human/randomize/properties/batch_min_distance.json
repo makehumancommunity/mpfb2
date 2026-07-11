@@ -1,0 +1,9 @@
+{
+    "type": "float",
+    "name": "batch_min_distance",
+    "description": "The minimum distance in blender units between scattered characters. Set to 0 to allow any overlap (random placement only)",
+    "label": "Minimum distance",
+    "default": 0.0,
+    "min": 0.0,
+    "max": 1000.0
+}

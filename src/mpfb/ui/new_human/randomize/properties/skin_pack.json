@@ -1,0 +1,7 @@
+{
+    "type": "string",
+    "name": "skin_pack",
+    "description": "Only pick skins belonging to an asset pack whose name contains this string. Leave empty to allow all packs",
+    "label": "Asset pack name filter",
+    "default": ""
+}

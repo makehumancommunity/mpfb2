@@ -134,6 +134,11 @@ documented appear with plain text class names.
 | `presets/makeuppresets/operators/loadpresets.py` | `mpfb.load_makeup_presets` | "Load presets" | [MPFB_OT_Load_Makeup_Presets_Operator](presets/makeuppresets.md) | `generic_makeup_presets` |
 | `presets/makeuppresets/operators/overwritepresets.py` | `mpfb.overwrite_makeup_presets` | "Overwrite presets" | [MPFB_OT_Overwrite_Makeup_Presets_Operator](presets/makeuppresets.md) | `generic_makeup_presets` |
 | `presets/makeuppresets/operators/savenewpresets.py` | `mpfb.save_new_makeup_presets` | "Save new presets" | [MPFB_OT_Save_New_Makeup_Presets_Operator](presets/makeuppresets.md) | `generic_makeup_presets` |
+| `randomize/operators/createrandomhuman.py` | `mpfb.create_random_human` | "Create random human" | [MPFB_OT_Create_Random_Human_Operator](randomize/randomize.md) | `MpfbOperator` |
+| `randomize/operators/loadpreset.py` | `mpfb.randomize_load_preset` | "Load selected preset" | [MPFB_OT_Randomize_Load_Preset_Operator](randomize/randomize.md) | `MpfbOperator` |
+| `randomize/operators/overwritepreset.py` | `mpfb.randomize_overwrite_preset` | "Overwrite selected preset" | [MPFB_OT_Randomize_Overwrite_Preset_Operator](randomize/randomize.md) | `MpfbOperator` |
+| `randomize/operators/savenewpreset.py` | `mpfb.randomize_save_new_preset` | "Save new preset" | [MPFB_OT_Randomize_Save_New_Preset_Operator](randomize/randomize.md) | `MpfbOperator` |
+| `rigging/addcycle/operators/loadcycle.py` | `mpfb.load_walk_cycle` | "Load walk cycle" | [MPFB_OT_Load_Walk_Cycle_Operator](rigging/addcycle.md) | `MpfbOperator` |
 | `rigging/customrig/operators/addcustomrig.py` | `mpfb.add_custom_rig` | "Add custom rig" | [MPFB_OT_Add_Custom_Rig_Operator](rigging/customrig.md) | `MpfbOperator` |
 | `rigging/rigifyrig/operators/addrigifyrig.py` | `mpfb.add_rigify_rig` | "Add rigify rig" | [MPFB_OT_AddRigifyRigOperator](rigging/rigifyrig.md) | `MpfbOperator` |
 | `rigging/standardrig/operators/addstandardrig.py` | `mpfb.add_standard_rig` | "Add standard rig" | [MPFB_OT_AddStandardRigOperator](rigging/standardrig.md) | `MpfbOperator` |

@@ -1,0 +1,7 @@
+{
+    "type": "boolean",
+    "name": "batch_random_rotation",
+    "description": "Give each character a random rotation around the vertical axis. When off, all characters face the same way",
+    "label": "Random rotation",
+    "default": true
+}

@@ -1,0 +1,7 @@
+{
+    "type": "string",
+    "name": "skin_include",
+    "description": "Only pick skins whose name contains at least one of these comma-separated keywords. Leave empty to allow all names",
+    "label": "Name must contain",
+    "default": ""
+}

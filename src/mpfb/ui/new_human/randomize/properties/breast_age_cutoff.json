@@ -1,0 +1,9 @@
+{
+    "type": "float",
+    "name": "breast_age_cutoff",
+    "description": "Breasts (cup size and firmness) are only randomized and added when the age value is at or above this cutoff. Below it they are not added at all (from 0.34 and below the phenotype is dominated by baby/child macro targets, which have no cupsize or firmness mixins anyway)",
+    "label": "Age cutoff for breasts",
+    "default": 0.4,
+    "min": 0.3,
+    "max": 1.0
+}

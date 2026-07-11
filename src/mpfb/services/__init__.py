@@ -42,6 +42,9 @@ from .exportservice import ExportService
 from .clothesservice import ClothesService
 from .humanservice import HumanService
 
+# Will depend on a lot of stuff, makes sense to import last
+from .randomizationservice import RandomizationService
+
 SERVICES = {
     "AnimationService": AnimationService,
     "AssetService": AssetService,
@@ -57,6 +60,7 @@ SERVICES = {
     "NodeService": NodeService,
     "NodeTreeService": NodeTreeService,
     "ObjectService": ObjectService,
+    "RandomizationService": RandomizationService,
     "RigService": RigService,
     "SocketService": SocketService,
     "SystemService": SystemService,
@@ -88,6 +92,7 @@ __all__ = [
     "AnimationService",
     "ClothesService",
     "HumanService",
+    "RandomizationService",
     "ASSET_LIBRARY_SECTIONS",
     "SERVICES"
     ]
