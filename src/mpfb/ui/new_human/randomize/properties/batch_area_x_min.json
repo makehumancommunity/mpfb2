@@ -1,0 +1,7 @@
+{
+    "type": "float",
+    "name": "batch_area_x_min",
+    "description": "The lower X bound of the rectangle characters are scattered within (random placement)",
+    "label": "X min",
+    "default": -5.0
+}

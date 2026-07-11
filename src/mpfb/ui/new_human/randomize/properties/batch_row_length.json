@@ -1,0 +1,8 @@
+{
+    "type": "int",
+    "name": "batch_row_length",
+    "description": "How many characters are placed in a grid row before a new row is started",
+    "label": "Row length",
+    "default": 10,
+    "min": 1
+}

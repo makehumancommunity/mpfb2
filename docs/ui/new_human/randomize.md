@@ -42,6 +42,7 @@ The panel package is split so that each sub-panel is its own module and the shar
 | Module | Contents |
 |---|---|
 | `randomizeproperties.py` | The `RANDOMIZE_PROPERTIES` config set and all property generation, the constant attribute tables, the preset-list cache (`rebuild_preset_list`), the `scene_to_spec`/`spec_to_scene` translators and the draw helpers shared by the macrodetail and breast panels. The operators import the config set and the translators from here. |
+| `characterbuilder.py` | The shared per-character build logic used by both the single-character and the batch operator: `build_discovery_context()` (installed asset candidate lists, pack membership and the parsed `target.json`, discovered once) and `build_character()` (create the mesh, then apply details, rig, skin, body parts, clothes and Rigify generation in the fixed draw order). The single-character operator is a thin wrapper around it. |
 | `randomizepanel.py` | The container panel `MPFB_PT_Randomize_Panel` only. |
 | `presetspanel.py` | `MPFB_PT_Randomize_Presets_Panel` |
 | `generalpanel.py` | `MPFB_PT_Randomize_General_Panel` |
@@ -52,6 +53,7 @@ The panel package is split so that each sub-panel is its own module and the shar
 | `bodypartspanel.py` | `MPFB_PT_Randomize_Bodyparts_Panel` |
 | `clothespanel.py` | `MPFB_PT_Randomize_Clothes_Panel` |
 | `creationpanel.py` | `MPFB_PT_Randomize_Creation_Panel` |
+| `batchpanel.py` | `MPFB_PT_Randomize_Batch_Panel` |
 
 - **Presets** (`MPFB_PT_Randomize_Presets_Panel`, open) — the `available_presets` dropdown, **Load selected preset** and **Overwrite selected preset**
   operators, the `name` field and the **Save new preset** operator.
@@ -114,6 +116,22 @@ The panel package is split so that each sub-panel is its own module and the shar
   button. The rig drop-down mirrors the "From save file" panel's rig override (No rig, the built-in rigs, the two Rigify metarigs and the installed custom rigs)
   minus its "From preset" entry, and defaults to the **Default** rig so a fresh scene produces a rigged character out of the box. The rig is added right after
   the human is created (before the body parts) so the body parts are rigged as they attach.
+- **Batch** (`MPFB_PT_Randomize_Batch_Panel`, `bl_order` 10, collapsed) — generation of several
+  randomized characters in one go. Top to bottom: the `batch_count` (number of characters); the
+  `batch_strategy` drop-down (**Grid** / **Random within area**); then, depending on the strategy,
+  either the grid box (`batch_spacing_x`, `batch_row_length`, `batch_row_shift_y`) or the random
+  box (`batch_area_x_min` / `_x_max` / `_y_min` / `_y_max` and `batch_min_distance`); the
+  `batch_random_rotation` toggle; and the **Create random humans** operator button. The base seed
+  and **new random seed** are not duplicated here — they live on the General and Creation panels,
+  and the batch reads and advances the same `seed`. Each character is built by the same shared
+  logic as the single-character operator, from a per-character seed derived from the base seed and
+  the character index, so character *i* is identical for any batch size and reproducible from its
+  stamped seed. **Undo:** a batch is not a single undo step (a modal operator does not combine with
+  the UNDO flag); instead every character of a run is linked into a new **"Random humans"**
+  collection, so the whole batch can be hidden, selected or deleted in one outliner action — that
+  deletion is the practical undo. **Rigify warning:** with a `rigify.*` rig and auto-generation on,
+  Rigify is generated per character, which multiplies the batch time considerably — a large batch
+  with Rigify can take minutes.
 
 ## Operators
 
@@ -125,7 +143,11 @@ The panel package is split so that each sub-panel is its own module and the shar
 | `bl_label` | "Create random human" |
 | `bl_options` | `{'REGISTER', 'UNDO'}` |
 
-Creates a new basemesh with a randomized phenotype.
+Creates a new basemesh with a randomized phenotype. The operator itself is a thin wrapper: it
+builds the spec, resolves the seed and draws the phenotype, then hands off to
+`characterbuilder.build_character()`, which performs steps 4–12 (the same shared logic the batch
+operator uses). Asset discovery (steps 9–11) is done once per invocation by
+`characterbuilder.build_discovery_context()`.
 
 1. Builds a randomization spec from the panel properties.
 2. Reads `seed`; if it is 0 a fresh seed is drawn. A `random.Random` is seeded with the resolved value. After a successful creation, if `new_random_seed` is on
@@ -164,6 +186,50 @@ Creates a new basemesh with a randomized phenotype.
 12. If a `rigify.*` rig was added and `auto_generate_rigify` is on, generates the full Rigify rig from the meta rig with `RigService.generate_rigify_rig(rig,
     meta_rig_action=...)` **after** all body parts and clothes are attached, so their weights and subrigs exist. Mirrors the "From save file" operator's
     warnings (invalid metarig, or the addon not enabled at this stage).
+
+---
+
+### MPFB_OT_Create_Random_Human_Batch_Operator
+
+| Attribute | Value |
+|---|---|
+| `bl_idname` | `mpfb.create_random_human_batch` |
+| `bl_label` | "Create random humans" |
+| `bl_options` | `{'REGISTER'}` (no UNDO) |
+
+Generates `batch_count` randomized characters in one go, each built by the same
+`characterbuilder.build_character()` as the single-character operator.
+
+- **Execution model.** Interactively it runs **modally**: it registers a window timer and
+  generates exactly one character per TIMER event, so between characters Blender processes its
+  event loop, the viewport shows the crowd growing, a progress cursor and status text advance
+  (`Generating character N/M — ESC to cancel`) and **ESC** cancels. In background mode (no window /
+  event loop, e.g. under `blender --background` and in the tests) the same per-character loop runs
+  synchronously in `execute()`.
+- **Up-front derivation.** On start it validates (Rigify availability, count ≥ 1), builds the
+  spec, resolves the base `seed` (drawing a fresh one when 0), and derives the per-character seeds
+  (`RandomizationService.derive_character_seeds`) and placements
+  (`RandomizationService.compute_batch_placements`) once, from **separate** rng streams. It also
+  builds the asset discovery context once and creates the batch collection. Because derivation is
+  up front, a character that fails to build does not shift the seeds or placements of the rest.
+- **Per character.** It asserts object mode, builds the character from its own
+  `random.Random(seed)`, stamps the seed on the basemesh as the `mpfb_randomization_seed` custom
+  property, links the whole object hierarchy into the batch collection, and places the topmost
+  parent (the armature when rigged, else the basemesh) at the computed X/Y with the Z rotation
+  (feet stay on the ground). A character that raises mid-build is deleted (its partial objects
+  removed) and skipped with a WARNING; the batch continues.
+- **Placement.** **Grid** lays characters along X at `batch_spacing_x`, wrapping to a new row every
+  `batch_row_length` characters shifted by `batch_row_shift_y`. **Random within area** scatters
+  them uniformly within the `batch_area_*` rectangle; a nonzero `batch_min_distance` retries a
+  position up to 25 times to honor the spacing, then accepts an overlap and warns. `batch_random_rotation`
+  gives each character a random rotation around Z under either strategy.
+- **Collection = undo.** Every generated object of a run is linked into a new **"Random humans"**
+  collection (Blender de-duplicates the name across runs). A modal operator cannot be a single
+  clean undo step, so deleting this collection is the documented way to remove a batch.
+- **Finish.** On every exit path (completion, cancel or error) the timer is removed and the
+  progress cursor and status text are cleared, so they are never left stuck. A final INFO report
+  summarizes the generated count, the skipped count and the collection name, and — as with the
+  single-character operator — `new_random_seed` advances the `seed` field after the batch.
 
 ---
 
@@ -257,6 +323,15 @@ The panel loads its global and creation settings from `src/mpfb/ui/new_human/ran
 | `randomize_details` | boolean | `true` | Apply randomized detail (non-macro) shape targets to the created human. When off, no detail targets are applied and no detail draw happens. |
 | `details_symmetry` | boolean | `true` | Give a left/right detail category the same value on both sides. When off, the two sides are randomized independently. |
 | `name` | string | `""` | Name used when saving a new preset. |
+| `batch_count` | int | `10` | Number of characters the batch operator generates in one run. |
+| `batch_strategy` | enum | `"GRID"` | How the batch places characters. Options: `GRID` (regular grid), `RANDOM` (scattered within a rectangle). |
+| `batch_spacing_x` | float | `1.0` | Grid: distance between characters along a row. |
+| `batch_row_length` | int | `10` | Grid: characters per row before a new row starts. |
+| `batch_row_shift_y` | float | `1.0` | Grid: Y shift applied to each new row. |
+| `batch_area_x_min` / `batch_area_x_max` | float | `-5.0` / `5.0` | Random: the X bounds of the scatter rectangle. |
+| `batch_area_y_min` / `batch_area_y_max` | float | `-5.0` / `5.0` | Random: the Y bounds of the scatter rectangle. |
+| `batch_min_distance` | float | `0.0` | Random: minimum spacing between scattered characters. `0` allows any overlap; a nonzero value retries a position up to 25 times, then accepts an overlap and warns. |
+| `batch_random_rotation` | boolean | `true` | Give each character a random rotation around Z. When off, all characters face the same way. |
 
 ### Dynamic properties (defined in code, not JSON)
 

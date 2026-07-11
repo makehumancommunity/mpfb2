@@ -31,7 +31,7 @@ _LOG = LogService.get_logger("services.randomizationservice")
 
 # The current version of the randomization spec / preset format. Bump this if the format
 # changes in a way that older presets need migrating.
-_SPEC_VERSION: int = 6
+_SPEC_VERSION: int = 7
 
 # Built-in neutral and deviation used when nothing else is specified for an attribute.
 _DEFAULT_NEUTRAL: float = 0.5
@@ -222,6 +222,32 @@ _DEFAULT_DETAIL_DEVIATION: float = 0.5
 # land near zero and be invisible). The sign is a separate 50/50 draw. The global distribution
 # setting deliberately does not apply to detail values.
 _DETAIL_MAGNITUDE_FLOOR_FACTOR: float = 0.25
+
+# The default "batch" section. Unlike the other sections it carries no "enabled" key: batch
+# generation only runs when its own operator is invoked, so there is nothing to gate, and a
+# preset without the section loads these defaults rather than a disabled state. The defaults
+# lay 10 characters out on a grid one blender unit apart, ten to a row, with a random rotation
+# around Z (the crowd-scattering use case). The random-area settings only take effect when the
+# strategy is switched to RANDOM.
+_DEFAULT_BATCH: dict = {
+    "count": 10,
+    "strategy": "GRID",
+    "spacing_x": 1.0,
+    "row_length": 10,
+    "row_shift_y": 1.0,
+    "x_min": -5.0,
+    "x_max": 5.0,
+    "y_min": -5.0,
+    "y_max": 5.0,
+    "min_distance": 0.0,
+    "random_rotation": True
+    }
+
+# The bounded rejection-sampling cap for the RANDOM strategy's minimum-distance constraint. A
+# position landing closer than the minimum to an already-placed character is redrawn up to this
+# many times; after that the overlap is accepted (and flagged so the operator can warn). This
+# keeps an impossible constraint (a tiny area with a large minimum distance) from looping forever.
+_BATCH_PLACEMENT_RETRY_CAP: int = 25
 
 
 class RandomizationService:
@@ -579,6 +605,20 @@ class RandomizationService:
         return {"enabled": True, "symmetry": True, "sections": sections}
 
     @staticmethod
+    def get_default_batch_spec() -> dict:
+        """
+        Get a fresh copy of the default "batch" section.
+
+        The section holds the character count, the placement strategy and the grid and
+        random-area settings. It has no "enabled" key: batch generation only runs when its
+        own operator is invoked (see the module comment on _DEFAULT_BATCH).
+
+        Returns:
+            dict: A fresh "batch" section dict.
+        """
+        return dict(_DEFAULT_BATCH)
+
+    @staticmethod
     def skin_gender_label(macro: dict) -> str:
         """
         Get the gender label used when matching a skin asset against the randomized gender.
@@ -887,6 +927,70 @@ class RandomizationService:
         return stack
 
     @staticmethod
+    def derive_character_seeds(base_seed: int, count: int) -> list[int]:
+        """
+        Derive one per-character seed for each character in a batch.
+
+        A master random.Random(base_seed) draws one seed per character, in order. The seed for
+        character i therefore depends only on the base seed and i, not on the batch size: the
+        same base seed gives character i the same seed whether the batch is 5 or 50 characters,
+        and a character built from its own seed reproduces exactly (the single-character
+        operator run with that seed produces the same human). Placement is drawn from a separate
+        stream (see compute_batch_placements), so toggling placement never shifts a character.
+
+        Args:
+            base_seed (int): The batch's base seed.
+            count (int): The number of characters in the batch.
+
+        Returns:
+            list: The per-character seeds, one per character, in character order.
+        """
+        master = random.Random(base_seed)
+        return [master.randint(1, 2 ** 31 - 1) for _ in range(count)]
+
+    @staticmethod
+    def compute_batch_placements(batch_spec: dict, count: int, rng: random.Random) -> list[dict]:
+        """
+        Compute the scene placement for each character in a batch.
+
+        The draw order per character is fixed: position first (for the RANDOM strategy, plus any
+        minimum-distance retries), then the rotation. The GRID strategy computes its positions
+        from the spacing / row length / row shift and consumes no draws for them; the rotation is
+        still drawn when random rotation is enabled. Only X and Y are placed (characters stay
+        feet-on-ground at z=0); the rotation is around Z.
+
+        For the RANDOM strategy a nonzero minimum distance triggers bounded rejection sampling: a
+        position landing closer than the minimum to an already-placed character is redrawn up to
+        _BATCH_PLACEMENT_RETRY_CAP times, then accepted with the "overlap" flag set so the caller
+        can warn.
+
+        Args:
+            batch_spec (dict): The "batch" section (strategy, spacings, area, minimum distance,
+                random rotation).
+            count (int): The number of characters to place.
+            rng (random.Random): The placement rng (kept separate from the per-character seeds).
+
+        Returns:
+            list: One dict per character, {"location": (x, y, 0.0), "rotation_z": float,
+            "overlap": bool}, in character order.
+        """
+        strategy = batch_spec.get("strategy", "GRID")
+        random_rotation = batch_spec.get("random_rotation", True)
+
+        placements: list[dict] = []
+        placed_xy: list[tuple[float, float]] = []
+        for index in range(count):
+            if strategy == "RANDOM":
+                location, overlap = _draw_random_position(batch_spec, placed_xy, rng)
+            else:
+                location, overlap = _grid_position(batch_spec, index), False
+            placed_xy.append((location[0], location[1]))
+
+            rotation_z = rng.uniform(0.0, 2.0 * math.pi) if random_rotation else 0.0
+            placements.append({"location": location, "rotation_z": rotation_z, "overlap": overlap})
+        return placements
+
+    @staticmethod
     def serialize_spec_to_json_string(spec: dict) -> str:
         """Serialize a randomization spec to a JSON string."""
         return json.dumps(spec, indent=4, sort_keys=True)
@@ -955,6 +1059,61 @@ def _filter_allowed(allowed: list[str] | None, valid_keys: dict[str, float] | li
     if allowed is None:
         return list(valid_keys)
     return [name for name in allowed if name in valid_keys]
+
+
+def _grid_position(batch_spec: dict, index: int) -> tuple[float, float, float]:
+    """Compute the grid position for the character at the given index (consumes no draws).
+
+    Characters fill a row along X at a fixed spacing; once a row reaches the configured length
+    the next character starts a new row, shifted along Y. Row length is clamped to at least 1 so
+    a zero or negative setting cannot cause a division error.
+    """
+    spacing_x = float(batch_spec.get("spacing_x", _DEFAULT_BATCH["spacing_x"]))
+    row_shift_y = float(batch_spec.get("row_shift_y", _DEFAULT_BATCH["row_shift_y"]))
+    row_length = max(1, int(batch_spec.get("row_length", _DEFAULT_BATCH["row_length"])))
+    column = index % row_length
+    row = index // row_length
+    return (column * spacing_x, row * row_shift_y, 0.0)
+
+
+def _draw_random_position(batch_spec: dict, placed_xy: list[tuple[float, float]],
+                          rng: random.Random) -> tuple[tuple[float, float, float], bool]:
+    """Draw a random position within the configured rectangle, honoring the minimum distance.
+
+    A first position is always drawn. When a minimum distance is set, the position is redrawn up
+    to _BATCH_PLACEMENT_RETRY_CAP times while it lands closer than the minimum to an already
+    placed character; if no acceptable position is found within the cap the last one is kept and
+    the overlap flag is returned True. Returns the (x, y, 0.0) tuple and the overlap flag.
+    """
+    x_min = float(batch_spec.get("x_min", _DEFAULT_BATCH["x_min"]))
+    x_max = float(batch_spec.get("x_max", _DEFAULT_BATCH["x_max"]))
+    y_min = float(batch_spec.get("y_min", _DEFAULT_BATCH["y_min"]))
+    y_max = float(batch_spec.get("y_max", _DEFAULT_BATCH["y_max"]))
+    min_distance = float(batch_spec.get("min_distance", 0.0))
+
+    x = rng.uniform(x_min, x_max)
+    y = rng.uniform(y_min, y_max)
+    overlap = False
+    if min_distance > 0.0 and placed_xy:
+        overlap = not _min_distance_ok(x, y, placed_xy, min_distance)
+        for _ in range(_BATCH_PLACEMENT_RETRY_CAP):
+            if not overlap:
+                break
+            x = rng.uniform(x_min, x_max)
+            y = rng.uniform(y_min, y_max)
+            overlap = not _min_distance_ok(x, y, placed_xy, min_distance)
+    return (x, y, 0.0), overlap
+
+
+def _min_distance_ok(x: float, y: float, placed_xy: list[tuple[float, float]], min_distance: float) -> bool:
+    """Return True when (x, y) is at least min_distance from every already-placed position."""
+    min_distance_sq = min_distance * min_distance
+    for placed_x, placed_y in placed_xy:
+        dx = x - placed_x
+        dy = y - placed_y
+        if dx * dx + dy * dy < min_distance_sq:
+            return False
+    return True
 
 
 def _default_clothes_slot(slot: str) -> dict:

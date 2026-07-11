@@ -515,6 +515,23 @@ def scene_to_spec(scene: "bpy.types.Scene") -> dict:
         "symmetry": RANDOMIZE_PROPERTIES.get_value("details_symmetry", entity_reference=scene),
         "sections": detail_sections
         }
+
+    # The batch section holds the character count, the placement strategy and both the grid and
+    # random-area settings. Unlike the other sections it has no "enabled" key: batch generation
+    # only runs when its operator is invoked, so there is nothing to gate.
+    spec["batch"] = {
+        "count": RANDOMIZE_PROPERTIES.get_value("batch_count", entity_reference=scene),
+        "strategy": RANDOMIZE_PROPERTIES.get_value("batch_strategy", entity_reference=scene),
+        "spacing_x": RANDOMIZE_PROPERTIES.get_value("batch_spacing_x", entity_reference=scene),
+        "row_length": RANDOMIZE_PROPERTIES.get_value("batch_row_length", entity_reference=scene),
+        "row_shift_y": RANDOMIZE_PROPERTIES.get_value("batch_row_shift_y", entity_reference=scene),
+        "x_min": RANDOMIZE_PROPERTIES.get_value("batch_area_x_min", entity_reference=scene),
+        "x_max": RANDOMIZE_PROPERTIES.get_value("batch_area_x_max", entity_reference=scene),
+        "y_min": RANDOMIZE_PROPERTIES.get_value("batch_area_y_min", entity_reference=scene),
+        "y_max": RANDOMIZE_PROPERTIES.get_value("batch_area_y_max", entity_reference=scene),
+        "min_distance": RANDOMIZE_PROPERTIES.get_value("batch_min_distance", entity_reference=scene),
+        "random_rotation": RANDOMIZE_PROPERTIES.get_value("batch_random_rotation", entity_reference=scene)
+        }
     return spec
 
 
@@ -660,6 +677,24 @@ def spec_to_scene(spec: dict, scene: "bpy.types.Scene") -> None:
         RANDOMIZE_PROPERTIES.set_value(prefix + "include", include, entity_reference=scene)
         RANDOMIZE_PROPERTIES.set_value(prefix + "exclude", exclude, entity_reference=scene)
         RANDOMIZE_PROPERTIES.set_value(prefix + "deviation", deviation, entity_reference=scene)
+
+    # The batch section. Unlike the other sections a missing "batch" key does not mean "disabled":
+    # batch generation only runs when its operator is invoked, so a preset written before this
+    # section existed (version 6 or older) simply loads the batch defaults. Each field falls back
+    # to its built-in default individually.
+    default_batch = RandomizationService.get_default_batch_spec()
+    batch = spec.get("batch") or {}
+    RANDOMIZE_PROPERTIES.set_value("batch_count", batch.get("count", default_batch["count"]), entity_reference=scene)
+    RANDOMIZE_PROPERTIES.set_value("batch_strategy", batch.get("strategy", default_batch["strategy"]), entity_reference=scene)
+    RANDOMIZE_PROPERTIES.set_value("batch_spacing_x", batch.get("spacing_x", default_batch["spacing_x"]), entity_reference=scene)
+    RANDOMIZE_PROPERTIES.set_value("batch_row_length", batch.get("row_length", default_batch["row_length"]), entity_reference=scene)
+    RANDOMIZE_PROPERTIES.set_value("batch_row_shift_y", batch.get("row_shift_y", default_batch["row_shift_y"]), entity_reference=scene)
+    RANDOMIZE_PROPERTIES.set_value("batch_area_x_min", batch.get("x_min", default_batch["x_min"]), entity_reference=scene)
+    RANDOMIZE_PROPERTIES.set_value("batch_area_x_max", batch.get("x_max", default_batch["x_max"]), entity_reference=scene)
+    RANDOMIZE_PROPERTIES.set_value("batch_area_y_min", batch.get("y_min", default_batch["y_min"]), entity_reference=scene)
+    RANDOMIZE_PROPERTIES.set_value("batch_area_y_max", batch.get("y_max", default_batch["y_max"]), entity_reference=scene)
+    RANDOMIZE_PROPERTIES.set_value("batch_min_distance", batch.get("min_distance", default_batch["min_distance"]), entity_reference=scene)
+    RANDOMIZE_PROPERTIES.set_value("batch_random_rotation", batch.get("random_rotation", default_batch["random_rotation"]), entity_reference=scene)
 
 
 # The scalar attributes which have a discrete mode, mapped to the scene property toggling it.
@@ -828,3 +863,36 @@ def draw_details(scene: "bpy.types.Scene", layout: "bpy.types.UILayout") -> None
         prefix + "deviation"
         ])
     layout.operator("mpfb.randomize_detail_apply_all")
+
+
+def draw_batch(scene: "bpy.types.Scene", layout: "bpy.types.UILayout") -> None:
+    """Draw the batch panel: the count, the placement strategy, the strategy-specific settings,
+    the random-rotation toggle and the create button.
+
+    Only the settings relevant to the chosen strategy are shown: the grid spacing / row settings
+    for GRID, and the area bounds plus minimum distance for RANDOM. The base seed and "new random
+    seed" are not duplicated here; they live on the general and creation sub-panels.
+    """
+    RANDOMIZE_PROPERTIES.draw_properties(scene, layout, ["batch_count", "batch_strategy"])
+
+    strategy = RANDOMIZE_PROPERTIES.get_value("batch_strategy", entity_reference=scene)
+    box = layout.box()
+    if strategy == "RANDOM":
+        box.label(text="Random area")
+        RANDOMIZE_PROPERTIES.draw_properties(scene, box, [
+            "batch_area_x_min",
+            "batch_area_x_max",
+            "batch_area_y_min",
+            "batch_area_y_max",
+            "batch_min_distance"
+            ])
+    else:
+        box.label(text="Grid")
+        RANDOMIZE_PROPERTIES.draw_properties(scene, box, [
+            "batch_spacing_x",
+            "batch_row_length",
+            "batch_row_shift_y"
+            ])
+
+    RANDOMIZE_PROPERTIES.draw_properties(scene, layout, ["batch_random_rotation"])
+    layout.operator("mpfb.create_random_human_batch")

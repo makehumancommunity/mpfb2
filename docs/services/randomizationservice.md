@@ -22,7 +22,7 @@ sub-features can add sibling sections without breaking older presets:
 
 ```python
 {
-  "version": 6,
+  "version": 7,
   "phenotype": {
     "distribution": "bell",        # flat | bell | pyramid | peak
     "discrete_race": False,        # pick exactly one race vs normalized weights
@@ -98,11 +98,22 @@ sub-features can add sibling sections without breaking older presets:
       }
       # ...the other 20 sections have the same shape; breast and genitals default to min=max=0...
     }
+  },
+  "batch": {                         # settings for generating several characters in one go
+    "count": 10,                     # how many characters to generate
+    "strategy": "GRID",              # GRID | RANDOM (random within a rectangle)
+    "spacing_x": 1.0,                # GRID: distance between characters along a row
+    "row_length": 10,                # GRID: characters per row before a new row starts
+    "row_shift_y": 1.0,              # GRID: Y shift per new row
+    "x_min": -5.0, "x_max": 5.0,     # RANDOM: the X bounds of the scatter rectangle
+    "y_min": -5.0, "y_max": 5.0,     # RANDOM: the Y bounds of the scatter rectangle
+    "min_distance": 0.0,             # RANDOM: minimum spacing (0 = allow overlap)
+    "random_rotation": True          # give each character a random rotation around Z
   }
 }
 ```
 
-The spec format version is currently **6**. A preset written before a section existed is
+The spec format version is currently **7**. A preset written before a section existed is
 preserved untouched on load and that concern is then treated as **disabled**: a version-1
 preset (no `assets`) loads with skin and every bodypart disabled; a version-2 preset (skin
 only) loads with every bodypart disabled and no eyes; a version-3 preset (no `assets.clothes`)
@@ -112,6 +123,10 @@ detail randomization disabled; a preset without a `creation.rig` key loads with 
 A **missing bodypart subsection means that type is disabled** (for eyes, not added); likewise a
 **missing `assets.clothes` section, or a missing slot subsection, means that slot is disabled**,
 and a **missing `details.sections` entry means that detail section is disabled** (min=max=0).
+The `batch` section (added in version 7) is the one documented deviation from "missing means
+disabled": batch generation only runs when its own operator is invoked, so there is nothing to
+gate, and a version-6-or-older preset (no `batch`) instead loads the **batch defaults** (a single
+grid of 10 characters).
 The shared `assets.asset_material_type` applies to every attached bodypart and garment except
 the eyes, which carry their own `material_type`.
 
@@ -221,6 +236,18 @@ pattern used by the asset picks.
 | `section_names` | `list` | — | The `target.json` section names to configure (minus `measure`). |
 
 **Returns:** `dict` — A fresh `details` section dict (`enabled`, `symmetry`, `sections`).
+
+---
+
+#### get_default_batch_spec()
+
+Get a fresh copy of the default `batch` section (`count`, `strategy`, the grid spacings and the
+random-area bounds, `min_distance` and `random_rotation`). Unlike the other sections it carries
+no `enabled` key: batch generation only runs when its operator is invoked, so a preset without
+the section loads these defaults rather than a disabled state. Used by the UI to reset the batch
+controls and by the batch operator as its fallback when a section is missing.
+
+**Returns:** `dict` — A fresh `batch` section dict.
 
 ---
 
@@ -487,6 +514,52 @@ dict order or an unsorted category list would silently break seed reproducibilit
 | `rng` | `random.Random` | — | The random generator instance to draw from. |
 
 **Returns:** `list` — A flat list of `{"target": name, "value": float}` dicts, empty when disabled.
+
+---
+
+### Batch randomization
+
+These two pure helpers drive the batch operator. They keep the same purity contract as the rest
+of the service (no `bpy`, caller-supplied data and rng) so batch layout is unit-testable.
+
+#### derive_character_seeds(base_seed, count)
+
+Derive one per-character seed for each character in a batch. A master `random.Random(base_seed)`
+draws one seed per character, in order, so the seed for character *i* depends only on the base
+seed and *i* — the same base seed gives character *i* the same seed whether the batch is 5 or 50
+characters, and a character built from its own seed reproduces exactly (the single-character
+operator run with that seed produces the same human). Placement is drawn from a **separate**
+stream (see `compute_batch_placements`), so toggling placement never shifts a character.
+
+| Argument | Type | Default | Description |
+|----------|------|---------|-------------|
+| `base_seed` | `int` | — | The batch's base seed. |
+| `count` | `int` | — | The number of characters in the batch. |
+
+**Returns:** `list` — The per-character seeds, one per character, in character order.
+
+---
+
+#### compute_batch_placements(batch_spec, count, rng)
+
+Compute the scene placement for each character. The draw order per character is fixed: position
+first (for the RANDOM strategy, plus any minimum-distance retries), then the rotation. The GRID
+strategy computes its positions from the spacing / row length / row shift and consumes **no**
+draws for them; the rotation is still drawn when `random_rotation` is on. Only X and Y are placed
+(characters stay feet-on-ground at z=0); the rotation is around Z.
+
+For the RANDOM strategy a nonzero `min_distance` triggers bounded rejection sampling: a position
+landing closer than the minimum to an already-placed character is redrawn up to a fixed cap (25),
+then accepted with the `overlap` flag set so the caller can warn. This keeps an impossible
+constraint (a tiny area with a large minimum distance) from looping forever.
+
+| Argument | Type | Default | Description |
+|----------|------|---------|-------------|
+| `batch_spec` | `dict` | — | The `batch` section (strategy, spacings, area, minimum distance, rotation). |
+| `count` | `int` | — | The number of characters to place. |
+| `rng` | `random.Random` | — | The placement rng (kept separate from the per-character seeds). |
+
+**Returns:** `list` — One `{"location": (x, y, 0.0), "rotation_z": float, "overlap": bool}` dict per character, in character order.
 
 ---
 

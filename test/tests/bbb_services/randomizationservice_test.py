@@ -16,7 +16,7 @@ def test_randomizationservice_exists():
 
 def test_default_spec_shape():
     spec = _spec()
-    assert spec["version"] == 6, "The default spec has a version"
+    assert spec["version"] == 7, "The default spec has a version"
     phenotype = spec["phenotype"]
     assert phenotype["distribution"] == "bell", "The default distribution is bell"
     assert phenotype["discrete_race"] is False
@@ -1126,3 +1126,129 @@ def test_detail_unknown_sibling_section_survives():
     restored = RandomizationService.deserialize_spec_from_json_string(RandomizationService.serialize_spec_to_json_string(spec))
     assert restored["batch"] == {"count": 5}, "an unrecognized sibling section is preserved"
     assert restored["details"]["sections"]["arms"]["max"] == 3
+
+
+# --- Batch randomization ----------------------------------------------------------------------
+
+
+def _grid_spec(**overrides):
+    """A batch spec on the GRID strategy for a test to mutate."""
+    spec = RandomizationService.get_default_batch_spec()
+    spec.update(overrides)
+    return spec
+
+
+def test_default_batch_spec_shape():
+    spec = RandomizationService.get_default_batch_spec()
+    assert spec["count"] == 10, "the default batch generates 10 characters"
+    assert spec["strategy"] == "GRID", "the default strategy is grid"
+    assert spec["random_rotation"] is True, "random rotation is on by default"
+    assert spec["min_distance"] == 0.0, "the minimum distance is off by default"
+    assert "enabled" not in spec, "the batch section has no enabled key"
+    # A fresh copy is returned every time, so a caller cannot mutate the shared default.
+    spec["count"] = 99
+    assert RandomizationService.get_default_batch_spec()["count"] == 10
+
+
+def test_derive_character_seeds_is_stable_and_index_independent_of_count():
+    seeds_5 = RandomizationService.derive_character_seeds(1234, 5)
+    seeds_50 = RandomizationService.derive_character_seeds(1234, 50)
+    assert len(seeds_5) == 5 and len(seeds_50) == 50
+    assert seeds_5 == seeds_50[:5], "character i's seed is the same whether the batch is 5 or 50"
+    assert seeds_5 == RandomizationService.derive_character_seeds(1234, 5), "the derivation is stable across calls"
+    assert all(isinstance(seed, int) for seed in seeds_5)
+
+
+def test_derive_character_seeds_differs_per_base_seed():
+    assert RandomizationService.derive_character_seeds(1, 5) != RandomizationService.derive_character_seeds(2, 5)
+
+
+def test_grid_placement_positions_follow_spacing_and_row_length():
+    spec = _grid_spec(spacing_x=2.0, row_length=3, row_shift_y=5.0, random_rotation=False)
+    placements = RandomizationService.compute_batch_placements(spec, 7, random.Random(0))
+    locations = [placement["location"] for placement in placements]
+    assert locations[0] == (0.0, 0.0, 0.0)
+    assert locations[1] == (2.0, 0.0, 0.0), "characters step along X by the spacing"
+    assert locations[2] == (4.0, 0.0, 0.0)
+    assert locations[3] == (0.0, 5.0, 0.0), "the fourth character wraps to a new row shifted in Y"
+    assert locations[6] == (0.0, 10.0, 0.0), "the seventh character starts the third row"
+    assert all(location[2] == 0.0 for location in locations), "characters stay at z=0"
+
+
+def test_grid_placement_consumes_no_position_draws():
+    spec = _grid_spec(random_rotation=False)
+    rng = random.Random(42)
+    RandomizationService.compute_batch_placements(spec, 5, rng)
+    assert rng.random() == random.Random(42).random(), "grid positions consume no draws when rotation is off"
+
+
+def test_rotation_drawn_only_when_enabled_under_both_strategies():
+    for strategy in ["GRID", "RANDOM"]:
+        spec = _grid_spec(strategy=strategy, random_rotation=True)
+        placements = RandomizationService.compute_batch_placements(spec, 4, random.Random(3))
+        rotations = [placement["rotation_z"] for placement in placements]
+        assert any(rotation != 0.0 for rotation in rotations), strategy + " draws rotations when enabled"
+        assert all(0.0 <= rotation <= 2.0 * 3.141592653589793 + 1e-9 for rotation in rotations), "rotation within one turn"
+
+    spec = _grid_spec(strategy="GRID", random_rotation=False)
+    rng = random.Random(7)
+    placements = RandomizationService.compute_batch_placements(spec, 4, rng)
+    assert all(placement["rotation_z"] == 0.0 for placement in placements), "no rotation when disabled"
+    assert rng.random() == random.Random(7).random(), "and no draw is consumed"
+
+
+def test_random_placement_positions_within_rectangle():
+    spec = _grid_spec(strategy="RANDOM", x_min=-2.0, x_max=3.0, y_min=1.0, y_max=4.0, random_rotation=False)
+    placements = RandomizationService.compute_batch_placements(spec, 30, random.Random(11))
+    for placement in placements:
+        x, y, z = placement["location"]
+        assert -2.0 <= x <= 3.0, "x within the rectangle"
+        assert 1.0 <= y <= 4.0, "y within the rectangle"
+        assert z == 0.0
+
+
+def test_random_placement_min_distance_is_honored_when_feasible():
+    spec = _grid_spec(strategy="RANDOM", x_min=-20.0, x_max=20.0, y_min=-20.0, y_max=20.0,
+                      min_distance=1.0, random_rotation=False)
+    placements = RandomizationService.compute_batch_placements(spec, 8, random.Random(5))
+    points = [placement["location"] for placement in placements]
+    for i in range(len(points)):
+        for j in range(i):
+            dx = points[i][0] - points[j][0]
+            dy = points[i][1] - points[j][1]
+            # Either the minimum distance is honored, or that placement was flagged as an overlap.
+            assert dx * dx + dy * dy >= 1.0 - 1e-9 or placements[i]["overlap"], "min distance honored or overlap flagged"
+
+
+def test_random_placement_impossible_constraint_terminates_and_flags_overlap():
+    # A tiny area with a large minimum distance cannot be satisfied; the retry cap must terminate
+    # and the overlaps are flagged rather than looping forever.
+    spec = _grid_spec(strategy="RANDOM", x_min=0.0, x_max=0.001, y_min=0.0, y_max=0.001,
+                      min_distance=5.0, random_rotation=False)
+    placements = RandomizationService.compute_batch_placements(spec, 5, random.Random(1))
+    assert len(placements) == 5, "the derivation terminates despite the impossible constraint"
+    assert any(placement["overlap"] for placement in placements[1:]), "unsatisfiable placements are flagged as overlaps"
+
+
+def test_batch_placements_are_reproducible():
+    spec = _grid_spec(strategy="RANDOM", min_distance=0.5)
+    first = RandomizationService.compute_batch_placements(spec, 10, random.Random(99))
+    second = RandomizationService.compute_batch_placements(spec, 10, random.Random(99))
+    assert first == second, "the same rng seed and batch spec give the same placements"
+
+
+def test_batch_spec_round_trip_is_lossless():
+    spec = _spec()
+    spec["batch"] = RandomizationService.get_default_batch_spec()
+    text = RandomizationService.serialize_spec_to_json_string(spec)
+    restored = RandomizationService.deserialize_spec_from_json_string(text)
+    assert restored["batch"] == spec["batch"], "the batch section round-trips losslessly"
+
+
+def test_v6_spec_has_no_batch_section():
+    # A version-6 preset has no batch section; the batch operator falls back to the defaults.
+    spec = _spec()
+    spec["version"] = 6
+    assert "batch" not in spec
+    restored = RandomizationService.deserialize_spec_from_json_string(RandomizationService.serialize_spec_to_json_string(spec))
+    assert "batch" not in restored, "a version-6 preset carries no batch section"

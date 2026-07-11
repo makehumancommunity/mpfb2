@@ -1,0 +1,7 @@
+{
+    "type": "float",
+    "name": "batch_area_x_max",
+    "description": "The upper X bound of the rectangle characters are scattered within (random placement)",
+    "label": "X max",
+    "default": 5.0
+}
