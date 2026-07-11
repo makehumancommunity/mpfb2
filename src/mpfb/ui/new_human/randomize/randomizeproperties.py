@@ -540,169 +540,129 @@ def scene_to_spec(scene: "bpy.types.Scene") -> dict:
 def spec_to_scene(spec: dict, scene: "bpy.types.Scene") -> None:
     """Populate the scene properties from a loaded randomization spec dict.
 
-    Missing keys fall back to the built-in defaults, so presets written by earlier versions
-    or by later sub-features can still be loaded.
+    A preset always carries every section and field (it is written from the defaults by
+    scene_to_spec), so the sections are read directly.
     """
     _LOG.enter()
-    default = RandomizationService.get_default_phenotype_spec()["phenotype"]
-    phenotype = spec.get("phenotype", default)
+    phenotype = spec["phenotype"]
 
-    RANDOMIZE_PROPERTIES.set_value("distribution", phenotype.get("distribution", default["distribution"]), entity_reference=scene)
-    RANDOMIZE_PROPERTIES.set_value("discrete_race", phenotype.get("discrete_race", False), entity_reference=scene)
-    RANDOMIZE_PROPERTIES.set_value("discrete_gender", phenotype.get("discrete_gender", True), entity_reference=scene)
-    RANDOMIZE_PROPERTIES.set_value("discrete_age", phenotype.get("discrete_age", True), entity_reference=scene)
-    RANDOMIZE_PROPERTIES.set_value("breast_gender_cutoff", phenotype.get("breast_gender_cutoff", default["breast_gender_cutoff"]), entity_reference=scene)
-    RANDOMIZE_PROPERTIES.set_value("breast_age_cutoff", phenotype.get("breast_age_cutoff", default["breast_age_cutoff"]), entity_reference=scene)
+    RANDOMIZE_PROPERTIES.set_value("distribution", phenotype["distribution"], entity_reference=scene)
+    RANDOMIZE_PROPERTIES.set_value("discrete_race", phenotype["discrete_race"], entity_reference=scene)
+    RANDOMIZE_PROPERTIES.set_value("discrete_gender", phenotype["discrete_gender"], entity_reference=scene)
+    RANDOMIZE_PROPERTIES.set_value("discrete_age", phenotype["discrete_age"], entity_reference=scene)
+    RANDOMIZE_PROPERTIES.set_value("breast_gender_cutoff", phenotype["breast_gender_cutoff"], entity_reference=scene)
+    RANDOMIZE_PROPERTIES.set_value("breast_age_cutoff", phenotype["breast_age_cutoff"], entity_reference=scene)
 
-    attributes = phenotype.get("attributes", {})
+    attributes = phenotype["attributes"]
     for name in _SCALAR_ATTRIBUTES:
-        cfg = attributes.get(name, {})
-        RANDOMIZE_PROPERTIES.set_value(name + "_include", cfg.get("include", True), entity_reference=scene)
-        RANDOMIZE_PROPERTIES.set_value(name + "_neutral", cfg.get("neutral", 0.5), entity_reference=scene)
-        RANDOMIZE_PROPERTIES.set_value(name + "_deviation", cfg.get("deviation", 0.5), entity_reference=scene)
-    race_cfg = attributes.get("race", {})
-    RANDOMIZE_PROPERTIES.set_value("race_include", race_cfg.get("include", True), entity_reference=scene)
+        cfg = attributes[name]
+        RANDOMIZE_PROPERTIES.set_value(name + "_include", cfg["include"], entity_reference=scene)
+        RANDOMIZE_PROPERTIES.set_value(name + "_neutral", cfg["neutral"], entity_reference=scene)
+        RANDOMIZE_PROPERTIES.set_value(name + "_deviation", cfg["deviation"], entity_reference=scene)
+    RANDOMIZE_PROPERTIES.set_value("race_include", attributes["race"]["include"], entity_reference=scene)
 
-    # Restore the per-value toggles for the discrete attributes. A missing "allowed" list (an
-    # older preset) defaults every value to allowed.
+    # Restore the per-value toggles for the discrete attributes from their "allowed" lists.
     for discrete_attribute, values in _DISCRETE_VALUES.items():
-        allowed = attributes.get(discrete_attribute, {}).get("allowed")
+        allowed = attributes[discrete_attribute]["allowed"]
         for value_name, _label in values:
-            is_allowed = True if allowed is None else value_name in allowed
-            RANDOMIZE_PROPERTIES.set_value(discrete_attribute + "_allow_" + value_name, is_allowed, entity_reference=scene)
+            RANDOMIZE_PROPERTIES.set_value(discrete_attribute + "_allow_" + value_name, value_name in allowed, entity_reference=scene)
 
-    creation = spec.get("creation", {})
-    RANDOMIZE_PROPERTIES.set_value("scale_factor", creation.get("scale_factor", "METER"), entity_reference=scene)
-    RANDOMIZE_PROPERTIES.set_value("detailed_helpers", creation.get("detailed_helpers", True), entity_reference=scene)
-    RANDOMIZE_PROPERTIES.set_value("extra_vertex_groups", creation.get("extra_vertex_groups", True), entity_reference=scene)
-    RANDOMIZE_PROPERTIES.set_value("mask_helpers", creation.get("mask_helpers", True), entity_reference=scene)
-    # A preset without a rig key loads as "No rig", so an old preset keeps producing the
-    # unrigged character it did before. The same fallback is used when the preset names a rig
-    # which is no longer available (for example an uninstalled custom rig), since assigning an
-    # unknown identifier to the enum would otherwise raise.
-    rig = creation.get("rig", "NONE")
+    creation = spec["creation"]
+    RANDOMIZE_PROPERTIES.set_value("scale_factor", creation["scale_factor"], entity_reference=scene)
+    RANDOMIZE_PROPERTIES.set_value("detailed_helpers", creation["detailed_helpers"], entity_reference=scene)
+    RANDOMIZE_PROPERTIES.set_value("extra_vertex_groups", creation["extra_vertex_groups"], entity_reference=scene)
+    RANDOMIZE_PROPERTIES.set_value("mask_helpers", creation["mask_helpers"], entity_reference=scene)
+    # A preset which names a rig that is no longer available (for example an uninstalled
+    # custom rig) falls back to "No rig", since assigning an unknown identifier to the enum
+    # would otherwise raise.
+    rig = creation["rig"]
     if rig not in [identifier for identifier, _label, _description in _populate_rig(None, None)]:
         _LOG.warn("Preset refers to a rig which is not available, falling back to no rig", rig)
         rig = "NONE"
     RANDOMIZE_PROPERTIES.set_value("add_rig", rig, entity_reference=scene)
-    RANDOMIZE_PROPERTIES.set_value("auto_generate_rigify", creation.get("auto_generate_rigify", True), entity_reference=scene)
-    RANDOMIZE_PROPERTIES.set_value("meta_rig_action", creation.get("meta_rig_action", "hide"), entity_reference=scene)
+    RANDOMIZE_PROPERTIES.set_value("auto_generate_rigify", creation["auto_generate_rigify"], entity_reference=scene)
+    RANDOMIZE_PROPERTIES.set_value("meta_rig_action", creation["meta_rig_action"], entity_reference=scene)
 
-    # The assets.skin section. A preset written before this section existed has no "assets"
-    # key; skin randomization is then set to disabled so the old preset keeps producing what
-    # it did before (a default material). The remaining skin controls fall back to the
-    # built-in skin defaults.
-    default_skin = RandomizationService.get_default_skin_asset_spec()
-    skin = (spec.get("assets") or {}).get("skin", {})
-    RANDOMIZE_PROPERTIES.set_value("randomize_skin", skin.get("enabled", False), entity_reference=scene)
-    RANDOMIZE_PROPERTIES.set_value("match_gender", skin.get("match_gender", default_skin["match_gender"]), entity_reference=scene)
-    RANDOMIZE_PROPERTIES.set_value("match_age", skin.get("match_age", default_skin["match_age"]), entity_reference=scene)
-    RANDOMIZE_PROPERTIES.set_value("match_race", skin.get("match_race", default_skin["match_race"]), entity_reference=scene)
-    RANDOMIZE_PROPERTIES.set_value("skin_fallback", skin.get("fallback", default_skin["fallback"]), entity_reference=scene)
-    RANDOMIZE_PROPERTIES.set_value("skin_pack", skin.get("pack", default_skin["pack"]), entity_reference=scene)
-    RANDOMIZE_PROPERTIES.set_value("skin_include", skin.get("include", default_skin["include"]), entity_reference=scene)
-    RANDOMIZE_PROPERTIES.set_value("skin_exclude", skin.get("exclude", default_skin["exclude"]), entity_reference=scene)
-    RANDOMIZE_PROPERTIES.set_value("skin_type", skin.get("skin_type", default_skin["skin_type"]), entity_reference=scene)
-    RANDOMIZE_PROPERTIES.set_value("skin_material_instances", skin.get("material_instances", default_skin["material_instances"]), entity_reference=scene)
+    assets = spec["assets"]
 
-    # The bodypart sections. As with skin, a preset written before these sections existed has
-    # no subsection for a given type; that type is then set to disabled (eyes to "do not add")
-    # so the old preset keeps producing exactly what it did before. The remaining controls fall
-    # back to the built-in bodypart defaults.
-    assets = spec.get("assets") or {}
-    RANDOMIZE_PROPERTIES.set_value("asset_material_type", assets.get("asset_material_type", "MAKESKIN"), entity_reference=scene)
+    # The assets.skin section.
+    skin = assets["skin"]
+    RANDOMIZE_PROPERTIES.set_value("randomize_skin", skin["enabled"], entity_reference=scene)
+    RANDOMIZE_PROPERTIES.set_value("match_gender", skin["match_gender"], entity_reference=scene)
+    RANDOMIZE_PROPERTIES.set_value("match_age", skin["match_age"], entity_reference=scene)
+    RANDOMIZE_PROPERTIES.set_value("match_race", skin["match_race"], entity_reference=scene)
+    RANDOMIZE_PROPERTIES.set_value("skin_fallback", skin["fallback"], entity_reference=scene)
+    RANDOMIZE_PROPERTIES.set_value("skin_pack", skin["pack"], entity_reference=scene)
+    RANDOMIZE_PROPERTIES.set_value("skin_include", skin["include"], entity_reference=scene)
+    RANDOMIZE_PROPERTIES.set_value("skin_exclude", skin["exclude"], entity_reference=scene)
+    RANDOMIZE_PROPERTIES.set_value("skin_type", skin["skin_type"], entity_reference=scene)
+    RANDOMIZE_PROPERTIES.set_value("skin_material_instances", skin["material_instances"], entity_reference=scene)
 
-    default_eyes = RandomizationService.get_default_bodypart_asset_spec("eyes")
-    eyes = assets.get("eyes", {})
-    RANDOMIZE_PROPERTIES.set_value("eyes_mode", eyes.get("mode", "DONOTADD"), entity_reference=scene)
-    RANDOMIZE_PROPERTIES.set_value("eyes_material_type", eyes.get("material_type", default_eyes["material_type"]), entity_reference=scene)
-    eyes_alt = eyes.get("randomize_alt_materials", default_eyes["randomize_alt_materials"])
-    RANDOMIZE_PROPERTIES.set_value("eyes_randomize_alt_materials", eyes_alt, entity_reference=scene)
+    # The bodypart sections. The shared asset material applies to all bodyparts but eyes.
+    RANDOMIZE_PROPERTIES.set_value("asset_material_type", assets["asset_material_type"], entity_reference=scene)
 
-    default_hair = RandomizationService.get_default_bodypart_asset_spec("hair")
-    hair = assets.get("hair", {})
-    RANDOMIZE_PROPERTIES.set_value("hair_randomize", hair.get("enabled", False), entity_reference=scene)
-    RANDOMIZE_PROPERTIES.set_value("hair_match_gender", hair.get("match_gender", default_hair["match_gender"]), entity_reference=scene)
-    RANDOMIZE_PROPERTIES.set_value("hair_fallback", hair.get("fallback", default_hair["fallback"]), entity_reference=scene)
-    RANDOMIZE_PROPERTIES.set_value("hair_pack", hair.get("pack", default_hair["pack"]), entity_reference=scene)
-    RANDOMIZE_PROPERTIES.set_value("hair_include", hair.get("include", default_hair["include"]), entity_reference=scene)
-    RANDOMIZE_PROPERTIES.set_value("hair_exclude", hair.get("exclude", default_hair["exclude"]), entity_reference=scene)
-    hair_alt = hair.get("randomize_alt_materials", default_hair["randomize_alt_materials"])
-    RANDOMIZE_PROPERTIES.set_value("hair_randomize_alt_materials", hair_alt, entity_reference=scene)
+    eyes = assets["eyes"]
+    RANDOMIZE_PROPERTIES.set_value("eyes_mode", eyes["mode"], entity_reference=scene)
+    RANDOMIZE_PROPERTIES.set_value("eyes_material_type", eyes["material_type"], entity_reference=scene)
+    RANDOMIZE_PROPERTIES.set_value("eyes_randomize_alt_materials", eyes["randomize_alt_materials"], entity_reference=scene)
+
+    hair = assets["hair"]
+    RANDOMIZE_PROPERTIES.set_value("hair_randomize", hair["enabled"], entity_reference=scene)
+    RANDOMIZE_PROPERTIES.set_value("hair_match_gender", hair["match_gender"], entity_reference=scene)
+    RANDOMIZE_PROPERTIES.set_value("hair_fallback", hair["fallback"], entity_reference=scene)
+    RANDOMIZE_PROPERTIES.set_value("hair_pack", hair["pack"], entity_reference=scene)
+    RANDOMIZE_PROPERTIES.set_value("hair_include", hair["include"], entity_reference=scene)
+    RANDOMIZE_PROPERTIES.set_value("hair_exclude", hair["exclude"], entity_reference=scene)
+    RANDOMIZE_PROPERTIES.set_value("hair_randomize_alt_materials", hair["randomize_alt_materials"], entity_reference=scene)
 
     for bodypart in _PLAIN_BODYPART_TYPES:
-        default_bodypart = RandomizationService.get_default_bodypart_asset_spec(bodypart)
-        section = assets.get(bodypart, {})
-        RANDOMIZE_PROPERTIES.set_value(bodypart + "_enable", section.get("enabled", False), entity_reference=scene)
-        RANDOMIZE_PROPERTIES.set_value(bodypart + "_pack", section.get("pack", default_bodypart["pack"]), entity_reference=scene)
-        RANDOMIZE_PROPERTIES.set_value(bodypart + "_include", section.get("include", default_bodypart["include"]), entity_reference=scene)
-        RANDOMIZE_PROPERTIES.set_value(bodypart + "_exclude", section.get("exclude", default_bodypart["exclude"]), entity_reference=scene)
+        section = assets[bodypart]
+        RANDOMIZE_PROPERTIES.set_value(bodypart + "_enable", section["enabled"], entity_reference=scene)
+        RANDOMIZE_PROPERTIES.set_value(bodypart + "_pack", section["pack"], entity_reference=scene)
+        RANDOMIZE_PROPERTIES.set_value(bodypart + "_include", section["include"], entity_reference=scene)
+        RANDOMIZE_PROPERTIES.set_value(bodypart + "_exclude", section["exclude"], entity_reference=scene)
 
-    # The assets.clothes section. As with the bodyparts, a preset written before this section
-    # existed has no "clothes" key (or is missing a given slot); that slot is then set to
-    # disabled so the old preset keeps producing exactly what it did before. The remaining slot
-    # controls fall back to the built-in clothes defaults. The "_open" toggles are UI state and
+    # The assets.clothes section, one subsection per slot. The "_open" toggles are UI state and
     # are left at their default.
-    clothes = assets.get("clothes") or {}
+    clothes = assets["clothes"]
     for slot in _CLOTHES_SLOTS:
-        default_slot = RandomizationService.get_default_clothes_asset_spec(slot)
-        slot_section = clothes.get(slot, {})
+        slot_section = clothes[slot]
         prefix = "clothes_" + slot + "_"
-        RANDOMIZE_PROPERTIES.set_value(prefix + "enable", slot_section.get("enabled", False), entity_reference=scene)
-        RANDOMIZE_PROPERTIES.set_value(prefix + "chance", slot_section.get("chance", default_slot["chance"]), entity_reference=scene)
-        RANDOMIZE_PROPERTIES.set_value(prefix + "pack", slot_section.get("pack", default_slot["pack"]), entity_reference=scene)
-        RANDOMIZE_PROPERTIES.set_value(prefix + "include_any", slot_section.get("include_any", default_slot["include_any"]), entity_reference=scene)
-        RANDOMIZE_PROPERTIES.set_value(prefix + "include_female", slot_section.get("include_female", default_slot["include_female"]), entity_reference=scene)
-        RANDOMIZE_PROPERTIES.set_value(prefix + "include_male", slot_section.get("include_male", default_slot["include_male"]), entity_reference=scene)
-        RANDOMIZE_PROPERTIES.set_value(prefix + "exclude", slot_section.get("exclude", default_slot["exclude"]), entity_reference=scene)
+        RANDOMIZE_PROPERTIES.set_value(prefix + "enable", slot_section["enabled"], entity_reference=scene)
+        RANDOMIZE_PROPERTIES.set_value(prefix + "chance", slot_section["chance"], entity_reference=scene)
+        RANDOMIZE_PROPERTIES.set_value(prefix + "pack", slot_section["pack"], entity_reference=scene)
+        RANDOMIZE_PROPERTIES.set_value(prefix + "include_any", slot_section["include_any"], entity_reference=scene)
+        RANDOMIZE_PROPERTIES.set_value(prefix + "include_female", slot_section["include_female"], entity_reference=scene)
+        RANDOMIZE_PROPERTIES.set_value(prefix + "include_male", slot_section["include_male"], entity_reference=scene)
+        RANDOMIZE_PROPERTIES.set_value(prefix + "exclude", slot_section["exclude"], entity_reference=scene)
 
-    # The details section. A preset written before this section existed (version 5 or older) has no
-    # "details" key; detail randomization is then set to disabled so the old preset keeps producing
-    # exactly what it did before. A section missing from an existing details section is likewise
-    # disabled (min=max=0). The remaining per-section controls fall back to the built-in defaults.
-    default_details = RandomizationService.get_default_detail_spec(DETAIL_SECTIONS)
-    details = spec.get("details") or {}
-    RANDOMIZE_PROPERTIES.set_value("randomize_details", details.get("enabled", False), entity_reference=scene)
-    RANDOMIZE_PROPERTIES.set_value("details_symmetry", details.get("symmetry", default_details["symmetry"]), entity_reference=scene)
-    detail_sections = details.get("sections") or {}
+    # The details section: the master toggle, the symmetry toggle and one entry per section.
+    details = spec["details"]
+    RANDOMIZE_PROPERTIES.set_value("randomize_details", details["enabled"], entity_reference=scene)
+    RANDOMIZE_PROPERTIES.set_value("details_symmetry", details["symmetry"], entity_reference=scene)
+    detail_sections = details["sections"]
     for section_name in DETAIL_SECTIONS:
-        default_section = default_details["sections"][section_name]
+        section_cfg = detail_sections[section_name]
         prefix = "detail_" + section_name + "_"
-        if section_name in detail_sections:
-            section_cfg = detail_sections[section_name] or {}
-            section_min = section_cfg.get("min", default_section["min"])
-            section_max = section_cfg.get("max", default_section["max"])
-            include = section_cfg.get("include", default_section["include"])
-            exclude = section_cfg.get("exclude", default_section["exclude"])
-            deviation = section_cfg.get("deviation", default_section["deviation"])
-        else:
-            # A section missing from an existing details section is disabled.
-            section_min, section_max = 0, 0
-            include, exclude = default_section["include"], default_section["exclude"]
-            deviation = default_section["deviation"]
-        RANDOMIZE_PROPERTIES.set_value(prefix + "min", section_min, entity_reference=scene)
-        RANDOMIZE_PROPERTIES.set_value(prefix + "max", section_max, entity_reference=scene)
-        RANDOMIZE_PROPERTIES.set_value(prefix + "include", include, entity_reference=scene)
-        RANDOMIZE_PROPERTIES.set_value(prefix + "exclude", exclude, entity_reference=scene)
-        RANDOMIZE_PROPERTIES.set_value(prefix + "deviation", deviation, entity_reference=scene)
+        RANDOMIZE_PROPERTIES.set_value(prefix + "min", section_cfg["min"], entity_reference=scene)
+        RANDOMIZE_PROPERTIES.set_value(prefix + "max", section_cfg["max"], entity_reference=scene)
+        RANDOMIZE_PROPERTIES.set_value(prefix + "include", section_cfg["include"], entity_reference=scene)
+        RANDOMIZE_PROPERTIES.set_value(prefix + "exclude", section_cfg["exclude"], entity_reference=scene)
+        RANDOMIZE_PROPERTIES.set_value(prefix + "deviation", section_cfg["deviation"], entity_reference=scene)
 
-    # The batch section. Unlike the other sections a missing "batch" key does not mean "disabled":
-    # batch generation only runs when its operator is invoked, so a preset written before this
-    # section existed (version 6 or older) simply loads the batch defaults. Each field falls back
-    # to its built-in default individually.
-    default_batch = RandomizationService.get_default_batch_spec()
-    batch = spec.get("batch") or {}
-    RANDOMIZE_PROPERTIES.set_value("batch_count", batch.get("count", default_batch["count"]), entity_reference=scene)
-    RANDOMIZE_PROPERTIES.set_value("batch_strategy", batch.get("strategy", default_batch["strategy"]), entity_reference=scene)
-    RANDOMIZE_PROPERTIES.set_value("batch_spacing_x", batch.get("spacing_x", default_batch["spacing_x"]), entity_reference=scene)
-    RANDOMIZE_PROPERTIES.set_value("batch_row_length", batch.get("row_length", default_batch["row_length"]), entity_reference=scene)
-    RANDOMIZE_PROPERTIES.set_value("batch_row_shift_y", batch.get("row_shift_y", default_batch["row_shift_y"]), entity_reference=scene)
-    RANDOMIZE_PROPERTIES.set_value("batch_area_x_min", batch.get("x_min", default_batch["x_min"]), entity_reference=scene)
-    RANDOMIZE_PROPERTIES.set_value("batch_area_x_max", batch.get("x_max", default_batch["x_max"]), entity_reference=scene)
-    RANDOMIZE_PROPERTIES.set_value("batch_area_y_min", batch.get("y_min", default_batch["y_min"]), entity_reference=scene)
-    RANDOMIZE_PROPERTIES.set_value("batch_area_y_max", batch.get("y_max", default_batch["y_max"]), entity_reference=scene)
-    RANDOMIZE_PROPERTIES.set_value("batch_min_distance", batch.get("min_distance", default_batch["min_distance"]), entity_reference=scene)
-    RANDOMIZE_PROPERTIES.set_value("batch_random_rotation", batch.get("random_rotation", default_batch["random_rotation"]), entity_reference=scene)
+    # The batch section.
+    batch = spec["batch"]
+    RANDOMIZE_PROPERTIES.set_value("batch_count", batch["count"], entity_reference=scene)
+    RANDOMIZE_PROPERTIES.set_value("batch_strategy", batch["strategy"], entity_reference=scene)
+    RANDOMIZE_PROPERTIES.set_value("batch_spacing_x", batch["spacing_x"], entity_reference=scene)
+    RANDOMIZE_PROPERTIES.set_value("batch_row_length", batch["row_length"], entity_reference=scene)
+    RANDOMIZE_PROPERTIES.set_value("batch_row_shift_y", batch["row_shift_y"], entity_reference=scene)
+    RANDOMIZE_PROPERTIES.set_value("batch_area_x_min", batch["x_min"], entity_reference=scene)
+    RANDOMIZE_PROPERTIES.set_value("batch_area_x_max", batch["x_max"], entity_reference=scene)
+    RANDOMIZE_PROPERTIES.set_value("batch_area_y_min", batch["y_min"], entity_reference=scene)
+    RANDOMIZE_PROPERTIES.set_value("batch_area_y_max", batch["y_max"], entity_reference=scene)
+    RANDOMIZE_PROPERTIES.set_value("batch_min_distance", batch["min_distance"], entity_reference=scene)
+    RANDOMIZE_PROPERTIES.set_value("batch_random_rotation", batch["random_rotation"], entity_reference=scene)
 
 
 # The scalar attributes which have a discrete mode, mapped to the scene property toggling it.

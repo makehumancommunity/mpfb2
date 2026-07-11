@@ -19,8 +19,8 @@ TargetService, for example:
       "race": {"asian":0.33, "caucasian":0.33, "african":0.33} }
 
 A "randomization spec" is a plain nested dict which is also what gets saved as a preset.
-It has a top-level "version" field and named sections, so later sub-features can add
-sibling sections ("creation", "details", "assets", "batch") without breaking older presets.
+It has a top-level "version" field and named sections ("phenotype", "creation", "assets",
+"details", "batch").
 """
 
 import json, math, random
@@ -29,9 +29,8 @@ from .targetservice import TargetService
 
 _LOG = LogService.get_logger("services.randomizationservice")
 
-# The current version of the randomization spec / preset format. Bump this if the format
-# changes in a way that older presets need migrating.
-_SPEC_VERSION: int = 7
+# The current version of the randomization spec / preset format.
+_SPEC_VERSION: int = 1
 
 # Built-in neutral and deviation used when nothing else is specified for an attribute.
 _DEFAULT_NEUTRAL: float = 0.5
@@ -1003,10 +1002,7 @@ class RandomizationService:
         Unknown sibling sections are preserved untouched, so presets written by later
         sub-features can still be read here.
         """
-        spec = json.loads(json_string)
-        if "version" not in spec:
-            _LOG.warn("Randomization spec has no version field", spec)
-        return spec
+        return json.loads(json_string)
 
     @staticmethod
     def serialize_spec_to_json_file(spec: dict, file_path: str) -> None:
@@ -1052,8 +1048,7 @@ def _resolve_scalar(attribute_cfg: dict, distribution: str, rng: random.Random) 
 def _filter_allowed(allowed: list[str] | None, valid_keys: dict[str, float] | list[str]) -> list[str]:
     """Return the requested value names which are valid, or all of them when unspecified.
 
-    A missing (None) "allowed" list defaults to all valid keys, so presets written before the
-    "allowed" field existed still randomize over every value. An explicit empty list stays
+    A missing (None) "allowed" list defaults to all valid keys. An explicit empty list stays
     empty, which callers treat as "excluded".
     """
     if allowed is None:

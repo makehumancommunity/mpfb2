@@ -16,7 +16,7 @@ def test_randomizationservice_exists():
 
 def test_default_spec_shape():
     spec = _spec()
-    assert spec["version"] == 7, "The default spec has a version"
+    assert spec["version"] == 1, "The default spec has a version"
     phenotype = spec["phenotype"]
     assert phenotype["distribution"] == "bell", "The default distribution is bell"
     assert phenotype["discrete_race"] is False
@@ -539,14 +539,6 @@ def test_skin_disabled_returns_none_and_draws_nothing():
     assert rng.random() == random.Random(0).random()
 
 
-def test_v1_spec_without_assets_disables_skin():
-    macro = _macro(0.5, 0.0, _NO_RACE)
-    spec = _spec()
-    del spec["assets"]
-    cands = _cands("a", "b")
-    assert RandomizationService.pick_random_skin(spec, macro, cands, random.Random(0)) is None
-
-
 def test_skin_same_seed_same_pick():
     macro = _macro(0.5, 0.0, _NO_RACE)
     spec = _skin_spec()
@@ -614,12 +606,6 @@ def test_bodypart_disabled_returns_none_and_draws_nothing():
     assert rng.random() == random.Random(0).random()
 
 
-def test_bodypart_missing_section_is_disabled():
-    # A version-2 preset has no bodypart subsection; an empty section is treated as disabled.
-    macro = _macro(0.5, 0.0, _NO_RACE)
-    assert RandomizationService.pick_random_bodypart({}, macro, _cands("a"), random.Random(0)) is None
-
-
 def test_bodypart_empty_pool_returns_none():
     macro = _macro(0.5, 0.0, _NO_RACE)
     assert RandomizationService.pick_random_bodypart(_hair_spec(), macro, [], random.Random(0)) is None
@@ -681,17 +667,6 @@ def test_alt_material_no_alternatives_returns_default_without_drawing():
     assert RandomizationService.pick_random_alternative_material("d", [], rng) == "d"
     # A single (or empty) pool consumes no draw, so a disabled toggle does not shift the seed.
     assert rng.random() == random.Random(0).random()
-
-
-def test_v2_spec_deserializes_with_bodyparts_disabled():
-    # Simulate a version-2 preset: only the skin asset section exists.
-    spec = _spec()
-    spec["version"] = 2
-    spec["assets"] = {"skin": RandomizationService.get_default_skin_asset_spec()}
-    text = RandomizationService.serialize_spec_to_json_string(spec)
-    restored = RandomizationService.deserialize_spec_from_json_string(text)
-    macro = _macro(0.5, 0.0, _NO_RACE)
-    assert RandomizationService.pick_random_bodypart(restored["assets"].get("hair", {}), macro, _cands("a"), random.Random(0)) is None
 
 
 # --- Clothes randomization --------------------------------------------------------------
@@ -910,20 +885,6 @@ def test_clothes_pick_is_independent_of_candidate_order():
     assert _picked(original, "head") == _picked(reshuffled, "head"), "the pick is independent of candidate order"
 
 
-def test_v3_spec_deserializes_with_clothes_disabled():
-    # Simulate a version-3 preset: assets exist but there is no clothes section.
-    spec = _spec()
-    spec["version"] = 3
-    del spec["assets"]["clothes"]
-    text = RandomizationService.serialize_spec_to_json_string(spec)
-    restored = RandomizationService.deserialize_spec_from_json_string(text)
-    macro = _macro(0.5, 0.0, _NO_RACE)
-    rng = random.Random(0)
-    results = RandomizationService.pick_random_clothes(restored["assets"].get("clothes") or {}, macro, _cc("hat1"), rng)
-    assert results == [], "a preset without a clothes section adds no clothes"
-    assert rng.random() == random.Random(0).random(), "and consumes no draws"
-
-
 # --- Detail randomization ----------------------------------------------------------------------
 
 def _cat(name, has_lr=False, opposites=True):
@@ -1099,24 +1060,11 @@ def test_detail_spec_round_trip_is_lossless():
     spec["details"] = RandomizationService.get_default_detail_spec(["arms", "breast", "head"])
     text = RandomizationService.serialize_spec_to_json_string(spec)
     restored = RandomizationService.deserialize_spec_from_json_string(text)
-    assert restored["details"] == spec["details"], "version 6 round-trips losslessly"
+    assert restored["details"] == spec["details"], "the details section round-trips losslessly"
     sections = {"arms": [_cat("arm-a"), _cat("arm-b")], "head": [_cat("head-a")]}
     original_stack = RandomizationService.pick_random_details(spec["details"], sections, random.Random(9))
     restored_stack = RandomizationService.pick_random_details(restored["details"], sections, random.Random(9))
     assert original_stack == restored_stack, "the restored spec draws the same stack"
-
-
-def test_v5_spec_deserializes_with_details_disabled():
-    # Simulate a version-5 preset: no details section at all.
-    spec = _spec()
-    spec["version"] = 5
-    assert "details" not in spec
-    text = RandomizationService.serialize_spec_to_json_string(spec)
-    restored = RandomizationService.deserialize_spec_from_json_string(text)
-    sections = {"arms": [_cat("arm-a")]}
-    rng = random.Random(0)
-    assert RandomizationService.pick_random_details(restored.get("details"), sections, rng) == [], "a version-5 preset adds no details"
-    assert rng.random() == random.Random(0).random(), "and consumes no draws"
 
 
 def test_detail_unknown_sibling_section_survives():
@@ -1243,12 +1191,3 @@ def test_batch_spec_round_trip_is_lossless():
     text = RandomizationService.serialize_spec_to_json_string(spec)
     restored = RandomizationService.deserialize_spec_from_json_string(text)
     assert restored["batch"] == spec["batch"], "the batch section round-trips losslessly"
-
-
-def test_v6_spec_has_no_batch_section():
-    # A version-6 preset has no batch section; the batch operator falls back to the defaults.
-    spec = _spec()
-    spec["version"] = 6
-    assert "batch" not in spec
-    restored = RandomizationService.deserialize_spec_from_json_string(RandomizationService.serialize_spec_to_json_string(spec))
-    assert "batch" not in restored, "a version-6 preset carries no batch section"
