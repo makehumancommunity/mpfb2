@@ -22,6 +22,7 @@ from ....services import AssetService
 from ....services import HumanService
 from ....services import LocationService
 from ....services import MeshService
+from ....services import ModifierService
 from ....services import ObjectService
 from ....services import RandomizationService
 from ....services import RigService
@@ -112,6 +113,11 @@ def build_character(spec, macro_details, rng, report, discovery):
 
     scale = _SCALE_BY_FACTOR.get(creation["scale_factor"], 0.1)
 
+    # The subdiv level applied to the basemesh and every attached asset. When the option is off
+    # the level is 0, which means add_mhclo_asset adds no modifier at all (and none is added to
+    # the basemesh either), so the whole character stays at its base resolution.
+    subdiv_levels = creation.get("subdiv_render_levels", 1) if creation.get("add_subdiv_modifier", True) else 0
+
     basemesh = HumanService.create_human(
         mask_helpers=creation["mask_helpers"],
         detailed_helpers=creation["detailed_helpers"],
@@ -119,6 +125,11 @@ def build_character(spec, macro_details, rng, report, discovery):
         feet_on_ground=True,
         scale=scale,
         macro_detail_dict=macro_details)
+
+    # Give the basemesh a subdiv modifier when requested (viewport level 0, render level as
+    # configured), matching the modifier the attached assets already receive below.
+    if subdiv_levels > 0:
+        ModifierService.create_subsurf_modifier(basemesh, "Subdivision", levels=0, render_levels=subdiv_levels)
 
     # Detail targets are drawn after the phenotype draws and before any asset draws, and are
     # applied right after create_human (before the rig and the body parts) so that joint
@@ -144,17 +155,23 @@ def build_character(spec, macro_details, rng, report, discovery):
     # that with them disabled (no draw at all) a given seed still produces the same
     # phenotype. The body parts draw in a fixed type order after the skin.
     _apply_random_skin(report, spec, macro_details, basemesh, rng, discovery)
-    _apply_random_bodyparts(report, spec, macro_details, basemesh, rng, discovery)
+    _apply_random_bodyparts(report, spec, macro_details, basemesh, rng, discovery, subdiv_levels)
 
     # Clothes are attached after the body parts (so the clothes draws come last) but before
     # Rigify generation, so each garment is rigged as it is attached and its weights exist
     # when the meta rig is turned into the full rig.
-    _apply_random_clothes(report, spec, macro_details, basemesh, rng, discovery)
+    _apply_random_clothes(report, spec, macro_details, basemesh, rng, discovery, subdiv_levels)
 
     # Rigify generation happens after the body parts, so their weights and subrigs exist
     # when the meta rig is turned into the full rig.
     if str(rig_name).startswith("rigify.") and creation.get("auto_generate_rigify", True):
         _generate_rigify(report, basemesh, creation.get("meta_rig_action", "hide"))
+
+    # Detail targets and attached assets change the mesh after create_human's initial
+    # feet-on-ground, so the lowest body vertex is usually no longer at z=0. Re-ground the
+    # whole character as a final step by shifting its root (the rig when present, otherwise the
+    # basemesh). This adds no random draws.
+    _move_feet_to_ground(basemesh)
 
     return basemesh
 
@@ -296,7 +313,7 @@ def _pick_alternative_material(report, asset_path, asset_subdir, rng):
     return {mhclo.uuid: pick}
 
 
-def _apply_random_eyes(report, eyes_cfg, basemesh, rng):
+def _apply_random_eyes(report, eyes_cfg, basemesh, rng, subdiv_levels):
     """Attach the eyes chosen in the eyes drop-down (there is no random draw for the mesh)."""
     mode = eyes_cfg.get("mode", "DONOTADD")
     fragment = _EYES_ASSET_FRAGMENTS.get(mode)
@@ -313,11 +330,11 @@ def _apply_random_eyes(report, eyes_cfg, basemesh, rng):
     if eyes_cfg.get("randomize_alt_materials", True) and material_type != "PROCEDURAL_EYES":
         alternative_materials = _pick_alternative_material(report, path, "eyes", rng)
 
-    HumanService.add_mhclo_asset(path, basemesh, asset_type="eyes", material_type=material_type,
-                                 alternative_materials=alternative_materials)
+    HumanService.add_mhclo_asset(path, basemesh, asset_type="eyes", subdiv_levels=subdiv_levels,
+                                 material_type=material_type, alternative_materials=alternative_materials)
 
 
-def _apply_random_bodyparts(report, spec, macro_details, basemesh, rng, discovery):
+def _apply_random_bodyparts(report, spec, macro_details, basemesh, rng, discovery, subdiv_levels):
     """Pick and attach a body part per enabled type, in the fixed documented draw order.
 
     Eyes are a special case (a drop-down, no draw for the mesh). For each of the remaining
@@ -330,7 +347,7 @@ def _apply_random_bodyparts(report, spec, macro_details, basemesh, rng, discover
 
     for bodypart in RandomizationService.get_bodypart_types():
         if bodypart == "eyes":
-            _apply_random_eyes(report, assets.get("eyes") or {}, basemesh, rng)
+            _apply_random_eyes(report, assets.get("eyes") or {}, basemesh, rng, subdiv_levels)
             continue
 
         section = assets.get(bodypart) or {}
@@ -347,11 +364,11 @@ def _apply_random_bodyparts(report, spec, macro_details, basemesh, rng, discover
         if bodypart == "hair" and section.get("randomize_alt_materials", False):
             alternative_materials = _pick_alternative_material(report, pick["path"], bodypart, rng)
 
-        HumanService.add_mhclo_asset(pick["path"], basemesh, asset_type=bodypart, material_type=material_type,
-                                     alternative_materials=alternative_materials)
+        HumanService.add_mhclo_asset(pick["path"], basemesh, asset_type=bodypart, subdiv_levels=subdiv_levels,
+                                     material_type=material_type, alternative_materials=alternative_materials)
 
 
-def _apply_random_clothes(report, spec, macro_details, basemesh, rng, discovery):
+def _apply_random_clothes(report, spec, macro_details, basemesh, rng, discovery, subdiv_levels):
     """Pick and attach one garment per enabled clothes slot, in the fixed draw order.
 
     The pure pick_random_clothes drives all eight slots (chance draws, full-body exclusivity,
@@ -380,4 +397,22 @@ def _apply_random_clothes(report, spec, macro_details, basemesh, rng, discovery)
         if pick is None:
             continue
 
-        HumanService.add_mhclo_asset(pick["path"], basemesh, asset_type="Clothes", material_type=material_type)
+        HumanService.add_mhclo_asset(pick["path"], basemesh, asset_type="Clothes", subdiv_levels=subdiv_levels,
+                                     material_type=material_type)
+
+
+def _move_feet_to_ground(basemesh):
+    """Shift the character's root so the lowest basemesh body vertex sits at global z=0.
+
+    create_human grounds the character before the detail targets and assets change its shape,
+    so this is done again as a final step. The root is the rig when one was added (the basemesh
+    is parented to it), otherwise the basemesh itself. get_lowest_point returns the lowest body
+    vertex in local coordinates with the shape keys taken into account; it is converted to a
+    world z via the basemesh's world matrix (only translation and scale matter here, since the
+    character has not been rotated at this point).
+    """
+    root = ObjectService.find_object_of_type_amongst_nearest_relatives(basemesh, "Skeleton") or basemesh
+    local_lowest = ObjectService.get_lowest_point(basemesh)
+    matrix_world = basemesh.matrix_world
+    lowest_world_z = matrix_world.translation.z + matrix_world.to_scale().z * local_lowest
+    root.location.z -= lowest_world_z

@@ -39,6 +39,13 @@ class MPFB_PT_Randomize_Creation_Panel(Abstract_Panel):
             "extra_vertex_groups",
             "mask_helpers"
             ])
+        # The subdiv modifier is added at viewport level 0; only the render level is exposed.
+        subdiv_box = layout.box()
+        subdiv_box.label(text="Subdivision")
+        properties = ["add_subdiv_modifier"]
+        if RANDOMIZE_PROPERTIES.get_value("add_subdiv_modifier", entity_reference=scene):
+            properties.append("subdiv_render_levels")
+        RANDOMIZE_PROPERTIES.draw_properties(scene, subdiv_box, properties)
         # The "new random seed" checkbox sits next to the create button so its effect on the
         # seed field after each creation is discoverable.
         RANDOMIZE_PROPERTIES.draw_properties(scene, layout, ["new_random_seed"])

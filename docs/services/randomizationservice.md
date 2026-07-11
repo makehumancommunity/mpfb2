@@ -102,6 +102,7 @@ sub-features can add sibling sections without breaking older presets:
   "batch": {                         # settings for generating several characters in one go
     "count": 10,                     # how many characters to generate
     "strategy": "GRID",              # GRID | RANDOM (random within a rectangle)
+    "origin_x": 0.0, "origin_y": 0.0,# GRID: X/Y position of the first character (no Z, stays on floor)
     "spacing_x": 1.0,                # GRID: distance between characters along a row
     "row_length": 10,                # GRID: characters per row before a new row starts
     "row_shift_y": 1.0,              # GRID: Y shift per new row
@@ -241,8 +242,8 @@ pattern used by the asset picks.
 
 #### get_default_batch_spec()
 
-Get a fresh copy of the default `batch` section (`count`, `strategy`, the grid spacings and the
-random-area bounds, `min_distance` and `random_rotation`). Unlike the other sections it carries
+Get a fresh copy of the default `batch` section (`count`, `strategy`, the grid origin and spacings
+and the random-area bounds, `min_distance` and `random_rotation`). Unlike the other sections it carries
 no `enabled` key: batch generation only runs when its operator is invoked, so a preset without
 the section loads these defaults rather than a disabled state. Used by the UI to reset the batch
 controls and by the batch operator as its fallback when a section is missing.
@@ -544,9 +545,10 @@ stream (see `compute_batch_placements`), so toggling placement never shifts a ch
 
 Compute the scene placement for each character. The draw order per character is fixed: position
 first (for the RANDOM strategy, plus any minimum-distance retries), then the rotation. The GRID
-strategy computes its positions from the spacing / row length / row shift and consumes **no**
-draws for them; the rotation is still drawn when `random_rotation` is on. Only X and Y are placed
-(characters stay feet-on-ground at z=0); the rotation is around Z.
+strategy computes its positions from the origin / spacing / row length / row shift and consumes
+**no** draws for them (the first character sits at `origin_x`, `origin_y`); the rotation is still
+drawn when `random_rotation` is on. Only X and Y are placed (characters stay feet-on-ground at
+z=0); the rotation is around Z.
 
 For the RANDOM strategy a nonzero `min_distance` triggers bounded rejection sampling: a position
 landing closer than the minimum to an already-placed character is redrawn up to a fixed cap (25),

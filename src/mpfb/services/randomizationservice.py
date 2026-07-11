@@ -231,6 +231,8 @@ _DETAIL_MAGNITUDE_FLOOR_FACTOR: float = 0.25
 _DEFAULT_BATCH: dict = {
     "count": 10,
     "strategy": "GRID",
+    "origin_x": 0.0,
+    "origin_y": 0.0,
     "spacing_x": 1.0,
     "row_length": 10,
     "row_shift_y": 1.0,
@@ -1060,15 +1062,19 @@ def _grid_position(batch_spec: dict, index: int) -> tuple[float, float, float]:
     """Compute the grid position for the character at the given index (consumes no draws).
 
     Characters fill a row along X at a fixed spacing; once a row reaches the configured length
-    the next character starts a new row, shifted along Y. Row length is clamped to at least 1 so
-    a zero or negative setting cannot cause a division error.
+    the next character starts a new row, shifted along Y. The first character sits at the
+    configured origin (origin_x, origin_y); Z is always 0.0 so the characters stay on the floor.
+    Row length is clamped to at least 1 so a zero or negative setting cannot cause a division
+    error.
     """
+    origin_x = float(batch_spec.get("origin_x", _DEFAULT_BATCH["origin_x"]))
+    origin_y = float(batch_spec.get("origin_y", _DEFAULT_BATCH["origin_y"]))
     spacing_x = float(batch_spec.get("spacing_x", _DEFAULT_BATCH["spacing_x"]))
     row_shift_y = float(batch_spec.get("row_shift_y", _DEFAULT_BATCH["row_shift_y"]))
     row_length = max(1, int(batch_spec.get("row_length", _DEFAULT_BATCH["row_length"])))
     column = index % row_length
     row = index // row_length
-    return (column * spacing_x, row * row_shift_y, 0.0)
+    return (origin_x + column * spacing_x, origin_y + row * row_shift_y, 0.0)
 
 
 def _draw_random_position(batch_spec: dict, placed_xy: list[tuple[float, float]],

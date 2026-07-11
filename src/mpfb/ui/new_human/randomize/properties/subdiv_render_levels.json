@@ -1,0 +1,8 @@
+{
+    "type": "int",
+    "name": "subdiv_render_levels",
+    "description": "The render level for the subdivision surface modifier. The viewport level is always 0",
+    "label": "Subdiv render levels",
+    "default": 1,
+    "min": 0
+}

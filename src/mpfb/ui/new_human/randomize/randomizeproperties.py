@@ -441,7 +441,9 @@ def scene_to_spec(scene: "bpy.types.Scene") -> dict:
         "mask_helpers": RANDOMIZE_PROPERTIES.get_value("mask_helpers", entity_reference=scene),
         "rig": RANDOMIZE_PROPERTIES.get_value("add_rig", entity_reference=scene),
         "auto_generate_rigify": RANDOMIZE_PROPERTIES.get_value("auto_generate_rigify", entity_reference=scene),
-        "meta_rig_action": RANDOMIZE_PROPERTIES.get_value("meta_rig_action", entity_reference=scene)
+        "meta_rig_action": RANDOMIZE_PROPERTIES.get_value("meta_rig_action", entity_reference=scene),
+        "add_subdiv_modifier": RANDOMIZE_PROPERTIES.get_value("add_subdiv_modifier", entity_reference=scene),
+        "subdiv_render_levels": RANDOMIZE_PROPERTIES.get_value("subdiv_render_levels", entity_reference=scene)
         }
 
     # The assets.skin section is filled from the skin sub-panel's properties. The default spec
@@ -524,6 +526,8 @@ def scene_to_spec(scene: "bpy.types.Scene") -> dict:
     spec["batch"] = {
         "count": RANDOMIZE_PROPERTIES.get_value("batch_count", entity_reference=scene),
         "strategy": RANDOMIZE_PROPERTIES.get_value("batch_strategy", entity_reference=scene),
+        "origin_x": RANDOMIZE_PROPERTIES.get_value("batch_origin_x", entity_reference=scene),
+        "origin_y": RANDOMIZE_PROPERTIES.get_value("batch_origin_y", entity_reference=scene),
         "spacing_x": RANDOMIZE_PROPERTIES.get_value("batch_spacing_x", entity_reference=scene),
         "row_length": RANDOMIZE_PROPERTIES.get_value("batch_row_length", entity_reference=scene),
         "row_shift_y": RANDOMIZE_PROPERTIES.get_value("batch_row_shift_y", entity_reference=scene),
@@ -582,6 +586,10 @@ def spec_to_scene(spec: dict, scene: "bpy.types.Scene") -> None:
     RANDOMIZE_PROPERTIES.set_value("add_rig", rig, entity_reference=scene)
     RANDOMIZE_PROPERTIES.set_value("auto_generate_rigify", creation["auto_generate_rigify"], entity_reference=scene)
     RANDOMIZE_PROPERTIES.set_value("meta_rig_action", creation["meta_rig_action"], entity_reference=scene)
+    # These two were added after the first presets were written, so fall back to their defaults
+    # when an older preset does not carry them.
+    RANDOMIZE_PROPERTIES.set_value("add_subdiv_modifier", creation.get("add_subdiv_modifier", True), entity_reference=scene)
+    RANDOMIZE_PROPERTIES.set_value("subdiv_render_levels", creation.get("subdiv_render_levels", 1), entity_reference=scene)
 
     assets = spec["assets"]
 
@@ -654,6 +662,10 @@ def spec_to_scene(spec: dict, scene: "bpy.types.Scene") -> None:
     batch = spec["batch"]
     RANDOMIZE_PROPERTIES.set_value("batch_count", batch["count"], entity_reference=scene)
     RANDOMIZE_PROPERTIES.set_value("batch_strategy", batch["strategy"], entity_reference=scene)
+    # The grid origin was added after the first presets were written, so fall back to 0.0 when
+    # an older preset does not carry it.
+    RANDOMIZE_PROPERTIES.set_value("batch_origin_x", batch.get("origin_x", 0.0), entity_reference=scene)
+    RANDOMIZE_PROPERTIES.set_value("batch_origin_y", batch.get("origin_y", 0.0), entity_reference=scene)
     RANDOMIZE_PROPERTIES.set_value("batch_spacing_x", batch["spacing_x"], entity_reference=scene)
     RANDOMIZE_PROPERTIES.set_value("batch_row_length", batch["row_length"], entity_reference=scene)
     RANDOMIZE_PROPERTIES.set_value("batch_row_shift_y", batch["row_shift_y"], entity_reference=scene)
@@ -857,6 +869,8 @@ def draw_batch(scene: "bpy.types.Scene", layout: "bpy.types.UILayout") -> None:
     else:
         box.label(text="Grid")
         RANDOMIZE_PROPERTIES.draw_properties(scene, box, [
+            "batch_origin_x",
+            "batch_origin_y",
             "batch_spacing_x",
             "batch_row_length",
             "batch_row_shift_y"

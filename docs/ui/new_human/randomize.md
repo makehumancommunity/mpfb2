@@ -112,14 +112,15 @@ The panel package is split so that each sub-panel is its own module and the shar
   beach/sport keyword sets). **Reproducibility caveat:** as with skin and body parts, the attached clothes depend on the set of installed assets, so the same
   preset and seed only reproduce the same result on a machine with the same clothes installed.
 - **Creation settings** (`MPFB_PT_Randomize_Creation_Panel`, `bl_order` 9, open) — a **Rig** box (`rig` drop-down, `auto_generate_rigify` and `meta_rig_action`)
-  followed by `scale_factor`, `detailed_helpers`, `extra_vertex_groups`, `mask_helpers`, the `new_random_seed` checkbox and the **Create random human** operator
+  followed by `scale_factor`, `detailed_helpers`, `extra_vertex_groups`, `mask_helpers`, a **Subdivision** box (`add_subdiv_modifier`, and `subdiv_render_levels`
+  when it is on), the `new_random_seed` checkbox and the **Create random human** operator
   button. The rig drop-down mirrors the "From save file" panel's rig override (No rig, the built-in rigs, the two Rigify metarigs and the installed custom rigs)
   minus its "From preset" entry, and defaults to the **Default** rig so a fresh scene produces a rigged character out of the box. The rig is added right after
   the human is created (before the body parts) so the body parts are rigged as they attach.
 - **Batch** (`MPFB_PT_Randomize_Batch_Panel`, `bl_order` 10, collapsed) — generation of several
   randomized characters in one go. Top to bottom: the `batch_count` (number of characters); the
   `batch_strategy` drop-down (**Grid** / **Random within area**); then, depending on the strategy,
-  either the grid box (`batch_spacing_x`, `batch_row_length`, `batch_row_shift_y`) or the random
+  either the grid box (`batch_origin_x`, `batch_origin_y`, `batch_spacing_x`, `batch_row_length`, `batch_row_shift_y`) or the random
   box (`batch_area_x_min` / `_x_max` / `_y_min` / `_y_max` and `batch_min_distance`); the
   `batch_random_rotation` toggle; and the **Create random humans** operator button. The base seed
   and **new random seed** are not duplicated here — they live on the General and Creation panels,
@@ -145,16 +146,22 @@ The panel package is split so that each sub-panel is its own module and the shar
 
 Creates a new basemesh with a randomized phenotype. The operator itself is a thin wrapper: it
 builds the spec, resolves the seed and draws the phenotype, then hands off to
-`characterbuilder.build_character()`, which performs steps 4–12 (the same shared logic the batch
+`characterbuilder.build_character()`, which performs steps 4–13 (the same shared logic the batch
 operator uses). Asset discovery (steps 9–11) is done once per invocation by
-`characterbuilder.build_discovery_context()`.
+`characterbuilder.build_discovery_context()`. After `build_character` returns, the operator
+deselects everything and makes the character's root — the rig when one was added (found with
+`ObjectService.find_object_of_type_amongst_nearest_relatives(basemesh, "Skeleton")`), otherwise
+the basemesh — the selected and active object, rather than whichever child mesh happened to be
+attached last.
 
 1. Builds a randomization spec from the panel properties.
 2. Reads `seed`; if it is 0 a fresh seed is drawn. A `random.Random` is seeded with the resolved value. After a successful creation, if `new_random_seed` is on
    the `seed` field is advanced to a fresh random value so the next invocation differs.
 3. Calls `RandomizationService.randomize_macro_info_dict(spec, rng)` to get the macro-detail dict.
 4. Maps `scale_factor` to a scale (METER → 0.1, DECIMETER → 1.0, CENTIMETER → 10.0) and calls `HumanService.create_human()` with the macro dict and the creation
-   settings.
+   settings. When `add_subdiv_modifier` is on, the basemesh gets a `SUBSURF` modifier (viewport level 0, render level `subdiv_render_levels`) via
+   `ModifierService.create_subsurf_modifier`, and the same level is threaded into every `add_mhclo_asset` call below so the attached assets match; when off, the
+   level 0 is passed everywhere and no subdiv modifier is added anywhere.
 5. If detail randomization is enabled, parses `target.json` once (dropping the empty `measure` section), passes the section/category structure as plain data to
    `RandomizationService.pick_random_details(...)` (drawing from the same `random.Random` after the phenotype draws and before any asset draws), and applies the
    returned target stack with a single `TargetService.bulk_load_targets(basemesh, stack)`. This happens right after `create_human` and before the rig and body
@@ -186,6 +193,10 @@ operator uses). Asset discovery (steps 9–11) is done once per invocation by
 12. If a `rigify.*` rig was added and `auto_generate_rigify` is on, generates the full Rigify rig from the meta rig with `RigService.generate_rigify_rig(rig,
     meta_rig_action=...)` **after** all body parts and clothes are attached, so their weights and subrigs exist. Mirrors the "From save file" operator's
     warnings (invalid metarig, or the addon not enabled at this stage).
+13. Re-grounds the character as a final step (`characterbuilder._move_feet_to_ground`): since detail targets and attached assets change the mesh after
+    `create_human`'s initial feet-on-ground, the lowest basemesh body vertex is no longer at z=0. It shifts the character's root (the rig when present, otherwise
+    the basemesh) so the lowest body vertex sits at global z=0, reusing `ObjectService.get_lowest_point` (shape-key aware, body verts only). This runs before the
+    batch operator rotates the character (so only translation/scale matter) and consumes no random draws.
 
 ---
 
@@ -218,7 +229,8 @@ Generates `batch_count` randomized characters in one go, each built by the same
   parent (the armature when rigged, else the basemesh) at the computed X/Y with the Z rotation
   (feet stay on the ground). A character that raises mid-build is deleted (its partial objects
   removed) and skipped with a WARNING; the batch continues.
-- **Placement.** **Grid** lays characters along X at `batch_spacing_x`, wrapping to a new row every
+- **Placement.** **Grid** starts the first character at (`batch_origin_x`, `batch_origin_y`) and lays
+  characters along X at `batch_spacing_x`, wrapping to a new row every
   `batch_row_length` characters shifted by `batch_row_shift_y`. **Random within area** scatters
   them uniformly within the `batch_area_*` rectangle; a nonzero `batch_min_distance` retries a
   position up to 25 times to honor the spacing, then accepts an overlap and warns. `batch_random_rotation`
@@ -300,6 +312,8 @@ The panel loads its global and creation settings from `src/mpfb/ui/new_human/ran
 | `detailed_helpers` | boolean | `true` | Assign detailed vertex groups to helper geometry. |
 | `extra_vertex_groups` | boolean | `true` | Assign extra vertex groups to the body. |
 | `mask_helpers` | boolean | `true` | Add a mask modifier which hides the helper geometry. |
+| `add_subdiv_modifier` | boolean | `true` | Add a subdivision surface modifier to the basemesh and every attached asset. The viewport level is always 0. |
+| `subdiv_render_levels` | int | `1` | Render level for the subdivision surface modifier. Only shown when `add_subdiv_modifier` is on. |
 | `randomize_skin` | boolean | `true` | Assign a randomly picked skin material to the created human. When off, the default material is kept and no skin draw happens. |
 | `match_gender` | boolean | `true` | Only pick skins whose name matches the randomized gender label (`female`/`male`, split at 0.5). |
 | `match_age` | boolean | `true` | Only pick skins whose name matches the randomized age label (`baby`, `child`, `young`, `middleage`, `old`). |
@@ -325,6 +339,7 @@ The panel loads its global and creation settings from `src/mpfb/ui/new_human/ran
 | `name` | string | `""` | Name used when saving a new preset. |
 | `batch_count` | int | `10` | Number of characters the batch operator generates in one run. |
 | `batch_strategy` | enum | `"GRID"` | How the batch places characters. Options: `GRID` (regular grid), `RANDOM` (scattered within a rectangle). |
+| `batch_origin_x` / `batch_origin_y` | float | `0.0` / `0.0` | Grid: X/Y position of the first character; later characters are placed relative to it. There is no Z control (characters stay on the floor at z=0). |
 | `batch_spacing_x` | float | `1.0` | Grid: distance between characters along a row. |
 | `batch_row_length` | int | `10` | Grid: characters per row before a new row starts. |
 | `batch_row_shift_y` | float | `1.0` | Grid: Y shift applied to each new row. |

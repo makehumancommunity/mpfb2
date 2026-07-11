@@ -1,7 +1,8 @@
 """Operator for creating a new human with a randomized phenotype."""
 
-import random
+import bpy, random
 from .....services import LogService
+from .....services import ObjectService
 from .....services import RandomizationService
 from .....services import SystemService
 from ..randomizeproperties import RANDOMIZE_PROPERTIES, scene_to_spec
@@ -46,7 +47,16 @@ class MPFB_OT_Create_Random_Human_Operator(MpfbOperator):
         _LOG.dump("macro_details", macro_details)
 
         discovery = characterbuilder.build_discovery_context()
-        characterbuilder.build_character(spec, macro_details, rng, self.report, discovery)
+        basemesh = characterbuilder.build_character(spec, macro_details, rng, self.report, discovery)
+
+        # Leave the character's root (the rig when one was added, otherwise the basemesh)
+        # selected and active, rather than whichever child mesh happened to be attached last.
+        root = ObjectService.find_object_of_type_amongst_nearest_relatives(basemesh, "Skeleton") or basemesh
+        if bpy.context.object is not None and bpy.context.object.mode != 'OBJECT':
+            bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
+        ObjectService.deselect_and_deactivate_all()
+        root.select_set(True)
+        bpy.context.view_layer.objects.active = root
 
         self.report({'INFO'}, RandomizationService.describe_macro_info_dict(macro_details, seed))
 

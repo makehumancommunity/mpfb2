@@ -525,6 +525,82 @@ def test_same_seed_attaches_same_clothes():
         _restore_all_defaults()
 
 
+def _find_subsurf(blender_object):
+    """Return the first SUBSURF modifier on an object, or None."""
+    for modifier in blender_object.modifiers:
+        if modifier.type == 'SUBSURF':
+            return modifier
+    return None
+
+
+def test_single_creation_leaves_rig_selected_and_active():
+    # After a single creation with a rig, the rig (not the last attached child mesh) should be
+    # the selected and active object.
+    try:
+        _disable_all_assets()
+        _set_props(add_rig="default")
+        mockself = _run(222)
+        mockself.mock_report.assert_no_errors()
+        basemesh = _find_basemesh()
+        rig = ObjectService.find_object_of_type_amongst_nearest_relatives(basemesh, "Skeleton")
+        assert rig is not None, "A Skeleton was created"
+        assert bpy.context.view_layer.objects.active is rig, "the rig is the active object"
+        assert rig.select_get(), "the rig is selected"
+        _delete_human()
+    finally:
+        _restore_all_defaults()
+
+
+def test_feet_on_ground_after_details():
+    # Detail targets change the mesh after create_human's initial grounding, so the final step
+    # must re-ground the character: the lowest body vertex ends up at world z=0.
+    try:
+        _disable_all_assets()
+        _set_props(randomize_details=True)
+        _disable_all_detail_sections()
+        # Draw a generous number of leg/torso details, which are the ones that move the feet.
+        _set_props(detail_legs_min=4, detail_legs_max=6, detail_torso_min=2, detail_torso_max=4)
+        mockself = _run(31337)
+        mockself.mock_report.assert_no_errors()
+        basemesh = _find_basemesh()
+        assert basemesh is not None
+        matrix_world = basemesh.matrix_world
+        lowest_world_z = matrix_world.translation.z + matrix_world.to_scale().z * ObjectService.get_lowest_point(basemesh)
+        assert abs(lowest_world_z) < 1e-3, "the lowest body vertex sits at world z=0 after details"
+        _delete_human()
+    finally:
+        _restore_all_defaults()
+
+
+def test_subdiv_modifier_added_when_enabled():
+    try:
+        _disable_all_assets()
+        _set_props(add_subdiv_modifier=True, subdiv_render_levels=2)
+        mockself = _run(222)
+        mockself.mock_report.assert_no_errors()
+        modifier = _find_subsurf(_find_basemesh())
+        assert modifier is not None, "a subdiv modifier is added to the basemesh"
+        assert modifier.levels == 0, "the viewport level is 0"
+        assert modifier.render_levels == 2, "the render level matches the setting"
+        _delete_human()
+    finally:
+        _set_props(add_subdiv_modifier=True, subdiv_render_levels=1)
+        _restore_all_defaults()
+
+
+def test_subdiv_modifier_absent_when_disabled():
+    try:
+        _disable_all_assets()
+        _set_props(add_subdiv_modifier=False)
+        mockself = _run(222)
+        mockself.mock_report.assert_no_errors()
+        assert _find_subsurf(_find_basemesh()) is None, "no subdiv modifier is added when the option is off"
+        _delete_human()
+    finally:
+        _set_props(add_subdiv_modifier=True, subdiv_render_levels=1)
+        _restore_all_defaults()
+
+
 def test_mpfbcontext_accepts_randomize_properties():
     # The preset operators build a MpfbContext from RANDOMIZE_PROPERTIES. Property names which
     # collide with the attributes MpfbContext always sets on itself (such as "rig") make this

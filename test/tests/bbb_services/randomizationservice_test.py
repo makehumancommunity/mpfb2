@@ -1123,6 +1123,25 @@ def test_grid_placement_positions_follow_spacing_and_row_length():
     assert all(location[2] == 0.0 for location in locations), "characters stay at z=0"
 
 
+def test_grid_placement_offsets_from_origin():
+    spec = _grid_spec(origin_x=10.0, origin_y=-4.0, spacing_x=2.0, row_length=3, row_shift_y=5.0,
+                      random_rotation=False)
+    placements = RandomizationService.compute_batch_placements(spec, 7, random.Random(0))
+    locations = [placement["location"] for placement in placements]
+    assert locations[0] == (10.0, -4.0, 0.0), "the first character sits at the configured origin"
+    assert locations[1] == (12.0, -4.0, 0.0), "later characters step from the origin"
+    assert locations[3] == (10.0, 1.0, 0.0), "a new row keeps the origin X and shifts Y from the origin"
+    assert all(location[2] == 0.0 for location in locations), "characters stay at z=0"
+
+
+def test_grid_placement_default_origin_is_zero():
+    default = RandomizationService.compute_batch_placements(_grid_spec(random_rotation=False), 5, random.Random(0))
+    explicit = RandomizationService.compute_batch_placements(
+        _grid_spec(origin_x=0.0, origin_y=0.0, random_rotation=False), 5, random.Random(0))
+    assert [p["location"] for p in default] == [p["location"] for p in explicit], \
+        "the default origin (0, 0) reproduces the un-offset grid"
+
+
 def test_grid_placement_consumes_no_position_draws():
     spec = _grid_spec(random_rotation=False)
     rng = random.Random(42)

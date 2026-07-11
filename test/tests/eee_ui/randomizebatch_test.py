@@ -142,6 +142,22 @@ def test_batch_grid_positions_follow_the_spec():
         _set_props(seed=0)
 
 
+def test_batch_grid_positions_offset_from_origin():
+    try:
+        _minimal_scene()
+        _set_props(batch_count=3, batch_strategy="GRID", batch_random_rotation=False,
+                   batch_origin_x=10.0, batch_origin_y=-4.0,
+                   batch_spacing_x=2.0, batch_row_length=2, batch_row_shift_y=3.0)
+        collection = _run_batch(31337)
+        positions = set()
+        for obj in collection.objects:
+            if ObjectService.object_is_basemesh(obj):
+                positions.add((round(obj.location[0], 4), round(obj.location[1], 4)))
+        assert positions == {(10.0, -4.0), (12.0, -4.0), (10.0, -1.0)}, "grid positions are offset from the configured origin"
+    finally:
+        _set_props(seed=0, batch_origin_x=0.0, batch_origin_y=0.0)
+
+
 def test_batch_character_matches_single_operator_with_its_seed():
     # Requirement: a character's stamped seed reproduces that character in the single-character
     # operator. Build a batch, read one character's macro and seed, then run the single operator
