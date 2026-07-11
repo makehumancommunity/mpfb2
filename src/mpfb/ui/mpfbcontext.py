@@ -58,6 +58,8 @@ class MpfbContext:
 
     if given scene_properties and/or object_properties, the keys of these will be transposed into the MpfbContext.
     For example, if you have a scene property "scale_factor", then it would be readable via a MpfbContext "ctx" as "ctx.scale_factor".
+    Since the attributes listed above are always set, property keys must not use any of those names ("rig", "basemesh" and
+    so on), or construction will fail with a duplicate key error.
 
     Which objects are resolved depends on the effort level specifies.
     """

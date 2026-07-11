@@ -29,7 +29,7 @@ class MPFB_PT_Randomize_Creation_Panel(Abstract_Panel):
         rig_box = layout.box()
         rig_box.label(text="Rig")
         RANDOMIZE_PROPERTIES.draw_properties(scene, rig_box, [
-            "rig",
+            "add_rig",
             "auto_generate_rigify",
             "meta_rig_action"
             ])

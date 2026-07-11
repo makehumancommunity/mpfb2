@@ -26,7 +26,7 @@ def _minimal_scene():
     This keeps the batch tests fast and free of any dependency on installed assets, so they run
     the same everywhere.
     """
-    _set_props(rig="NONE", eyes_mode="DONOTADD", hair_randomize=False, randomize_skin=False,
+    _set_props(add_rig="NONE", eyes_mode="DONOTADD", hair_randomize=False, randomize_skin=False,
                randomize_details=False, new_random_seed=False)
     for name in _PLAIN_BODYPART_ENABLES:
         _set_props(**{name: False})

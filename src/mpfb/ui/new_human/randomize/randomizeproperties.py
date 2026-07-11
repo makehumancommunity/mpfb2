@@ -370,9 +370,11 @@ def _populate_rig(self, context: "bpy.types.Context") -> list[tuple[str, str, st
     return items
 
 
+# The property is named "add_rig" rather than "rig" since "rig" collides with the reserved
+# object slot MpfbContext always sets on itself. Inside the preset spec the key is still "rig".
 RANDOMIZE_PROPERTIES.add_property({
     "type": "enum",
-    "name": "rig",
+    "name": "add_rig",
     "description": "What rig to add to the created human. The rig is added before the body parts, so they are rigged as they are attached",
     "label": "Rig",
     "default": 1
@@ -437,7 +439,7 @@ def scene_to_spec(scene: "bpy.types.Scene") -> dict:
         "detailed_helpers": RANDOMIZE_PROPERTIES.get_value("detailed_helpers", entity_reference=scene),
         "extra_vertex_groups": RANDOMIZE_PROPERTIES.get_value("extra_vertex_groups", entity_reference=scene),
         "mask_helpers": RANDOMIZE_PROPERTIES.get_value("mask_helpers", entity_reference=scene),
-        "rig": RANDOMIZE_PROPERTIES.get_value("rig", entity_reference=scene),
+        "rig": RANDOMIZE_PROPERTIES.get_value("add_rig", entity_reference=scene),
         "auto_generate_rigify": RANDOMIZE_PROPERTIES.get_value("auto_generate_rigify", entity_reference=scene),
         "meta_rig_action": RANDOMIZE_PROPERTIES.get_value("meta_rig_action", entity_reference=scene)
         }
@@ -575,8 +577,14 @@ def spec_to_scene(spec: dict, scene: "bpy.types.Scene") -> None:
     RANDOMIZE_PROPERTIES.set_value("extra_vertex_groups", creation.get("extra_vertex_groups", True), entity_reference=scene)
     RANDOMIZE_PROPERTIES.set_value("mask_helpers", creation.get("mask_helpers", True), entity_reference=scene)
     # A preset without a rig key loads as "No rig", so an old preset keeps producing the
-    # unrigged character it did before.
-    RANDOMIZE_PROPERTIES.set_value("rig", creation.get("rig", "NONE"), entity_reference=scene)
+    # unrigged character it did before. The same fallback is used when the preset names a rig
+    # which is no longer available (for example an uninstalled custom rig), since assigning an
+    # unknown identifier to the enum would otherwise raise.
+    rig = creation.get("rig", "NONE")
+    if rig not in [identifier for identifier, _label, _description in _populate_rig(None, None)]:
+        _LOG.warn("Preset refers to a rig which is not available, falling back to no rig", rig)
+        rig = "NONE"
+    RANDOMIZE_PROPERTIES.set_value("add_rig", rig, entity_reference=scene)
     RANDOMIZE_PROPERTIES.set_value("auto_generate_rigify", creation.get("auto_generate_rigify", True), entity_reference=scene)
     RANDOMIZE_PROPERTIES.set_value("meta_rig_action", creation.get("meta_rig_action", "hide"), entity_reference=scene)
 

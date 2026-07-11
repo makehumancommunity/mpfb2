@@ -11,6 +11,10 @@ from ._helpers import MockOperatorBase
 MPFB_OT_Create_Random_Human_Operator = dynamic_import("mpfb.ui.new_human.randomize.operators.createrandomhuman", "MPFB_OT_Create_Random_Human_Operator")
 RANDOMIZE_PROPERTIES = dynamic_import("mpfb.ui.new_human.randomize.randomizeproperties", "RANDOMIZE_PROPERTIES")
 DETAIL_SECTIONS = dynamic_import("mpfb.ui.new_human.randomize.randomizeproperties", "DETAIL_SECTIONS")
+scene_to_spec = dynamic_import("mpfb.ui.new_human.randomize.randomizeproperties", "scene_to_spec")
+spec_to_scene = dynamic_import("mpfb.ui.new_human.randomize.randomizeproperties", "spec_to_scene")
+MpfbContext = dynamic_import("mpfb.ui.mpfbcontext", "MpfbContext")
+ContextResolveEffort = dynamic_import("mpfb.ui.mpfbcontext", "ContextResolveEffort")
 HumanObjectProperties = dynamic_import("mpfb.entities.objectproperties", "HumanObjectProperties")
 
 # The system skins ship as installed assets; the skin tests only run when some are present.
@@ -59,7 +63,7 @@ def _disable_bodyparts_and_rig():
     """Turn off the rig and every body part (and all clothes and details), so the operator produces
     just a basemesh (plus, if skin is on, a skin material). Skin is left untouched so the skin tests
     control it."""
-    _set_props(rig="NONE", eyes_mode="DONOTADD", hair_randomize=False)
+    _set_props(add_rig="NONE", eyes_mode="DONOTADD", hair_randomize=False)
     for name in _PLAIN_BODYPART_ENABLES:
         _set_props(**{name: False})
     _disable_clothes()
@@ -285,7 +289,7 @@ def _disable_all_assets():
 
 def _restore_all_defaults():
     _restore_skin_defaults()
-    _set_props(rig="default", eyes_mode="LOWPOLY", hair_randomize=True)
+    _set_props(add_rig="default", eyes_mode="LOWPOLY", hair_randomize=True)
     for name in _PLAIN_BODYPART_ENABLES:
         _set_props(**{name: True})
     for slot in _CLOTHES_SLOTS:
@@ -391,7 +395,7 @@ def test_builtin_rig_is_added():
     # The built-in rigs ship with MPFB, so this does not depend on external assets.
     try:
         _disable_all_assets()
-        _set_props(rig="default")
+        _set_props(add_rig="default")
         mockself = _run(222)
         mockself.mock_report.assert_no_errors()
         basemesh = _find_basemesh()
@@ -409,7 +413,7 @@ def test_bodyparts_are_attached_and_rigged():
     try:
         _disable_all_assets()
         # Attach eyes and hair, with a rig so the child meshes are rigged as they attach.
-        _set_props(rig="default", eyes_mode="LOWPOLY", hair_randomize=True,
+        _set_props(add_rig="default", eyes_mode="LOWPOLY", hair_randomize=True,
                    hair_match_gender=False, hair_pack="", hair_include="", hair_exclude="",
                    eyes_randomize_alt_materials=False, hair_randomize_alt_materials=False)
         mockself = _run(333)
@@ -468,7 +472,7 @@ def test_clothes_are_attached_and_rigged():
         # Map one slot onto a specific installed garment by its full name, so the pool is not
         # empty regardless of which clothes happen to be installed.
         first_name = os.path.splitext(os.path.basename(str(AssetService.list_mhclo_assets("clothes")[0])))[0]
-        _set_props(rig="default", asset_material_type="MAKESKIN")
+        _set_props(add_rig="default", asset_material_type="MAKESKIN")
         _enable_only_clothes_slot("head", include_any=first_name)
         mockself = _run(555)
         mockself.mock_report.assert_no_errors()
@@ -491,7 +495,7 @@ def test_disabled_clothes_attach_nothing():
         return
     try:
         _disable_all_assets()
-        _set_props(rig="default")
+        _set_props(add_rig="default")
         mockself = _run(556)
         mockself.mock_report.assert_no_errors()
         basemesh = _find_basemesh()
@@ -517,5 +521,38 @@ def test_same_seed_attaches_same_clothes():
         second = sorted(a.name for a in ObjectService.find_related_mesh_assets(_find_basemesh()))
         _delete_human()
         assert first and first == second, "The same seed attaches the same clothes"
+    finally:
+        _restore_all_defaults()
+
+
+def test_mpfbcontext_accepts_randomize_properties():
+    # The preset operators build a MpfbContext from RANDOMIZE_PROPERTIES. Property names which
+    # collide with the attributes MpfbContext always sets on itself (such as "rig") make this
+    # raise a duplicate key error, so this guards against future reserved-name collisions.
+    ctx = MpfbContext(context=bpy.context, scene_properties=RANDOMIZE_PROPERTIES, effort=ContextResolveEffort.NONE)
+    assert hasattr(ctx, "add_rig")
+    assert hasattr(ctx, "available_presets")
+
+
+def test_preset_spec_roundtrip_keeps_rig():
+    try:
+        _set_props(add_rig="default")
+        spec = scene_to_spec(bpy.context.scene)
+        assert spec["creation"]["rig"] == "default"
+        _set_props(add_rig="NONE")
+        spec_to_scene(spec, bpy.context.scene)
+        assert RANDOMIZE_PROPERTIES.get_value("add_rig", entity_reference=bpy.context.scene) == "default"
+    finally:
+        _restore_all_defaults()
+
+
+def test_preset_with_unavailable_rig_falls_back_to_none():
+    # A preset can refer to a custom rig which has since been uninstalled. Loading it must fall
+    # back to "No rig" rather than raise when assigning an unknown identifier to the enum.
+    try:
+        spec = scene_to_spec(bpy.context.scene)
+        spec["creation"]["rig"] = "custom.does_not_exist"
+        spec_to_scene(spec, bpy.context.scene)
+        assert RANDOMIZE_PROPERTIES.get_value("add_rig", entity_reference=bpy.context.scene) == "NONE"
     finally:
         _restore_all_defaults()
