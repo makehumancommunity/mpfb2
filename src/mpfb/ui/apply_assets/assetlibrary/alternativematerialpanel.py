@@ -8,38 +8,19 @@ from ....services import AssetService
 from ....services import SceneConfigSet
 from ...abstractpanel import Abstract_Panel
 from ....entities.objectproperties import GeneralObjectProperties
-import os, bpy
+import bpy, math
 
 _LOG = LogService.get_logger("assetlibrary.alternativematerials")
 
-ALTMAT_PROPERTIES = SceneConfigSet([], prefix="ALTM_")
-
-def _populate_settings(self, context):
-    _LOG.enter()
-    _LOG.trace("Context is scene", isinstance(context, bpy.types.Scene))
-    materials = [("DEFAULT", "Default material", "Default material", 0)]
-    if not context.active_object:
-        return materials
-    asset_type = ObjectService.get_object_type(context.active_object)
-    source = GeneralObjectProperties.get_value("asset_source", entity_reference=context.active_object)
-    altmats = AssetService.alternative_materials_for_asset(source, str(asset_type).lower())
-    altmats.sort()
-    i = 1
-    for mat in altmats:
-        bn = str(os.path.basename(mat))
-        materials.append((bn, bn.replace(".mhmat", ""), bn, i))
-        i = i + 1
-    _LOG.debug("materials", materials)
-    return materials
-
-_SETTINGS_LIST_PROP = {
-    "type": "enum",
-    "name": "available_materials",
-    "description": "These are the currently available materials for the selected mesh",
-    "label": "Material",
-    "default": 0
-}
-ALTMAT_PROPERTIES.add_property(_SETTINGS_LIST_PROP, _populate_settings)
+ALTMAT_PROPERTIES = SceneConfigSet([
+    {
+    "type": "string",
+    "name": "filter",
+    "description": "Only list materials with this term in the name",
+    "label": "Name must contain",
+    "default": ""
+    }
+    ], prefix="ALTM_")
 
 class MPFB_PT_Alternative_Material_Panel(Abstract_Panel):
     """Alternative materials for selected assets."""
@@ -73,8 +54,45 @@ class MPFB_PT_Alternative_Material_Panel(Abstract_Panel):
             layout.label(text="supported")
             return
 
-        ALTMAT_PROPERTIES.draw_properties(scene, layout, ["available_materials"])
-        layout.operator("mpfb.load_library_material")
+        ALTMAT_PROPERTIES.draw_properties(scene, layout, ["filter"])
+
+        source = GeneralObjectProperties.get_value("asset_source", entity_reference=context.active_object)
+        tiles = AssetService.alternative_material_tiles_for_asset(source, str(asset_type).lower())
+
+        current = GeneralObjectProperties.get_value("alternative_material", entity_reference=context.active_object)
+        _LOG.debug("Currently applied alternative material", current)
+
+        tot_width = bpy.context.region.width
+        cols = max(1, math.floor(tot_width / 256))
+        _LOG.debug("Number of UI columns to use", cols)
+
+        grid = layout.grid_flow(columns=cols, even_columns=True, even_rows=False)
+
+        box = grid.box()
+        box.label(text="Default material")
+        if not current:
+            box.alert = True
+        placeholder = AssetService.get_placeholder_thumbnail()
+        if placeholder is not None:
+            box.template_icon(icon_value=placeholder.icon_id, scale=6.0)
+        operator = box.operator("mpfb.load_library_material")
+        operator.restore_default = True
+
+        filter_term = str(ALTMAT_PROPERTIES.get_value("filter", entity_reference=scene)).strip().lower()
+
+        for tile in tiles:
+            if filter_term and not filter_term in str(tile["label"]).lower():
+                _LOG.trace("Tile not acceptable, does not match", (tile["label"], filter_term))
+                continue
+
+            box = grid.box()
+            box.label(text=tile["label"])
+            if current and current == tile["fragment"]:
+                box.alert = True
+            if not tile["thumb"] is None:
+                box.template_icon(icon_value=tile["thumb"].icon_id, scale=6.0)
+            operator = box.operator("mpfb.load_library_material")
+            operator.filepath = tile["full_path"]
 
 ClassManager.add_class(MPFB_PT_Alternative_Material_Panel)
 
