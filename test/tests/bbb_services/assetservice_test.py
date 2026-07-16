@@ -70,6 +70,78 @@ def test_asset_lists():
     assert alist, "The asset list should not be empty"
     assert len(alist) > 0, "The asset list should not be empty"
 
+
+def test_alternative_materials_for_asset():
+    materials = AssetService.alternative_materials_for_asset("low-poly/low-poly.mhclo", "eyes")
+
+    assert materials, "The eyes should have alternative materials"
+    for material in materials:
+        assert os.path.isabs(material), f"The path {material} should be an absolute path"
+        assert os.path.exists(material), f"The path {material} should exist"
+
+    basenames = [os.path.basename(material) for material in materials]
+    assert "brown.mhmat" in basenames, "The bundled brown eyes material should be listed"
+    assert len(basenames) == len(set(basenames)), "The same material should not be listed twice"
+    assert materials == sorted(materials), "The materials should be sorted"
+
+
+def test_alternative_materials_for_nonexisting_asset():
+    """A fragment which cannot be resolved should give an empty list rather than crash."""
+    assert AssetService.alternative_materials_for_asset("no_such_asset/no_such_asset.mhclo", "clothes") == []
+    assert AssetService.alternative_materials_for_asset(None, "clothes") == []
+    assert AssetService.alternative_materials_for_asset("", "clothes") == []
+
+
+def test_get_placeholder_thumbnail():
+    # Note that icon_id is 0 when running headless, as blender only allocates icon ids when there is a UI
+    placeholder = AssetService.get_placeholder_thumbnail()
+    assert placeholder is not None, "The bundled placeholder thumbnail should be loadable"
+    assert tuple(placeholder.image_size) == (128, 128), "The placeholder image should have been loaded"
+    assert AssetService.get_placeholder_thumbnail() is placeholder, "The placeholder should only be loaded once"
+
+
+def test_alternative_material_tiles_have_thumbs():
+    """The eyes materials all have a thumb of their own next to the mhmat."""
+    tiles = AssetService.alternative_material_tiles_for_asset("low-poly/low-poly.mhclo", "eyes")
+
+    assert tiles, "The eyes should have alternative material tiles"
+
+    by_name = {tile["name_without_ext"]: tile for tile in tiles}
+    assert "brown" in by_name, "The bundled brown eyes material should have a tile"
+
+    brown = by_name["brown"]
+    assert brown["label"] == "Brown", "The label should be a capitalized version of the name"
+    assert brown["fragment"] == "materials/brown.mhmat", "The fragment should be relative to the asset root"
+    assert brown["thumb_path"] is not None, "The brown material has a thumb of its own"
+    assert os.path.exists(brown["thumb_path"]), "The thumb path should exist"
+    assert brown["thumb"] is not None, "The thumb should have been loaded"
+
+
+def test_alternative_material_tiles_fall_back_to_placeholder():
+    """The fedora mhmat has no thumb of its own, as the thumb is named after the mhclo."""
+    tiles = AssetService.alternative_material_tiles_for_asset("fedora01/fedora01.mhclo", "clothes")
+
+    assert tiles, "The fedora should have alternative material tiles"
+
+    by_name = {tile["name_without_ext"]: tile for tile in tiles}
+    assert "fedora" in by_name, "The fedora material should have a tile"
+
+    fedora = by_name["fedora"]
+    assert fedora["thumb_path"] is None, "The fedora material does not have a thumb of its own"
+    assert fedora["thumb"] is not None, "A material without a thumb should still get the placeholder"
+    assert fedora["thumb"] == AssetService.get_placeholder_thumbnail(), "The placeholder should have been used"
+
+
+def test_alternative_material_cache_is_invalidated():
+    AssetService.alternative_materials_for_asset("low-poly/low-poly.mhclo", "eyes")
+    AssetService.alternative_material_tiles_for_asset("low-poly/low-poly.mhclo", "eyes")
+
+    AssetService.invalidate_alternative_materials_cache()  # Largely to make sure it does not crash
+
+    materials = AssetService.alternative_materials_for_asset("low-poly/low-poly.mhclo", "eyes")
+    assert materials, "The materials should be rescanned after the cache was invalidated"
+
+
 def test_bad_mac_pack():
     """Test AssetService.check_asset_pack_zip for detecting zip files corrupted by mac"""
     testdata = LocationService.get_mpfb_test("testdata")

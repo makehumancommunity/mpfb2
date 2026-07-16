@@ -27,6 +27,8 @@ In addition, AssetService is responsible for discovering **custom rigs** stored 
 In addition to `ASSET_LIBRARY_SECTIONS` and the asset list cache, the module maintains:
 
 - `_CUSTOM_RIGS_CACHE` — A cached list of custom rig dictionaries discovered in user data roots. Initially `None`; populated on the first call to `get_custom_rigs()` and cleared by `invalidate_custom_rig_cache()`.
+- `_ALTERNATIVE_MATERIALS` — Alternative material paths, keyed on `(asset_source, asset_subdir)`. Populated on the first call to `alternative_materials_for_asset()` for a given asset and cleared by `invalidate_alternative_materials_cache()`.
+- `_ALTERNATIVE_MATERIAL_TILES` — The same, but for the UI items produced by `alternative_material_tiles_for_asset()`.
 
 ## Constants
 
@@ -141,13 +143,44 @@ Find all `.proxy` asset files in the specified subdirectory.
 
 Find alternative `.mhmat` material files for a given asset. Searches for materials in the same parent directory as the asset. For eye assets, also searches the `materials` subdirectory.
 
+The result is deduplicated and sorted, and is cached per asset source. An asset source which cannot be resolved gives an empty list. Note that `exclude_default` is not currently implemented, and the default material is thus always included if it resides in the searched directories.
+
 | Argument | Type | Default | Description |
 |----------|------|---------|-------------|
 | `asset_source` | `str \| None` | — | The source path fragment of the asset |
 | `asset_subdir` | `str` | `"clothes"` | The asset subdirectory to search within |
-| `exclude_default` | `bool` | `True` | Whether to exclude the default material |
+| `exclude_default` | `bool` | `True` | Not implemented |
 
-**Returns:** `list[str]` — List of absolute paths to alternative material files.
+**Returns:** `list[str]` — Sorted list of absolute paths to alternative material files.
+
+---
+
+#### alternative_material_tiles_for_asset(asset_source, asset_subdir="clothes")
+
+Find alternative materials for an asset, with thumbnails and labels suitable for drawing a UI grid. Builds on `alternative_materials_for_asset()`, and is likewise cached per asset source.
+
+The returned items have the same shape as those in the asset list, see `update_asset_list()`. Thumbnails are read from a `<basename>.thumb` file next to the `.mhmat` file, and are loaded into the same preview collection as the asset list uses. Materials without a thumbnail of their own get the bundled placeholder, so that all tiles can be drawn at the same size.
+
+| Argument | Type | Default | Description |
+|----------|------|---------|-------------|
+| `asset_source` | `str \| None` | — | The source path fragment of the asset |
+| `asset_subdir` | `str` | `"clothes"` | The asset subdirectory to search within |
+
+**Returns:** `list[dict]` — List of items describing the alternative materials.
+
+---
+
+#### get_placeholder_thumbnail()
+
+Get the preview for the bundled placeholder image (`data/textures/notfound.thumb`), to be used for assets which do not have a thumbnail of their own.
+
+**Returns:** The preview object, or `None` if the bundled image is missing.
+
+---
+
+#### invalidate_alternative_materials_cache()
+
+Empty the cache of alternative materials, so that it is rescanned on next request. Called by `update_all_asset_lists()`.
 
 ---
 
@@ -190,7 +223,7 @@ Scan an asset subdirectory for files of the given type and update the global ass
 
 #### update_all_asset_lists()
 
-Update the global asset list cache for all sections defined in `ASSET_LIBRARY_SECTIONS`.
+Update the global asset list cache for all sections defined in `ASSET_LIBRARY_SECTIONS`. Also invalidates the alternative materials cache.
 
 **Returns:** None
 

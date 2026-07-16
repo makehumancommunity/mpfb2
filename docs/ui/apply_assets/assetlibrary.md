@@ -105,7 +105,11 @@ This panel collects all configuration that controls how assets are loaded. It is
 
 This panel allows replacing the material on a piece of equipment with an alternative `.mhmat` file that ships alongside the asset. It requires an active mesh object that MPFB recognises as a clothes or body-part type. Basemeshes, proxy meshes, and skeleton objects are explicitly excluded.
 
-The `available_materials` property is a dynamically populated enum. Its option list is regenerated on every draw by `_populate_settings()`, which reads the `asset_source` property of the active object, then calls `AssetService.alternative_materials_for_asset()` to list all `.mhmat` files belonging to that same asset directory. The user picks a material and clicks **Load** (`mpfb.load_library_material`) to apply it.
+The panel presents the available materials as a grid of thumbnails, in the same manner as the asset library panels. It reads the `asset_source` property of the active object, then calls `AssetService.alternative_material_tiles_for_asset()` to list all `.mhmat` files belonging to that same asset directory. Each tile shows the material name, a thumbnail, and a **Load** button (`mpfb.load_library_material`) which applies that material to the active object.
+
+The first tile represents the material defined by the asset's mhclo file. Loading it restores that material and clears the `alternative_material` property. The tile matching the object's current `alternative_material` property is highlighted; when no alternative material is applied, the default tile is the highlighted one.
+
+Materials which do not have a thumbnail of their own get a bundled placeholder image, so that all tiles are drawn at the same size. The `filter` property narrows the grid by case-insensitive substring match against the material names. It is specific to this panel, and is not related to the shared `APAS_` filter on the parent assets panel. The default tile is always shown regardless of the filter.
 
 ## Operators
 
@@ -195,15 +199,22 @@ Applies a skin material (`.mhmat` file) to the character's basemesh and optional
 | `bl_options` | `{'REGISTER', 'UNDO'}` |
 | Base class | `MpfbOperator` |
 
-Replaces the material on the active object with the alternative material selected in the Alternative Materials panel. Steps:
+| Property | Type | Default | Description |
+|---|---|---|---|
+| `filepath` | string | `""` | Full path to the `.mhmat` file to apply |
+| `restore_default` | boolean | `false` | Restore the material defined by the asset's mhclo file, rather than applying `filepath` |
 
-1. Reads the selected material filename from `ALTMAT_PROPERTIES.available_materials`.
-2. If the selection is `"DEFAULT"`, does nothing.
-3. Otherwise, calls `AssetService.alternative_materials_for_asset()` to find the full absolute path for the selected `.mhmat` file.
-4. Removes all existing materials from the object.
-5. Creates a new empty material and applies the MakeSkin shader from the `.mhmat` file.
-6. Sets the material's diffuse colour to the standard colour for the object's type (from `MaterialService.get_diffuse_colors()`).
-7. Stores the alternative material fragment in `GeneralObjectProperties.alternative_material` on the object.
+Replaces the material on the active object with the alternative material clicked in the Alternative Materials panel. Steps:
+
+1. If `restore_default` is set, reads the `asset_source` property of the object, resolves it to an mhclo file, and reads that file's `material` reference. Otherwise, uses `filepath` as given.
+2. Removes all existing materials from the object.
+3. Creates a new empty material and applies the MakeSkin shader from the `.mhmat` file.
+4. Sets the material's diffuse colour to the standard colour for the object's type (from `MaterialService.get_diffuse_colors()`).
+5. Stores the alternative material fragment in `GeneralObjectProperties.alternative_material` on the object, or clears that property if the default material was restored.
+
+The operator is cancelled with an error if the material cannot be found, which includes asking for the default material of an object which did not come from the asset library.
+
+Note that the material is always rebuilt as a MakeSkin material. Eyes which were equipped with a procedural material are thus not handled.
 
 ---
 
@@ -310,13 +321,13 @@ Loaded from JSON files in `src/mpfb/ui/apply_assets/assetlibrary/properties/` wi
 
 Defined inline in `alternativematerialpanel.py` as a `SceneConfigSet` with prefix `"ALTM_"`.
 
-| Property | Type | Description |
-|---|---|---|
-| `available_materials` | enum (dynamic) | Lists the alternative `.mhmat` files available for the active object. The option list is regenerated at draw time by `_populate_settings()` using `AssetService.alternative_materials_for_asset()` |
+| Property | Type | Default | Description |
+|---|---|---|---|
+| `filter` | string | `""` | Only list materials with this term in the name. Matched case-insensitively against the material names of the active object's alternative materials |
 
 ## Related
 
-- [AssetService](../../services/assetservice.md) — provides `ASSET_LIBRARY_SECTIONS`, `get_asset_list()`, `update_all_asset_lists()`, and `alternative_materials_for_asset()`
+- [AssetService](../../services/assetservice.md) — provides `ASSET_LIBRARY_SECTIONS`, `get_asset_list()`, `update_all_asset_lists()`, `alternative_materials_for_asset()`, and `alternative_material_tiles_for_asset()`
 - [HumanService](../../services/humanservice.md) — provides `add_mhclo_asset()`, `unload_mhclo_asset()`, and `set_character_skin()`
 - [ClothesService](../../services/clothesservice.md) — provides `fit_clothes_to_human()`, `set_up_rigging()`, and `update_delete_group()`
 - [MaterialService](../../services/materialservice.md) — provides `load_ink_layer()`, `identify_material()`, and related material utilities
