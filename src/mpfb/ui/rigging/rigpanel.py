@@ -9,6 +9,7 @@ _LOG = LogService.get_logger("ui.rigpanel")
 class MPFB_PT_Rig_Panel(Abstract_Panel):
     bl_label = "Rigging"
     bl_category = UiService.get_value("MODELCATEGORY")
+    bl_order = 30
 
     def draw(self, context):
         _LOG.enter()

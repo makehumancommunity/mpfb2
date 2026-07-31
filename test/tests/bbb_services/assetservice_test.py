@@ -49,6 +49,30 @@ def test_get_asset_names_in_pack():
         assert expected_asset in asset_names, f"Expected asset {expected_asset} should be in the list of asset names"
 
 
+def test_get_pack_names_is_stable():
+    """The pack names are cached, so repeated calls must keep giving the same answer"""
+    first = AssetService.get_pack_names()
+    second = AssetService.get_pack_names()
+
+    assert isinstance(first, list), "get_pack_names should return a list"
+    assert "makehuman_system_assets" in first
+    assert first == second, "Repeated calls to get_pack_names should return the same list"
+
+
+def test_get_pack_names_survives_cache_invalidation():
+    """update_all_asset_lists invalidates the pack cache, so the names have to be rescanned"""
+    before = AssetService.get_pack_names()
+    AssetService.update_all_asset_lists()
+    after = AssetService.get_pack_names()
+
+    assert after, "The list of pack names should not be empty after invalidating the cache"
+    assert before == after, "Invalidating the cache should not change which packs are found"
+
+
+def test_get_asset_names_in_unknown_pack():
+    assert AssetService.get_asset_names_in_pack("no_such_pack_exists") == []
+
+
 def test_list_mhclo_assets():
     mhclo_assets = AssetService.list_mhclo_assets()
     assert mhclo_assets, "The list of mhclo assets should not be empty"

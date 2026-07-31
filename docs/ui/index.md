@@ -36,26 +36,34 @@ Some directories such as `developer/` and `haireditorpanel/` contain multiple pa
 
 ## Main sections
 
-| Directory | Blender panel name | Category key | Description |
-|---|---|---|---|
-| `model/` | Model | `MODELCATEGORY` | Character morphing sliders and shape key management |
-| `developer/` | Developer | `DEVELOPERCATEGORY` | Developer and debugging tools |
-| `haireditorpanel/` | Hair Editor | `HAIREDITORCATEGORY` | Experimental hair and fur editing interface |
-| `new_human/` | New Human | `IMPORTERCATEGORY` | Creating new characters and importing from MakeHuman |
-| `create_assets/` | Create Assets | `TARGETSCATEGORY` | Tools for authoring clothes, skin materials, morph targets, rigs, poses, and makeup |
-| `rigging/` | Add Rig | `RIGCATEGORY` | Applying rigs, Rigify integration, rig helpers, and pose tools |
-| `presets/` | Presets | `MATERIALSCATEGORY` | Saving and loading character presets and settings |
-| `apply_assets/` | Load Assets | `CLOTHESCATEGORY` | Applying pre-made clothes and other assets to a character |
-| `operations/` | Operations | `OPERATIONSCATEGORY` | Character manipulation: mesh operations, material operations, export, AI tools, and more |
-| `system/` | System | `DEVELOPERCATEGORY` | System configuration, directory management, and web resources |
+The table is sorted by the order the panels appear in, top to bottom.
 
-Category keys are string constants managed by `UiService`. They determine which sidebar tab a panel appears in. See [UiService](../services/uiservice.md) for the full list.
+| `bl_order` | Directory | Blender panel name | Category key | Description |
+|---|---|---|---|---|
+| 0 | `start_here/` | Start here | `MODELCATEGORY` | Short introduction for new users: first steps, tutorial links, and asset library status |
+| 10 | `new_human/` | New human | `MODELCATEGORY` | Creating new characters and importing from MakeHuman |
+| 20 | `model/` | Model | `MODELCATEGORY` | Character morphing sliders and shape key management |
+| 30 | `rigging/` | Rigging | `MODELCATEGORY` | Applying rigs, Rigify integration, rig helpers, and pose tools |
+| 40 | `apply_assets/` | Apply assets | `MATERIALSCATEGORY` | Applying pre-made clothes and other assets to a character |
+| 50 | `presets/` | Manage save files | `MATERIALSCATEGORY` | Saving and loading character presets and settings |
+| 60 | `operations/` | Operations | `OPERATIONSCATEGORY` | Character manipulation: mesh operations, material operations, export, AI tools, and more |
+| 70 | `create_assets/` | Create assets | `MODELCATEGORY` | Tools for authoring clothes, skin materials, morph targets, rigs, poses, and makeup |
+| 80 | `haireditorpanel/` | Hair Editor | `HAIREDITORCATEGORY` | Experimental hair and fur editing interface |
+| 90 | `developer/` | Developer | `DEVELOPERCATEGORY` | Developer and debugging tools |
+| 100 | `system/` | System and resources | `DEVELOPERCATEGORY` | System configuration, directory management, and web resources |
+
+Category keys are string constants managed by `UiService`. They determine which sidebar tab a panel appears in. See [UiService](../services/uiservice.md) for the full list. Note that in the default single-tab configuration every category key resolves to the same tab label, so the category only decides where a panel would end up if the multi-panel mode were ever revived.
+
+Every top-level panel declares an explicit `bl_order`, so that no panel's position falls out of the order the modules happen to be imported in. The values are spaced by ten to leave room for inserting panels later without renumbering. Sub-panels must **not** be given a `bl_order` to match their parent's — child panels are ordered within their own parent's list, independently of it. The `bl_order` values 1-10 used by the randomize sub-panels are an example of that, and are unrelated to the table above.
+
+Blender only applies the declared order when a region has no saved record of a panel. Blend files saved with an older version of MPFB may therefore keep some of their previous panel order. This is expected; the intended order appears in fresh scenes.
+
+The order is guarded by `test/tests/eee_ui/panelorder_test.py`, which will fail if a top-level panel is added without an explicit `bl_order`.
 
 ## Top-level panel files
 
-Two panel files live directly in `src/mpfb/ui/` rather than in a subdirectory:
+One panel file lives directly in `src/mpfb/ui/` rather than in a subdirectory:
 
-- **`materialspanel.py`** — defines the "Materials" sidebar tab header. The actual material-editing sub-panels are in the `operations/matops/` subdirectory.
 - **`versionpanel.py`** — a fallback panel shown when the installed Blender version is too old to run MPFB. The rest of the UI layer is skipped entirely in that case.
 
 ## Internal structure of a feature directory
@@ -88,6 +96,11 @@ Four foundational files in `src/mpfb/ui/` are used by virtually every panel and 
 
 These are fully documented in [meta.md](meta.md).
 
+Two further files in `src/mpfb/ui/` are shared helpers rather than base classes. They exist so that the same text is not maintained in two panels and allowed to drift apart:
+
+- **`weburls.py`** — the web addresses used by the UI, one named constant per address. Used by the "Web resources" sub-panel and by "Start here".
+- **`systemassets.py`** — determines whether the makehuman system assets are installed and up to date, and returns the lines to display about it. Used by "Apply assets" and by "Start here".
+
 ## Registration
 
 Every UI module's `__init__.py` calls `ClassManager.add_class(SomePanel)` and `ClassManager.add_class(SomeOperator)` during import. The `ClassManager` singleton (in `src/mpfb/_classmanager.py`) collects all classes into a list, then registers them all at once when `src/mpfb/__init__.py:register()` runs.
@@ -107,6 +120,7 @@ If you are looking for a specific operator see [the operator reference table](op
 
 Documentation for individual UI sections:
 
+- [Start here](start_here.md) — the introductory panel new users meet first, and the preference which hides it
 - [Model](model/model.md) — character morphing sliders, phenotype controls, and shape key management
 - [New Human](new_human/index.md) — creating characters from scratch, from presets, from MHM files, or by importing from MakeHuman
 - [Rigging](rigging/index.md) — adding rigs, Rigify conversion, IK helpers, poses, and walk cycles

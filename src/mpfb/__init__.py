@@ -25,6 +25,7 @@ The root of the project (ie this file) is the entry point for the Blender add-on
 It also exposes a few important functions and objects:
 
 - get_preference(): Return a preference key from the MPFB preference panel
+- set_preference(): Assign a value to a preference key in the MPFB preference panel
 - VERSION: A tuple representing the version of MPFB
 - BUILD_INFO: Build information of MPFB. It defaults to "FROM_SOURCE" if not a build, otherwise it contains the build date
 - DEBUG: A boolean indicating whether debug mode is enabled. If DEBUG is True, some early initialization info is printed to the console
@@ -104,6 +105,51 @@ def get_preference(name):
             print("hasattr", hasattr(prefs, name))
             print("name in", name in prefs)
             return None
+        print("The '" + __package__ + "' addon does not have any preferences!?")
+        raise ValueError("Preferences have not been initialized properly")
+    print("The '" + __package__ + "' addon does not exist!?")
+    raise ValueError("I don't seem to exist")
+
+
+def set_preference(name, value):
+    """
+    Assign a value to a preference in the MPFB preference panel.
+
+    Blender only writes the preferences to disk on exit if they have been flagged as modified. That
+    flag is normally set by blender itself when the user clicks a widget in the preferences panel,
+    but it is not set when a property is assigned from python. Because of this we have to raise the
+    flag ourselves, or the assignment would be silently discarded when blender shuts down.
+
+    Note that this deliberately does not call bpy.ops.wm.save_userpref(). That would write the
+    preferences to disk immediately, and would thus also commit whatever unrelated preference
+    changes the user happened to have pending. Raising the flag leaves it to blender's own
+    auto-save setting to decide if and when the preferences are written.
+
+    Args:
+        name (str): The name of the preference to assign to.
+        value: The value to assign.
+
+    Returns:
+        True if the preference was found and assigned, otherwise False.
+
+    Raises:
+        ValueError: If the add-on or its preferences are not properly initialized.
+    """
+    global DEBUG  # pylint: disable=W0602
+    if DEBUG:
+        print("set_preference(\"" + name + "\")", value)
+    if __package__ in bpy.context.preferences.addons:
+        mpfb = bpy.context.preferences.addons[__package__]
+        if hasattr(mpfb, "preferences"):
+            prefs = mpfb.preferences
+            if hasattr(prefs, name):
+                setattr(prefs, name, value)
+                bpy.context.preferences.is_dirty = True
+                if DEBUG:
+                    print("Assigned addon preference", (name, value))
+                return True
+            print("There were addon preferences, but key did not exist:", name)
+            return False
         print("The '" + __package__ + "' addon does not have any preferences!?")
         raise ValueError("Preferences have not been initialized properly")
     print("The '" + __package__ + "' addon does not exist!?")

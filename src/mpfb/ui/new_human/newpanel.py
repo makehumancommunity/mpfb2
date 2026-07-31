@@ -8,6 +8,7 @@ _LOG = LogService.get_logger("ui.newpanel")
 class MPFB_PT_New_Panel(Abstract_Panel):
     bl_label = "New human"
     bl_category = UiService.get_value("MODELCATEGORY")
+    bl_order = 10
 
     def draw(self, context):
         _LOG.enter()

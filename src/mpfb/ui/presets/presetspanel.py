@@ -8,6 +8,7 @@ _LOG = LogService.get_logger("ui.presetspanel")
 class MPFB_PT_Presets_Panel(Abstract_Panel):
     bl_label = "Manage save files"
     bl_category = UiService.get_value("MATERIALSCATEGORY")
+    bl_order = 50
 
     def draw(self, context):
         _LOG.enter()

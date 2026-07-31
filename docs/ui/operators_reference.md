@@ -149,5 +149,6 @@ documented appear with plain text class names.
 | `rigging/standardrig/operators/addhelpers.py` | `mpfb.add_helpers` | "Add helpers" | [MPFB_OT_AddHelpersOperator](rigging/standardrig.md) | `MpfbOperator` |
 | `rigging/standardrig/operators/removehelpers.py` | `mpfb.remove_helpers` | "Remove helpers" | [MPFB_OT_RemoveHelpersOperator](rigging/standardrig.md) | `MpfbOperator` |
 | `operations/rigops/operators/converttorigify.py` | `mpfb.convert_to_rigify` | "Rigify" | [MPFB_OT_Convert_To_Rigify_Operator](operations/rigops.md) | `MpfbOperator` |
+| `start_here/operators/dismissstarthere.py` | `mpfb.dismiss_start_here` | "Don't show this again" | [MPFB_OT_Dismiss_Start_Here_Operator](start_here.md) | `MpfbOperator` |
 | `system/dirresources/operators/dirresource.py` | `mpfb.dir_resource` | "Open" | [MPFB_OT_Dir_Resource_Operator](system/dirresources.md) | `MpfbOperator` |
 | `system/webresources/operators/webresource.py` | `mpfb.web_resource` | "Open" | [MPFB_OT_Web_Resource_Operator](system/webresources.md) | `MpfbOperator` |
