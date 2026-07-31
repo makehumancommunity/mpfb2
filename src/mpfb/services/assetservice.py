@@ -132,7 +132,8 @@ class AssetService:
     collection from Blender's bpy.utils.previews.
 
     _PACKS: This variable is used to store metadata about asset packs. It is initialized as None and is populated when pack metadata
-    is scanned and loaded.
+    is scanned and loaded. None means "not scanned yet", while an empty dict means "scanned, but no packs were found". It is reset
+    to None by invalidate_pack_metadata_cache(), which is called from update_all_asset_lists().
 
     ASSET_LIBRARY_SECTIONS: This is a list of dictionaries, each representing a section of the asset library. Each dictionary contains
     metadata about a specific type of asset, including labels, subdirectory names, asset types, and override flags. This list is used
@@ -522,6 +523,7 @@ class AssetService:
             asset_type = section["asset_type"]
             AssetService.update_asset_list(asset_subdir, asset_type)
         AssetService.invalidate_alternative_materials_cache()
+        AssetService.invalidate_pack_metadata_cache()
 
     @staticmethod
     def get_asset_list(asset_subdir: str = "clothes", asset_type: str = "mhclo") -> dict[str, dict[str, Any]]:
@@ -590,11 +592,27 @@ class AssetService:
         return system_assets_pack_installed, brown_mhmat_installed
 
     @staticmethod
+    def invalidate_pack_metadata_cache() -> None:
+        """Empty the cache of pack metadata, so that it is rescanned on next request."""
+        _LOG.enter()
+        global _PACKS
+        _PACKS = None
+
+    @staticmethod
+    def _ensure_pack_metadata() -> None:
+        """Load the pack metadata if it has not been scanned yet. Note that a scan which found no
+        packs at all still counts as having been scanned, so this will not hit the file system
+        again until the cache has been explicitly invalidated."""
+        if _PACKS is None:
+            AssetService.rescan_pack_metadata()
+
+    @staticmethod
     def rescan_pack_metadata() -> None:
         """
         Load pack metadata from JSON files in the packs directory.
 
-        If pack metadata is already loaded, this method does nothing.
+        The metadata is always reread from disk, also if it has been loaded before. Use
+        _ensure_pack_metadata() if you only want to read it when it isn't cached yet.
         """
         global _PACKS
         _PACKS = dict()
@@ -618,16 +636,13 @@ class AssetService:
         Retrieve the names of all available asset packs.
 
         This method rescans the pack metadata if it has not been loaded yet. If no pack metadata is found,
-        it returns an empty list.
+        it returns an empty list. Once the metadata has been read it is cached, so this is cheap enough
+        to call from a panel's draw method. The cache is invalidated by update_all_asset_lists().
 
         Returns:
             list: A sorted list of asset pack names.
         """
-        global _PACKS  # pylint: disable=W0602
-        if not _PACKS:
-            AssetService.rescan_pack_metadata()
-        if not AssetService.have_any_pack_meta_data():
-            return []
+        AssetService._ensure_pack_metadata()
         names = list(_PACKS.keys())
         names.sort()
         return names
@@ -645,7 +660,7 @@ class AssetService:
         Retrieve the names of all assets in a specified pack.
 
         This method rescans the pack metadata if it has not been loaded yet. If no pack metadata is found,
-        it returns an empty list.
+        or if there is no pack with the given name, it returns an empty list.
 
         Args:
             pack_name (str): The name of the pack to retrieve asset names from.
@@ -653,12 +668,8 @@ class AssetService:
         Returns:
             list: A sorted list of asset names in the specified pack.
         """
-        global _PACKS  # pylint: disable=W0602
-        if not _PACKS:
-            AssetService.rescan_pack_metadata()
-        if not AssetService.have_any_pack_meta_data():
-            return []
-        pack_data = _PACKS[pack_name]
+        AssetService._ensure_pack_metadata()
+        pack_data = _PACKS.get(pack_name, dict())
         names = list(pack_data.keys())
         names.sort()
         return names

@@ -8,6 +8,7 @@ _LOG = LogService.get_logger("ui.operationspanel")
 class MPFB_PT_Operations_Panel(Abstract_Panel):
     bl_label = "Operations"
     bl_category = UiService.get_value("OPERATIONSCATEGORY")
+    bl_order = 60
 
     def draw(self, context):
         _LOG.enter()

@@ -23,6 +23,7 @@ class MPFB_PT_Hair_Editor_Panel(Abstract_Panel):
     bl_label = "Hair Editor"
     bl_category = UiService.get_value("HAIREDITORCATEGORY")
     bl_options = {'DEFAULT_CLOSED'}
+    bl_order = 80
 
     # Operator to set up UI for hair editor
     def _setup_hair(self, scene, layout):

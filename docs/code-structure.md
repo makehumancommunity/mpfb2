@@ -172,7 +172,7 @@ The UI layer contains ~37 feature subdirectories plus base classes and top-level
 
 ### Top-level panels
 
-Files like `createpanel.py`, `materialspanel.py`, `rigpanel.py`, etc. define the sidebar panel categories visible in Blender's 3D viewport.
+Files like `createpanel.py`, `rigpanel.py`, `startherepanel.py`, etc. define the sidebar panel categories visible in Blender's 3D viewport. Each of them declares an explicit `bl_order` which decides where it appears in the sidebar; see [the UI layer docs](ui/index.md) for the full list.
 
 ### Feature subdirectories
 

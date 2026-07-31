@@ -8,6 +8,7 @@ _LOG = LogService.get_logger("ui.createpanel")
 class MPFB_PT_Create_Panel(Abstract_Panel):
     bl_label = "Create assets"
     bl_category = UiService.get_value("MODELCATEGORY")
+    bl_order = 70
 
     def draw(self, context):
         _LOG.enter()

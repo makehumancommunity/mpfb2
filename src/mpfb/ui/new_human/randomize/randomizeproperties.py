@@ -59,7 +59,7 @@ _SCALAR_ATTRIBUTES: list[str] = [name for _group, attributes in _ATTRIBUTE_GROUP
 
 # The attributes with a discrete mode, mapped to the label shown for each of their values. In
 # discrete mode the panel shows one "Allow value" checkbox per value instead of the
-# neutral/deviation sliders. The value names and their order come from RandomizationService 
+# neutral/deviation sliders. The value names and their order come from RandomizationService
 # so they cannot drift out of sync with the sampling code.
 _DISCRETE_LABELS: dict[str, dict[str, str]] = {
     "gender": {"female": "Female", "male": "Male"},
