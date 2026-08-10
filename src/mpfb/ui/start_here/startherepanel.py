@@ -36,9 +36,15 @@ class MPFB_PT_Start_Here_Panel(Abstract_Panel):
     def _what_this_is(self, layout):
         box = self.create_box(layout, "ABOUT:")
         box.label(text="MPFB is a human character")
-        box.label(text="modeler. Characters and ")
+        box.label(text="modeler. Characters and")
         box.label(text="assets are free to use,")
-        box.label(text="also commercially.")
+        box.label(text="also commercially")
+        box.label(text="")
+        box.label(text="The buttons below will open")
+        box.label(text="a web browser at a specific")
+        box.label(text="address. If the browser does")
+        box.label(text="not show, make sure it is not.")
+        box.label(text="minimized.")
 
     def _first_step(self, layout):
         box = self.create_box(layout, "FIRST STEPS")
