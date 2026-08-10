@@ -36,7 +36,7 @@ class MPFB_PT_Start_Here_Panel(Abstract_Panel):
     def _what_this_is(self, layout):
         box = self.create_box(layout, "ABOUT:")
         box.label(text="MPFB is a human character")
-        box.label(text="Modeler. Characters and")
+        box.label(text="modeler. Characters and")
         box.label(text="assets are free to use,")
         box.label(text="also commercially")
         box.label(text="")
