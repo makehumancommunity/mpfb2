@@ -266,6 +266,540 @@
         "label": "arms",
         "unsorted": []
     },
+    "asym": {
+        "categories": [
+            {
+                "has_left_and_right": false,
+                "label": "asym-brown-1-l-r",
+                "name": "asym-brown-1-l-r",
+                "opposites": {
+                    "negative-left": "",
+                    "negative-right": "",
+                    "negative-unsided": "asym-brown-1-l",
+                    "positive-left": "",
+                    "positive-right": "",
+                    "positive-unsided": "asym-brown-1-r"
+                },
+                "targets": [
+                    "asym-brown-1-l",
+                    "asym-brown-1-r"
+                ]
+            },
+            {
+                "has_left_and_right": false,
+                "label": "asym-brown-2-l-r",
+                "name": "asym-brown-2-l-r",
+                "opposites": {
+                    "negative-left": "",
+                    "negative-right": "",
+                    "negative-unsided": "asym-brown-2-l",
+                    "positive-left": "",
+                    "positive-right": "",
+                    "positive-unsided": "asym-brown-2-r"
+                },
+                "targets": [
+                    "asym-brown-2-l",
+                    "asym-brown-2-r"
+                ]
+            },
+            {
+                "has_left_and_right": false,
+                "label": "asym-cheek-1-l-r",
+                "name": "asym-cheek-1-l-r",
+                "opposites": {
+                    "negative-left": "",
+                    "negative-right": "",
+                    "negative-unsided": "asym-cheek-1-l",
+                    "positive-left": "",
+                    "positive-right": "",
+                    "positive-unsided": "asym-cheek-1-r"
+                },
+                "targets": [
+                    "asym-cheek-1-l",
+                    "asym-cheek-1-r"
+                ]
+            },
+            {
+                "has_left_and_right": false,
+                "label": "asym-cheek-2-l-r",
+                "name": "asym-cheek-2-l-r",
+                "opposites": {
+                    "negative-left": "",
+                    "negative-right": "",
+                    "negative-unsided": "asym-cheek-2-l",
+                    "positive-left": "",
+                    "positive-right": "",
+                    "positive-unsided": "asym-cheek-2-r"
+                },
+                "targets": [
+                    "asym-cheek-2-l",
+                    "asym-cheek-2-r"
+                ]
+            },
+            {
+                "has_left_and_right": false,
+                "label": "asym-ear-1-l-r",
+                "name": "asym-ear-1-l-r",
+                "opposites": {
+                    "negative-left": "",
+                    "negative-right": "",
+                    "negative-unsided": "asym-ear-1-l",
+                    "positive-left": "",
+                    "positive-right": "",
+                    "positive-unsided": "asym-ear-1-r"
+                },
+                "targets": [
+                    "asym-ear-1-l",
+                    "asym-ear-1-r"
+                ]
+            },
+            {
+                "has_left_and_right": false,
+                "label": "asym-ear-2-l-r",
+                "name": "asym-ear-2-l-r",
+                "opposites": {
+                    "negative-left": "",
+                    "negative-right": "",
+                    "negative-unsided": "asym-ear-2-l",
+                    "positive-left": "",
+                    "positive-right": "",
+                    "positive-unsided": "asym-ear-2-r"
+                },
+                "targets": [
+                    "asym-ear-2-l",
+                    "asym-ear-2-r"
+                ]
+            },
+            {
+                "has_left_and_right": false,
+                "label": "asym-ear-3-l-r",
+                "name": "asym-ear-3-l-r",
+                "opposites": {
+                    "negative-left": "",
+                    "negative-right": "",
+                    "negative-unsided": "asym-ear-3-l",
+                    "positive-left": "",
+                    "positive-right": "",
+                    "positive-unsided": "asym-ear-3-r"
+                },
+                "targets": [
+                    "asym-ear-3-l",
+                    "asym-ear-3-r"
+                ]
+            },
+            {
+                "has_left_and_right": false,
+                "label": "asym-ear-4-l-r",
+                "name": "asym-ear-4-l-r",
+                "opposites": {
+                    "negative-left": "",
+                    "negative-right": "",
+                    "negative-unsided": "asym-ear-4-l",
+                    "positive-left": "",
+                    "positive-right": "",
+                    "positive-unsided": "asym-ear-4-r"
+                },
+                "targets": [
+                    "asym-ear-4-l",
+                    "asym-ear-4-r"
+                ]
+            },
+            {
+                "has_left_and_right": false,
+                "label": "asym-eye-1-l-r",
+                "name": "asym-eye-1-l-r",
+                "opposites": {
+                    "negative-left": "",
+                    "negative-right": "",
+                    "negative-unsided": "asym-eye-1-l",
+                    "positive-left": "",
+                    "positive-right": "",
+                    "positive-unsided": "asym-eye-1-r"
+                },
+                "targets": [
+                    "asym-eye-1-l",
+                    "asym-eye-1-r"
+                ]
+            },
+            {
+                "has_left_and_right": false,
+                "label": "asym-eye-2-l-r",
+                "name": "asym-eye-2-l-r",
+                "opposites": {
+                    "negative-left": "",
+                    "negative-right": "",
+                    "negative-unsided": "asym-eye-2-l",
+                    "positive-left": "",
+                    "positive-right": "",
+                    "positive-unsided": "asym-eye-2-r"
+                },
+                "targets": [
+                    "asym-eye-2-l",
+                    "asym-eye-2-r"
+                ]
+            },
+            {
+                "has_left_and_right": false,
+                "label": "asym-eye-3-l-r",
+                "name": "asym-eye-3-l-r",
+                "opposites": {
+                    "negative-left": "",
+                    "negative-right": "",
+                    "negative-unsided": "asym-eye-3-l",
+                    "positive-left": "",
+                    "positive-right": "",
+                    "positive-unsided": "asym-eye-3-r"
+                },
+                "targets": [
+                    "asym-eye-3-l",
+                    "asym-eye-3-r"
+                ]
+            },
+            {
+                "has_left_and_right": false,
+                "label": "asym-eye-4-l-r",
+                "name": "asym-eye-4-l-r",
+                "opposites": {
+                    "negative-left": "",
+                    "negative-right": "",
+                    "negative-unsided": "asym-eye-4-l",
+                    "positive-left": "",
+                    "positive-right": "",
+                    "positive-unsided": "asym-eye-4-r"
+                },
+                "targets": [
+                    "asym-eye-4-l",
+                    "asym-eye-4-r"
+                ]
+            },
+            {
+                "has_left_and_right": false,
+                "label": "asym-eye-5-l-r",
+                "name": "asym-eye-5-l-r",
+                "opposites": {
+                    "negative-left": "",
+                    "negative-right": "",
+                    "negative-unsided": "asym-eye-5-l",
+                    "positive-left": "",
+                    "positive-right": "",
+                    "positive-unsided": "asym-eye-5-r"
+                },
+                "targets": [
+                    "asym-eye-5-l",
+                    "asym-eye-5-r"
+                ]
+            },
+            {
+                "has_left_and_right": false,
+                "label": "asym-eye-6-l-r",
+                "name": "asym-eye-6-l-r",
+                "opposites": {
+                    "negative-left": "",
+                    "negative-right": "",
+                    "negative-unsided": "asym-eye-6-l",
+                    "positive-left": "",
+                    "positive-right": "",
+                    "positive-unsided": "asym-eye-6-r"
+                },
+                "targets": [
+                    "asym-eye-6-l",
+                    "asym-eye-6-r"
+                ]
+            },
+            {
+                "has_left_and_right": false,
+                "label": "asym-eye-7-l-r",
+                "name": "asym-eye-7-l-r",
+                "opposites": {
+                    "negative-left": "",
+                    "negative-right": "",
+                    "negative-unsided": "asym-eye-7-l",
+                    "positive-left": "",
+                    "positive-right": "",
+                    "positive-unsided": "asym-eye-7-r"
+                },
+                "targets": [
+                    "asym-eye-7-l",
+                    "asym-eye-7-r"
+                ]
+            },
+            {
+                "has_left_and_right": false,
+                "label": "asym-eye-8-l-r",
+                "name": "asym-eye-8-l-r",
+                "opposites": {
+                    "negative-left": "",
+                    "negative-right": "",
+                    "negative-unsided": "asym-eye-8-l",
+                    "positive-left": "",
+                    "positive-right": "",
+                    "positive-unsided": "asym-eye-8-r"
+                },
+                "targets": [
+                    "asym-eye-8-l",
+                    "asym-eye-8-r"
+                ]
+            },
+            {
+                "has_left_and_right": false,
+                "label": "asym-jaw-1-l-r",
+                "name": "asym-jaw-1-l-r",
+                "opposites": {
+                    "negative-left": "",
+                    "negative-right": "",
+                    "negative-unsided": "asym-jaw-1-l",
+                    "positive-left": "",
+                    "positive-right": "",
+                    "positive-unsided": "asym-jaw-1-r"
+                },
+                "targets": [
+                    "asym-jaw-1-l",
+                    "asym-jaw-1-r"
+                ]
+            },
+            {
+                "has_left_and_right": false,
+                "label": "asym-jaw-2-l-r",
+                "name": "asym-jaw-2-l-r",
+                "opposites": {
+                    "negative-left": "",
+                    "negative-right": "",
+                    "negative-unsided": "asym-jaw-2-l",
+                    "positive-left": "",
+                    "positive-right": "",
+                    "positive-unsided": "asym-jaw-2-r"
+                },
+                "targets": [
+                    "asym-jaw-2-l",
+                    "asym-jaw-2-r"
+                ]
+            },
+            {
+                "has_left_and_right": false,
+                "label": "asym-jaw-3-l-r",
+                "name": "asym-jaw-3-l-r",
+                "opposites": {
+                    "negative-left": "",
+                    "negative-right": "",
+                    "negative-unsided": "asym-jaw-3-l",
+                    "positive-left": "",
+                    "positive-right": "",
+                    "positive-unsided": "asym-jaw-3-r"
+                },
+                "targets": [
+                    "asym-jaw-3-l",
+                    "asym-jaw-3-r"
+                ]
+            },
+            {
+                "has_left_and_right": false,
+                "label": "asym-mouth-1-l-r",
+                "name": "asym-mouth-1-l-r",
+                "opposites": {
+                    "negative-left": "",
+                    "negative-right": "",
+                    "negative-unsided": "asym-mouth-1-l",
+                    "positive-left": "",
+                    "positive-right": "",
+                    "positive-unsided": "asym-mouth-1-r"
+                },
+                "targets": [
+                    "asym-mouth-1-l",
+                    "asym-mouth-1-r"
+                ]
+            },
+            {
+                "has_left_and_right": false,
+                "label": "asym-mouth-2-l-r",
+                "name": "asym-mouth-2-l-r",
+                "opposites": {
+                    "negative-left": "",
+                    "negative-right": "",
+                    "negative-unsided": "asym-mouth-2-l",
+                    "positive-left": "",
+                    "positive-right": "",
+                    "positive-unsided": "asym-mouth-2-r"
+                },
+                "targets": [
+                    "asym-mouth-2-l",
+                    "asym-mouth-2-r"
+                ]
+            },
+            {
+                "has_left_and_right": false,
+                "label": "asym-nose-1-l-r",
+                "name": "asym-nose-1-l-r",
+                "opposites": {
+                    "negative-left": "",
+                    "negative-right": "",
+                    "negative-unsided": "asym-nose-1-l",
+                    "positive-left": "",
+                    "positive-right": "",
+                    "positive-unsided": "asym-nose-1-r"
+                },
+                "targets": [
+                    "asym-nose-1-l",
+                    "asym-nose-1-r"
+                ]
+            },
+            {
+                "has_left_and_right": false,
+                "label": "asym-nose-2-l-r",
+                "name": "asym-nose-2-l-r",
+                "opposites": {
+                    "negative-left": "",
+                    "negative-right": "",
+                    "negative-unsided": "asym-nose-2-l",
+                    "positive-left": "",
+                    "positive-right": "",
+                    "positive-unsided": "asym-nose-2-r"
+                },
+                "targets": [
+                    "asym-nose-2-l",
+                    "asym-nose-2-r"
+                ]
+            },
+            {
+                "has_left_and_right": false,
+                "label": "asym-nose-3-l-r",
+                "name": "asym-nose-3-l-r",
+                "opposites": {
+                    "negative-left": "",
+                    "negative-right": "",
+                    "negative-unsided": "asym-nose-3-l",
+                    "positive-left": "",
+                    "positive-right": "",
+                    "positive-unsided": "asym-nose-3-r"
+                },
+                "targets": [
+                    "asym-nose-3-l",
+                    "asym-nose-3-r"
+                ]
+            },
+            {
+                "has_left_and_right": false,
+                "label": "asym-nose-4-l-r",
+                "name": "asym-nose-4-l-r",
+                "opposites": {
+                    "negative-left": "",
+                    "negative-right": "",
+                    "negative-unsided": "asym-nose-4-l",
+                    "positive-left": "",
+                    "positive-right": "",
+                    "positive-unsided": "asym-nose-4-r"
+                },
+                "targets": [
+                    "asym-nose-4-l",
+                    "asym-nose-4-r"
+                ]
+            },
+            {
+                "has_left_and_right": false,
+                "label": "asym-temple-1-l-r",
+                "name": "asym-temple-1-l-r",
+                "opposites": {
+                    "negative-left": "",
+                    "negative-right": "",
+                    "negative-unsided": "asym-temple-1-l",
+                    "positive-left": "",
+                    "positive-right": "",
+                    "positive-unsided": "asym-temple-1-r"
+                },
+                "targets": [
+                    "asym-temple-1-l",
+                    "asym-temple-1-r"
+                ]
+            },
+            {
+                "has_left_and_right": false,
+                "label": "asym-temple-2-l-r",
+                "name": "asym-temple-2-l-r",
+                "opposites": {
+                    "negative-left": "",
+                    "negative-right": "",
+                    "negative-unsided": "asym-temple-2-l",
+                    "positive-left": "",
+                    "positive-right": "",
+                    "positive-unsided": "asym-temple-2-r"
+                },
+                "targets": [
+                    "asym-temple-2-l",
+                    "asym-temple-2-r"
+                ]
+            },
+            {
+                "has_left_and_right": false,
+                "label": "asym-top-1-l-r",
+                "name": "asym-top-1-l-r",
+                "opposites": {
+                    "negative-left": "",
+                    "negative-right": "",
+                    "negative-unsided": "asym-top-1-l",
+                    "positive-left": "",
+                    "positive-right": "",
+                    "positive-unsided": "asym-top-1-r"
+                },
+                "targets": [
+                    "asym-top-1-l",
+                    "asym-top-1-r"
+                ]
+            },
+            {
+                "has_left_and_right": false,
+                "label": "asym-top-2-l-r",
+                "name": "asym-top-2-l-r",
+                "opposites": {
+                    "negative-left": "",
+                    "negative-right": "",
+                    "negative-unsided": "asym-top-2-l",
+                    "positive-left": "",
+                    "positive-right": "",
+                    "positive-unsided": "asym-top-2-r"
+                },
+                "targets": [
+                    "asym-top-2-l",
+                    "asym-top-2-r"
+                ]
+            },
+            {
+                "has_left_and_right": false,
+                "label": "asymm-breast-1-l-r",
+                "name": "asymm-breast-1-l-r",
+                "opposites": {
+                    "negative-left": "",
+                    "negative-right": "",
+                    "negative-unsided": "asymm-breast-1-l",
+                    "positive-left": "",
+                    "positive-right": "",
+                    "positive-unsided": "asymm-breast-1-r"
+                },
+                "targets": [
+                    "asymm-breast-1-l",
+                    "asymm-breast-1-r"
+                ]
+            },
+            {
+                "has_left_and_right": false,
+                "label": "asymm-trunk-1-l-r",
+                "name": "asymm-trunk-1-l-r",
+                "opposites": {
+                    "negative-left": "",
+                    "negative-right": "",
+                    "negative-unsided": "asymm-trunk-1-l",
+                    "positive-left": "",
+                    "positive-right": "",
+                    "positive-unsided": "asymm-trunk-1-r"
+                },
+                "targets": [
+                    "asymm-trunk-1-l",
+                    "asymm-trunk-1-r"
+                ]
+            }
+        ],
+        "include_per_default": true,
+        "label": "asym",
+        "unsorted": []
+    },
     "breast": {
         "categories": [
             {
