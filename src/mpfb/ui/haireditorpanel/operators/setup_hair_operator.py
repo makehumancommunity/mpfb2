@@ -42,8 +42,9 @@ class MPFB_OT_SetupHair_Operator(bpy.types.Operator):
         # Add empty hair or the hair asset wont behave correctly
         bpy.ops.object.curves_empty_hair_add()
 
-        # For eevee set curves render as strip
-        if scene.render.engine == 'BLENDER_EEVEE_NEXT':
+        # For eevee set curves render as strip. The engine was renamed back to BLENDER_EEVEE in
+        # blender 5.x, so both identifiers have to be accepted here.
+        if scene.render.engine in ('BLENDER_EEVEE_NEXT', 'BLENDER_EEVEE'):
             scene.render.hair_type = 'STRIP'
 
         hair_prop = {
