@@ -4,6 +4,7 @@ from ...services.materialservice import MaterialService
 from ...services.nodeservice import NodeService
 from ...services.dynamicconfigset import DynamicConfigSet
 from ...services.haireditorservices import HairEditorService
+from ...services.modifierservice import ModifierService
 
 import bpy, os, re, json
 
@@ -441,8 +442,9 @@ class HairGetterSetterFactory():
                 _LOG.error("No hair object found for", self.hair_object_name)
                 return
             modifier = hair_obj.modifiers[self.modifier_name]
-            _LOG.trace("Modifier, value", (modifier, modifier[self.modifier_attribute]))
-            return modifier[self.modifier_attribute]
+            value = ModifierService.get_node_group_input(modifier, self.modifier_attribute)
+            _LOG.trace("Modifier, value", (modifier, value))
+            return value
         return getter
 
     def _hair_setter(self):
@@ -461,16 +463,16 @@ class HairGetterSetterFactory():
                 _LOG.error("No hair object found for", self.hair_object_name)
                 return
             modifier = hair_obj.modifiers[self.modifier_name]
-            _LOG.debug("Modifier, value before", (modifier, modifier[self.modifier_attribute]))
-            modifier[self.modifier_attribute] = value
-            _LOG.debug("Modifier, value mid", (modifier, modifier[self.modifier_attribute]))
+            _LOG.debug("Modifier, value before", (modifier, ModifierService.get_node_group_input(modifier, self.modifier_attribute)))
+            ModifierService.set_node_group_input(modifier, self.modifier_attribute, value)
+            _LOG.debug("Modifier, value mid", (modifier, ModifierService.get_node_group_input(modifier, self.modifier_attribute)))
             hair_obj.update_tag()
             bpy.context.view_layer.update()
             hair_obj.hide_viewport = True
             hair_obj.hide_viewport = False
             if hasattr(modifier, "node_group") and modifier.node_group:
                 modifier.node_group.interface_update(bpy.context)
-            _LOG.debug("Modifier, value after", (modifier, modifier[self.modifier_attribute]))
+            _LOG.debug("Modifier, value after", (modifier, ModifierService.get_node_group_input(modifier, self.modifier_attribute)))
         return setter
 
     def generate_getter(self):
