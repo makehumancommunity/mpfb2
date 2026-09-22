@@ -10,6 +10,7 @@ from ....services.logservice import LogService
 from ....services.locationservice import LocationService
 from .... import ClassManager
 from ....services.haireditorservices import HairEditorService
+from ....services.modifierservice import ModifierService
 import bpy, os, json, shutil, bpy_extras
 from mathutils.bvhtree import BVHTree
 from mathutils.geometry import barycentric_transform
@@ -34,7 +35,7 @@ class MPFB_OT_GenerateHairCards_Operator(bpy.types.Operator):
             mod = hair_obj.modifiers.get(modifier_name)
             if mod:
                 value = getattr(self, f"{hair_obj.name}_{property_name}")
-                hair_obj.modifiers[modifier_name][attribute_name]=value
+                ModifierService.set_node_group_input(hair_obj.modifiers[modifier_name], attribute_name, value)
                 hair_obj.update_tag()
                 bpy.context.view_layer.update()
                 hair_obj.hide_viewport = True
@@ -247,9 +248,9 @@ class MPFB_OT_GenerateHairCards_Operator(bpy.types.Operator):
                     )
             # Force default vals
             try:
-                geo_mod["Socket_2"] = 0.2
-                geo_mod["Socket_3"] = 0.001
-                geo_mod["Socket_4"] = 1
+                ModifierService.set_node_group_input(geo_mod, "Socket_2", 0.2)
+                ModifierService.set_node_group_input(geo_mod, "Socket_3", 0.001)
+                ModifierService.set_node_group_input(geo_mod, "Socket_4", 1)
             except KeyError:
                 self.report({'WARNING'}, "Modifier inputs not found to set default values.")
 

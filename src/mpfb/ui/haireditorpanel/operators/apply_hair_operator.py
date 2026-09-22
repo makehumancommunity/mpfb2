@@ -13,6 +13,7 @@ from ....services.logservice import LogService
 from ....services.objectservice import ObjectService
 from .... import ClassManager
 from ....services.haireditorservices import HairEditorService
+from ....services.modifierservice import ModifierService
 from ..hairproperties import HAIR_PROPERTIES, DYNAMIC_HAIR_PROPS_DEFINITIONS, DYNAMIC_HAIR_MATERIAL_PROPS_DEFINITIONS
 import bpy, os
 
@@ -111,9 +112,9 @@ class MPFB_OT_ApplyHair_Operator(bpy.types.Operator):
                 "description": mod_name,
                 "max": rng[1],
                 "min": rng[0],
-                "default": hair_obj.modifiers[mod_name][attr]
+                "default": ModifierService.get_node_group_input(hair_obj.modifiers[mod_name], attr)
                 }
-            HAIR_PROPERTIES.set_value_dynamic(propname, hair_obj.modifiers[mod_name][attr], propdef, entity_reference=basemesh)
+            HAIR_PROPERTIES.set_value_dynamic(propname, ModifierService.get_node_group_input(hair_obj.modifiers[mod_name], attr), propdef, entity_reference=basemesh)
 
         mat = hair_obj.active_material
 

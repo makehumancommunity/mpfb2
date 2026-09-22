@@ -90,3 +90,25 @@ class ModifierService:
             else:
                 return modifier
         return None
+
+    @staticmethod
+    def get_node_group_input(modifier: bpy.types.Modifier, identifier: str) -> Any:
+        """Read an input of a geometry nodes modifier, no matter the blender version.
+
+        Up to blender 5.1 the inputs are IDProperties on the modifier itself. As of 5.2 that form
+        raises "TypeError: this type doesn't support IDProperties" and the values live under
+        modifier.properties.inputs instead."""
+        try:
+            return modifier[identifier]
+        except TypeError:
+            return modifier.properties.inputs[identifier]["value"]
+
+    @staticmethod
+    def set_node_group_input(modifier: bpy.types.Modifier, identifier: str, value: Any) -> None:
+        """Write an input of a geometry nodes modifier, no matter the blender version.
+
+        See get_node_group_input for why the two forms are needed."""
+        try:
+            modifier[identifier] = value
+        except TypeError:
+            modifier.properties.inputs[identifier]["value"] = value
