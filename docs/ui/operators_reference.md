@@ -21,6 +21,7 @@ documented appear with plain text class names.
 | `apply_assets/assetlibrary/operators/loadlibraryskin.py` | `mpfb.load_library_skin` | "Load" | [MPFB_OT_Load_Library_Skin_Operator](apply_assets/assetlibrary.md) | `MpfbOperator` |
 | `apply_assets/assetlibrary/operators/loadpack.py` | `mpfb.load_pack` | "Load pack from zip file" | [MPFB_OT_Load_Pack_Operator](apply_assets/assetlibrary.md) | `MpfbOperator`, `ImportHelper` |
 | `apply_assets/assetlibrary/operators/unloadlibraryclothes.py` | `mpfb.unload_library_clothes` | "Unequip" | [MPFB_OT_Unload_Library_Clothes_Operator](apply_assets/assetlibrary.md) | `MpfbOperator` |
+| `apply_assets/assetlibrary/operators/unloadlibraryproxy.py` | `mpfb.unload_library_proxy` | "Unequip" | [MPFB_OT_Unload_Library_Proxy_Operator](apply_assets/assetlibrary.md) | `MpfbOperator` |
 | `apply_assets/loadclothes/operators/loadclothes.py` | `mpfb.load_clothes` | "Load clothes from file" | [MPFB_OT_Load_Clothes_Operator](apply_assets/loadclothes.md) | `bpy.types.Operator`, `ImportHelper` |
 | `create_assets/makeclothes/operators/bmxref.py` | `mpfb.basemesh_xref` | "Create xref cache" | [MPFB_OT_BasemeshXrefOperator](create_assets/makeclothes.md) | `MpfbOperator` |
 | `create_assets/makeclothes/operators/checkclothes.py` | `mpfb.check_makeclothes_clothes` | "Check" | [MPFB_OT_CheckClothesOperator](create_assets/makeclothes.md) | `MpfbOperator` |

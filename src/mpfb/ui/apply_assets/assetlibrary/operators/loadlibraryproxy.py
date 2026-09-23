@@ -109,6 +109,12 @@ class MPFB_OT_Load_Library_Proxy_Operator(MpfbOperator):
                 basemesh, clothes, rig, mhclo, interpolate_weights=ctx.interpolate_weights,
                 import_subrig=ctx.import_subrig, import_weights=ctx.import_weights)
 
+        elif basemesh:
+            # Mirror what the clothes loader does: without rigging the proxy still has to be parented
+            # to the basemesh, or it will not be recognized as an equipped mesh asset and can thus
+            # never be unequipped again.
+            clothes.parent = basemesh
+
         if ctx.add_subdiv_modifier:
             modifier = clothes.modifiers.new("Subdivision", 'SUBSURF')
             modifier.levels = 0
