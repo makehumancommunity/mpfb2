@@ -1,6 +1,7 @@
 import bpy, bmesh, os
 
 from .. import ObjectService
+from .. import SystemService
 from .. import dynamic_import
 
 GeneralObjectProperties = dynamic_import("mpfb.entities.objectproperties", "GeneralObjectProperties")
@@ -469,6 +470,114 @@ def test_object_is_generated_rigify_rig():
     assert not ObjectService.object_is_generated_rigify_rig(mesh_obj)
     ObjectService.delete_object(arm)
     ObjectService.delete_object(mesh_obj)
+
+
+def test_get_rigify_property_falls_back_to_id_property():
+    """ObjectService._get_rigify_property() falls back to ID-properties"""
+    assert ObjectService._get_rigify_property(None, "whatever") is None
+    assert ObjectService._get_rigify_property(None, "whatever", "fallback") == "fallback"
+
+    name = ObjectService.random_name()
+    arm = ObjectService.create_blender_object_with_armature(name=name)
+
+    # A name which is neither an RNA property nor an ID-property yields the default
+    assert ObjectService._get_rigify_property(arm.data, "mpfb_no_such_rigify_property") is None
+    assert ObjectService._get_rigify_property(arm.data, "mpfb_no_such_rigify_property", 17) == 17
+
+    # A name which only exists as an ID-property is still found
+    arm.data["mpfb_no_such_rigify_property"] = 42
+    assert ObjectService._get_rigify_property(arm.data, "mpfb_no_such_rigify_property") == 42
+
+    ObjectService.delete_object(arm)
+
+
+def test_find_rigify_metarig_by_rig_via_id_property():
+    """ObjectService.find_rigify_metarig_by_rig() with a legacy ID-property"""
+    meta = ObjectService.create_blender_object_with_armature(name=ObjectService.random_name())
+    rig = ObjectService.create_blender_object_with_armature(name=ObjectService.random_name())
+    rig.data["rig_id"] = "test_rig_id"
+
+    assert ObjectService.find_rigify_metarig_by_rig(rig) is None, \
+        "Should not find a metarig before the relation has been established"
+
+    try:
+        meta.data["rigify_target_rig"] = rig
+    except TypeError:
+        # When Rigify is enabled, Blender 4.x backs the registered RNA PointerProperty with a
+        # group ID-property of the same name, which cannot be overwritten with an object pointer.
+        # The ID-property fallback is covered by test_get_rigify_property_falls_back_to_id_property
+        # instead, and the RNA property by test_find_rigify_metarig_by_rig_via_rna_property.
+        print("rigify_target_rig is already an RNA backed ID-property, skipping legacy test")
+        ObjectService.delete_object(meta)
+        ObjectService.delete_object(rig)
+        return
+
+    assert ObjectService.find_rigify_metarig_by_rig(rig) is meta
+    assert ObjectService.find_rigify_rig_by_metarig(meta) is rig
+    assert ObjectService.object_is_rigify_metarig(meta)
+
+    # A rig which is not a generated rigify rig has no metarig
+    assert ObjectService.find_rigify_metarig_by_rig(meta) is None
+    # A generated rig is not itself a metarig, and has no target rig
+    assert not ObjectService.object_is_rigify_metarig(rig)
+    assert ObjectService.find_rigify_rig_by_metarig(rig) is None
+
+    ObjectService.delete_object(meta)
+    ObjectService.delete_object(rig)
+
+
+def test_find_rigify_metarig_by_rig_via_rna_property():
+    """ObjectService.find_rigify_metarig_by_rig() with an RNA property"""
+    if not SystemService.check_for_rigify():
+        print("Rigify is not enabled, skipping RNA property test")
+        return
+
+    meta = ObjectService.create_blender_object_with_armature(name=ObjectService.random_name())
+    rig = ObjectService.create_blender_object_with_armature(name=ObjectService.random_name())
+    rig.data["rig_id"] = "test_rig_id"
+
+    assert ObjectService.find_rigify_metarig_by_rig(rig) is None, \
+        "Should not find a metarig before the relation has been established"
+
+    # Rigify registers rigify_target_rig as an RNA PointerProperty. In Blender 5.x this is no
+    # longer reachable via the ID-property lookup, which is what broke the lookups in issue #439.
+    meta.data.rigify_target_rig = rig
+
+    if bpy.app.version >= (5, 0, 0):
+        assert meta.data.get("rigify_target_rig") is None, \
+            "In Blender 5.x, rigify_target_rig should not be reachable as an ID-property"
+
+    assert ObjectService.find_rigify_metarig_by_rig(rig) is meta
+    assert ObjectService.find_rigify_rig_by_metarig(meta) is rig
+    assert ObjectService.object_is_rigify_metarig(meta)
+
+    # A rig which is not a generated rigify rig has no metarig
+    assert ObjectService.find_rigify_metarig_by_rig(meta) is None
+    # A generated rig is not itself a metarig, and has no target rig
+    assert not ObjectService.object_is_rigify_metarig(rig)
+    assert ObjectService.find_rigify_rig_by_metarig(rig) is None
+
+    ObjectService.delete_object(meta)
+    ObjectService.delete_object(rig)
+
+
+def test_object_is_rigify_metarig_via_bone_collection_ui_row():
+    """ObjectService.object_is_rigify_metarig() via rigify_ui_row"""
+    if not SystemService.check_for_rigify():
+        print("Rigify is not enabled, skipping RNA property test")
+        return
+
+    arm = ObjectService.create_blender_object_with_armature(name=ObjectService.random_name())
+    bcoll = arm.data.collections.new("TestCollection")
+
+    assert not ObjectService.object_is_rigify_metarig(arm), \
+        "An armature with an unassigned rigify_ui_row is not a metarig"
+
+    bcoll.rigify_ui_row = 3
+    assert ObjectService.object_is_rigify_metarig(arm), \
+        "An armature with an assigned rigify_ui_row is a metarig"
+
+    ObjectService.delete_object(arm)
 
 
 def test_get_selected_mesh_objects():

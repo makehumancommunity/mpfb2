@@ -585,6 +585,39 @@ class ObjectService:
         return blender_object and blender_object.type == "ARMATURE" and typing.cast(bpy.types.ID, blender_object.data).get("rig_id")
 
     @staticmethod
+    def _get_rigify_property(rna_owner, property_name: str, default=None):
+        """
+        Read a Rigify property from an RNA owner, such as an armature or a bone collection.
+
+        Rigify registers most of its properties as RNA properties on the relevant Blender types
+        (for example bpy.types.Armature.rigify_target_rig), which means they are not reachable via
+        the ID-property lookup "owner[property_name]". A few properties, such as rig_id, are
+        genuine ID-properties instead. Older and modified Rigify installations may also differ in
+        which of the two mechanisms they use. This method therefore checks the RNA property first
+        and falls back to the ID-property.
+
+        Args:
+            rna_owner: The armature data, bone collection or similar owner to read the property from.
+            property_name: The name of the Rigify property.
+            default: The value to return when the property could not be found. Defaults to None.
+
+        Returns:
+            The value of the property, or default when neither an RNA nor an ID-property was found.
+        """
+        if rna_owner is None:
+            return default
+
+        value = getattr(rna_owner, property_name, None)
+
+        if value is not None:
+            return value
+
+        try:
+            return rna_owner.get(property_name, default)
+        except (AttributeError, TypeError):
+            return default
+
+    @staticmethod
     def object_is_rigify_metarig(blender_object: bpy.types.Object | None, *, check_bones: bool = False) -> bool:
         """
         Check if the given Blender object is a Rigify metarig.
@@ -601,9 +634,11 @@ class ObjectService:
 
         armature_data = typing.cast(bpy.types.Armature, blender_object.data)
 
-        if (armature_data.get("rigify_target_rig") or
-                armature_data.get("rigify_colors") and len(typing.cast(typing.Any, armature_data).rigify_colors) > 0 or
-                any(bcoll.get("rigify_ui_row", 0) > 0 for bcoll in armature_data.collections)):
+        rigify_colors = ObjectService._get_rigify_property(armature_data, "rigify_colors")
+
+        if (ObjectService._get_rigify_property(armature_data, "rigify_target_rig") or
+                rigify_colors and len(rigify_colors) > 0 or
+                any(ObjectService._get_rigify_property(bcoll, "rigify_ui_row", 0) > 0 for bcoll in armature_data.collections)):
             return True
 
         if check_bones:
@@ -628,7 +663,9 @@ class ObjectService:
             return None
 
         for obj in bpy.data.objects:
-            if obj.type == "ARMATURE" and typing.cast(bpy.types.Armature, obj.data).get("rigify_target_rig") == blender_object:
+            if obj.type != "ARMATURE":
+                continue
+            if ObjectService._get_rigify_property(obj.data, "rigify_target_rig") == blender_object:
                 return obj
         return None
 
@@ -646,7 +683,7 @@ class ObjectService:
         if not blender_object or blender_object.type != "ARMATURE" or typing.cast(bpy.types.Armature, blender_object.data).get("rig_id"):
             return None
 
-        return typing.cast(bpy.types.Armature, blender_object.data).get("rigify_target_rig", None)
+        return ObjectService._get_rigify_property(blender_object.data, "rigify_target_rig")
 
     @staticmethod
     def find_armature_context_objects(

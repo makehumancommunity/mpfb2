@@ -475,6 +475,16 @@ Find all mesh objects deformed by an armature.
 
 ### Rigify Integration
 
+> **Note on how Rigify properties are stored:** Rigify registers most of its properties as RNA
+> properties on the relevant Blender types (for example `bpy.types.Armature.rigify_target_rig`,
+> `bpy.types.Armature.rigify_colors` and `bpy.types.BoneCollection.rigify_ui_row`). Up until
+> Blender 4.x these happened to also be reachable through the ID-property lookup
+> `armature.data["rigify_target_rig"]`, but as of Blender 5.x they are not. Only a few Rigify
+> properties, notably `rig_id` on a generated rig and `rigify_type` on a pose bone, are genuine
+> ID-properties. Rigify properties must therefore be read via the internal helper
+> `_get_rigify_property()`, which checks the RNA property first and falls back to the
+> ID-property, rather than via a plain `.get()` call. See issue #439.
+
 #### object_is_generated_rigify_rig(blender_object)
 
 Check if an object is a generated Rigify rig.
