@@ -106,3 +106,26 @@ def test_macro_target_stack_only_references_existing_targets():
     for target in stack:
         full_path = os.path.join(targets_dir, target[0] + ".target.gz")
         assert os.path.exists(full_path), full_path + " does not exist"
+
+
+def test_macro_shapekey_names_stay_within_the_shapekey_limit():
+    """Macro targets have long composed names but are encoded down to fit blender's shape key limit.
+
+    They are named through the encoding table in TargetService, not through the property identifiers
+    which the model sub panels build from file names, so the identifier length filtering added for
+    issue #427 must not affect them.
+    """
+    targets_dir = LocationService.get_mpfb_data("targets")
+    macro_info = TargetService.get_default_macro_info_dict()
+    macro_info["race"] = {"african": 1.0, "asian": 0.0, "caucasian": 0.0}
+    macro_info["gender"] = 0.0   # female
+    macro_info["age"] = 1.0      # old
+    macro_info["height"] = 0.0   # dwarf
+    macro_info["proportions"] = 0.0
+    stack = TargetService.calculate_target_stack_from_macro_info_dict(macro_info)
+    assert stack, "The macro stack should not be empty"
+    for target in stack:
+        full_path = os.path.join(targets_dir, target[0] + ".target.gz")
+        assert os.path.exists(full_path), full_path + " does not exist"
+        shapekey_name = TargetService.macrodetail_filename_to_shapekey_name(full_path, encode_name=True)
+        assert len(shapekey_name) <= 61, "Encoded macro shape key name is too long: " + shapekey_name

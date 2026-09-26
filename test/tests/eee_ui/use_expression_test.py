@@ -24,6 +24,12 @@ write_slider_values = dynamic_import("mpfb.ui.apply_assets.useexpression", "writ
 ExpressionsLibraryProperties = dynamic_import(
     "mpfb.ui.apply_assets.useexpression", "ExpressionsLibraryProperties"
 )
+_register_expression_sliders = dynamic_import(
+    "mpfb.ui.apply_assets.useexpression", "_register_expression_sliders"
+)
+_SKIPPED_EXPRESSION_PATHS = dynamic_import(
+    "mpfb.ui.apply_assets.useexpression", "_SKIPPED_EXPRESSION_PATHS"
+)
 
 
 def _fabricate_ex_shape_keys(basemesh, names):
@@ -172,3 +178,29 @@ def test_write_slider_values_syncs_props_without_firing_callbacks(tmp_path, monk
     finally:
         ObjectService.delete_object(basemesh)
         _unregister_temp_slider(smile_id)
+
+
+def test_overly_long_expression_path_is_skipped_rather_than_fatal(monkeypatch):
+    """An expression whose path is too long must not abort the registration of the remaining sliders."""
+    short_rel = "expressions/tiny.json"
+    long_rel = "expressions/" + ("n" * 120) + ".json"
+    entries = [
+        ("/nonexistent/tiny.json", short_rel, {"label": "Tiny"}),
+        ("/nonexistent/long.json", long_rel, {"label": "Long"}),
+    ]
+    monkeypatch.setattr(FaceService, "list_available_expressions", lambda: entries)
+    short_identifier = UiService.as_valid_identifier("expr_" + short_rel)
+    long_identifier = UiService.as_valid_identifier("expr_" + long_rel)
+    try:
+        _register_expression_sliders()
+        assert short_identifier in _EXPRESSION_PROP_MAP, "The usable expression should have been registered"
+        assert hasattr(bpy.types.Scene, short_identifier)
+        assert long_identifier not in _EXPRESSION_PROP_MAP, "The overly long expression should have been skipped"
+        assert not hasattr(bpy.types.Scene, long_identifier)
+        assert "/nonexistent/long.json" in _SKIPPED_EXPRESSION_PATHS, "The skipped file should be remembered"
+        # Registration is re-run on every refresh, so it has to stay harmless
+        _register_expression_sliders()
+        assert long_identifier not in _EXPRESSION_PROP_MAP
+    finally:
+        _unregister_temp_slider(short_identifier)
+        _SKIPPED_EXPRESSION_PATHS.discard("/nonexistent/long.json")
