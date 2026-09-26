@@ -8,6 +8,11 @@ from .. import VERSION, get_preference
 
 _LOG = LogService.get_logger("services.uiservice")
 
+# Blender refuses to attach a property whose identifier is 64 characters or longer: MAX_IDPROP_NAME
+# is 64 and the RNA check is "id_len >= 64", which makes setattr(bpy.types.Scene, ...) raise a
+# TypeError. 63 is therefore the longest identifier which can actually be used.
+MAX_BLENDER_IDENTIFIER_LENGTH = 63
+
 
 class _UiService():
 
@@ -25,10 +30,13 @@ class _UiService():
     for relevant JSON files and adds them to the appropriate lists.
 
     Utility Methods: It includes utility methods like as_valid_identifier to convert raw strings into valid identifiers by replacing
-    non-alphanumeric characters with underscores.
+    non-alphanumeric characters with underscores, and is_valid_identifier_length to check that such an identifier is short enough
+    for blender to accept it.
 
     Overall, the _UiService class centralizes the management of UI-related configurations and ensures that the different panels in the
     MPFB2 project are correctly set up and updated with the latest presets and settings."""
+
+    MAX_IDENTIFIER_LENGTH = MAX_BLENDER_IDENTIFIER_LENGTH
 
     def __init__(self):
         _LOG.debug("Constructing ui service")
@@ -302,6 +310,26 @@ class _UiService():
             str: A string where all non-alphanumeric characters are replaced with underscores.
         """
         return re.sub(r'[^a-zA-Z0-9_]', "_", raw_string)
+
+    def is_valid_identifier_length(self, raw_string):
+        """
+        Check if a raw string is short enough to be used as a blender property identifier.
+
+        Blender rejects identifiers which are 64 characters or longer. Attaching such a property raises an exception, which
+        would abort the entire addon registration if it happened while a module was being imported. Note that this only checks
+        the length. Use as_valid_identifier() to actually sanitize the string. Sanitizing replaces characters one by one and
+        thus does not change the length, so the two methods can be called in either order.
+
+        This concerns identifiers for bpy.props properties only. Shape key names have a different, shorter limit which is
+        handled by the encoding logic in TargetService.
+
+        Args:
+            raw_string (str): The raw string which would be converted into an identifier.
+
+        Returns:
+            bool: True if the derived identifier is at most MAX_IDENTIFIER_LENGTH characters long.
+        """
+        return len(self.as_valid_identifier(raw_string)) <= MAX_BLENDER_IDENTIFIER_LENGTH
 
 
 UiService = _UiService()  # pylint: disable=C0103
