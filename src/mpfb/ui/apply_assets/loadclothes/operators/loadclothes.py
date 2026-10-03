@@ -76,10 +76,19 @@ class MPFB_OT_Load_Clothes_Operator(bpy.types.Operator, ImportHelper):
             subdiv = 0
             if add_subdiv_modifier:
                 subdiv = subdiv_levels
-            clothes = HumanService.add_mhclo_asset(self.filepath, basemesh, asset_type=object_type, subdiv_levels=subdiv, material_type="MAKESKIN", set_up_rigging=(rig is not None), interpolate_weights=True, import_subrig=import_subrig, import_weights=import_weights)
+            clothes = HumanService.add_mhclo_asset(
+                self.filepath, basemesh, asset_type=object_type, subdiv_levels=subdiv, material_type="MAKESKIN",
+                set_up_rigging=(rig is not None), interpolate_weights=True, import_subrig=import_subrig,
+                import_weights=import_weights, operator=self)
         else:
             mhclo = Mhclo()
             mhclo.load(self.filepath) # pylint: disable=E1101
+
+            if mhclo.missing_material:
+                _LOG.warn("The material file the asset points at does not exist", mhclo.missing_material)
+                self.report({'WARNING'}, "The asset's material file is missing, so the asset was loaded without a "
+                            "material: " + os.path.basename(mhclo.missing_material))
+
             clothes = mhclo.load_mesh(context)
             GeneralObjectProperties.set_value("object_type", object_type, entity_reference=clothes)
             bpy.ops.object.shade_smooth()

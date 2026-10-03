@@ -71,6 +71,12 @@ class MPFB_OT_Load_Library_Proxy_Operator(MpfbOperator):
 
         mhclo = Mhclo()
         mhclo.load(self.filepath) # pylint: disable=E1101
+
+        if mhclo.missing_material:
+            _LOG.warn("The material file the asset points at does not exist", mhclo.missing_material)
+            self.report({'WARNING'}, "The asset's material file is missing, so the asset was loaded without a "
+                        "material: " + os.path.basename(mhclo.missing_material))
+
         clothes = mhclo.load_mesh(context)
 
         if not clothes or clothes is None:
