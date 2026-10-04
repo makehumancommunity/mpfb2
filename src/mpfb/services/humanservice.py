@@ -480,7 +480,8 @@ class HumanService:
     @staticmethod
     def add_mhclo_asset(mhclo_file, basemesh, asset_type="Clothes", subdiv_levels=1, material_type="MAKESKIN",
                         alternative_materials=None, color_adjustments=None,
-                        set_up_rigging=True, interpolate_weights=True, import_subrig=True, import_weights=True):
+                        set_up_rigging=True, interpolate_weights=True, import_subrig=True, import_weights=True,
+                        *, operator=None):
         """
         Adds an MHCLO asset to the given basemesh.
 
@@ -496,9 +497,10 @@ class HumanService:
             interpolate_weights (bool): Whether to interpolate weights for the asset. Default is True.
             import_subrig (bool): Whether to import sub-rigs for the asset. Default is True.
             import_weights (bool): Whether to import weights for the asset. Default is True.
+            operator (bpy.types.Operator, optional): The operator calling this function, used for reporting warnings. Default is None.
 
         Returns:
-            The mhclo object that was added to the basemesh.
+            The clothes object that was added to the basemesh.
 
         Raises:
             IOError: If the mhclo obj fails to import.
@@ -542,7 +544,13 @@ class HumanService:
         if mhclo.uuid:
             GeneralObjectProperties.set_value("uuid", mhclo.uuid, entity_reference=clothes)
 
-        if not mhclo.material:
+        if mhclo.missing_material:
+            _LOG.warn("The material file the asset points at does not exist, loading the asset without a material",
+                      mhclo.missing_material)
+            if operator:
+                operator.report({'WARNING'}, "The asset's material file is missing, so the asset was loaded without a "
+                                "material: " + os.path.basename(mhclo.missing_material))
+        elif not mhclo.material:
             _LOG.debug("Material is not set in mhclo")
 
         if mhclo.material is not None:
@@ -742,7 +750,8 @@ class HumanService:
             _LOG.warn("Could not locate proxy", human_info["proxy"])
 
     @staticmethod
-    def set_character_skin(mhmat_file, basemesh, bodyproxy=None, skin_type="ENHANCED_SSS", material_instances=True, slot_overrides=None):
+    def set_character_skin(mhmat_file, basemesh, bodyproxy=None, skin_type="ENHANCED_SSS", material_instances=True, slot_overrides=None,
+                           *, operator=None):
         """
         Sets the skin material for the given character basemesh and optional bodyproxy.
 
@@ -753,12 +762,22 @@ class HumanService:
             skin_type (str): The type of skin material to use (e.g., "ENHANCED_SSS", "MAKESKIN", "GAMEENGINE", "LAYERED"). Default is "ENHANCED_SSS".
             material_instances (bool): Whether to create material instances for the skin material. Default is True.
             slot_overrides (dict): A dictionary of slot overrides to apply, keyed by slot name. Default is None.
+            operator (bpy.types.Operator, optional): The operator calling this function, used for reporting warnings. Default is None.
 
-        Raises:
-            ValueError: If the mhmat_file is not found or if the skin material type is invalid.
+        Note:
+            If the given mhmat_file does not exist, a warning is logged and no skin material is created. For the LAYERED
+            skin type the material is still created, but without any values from an mhmat file.
         """
         if bodyproxy is None:
             bodyproxy = ObjectService.find_object_of_type_amongst_nearest_relatives(basemesh, "Proxymeshes")
+
+        if mhmat_file and not os.path.exists(mhmat_file):
+            _LOG.warn("The given skin material file does not exist", mhmat_file)
+            if operator:
+                operator.report({'WARNING'}, "The skin material file is missing: " + os.path.basename(mhmat_file))
+            mhmat_file = None
+            if skin_type != "LAYERED":
+                return
 
         if mhmat_file:
             material_source = os.path.basename(os.path.dirname(mhmat_file)) + "/" + os.path.basename(mhmat_file)

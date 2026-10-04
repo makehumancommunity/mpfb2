@@ -39,7 +39,8 @@ class MPFB_OT_Load_Library_Skin_Operator(MpfbOperator):
         if ctx.skin_type in ["LAYERED", "GAMEENGINE", "MAKESKIN"]:
             material_instances = False
 
-        HumanService.set_character_skin(self.filepath, basemesh, bodyproxy=bodyproxy, skin_type=ctx.skin_type, material_instances=material_instances)
+        HumanService.set_character_skin(self.filepath, basemesh, bodyproxy=bodyproxy, skin_type=ctx.skin_type, material_instances=material_instances,
+                                       operator=self)
 
         for slot in basemesh.material_slots:
             if str(slot.material.name).lower().endswith("body"):
