@@ -8,6 +8,10 @@ The checker configuration lives in [`pyrightconfig.json`](../pyrightconfig.json)
 root. It scopes checking to `src/mpfb/services` and `src/mpfb/entities` and excludes the
 out-of-scope `src/mpfb/entities/nodemodel` (generated code) and `src/mpfb/ui` layers.
 
+The annotation work itself is tracked in `features/issue_374_type_hints_services_entities.md`,
+which holds the per-file checklist and the ordering. That list is deliberately not duplicated
+here, so there is only one place to tick a file off.
+
 ## Dev dependencies
 
 The type checker and the Blender stubs are development-only dependencies, listed in
@@ -54,6 +58,63 @@ configuration is needed for the in-scope diagnostics to match the command line. 
 selected interpreter is the one that has `fake-bpy-module` installed, via
 `python.defaultInterpreterPath` or the interpreter picker.
 
+## Annotation conventions
+
+One style, applied everywhere in scope:
+
+- **Builtin generics**, not the `typing` aliases: `list[str]`, `dict[str, Any]`,
+  `tuple[int, int]` — never `List[str]` or `Dict[str, Any]`.
+- **PEP 604 unions**: `X | None`, never `Optional[X]` or `Union[X, Y]`.
+- **Blender types** wherever a Blender object crosses a signature: `bpy.types.Object`,
+  `bpy.types.Material`, `mathutils.Vector`, and so on.
+- **Shared aliases and `TypedDict`s** live once in `src/mpfb/types.py` and are imported from
+  there. That module must import nothing from MPFB, so it cannot disturb the deferred-import
+  rule in `__init__.py`.
+- **`Any` deliberately** rather than a bare parameter, where a precise type would mislead.
+- **`if TYPE_CHECKING:` with a quoted annotation** where an annotation would otherwise need a
+  circular or runtime-unavailable import. `from __future__ import annotations` is deliberately
+  *not* used; see the issue #374 planning document for the reasoning.
+
+### Narrowing `object.data`
+
+`bpy.types.Object` covers every kind of Blender object, so the stubs type `Object.data` as a
+union of all 16 possible datablocks:
+
+```
+data: (Armature | Camera | Curve | Curves | GreasePencil | Lattice | Light
+       | LightProbe | Mesh | MetaBall | PointCloud | Speaker | SurfaceCurve
+       | TextCurve | Volume | None)
+```
+
+Pyright checks an attribute access against **each member separately**, so one unnarrowed
+`obj.data.vertices` produces about 15 errors rather than one. Always narrow to the concrete
+datablock:
+
+```python
+# The caller already guarantees this is a mesh object, so assert it:
+for vertex in typing.cast(bpy.types.Mesh, blender_object.data).vertices:
+    ...
+
+# Several uses in one scope: narrow once into a local.
+mesh = typing.cast(bpy.types.Mesh, blender_object.data)
+mesh.vertices.foreach_get("co", coords)
+uv_layer = mesh.uv_layers.active
+
+# The object type is NOT guaranteed here, so guard instead of asserting:
+data = blender_object.data
+if not isinstance(data, bpy.types.Mesh):
+    return None
+```
+
+Use `cast` where the surrounding code already establishes the object type — for instance a
+basemesh obtained from `ObjectService`. Use an `isinstance` guard where it does not, because
+`None` is a genuine member of that union: `obj.data` really is `None` for an empty, so not
+every one of those errors is noise.
+
+Be aware of what `cast` does and does not buy you. It silences the diagnostic without proving
+anything, so a function handed an armature where it expects a mesh still fails at runtime, now
+with no checker signal at all. Prefer a guard wherever one is cheap.
+
 ## Python version notes
 
 - `pyrightconfig.json` sets `pythonVersion` to `3.12`. This is the **checker's** parse floor,
@@ -72,3 +133,11 @@ selected interpreter is the one that has `fake-bpy-module` installed, via
 
   This catches any 3.12-only syntax that slips into the source — something the type checker,
   pinned to a 3.12 parse floor, will not flag.
+
+  There is usually no bare `python3.11` on `PATH`. The best interpreter to use is the one
+  bundled with the minimum supported Blender, since that is literally the supported runtime
+  floor rather than an approximation of it:
+
+  ```bash
+  /path/to/blender-4.2.1-linux-x64/4.2/python/bin/python3.11 -m compileall -q src/mpfb
+  ```
