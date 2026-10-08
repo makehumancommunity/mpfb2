@@ -308,8 +308,7 @@ class ExportService:
                     bpy.ops.object.modifier_apply(modifier=mod_name)
 
             if len(typing.cast(bpy.types.Mesh, temp_obj.data).vertices) != n_verts:
-                _LOG.warning("Vertex count mismatch for shape key, skipping",
-                             (sk_name, len(typing.cast(bpy.types.Mesh, temp_obj.data).vertices), n_verts))
+                _LOG.warn("Vertex count mismatch for shape key, skipping", (sk_name, len(typing.cast(bpy.types.Mesh, temp_obj.data).vertices), n_verts))
                 bpy.data.objects.remove(temp_obj, do_unlink=True)
                 continue
 
