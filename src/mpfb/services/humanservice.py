@@ -1,6 +1,6 @@
 """High-level functionality for human objects"""
 
-import os, json, fnmatch, re, bpy, shutil
+import os, json, fnmatch, re, bpy, shutil, typing
 from pathlib import Path
 from .logservice import LogService
 from .objectservice import ObjectService
@@ -838,7 +838,7 @@ class HumanService:
         if (not material_instances or skin_type == "GAMEENGINE") and bodyproxy and basemesh:
             material = MaterialService.get_material(basemesh)
             if material:
-                bodyproxy.data.materials.append(material)
+                typing.cast(bpy.types.Mesh, bodyproxy.data).materials.append(material)
 
         if material_instances and skin_type != "LAYERED" and skin_type != "GAMEENGINE":
             _LOG.debug("Will now attempt to create material slots for", (basemesh, bodyproxy))
@@ -1605,14 +1605,18 @@ class HumanService:
 
         # Assign a name to the armature
         name = basemesh.name + (".metarig" if is_rigify else ".rig")
-        armature_object.name = armature_object.data.name = name
+        armature_data = typing.cast(bpy.types.Armature, armature_object.data)
+        armature_object.name = armature_data.name = name
 
         # Type-specific handling
         if is_rigify:
-            assert len(armature_object.data.rigify_colors) > 0
+            # The rigify_* properties are injected into Armature by the Rigify addon at runtime
+            # and are absent from the bpy stubs, so they have to be reached through Any.
+            rigify_data = typing.cast(typing.Any, armature_data)
+            assert len(rigify_data.rigify_colors) > 0
 
-            if hasattr(armature_object.data, 'rigify_rig_basename'):
-                armature_object.data.rigify_rig_basename = "Human.rigify"
+            if hasattr(armature_data, 'rigify_rig_basename'):
+                rigify_data.rigify_rig_basename = "Human.rigify"
 
         else:
             RigService.normalize_rotation_mode(armature_object)
@@ -1744,7 +1748,7 @@ class HumanService:
                     subrigs.append(child)
 
             if subrigs:
-                rig.data.pose_position = "REST"
+                typing.cast(bpy.types.Armature, rig.data).pose_position = "REST"
 
                 try:
                     parent_rig = Rig.from_given_basemesh_and_armature(basemesh, rig, fast_positions=True)
@@ -1753,7 +1757,7 @@ class HumanService:
                         _LOG.debug("Will try to refit subrig", child)
                         RigService.refit_existing_subrig(child, parent_rig)
                 finally:
-                    rig.data.pose_position = "POSE"
+                    typing.cast(bpy.types.Armature, rig.data).pose_position = "POSE"
 
     @staticmethod
     def get_asset_sources_of_equipped_mesh_assets(basemesh):

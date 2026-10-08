@@ -1,7 +1,7 @@
 """This module only contains the SocketProxyObject. See the class docstring
 for more info."""
 
-import numpy, bpy
+import numpy, bpy, typing
 from ...services import LogService
 from ...services import SocketService
 from ...services import ObjectService
@@ -100,7 +100,7 @@ class SocketProxyObject(SocketMeshObject):
         GeneralObjectProperties.set_value("object_type", self._object_info["type"], obj)
         GeneralObjectProperties.set_value("scale_factor", self._scale, obj)
 
-        mesh = obj.data
+        mesh = typing.cast(bpy.types.Mesh, obj.data)
 
         # Next most efficient available way to convert a set of numpy arrays to a mesh.
         # The most efficient way listed online causes segfaults for me and is hard to

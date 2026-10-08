@@ -583,7 +583,7 @@ class RigService:
         armature = bpy.data.armatures.new(name + "Armature")
         armature_object = bpy.data.objects.new(name, armature)
 
-        armature_object.data.display_type = 'WIRE'
+        typing.cast(bpy.types.Armature, armature_object.data).display_type = 'WIRE'
         armature_object.show_in_front = True
 
         ObjectService.link_blender_object(armature_object, parent)
@@ -817,8 +817,8 @@ class RigService:
         """
         _LOG.enter()
         if generated := ObjectService.find_rigify_rig_by_metarig(armature_object):
-            rig_bones = {bone.name for bone in armature_object.data.bones if bone.use_deform}
-            gen_bones = {bone.name for bone in generated.data.bones if bone.use_deform}
+            rig_bones = {bone.name for bone in typing.cast(bpy.types.Armature, armature_object.data).bones if bone.use_deform}
+            gen_bones = {bone.name for bone in typing.cast(bpy.types.Armature, generated.data).bones if bone.use_deform}
 
             return sorted([
                 name for name in gen_bones
@@ -1746,25 +1746,26 @@ class RigService:
 
         # In bone local space, the head is at origin and tail is at (0, bone_length, 0)
         # Move the first and last points of the nurbs path to the bone's head and tail
-        nurbs_path.data.splines[0].points[0].co = (0, 0, 0, 1)
-        nurbs_path.data.splines[0].points[-1].co = (0, bone_length, 0, 1)
+        path_data = typing.cast(bpy.types.Curve, nurbs_path.data)
+        path_data.splines[0].points[0].co = (0, 0, 0, 1)
+        path_data.splines[0].points[-1].co = (0, bone_length, 0, 1)
 
         # Place the remaining points on a line between the bone's head and tail
-        number_of_points = len(nurbs_path.data.splines[0].points)
+        number_of_points = len(path_data.splines[0].points)
         increment_y = bone_length / (number_of_points - 1)
 
         for i in range(1, number_of_points - 1):
-            nurbs_path.data.splines[0].points[i].co = (0, increment_y * i, 0, 1)
+            path_data.splines[0].points[i].co = (0, increment_y * i, 0, 1)
 
         # Set the path's geometry
-        nurbs_path.data.bevel_depth = bevel_depth
-        nurbs_path.data.use_fill_caps = True
+        path_data.bevel_depth = bevel_depth
+        path_data.use_fill_caps = True
 
         # Make the start and end points smaller
-        nurbs_path.data.splines[0].points[0].radius = 0.6
-        nurbs_path.data.splines[0].points[1].radius = 0.8
-        nurbs_path.data.splines[0].points[-2].radius = 0.8
-        nurbs_path.data.splines[0].points[-1].radius = 0.6
+        path_data.splines[0].points[0].radius = 0.6
+        path_data.splines[0].points[1].radius = 0.8
+        path_data.splines[0].points[-2].radius = 0.8
+        path_data.splines[0].points[-1].radius = 0.6
 
         # Set the path's name to the bone's name
         nurbs_path.name = bone_name + "_bone"

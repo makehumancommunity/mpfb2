@@ -8,7 +8,7 @@ otherwise managed.
 Viseme and face unit target logic has moved to FaceService.
 """
 
-import bpy
+import bpy, typing
 from .logservice import LogService
 from .targetservice import TargetService
 from .objectservice import ObjectService
@@ -262,7 +262,7 @@ class ExportService:
         bpy.context.view_layer.objects.active = export_basis_obj
         export_basis_obj.select_set(True)
 
-        for kb in export_basis_obj.data.shape_keys.key_blocks:
+        for kb in typing.cast(bpy.types.Mesh, export_basis_obj.data).shape_keys.key_blocks:
             kb.value = 0.0
 
         TargetService.bake_targets(export_basis_obj)
@@ -273,9 +273,9 @@ class ExportService:
             if mod_name in export_basis_obj.modifiers:
                 bpy.ops.object.modifier_apply(modifier=mod_name)
 
-        n_verts = len(export_basis_obj.data.vertices)
+        n_verts = len(typing.cast(bpy.types.Mesh, export_basis_obj.data).vertices)
         export_basis_coords = [0.0] * (n_verts * 3)
-        export_basis_obj.data.vertices.foreach_get('co', export_basis_coords)
+        typing.cast(bpy.types.Mesh, export_basis_obj.data).vertices.foreach_get('co', export_basis_coords)
 
         _LOG.debug("export_basis vertex count", n_verts)
 
@@ -293,7 +293,7 @@ class ExportService:
             _LOG.debug("Created new temporary object", temp_obj.name)
 
             # Set only this key to 1.0
-            for kb in temp_obj.data.shape_keys.key_blocks:
+            for kb in typing.cast(bpy.types.Mesh, temp_obj.data).shape_keys.key_blocks:
                 if kb.name == sk_name:
                     kb.value = 1.0
                 else:
@@ -307,13 +307,14 @@ class ExportService:
                 if mod_name in temp_obj.modifiers:
                     bpy.ops.object.modifier_apply(modifier=mod_name)
 
-            if len(temp_obj.data.vertices) != n_verts:
-                _LOG.warning("Vertex count mismatch for shape key, skipping", (sk_name, len(temp_obj.data.vertices), n_verts))
+            if len(typing.cast(bpy.types.Mesh, temp_obj.data).vertices) != n_verts:
+                _LOG.warning("Vertex count mismatch for shape key, skipping",
+                             (sk_name, len(typing.cast(bpy.types.Mesh, temp_obj.data).vertices), n_verts))
                 bpy.data.objects.remove(temp_obj, do_unlink=True)
                 continue
 
             temp_coords = [0.0] * (n_verts * 3)
-            temp_obj.data.vertices.foreach_get('co', temp_coords)
+            typing.cast(bpy.types.Mesh, temp_obj.data).vertices.foreach_get('co', temp_coords)
 
             significant_deltas = []
             min_sq = SIGNIFICANT_SHIFT_MINIMUM * SIGNIFICANT_SHIFT_MINIMUM
@@ -332,7 +333,7 @@ class ExportService:
 
         # Swap mesh data: replace basemesh.data with export_basis_obj.data
         old_mesh_data = basemesh.data
-        basemesh.data = export_basis_obj.data
+        basemesh.data = typing.cast(bpy.types.Mesh, export_basis_obj.data)
         bpy.data.objects.remove(export_basis_obj, do_unlink=True)
         bpy.data.meshes.remove(old_mesh_data)
 

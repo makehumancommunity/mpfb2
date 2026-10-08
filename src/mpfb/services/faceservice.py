@@ -2,7 +2,7 @@
 Module with logic for loading and interpolating facial animation targets (visemes and ARKit face units).
 """
 
-import bpy, json, os
+import bpy, json, os, typing
 from .logservice import LogService
 from .targetservice import TargetService
 from .locationservice import LocationService
@@ -393,18 +393,18 @@ class FaceService:
             mhclo = Mhclo()
             mhclo.load(mhclo_path)
 
-            if not child.data.shape_keys:
+            if not typing.cast(bpy.types.Mesh, child.data).shape_keys:
                 child.shape_key_add(name="Basis", from_mix=False)
 
             for source_key in shape_keys_to_interpolate:
-                if source_key.name in child.data.shape_keys.key_blocks:
+                if source_key.name in typing.cast(bpy.types.Mesh, child.data).shape_keys.key_blocks:
                     _LOG.debug("Shape key already exists on child, skipping", (child.name, source_key.name))
                     continue
 
                 # First, calculate all interpolated offsets to check if any are significant
                 significant_changes = []
                 for child_vert_idx in mhclo.verts:
-                    if child_vert_idx >= len(child.data.vertices):
+                    if child_vert_idx >= len(typing.cast(bpy.types.Mesh, child.data).vertices):
                         break
                     mapping = mhclo.verts[child_vert_idx]
                     v0, v1, v2 = mapping["verts"]
@@ -433,7 +433,8 @@ class FaceService:
 
                 # Apply the significant changes
                 for child_vert_idx, interpolated_offset in significant_changes:
-                    new_key.data[child_vert_idx].co = child.data.vertices[child_vert_idx].co + interpolated_offset
+                    new_key.data[child_vert_idx].co = typing.cast(bpy.types.Mesh, child.data).vertices[child_vert_idx].co \
+                        + interpolated_offset
 
                 _LOG.debug("Interpolated shape key to child", (source_key.name, child.name))
 

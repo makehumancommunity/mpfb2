@@ -1,6 +1,6 @@
 """Service for working with animations and poses"""
 
-import bpy, os
+import bpy, os, typing
 from typing import Optional
 from .logservice import LogService
 from .rigservice import RigService
@@ -53,7 +53,7 @@ class AnimationService:
 
         # Extract all the roll values from the source armature's edit bones
         source_rolls = dict()
-        for source_edit_bone in source_rig.data.edit_bones:
+        for source_edit_bone in typing.cast(bpy.types.Armature, source_rig.data).edit_bones:
             source_rolls[source_edit_bone.name] = source_edit_bone.roll
 
         # Finally set the source armature in pose mode
@@ -64,7 +64,7 @@ class AnimationService:
         bpy.ops.object.mode_set(mode='EDIT', toggle=False)
 
         # Copy all the roll values from the source armature to the destination armature's edit bones'
-        for dest_edit_bone in dest_rig.data.edit_bones:
+        for dest_edit_bone in typing.cast(bpy.types.Armature, dest_rig.data).edit_bones:
             if dest_edit_bone.name in source_rolls:
                 dest_edit_bone.roll = source_rolls[dest_edit_bone.name]
 

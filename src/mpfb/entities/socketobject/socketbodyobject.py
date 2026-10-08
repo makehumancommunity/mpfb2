@@ -2,7 +2,7 @@
 """This module only contains the SocketProxyObject. See the class docstring
 for more info."""
 
-import numpy, bpy
+import numpy, bpy, typing
 from ...services import LogService
 from ...services import SocketService
 from ...services import ObjectService
@@ -104,7 +104,7 @@ class SocketBodyObject(SocketMeshObject):
         """Create the actual blender object for the basemesh, and apply vertex groups and modifiers for it"""
         obj = ObjectService.create_blender_object_with_mesh(mesh_name, skip_linking=True)
         _LOG.debug("obj", obj)
-        mesh = obj.data
+        mesh = typing.cast(bpy.types.Mesh, obj.data)
         _LOG.debug("mesh", mesh)
 
         _LOG.debug("Verts length", len(self._vertices))
