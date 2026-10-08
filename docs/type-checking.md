@@ -5,8 +5,9 @@ services and entities layers. This is advisory tooling to help while adding and 
 PEP 484 type hints — it is run locally and in the editor, not as a CI merge gate.
 
 The checker configuration lives in [`pyrightconfig.json`](../pyrightconfig.json) in the repo
-root. It scopes checking to `src/mpfb/services` and `src/mpfb/entities` and excludes the
-out-of-scope `src/mpfb/entities/nodemodel` (generated code) and `src/mpfb/ui` layers.
+root. It scopes checking to `src/mpfb/services`, `src/mpfb/entities` and the shared
+`src/mpfb/types.py`, and excludes the out-of-scope `src/mpfb/entities/nodemodel` (generated
+code) and `src/mpfb/ui` layers.
 
 ## Dev dependencies
 
