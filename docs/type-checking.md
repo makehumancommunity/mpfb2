@@ -8,10 +8,6 @@ The checker configuration lives in [`pyrightconfig.json`](../pyrightconfig.json)
 root. It scopes checking to `src/mpfb/services` and `src/mpfb/entities` and excludes the
 out-of-scope `src/mpfb/entities/nodemodel` (generated code) and `src/mpfb/ui` layers.
 
-The annotation work itself is tracked in `features/issue_374_type_hints_services_entities.md`,
-which holds the per-file checklist and the ordering. That list is deliberately not duplicated
-here, so there is only one place to tick a file off.
-
 ## Dev dependencies
 
 The type checker and the Blender stubs are development-only dependencies, listed in
