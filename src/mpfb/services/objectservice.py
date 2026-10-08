@@ -35,7 +35,8 @@ class ObjectService:
     Note that most logic related to vertex groups and meshes are located in the MeshService class, rather then in ObjectService.
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
+        """You should not instance ObjectService. Use its static methods instead."""
         raise RuntimeError("You should not instance ObjectService. Use its static methods instead.")
 
     @staticmethod
@@ -436,7 +437,8 @@ class ObjectService:
         if not blender_object or not mpfb_type_name:
             return
 
-        def rec_children(rec_parent, exclude=None):
+        def rec_children(rec_parent: bpy.types.Object,
+                         exclude: bpy.types.Object | None = None) -> typing.Generator[bpy.types.Object, None, None]:
             if only_parents:
                 return
 
@@ -475,7 +477,7 @@ class ObjectService:
             strict_parent = True
 
     @staticmethod
-    def find_related_objects(blender_object: bpy.types.Object | None, **kwargs) -> typing.Generator[bpy.types.Object, None, None]:
+    def find_related_objects(blender_object: bpy.types.Object | None, **kwargs: bool) -> typing.Generator[bpy.types.Object, None, None]:
         """
         Find related objects of any type among the nearest relatives of the given object.
 
@@ -490,7 +492,7 @@ class ObjectService:
             blender_object, _ALL_TYPES, **kwargs)
 
     @staticmethod
-    def find_related_skeletons(blender_object: bpy.types.Object | None, **kwargs) -> typing.Generator[bpy.types.Object, None, None]:
+    def find_related_skeletons(blender_object: bpy.types.Object | None, **kwargs: bool) -> typing.Generator[bpy.types.Object, None, None]:
         """
         Find related skeleton objects among the nearest relatives of the given object.
 
@@ -505,7 +507,7 @@ class ObjectService:
             blender_object, _SKELETON_TYPES, **kwargs)
 
     @staticmethod
-    def find_related_mesh_base_or_assets(blender_object: bpy.types.Object | None, **kwargs) -> typing.Generator[bpy.types.Object, None, None]:
+    def find_related_mesh_base_or_assets(blender_object: bpy.types.Object | None, **kwargs: bool) -> typing.Generator[bpy.types.Object, None, None]:
         """
         Find related mesh base or asset objects among the nearest relatives of the given object.
 
@@ -520,7 +522,7 @@ class ObjectService:
             blender_object, _MESH_TYPES, **kwargs)
 
     @staticmethod
-    def find_related_mesh_assets(blender_object: bpy.types.Object | None, **kwargs) -> typing.Generator[bpy.types.Object, None, None]:
+    def find_related_mesh_assets(blender_object: bpy.types.Object | None, **kwargs: bool) -> typing.Generator[bpy.types.Object, None, None]:
         """
         Find related mesh asset objects among the nearest relatives of the given object.
 
@@ -535,7 +537,7 @@ class ObjectService:
             blender_object, _MESH_ASSET_TYPES, **kwargs)
 
     @staticmethod
-    def find_related_body_part_assets(blender_object: bpy.types.Object | None, **kwargs) -> typing.Generator[bpy.types.Object, None, None]:
+    def find_related_body_part_assets(blender_object: bpy.types.Object | None, **kwargs: bool) -> typing.Generator[bpy.types.Object, None, None]:
         """
         Find related body part asset objects among the nearest relatives of the given object.
 
@@ -585,7 +587,7 @@ class ObjectService:
         return blender_object and blender_object.type == "ARMATURE" and typing.cast(bpy.types.ID, blender_object.data).get("rig_id")
 
     @staticmethod
-    def _get_rigify_property(rna_owner, property_name: str, default=None):
+    def _get_rigify_property(rna_owner: typing.Any, property_name: str, default: typing.Any = None) -> typing.Any:
         """
         Read a Rigify property from an RNA owner, such as an armature or a bone collection.
 
@@ -687,8 +689,8 @@ class ObjectService:
 
     @staticmethod
     def find_armature_context_objects(
-            armature_object: bpy.types.Object | None, *, operator=None,
-            is_subrig: bool | None=None, only_basemesh=False,
+            armature_object: bpy.types.Object | None, *, operator: bpy.types.Operator | None=None,
+            is_subrig: bool | None=None, only_basemesh: bool=False,
             ) -> tuple[bpy.types.Object | None, bpy.types.Object | None, bpy.types.Object | None]:
         """
         Find base rig, basemesh, and directly controlled mesh (same as basemesh unless subrig) for the given rig.

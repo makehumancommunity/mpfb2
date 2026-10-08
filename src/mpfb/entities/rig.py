@@ -132,7 +132,7 @@ class Rig:
 
     @staticmethod
     def from_given_armature_context(armature_object: bpy.types.Object | None, *,
-                                    is_subrig: bool | None=None, operator: object=None,
+                                    is_subrig: bool | None=None, operator: bpy.types.Operator | None=None,
                                     empty: bool=False, fast_positions: bool=False, rigify_ui: bool=False) -> "Rig | None":
         """Create an instance of Rig and populate it with information from the armature and related meshes."""
 

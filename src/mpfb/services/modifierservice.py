@@ -11,7 +11,8 @@ class ModifierService:
     """ModifierService contains various functions for working with modifiers, such as creating a new modifier,
     finding a modifier, and moving a modifier to the top of the stack and so forth."""
 
-    def __init__(self):
+    def __init__(self) -> None:
+        """You should not instance ModifierService. Use its static methods instead."""
         raise RuntimeError("You should not instance ModifierService. Use its static methods instead.")
 
     @staticmethod
@@ -67,7 +68,7 @@ class ModifierService:
     @staticmethod
     def find_modifiers_of_type(blender_object: bpy.types.Object, modifier_type: str) -> list[bpy.types.Modifier]:
         """Return a list with all modifiers with a given type for the given object."""
-        modifiers = []
+        modifiers: list[bpy.types.Modifier] = []
         if not blender_object or not modifier_type:
             return modifiers
         for modifier in blender_object.modifiers:
@@ -101,7 +102,9 @@ class ModifierService:
         try:
             return modifier[identifier]
         except TypeError:
-            return modifier.properties.inputs[identifier]["value"]
+            # The stubs are generated from a blender older than 5.2, where Modifier.properties
+            # does not yet exist. See the docstring for why both forms are needed.
+            return modifier.properties.inputs[identifier]["value"]  # pyright: ignore[reportAttributeAccessIssue]
 
     @staticmethod
     def set_node_group_input(modifier: bpy.types.Modifier, identifier: str, value: Any) -> None:
@@ -111,4 +114,5 @@ class ModifierService:
         try:
             modifier[identifier] = value
         except TypeError:
-            modifier.properties.inputs[identifier]["value"] = value
+            # See get_node_group_input for why Modifier.properties is not in the stubs.
+            modifier.properties.inputs[identifier]["value"] = value  # pyright: ignore[reportAttributeAccessIssue]

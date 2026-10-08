@@ -8,6 +8,9 @@ Modifiers are essential to the MPFB workflow. Armature modifiers connect meshes 
 
 A key feature of the service is modifier stack ordering. When creating an armature modifier, it typically needs to be at the top of the stack to ensure proper deformation order. ModifierService handles this automatically with the `move_to_top` parameter.
 
+The service also papers over a Blender API change in how geometry nodes modifier inputs are stored, see
+`get_node_group_input()` and `set_node_group_input()`.
+
 All methods are static; the class should never be instantiated.
 
 ## Source
@@ -35,11 +38,17 @@ Create a new modifier of the specified type.
 | `modifier_type` | `str` | — | Blender modifier type (e.g., `'ARMATURE'`, `'SUBSURF'`, `'MASK'`) |
 | `move_to_top` | `bool` | `False` | If `True`, move the modifier to the top of the stack |
 
-**Returns:** `bpy.types.Modifier` — The newly created modifier.
+**Returns:** `Any` — The newly created modifier.
 
 **Raises:** `ValueError` — If any required argument is `None` or empty.
 
 This is the base method for creating modifiers. The specialized methods below use this internally.
+
+The return is annotated `Any` rather than `bpy.types.Modifier` deliberately. `bpy.types.Modifier` is the base
+class, and what `modifiers.new()` hands back is one of its subclasses, whose type depends on the
+`modifier_type` string and so cannot be known statically. Callers immediately set subclass-only attributes —
+`object` on an armature modifier, `vertex_group` on a mask, `levels` on a subsurf — none of which exist on the
+base class, so a `bpy.types.Modifier` return type would make every such caller a type error.
 
 ---
 
@@ -56,7 +65,7 @@ Create an armature modifier linking a mesh to a skeleton.
 | `show_on_cage` | `bool` | `True` | Show deformation on the edit cage |
 | `move_to_top` | `bool` | `True` | Move to top of modifier stack |
 
-**Returns:** `bpy.types.Modifier` — The newly created armature modifier.
+**Returns:** `Any` — The newly created armature modifier. See `create_modifier()` for why this is `Any`.
 
 Armature modifiers are typically placed at the top of the stack (hence `move_to_top=True` by default) to ensure proper interaction with other modifiers like subdivision surface.
 
@@ -75,7 +84,7 @@ Create a mask modifier driven by a vertex group.
 | `show_on_cage` | `bool` | `True` | Show mask on the edit cage |
 | `move_to_top` | `bool` | `False` | Move to top of modifier stack |
 
-**Returns:** `bpy.types.Modifier` — The newly created mask modifier.
+**Returns:** `Any` — The newly created mask modifier. See `create_modifier()` for why this is `Any`.
 
 Vertices in the specified vertex group will be visible; vertices outside will be hidden.
 
@@ -94,7 +103,7 @@ Create a subdivision surface modifier.
 | `show_in_editmode` | `bool` | `True` | Show subdivision in edit mode |
 | `move_to_top` | `bool` | `False` | Move to top of modifier stack |
 
-**Returns:** `bpy.types.Modifier` — The newly created subsurf modifier.
+**Returns:** `Any` — The newly created subsurf modifier. See `create_modifier()` for why this is `Any`.
 
 The default `levels=0` means no viewport subdivision (for performance), while `render_levels=1` provides smooth rendering.
 
@@ -142,9 +151,48 @@ Find a modifier by type and optionally by name.
 | `modifier_type` | `str` | — | The modifier type to find |
 | `modifier_name` | `str \| None` | `None` | Optional specific modifier name |
 
-**Returns:** `bpy.types.Modifier` or `None` — The first matching modifier, or `None` if not found.
+**Returns:** `bpy.types.Modifier | None` — The first matching modifier, or `None` if not found.
 
 If `modifier_name` is provided, only that specific modifier is returned. Otherwise, the first modifier of the given type is returned.
+
+---
+
+### Geometry Nodes Modifier Inputs
+
+Where the inputs of a geometry nodes modifier live changed in Blender 5.2. Up to and including 5.1 they are
+ID-properties on the modifier itself, so `modifier[identifier]` reads them. As of 5.2 that form raises
+`TypeError: this type doesn't support IDProperties`, and the values moved to
+`modifier.properties.inputs[identifier]["value"]`.
+
+Both accessors below try the old form first and fall back to the new one on `TypeError`, so callers do not
+need to know the running Blender version. `Modifier.properties` is newer than the `fake-bpy-module` stubs, so
+the fallback lines carry a narrow `# pyright: ignore[reportAttributeAccessIssue]`.
+
+#### get_node_group_input(modifier, identifier)
+
+Read one input of a geometry nodes modifier, regardless of the Blender version.
+
+| Argument | Type | Default | Description |
+|----------|------|---------|-------------|
+| `modifier` | `bpy.types.Modifier` | — | The geometry nodes modifier to read from |
+| `identifier` | `str` | — | The socket identifier of the input (for example `"Socket_2"`) |
+
+**Returns:** `Any` — The current value of the input. The type depends on the socket, so no more precise
+annotation is possible.
+
+---
+
+#### set_node_group_input(modifier, identifier, value)
+
+Write one input of a geometry nodes modifier, regardless of the Blender version.
+
+| Argument | Type | Default | Description |
+|----------|------|---------|-------------|
+| `modifier` | `bpy.types.Modifier` | — | The geometry nodes modifier to write to |
+| `identifier` | `str` | — | The socket identifier of the input |
+| `value` | `Any` | — | The value to assign; must suit the socket's type |
+
+**Returns:** None
 
 ---
 
@@ -212,6 +260,16 @@ else:
 subsurf_mods = ModifierService.find_modifiers_of_type(mesh_obj, 'SUBSURF')
 for mod in subsurf_mods:
     print(f"Subsurf '{mod.name}': {mod.levels} levels")
+```
+
+### Reading and Writing Geometry Nodes Inputs
+
+```python
+from mpfb.services.modifierservice import ModifierService
+
+# Works on blender 5.1 and 5.2 alike
+density = ModifierService.get_node_group_input(hair_modifier, "Socket_2")
+ModifierService.set_node_group_input(hair_modifier, "Socket_2", density * 2)
 ```
 
 ### Managing Modifier Stack Order
