@@ -23,6 +23,14 @@ All methods are static; the class should never be instantiated.
 | `LogService` | Logging via `LogService.get_logger("services.meshservice")` |
 | `ObjectService` | Object linking operations |
 
+## Module-Level Types
+
+| Name | Definition | Description |
+|------|------------|-------------|
+| `VertexWeight` | `Sequence[Any]` | One `[vertex index, weight]` pair. The element type is deliberately `Any`: the pair is heterogeneous — an `int` index followed by a `float` weight — while `Sequence` is homogeneous, so any element type precise enough to describe the weight leaves the index unusable as the `Sequence[int]` that `VertexGroup.add()` requires. The methods that *return* these pairs declare their concrete `list[list[float]]` shape instead. |
+| `KDTreeMatch` | `tuple[Vector, int, float]` | One match from a `mathutils.kdtree.KDTree` lookup: `(coordinate, vertex index, distance)`. |
+| `UvMapAsDict` | `Mapping[Any, Mapping[Any, Sequence[float]]]` | A whole UV map as nested dicts: face index -> loop index -> `[u, v]`. Both key levels are deliberately `Any`; see the note under `add_uv_map_from_dict` for why. |
+
 ## Public API
 
 ### Mesh Creation
@@ -33,10 +41,10 @@ Create a new mesh object from geometry data.
 
 | Argument | Type | Default | Description |
 |----------|------|---------|-------------|
-| `vertices` | `list` | — | List of vertex coordinates as `(x, y, z)` tuples |
-| `edges` | `list` | — | List of edges as `(v1, v2)` tuples |
-| `faces` | `list` | — | List of faces as vertex index tuples |
-| `vertex_groups` | `dict` | `None` | Dict mapping group names to lists of `[vertex_index, weight]` pairs |
+| `vertices` | `Iterable[Sequence[float] \| Vector]` | — | Vertex coordinates as `(x, y, z)` tuples or `Vector`s |
+| `edges` | `Iterable[Sequence[int]]` | — | Edges as `(v1, v2)` tuples. May be empty, in which case blender infers the edges from the faces. |
+| `faces` | `Iterable[Sequence[int]]` | — | Faces as vertex index tuples |
+| `vertex_groups` | `Mapping[str, Iterable[VertexWeight]] \| None` | `None` | Maps group names to lists of `[vertex_index, weight]` pairs. Each group is created with `nuke_existing_group=True`. |
 | `name` | `str` | `"sample_object"` | Name for the new object |
 | `link` | `bool` | `True` | Whether to link the object to the current collection |
 
@@ -71,7 +79,7 @@ Create a vertex group and populate it with weighted vertices.
 |----------|------|---------|-------------|
 | `mesh_object` | `bpy.types.Object` | — | The mesh object |
 | `vertex_group_name` | `str` | — | Name for the vertex group |
-| `verts_and_weights` | `list` | — | List of `[vertex_index, weight]` pairs |
+| `verts_and_weights` | `Iterable[VertexWeight]` | — | The `[vertex_index, weight]` pairs to add |
 | `nuke_existing_group` | `bool` | `False` | Remove existing group with same name |
 
 **Returns:** None
@@ -89,7 +97,9 @@ Find all vertices belonging to a vertex group.
 | `mesh_object` | `bpy.types.Object` | — | The mesh object |
 | `vertex_group_name` | `str` | — | Name of the vertex group |
 
-**Returns:** `list` — List of `[vertex_index, weight]` pairs.
+**Returns:** `list[list[float]]` — List of `[vertex_index, weight]` pairs. The index is an `int` at
+runtime; the annotation says `float` because a two-element list holding an `int` and a `float` has no
+narrower homogeneous type, and `int` is assignable to `float`.
 
 Returns an empty list if the vertex group doesn't exist.
 
@@ -116,12 +126,14 @@ Select vertices in a vertex group in edit mode.
 
 | Argument | Type | Default | Description |
 |----------|------|---------|-------------|
-| `vertex_group_name` | `str` | — | Name of the vertex group |
+| `vertex_group_name` | `str \| None` | — | Name of the vertex group. `None` (or an empty string) deselects without selecting anything new, which is how the three callers in `src/mpfb/ui` pass an unset preselect group. |
 | `deselect_other` | `bool` | `True` | Deselect all other vertices first |
 
 **Returns:** None
 
-The object must be active. Switches to vertex selection mode before selecting.
+The object must be active **and in edit mode**: the method reads `bpy.context.active_object` and calls
+`bpy.ops.mesh.select_mode`, both of which fail without one. Switches to vertex selection mode before
+selecting.
 
 ---
 
@@ -147,9 +159,11 @@ Export UV coordinates as a dictionary.
 |----------|------|---------|-------------|
 | `mesh_object` | `bpy.types.Object` | — | The mesh object |
 | `uv_map_name` | `str` | — | Name of the UV map |
-| `only_include_vertex_group` | `str` | `None` | Only include faces in this vertex group |
+| `only_include_vertex_group` | `str \| None` | `None` | Only include faces where *every* vertex is in this vertex group. If `None`, all faces are included. |
 
-**Returns:** `dict` — Nested dictionary: `{face_index: {loop_index: [u, v], ...}, ...}`
+**Returns:** `dict[int, dict[int, list[float]]]` — Nested dictionary:
+`{face_index: {loop_index: [u, v], ...}, ...}`. Both key levels are `int` here, unlike the
+`UvMapAsDict` that `add_uv_map_from_dict` accepts.
 
 Returns an empty dict if the UV map doesn't exist.
 
@@ -163,11 +177,16 @@ Create a UV map from a dictionary.
 |----------|------|---------|-------------|
 | `mesh_object` | `bpy.types.Object` | — | The mesh object |
 | `uv_map_name` | `str` | — | Name for the UV map |
-| `uv_map_as_dict` | `dict` | — | UV data in the format from `get_uv_map_as_dict` |
+| `uv_map_as_dict` | `UvMapAsDict` | — | UV data in the format from `get_uv_map_as_dict` |
 
 **Returns:** None
 
 If a UV map with the same name exists, it is replaced. Faces not in the dictionary receive scaled-down default coordinates.
+
+The parameter's key type is `Any` rather than `int` on purpose. `get_uv_map_as_dict()` produces `int` keys,
+but three of this method's four call sites hand it a dict straight out of `json.load()`, where the same keys
+are `str` — which is why the method coerces the loop index with `int()` before using it. `Mapping` is
+invariant in its key type, so an `int | str` union would reject both producers rather than accept both.
 
 ---
 
@@ -181,13 +200,16 @@ Build a KDTree from mesh vertices for spatial lookups.
 |----------|------|---------|-------------|
 | `mesh_object` | `bpy.types.Object` | — | The mesh object |
 | `balance` | `bool` | `True` | Balance the tree after construction |
-| `limit_to_vertex_group` | `str` | `None` | Only include vertices in this group |
+| `limit_to_vertex_group` | `str \| None` | `None` | Only include vertices in this group. If `None`, every vertex is inserted. |
 | `after_modifiers` | `bool` | `False` | Use evaluated mesh (after modifiers) |
 | `world_coordinates` | `bool` | `True` | Transform to world coordinates |
 
 **Returns:** `mathutils.kdtree.KDTree` — The constructed KDTree.
 
 **Raises:** `ValueError` — If `limit_to_vertex_group` is specified but doesn't exist.
+
+Note that `world_coordinates` is honored only on the unlimited path: when `limit_to_vertex_group` is set,
+the vertices are inserted in local coordinates regardless.
 
 The KDTree enables O(log n) nearest-neighbor searches, essential for fitting operations.
 
@@ -206,9 +228,16 @@ Find the closest vertex(es) on a target mesh to a given vertex.
 | `number_of_matches` | `int` | `1` | Number of nearest vertices to find |
 | `world_coordinates` | `bool` | `True` | Use world coordinates |
 
-**Returns:** `list` — For single match: `[(location, index, distance)]`. For multiple: list of such tuples.
+**Returns:** `list[KDTreeMatch]` — a list of `(location, index, distance)` tuples. With
+`number_of_matches=1` the list always holds exactly one entry, even when nothing was found; with a higher
+value it holds at most that many, and fewer when the tree has fewer vertices.
 
-**Raises:** `ValueError` — If objects are `None`, KDTree is `None`, or objects have non-unit scales.
+**Raises:** `ValueError` — If either object is `None`, the KDTree is `None`, or either object has a
+non-unit scale.
+
+The annotation promises a populated tuple, which `mathutils` does not: `KDTree.find()` returns
+`(None, None, None)` when it matches nothing. That can only happen for a target mesh with no vertices at
+all, and every caller unpacks the tuple unguarded; see `features/KDTREE_NO_MATCH_BUG.md`.
 
 ---
 
@@ -238,7 +267,9 @@ Export face vertex indices as a numpy array.
 
 **Returns:** `numpy.ndarray` — Shape `(num_faces, verts_per_face)`, dtype `uint32`.
 
-**Raises:** `ValueError` — If faces have different vertex counts (mixed tris/quads).
+**Raises:** `ValueError` — If faces have different vertex counts (mixed tris/quads). A mesh with no
+polygons at all raises `TypeError` from `numpy.zeros()` instead of returning an empty array; see
+`features/EMPTY_MESH_NUMPY_BUG.md`.
 
 ---
 
@@ -251,6 +282,10 @@ Export edge vertex indices as a numpy array.
 | `mesh_object` | `bpy.types.Object` | — | The mesh object |
 
 **Returns:** `numpy.ndarray` — Shape `(num_edges, 2)`, dtype `uint32`.
+
+**Raises:** `ValueError` — If edges have different vertex counts, which blender does not allow, so the
+check is defensive. A mesh with no edges at all raises `TypeError` from `numpy.zeros()` instead of
+returning an empty array, the same way `get_faces_as_numpy_array` does.
 
 ---
 

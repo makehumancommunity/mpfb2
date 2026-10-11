@@ -9,6 +9,7 @@ Viseme and face unit target logic has moved to FaceService.
 """
 
 import bpy, typing
+from collections.abc import Sequence
 from .logservice import LogService
 from .targetservice import TargetService
 from .objectservice import ObjectService
@@ -16,16 +17,35 @@ from .faceservice import FaceService, MICROSOFT_VISEMES, META_VISEMES, ARKIT_FAC
 
 _LOG = LogService.get_logger("services.exportservice")
 
+VertexDelta = tuple[int, float, float, float]
+"""One significant vertex shift inside a shape key: ``(vertex index, dx, dy, dz)``."""
+
+ShapeKeyDeltas = tuple[str, float, list[VertexDelta]]
+"""One rebuilt shape key: its name, its value, and the vertex shifts that make it up."""
+
+
+class ShapeKeySnapshot(typing.TypedDict):
+    """The metadata kept for one shape key while its mesh is rebuilt under it.
+
+    A ``TypedDict`` rather than a plain ``dict[str, Any]`` because the two keys carry different types and
+    both are read back out into positions that require the concrete one: the name into
+    ``Object.shape_key_add()`` and the value into ``ShapeKey.value``."""
+
+    name: str
+    value: float
+
+
 class ExportService:
     """The ExportService class serves as a utility class for staging characters for export.
 
     Note that this class is designed to be used without instantiation. All methods are static methods that can be called directly."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         raise RuntimeError("You should not instance ExportService. Use its static methods instead.")
 
     @staticmethod
-    def create_character_copy(source_object, name_suffix="_export_copy", place_in_collection=None):
+    def create_character_copy(source_object: bpy.types.Object | None, name_suffix: str = "_export_copy",
+                              place_in_collection: bpy.types.Collection | None = None) -> bpy.types.Object:
         """
         Creates a deep copy of the given character, including any rig or child meshes connected to it.
 
@@ -59,13 +79,17 @@ class ExportService:
 
         _LOG.debug("Children", children)
 
-        new_root = ObjectService.duplicate_blender_object(root_object, collection=place_in_collection)
+        # ObjectService.duplicate_blender_object() is declared "Object | None", but it returns None only
+        # when handed None, and neither call below can: root_object derives from a basemesh this method has
+        # already null-checked, and child comes out of a list of real objects.
+        new_root = typing.cast(bpy.types.Object, ObjectService.duplicate_blender_object(root_object, collection=place_in_collection))
         new_root.name = root_object.name + name_suffix
 
         for child in children:
             _LOG.debug("Child", child)
             name = child.name + name_suffix
-            duplicated_child = ObjectService.duplicate_blender_object(child, collection=place_in_collection, parent=new_root)
+            duplicated_child = typing.cast(bpy.types.Object,
+                                           ObjectService.duplicate_blender_object(child, collection=place_in_collection, parent=new_root))
             duplicated_child.name = name
             if new_root.type == 'ARMATURE':
                 # We need to make sure that any armature modifier on the child is pointed to the new root
@@ -76,7 +100,8 @@ class ExportService:
         return new_root
 
     @staticmethod
-    def bake_modifiers_remove_helpers(basemesh, bake_masks=False, bake_subdiv=False, remove_helpers=True, also_proxy=True):
+    def bake_modifiers_remove_helpers(basemesh: bpy.types.Object, bake_masks: bool = False, bake_subdiv: bool = False,
+                                      remove_helpers: bool = True, also_proxy: bool = True) -> None:
         """Bakes modifiers and optionally remove helpers.
 
         Args:
@@ -99,20 +124,22 @@ class ExportService:
             # Pre-adjust SUBSURF levels to render_levels so duplicates inherit the right level
             for modifier in basemesh.modifiers:
                 if modifier.type == 'SUBSURF' and bake_subdiv:
-                    modifier.levels = modifier.render_levels
+                    subsurf = typing.cast(bpy.types.SubsurfModifier, modifier)
+                    subsurf.levels = subsurf.render_levels
 
             # Collect modifiers to apply (in order)
-            mods_to_apply = []
+            mods_to_apply: list[str] = []
             for modifier in basemesh.modifiers:
                 if modifier.type == 'MASK' and bake_masks:
-                    if modifier.vertex_group == "body" and not modifier.invert_vertex_group:
+                    mask = typing.cast(bpy.types.MaskModifier, modifier)
+                    if mask.vertex_group == "body" and not mask.invert_vertex_group:
                         helpers_removed_by_modifier = True
                         mods_to_apply.append(modifier.name)
-                    elif modifier.vertex_group == "body" and modifier.invert_vertex_group:
+                    elif mask.vertex_group == "body" and mask.invert_vertex_group:
                         pass  # handled in cleanup loop below
                     else:
                         mods_to_apply.append(modifier.name)
-                elif modifier.type == 'SUBSURF' and bake_subdiv and modifier.levels > 0:
+                elif modifier.type == 'SUBSURF' and bake_subdiv and typing.cast(bpy.types.SubsurfModifier, modifier).levels > 0:
                     mods_to_apply.append(modifier.name)
 
             ExportService._apply_modifiers_keep_shapekeys(basemesh, mods_to_apply)
@@ -127,12 +154,13 @@ class ExportService:
         else:
             for modifier in basemesh.modifiers:
                 if modifier.type == 'MASK' and bake_masks:
-                    if modifier.vertex_group == "body" and not modifier.invert_vertex_group:
+                    mask = typing.cast(bpy.types.MaskModifier, modifier)
+                    if mask.vertex_group == "body" and not mask.invert_vertex_group:
                         # This is the modifier that hides helper geometry
                         bpy.ops.object.modifier_apply(modifier=modifier.name)
                         helpers_removed_by_modifier = True
                     else:
-                        if modifier.vertex_group == "body" and modifier.invert_vertex_group:
+                        if mask.vertex_group == "body" and mask.invert_vertex_group:
                             # This is the modifier that hides the body if there is a proxy. It does not make much
                             # sense to keep this if we're baking masks, but it doesn't make sense to bake it either
                             basemesh.modifiers.remove(modifier)
@@ -141,8 +169,9 @@ class ExportService:
                             bpy.ops.object.modifier_apply(modifier=modifier.name)
                 else:
                     if modifier.type == 'SUBSURF' and bake_subdiv:
-                        modifier.levels = modifier.render_levels
-                        if modifier.levels == 0:
+                        subsurf = typing.cast(bpy.types.SubsurfModifier, modifier)
+                        subsurf.levels = subsurf.render_levels
+                        if subsurf.levels == 0:
                             basemesh.modifiers.remove(modifier)
                         else:
                             bpy.ops.object.modifier_apply(modifier=modifier.name)
@@ -154,7 +183,8 @@ class ExportService:
             ExportService._delete_vertex_group(basemesh, "JointCubes")
 
             for modifier in basemesh.modifiers:
-                if modifier.type == 'MASK' and modifier.vertex_group == 'body' and not modifier.invert_vertex_group:
+                if modifier.type == 'MASK' and typing.cast(bpy.types.MaskModifier, modifier).vertex_group == 'body' \
+                        and not typing.cast(bpy.types.MaskModifier, modifier).invert_vertex_group:
                     basemesh.modifiers.remove(modifier)
 
             if has_sk:
@@ -166,7 +196,8 @@ class ExportService:
                 non_pertinent_targets.extend(MICROSOFT_VISEMES)
                 non_pertinent_targets.extend(ARKIT_FACEUNITS)
                 has_any_pertinent_detail = False
-                for shapekey in basemesh.data.shape_keys.key_blocks:
+                basemesh_keys = typing.cast(bpy.types.Key, typing.cast(bpy.types.Mesh, basemesh.data).shape_keys)
+                for shapekey in basemesh_keys.key_blocks:
                     _LOG.debug("found shape key", shapekey.name)
                     if shapekey.name not in non_pertinent_targets:
                         _LOG.debug("found pertinent shape key", shapekey.name)
@@ -199,13 +230,14 @@ class ExportService:
             # Pre-adjust SUBSURF levels on proxy before collecting mods
             for modifier in proxy.modifiers:
                 if modifier.type == 'SUBSURF' and bake_subdiv:
-                    modifier.levels = modifier.render_levels
+                    subsurf = typing.cast(bpy.types.SubsurfModifier, modifier)
+                    subsurf.levels = subsurf.render_levels
 
-            proxy_mods_to_apply = []
+            proxy_mods_to_apply: list[str] = []
             for modifier in proxy.modifiers:
                 if modifier.type == 'MASK' and bake_masks:
                     proxy_mods_to_apply.append(modifier.name)
-                elif modifier.type == 'SUBSURF' and bake_subdiv and modifier.levels > 0:
+                elif modifier.type == 'SUBSURF' and bake_subdiv and typing.cast(bpy.types.SubsurfModifier, modifier).levels > 0:
                     proxy_mods_to_apply.append(modifier.name)
 
             _LOG.debug("Proxy modifiers to apply", proxy_mods_to_apply)
@@ -224,7 +256,7 @@ class ExportService:
         ObjectService.activate_blender_object(root_obj, deselect_all=True)
 
     @staticmethod
-    def _apply_modifiers_keep_shapekeys(basemesh, modifier_names_to_apply):
+    def _apply_modifiers_keep_shapekeys(basemesh: bpy.types.Object, modifier_names_to_apply: Sequence[str]) -> None:
         """Apply modifiers to basemesh while preserving shape keys.
 
         Uses the copy-bake-apply-delta strategy: for each shape key, a temporary duplicate
@@ -249,20 +281,22 @@ class ExportService:
             return
 
         # Snapshot shape key metadata (skip Basis)
-        original_sk_data = [
+        basemesh_keys = typing.cast(bpy.types.Key, typing.cast(bpy.types.Mesh, basemesh.data).shape_keys)
+        original_sk_data: list[ShapeKeySnapshot] = [
             {"name": kb.name, "value": kb.value}
-            for kb in basemesh.data.shape_keys.key_blocks
+            for kb in basemesh_keys.key_blocks
             if kb.name != "Basis"
         ]
 
         _LOG.dump("Shape keys to preserve", [sk["name"] for sk in original_sk_data])
 
         bpy.ops.object.select_all(action='DESELECT')
-        export_basis_obj = ObjectService.duplicate_blender_object(basemesh)
+        # Declared "Object | None", but None comes back only for a None argument, which basemesh is not.
+        export_basis_obj = typing.cast(bpy.types.Object, ObjectService.duplicate_blender_object(basemesh))
         bpy.context.view_layer.objects.active = export_basis_obj
         export_basis_obj.select_set(True)
 
-        for kb in typing.cast(bpy.types.Mesh, export_basis_obj.data).shape_keys.key_blocks:
+        for kb in typing.cast(bpy.types.Key, typing.cast(bpy.types.Mesh, export_basis_obj.data).shape_keys).key_blocks:
             kb.value = 0.0
 
         TargetService.bake_targets(export_basis_obj)
@@ -280,20 +314,20 @@ class ExportService:
         _LOG.debug("export_basis vertex count", n_verts)
 
         # Per-key loop: build delta data for each shape key
-        new_sk_deltas = []
+        new_sk_deltas: list[ShapeKeyDeltas] = []
 
         for sk_info in original_sk_data:
             sk_name = sk_info["name"]
             sk_value = sk_info["value"]
 
             bpy.ops.object.select_all(action='DESELECT')
-            temp_obj = ObjectService.duplicate_blender_object(basemesh)
+            temp_obj = typing.cast(bpy.types.Object, ObjectService.duplicate_blender_object(basemesh))
             bpy.context.view_layer.objects.active = temp_obj
             temp_obj.select_set(True)
             _LOG.debug("Created new temporary object", temp_obj.name)
 
             # Set only this key to 1.0
-            for kb in typing.cast(bpy.types.Mesh, temp_obj.data).shape_keys.key_blocks:
+            for kb in typing.cast(bpy.types.Key, typing.cast(bpy.types.Mesh, temp_obj.data).shape_keys).key_blocks:
                 if kb.name == sk_name:
                     kb.value = 1.0
                 else:
@@ -315,7 +349,7 @@ class ExportService:
             temp_coords = [0.0] * (n_verts * 3)
             typing.cast(bpy.types.Mesh, temp_obj.data).vertices.foreach_get('co', temp_coords)
 
-            significant_deltas = []
+            significant_deltas: list[VertexDelta] = []
             min_sq = SIGNIFICANT_SHIFT_MINIMUM * SIGNIFICANT_SHIFT_MINIMUM
             for i in range(n_verts):
                 dx = temp_coords[i * 3] - export_basis_coords[i * 3]
@@ -331,7 +365,7 @@ class ExportService:
             new_sk_deltas.append((sk_name, sk_value, significant_deltas))
 
         # Swap mesh data: replace basemesh.data with export_basis_obj.data
-        old_mesh_data = basemesh.data
+        old_mesh_data = typing.cast(bpy.types.Mesh, basemesh.data)
         basemesh.data = typing.cast(bpy.types.Mesh, export_basis_obj.data)
         bpy.data.objects.remove(export_basis_obj, do_unlink=True)
         bpy.data.meshes.remove(old_mesh_data)
@@ -339,10 +373,12 @@ class ExportService:
         # Reconstruct shape keys from stored deltas
         if new_sk_deltas:
             basemesh.shape_key_add(name="Basis", from_mix=False)
-            basis_key = basemesh.data.shape_keys.key_blocks["Basis"]
+            # Re-read basemesh.data at each site rather than caching it: shape_key_add() mutates the very
+            # collection being read, which is the convention the rest of this module follows.
+            basis_key = typing.cast(bpy.types.Key, typing.cast(bpy.types.Mesh, basemesh.data).shape_keys).key_blocks["Basis"]
 
             basis_coords = [0.0] * (n_verts * 3)
-            basemesh.data.vertices.foreach_get('co', basis_coords)
+            typing.cast(bpy.types.Mesh, basemesh.data).vertices.foreach_get('co', basis_coords)
 
             for sk_name, sk_value, deltas in new_sk_deltas:
                 new_key = basemesh.shape_key_add(name=sk_name, from_mix=False)
@@ -359,7 +395,7 @@ class ExportService:
 
 
     @staticmethod
-    def _delete_vertex_group(blender_object, vgroup_name):
+    def _delete_vertex_group(blender_object: bpy.types.Object, vgroup_name: str) -> None:
 
         context = bpy.context
 
@@ -372,14 +408,14 @@ class ExportService:
         bpy.ops.mesh.select_all(action='DESELECT')
         bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
 
-        group_idx = None
+        group_idx: int | None = None
         for group in blender_object.vertex_groups:
             _LOG.dump("group name", group.name)
             if vgroup_name in group.name:
                 group_idx = group.index
         _LOG.dump("group index", group_idx)
 
-        for vertex in blender_object.data.vertices:
+        for vertex in typing.cast(bpy.types.Mesh, blender_object.data).vertices:
             vertex.select = False
             for group in vertex.groups:
                 if group.group == group_idx:
