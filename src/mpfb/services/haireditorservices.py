@@ -1,6 +1,6 @@
 """Module for convenience methods for hair editor"""
 
-import os, bpy, json
+import os, bpy, json, time
 
 from .logservice import LogService
 from .locationservice import LocationService
@@ -10,11 +10,49 @@ _LOG = LogService.get_logger("services.haireditorservice")
 class HairEditorService():
     """The HairEditorService class provides useful functions for the hair editor. All method are static methods."""
 
+    # search_term -> (resolved path or None, time.time() of the lookup)
+    _BLEND_PATH_CACHE = {}
+    _MISSING_BLEND_TTL = 2.0
+
     def __init__(self):
         raise RuntimeError("You should not instance HairEditorService. Use its static methods instead.")
 
     @staticmethod
+    def read_image_pixels(image):
+        """An image pixels as a flat float32 array of width*height*channels."""
+        import numpy as np
+
+        width, height = image.size
+        buffer = np.empty(width * height * image.channels, dtype=np.float32)
+        image.pixels.foreach_get(buffer)
+        return buffer
+
+    @staticmethod
+    def write_image_pixels(image, values):
+        """Write a flat float array back into an image."""
+        import numpy as np
+
+        image.pixels.foreach_set(np.ascontiguousarray(values, dtype=np.float32).ravel())
+
+    @staticmethod
     def _get_hair_or_fur_blend_path(search_term="hair"):
+        """The path to the hair or fur asset blend, or None.
+
+        Cached because the panel asks on every redraw. A found path is kept, a missing one expires
+        after a couple of seconds so that newly installed asset packs are noticed.
+        """
+        cached = HairEditorService._BLEND_PATH_CACHE.get(search_term)
+        if cached is not None:
+            path, looked_up_at = cached
+            if path is not None or (time.time() - looked_up_at) < HairEditorService._MISSING_BLEND_TTL:
+                return path
+
+        path = HairEditorService._search_for_hair_or_fur_blend(search_term)
+        HairEditorService._BLEND_PATH_CACHE[search_term] = (path, time.time())
+        return path
+
+    @staticmethod
+    def _search_for_hair_or_fur_blend(search_term="hair"):
         user_data_hair = LocationService.get_user_data("hair")
         if os.path.exists(user_data_hair):
             blend = os.path.join(user_data_hair, "haireditor", search_term + ".blend")
@@ -27,7 +65,8 @@ class HairEditorService():
             blend = os.path.join(system_data_hair, "haireditor", search_term + ".blend")
             _LOG.debug("System path for " + search_term + " blend", (blend, os.path.exists(blend)))
             if os.path.exists(blend) and os.path.isfile(blend):
-                _LOG.warn("Falling back to system path for hair blend, should probably move to user data folder.")
+                # The blends ship in the addon data folder, so this is the normal case and not a warning
+                _LOG.debug("Using the bundled " + search_term + " blend", blend)
                 return os.path.realpath(os.path.abspath(blend))
 
         _LOG.debug("No hair blend found.")

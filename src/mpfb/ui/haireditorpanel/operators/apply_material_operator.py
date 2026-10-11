@@ -1,39 +1,36 @@
 # ------------------------------------------------------------------------------
 # MPFB2 Extension by Klecer
 # Author:       Tomáš Klecer
-# Date:         7.5.2025
+# Date:         7.5.2025 - updated 6.10.2026
 # University:   Brno University of Technology
 # Supervisor:   Ing. Tomáš Chlubna, Ph.D.
 # Description:  Unused
 # ------------------------------------------------------------------------------
 from ....services.logservice import LogService
-from ....services.locationservice import LocationService
+from ....services.objectservice import ObjectService
 from .... import ClassManager
-from ....services.haireditorservices import HairEditorService
-import bpy, os, json, shutil
+from ...mpfboperator import MpfbOperator
+from ...pollstrategy import pollstrategy, PollStrategy
 
 _LOG = LogService.get_logger("haireditorpanel.apply_material_operator")
 
-class MPFB_OT_ApplyMaterial_Operator(bpy.types.Operator):
+@pollstrategy(PollStrategy.BASEMESH_AMONGST_RELATIVES)
+class MPFB_OT_ApplyMaterial_Operator(MpfbOperator):
     """Adds material to selected hair asset"""
     bl_idname = "mpfb.apply_material_operator"
     bl_label = "Apply material"
     bl_options = {'REGISTER'}
 
-    #material_complexity: bpy.props.StringProperty()
+    def get_logger(self):
+        return _LOG
 
-    def execute(self, context):
+    def hardened_execute(self, context):
+        _LOG.enter()
 
-        scene = context.scene
-
-        self.report({'INFO'}, ("Applying hair material..."))
-
-        # Get Human mesh
-        obj = context.object
-        if (not obj or not obj.name == 'Human'):
-            self.report({'ERROR'}, "Object Human must be active")
+        basemesh = ObjectService.find_object_of_type_amongst_nearest_relatives(context.object)
+        if basemesh is None:
+            self.report({'ERROR'}, "Could not find basemesh amongst relatives of selected object")
             return {'CANCELLED'}
-
 
         return {'FINISHED'}
 

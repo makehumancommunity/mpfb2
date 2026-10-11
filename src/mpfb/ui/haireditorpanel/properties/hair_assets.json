@@ -3,11 +3,15 @@
     "name": "hair_assets",
     "description": "Pick hair asset for your character",
     "label": "Hair",
-    "default": "basic_short_hair",
+    "default": "short_hedgehog",
     "items": [
-        ["hedgehog", "Hedgehog", "Straight hair.", 1],
-        ["basic_short_hair", "Short hair", "Shorter messy hair with significant corners.", 2],
-        ["straight_hair_to_shoulder", "Hair to shoulder", "Straight hair to shoulder", 3],
-        ["back_pigtail", "Back pigtail", "Pigtail on the back of the head", 4]
+        ["short_hedgehog", "Short hedgehog", "Shortly trimmed hair with significant corners.", 1],
+        ["hair_to_shoulder", "Hair to shoulder", "Wild uncared hair to shoulder", 2],
+        ["short_crown", "Hair crown", "Crown of short hair with bald top.", 3],
+        ["short_cap", "Short hair cap", "Short round monk-like hair cap", 4],
+        ["short_ponnytail", "Short ponytail", "Short ponytail from top of the head", 5],
+        ["back_pigtail", "Back pigtail", "Pigtail on the back of the head", 6],
+        ["tail_base", "Tail base", "Hair strands along the head without tail", 7],
+        ["empty_hair", "Empty hair", "Empty hair curves template for custom styling", 8]
     ]
 }
