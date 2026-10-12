@@ -1,0 +1,7 @@
+{
+    "type": "float",
+    "name": "batch_origin_x",
+    "description": "The X coordinate of the first human in the grid. Later humans are placed relative to this point",
+    "label": "First human X",
+    "default": 0.0
+}

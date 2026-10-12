@@ -123,16 +123,15 @@ class MPFB_OT_ApplyFur_Operator(MpfbOperator):
 
         for name, (mod_name, attr, rng) in DYNAMIC_FUR_PROPS_DEFINITIONS.items():
             propname = f"{prop_prefix}{name}"
-            current = ModifierService.get_node_group_input(hair_obj.modifiers[mod_name], attr)
             propdef = {
                 "name": propname,
                 "type": "float",
                 "description": mod_name,
                 "max": rng[1],
                 "min": rng[0],
-                "default": current
+                "default": ModifierService.get_node_group_input(hair_obj.modifiers[mod_name], attr)
                 }
-            FUR_PROPERTIES.set_value_dynamic(propname, current, propdef, entity_reference=basemesh)
+            FUR_PROPERTIES.set_value_dynamic(propname, ModifierService.get_node_group_input(hair_obj.modifiers[mod_name], attr), propdef, entity_reference=basemesh)
 
         mat = hair_obj.active_material
 

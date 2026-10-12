@@ -71,6 +71,12 @@ class MPFB_OT_Load_Library_Proxy_Operator(MpfbOperator):
 
         mhclo = Mhclo()
         mhclo.load(self.filepath) # pylint: disable=E1101
+
+        if mhclo.missing_material:
+            _LOG.warn("The material file the asset points at does not exist", mhclo.missing_material)
+            self.report({'WARNING'}, "The asset's material file is missing, so the asset was loaded without a "
+                        "material: " + os.path.basename(mhclo.missing_material))
+
         clothes = mhclo.load_mesh(context)
 
         if not clothes or clothes is None:
@@ -108,6 +114,12 @@ class MPFB_OT_Load_Library_Proxy_Operator(MpfbOperator):
             ClothesService.set_up_rigging(
                 basemesh, clothes, rig, mhclo, interpolate_weights=ctx.interpolate_weights,
                 import_subrig=ctx.import_subrig, import_weights=ctx.import_weights)
+
+        elif basemesh:
+            # Mirror what the clothes loader does: without rigging the proxy still has to be parented
+            # to the basemesh, or it will not be recognized as an equipped mesh asset and can thus
+            # never be unequipped again.
+            clothes.parent = basemesh
 
         if ctx.add_subdiv_modifier:
             modifier = clothes.modifiers.new("Subdivision", 'SUBSURF')

@@ -26,4 +26,4 @@ def test_asset_settings_properties_are_registered():
 
 def test_altmat_properties_are_registered():
     assert ALTMAT_PROPERTIES is not None
-    assert hasattr(bpy.types.Scene, 'MPFB_ALTM_available_materials')
+    assert hasattr(bpy.types.Scene, 'MPFB_ALTM_filter')

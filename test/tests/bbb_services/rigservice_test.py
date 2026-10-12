@@ -7,6 +7,10 @@ from .. import RigService
 from .. import MaterialService
 from .. import LocationService
 from .. import SystemService
+from .. import TargetService
+from .. import dynamic_import
+
+HumanObjectProperties = dynamic_import("mpfb.entities.objectproperties", "HumanObjectProperties")
 
 
 class _MockOperator:
@@ -190,6 +194,69 @@ def test_humanservice_refit_reports_generated_rigify_error():
         assert any("meta rig" in r[1].lower() for r in errors), f"Expected report mentioning meta rig, got: {errors}"
     finally:
         _cleanup_named_with_relatives(basemesh_name)
+
+
+def _make_character_taller(basemesh):
+    """Change the shape of the basemesh, the same way the height macro slider does."""
+    HumanObjectProperties.set_value("height", 1.0, entity_reference=basemesh)
+    TargetService.reapply_macro_details(basemesh)
+
+
+def _bone_head_z(armature_object, bone_name):
+    return armature_object.data.bones[bone_name].head_local[2]
+
+
+def _assert_refit_works_with_hidden_metarig(hide_with_view_layer_toggle):
+    """Generate a rigify rig with a hidden meta rig, refit, and check the result and the visibility."""
+    if not SystemService.check_for_rigify():
+        pytest.skip("Rigify is not enabled in this Blender install")
+
+    basemesh = HumanService.create_human()
+    basemesh_name = basemesh.name
+    rig_names = []
+    try:
+        meta_rig = HumanService.add_builtin_rig(basemesh, "rigify.human", import_weights=True)
+        assert meta_rig is not None
+        rig_names.append(meta_rig.name)
+        generated = RigService.generate_rigify_rig(meta_rig, meta_rig_action="hide")
+        assert generated is not None
+        rig_names.append(generated.name)
+        assert meta_rig.hide_viewport, "The meta rig should be hidden after generating with 'hide'"
+
+        if hide_with_view_layer_toggle:
+            # Emulate the user pressing H on the meta rig on top of MPFB's own hiding
+            meta_rig.hide_set(True)
+
+        bone_name = "spine.006"
+        assert bone_name in meta_rig.data.bones, "Expected the rigify human meta rig to have " + bone_name
+        head_z_before = _bone_head_z(meta_rig, bone_name)
+
+        _make_character_taller(basemesh)
+
+        # This used to raise "Cannot edit hidden object"
+        HumanService.refit(basemesh)
+
+        head_z_after = _bone_head_z(meta_rig, bone_name)
+        assert head_z_after != approx(head_z_before), "The meta rig bones should have moved when refitting"
+
+        assert meta_rig.hide_viewport, "The meta rig should still be hidden from the viewport after refitting"
+        assert meta_rig.hide_get() == hide_with_view_layer_toggle, \
+            "The view layer visibility of the meta rig should be the same as before refitting"
+    finally:
+        _cleanup_named_with_relatives(basemesh_name)
+        for rig_name in rig_names:
+            if rig_name in bpy.data.objects:
+                bpy.data.objects.remove(bpy.data.objects[rig_name], do_unlink=True)
+
+
+def test_refit_with_hidden_metarig_refits_and_restores_visibility():
+    """HumanService.refit() can refit a rigify rig whose meta rig was hidden by generate_rigify_rig()"""
+    _assert_refit_works_with_hidden_metarig(hide_with_view_layer_toggle=False)
+
+
+def test_refit_with_metarig_hidden_in_view_layer_refits_and_restores_visibility():
+    """HumanService.refit() can refit a rigify rig whose meta rig was also hidden with hide_set()"""
+    _assert_refit_works_with_hidden_metarig(hide_with_view_layer_toggle=True)
 
 
 def _make_armature_with_pose_bone(name, bone_name, rotation_mode):

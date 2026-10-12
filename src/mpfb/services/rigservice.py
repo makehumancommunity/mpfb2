@@ -1533,22 +1533,54 @@ class RigService:
         _LOG.reset_timer()
 
         current_active_object = bpy.context.view_layer.objects.active
+
+        # Generated rigify rigs are refitted via their meta rig, and generate_rigify_rig() hides the
+        # meta rig by default. As bpy.ops.object.mode_set() refuses to edit a hidden object, the
+        # armature has to be made visible for the duration of the refit.
+
+        was_hidden_in_viewport = armature_object.hide_viewport
+        was_hidden_in_view_layer = RigService._get_hidden_in_view_layer(armature_object)
+
+        armature_object.hide_viewport = False
+        RigService._set_hidden_in_view_layer(armature_object, False)
+
         bpy.context.view_layer.objects.active = armature_object
 
         _LOG.debug("Rig file", rig_file)
 
-        rig = Rig.from_json_file_and_basemesh(rig_file, basemesh, parent=parent_rig)
-        rig.armature_object = armature_object
+        try:
+            rig = Rig.from_json_file_and_basemesh(rig_file, basemesh, parent=parent_rig)
+            rig.armature_object = armature_object
 
-        rig.reposition_edit_bone()
+            rig.reposition_edit_bone()
 
-        # Automatically re-generate Rigify metarigs
-        if ObjectService.find_rigify_rig_by_metarig(armature_object):
-            if SystemService.check_for_rigify():
-                bpy.ops.pose.rigify_generate()
+            # Automatically re-generate Rigify metarigs
+            if ObjectService.find_rigify_rig_by_metarig(armature_object):
+                if SystemService.check_for_rigify():
+                    bpy.ops.pose.rigify_generate()
+        finally:
+            bpy.context.view_layer.objects.active = current_active_object
+            armature_object.hide_viewport = was_hidden_in_viewport
+            RigService._set_hidden_in_view_layer(armature_object, was_hidden_in_view_layer)
 
-        bpy.context.view_layer.objects.active = current_active_object
         _LOG.time("Refitting took")
+
+    @staticmethod
+    def _get_hidden_in_view_layer(blender_object):
+        """Read the view layer visibility toggle, tolerating objects outside the current view layer."""
+        try:
+            return blender_object.hide_get()
+        except RuntimeError:
+            _LOG.debug("Could not read view layer visibility for object", blender_object)
+            return False
+
+    @staticmethod
+    def _set_hidden_in_view_layer(blender_object, hidden):
+        """Set the view layer visibility toggle, tolerating objects outside the current view layer."""
+        try:
+            blender_object.hide_set(hidden)
+        except RuntimeError:
+            _LOG.debug("Could not set view layer visibility for object", blender_object)
 
     @staticmethod
     def normalize_rotation_mode(armature_object, rotation_mode="XYZ"):

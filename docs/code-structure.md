@@ -109,6 +109,7 @@ These are not services per se but are imported alongside them:
 | `FaceService` | Facial animation targets: loading and interpolating viseme and ARKit face unit shape keys. |
 | `ExportService` | Character copy creation and modifier baking. |
 | `HairEditorService` | Convenience methods for the hair editor. |
+| `RandomizationService` | Pure, `bpy`-free randomization of phenotype macro values. Depends on `TargetService` for the neutral macro dict. |
 
 #### Aggregator services
 
@@ -171,7 +172,7 @@ The UI layer contains ~37 feature subdirectories plus base classes and top-level
 
 ### Top-level panels
 
-Files like `createpanel.py`, `materialspanel.py`, `rigpanel.py`, etc. define the sidebar panel categories visible in Blender's 3D viewport.
+Files like `createpanel.py`, `rigpanel.py`, `startherepanel.py`, etc. define the sidebar panel categories visible in Blender's 3D viewport. Each of them declares an explicit `bl_order` which decides where it appears in the sidebar; see [the UI layer docs](ui/index.md) for the full list.
 
 ### Feature subdirectories
 
@@ -218,7 +219,6 @@ Static assets bundled with the addon:
 | `targets/` | Morph target files (`.target` format). |
 | `textures/` | Texture images. |
 | `uv_layers/` | UV mapping data. |
-| `walkcycles/` | Walk cycle animation data. |
 
 ## Testing
 

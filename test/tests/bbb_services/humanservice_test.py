@@ -1,4 +1,4 @@
-import bpy, os, json
+import bpy, os, json, shutil
 import pytest
 from bpy.props import FloatProperty
 from pytest import approx
@@ -56,6 +56,33 @@ HUMAN_PRESET_DICT = {
     }
 
 
+class _ReportRecorder:
+    """Stands in for an operator, recording what would have been reported to the user."""
+
+    def __init__(self):
+        self.reports = []
+
+    def report(self, reporttype, reportmessage):
+        self.reports.append((next(iter(reporttype)), reportmessage))
+
+    def warnings_containing(self, substring):
+        return [msg for (rtype, msg) in self.reports if rtype == "WARNING" and substring in msg]
+
+
+def _write_broken_mhclo(dest_dir):
+    """Copy the socks fixture into dest_dir, with its material line pointed at a nonexistent file."""
+    testdata = LocationService.get_mpfb_test("testdata")
+    shutil.copy(os.path.join(testdata, "better_socks_low.obj"), str(dest_dir))
+    with open(os.path.join(testdata, "better_socks_low.mhclo"), "r", encoding="utf8") as handle:
+        content = handle.read()
+    assert "material better_socks_low.mhmat" in content
+    content = content.replace("material better_socks_low.mhmat", "material no_such_material.mhmat")
+    broken = os.path.join(str(dest_dir), "broken_material.mhclo")
+    with open(broken, "w", encoding="utf8") as handle:
+        handle.write(content)
+    return broken
+
+
 def test_humanservice_exists():
     """HumanService"""
     assert HumanService is not None, "HumanService can be imported"
@@ -99,6 +126,62 @@ def test_add_mhclo_asset_with_rig():
     ObjectService.delete_object(clothes)
     ObjectService.delete_object(basemesh)
     ObjectService.delete_object(rig)
+
+
+def test_add_mhclo_asset_with_missing_material(tmp_path):
+    """HumanService.add_mhclo_asset() -- an asset whose mhmat is missing still loads"""
+    mhclo_file = _write_broken_mhclo(tmp_path)
+    basemesh = HumanService.create_human()
+    assert basemesh is not None
+    recorder = _ReportRecorder()
+    # Before issue 420 was fixed, this raised FileNotFoundError
+    clothes = HumanService.add_mhclo_asset(mhclo_file, basemesh, set_up_rigging=False, interpolate_weights=False,
+                                           import_subrig=False, import_weights=False, operator=recorder)
+    assert clothes is not None
+    assert clothes.parent == basemesh
+    # A missing material means no material at all, same as an mhclo without a material line
+    assert not MaterialService.has_materials(clothes)
+    assert recorder.warnings_containing("no_such_material.mhmat")
+    ObjectService.delete_object(clothes)
+    ObjectService.delete_object(basemesh)
+
+
+def test_add_mhclo_asset_with_missing_material_without_operator(tmp_path):
+    """HumanService.add_mhclo_asset() -- a missing mhmat is also survivable without an operator"""
+    mhclo_file = _write_broken_mhclo(tmp_path)
+    basemesh = HumanService.create_human()
+    assert basemesh is not None
+    clothes = HumanService.add_mhclo_asset(mhclo_file, basemesh, set_up_rigging=False, interpolate_weights=False,
+                                           import_subrig=False, import_weights=False)
+    assert clothes is not None
+    ObjectService.delete_object(clothes)
+    ObjectService.delete_object(basemesh)
+
+
+def test_set_character_skin_with_missing_mhmat():
+    """HumanService.set_character_skin() -- a missing mhmat is warned about rather than raising"""
+    basemesh = HumanService.create_human()
+    assert basemesh is not None
+    recorder = _ReportRecorder()
+    missing = os.path.join(LocationService.get_mpfb_test("testdata"), "no_such_skin.mhmat")
+    assert not os.path.exists(missing)
+    HumanService.set_character_skin(missing, basemesh, skin_type="MAKESKIN", operator=recorder)
+    assert recorder.warnings_containing("no_such_skin.mhmat")
+    ObjectService.delete_object(basemesh)
+
+
+def test_set_character_skin_with_missing_mhmat_layered():
+    """HumanService.set_character_skin() -- LAYERED skins are still built without an mhmat"""
+    basemesh = HumanService.create_human()
+    assert basemesh is not None
+    recorder = _ReportRecorder()
+    missing = os.path.join(LocationService.get_mpfb_test("testdata"), "no_such_skin.mhmat")
+    assert not os.path.exists(missing)
+    HumanService.set_character_skin(missing, basemesh, skin_type="LAYERED", operator=recorder)
+    assert recorder.warnings_containing("no_such_skin.mhmat")
+    # LAYERED does not need an mhmat, so the v2 skin should have been created anyway
+    assert MaterialService.has_materials(basemesh)
+    ObjectService.delete_object(basemesh)
 
 
 def test_add_builtin_rig_standard():

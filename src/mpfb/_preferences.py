@@ -25,6 +25,12 @@ class MpfbPreferences(bpy.types.AddonPreferences):
     # )
     #===========================================================================
 
+    mpfb_show_start_here: bpy.props.BoolProperty(
+        name="Show the \"Start here\" panel",
+        description="Show the introductory \"Start here\" panel at the top of the MPFB tab. Uncheck it to hide the panel, or check it to bring it back",
+        default=True
+    )
+
     mpfb_user_data: bpy.props.StringProperty(
         name="Path to MPFB user data",
         description="If you want to store MPFB user data somewhere other than in the default location, you can enter the path to an existing directory here",
@@ -65,6 +71,8 @@ class MpfbPreferences(bpy.types.AddonPreferences):
 
     def draw(self, context):
         layout = self.layout
+        # This setting takes effect immediately, so it is drawn above the warning about restarting
+        layout.prop(self, 'mpfb_show_start_here')
         layout.label(text='You need to restart blender before some of these changes come into effect.')
         layout.label(text='Remember to save preferences before restarting.')
 #        layout.prop(self, 'multi_panel')

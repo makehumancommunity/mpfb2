@@ -2,6 +2,7 @@ import bpy, json, math, os
 from bpy.props import StringProperty
 from .....services import LogService
 from .....services import AnimationService
+from .....services import SystemService
 from ....mpfboperator import MpfbOperator
 from ..... import ClassManager
 from ....pollstrategy import pollstrategy, PollStrategy
@@ -27,6 +28,11 @@ class MPFB_OT_Load_MH_BVH_Operator(MpfbOperator, ImportHelper):
         if context.active_object is None or context.active_object.type != 'ARMATURE':
             self.report({'ERROR'}, "Must have armature as active object")
             return {'FINISHED'}
+
+        if not SystemService.check_for_bvh():
+            self.report({'ERROR'}, "The BVH importer addon is not enabled. "
+                                   "Go to Edit > Preferences > Add-ons and enable 'BVH format'.")
+            return {'CANCELLED'}
 
         armature_object = context.active_object
 

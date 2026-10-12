@@ -1,0 +1,8 @@
+{
+    "type": "int",
+    "name": "seed",
+    "description": "Random seed. The same seed combined with the same settings always produces the same character. A value of 0 means a new random seed is drawn each time, and the drawn seed is reported when the human is created",
+    "label": "Seed",
+    "default": 0,
+    "min": 0
+}

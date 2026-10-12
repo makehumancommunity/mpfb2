@@ -150,3 +150,7 @@ reports
 *.bak
 *~
 
+# Transient notes 
+feature-requests/
+non-coding-efforts/
+

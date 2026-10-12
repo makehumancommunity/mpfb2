@@ -56,6 +56,10 @@ ExpressionsLibraryProperties = SceneConfigSet([
 # Populated once at module import time below.
 _EXPRESSION_PROP_MAP = {}
 
+# Absolute paths of expression assets which have already been reported as unusable. Registration is
+# re-run on every refresh, so without this the same file would be warned about over and over.
+_SKIPPED_EXPRESSION_PATHS = set()
+
 
 def _make_slider_update(identifier):
     """Build an update callback for a single expression slider."""
@@ -105,7 +109,17 @@ def _register_expression_sliders():
         if not isinstance(metadata, dict):
             metadata = {}
         label = metadata.get("label") or os.path.splitext(os.path.basename(rel_path))[0].replace("_", " ")
-        identifier = UiService.as_valid_identifier("expr_" + rel_path)
+        raw_identifier = "expr_" + rel_path
+        if not UiService.is_valid_identifier_length(raw_identifier):
+            # The relative path is used as a blender property identifier, and blender rejects identifiers
+            # which are too long. Skip the asset rather than letting it abort the addon registration.
+            if abs_path not in _SKIPPED_EXPRESSION_PATHS:
+                _SKIPPED_EXPRESSION_PATHS.add(abs_path)
+                _LOG.warn("Skipping expression since its path is too long to be used as a blender property identifier. The maximum is "
+                          + str(UiService.MAX_IDENTIFIER_LENGTH) + " characters, including the \"expr_\" prefix and any directories. "
+                          + "Rename or move this file to use it: " + str(abs_path), len(raw_identifier))
+            continue
+        identifier = UiService.as_valid_identifier(raw_identifier)
         if identifier in _EXPRESSION_PROP_MAP:
             continue
         _EXPRESSION_PROP_MAP[identifier] = {

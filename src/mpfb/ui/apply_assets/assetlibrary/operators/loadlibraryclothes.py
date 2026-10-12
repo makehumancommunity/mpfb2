@@ -74,7 +74,8 @@ class MPFB_OT_Load_Library_Clothes_Operator(MpfbOperator):
         HumanService.add_mhclo_asset(
             self.filepath, basemesh, asset_type=self.object_type, subdiv_levels=subdiv_levels,
             material_type=self.material_type, set_up_rigging=ctx.set_up_rigging,
-            interpolate_weights=ctx.interpolate_weights, import_subrig=ctx.import_subrig, import_weights=ctx.import_weights)
+            interpolate_weights=ctx.interpolate_weights, import_subrig=ctx.import_subrig, import_weights=ctx.import_weights,
+            operator=self)
 
         self.report({'INFO'}, "Clothes were loaded")
         return {'FINISHED'}

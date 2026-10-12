@@ -23,6 +23,8 @@ Each button is rendered by the `_url()` helper method, which instantiates the `m
 | Base class | `Abstract_Panel` |
 | Poll | none (always visible when the parent panel is present) |
 
+The URLs themselves are not literals in this panel. They live as named constants in `src/mpfb/ui/weburls.py`, so that the links shared with the [Start here](../start_here.md) panel cannot drift apart.
+
 The panel draws six buttons in order:
 
 | Button label | URL |

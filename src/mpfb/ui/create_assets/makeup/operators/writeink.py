@@ -59,15 +59,18 @@ class MPFB_OT_WriteInkOperator(MpfbOperator):
         _LOG.debug("uv_name", uv_name)
         _LOG.debug("image_name", image_name)
 
-        focus_name = str(uv_name).replace(" ", "_") + ".json.gz"
-        focus_filename = os.path.join(LocationService.get_user_data("uv_layers"), focus_name)
-        if not os.path.exists(focus_filename):
-            _LOG.warn("The ink layer's focus could not be found in the user data", focus_filename)
-            focus_filename = os.path.join(LocationService.get_mpfb_data("uv_layers"), focus_name)
+        # An empty uv_name means the ink layer uses the full body focus, ie the basemesh's
+        # default UV map. In that case there is no specialized UV map file to look up.
+        if uv_name:
+            focus_name = str(uv_name).replace(" ", "_") + ".json.gz"
+            focus_filename = os.path.join(LocationService.get_user_data("uv_layers"), focus_name)
             if not os.path.exists(focus_filename):
-                _LOG.error("The ink layer's focus could not be found in the system data", focus_filename)
-                self.report({'ERROR'}, "The ink layer's focus could not be found in the library.")
-                return {'CANCELLED'}
+                _LOG.warn("The ink layer's focus could not be found in the user data", focus_filename)
+                focus_filename = os.path.join(LocationService.get_mpfb_data("uv_layers"), focus_name)
+                if not os.path.exists(focus_filename):
+                    _LOG.error("The ink layer's focus could not be found in the system data", focus_filename)
+                    self.report({'ERROR'}, "The ink layer's focus could not be found in the library.")
+                    return {'CANCELLED'}
 
         inkpath = LocationService.get_user_data("ink_layers")
         if not os.path.exists(inkpath):

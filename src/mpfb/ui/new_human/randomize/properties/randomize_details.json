@@ -1,0 +1,7 @@
+{
+    "type": "boolean",
+    "name": "randomize_details",
+    "description": "Randomize a limited number of detail shape targets on the created human. When off, no detail targets are applied",
+    "label": "Randomize details",
+    "default": true
+}

@@ -1,0 +1,12 @@
+{
+    "type": "enum",
+    "name": "eyes_mode",
+    "description": "Which eyes to add to the created human. In practice only two sets of eyes exist, so these are picked from a drop-down rather than randomized",
+    "label": "Eyes",
+    "default": "LOWPOLY",
+    "items": [
+        ["DONOTADD", "Do not add eyes", "Do not attach any eyes to the created human", 1],
+        ["HIGHPOLY", "Add high-poly eyes", "Attach the high-poly eyes from the system asset pack", 2],
+        ["LOWPOLY", "Add low-poly eyes", "Attach the low-poly eyes from the system asset pack", 3]
+    ]
+}

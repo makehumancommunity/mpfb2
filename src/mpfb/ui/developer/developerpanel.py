@@ -56,6 +56,7 @@ class MPFB_PT_Developer_Panel(bpy.types.Panel):
     bl_region_type = "UI"
     bl_category = UiService.get_value("DEVELOPERCATEGORY")
     bl_options = {'DEFAULT_CLOSED'}
+    bl_order = 90
 
     def _create_box(self, layout, box_text):
         _LOG.enter()

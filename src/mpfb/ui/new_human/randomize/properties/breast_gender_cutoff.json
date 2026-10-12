@@ -1,0 +1,9 @@
+{
+    "type": "float",
+    "name": "breast_gender_cutoff",
+    "description": "Breast targets (cup size and firmness) are only randomized and added when the gender value is below this cutoff (0.0 is fully female, 1.0 fully male). At or above it they are not added at all.",
+    "label": "Gender cutoff for breasts",
+    "default": 0.6,
+    "min": 0.1,
+    "max": 0.9
+}

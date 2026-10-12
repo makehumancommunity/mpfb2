@@ -1,0 +1,7 @@
+{
+    "type": "float",
+    "name": "batch_area_y_min",
+    "description": "The lower Y bound of the rectangle characters are scattered within (random placement)",
+    "label": "Y min",
+    "default": -5.0
+}

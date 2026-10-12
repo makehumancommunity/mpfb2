@@ -31,7 +31,16 @@ class MPFB_OT_Load_Clothes_Operator(bpy.types.Operator, ImportHelper):
         scene = context.scene
 
         object_type = LOAD_CLOTHES_PROPERTIES.get_value("object_type", entity_reference=scene)
-        material_type = ASSET_SETTINGS_PROPERTIES.get_value("material_type", entity_reference=scene)
+
+        # There is no "material_type" scene property. The library settings panel instead keeps one
+        # material setting per asset category, and the asset library panel picks between them when
+        # populating the load operator's material_type (see assetlibrarypanel.py). Mirror that choice
+        # here, using the sub type selected in the "Load MHCLO" panel as the discriminator.
+        if object_type == "Eyes":
+            material_type = ASSET_SETTINGS_PROPERTIES.get_value("eyes_type", entity_reference=scene)
+        else:
+            material_type = ASSET_SETTINGS_PROPERTIES.get_value("clothes_type", entity_reference=scene)
+
         fit_to_body = ASSET_SETTINGS_PROPERTIES.get_value("fit_to_body", entity_reference=scene)
         delete_group = ASSET_SETTINGS_PROPERTIES.get_value("delete_group", entity_reference=scene)
         specific_delete_group = ASSET_SETTINGS_PROPERTIES.get_value("specific_delete_group", entity_reference=scene)
@@ -76,10 +85,19 @@ class MPFB_OT_Load_Clothes_Operator(bpy.types.Operator, ImportHelper):
             subdiv = 0
             if add_subdiv_modifier:
                 subdiv = subdiv_levels
-            clothes = HumanService.add_mhclo_asset(self.filepath, basemesh, asset_type=object_type, subdiv_levels=subdiv, material_type="MAKESKIN", set_up_rigging=(rig is not None), interpolate_weights=True, import_subrig=import_subrig, import_weights=import_weights)
+            clothes = HumanService.add_mhclo_asset(
+                self.filepath, basemesh, asset_type=object_type, subdiv_levels=subdiv, material_type="MAKESKIN",
+                set_up_rigging=(rig is not None), interpolate_weights=True, import_subrig=import_subrig,
+                import_weights=import_weights, operator=self)
         else:
             mhclo = Mhclo()
             mhclo.load(self.filepath) # pylint: disable=E1101
+
+            if mhclo.missing_material:
+                _LOG.warn("The material file the asset points at does not exist", mhclo.missing_material)
+                self.report({'WARNING'}, "The asset's material file is missing, so the asset was loaded without a "
+                            "material: " + os.path.basename(mhclo.missing_material))
+
             clothes = mhclo.load_mesh(context)
             GeneralObjectProperties.set_value("object_type", object_type, entity_reference=clothes)
             bpy.ops.object.shade_smooth()
@@ -117,12 +135,16 @@ class MPFB_OT_Load_Clothes_Operator(bpy.types.Operator, ImportHelper):
                 if basemesh:
                     clothes.parent = basemesh
 
+            if makeclothes_metadata:
+                # Only needed in this branch. The fit-to-body branch above delegates to
+                # HumanService.add_mhclo_asset, which sets the MakeClothes metadata itself. Neither
+                # "mhclo" nor "delete_name" exists there, so calling this outside the else would
+                # raise NameError.
+                ClothesService.set_makeclothes_object_properties_from_mhclo(clothes, mhclo, delete_group_name=delete_name)
+
         if not clothes or clothes is None:
             self.report({'ERROR'}, "failed to import the clothes mesh")
             return {'FINISHED'}
-
-        if makeclothes_metadata:
-            ClothesService.set_makeclothes_object_properties_from_mhclo(clothes, mhclo, delete_group_name=delete_name)
 
         self.report({'INFO'}, "Clothes were loaded")
         return {'FINISHED'}

@@ -1,0 +1,7 @@
+{
+    "type": "boolean",
+    "name": "new_random_seed",
+    "description": "When enabled, the seed field is given a fresh random value after each time a random human has been successfully created",
+    "label": "New random seed",
+    "default": false
+}

@@ -123,7 +123,7 @@ Safely delete a Blender object.
 
 | Argument | Type | Default | Description |
 |----------|------|---------|-------------|
-| `object_to_delete` | `bpy.types.Object` | — | The object to delete |
+| `object_to_delete` | `bpy.types.Object \| None` | — | The object to delete |
 
 **Returns:** None
 
@@ -137,7 +137,7 @@ Safely delete an object by its name.
 
 | Argument | Type | Default | Description |
 |----------|------|---------|-------------|
-| `name` | `str` | — | The name of the object to delete |
+| `name` | `str \| None` | — | The name of the object to delete |
 
 **Returns:** None
 
@@ -193,7 +193,7 @@ Check if an object with the given name exists.
 
 | Argument | Type | Default | Description |
 |----------|------|---------|-------------|
-| `name` | `str` | — | The name to check |
+| `name` | `str \| None` | — | The name to check |
 
 **Returns:** `bool` — `True` if an object with that name exists.
 
@@ -276,7 +276,7 @@ Get the MPFB object type of an object.
 
 | Argument | Type | Default | Description |
 |----------|------|---------|-------------|
-| `blender_object` | `bpy.types.Object` | — | The object to query |
+| `blender_object` | `bpy.types.Object \| None` | — | The object to query |
 
 **Returns:** `str` — The object type (e.g., `"Basemesh"`, `"Skeleton"`) or empty string if not set.
 
@@ -288,7 +288,7 @@ Check if an object matches one or more MPFB types.
 
 | Argument | Type | Default | Description |
 |----------|------|---------|-------------|
-| `blender_object` | `bpy.types.Object` | — | The object to check |
+| `blender_object` | `bpy.types.Object \| None` | — | The object to check |
 | `mpfb_type_name` | `str` or `Sequence[str]` | — | Type name or list of acceptable type names |
 
 **Returns:** `bool` — `True` if the object matches any of the specified types.
@@ -357,7 +357,7 @@ Check if an object is a basemesh or body proxy.
 
 Check if an object is a mesh (Blender type).
 
-**Returns:** `bool` — `True` if the object exists and has type `MESH`.
+**Returns:** `bool | None` — Truthy if the object exists and has type `MESH`; `None` when the object is `None`.
 
 ---
 
@@ -365,7 +365,7 @@ Check if an object is a mesh (Blender type).
 
 Check if an object is a mesh with an MPFB object type.
 
-**Returns:** `bool` — `True` if it's a mesh with a valid `object_type`.
+**Returns:** `str | bool | None` — The `object_type` string when the object is a mesh with a valid type; otherwise a falsy `False`/`None`.
 
 ---
 
@@ -373,7 +373,7 @@ Check if an object is a mesh with an MPFB object type.
 
 Check if an object is a mesh asset (clothes, eyes, hair, etc.).
 
-**Returns:** `bool` — `True` if the object is a mesh with a mesh asset type.
+**Returns:** `bool | None` — Truthy if the object is a mesh with a mesh asset type; `None` when the object is `None`.
 
 ---
 
@@ -381,7 +381,7 @@ Check if an object is a mesh asset (clothes, eyes, hair, etc.).
 
 Check if an object has any MPFB object type set.
 
-**Returns:** `bool` — `True` if the object has a valid `object_type`.
+**Returns:** `str | None` — The `object_type` string when set; `None` when the object is `None`.
 
 ---
 
@@ -393,7 +393,7 @@ Find a single object of the specified type among relatives.
 
 | Argument | Type | Default | Description |
 |----------|------|---------|-------------|
-| `blender_object` | `bpy.types.Object` | — | The starting object |
+| `blender_object` | `bpy.types.Object \| None` | — | The starting object |
 | `mpfb_type_name` | `str` or `Sequence[str]` | `"Basemesh"` | Type(s) to search for |
 | `only_parents` | `bool` | `False` | Only search up the parent chain |
 | `strict_parent` | `bool` | `False` | Stop at non-MakeHuman parents |
@@ -411,7 +411,7 @@ Find all objects of the specified type among relatives.
 
 | Argument | Type | Default | Description |
 |----------|------|---------|-------------|
-| `blender_object` | `bpy.types.Object` | — | The starting object |
+| `blender_object` | `bpy.types.Object \| None` | — | The starting object |
 | `mpfb_type_name` | `str` or `Sequence[str]` | `"Basemesh"` | Type(s) to search for |
 | `only_parents` | `bool` | `False` | Only search up the parent chain |
 | `strict_parent` | `bool` | `False` | Stop at non-MakeHuman parents |
@@ -467,7 +467,7 @@ Find all mesh objects deformed by an armature.
 
 | Argument | Type | Default | Description |
 |----------|------|---------|-------------|
-| `armature_object` | `bpy.types.Object` | — | The armature to check |
+| `armature_object` | `bpy.types.Object \| None` | — | The armature to check |
 
 **Returns:** `Generator[bpy.types.Object]` — Generator yielding deformed mesh objects.
 
@@ -475,11 +475,21 @@ Find all mesh objects deformed by an armature.
 
 ### Rigify Integration
 
+> **Note on how Rigify properties are stored:** Rigify registers most of its properties as RNA
+> properties on the relevant Blender types (for example `bpy.types.Armature.rigify_target_rig`,
+> `bpy.types.Armature.rigify_colors` and `bpy.types.BoneCollection.rigify_ui_row`). Up until
+> Blender 4.x these happened to also be reachable through the ID-property lookup
+> `armature.data["rigify_target_rig"]`, but as of Blender 5.x they are not. Only a few Rigify
+> properties, notably `rig_id` on a generated rig and `rigify_type` on a pose bone, are genuine
+> ID-properties. Rigify properties must therefore be read via the internal helper
+> `_get_rigify_property()`, which checks the RNA property first and falls back to the
+> ID-property, rather than via a plain `.get()` call. See issue #439.
+
 #### object_is_generated_rigify_rig(blender_object)
 
 Check if an object is a generated Rigify rig.
 
-**Returns:** `bool` — `True` if the armature has a `rig_id` data property.
+**Returns:** `bool | None` — Truthy (the `rig_id` value) if the armature has a `rig_id` data property; `None` when the object is `None`.
 
 ---
 
@@ -489,7 +499,7 @@ Check if an object is a Rigify metarig.
 
 | Argument | Type | Default | Description |
 |----------|------|---------|-------------|
-| `blender_object` | `bpy.types.Object` | — | The object to check |
+| `blender_object` | `bpy.types.Object \| None` | — | The object to check |
 | `check_bones` | `bool` | `False` | Also check bones for `rigify_type` property |
 
 **Returns:** `bool` — `True` if the object is a Rigify metarig.
@@ -502,7 +512,7 @@ Find the metarig associated with a generated Rigify rig.
 
 | Argument | Type | Default | Description |
 |----------|------|---------|-------------|
-| `blender_object` | `bpy.types.Object` | — | The generated rig |
+| `blender_object` | `bpy.types.Object \| None` | — | The generated rig |
 
 **Returns:** `bpy.types.Object` or `None` — The associated metarig.
 
@@ -514,7 +524,7 @@ Find the generated rig associated with a Rigify metarig.
 
 | Argument | Type | Default | Description |
 |----------|------|---------|-------------|
-| `blender_object` | `bpy.types.Object` | — | The metarig |
+| `blender_object` | `bpy.types.Object \| None` | — | The metarig |
 
 **Returns:** `bpy.types.Object` or `None` — The generated rig.
 
@@ -591,8 +601,8 @@ Check if an object has a specific vertex group.
 
 | Argument | Type | Default | Description |
 |----------|------|---------|-------------|
-| `blender_object` | `bpy.types.Object` | — | The object to check |
-| `vertex_group_name` | `str` | — | The vertex group name |
+| `blender_object` | `bpy.types.Object \| None` | — | The object to check |
+| `vertex_group_name` | `str \| None` | — | The vertex group name |
 
 **Returns:** `bool` — `True` if the vertex group exists.
 
@@ -604,8 +614,8 @@ Get vertex indices belonging to a vertex group.
 
 | Argument | Type | Default | Description |
 |----------|------|---------|-------------|
-| `blender_object` | `bpy.types.Object` | — | The mesh object |
-| `vertex_group_name` | `str` | — | The vertex group name |
+| `blender_object` | `bpy.types.Object \| None` | — | The mesh object |
+| `vertex_group_name` | `str \| None` | — | The vertex group name |
 
 **Returns:** `list[int]` — List of vertex indices.
 
@@ -681,7 +691,7 @@ Extract a vertex group into a new mesh object.
 | `existing_object` | `bpy.types.Object` | — | The source mesh |
 | `vertex_group_name` | `str` | — | The vertex group to extract |
 
-**Returns:** `bpy.types.Object` — A new mesh object containing only the extracted vertices.
+**Returns:** `None` — The method creates a new `"clothes"` mesh object (linked to the current collection) as a side effect, but does not return it.
 
 ---
 

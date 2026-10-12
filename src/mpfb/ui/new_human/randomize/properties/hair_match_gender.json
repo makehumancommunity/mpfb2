@@ -1,0 +1,7 @@
+{
+    "type": "boolean",
+    "name": "hair_match_gender",
+    "description": "Only pick hair whose name contains the character's gender. Off by default, since few hair styles are gender-labeled",
+    "label": "Match gender",
+    "default": false
+}

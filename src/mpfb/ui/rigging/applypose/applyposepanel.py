@@ -5,6 +5,7 @@ from ....services import LocationService
 from ....services import SceneConfigSet
 from ....services import UiService
 from ....services import RigService
+from ....services import SystemService
 from ...abstractpanel import Abstract_Panel
 
 _LOG = LogService.get_logger("applypose.applyposepanel")
@@ -134,6 +135,9 @@ class MPFB_PT_ApplyPosePanel(Abstract_Panel):
         props = ["available_partials"]
         POSES_PROPERTIES.draw_properties(scene, layout, props)
         layout.operator('mpfb.load_partial')
-        layout.operator('mpfb.load_mhbvh_pose')
+        if SystemService.check_for_bvh():
+            layout.operator('mpfb.load_mhbvh_pose')
+        else:
+            layout.label(text="The BVH addon is not enabled", icon="ERROR")
 
 ClassManager.add_class(MPFB_PT_ApplyPosePanel)

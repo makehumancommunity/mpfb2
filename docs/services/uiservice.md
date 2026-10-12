@@ -207,6 +207,33 @@ Convert a string to a valid Python identifier.
 
 Useful for creating property names from user-facing preset names.
 
+Note that this does **not** enforce any maximum length, and it never truncates. Blender rejects property
+identifiers of 64 characters or more, so any caller which attaches the result to `bpy.types.Scene` must
+also check `is_valid_identifier_length()` first.
+
+#### is_valid_identifier_length(raw_string)
+
+Check whether a string is short enough to be used as a Blender property identifier.
+
+| Argument | Type | Default | Description |
+|----------|------|---------|-------------|
+| `raw_string` | `str` | — | The string whose derived identifier should be measured |
+
+**Returns:** `bool` — `True` if the sanitized identifier is at most `MAX_IDENTIFIER_LENGTH` characters.
+
+Blender's property identifiers are limited to 63 characters. Attaching a longer one raises, and since
+several modules attach properties while being imported, that would abort addon registration entirely
+rather than just failing the one property. Sanitizing substitutes characters one by one and so does not
+change a string's length, which means this can be called before or after `as_valid_identifier()`.
+
+This concerns `bpy.props` identifiers only. Shape key names have a separate, shorter limit which is
+handled by the encoding logic in `TargetService` — see `encode_shapekey_name()`.
+
+#### MAX_IDENTIFIER_LENGTH
+
+Class attribute, `63`. The longest identifier Blender will accept for a dynamically attached property.
+Also available as the module level constant `MAX_BLENDER_IDENTIFIER_LENGTH`.
+
 ---
 
 ## Preset File Naming

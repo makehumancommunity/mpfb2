@@ -67,6 +67,7 @@ class MPFB_PT_Hair_Editor_Panel(Abstract_Panel):
     bl_label = "Hair Editor"
     bl_category = UiService.get_value("MATERIALSCATEGORY")
     bl_options = {'DEFAULT_CLOSED'}
+    bl_order = 80
 
     @classmethod
     def poll(cls, context):

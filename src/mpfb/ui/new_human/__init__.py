@@ -4,5 +4,6 @@ _LOG.trace("initializing new_human module")
 
 from .newpanel import MPFB_PT_New_Panel  # parent panel — must be first
 from .newhuman import *
+from .randomize import *
 from .importer import *
 from .importerpresets import *

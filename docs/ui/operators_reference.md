@@ -21,6 +21,7 @@ documented appear with plain text class names.
 | `apply_assets/assetlibrary/operators/loadlibraryskin.py` | `mpfb.load_library_skin` | "Load" | [MPFB_OT_Load_Library_Skin_Operator](apply_assets/assetlibrary.md) | `MpfbOperator` |
 | `apply_assets/assetlibrary/operators/loadpack.py` | `mpfb.load_pack` | "Load pack from zip file" | [MPFB_OT_Load_Pack_Operator](apply_assets/assetlibrary.md) | `MpfbOperator`, `ImportHelper` |
 | `apply_assets/assetlibrary/operators/unloadlibraryclothes.py` | `mpfb.unload_library_clothes` | "Unequip" | [MPFB_OT_Unload_Library_Clothes_Operator](apply_assets/assetlibrary.md) | `MpfbOperator` |
+| `apply_assets/assetlibrary/operators/unloadlibraryproxy.py` | `mpfb.unload_library_proxy` | "Unequip" | [MPFB_OT_Unload_Library_Proxy_Operator](apply_assets/assetlibrary.md) | `MpfbOperator` |
 | `apply_assets/loadclothes/operators/loadclothes.py` | `mpfb.load_clothes` | "Load clothes from file" | [MPFB_OT_Load_Clothes_Operator](apply_assets/loadclothes.md) | `bpy.types.Operator`, `ImportHelper` |
 | `create_assets/makeclothes/operators/bmxref.py` | `mpfb.basemesh_xref` | "Create xref cache" | [MPFB_OT_BasemeshXrefOperator](create_assets/makeclothes.md) | `MpfbOperator` |
 | `create_assets/makeclothes/operators/checkclothes.py` | `mpfb.check_makeclothes_clothes` | "Check" | [MPFB_OT_CheckClothesOperator](create_assets/makeclothes.md) | `MpfbOperator` |
@@ -134,6 +135,10 @@ documented appear with plain text class names.
 | `presets/makeuppresets/operators/loadpresets.py` | `mpfb.load_makeup_presets` | "Load presets" | [MPFB_OT_Load_Makeup_Presets_Operator](presets/makeuppresets.md) | `generic_makeup_presets` |
 | `presets/makeuppresets/operators/overwritepresets.py` | `mpfb.overwrite_makeup_presets` | "Overwrite presets" | [MPFB_OT_Overwrite_Makeup_Presets_Operator](presets/makeuppresets.md) | `generic_makeup_presets` |
 | `presets/makeuppresets/operators/savenewpresets.py` | `mpfb.save_new_makeup_presets` | "Save new presets" | [MPFB_OT_Save_New_Makeup_Presets_Operator](presets/makeuppresets.md) | `generic_makeup_presets` |
+| `randomize/operators/createrandomhuman.py` | `mpfb.create_random_human` | "Create random human" | [MPFB_OT_Create_Random_Human_Operator](randomize/randomize.md) | `MpfbOperator` |
+| `randomize/operators/loadpreset.py` | `mpfb.randomize_load_preset` | "Load selected preset" | [MPFB_OT_Randomize_Load_Preset_Operator](randomize/randomize.md) | `MpfbOperator` |
+| `randomize/operators/overwritepreset.py` | `mpfb.randomize_overwrite_preset` | "Overwrite selected preset" | [MPFB_OT_Randomize_Overwrite_Preset_Operator](randomize/randomize.md) | `MpfbOperator` |
+| `randomize/operators/savenewpreset.py` | `mpfb.randomize_save_new_preset` | "Save new preset" | [MPFB_OT_Randomize_Save_New_Preset_Operator](randomize/randomize.md) | `MpfbOperator` |
 | `rigging/addcycle/operators/loadcycle.py` | `mpfb.load_walk_cycle` | "Load walk cycle" | [MPFB_OT_Load_Walk_Cycle_Operator](rigging/addcycle.md) | `MpfbOperator` |
 | `rigging/customrig/operators/addcustomrig.py` | `mpfb.add_custom_rig` | "Add custom rig" | [MPFB_OT_Add_Custom_Rig_Operator](rigging/customrig.md) | `MpfbOperator` |
 | `rigging/rigifyrig/operators/addrigifyrig.py` | `mpfb.add_rigify_rig` | "Add rigify rig" | [MPFB_OT_AddRigifyRigOperator](rigging/rigifyrig.md) | `MpfbOperator` |
@@ -145,5 +150,6 @@ documented appear with plain text class names.
 | `rigging/standardrig/operators/addhelpers.py` | `mpfb.add_helpers` | "Add helpers" | [MPFB_OT_AddHelpersOperator](rigging/standardrig.md) | `MpfbOperator` |
 | `rigging/standardrig/operators/removehelpers.py` | `mpfb.remove_helpers` | "Remove helpers" | [MPFB_OT_RemoveHelpersOperator](rigging/standardrig.md) | `MpfbOperator` |
 | `operations/rigops/operators/converttorigify.py` | `mpfb.convert_to_rigify` | "Rigify" | [MPFB_OT_Convert_To_Rigify_Operator](operations/rigops.md) | `MpfbOperator` |
+| `start_here/operators/dismissstarthere.py` | `mpfb.dismiss_start_here` | "Don't show this again" | [MPFB_OT_Dismiss_Start_Here_Operator](start_here.md) | `MpfbOperator` |
 | `system/dirresources/operators/dirresource.py` | `mpfb.dir_resource` | "Open" | [MPFB_OT_Dir_Resource_Operator](system/dirresources.md) | `MpfbOperator` |
 | `system/webresources/operators/webresource.py` | `mpfb.web_resource` | "Open" | [MPFB_OT_Web_Resource_Operator](system/webresources.md) | `MpfbOperator` |

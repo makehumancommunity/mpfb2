@@ -1,0 +1,7 @@
+{
+    "type": "boolean",
+    "name": "mask_helpers",
+    "description": "Add a mask modifier which hides the helper geometry",
+    "label": "Mask helper geometry",
+    "default": true
+}

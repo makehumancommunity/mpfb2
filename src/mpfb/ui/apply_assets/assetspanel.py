@@ -5,6 +5,7 @@ from ...services import LogService
 from ...services import UiService
 from ...services import AssetService
 from ..abstractpanel import Abstract_Panel
+from ..systemassets import get_system_assets_status, get_system_assets_lines, STATUS_OK
 from ...services import SceneConfigSet
 
 _LOG = LogService.get_logger("ui.assetspanel")
@@ -36,29 +37,17 @@ FILTER_PROPERTIES = SceneConfigSet([
 class MPFB_PT_Assets_Panel(Abstract_Panel):
     bl_label = "Apply assets"
     bl_category = UiService.get_value("MATERIALSCATEGORY")
+    bl_order = 40
 
     def system_assets(self, layout):
-        (has_sys_assets, modern_sys_assets) = AssetService.check_if_modern_makehuman_system_assets_installed()
-        _LOG.debug("has_sys_assets", (has_sys_assets, modern_sys_assets))
-
-        if has_sys_assets and modern_sys_assets:
+        status = get_system_assets_status()
+        if status == STATUS_OK:
             return
         box = layout.box()
         box.label(text="NOTE ABOUT SYSTEM ASSETS")
         box.label(text="")
-        if not has_sys_assets:
-            box.label(text="It seems the makehuman system assets")
-            box.label(text="have not been installed. You will")
-            box.label(text="likely want these before trying to load")
-            box.label(text="any assets")
-            return
-        if not modern_sys_assets:
-            box.label(text="While the makehuman system assets")
-            box.label(text="are installed, it seems you are using")
-            box.label(text="a rather old version. You might want")
-            box.label(text="to download and reinstall the latest")
-            box.label(text="version of the makehuman system assets")
-            box.label(text="if you encounter problems.")
+        for line in get_system_assets_lines(status):
+            box.label(text=line)
 
     def draw(self, context):
         _LOG.enter()
@@ -69,7 +58,7 @@ class MPFB_PT_Assets_Panel(Abstract_Panel):
         box = layout.box()
         box.label(text="Filter")
         show_props = ["filter"]
-        if AssetService.have_any_pack_meta_data():
+        if AssetService.get_pack_names():
             _LOG.debug("There is pack metadata")
             show_props.append("packname")
         else:

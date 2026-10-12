@@ -294,7 +294,7 @@ KD-tree search for the nearest joint cube to a world-space position.
 | `pos` | sequence of 3 floats | World-space `[x, y, z]` to search from |
 | `max_allowed_dist` | `float` or `None` | Maximum search radius; `None` disables the distance limit |
 
-**Returns:** `tuple[str, float]` — `(cube_name, distance)`, or `(None, None)` if no cube is within range.
+**Returns:** `tuple[str, float] | tuple[None, None]` — `(cube_name, distance)`, or `(None, None)` if no cube is within range.
 
 ---
 
@@ -307,7 +307,7 @@ KD-tree search for the nearest basemesh vertex to a world-space position.
 | `pos` | sequence of 3 floats | World-space `[x, y, z]` to search from |
 | `max_allowed_dist` | `float` or `None` | Maximum search radius; `None` disables the distance limit |
 
-**Returns:** `tuple[int, float]` — `(vertex_index, distance)`, or `(None, None)` if no vertex is within range.
+**Returns:** `tuple[int, float] | tuple[None, None]` — `(vertex_index, distance)`, or `(None, None)` if no vertex is within range.
 
 ---
 
@@ -321,7 +321,7 @@ Find the pair of basemesh vertices whose mean position is closest to the given w
 | `max_allowed_dist` | `float` | Maximum mean distance to accept |
 | `search_radius` | `float` or `None` | Search radius for candidate vertices; defaults to 15% of mesh height |
 
-**Returns:** `tuple[list[int], float]` — `([idx1, idx2], mean_distance)`, or `(None, max_allowed_dist)` if no suitable pair is found.
+**Returns:** `tuple[list[int] | None, float]` — `([idx1, idx2], mean_distance)`, or `(None, max_allowed_dist)` if no suitable pair is found.
 
 ---
 

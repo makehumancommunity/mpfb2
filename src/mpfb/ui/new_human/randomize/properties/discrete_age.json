@@ -1,0 +1,7 @@
+{
+    "type": "boolean",
+    "name": "discrete_age",
+    "description": "When enabled, age snaps to exactly one of the four anchors (baby, child, young or old) rather than being drawn continuously",
+    "label": "Discrete age",
+    "default": false
+}

@@ -1,0 +1,9 @@
+{
+    "type": "float",
+    "name": "batch_row_shift_y",
+    "description": "The distance in blender units each new grid row is shifted along the Y axis",
+    "label": "Y row shift",
+    "default": 1.0,
+    "min": 0.0,
+    "max": 1000.0
+}

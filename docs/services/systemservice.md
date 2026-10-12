@@ -119,7 +119,7 @@ Check if the running Blender version meets a minimum requirement.
 
 | Argument | Type | Default | Description |
 |----------|------|---------|-------------|
-| `version` | `tuple` | `(4, 2, 0)` | A three-element tuple of (major, minor, patch) version numbers |
+| `version` | `tuple[int, int, int]` | `(4, 2, 0)` | A three-element tuple of (major, minor, patch) version numbers |
 
 **Returns:** `bool` — `True` if the running Blender version is equal to or greater than the specified version.
 

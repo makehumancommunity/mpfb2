@@ -2,6 +2,8 @@
 
 The Apply Assets section lives in `src/mpfb/ui/apply_assets/`. Its root panel is `MPFB_PT_Assets_Panel`, which appears as "Apply assets" under the Materials category in Blender's sidebar. The root panel is always visible and acts as a container for all child panels. It shows a system asset check and provides a set of filter controls — a title text filter, a pack name filter, and an "only equipped" toggle — that are shared across all the asset library sub-panels.
 
+The system asset check is drawn only when something is wrong, ie when the makehuman system assets are either not installed or are an outdated version. Its wording comes from `src/mpfb/ui/systemassets.py`, so it is identical to the corresponding notice in the [Start here](../start_here.md) panel.
+
 ## Sub-sections
 
 | Sub-section directory | Panel label(s) | Description |

@@ -26,6 +26,7 @@ class Mhclo:
         self.basename = None  # Filename minus extension
         self.weights_file = None
         self.material = None
+        self.missing_material = None  # Set to the path from the material line when that file does not exist
         self.tags = ""
         self.zdepth = 50
         self.first = 0
@@ -90,7 +91,12 @@ class Mhclo:
                 continue
 
             if words[0] == "material":
-                self.material = os.path.join(folder, words[1])
+                material_path = os.path.join(folder, words[1])
+                if os.path.exists(material_path):
+                    self.material = material_path
+                else:
+                    _LOG.warn("The MHCLO file points at a material file which does not exist", material_path)
+                    self.missing_material = material_path
                 continue
 
             if str(words[0]).startswith("vertexboneweights"):
