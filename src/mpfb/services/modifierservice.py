@@ -89,3 +89,19 @@ class ModifierService:
             else:
                 return modifier
         return None
+
+    @staticmethod
+    def get_node_group_input(modifier, identifier):
+        """Read an input of geometry nodes modifier, no matter the blender version."""
+        try:
+            return modifier[identifier]
+        except TypeError:
+            return modifier.properties.inputs[identifier]["value"]
+
+    @staticmethod
+    def set_node_group_input(modifier, identifier, value):
+        """Write an input of a geometry nodes modifier, no matter the blender version."""
+        try:
+            modifier[identifier] = value
+        except TypeError:
+            modifier.properties.inputs[identifier]["value"] = value

@@ -5,6 +5,7 @@ from ...services.materialservice import MaterialService
 from ...services.nodeservice import NodeService
 from ...services.dynamicconfigset import DynamicConfigSet
 from ...services.haireditorservices import HairEditorService
+from ...services.modifierservice import ModifierService
 from .cardgenerators import (CARDS_MODE_ITEMS, CARDS_MODE_TILES, CARDS_MODE_CLUSTER_RIBBON,
                              CLUSTER_RIBBON_PROFILE_STEPS, SELECTION_METHOD_ITEMS,
                              SELECTION_METHOD_RANDOM, BAKE_TARGET_ITEMS, BAKE_TARGET_CARDS,
@@ -937,7 +938,7 @@ class HairGetterSetterFactory():
             if identifier is None:
                 _LOG.debug("No such socket in the hair cards node group (expected if this mode does not use it)", (self.socket_name, card_obj.name))
                 return self.default_value
-            return modifier[identifier]
+            return ModifierService.get_node_group_input(modifier, identifier)
         return getter
 
     def _cards_setter(self):
@@ -956,7 +957,7 @@ class HairGetterSetterFactory():
             if identifier is None:
                 _LOG.debug("No such socket in the hair cards node group (expected if this mode does not use it)", (self.socket_name, card_obj.name))
                 return
-            modifier[identifier] = value
+            ModifierService.set_node_group_input(modifier, identifier, value)
             # Geometry nodes ignore a changed input until the object is tagged for update
             card_obj.update_tag()
             if modifier.node_group:
@@ -982,8 +983,9 @@ class HairGetterSetterFactory():
             if modifier is None:
                 _LOG.error("No such modifier on the hair object", (hair_obj.name, self.modifier_name))
                 return self.default_value
-            _LOG.trace("Modifier, value", (modifier, modifier[self.modifier_attribute]))
-            return modifier[self.modifier_attribute]
+            value = ModifierService.get_node_group_input(modifier, self.modifier_attribute)
+            _LOG.trace("Modifier, value", (modifier, value))
+            return value
         return getter
 
     def _hair_setter(self):
@@ -1005,16 +1007,16 @@ class HairGetterSetterFactory():
             if modifier is None:
                 _LOG.error("No such modifier on the hair object", (hair_obj.name, self.modifier_name))
                 return
-            _LOG.debug("Modifier, value before", (modifier, modifier[self.modifier_attribute]))
-            modifier[self.modifier_attribute] = value
-            _LOG.debug("Modifier, value mid", (modifier, modifier[self.modifier_attribute]))
+            _LOG.debug("Modifier, value before", (modifier, ModifierService.get_node_group_input(modifier, self.modifier_attribute)))
+            ModifierService.set_node_group_input(modifier, self.modifier_attribute, value)
+            _LOG.debug("Modifier, value mid", (modifier, ModifierService.get_node_group_input(modifier, self.modifier_attribute)))
             hair_obj.update_tag()
             bpy.context.view_layer.update()
             hair_obj.hide_viewport = True
             hair_obj.hide_viewport = False
             if hasattr(modifier, "node_group") and modifier.node_group:
                 modifier.node_group.interface_update(bpy.context)
-            _LOG.debug("Modifier, value after", (modifier, modifier[self.modifier_attribute]))
+            _LOG.debug("Modifier, value after", (modifier, ModifierService.get_node_group_input(modifier, self.modifier_attribute)))
         return setter
 
     def generate_getter(self):
