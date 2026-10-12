@@ -111,3 +111,32 @@ BoneOrientationInfo = dict[str, dict[str, BoneOrientation]]
 Two keys, ``pose_bones`` and ``edit_bones``, each mapping a bone name to its ``BoneOrientation``.
 The rig helpers take this snapshot before entering edit mode, because the values they need are
 readable in one mode and the bones they create in the other."""
+
+HumanInfo = dict[str, Any]
+"""The character definition dictionary: MPFB's own save format for a human.
+
+It is what ``HumanService`` writes as ``human.<name>.json``, what it reads back, and what an MHM
+file is parsed into. ``phenotype`` holds a ``MacroInfo`` and ``targets`` a list of
+``TargetStackEntry``. ``rig``, ``eyes``, ``eyebrows``, ``eyelashes``, ``tongue``, ``teeth``,
+``hair``, ``proxy``, ``skin_mhmat``, ``skin_material_type`` and ``eyes_material_type`` hold strings,
+``clothes``, ``makeup`` and ``expressions`` lists, and ``skin_material_settings``,
+``eyes_material_settings``, ``alternative_materials`` and ``color_adjustments`` nested dicts. ``name``
+and ``material_instances`` are added by the loading path rather than stored in the file.
+
+An alias rather than a ``TypedDict`` for three reasons: a preset written by an older MPFB carries only
+a subset of the keys, so almost every read goes through ``in`` or ``get()``; the values arrive from
+``json.load()`` as ``Any``; and the deserialization path writes ``material_instances`` and ``name``
+into the same dict it was handed, so no single point in the code sees one fixed shape."""
+
+DeserializationSettings = dict[str, Any]
+"""The settings dict which controls how a ``HumanInfo`` is turned back into a character.
+
+``HumanService.get_default_deserialization_settings()`` builds one with ``mask_helpers``,
+``detailed_helpers``, ``extra_vertex_groups``, ``feet_on_ground``, ``load_clothes``, ``scale``,
+``subdiv_levels``, ``override_skin_model``, ``override_rig`` and ``material_instances``. The MHM path
+additionally requires ``clothes_deep_search`` and ``bodypart_deep_search``, which the defaults do not
+contain, and ``override_clothes_model`` and ``override_eyes_model`` are read with ``in`` when present.
+
+An alias rather than a ``TypedDict`` precisely because of that split: the mandatory key set differs
+between the three entry points, and the UI layer builds the dict by copying the defaults and then
+overwriting entries from a ``SceneConfigSet``, whose values arrive as ``Any``."""

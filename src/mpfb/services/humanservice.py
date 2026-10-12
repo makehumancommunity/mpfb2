@@ -2,14 +2,15 @@
 
 import os, json, fnmatch, re, bpy, shutil, typing
 from pathlib import Path
+from typing import Any
 from .logservice import LogService
 from .objectservice import ObjectService
-from .targetservice import TargetService
+from .targetservice import TargetService, MacroInfo
 from .assetservice import AssetService
 from .clothesservice import ClothesService
 from .rigservice import RigService
 from .nodeservice import NodeService
-from .materialservice import MaterialService
+from .materialservice import MaterialService, ColorAdjustment
 from .locationservice import LocationService
 from .systemservice import SystemService
 from ..entities.objectproperties import HumanObjectProperties
@@ -21,10 +22,12 @@ from ..entities.material.enhancedskinmaterial import EnhancedSkinMaterial
 from ..entities.objectproperties import GeneralObjectProperties
 from ..entities.socketobject import BASEMESH_EXTRA_GROUPS, ALL_EXTRA_GROUPS
 from ..entities.primitiveprofiler import PrimitiveProfiler
+from ..types import DeserializationSettings, HumanInfo
 
 _LOG = LogService.get_logger("services.humanservice")
 
-_EXISTING_PRESETS = None
+_EXISTING_PRESETS: list[str] | None = None
+"""The cached names of the stored character presets, or None until the first scan."""
 
 
 class HumanService:
@@ -40,12 +43,12 @@ class HumanService:
     As the class only contains static methods, it should not be instantiated.
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         """You should not instance HumanService. Use its static methods instead."""
         raise RuntimeError("You should not instance HumanService. Use its static methods instead.")
 
     @staticmethod
-    def update_list_of_human_presets():
+    def update_list_of_human_presets() -> None:
         """
         Updates the global list of human presets by scanning the user configuration directory for files
         matching the pattern 'human.*.json'. The names of these files are extracted and stored in the
@@ -65,7 +68,7 @@ class HumanService:
         _EXISTING_PRESETS.sort()
 
     @staticmethod
-    def get_list_of_human_presets(as_list_enum=True, use_cache=True):
+    def get_list_of_human_presets(as_list_enum: bool = True, use_cache: bool = True) -> list[str] | list[tuple[str, str, str]]:
         """
         Returns a list of human presets, i.e. all stored definitions which can be used a template.
         If the function is called for the first time or use_cache=False the global variable _EXISTING_PRESETS is updated
@@ -77,21 +80,24 @@ class HumanService:
                 if True the list is not updated once it is populated,
                 if False, the list is updated every time the function is called
 
-        Returns: list of strings or tuples
+        Returns: list[str] | list[tuple[str, str, str]]
         """
         _LOG.enter()
         global _EXISTING_PRESETS  # pylint: disable=W0602
         if _EXISTING_PRESETS is None or not use_cache:
             HumanService.update_list_of_human_presets()
+        # update_list_of_human_presets() always leaves the global holding a list, so the only
+        # way it can still be None here is if that method raised, in which case we never arrive.
+        presets = typing.cast(list[str], _EXISTING_PRESETS)
         if not as_list_enum:
-            return _EXISTING_PRESETS
-        out = []
-        for preset in _EXISTING_PRESETS:
+            return presets
+        out: list[tuple[str, str, str]] = []
+        for preset in presets:
             out.append((preset, preset, preset))
         return out
 
     @staticmethod
-    def _populate_human_info_with_makeup_info(human_info, basemesh):
+    def _populate_human_info_with_makeup_info(human_info: HumanInfo, basemesh: bpy.types.Object) -> None:
         _LOG.enter()
         human_info["makeup"] = []
         material = MaterialService.get_material(basemesh)
@@ -115,7 +121,7 @@ class HumanService:
                 _LOG.warn("Could not find ink layer info JSON file", json_path)
 
     @staticmethod
-    def _populate_human_info_with_skin_info(human_info, basemesh):
+    def _populate_human_info_with_skin_info(human_info: HumanInfo, basemesh: bpy.types.Object) -> None:
         _LOG.enter()
         proxymesh = ObjectService.find_object_of_type_amongst_nearest_relatives(basemesh, "Proxymeshes")
 
@@ -148,25 +154,33 @@ class HumanService:
             human_info["skin_material_type"] = "GAMEENGINE"
             return
 
+        # Neither branch below can be reached for an empty slot: identify_material() answers
+        # "empty" when the slot holds no material, and "empty" matches neither test.
+        skin_material = typing.cast(bpy.types.Material, material)
+
         if "enhanced" in material_type:
-            group_node = NodeService.find_first_node_by_type_name(material.node_tree, "ShaderNodeGroup")
+            group_node = NodeService.find_first_node_by_type_name(skin_material.node_tree, "ShaderNodeGroup")
             values = None
 
             if group_node:
                 values = NodeService.get_socket_default_values(group_node)
 
             human_info["skin_material_type"] = "ENHANCED"
-            if "SSS Color" in values:
+            # The cast records that values is only None when the material carries no group node,
+            # which cannot be the case here, since that is what identify_material() keyed on.
+            if "SSS Color" in typing.cast(dict[str, Any], values):
                 human_info["skin_material_type"] = "ENHANCED_SSS"
 
             for slot in slots:
-                material = slot.material
-                group_node = NodeService.find_first_node_by_type_name(material.node_tree, "ShaderNodeGroup")
+                # A material slot added by hand in Blender's UI holds no material, which the
+                # reads below do not guard against.
+                slot_material = typing.cast(bpy.types.Material, slot.material)
+                group_node = NodeService.find_first_node_by_type_name(slot_material.node_tree, "ShaderNodeGroup")
                 if group_node:
                     values = NodeService.get_socket_default_values(group_node)
                     if "colorMixIn" in values:
                         # This seems to be an enhanced skin material
-                        name = material.name
+                        name = slot_material.name
                         if "." in name:
                             name = str(name).split(".", maxsplit=1)[1]
                         if "." in name:
@@ -174,7 +188,7 @@ class HumanService:
                         human_info["skin_material_settings"][name] = values
 
         if "layered" in material_type:
-            for group_node in NodeService.find_nodes_by_type_name(material.node_tree, "ShaderNodeGroup"):
+            for group_node in NodeService.find_nodes_by_type_name(skin_material.node_tree, "ShaderNodeGroup"):
                 for group in ["color", "body", "face", "ears", "lips", "aureolae", "genitals", "fingernails", "toenails"]:
                     if group_node.name == group + "group":
                         values = NodeService.get_socket_default_values(group_node)
@@ -184,7 +198,7 @@ class HumanService:
                 human_info["skin_material_type"] = "LAYERED"
 
     @staticmethod
-    def _populate_human_info_with_eye_material_info(human_info, basemesh):
+    def _populate_human_info_with_eye_material_info(human_info: HumanInfo, basemesh: bpy.types.Object) -> None:
         _LOG.enter()
         eyes = ObjectService.find_object_of_type_amongst_nearest_relatives(basemesh, "Eyes")
 
@@ -214,7 +228,9 @@ class HumanService:
             human_info["eyes_material_type"] = "GAMEENGINE"
             return
 
-        group_node = NodeService.find_first_node_by_type_name(material.node_tree, "ShaderNodeGroup")
+        # has_materials() above counted the slots without looking inside them, so an eyes object
+        # whose only slot is empty reaches this read with no material to read from.
+        group_node = NodeService.find_first_node_by_type_name(typing.cast(bpy.types.Material, material).node_tree, "ShaderNodeGroup")
         if group_node:
             material_settings = NodeService.get_socket_default_values(group_node)
             if "IrisMinorColor" not in material_settings:
@@ -225,13 +241,13 @@ class HumanService:
                 human_info["eyes_material_settings"] = material_settings
 
     @staticmethod
-    def _populate_human_info_with_basemesh_info(human_info, basemesh):
+    def _populate_human_info_with_basemesh_info(human_info: HumanInfo, basemesh: bpy.types.Object) -> None:
         _LOG.enter()
         human_info["phenotype"] = TargetService.get_macro_info_dict_from_basemesh(basemesh)
         human_info["targets"] = TargetService.get_target_stack(basemesh, exclude_starts_with=("$md-", "!ex-"))
 
     @staticmethod
-    def _populate_human_info_with_expression_info(human_info, basemesh):
+    def _populate_human_info_with_expression_info(human_info: HumanInfo, basemesh: bpy.types.Object) -> None:
         """Write the applied-expressions stack into ``human_info["expressions"]``.
 
         Source of truth is ``basemesh[APPLIED_EXPRESSIONS_PROP]`` (a JSON-encoded string).
@@ -241,7 +257,7 @@ class HumanService:
         _LOG.enter()
         from .faceservice import FaceService  # pylint: disable=C0415
         stack = FaceService._read_applied_expressions(basemesh)  # pylint: disable=W0212
-        normalized = []
+        normalized: list[dict[str, Any]] = []
         for row in stack:
             if not isinstance(row, dict):
                 continue
@@ -257,7 +273,7 @@ class HumanService:
         human_info["expressions"] = normalized
 
     @staticmethod
-    def _populate_human_info_with_rig_info(human_info, basemesh):
+    def _populate_human_info_with_rig_info(human_info: HumanInfo, basemesh: bpy.types.Object) -> None:
         _LOG.enter()
         armature_object = ObjectService.find_object_of_type_amongst_nearest_relatives(basemesh, "Skeleton")
         if not armature_object is None:
@@ -274,7 +290,7 @@ class HumanService:
             human_info["rig"] = rig_type
 
     @staticmethod
-    def _populate_human_info_with_bodyparts_info(human_info, basemesh):
+    def _populate_human_info_with_bodyparts_info(human_info: HumanInfo, basemesh: bpy.types.Object) -> None:
         _LOG.enter()
         if not "color_adjustments" in human_info:
             human_info["color_adjustments"] = dict()
@@ -304,7 +320,7 @@ class HumanService:
                         human_info["clothes_material_type"] = "GAMEENGINE"
 
     @staticmethod
-    def _populate_human_info_with_clothes_info(human_info, basemesh):
+    def _populate_human_info_with_clothes_info(human_info: HumanInfo, basemesh: bpy.types.Object) -> None:
         _LOG.enter()
         if not "color_adjustments" in human_info:
             human_info["color_adjustments"] = dict()
@@ -331,7 +347,7 @@ class HumanService:
                         human_info["clothes_material_type"] = "GAMEENGINE"
 
     @staticmethod
-    def _populate_human_info_with_proxy_info(human_info, basemesh):
+    def _populate_human_info_with_proxy_info(human_info: HumanInfo, basemesh: bpy.types.Object) -> None:
         _LOG.enter()
         proxy = ObjectService.find_object_of_type_amongst_nearest_relatives(basemesh, "Proxymeshes")
         if not proxy:
@@ -341,7 +357,7 @@ class HumanService:
             human_info["proxy"] = str(asset_source).strip()
 
     @staticmethod
-    def _populate_alternative_material(human_info, obj):
+    def _populate_alternative_material(human_info: HumanInfo, obj: bpy.types.Object | None) -> None:
         _LOG.enter()
         if not obj:
             return
@@ -354,9 +370,9 @@ class HumanService:
             human_info["alternative_materials"][uuid] = alternative_material
 
     @staticmethod
-    def _create_default_human_info_dict():
+    def _create_default_human_info_dict() -> HumanInfo:
         _LOG.enter()
-        human_info = dict()
+        human_info: HumanInfo = dict()
         human_info["phenotype"] = TargetService.get_default_macro_info_dict()
         human_info["rig"] = ""
         human_info["eyes"] = ""
@@ -378,13 +394,14 @@ class HumanService:
         return human_info
 
     @staticmethod
-    def serialize_to_json_string(basemesh, save_clothes=False):
+    def serialize_to_json_string(basemesh: bpy.types.Object | None, save_clothes: bool = False) -> str:
         """
         Serializes the given human to a JSON string. Clothes, materials etc will be discovered from the given basemesh.
 
         Args:
-            basemesh: The base mesh object to serialize.
-            save_clothes (bool): Whether to include clothes information in the serialization. Default is False.
+            basemesh (bpy.types.Object | None): The base mesh object to serialize.
+            save_clothes (bool): Accepted for compatibility and currently without effect. Clothes are always
+                included in the serialization, whatever this is set to.
 
         Returns:
             str: A JSON string representing the serialized basemesh.
@@ -416,14 +433,15 @@ class HumanService:
         return json.dumps(human_info, indent=4, sort_keys=True)
 
     @staticmethod
-    def serialize_to_json_file(basemesh, filename, save_clothes=False):
+    def serialize_to_json_file(basemesh: bpy.types.Object | None, filename: str, save_clothes: bool = False) -> None:
         """
         Serializes the given basemesh to a JSON file. Clothes, materials etc will be discovered from the given basemesh.
 
         Args:
-            basemesh: The base mesh object to serialize.
+            basemesh (bpy.types.Object | None): The base mesh object to serialize.
             filename (str): The name of the file to write the JSON string to.
-            save_clothes (bool): Whether to include clothes information in the serialization. Default is False.
+            save_clothes (bool): Accepted for compatibility and currently without effect. Clothes are always
+                included in the serialization, whatever this is set to.
 
         Raises:
             ValueError: If the filename is None or an empty string.
@@ -438,7 +456,7 @@ class HumanService:
         HumanService.update_list_of_human_presets()
 
     @staticmethod
-    def _proxy_corrective(proxymesh):
+    def _proxy_corrective(proxymesh: bpy.types.Object) -> None:
         _LOG.enter()
         uuid = GeneralObjectProperties.get_value("uuid", entity_reference=proxymesh)
         if not uuid:
@@ -463,7 +481,7 @@ class HumanService:
                 group_names = {}
                 for group in proxymesh.vertex_groups:
                     group_names[group.index] = str(group.name).lower()
-                for vertex in proxymesh.data.vertices:
+                for vertex in typing.cast(bpy.types.Mesh, proxymesh.data).vertices:
                     for group in vertex.groups:
                         group_name = group_names[group.group]
                         if (group_name.endswith(".r") or group_name.startswith("r-") or group_name.startswith("r_")) and vertex.co[0] > 0.0001:
@@ -478,10 +496,13 @@ class HumanService:
             _LOG.debug("There is no corrective information for", uuid)
 
     @staticmethod
-    def add_mhclo_asset(mhclo_file, basemesh, asset_type="Clothes", subdiv_levels=1, material_type="MAKESKIN",
-                        alternative_materials=None, color_adjustments=None,
-                        set_up_rigging=True, interpolate_weights=True, import_subrig=True, import_weights=True,
-                        *, operator=None):
+    def add_mhclo_asset(mhclo_file: str, basemesh: bpy.types.Object, asset_type: str = "Clothes", subdiv_levels: int = 1,
+                        material_type: str = "MAKESKIN",
+                        alternative_materials: dict[str, str] | None = None,
+                        color_adjustments: dict[str, ColorAdjustment] | None = None,
+                        set_up_rigging: bool = True, interpolate_weights: bool = True, import_subrig: bool = True,
+                        import_weights: bool = True,
+                        *, operator: bpy.types.Operator | None = None) -> bpy.types.Object:
         """
         Adds an MHCLO asset to the given basemesh.
 
@@ -491,8 +512,8 @@ class HumanService:
             asset_type (str): The type of the asset (e.g., "Clothes"). Default is "Clothes".
             subdiv_levels (int): The number of subdivision levels to apply. Default is 1.
             material_type (str): The type of material to use (e.g., "MAKESKIN"). Default is "MAKESKIN".
-            alternative_materials (dict): A dictionary of alternative materials to use, keyed by UUID. Default is None.
-            color_adjustments (dict): A dictionary of color adjustments to apply, keyed by UUID. Default is None.
+            alternative_materials (dict[str, str] | None): Alternative material path fragments, keyed by UUID. Default is None.
+            color_adjustments (dict[str, ColorAdjustment] | None): Color adjustments to apply, keyed by UUID. Default is None.
             set_up_rigging (bool): Whether to set up rigging for the asset. Default is True.
             interpolate_weights (bool): Whether to interpolate weights for the asset. Default is True.
             import_subrig (bool): Whether to import sub-rigs for the asset. Default is True.
@@ -536,6 +557,8 @@ class HumanService:
         colors = MaterialService.get_diffuse_colors()
         _LOG.dump("Colors, atype, exists, mhclo.material, material_type", (colors, atype, atype in colors, mhclo.material, material_type))
 
+        # Material.diffuse_color is declared bpy_prop_array[float], which no python sequence
+        # satisfies, so each of the three assignments below carries a narrow ignore.
         color = (0.8, 0.8, 0.8, 1.0)
 
         if atype in colors:
@@ -577,7 +600,7 @@ class HumanService:
                 if mhclo.uuid and color_adjustments and mhclo.uuid in color_adjustments:
                     MaterialService.apply_color_adjustment(clothes, color_adjustments[mhclo.uuid])
 
-                blender_material.diffuse_color = color
+                blender_material.diffuse_color = color  # pyright: ignore[reportAttributeAccessIssue]
 
             if material_type == "GAMEENGINE":
                 from ..entities.nodemodel.v2.materials.nodewrappergameengine import NodeWrapperGameEngine
@@ -595,7 +618,7 @@ class HumanService:
                 mhmat = MhMaterial()
                 mhmat.populate_from_mhmat(game_material)
                 NodeWrapperGameEngine.create_instance(blender_material.node_tree, mhmat=mhmat)
-                blender_material.diffuse_color = color
+                blender_material.diffuse_color = color  # pyright: ignore[reportAttributeAccessIssue]
 
         if material_type == "PROCEDURAL_EYES":
             MaterialService.delete_all_materials(clothes)
@@ -609,7 +632,7 @@ class HumanService:
             NodeService.apply_node_tree_from_dict(blender_material.node_tree, node_tree_dict, True)
             blender_material.blend_method = "BLEND"
             blender_material.show_transparent_back = True
-            blender_material.diffuse_color = color
+            blender_material.diffuse_color = color  # pyright: ignore[reportAttributeAccessIssue]
 
         ClothesService.fit_clothes_to_human(clothes, basemesh, mhclo)
         mhclo.set_scalings(bpy.context, basemesh)
@@ -626,9 +649,9 @@ class HumanService:
             _LOG.debug("About to interpolate delete group, proxy is", proxymesh)
             if proxymesh:
                 ClothesService.interpolate_vertex_group_from_basemesh_to_clothes(basemesh, proxymesh, delete_name, mhclo_full_path=None)
-                modifier = proxymesh.modifiers.new(name=delete_name, type="MASK")
-                modifier.vertex_group = delete_name
-                modifier.invert_vertex_group = True
+                mask = typing.cast(bpy.types.MaskModifier, proxymesh.modifiers.new(name=delete_name, type="MASK"))
+                mask.vertex_group = delete_name
+                mask.invert_vertex_group = True
 
         rig = ObjectService.find_object_of_type_amongst_nearest_relatives(basemesh, "Skeleton")
 
@@ -642,14 +665,14 @@ class HumanService:
         ClothesService.set_makeclothes_object_properties_from_mhclo(clothes, mhclo, delete_group_name=delete_name)
 
         if subdiv_levels > 0:
-            modifier = clothes.modifiers.new("Subdivision", 'SUBSURF')
-            modifier.levels = 0
-            modifier.render_levels = subdiv_levels
+            subsurf = typing.cast(bpy.types.SubsurfModifier, clothes.modifiers.new("Subdivision", 'SUBSURF'))
+            subsurf.levels = 0
+            subsurf.render_levels = subdiv_levels
 
         return clothes
 
     @staticmethod
-    def _check_add_rig(human_info, basemesh):
+    def _check_add_rig(human_info: HumanInfo, basemesh: bpy.types.Object) -> None:
         rig = None
         if "rig" in human_info and not human_info["rig"] is None and not str(human_info["rig"]).strip() == "":
             rig_name = human_info["rig"]
@@ -665,7 +688,8 @@ class HumanService:
             rig.name = human_info["name"]
 
     @staticmethod
-    def _check_add_bodyparts(human_info, basemesh, subdiv_levels=1, material_model=None, eyes_material_model=None):
+    def _check_add_bodyparts(human_info: HumanInfo, basemesh: bpy.types.Object, subdiv_levels: int = 1,
+                             material_model: str | None = None, eyes_material_model: str | None = None) -> None:
         for bodypart in ["eyes", "eyelashes", "eyebrows", "tongue", "teeth", "hair"]:
             if bodypart in human_info and not human_info[bodypart] is None and not str(human_info[bodypart]).strip() == "":
                 asset_filename = human_info[bodypart]
@@ -690,7 +714,8 @@ class HumanService:
                     _LOG.warn("Could not locate bodypart", (bodypart, asset_filename))
 
     @staticmethod
-    def _check_add_clothes(human_info, basemesh, subdiv_levels=1, material_model=None):
+    def _check_add_clothes(human_info: HumanInfo, basemesh: bpy.types.Object, subdiv_levels: int = 1,
+                           material_model: str | None = None) -> None:
         profiler = PrimitiveProfiler("HumanService")
         profiler.enter("_check_add_clothes")
         if not "clothes" in human_info:
@@ -715,7 +740,7 @@ class HumanService:
         profiler.leave("_check_add_clothes")
 
     @staticmethod
-    def _check_add_proxy(human_info, basemesh, subdiv_levels=1):
+    def _check_add_proxy(human_info: HumanInfo, basemesh: bpy.types.Object, subdiv_levels: int = 1) -> None:
         if not "proxy" in human_info:
             _LOG.warn("Did not find proxy key in human_info")
             return
@@ -731,9 +756,9 @@ class HumanService:
             proxy_object = HumanService.add_mhclo_asset(asset_absolute_path, basemesh, asset_type="Proxymeshes", subdiv_levels=subdiv_levels, material_type="NONE")
             if proxy_object and "name" in human_info and human_info["name"]:
                 proxy_object.name = human_info["name"] + "." + proxy_object.name
-            modifier = basemesh.modifiers.new("Hide base mesh", 'MASK')
-            modifier.vertex_group = "body"
-            modifier.invert_vertex_group = True
+            mask = typing.cast(bpy.types.MaskModifier, basemesh.modifiers.new("Hide base mesh", 'MASK'))
+            mask.vertex_group = "body"
+            mask.invert_vertex_group = True
 
             scale_factor = GeneralObjectProperties.get_value("scale_factor", entity_reference=basemesh)
             GeneralObjectProperties.set_value("scale_factor", scale_factor, entity_reference=proxy_object)
@@ -750,18 +775,21 @@ class HumanService:
             _LOG.warn("Could not locate proxy", human_info["proxy"])
 
     @staticmethod
-    def set_character_skin(mhmat_file, basemesh, bodyproxy=None, skin_type="ENHANCED_SSS", material_instances=True, slot_overrides=None,
-                           *, operator=None):
+    def set_character_skin(mhmat_file: str | None, basemesh: bpy.types.Object, bodyproxy: bpy.types.Object | None = None,
+                           skin_type: str = "ENHANCED_SSS", material_instances: bool = True,
+                           slot_overrides: dict[str, dict[str, Any]] | None = None,
+                           *, operator: bpy.types.Operator | None = None) -> None:
         """
         Sets the skin material for the given character basemesh and optional bodyproxy.
 
         Args:
-            mhmat_file (str): The path to the MHMAT file to load.
-            basemesh: The base mesh object to which the skin material will be applied.
-            bodyproxy: The body proxy object to which the skin material will be applied. Default is None.
+            mhmat_file (str | None): The path to the MHMAT file to load. None is only valid together with
+                skin_type="LAYERED", which then builds the material with no mhmat values.
+            basemesh (bpy.types.Object): The base mesh object to which the skin material will be applied.
+            bodyproxy (bpy.types.Object | None): The body proxy object to which the skin material will be applied. Default is None.
             skin_type (str): The type of skin material to use (e.g., "ENHANCED_SSS", "MAKESKIN", "GAMEENGINE", "LAYERED"). Default is "ENHANCED_SSS".
             material_instances (bool): Whether to create material instances for the skin material. Default is True.
-            slot_overrides (dict): A dictionary of slot overrides to apply, keyed by slot name. Default is None.
+            slot_overrides (dict[str, dict[str, Any]] | None): Slot overrides to apply, keyed by slot name. Default is None.
             operator (bpy.types.Operator, optional): The operator calling this function, used for reporting warnings. Default is None.
 
         Note:
@@ -869,13 +897,15 @@ class HumanService:
 
             _LOG.dump("Settings after overrides", settings)
             for slot in basemesh.material_slots:
-                material = slot.material
-                group_node = NodeService.find_first_node_by_type_name(material.node_tree, "ShaderNodeGroup")
+                # The slots were made by create_and_assign_material_slots() above, so each holds a
+                # material; a slot the user added by hand in Blender's UI would not.
+                slot_material = typing.cast(bpy.types.Material, slot.material)
+                group_node = NodeService.find_first_node_by_type_name(slot_material.node_tree, "ShaderNodeGroup")
                 if group_node:
                     values = NodeService.get_socket_default_values(group_node)
                     if "colorMixIn" in values:
                         # This seems to be an enhanced skin material
-                        name = material.name
+                        name = slot_material.name
                         _LOG.debug("Material name", name)
                         if "." in name:
                             name = str(name).split(".", maxsplit=1)[1]
@@ -887,7 +917,7 @@ class HumanService:
                             NodeService.set_socket_default_values(group_node, settings[name])
 
     @staticmethod
-    def _set_skin(human_info, basemesh):
+    def _set_skin(human_info: HumanInfo, basemesh: bpy.types.Object) -> None:
         _LOG.enter()
 
         mhmat_file = None
@@ -931,7 +961,7 @@ class HumanService:
             HumanObjectProperties.set_value("material_source", human_info["skin_mhmat"], entity_reference=basemesh)
 
     @staticmethod
-    def _set_eyes(human_info, basemesh, material_model=None):
+    def _set_eyes(human_info: HumanInfo, basemesh: bpy.types.Object, material_model: str | None = None) -> None:
         _LOG.enter()
 
         eyes = ObjectService.find_object_of_type_amongst_nearest_relatives(basemesh, "Eyes")
@@ -959,7 +989,9 @@ class HumanService:
         _LOG.dump("Eye material overrides", settings)
 
         slot = eyes.material_slots[0]
-        material = slot.material
+        # has_materials() above counted the slots without looking inside them, so an eyes object
+        # whose only slot is empty reaches this read with no material to read from.
+        material = typing.cast(bpy.types.Material, slot.material)
         group_node = NodeService.find_first_node_by_type_name(material.node_tree, "ShaderNodeGroup")
         if group_node:
             material_settings = NodeService.get_socket_default_values(group_node)
@@ -972,7 +1004,7 @@ class HumanService:
             _LOG.warn("Material had no group node -> not procedural eyes")
 
     @staticmethod
-    def _load_targets(human_info, basemesh):
+    def _load_targets(human_info: HumanInfo, basemesh: bpy.types.Object) -> None:
         profiler = PrimitiveProfiler("HumanService")
         profiler.enter("_load_targets")
 
@@ -984,7 +1016,7 @@ class HumanService:
         profiler.leave("_load_targets")
 
     @staticmethod
-    def _apply_expressions_from_human_info(human_info, basemesh):
+    def _apply_expressions_from_human_info(human_info: HumanInfo, basemesh: bpy.types.Object) -> None:
         """Apply the ``expressions`` field from a human preset to the basemesh.
 
         Behaviour:
@@ -1005,7 +1037,7 @@ class HumanService:
             _LOG.warn("expressions field is not a list, ignoring", entries)
             return
 
-        normalized = []
+        normalized: list[dict[str, Any]] = []
         for row in entries:
             if not isinstance(row, dict):
                 continue
@@ -1049,19 +1081,26 @@ class HumanService:
             FaceService.set_expression(basemesh, aggregated)
 
     @staticmethod
-    def deserialize_from_dict(human_info, deserialization_settings):
+    def deserialize_from_dict(human_info: HumanInfo, deserialization_settings: DeserializationSettings) -> bpy.types.Object:
         """
         Deserializes a human character from a dictionary of human information and deserialization settings.
 
         Args:
-            human_info (dict): A dictionary containing information about the human character to be deserialized.
-            deserialization_settings (dict): A dictionary containing settings for the deserialization process.
+            human_info (HumanInfo): A dictionary containing information about the human character to be deserialized.
+            deserialization_settings (DeserializationSettings): A dictionary containing settings for the deserialization process.
 
         Returns:
-            The deserialized human basemesh object.
+            bpy.types.Object: The deserialized human basemesh object.
 
         Raises:
-            ValueError: If human_info is None or if it does not contain valid data.
+            ValueError: If a custom rig named in human_info is not present in user data.
+            NotImplementedError: If human_info names a rigify rig but rigify is not enabled.
+            IOError: If a built-in rig named in human_info has no definition file.
+
+        Note:
+            The two guards further down which would raise ValueError for a None or an empty human_info
+            both sit below a write to human_info, so neither can be reached. A None argument raises
+            TypeError at that write instead, and an empty dict is no longer empty when it is tested.
         """
 
         _LOG.debug("Deserialization settings", deserialization_settings)
@@ -1126,9 +1165,9 @@ class HumanService:
             basemesh.name = human_info["name"] + ".body"
 
         if subdiv_levels > 0:
-            modifier = basemesh.modifiers.new("Subdivision", 'SUBSURF')
-            modifier.levels = 0
-            modifier.render_levels = subdiv_levels
+            subsurf = typing.cast(bpy.types.SubsurfModifier, basemesh.modifiers.new("Subdivision", 'SUBSURF'))
+            subsurf.levels = 0
+            subsurf.render_levels = subdiv_levels
 
         HumanService._load_targets(human_info, basemesh)
         # Do an extra feet_on_ground here, since the one in create_human only
@@ -1151,7 +1190,7 @@ class HumanService:
         HumanService._set_skin(human_info, basemesh)
         HumanService._set_eyes(human_info, basemesh)
 
-        makeup = []
+        makeup: list[str] = []
         if "makeup" in human_info:
             makeup = human_info["makeup"]
         material = MaterialService.get_material(basemesh)
@@ -1171,14 +1210,14 @@ class HumanService:
         return basemesh
 
     @staticmethod
-    def get_default_deserialization_settings():
+    def get_default_deserialization_settings() -> DeserializationSettings:
         """
         Returns the default settings for deserializing a human character.
 
         The settings include various options for helpers, vertex groups, scale, subdivision levels, and overrides for skin and rig models.
 
         Returns:
-            dict: A dictionary containing the default deserialization settings.
+            DeserializationSettings: A dictionary containing the default deserialization settings.
         """
         return {
             "mask_helpers": True,
@@ -1194,16 +1233,17 @@ class HumanService:
             }
 
     @staticmethod
-    def deserialize_from_json_file(filename, deserialization_settings):
+    def deserialize_from_json_file(filename: str, deserialization_settings: DeserializationSettings) -> bpy.types.Object:
         """
         Deserializes a human character from a JSON file using the provided deserialization settings.
 
         Args:
-            filename (str): The path to the JSON file containing the human character information.
-            deserialization_settings (dict): A dictionary containing settings for the deserialization process.
+            filename (str): The path to the JSON file containing the human character information. The base name
+                must follow the "human.<name>.json" pattern the preset writer uses.
+            deserialization_settings (DeserializationSettings): A dictionary containing settings for the deserialization process.
 
         Returns:
-            The deserialized human basemesh object.
+            bpy.types.Object: The deserialized human basemesh object.
 
         Raises:
             IOError: If the specified file does not exist.
@@ -1211,16 +1251,18 @@ class HumanService:
         _LOG.debug("Deserialization settings", deserialization_settings)
         if not os.path.exists(filename):
             raise IOError(str(filename) + " does not exist")
-        human_info = None
+        human_info: HumanInfo = {}
         with open(filename, "r", encoding="utf-8") as json_file:
             human_info = json.load(json_file)
         match = re.search(r'human\.([^/\\]*)\.json$', filename)
-        name = match.group(1)
+        # The cast records the precondition stated above: a file name which does not follow the
+        # preset pattern reaches the read below with no match to read a group out of.
+        name = typing.cast(re.Match[str], match).group(1)
         human_info["name"] = name
         return HumanService.deserialize_from_dict(human_info, deserialization_settings)
 
     @staticmethod
-    def _parse_mhm_modifier_line(human_info, line):
+    def _parse_mhm_modifier_line(human_info: HumanInfo, line: str) -> None:
         profiler = PrimitiveProfiler("HumanService")
         profiler.enter("_parse_mhm_modifier_line")
         line = str(line).replace("modifier ", "")
@@ -1267,7 +1309,7 @@ class HumanService:
         profiler.leave("_parse_mhm_modifier_line")
 
     @staticmethod
-    def _check_parse_mhm_bodypart_line(human_info, line, perform_deep_search=True):
+    def _check_parse_mhm_bodypart_line(human_info: HumanInfo, line: str, perform_deep_search: bool = True) -> bool:
         profiler = PrimitiveProfiler("HumanService")
         profiler.enter("_check_parse_mhm_bodypart_line")
 
@@ -1340,7 +1382,7 @@ class HumanService:
         return False
 
     @staticmethod
-    def _check_parse_mhm_clothes_line(human_info, line, perform_deep_search=False):
+    def _check_parse_mhm_clothes_line(human_info: HumanInfo, line: str, perform_deep_search: bool = False) -> bool:
         profiler = PrimitiveProfiler("HumanService")
         profiler.enter("_check_parse_mhm_clothes_line")
         parts = line.split(" ", 2)
@@ -1426,16 +1468,18 @@ class HumanService:
         return False
 
     @staticmethod
-    def deserialize_from_mhm(filename, deserialization_settings):
+    def deserialize_from_mhm(filename: str, deserialization_settings: DeserializationSettings) -> bpy.types.Object:
         """
         Deserializes a human character from an MHM file using the provided deserialization settings.
 
         Args:
             filename (str): The path to the MHM file containing the human character information.
-            deserialization_settings (dict): A dictionary containing settings for the deserialization process, including options for deep searching clothes and body parts.
+            deserialization_settings (DeserializationSettings): A dictionary containing settings for the deserialization
+                process. It must carry the clothes_deep_search and bodypart_deep_search booleans, which the defaults
+                from get_default_deserialization_settings() do not contain.
 
         Returns:
-            The deserialized human basemesh object.
+            bpy.types.Object: The deserialized human basemesh object.
 
         Raises:
             IOError: If the specified file does not exist.
@@ -1452,7 +1496,7 @@ class HumanService:
         _LOG.dump("mhm string", mhm_string)
 
         human_info = HumanService._create_default_human_info_dict()
-        name = None
+        name: str | None = None
 
         for line in mhm_string.splitlines():
             _LOG.debug("line", line)
@@ -1490,7 +1534,9 @@ class HumanService:
 
         if not name:
             match = re.search(r'.*([^/\\]*)\.(mhm|MHM)$', filename)
-            name = match.group(1)
+            # The cast records that the pattern only fails to match for a file name without an
+            # .mhm extension, which the file selector the operators use does not offer.
+            name = typing.cast(re.Match[str], match).group(1)
 
         human_info["name"] = name
 
@@ -1501,7 +1547,8 @@ class HumanService:
         return basemesh
 
     @staticmethod
-    def create_human(mask_helpers=True, detailed_helpers=True, extra_vertex_groups=True, feet_on_ground=True, scale=0.1, macro_detail_dict=None):
+    def create_human(mask_helpers: bool = True, detailed_helpers: bool = True, extra_vertex_groups: bool = True,
+                     feet_on_ground: bool = True, scale: float = 0.1, macro_detail_dict: MacroInfo | None = None) -> bpy.types.Object:
         """
         Creates a human mesh with specified settings and properties.
 
@@ -1511,7 +1558,7 @@ class HumanService:
             extra_vertex_groups (bool): Whether to include extra vertex groups. Default is True.
             feet_on_ground (bool): Whether to position the feet on the ground. Default is True.
             scale (float): The scale factor for the basemesh. Default is 0.1.
-            macro_detail_dict (dict, optional): A dictionary containing macro detail settings. If None, default settings are used.
+            macro_detail_dict (MacroInfo | None): A dictionary containing macro detail settings. If None, default settings are used.
 
         Returns:
             bpy.types.Object: The created human basemesh object.
@@ -1519,7 +1566,7 @@ class HumanService:
         profiler = PrimitiveProfiler("HumanService")
         profiler.enter("create_human")
 
-        exclude = []
+        exclude: list[str] = []
 
         if not detailed_helpers:
             groups = ObjectService.get_base_mesh_vertex_group_definition()
@@ -1552,10 +1599,10 @@ class HumanService:
         TargetService.reapply_macro_details(basemesh)
 
         if mask_helpers:
-            modifier = basemesh.modifiers.new("Hide helpers", 'MASK')
-            modifier.vertex_group = "body"
-            modifier.show_in_editmode = True
-            modifier.show_on_cage = True
+            mask = typing.cast(bpy.types.MaskModifier, basemesh.modifiers.new("Hide helpers", 'MASK'))
+            mask.vertex_group = "body"
+            mask.show_in_editmode = True
+            mask.show_on_cage = True
 
         HumanObjectProperties.set_value("is_human_project", True, entity_reference=basemesh)
 
@@ -1568,7 +1615,8 @@ class HumanService:
         return basemesh
 
     @staticmethod
-    def add_builtin_rig(basemesh, rig_name, *, import_weights=True, operator=None):
+    def add_builtin_rig(basemesh: bpy.types.Object, rig_name: str, *, import_weights: bool = True,
+                        operator: bpy.types.Operator | None = None) -> bpy.types.Object | None:
         """
         Adds a built-in rig to the given basemesh.
 
@@ -1576,10 +1624,10 @@ class HumanService:
             basemesh (bpy.types.Object): The basemesh object to which the rig will be added.
             rig_name (str): The name of the rig to be added. If it starts with "rigify.", it will be treated as a Rigify rig.
             import_weights (bool): Whether to import weights for the rig. Default is True.
-            operator (bpy.types.Operator, optional): The operator calling this function, used for reporting errors. Default is None.
+            operator (bpy.types.Operator | None): The operator calling this function, used for reporting errors. Default is None.
 
         Returns:
-            bpy.types.Object: The created armature object, or None if the rig file could not be found.
+            bpy.types.Object | None: The created armature object, or None if the rig file could not be found.
         """
         is_rigify = rig_name.startswith("rigify.")
         if is_rigify and not SystemService.check_for_rigify():
@@ -1647,17 +1695,18 @@ class HumanService:
         return armature_object
 
     @staticmethod
-    def add_custom_rig(basemesh, rig_name, *, import_weights=True, operator=None):
+    def add_custom_rig(basemesh: bpy.types.Object, rig_name: str, *, import_weights: bool = True,
+                       operator: bpy.types.Operator | None = None) -> bpy.types.Object | None:
         """Load a custom rig from user data and attach it to the given basemesh.
 
         Args:
             basemesh (bpy.types.Object): The basemesh to attach the rig to.
             rig_name (str): Full rig name including 'custom.' prefix, e.g. 'custom.my_rig'.
             import_weights (bool): Whether to load weights and create an armature modifier.
-            operator (bpy.types.Operator, optional): Operator for reporting errors/warnings.
+            operator (bpy.types.Operator | None): Operator for reporting errors/warnings.
 
         Returns:
-            bpy.types.Object: The created armature object, or None on failure.
+            bpy.types.Object | None: The created armature object, or None on failure.
         """
         short_name = rig_name[7:]  # strip "custom."
         custom_rigs = {r["name"]: r for r in AssetService.get_custom_rigs()}
@@ -1675,7 +1724,7 @@ class HumanService:
 
         rig = Rig.from_json_file_and_basemesh(rig_file, basemesh)
         armature_object = rig.create_armature_and_fit_to_basemesh()
-        armature_object.name = armature_object.data.name = basemesh.name + ".rig"
+        armature_object.name = typing.cast(bpy.types.Armature, armature_object.data).name = basemesh.name + ".rig"
         RigService.normalize_rotation_mode(armature_object)
         basemesh.parent = armature_object
         armature_object.location = basemesh.location
@@ -1692,13 +1741,13 @@ class HumanService:
         return armature_object
 
     @staticmethod
-    def refit(blender_object, *, operator=None):
+    def refit(blender_object: bpy.types.Object | None, *, operator: bpy.types.Operator | None = None) -> None:
         """
         Refits the given blender object, adjusting its basemesh and rig, and refitting any related mesh assets.
 
         Args:
-            blender_object (bpy.types.Object): The Blender object to be refitted.
-            operator (bpy.types.Operator, optional): The operator calling this function, used for
+            blender_object (bpy.types.Object | None): The Blender object to be refitted.
+            operator (bpy.types.Operator | None): The operator calling this function, used for
                 reporting actionable errors (e.g. when the rig is a generated rigify rig with no
                 meta rig in the scene). Default is None.
 
@@ -1736,7 +1785,7 @@ class HumanService:
                     return
                 raise
 
-            subrigs = []
+            subrigs: list[bpy.types.Object] = []
 
             for child in ObjectService.find_all_objects_of_type_amongst_nearest_relatives(
                     parent_object, "Subrig", only_children=True):
@@ -1760,21 +1809,21 @@ class HumanService:
                     typing.cast(bpy.types.Armature, rig.data).pose_position = "POSE"
 
     @staticmethod
-    def get_asset_sources_of_equipped_mesh_assets(basemesh):
+    def get_asset_sources_of_equipped_mesh_assets(basemesh: bpy.types.Object | None) -> list[str]:
         """
         Retrieves the asset sources of all equipped mesh assets related to the given basemesh.
 
         Args:
-            basemesh (bpy.types.Object): The basemesh object whose equipped mesh assets' sources are to be retrieved.
+            basemesh (bpy.types.Object | None): The basemesh object whose equipped mesh assets' sources are to be retrieved.
 
         Returns:
-            list: A list of asset sources for the equipped mesh assets. If the basemesh is not provided, an empty list is returned.
+            list[str]: A list of asset sources for the equipped mesh assets. If the basemesh is not provided, an empty list is returned.
         """
         if not basemesh:
             return []
         _LOG.debug("Provided basemesh", basemesh)
 
-        sources = []
+        sources: list[str] = []
         for child in ObjectService.find_related_mesh_assets(basemesh, strict_parent=True):
             source = GeneralObjectProperties.get_value("asset_source", entity_reference=child)
             _LOG.debug("Child source", source)
@@ -1782,13 +1831,13 @@ class HumanService:
         return sources
 
     @staticmethod
-    def unload_mhclo_asset(basemesh, asset):
+    def unload_mhclo_asset(basemesh: bpy.types.Object | None, asset: bpy.types.Object | None) -> None:
         """
         Unloads and removes the specified mhclo asset from the given basemesh.
 
         Args:
-            basemesh (bpy.types.Object): The basemesh object from which the asset will be unloaded.
-            asset (bpy.types.Object): The mhclo asset to be unloaded and removed.
+            basemesh (bpy.types.Object | None): The basemesh object from which the asset will be unloaded.
+            asset (bpy.types.Object | None): The mhclo asset to be unloaded and removed.
         """
         _LOG.debug("basemesh, asset", (basemesh, asset))
 
@@ -1797,7 +1846,7 @@ class HumanService:
 
         source = GeneralObjectProperties.get_value("asset_source", entity_reference=asset)
 
-        objs_with_delete = []
+        objs_with_delete: list[bpy.types.Object] = []
 
         proxy = ObjectService.find_object_of_type_amongst_nearest_relatives(asset, "Proxymeshes")
         if basemesh:
