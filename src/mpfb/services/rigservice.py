@@ -1141,7 +1141,9 @@ class RigService:
 
         _LOG.debug("rigify", rigify_object)
 
-        RigifyHelpers.adjust_children_for_rigify(rigify_object, meta_rig)
+        # rigify_generate() leaves the rig it produced as the active object, which is what
+        # adjust_children_for_rigify() declares it takes.
+        RigifyHelpers.adjust_children_for_rigify(typing.cast(bpy.types.Object, rigify_object), meta_rig)
 
         object_type = ObjectService.get_object_type(meta_rig)
         GeneralObjectProperties.set_value("object_type", object_type, entity_reference=rigify_object)

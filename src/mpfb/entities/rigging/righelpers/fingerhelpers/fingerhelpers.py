@@ -1,11 +1,17 @@
 """This module provides functionality for adding helpers to fingers."""
 
+import bpy, typing
+
 from .....services import LogService
 _LOG = LogService.get_logger("fingerhelpers.fingerhelpers")
 
 from .....services import RigService
+from .....types import BoneOrientationInfo, RigHelperSettings
 from .....ui.rigging.standardrig import RigHelpersProperties
 from ..abstractrighelper import AbstractRigHelper
+
+# The helpers are only reachable from operators which poll for an active armature, so every
+# armature_object.data read below is narrowed with a cast rather than an isinstance guard.
 
 
 class FingerHelpers(AbstractRigHelper):
@@ -15,19 +21,19 @@ class FingerHelpers(AbstractRigHelper):
     method to get a concrete implementation for the specific rig you are
     working with."""
 
-    def __init__(self, which_hand, settings):
+    def __init__(self, which_hand: str, settings: RigHelperSettings) -> None:
         """Get a new instance of FingerHelpers. You should not call this directly.
         Use get_instance() instead."""
 
         _LOG.debug("Constructing FingerHelpers object")
         self.which_hand = which_hand
         self.settings = settings
-        self._bone_info = dict()
+        self._bone_info: BoneOrientationInfo = dict()
         _LOG.dump("settings", self.settings)
 
     # ---- METHODS FOR APPLYING AND CREATING
 
-    def apply_ik(self, armature_object):
+    def apply_ik(self, armature_object: bpy.types.Object) -> None:
         """Add rig helpers for fingers based on the settings that were provided
         when constructing the class."""
 
@@ -48,7 +54,7 @@ class FingerHelpers(AbstractRigHelper):
             self._apply_point(armature_object)
 
 
-    def _apply_master_without_individual_for_finger(self, armature_object, finger_number):
+    def _apply_master_without_individual_for_finger(self, armature_object: bpy.types.Object, finger_number: int) -> None:
         master_name = self._get_master_grip_bone_name()
 
         finger_segments = self.get_reverse_list_of_bones_in_finger(finger_number)
@@ -64,7 +70,7 @@ class FingerHelpers(AbstractRigHelper):
         if self.settings["hide_fk"]:
             self._hide_bones(armature_object, finger_segments)
 
-    def _apply_master_with_individual_for_finger(self, armature_object, finger_number):
+    def _apply_master_with_individual_for_finger(self, armature_object: bpy.types.Object, finger_number: int) -> None:
         master_name = self._get_master_grip_bone_name()
         bone_name = self._get_grip_bone_name_for_finger(finger_number)
 
@@ -72,7 +78,7 @@ class FingerHelpers(AbstractRigHelper):
         constraint.name = 'Add rotation'
         constraint.mix_mode = 'ADD'
 
-    def _apply_master_grip(self, armature_object, assume_individual_grip=False):
+    def _apply_master_grip(self, armature_object: bpy.types.Object, assume_individual_grip: bool=False) -> None:
         _LOG.enter()
         self._create_master_grip_bone(armature_object)
 
@@ -82,7 +88,7 @@ class FingerHelpers(AbstractRigHelper):
             else:
                 self._apply_master_without_individual_for_finger(armature_object, finger_number)
 
-    def _apply_individual_grip(self, armature_object):
+    def _apply_individual_grip(self, armature_object: bpy.types.Object) -> None:
         _LOG.enter()
 
         for finger_number in [1, 2, 3, 4, 5]:
@@ -112,7 +118,7 @@ class FingerHelpers(AbstractRigHelper):
             if self.settings["hide_fk"]:
                 self._hide_bones(armature_object, finger_segments)
 
-    def _apply_point(self, armature_object):
+    def _apply_point(self, armature_object: bpy.types.Object) -> None:
         _LOG.enter()
         for finger_number in [1, 2, 3, 4, 5]:
             self._create_point_ik_bone(finger_number, armature_object)
@@ -132,7 +138,7 @@ class FingerHelpers(AbstractRigHelper):
                 bones_to_hide = self.get_reverse_list_of_bones_in_finger(finger_number)
                 self._hide_bones(armature_object, bones_to_hide)
 
-    def _set_finger_ik_target(self, finger_number, armature_object, chain_length):
+    def _set_finger_ik_target(self, finger_number: int, armature_object: bpy.types.Object, chain_length: int) -> None:
         _LOG.enter()
         self.pose_mode()
         tip_name = self.get_last_segment_name_of_finger(finger_number)
@@ -141,7 +147,7 @@ class FingerHelpers(AbstractRigHelper):
         self.add_finger_rotation_constraints(finger_number, armature_object)
         RigService.add_ik_constraint_to_pose_bone(tip_name, armature_object, ik_bone, chain_length)
 
-    def _create_point_ik_bone(self, finger_number, armature_object):
+    def _create_point_ik_bone(self, finger_number: int, armature_object: bpy.types.Object) -> None:
         _LOG.enter()
 
         self.edit_mode()
@@ -157,7 +163,7 @@ class FingerHelpers(AbstractRigHelper):
         head = head + length
 
         bone_name = self._get_point_ik_bone_name_for_finger(finger_number)
-        bones = armature_object.data.edit_bones
+        bones = typing.cast(bpy.types.Armature, armature_object.data).edit_bones
         bone = bones.new(bone_name)
         bone.head = head
         bone.tail = tail
@@ -178,7 +184,7 @@ class FingerHelpers(AbstractRigHelper):
             pose_bone.custom_shape_scale_xyz = [scale, scale, scale]
             _LOG.debug("scale", pose_bone.custom_shape_scale_xyz)
 
-    def _create_grip_bone(self, finger_number, armature_object):
+    def _create_grip_bone(self, finger_number: int, armature_object: bpy.types.Object) -> None:
         _LOG.enter()
 
         self.edit_mode()
@@ -191,7 +197,7 @@ class FingerHelpers(AbstractRigHelper):
         roll = self._bone_info["edit_bones"][root_name]["roll"]
 
         bone_name = self._get_grip_bone_name_for_finger(finger_number)
-        bones = armature_object.data.edit_bones
+        bones = typing.cast(bpy.types.Armature, armature_object.data).edit_bones
         bone = bones.new(bone_name)
         bone.head = head
         bone.tail = tail
@@ -222,7 +228,7 @@ class FingerHelpers(AbstractRigHelper):
             pose_bone.lock_location[i] = True
             pose_bone.lock_scale[i] = True
 
-    def _create_master_grip_bone(self, armature_object):
+    def _create_master_grip_bone(self, armature_object: bpy.types.Object) -> None:
         _LOG.enter()
 
         self.edit_mode()
@@ -245,7 +251,7 @@ class FingerHelpers(AbstractRigHelper):
         tail = (finger3_tail + finger4_tail) / 2
 
         bone_name = self._get_master_grip_bone_name()
-        bones = armature_object.data.edit_bones
+        bones = typing.cast(bpy.types.Armature, armature_object.data).edit_bones
         bone = bones.new(bone_name)
         bone.head = head
         bone.tail = tail
@@ -281,7 +287,7 @@ class FingerHelpers(AbstractRigHelper):
 
     # ---- METHODS FOR REMOVING AND RESETTING
 
-    def remove_ik(self, armature_object):
+    def remove_ik(self, armature_object: bpy.types.Object) -> None:
         """Remove rig helpers for fingers based on the settings that were provided
         when constructing the class, and information about the current status of the
         armature object."""
@@ -304,39 +310,39 @@ class FingerHelpers(AbstractRigHelper):
 
         _LOG.debug("Done")
 
-    def _clear_finger_grip(self, finger_number, armature_object):
+    def _clear_finger_grip(self, finger_number: int, armature_object: bpy.types.Object) -> None:
         bone_name = self._get_grip_bone_name_for_finger(finger_number)
         self.edit_mode()
         bone = RigService.find_edit_bone_by_name(bone_name, armature_object)
         _LOG.debug("Grip bone to remove, if any", bone)
         if bone:
-            armature_object.data.edit_bones.remove(bone)
+            typing.cast(bpy.types.Armature, armature_object.data).edit_bones.remove(bone)
 
-    def _clear_master_grip(self, armature_object):
+    def _clear_master_grip(self, armature_object: bpy.types.Object) -> None:
         bone_name = self._get_master_grip_bone_name()
         self.edit_mode()
         bone = RigService.find_edit_bone_by_name(bone_name, armature_object)
         _LOG.debug("Master grip bone to remove, if any", bone)
         if bone:
-            armature_object.data.edit_bones.remove(bone)
+            typing.cast(bpy.types.Armature, armature_object.data).edit_bones.remove(bone)
 
-    def _clear_finger_ik(self, finger_number, armature_object):
+    def _clear_finger_ik(self, finger_number: int, armature_object: bpy.types.Object) -> None:
         _LOG.enter()
         self.edit_mode()
         bone_name = self._get_point_ik_bone_name_for_finger(finger_number)
         bone = RigService.find_edit_bone_by_name(bone_name, armature_object)
         _LOG.debug("Point bone to remove, if any", bone)
         if bone:
-            armature_object.data.edit_bones.remove(bone)
+            typing.cast(bpy.types.Armature, armature_object.data).edit_bones.remove(bone)
 
-    def _clear_all_finger_constraints(self, armature_object):
+    def _clear_all_finger_constraints(self, armature_object: bpy.types.Object) -> None:
         self.pose_mode()
         for finger_number in [1, 2, 3, 4, 5]:
             bones_to_clear = self.get_reverse_list_of_bones_in_finger(finger_number)
             for bone_name in bones_to_clear:
                 RigService.remove_all_constraints_from_pose_bone(bone_name, armature_object)
 
-    def _remove_grip(self, armature_object):
+    def _remove_grip(self, armature_object: bpy.types.Object) -> None:
         _LOG.enter()
         for finger_number in [1, 2, 3, 4, 5]:
             self.object_mode()
@@ -345,7 +351,7 @@ class FingerHelpers(AbstractRigHelper):
             bones_to_show = self.get_reverse_list_of_bones_in_finger(finger_number)
             self._show_bones(armature_object, bones_to_show)
 
-    def _remove_point(self, armature_object):
+    def _remove_point(self, armature_object: bpy.types.Object) -> None:
         _LOG.enter()
         for finger_number in [1, 2, 3, 4, 5]:
             self.object_mode()
@@ -356,36 +362,41 @@ class FingerHelpers(AbstractRigHelper):
 
     # ---- BONE NAMES
 
-    def _get_point_ik_bone_name_for_finger(self, finger_number):
+    def _get_point_ik_bone_name_for_finger(self, finger_number: int) -> str:
         return self.which_hand + "_finger" + str(finger_number) + "_point_ik"
 
-    def _get_grip_bone_name_for_finger(self, finger_number):
+    def _get_grip_bone_name_for_finger(self, finger_number: int) -> str:
         return self.which_hand + "_finger" + str(finger_number) + "_grip"
 
-    def _get_master_grip_bone_name(self):
+    def _get_master_grip_bone_name(self) -> str:
         return self.which_hand + "_master_grip"
 
-    def _get_master_ik_bone_name(self):
+    def _get_master_ik_bone_name(self) -> str:
         return self.which_hand + "_finger_master_ik"
 
     # ---- GENERAL METHODS
 
-    def _hide_bones(self, armature_object, bone_list):
+    def _hide_bones(self, armature_object: bpy.types.Object, bone_list: list[str]) -> None:
         _LOG.enter()
+        bones = typing.cast(bpy.types.Armature, armature_object.data).bones
         for name in bone_list:
             _LOG.debug("Will attempt to hide bone", name)
-            bone = armature_object.data.bones.get(name)
+            # The names come from the rig specific get_reverse_list_of_bones_in_finger(), so they
+            # are bones of the rig the calling operator has already identified.
+            bone = typing.cast(bpy.types.Bone, bones.get(name))
             bone.hide = True
 
-    def _show_bones(self, armature_object, bone_list):
+    def _show_bones(self, armature_object: bpy.types.Object, bone_list: list[str]) -> None:
         _LOG.enter()
+        bones = typing.cast(bpy.types.Armature, armature_object.data).bones
         for name in bone_list:
             _LOG.debug("Will attempt to show bone", name)
-            bone = armature_object.data.bones.get(name)
+            # See _hide_bones() above for why the lookup result is cast rather than guarded.
+            bone = typing.cast(bpy.types.Bone, bones.get(name))
             bone.hide = False
 
     @staticmethod
-    def get_instance(which_hand, settings, rigtype="Default"):
+    def get_instance(which_hand: str, settings: RigHelperSettings, rigtype: str="Default") -> "FingerHelpers":
         """Get an implementation instance matching the rig type."""
 
         _LOG.enter()
@@ -396,26 +407,26 @@ class FingerHelpers(AbstractRigHelper):
 
     # ---- ABSTRACT METHODS INSTANCED PER RIG TYPE
 
-    def get_first_segment_name_of_finger(self, finger_number):
+    def get_first_segment_name_of_finger(self, finger_number: int) -> str:
         """Abstract method for getting the name of the innermost bone in a finger, must be overriden by rig specific implementation classes."""
         raise NotImplementedError("get_first_segment_name_of_finger")
 
-    def get_last_segment_name_of_finger(self, finger_number):
+    def get_last_segment_name_of_finger(self, finger_number: int) -> str:
         """Abstract method for getting the name of the finger tip bone, must be overriden by rig specific implementation classes."""
         raise NotImplementedError("get_last_segment_name_of_finger")
 
-    def get_immediate_parent_name_of_finger(self, finger_number):
+    def get_immediate_parent_name_of_finger(self, finger_number: int) -> str:
         """Abstract method for getting the name of the immediate parent of a finger, must be overriden by rig specific implementation classes."""
         raise NotImplementedError("the get_immediate_parent_name_of_finger() method must be overriden by the rig class")
 
-    def get_finger_segment_count(self, finger_number):
+    def get_finger_segment_count(self, finger_number: int) -> int:
         """Abstract method for getting the number of bones in a finger, must be overriden by rig specific implementation classes."""
         raise NotImplementedError("the get_finger_count() method must be overriden by the rig class")
 
-    def add_finger_rotation_constraints(self, finger_number, armature_object):
+    def add_finger_rotation_constraints(self, finger_number: int, armature_object: bpy.types.Object) -> None:
         """Abstract method for setting constraints for a finger, must be overriden by rig specific implementation classes."""
         raise NotImplementedError("the add_finger_rotation_constraints() method must be overriden by the rig class")
 
-    def get_reverse_list_of_bones_in_finger(self, finger_number):
+    def get_reverse_list_of_bones_in_finger(self, finger_number: int) -> list[str]:
         """Abstract method for getting a list of bones from a finger starting from the tip, must be overriden by rig specific implementation classes."""
         raise NotImplementedError("the get_reverse_list_of_bones_in_finger() method must be overriden by the rig class")

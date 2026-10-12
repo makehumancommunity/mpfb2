@@ -112,6 +112,55 @@ Be aware of what `cast` does and does not buy you. It silences the diagnostic wi
 anything, so a function handed an armature where it expects a mesh still fails at runtime, now
 with no checker signal at all. Prefer a guard wherever one is cheap.
 
+### Properties and operators registered by another add-on
+
+Rigify registers RNA properties on `bpy.types.Armature` and `bpy.types.BoneCollection`
+(`rigify_colors`, `rigify_ui_row`, `rigify_rig_basename`, …) and operators under
+`bpy.ops.armature` and `bpy.ops.pose` (`rigify_generate`, `rigify_add_color_sets`, …). None of
+them exist unless the add-on is enabled, so none of them is in the stubs and no amount of
+narrowing will find them. Two forms, both of which assume the surrounding code has already
+checked `SystemService.check_for_rigify()`:
+
+```python
+# Properties: one cast to Any per datablock, not one per access.
+armature_data = typing.cast(bpy.types.Armature, armature_object.data)
+rigify_data = typing.cast(typing.Any, armature_data)
+
+rigify_data.rigify_colors_lock = rigify_ui["rigify_colors_lock"]
+for _ in range(len(rigify_ui["colors"]) - len(rigify_data.rigify_colors)):
+    rigify_data.rigify_colors.add()
+
+# Operators: a narrow ignore, since there is nothing to cast.
+bpy.ops.pose.rigify_generate()  # pyright: ignore[reportAttributeAccessIssue]
+```
+
+Keep the blender-typed local as well as the `Any` one where both are used, so that the
+properties blender *does* declare stay checked; above, `armature_data.collections` is read off
+`armature_data` rather than off `rigify_data`. State once per module why the `Any` is there,
+rather than repeating the reason at every site.
+
+### Narrow ignores, and re-checking them
+
+Where the stubs describe less than the runtime does, prefer a narrow
+`# pyright: ignore[reportSomething]` carrying a comment over a bare `# type: ignore`. Stub
+upgrades fix such gaps silently, so an ignore that has stopped being load-bearing is hiding the
+next real diagnostic on its line. Re-check them occasionally by running pyright over a
+throwaway copy of the config with `reportUnnecessaryTypeIgnoreComment` set to `"error"`:
+
+```bash
+sed 's/"typeCheckingMode"/"reportUnnecessaryTypeIgnoreComment": "error",\n  "typeCheckingMode"/' \
+    pyrightconfig.json > pyrightconfig-ignorecheck.json
+pyright --project pyrightconfig-ignorecheck.json --pythonpath /usr/bin/python3
+rm pyrightconfig-ignorecheck.json
+```
+
+The throwaway config has to sit in the repo root rather than in `/tmp`, because pyright
+resolves the `include` paths relative to the config file's own directory — a copy under `/tmp`
+checks nothing and reports success.
+
+Do not commit that setting into `pyrightconfig.json`, since it would then fail the whole tree
+on the next `fake-bpy-module` release.
+
 ## Python version notes
 
 - `pyrightconfig.json` sets `pythonVersion` to `3.12`. This is the **checker's** parse floor,

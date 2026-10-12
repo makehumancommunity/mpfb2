@@ -1,11 +1,17 @@
 """This module provides functionality for adding helpers to arms/hands."""
 
+import bpy, typing
+
 from .....services import LogService
 _LOG = LogService.get_logger("armhelpers.armhelpers")
 
 from .....services import RigService
+from .....types import BoneOrientationInfo, RigHelperSettings
 from .....ui.rigging.standardrig import RigHelpersProperties
 from ..abstractrighelper import AbstractRigHelper
+
+# The helpers are only reachable from operators which poll for an active armature, so every
+# armature_object.data read below is narrowed with a cast rather than an isinstance guard.
 
 class ArmHelpers(AbstractRigHelper):
 
@@ -14,17 +20,17 @@ class ArmHelpers(AbstractRigHelper):
     method to get a concrete implementation for the specific rig you are
     working with."""
 
-    def __init__(self, which_arm, settings):
+    def __init__(self, which_arm: str, settings: RigHelperSettings) -> None:
         """Get a new instance of ArmHelpers. You should not call this directly.
         Use get_instance() instead."""
 
         _LOG.debug("Constructing ArmHelpers object")
         self.which_arm = which_arm
         self.settings = settings
-        self._bone_info = dict()
+        self._bone_info: BoneOrientationInfo = dict()
         _LOG.dump("settings", self.settings)
 
-    def apply_ik(self, armature_object):
+    def apply_ik(self, armature_object: bpy.types.Object) -> None:
         """Add rig helpers for arms and hands based on the settings that were provided
         when constructing the class."""
 
@@ -49,7 +55,7 @@ class ArmHelpers(AbstractRigHelper):
 
         self.object_mode()
 
-    def remove_ik(self, armature_object):
+    def remove_ik(self, armature_object: bpy.types.Object) -> None:
         """Remove rig helpers for arms and hands based on the settings that were provided
         when constructing the class, and information about the current status of the
         armature object."""
@@ -86,14 +92,14 @@ class ArmHelpers(AbstractRigHelper):
         for bone_name in ik_bones:
             bone = RigService.find_edit_bone_by_name(bone_name, armature_object)
             if bone:
-                armature_object.data.edit_bones.remove(bone)
+                typing.cast(bpy.types.Armature, armature_object.data).edit_bones.remove(bone)
 
         self.object_mode()
 
         _LOG.debug("Done")
 
     @staticmethod
-    def get_instance(which_arm, settings, rigtype="Default"):
+    def get_instance(which_arm: str, settings: RigHelperSettings, rigtype: str="Default") -> "ArmHelpers":
         """Get an implementation instance matching the rig type."""
         _LOG.enter()
         if rigtype == "Default":
@@ -101,7 +107,7 @@ class ArmHelpers(AbstractRigHelper):
             return DefaultArmHelpers(which_arm, settings)
         return ArmHelpers(which_arm, settings)
 
-    def _set_parent(self, armature_object, has_elbow_ik=False, has_shoulder_ik=False):
+    def _set_parent(self, armature_object: bpy.types.Object, has_elbow_ik: bool=False, has_shoulder_ik: bool=False) -> None:
         _LOG.enter()
         self.edit_mode()
 
@@ -152,12 +158,12 @@ class ArmHelpers(AbstractRigHelper):
                     elbow_ik.parent = shoulder_ik
 
 
-    def _create_hand_ik_bone(self, armature_object):
+    def _create_hand_ik_bone(self, armature_object: bpy.types.Object) -> None:
         _LOG.enter()
         self.edit_mode()
         hand_name = self.get_hand_name()
 
-        bones = armature_object.data.edit_bones
+        bones = typing.cast(bpy.types.Armature, armature_object.data).edit_bones
         bone = bones.new(self.which_arm + "_hand_ik")
         bone.head = self._bone_info["pose_bones"][hand_name]["head"]
         bone.tail = self._bone_info["pose_bones"][hand_name]["tail"]
@@ -188,10 +194,10 @@ class ArmHelpers(AbstractRigHelper):
         for i in range(3):
             pose_bone.lock_scale[i] = True
 
-    def _create_elbow_ik_bone(self, armature_object):
+    def _create_elbow_ik_bone(self, armature_object: bpy.types.Object) -> None:
         _LOG.enter()
         self.edit_mode()
-        bones = armature_object.data.edit_bones
+        bones = typing.cast(bpy.types.Armature, armature_object.data).edit_bones
         bone = bones.new(self.which_arm + "_elbow_ik")
 
         bone.head = self._bone_info["pose_bones"][self.get_upper_arm_name()]["head"]
@@ -209,10 +215,10 @@ class ArmHelpers(AbstractRigHelper):
         for i in range(3):
             pose_bone.lock_scale[i] = True
 
-    def _create_shoulder_ik_bone(self, armature_object):
+    def _create_shoulder_ik_bone(self, armature_object: bpy.types.Object) -> None:
         _LOG.enter()
         self.edit_mode()
-        bones = armature_object.data.edit_bones
+        bones = typing.cast(bpy.types.Armature, armature_object.data).edit_bones
         bone = bones.new(self.which_arm + "_shoulder_ik")
 
         bone.head = self._bone_info["pose_bones"][self.get_shoulder_name()]["head"]
@@ -230,7 +236,7 @@ class ArmHelpers(AbstractRigHelper):
         for i in range(3):
             pose_bone.lock_scale[i] = True
 
-    def _set_lower_arm_ik_target(self, armature_object, chain_length):
+    def _set_lower_arm_ik_target(self, armature_object: bpy.types.Object, chain_length: int) -> None:
         _LOG.enter()
         self.pose_mode()
         lower_arm_name = self.get_lower_arm_name()
@@ -239,7 +245,7 @@ class ArmHelpers(AbstractRigHelper):
         self.add_lower_arm_rotation_constraints(armature_object)
         RigService.add_ik_constraint_to_pose_bone(lower_arm_name, armature_object, hand_bone, chain_length)
 
-    def _set_upper_arm_ik_target(self, armature_object, chain_length):
+    def _set_upper_arm_ik_target(self, armature_object: bpy.types.Object, chain_length: int) -> None:
         _LOG.enter()
         self.pose_mode()
         upper_arm_name = self.get_upper_arm_name()
@@ -248,7 +254,7 @@ class ArmHelpers(AbstractRigHelper):
         self.add_upper_arm_rotation_constraints(armature_object)
         RigService.add_ik_constraint_to_pose_bone(upper_arm_name, armature_object, elbow_bone, chain_length)
 
-    def _set_shoulder_ik_target(self, armature_object, chain_length):
+    def _set_shoulder_ik_target(self, armature_object: bpy.types.Object, chain_length: int) -> None:
         _LOG.enter()
         self.pose_mode()
         shoulder_name = self.get_shoulder_name()
@@ -257,19 +263,24 @@ class ArmHelpers(AbstractRigHelper):
         self.add_shoulder_rotation_constraints(armature_object)
         RigService.add_ik_constraint_to_pose_bone(shoulder_name, armature_object, shoulder_bone, chain_length)
 
-    def _hide_bones(self, armature_object, bone_list):
+    def _hide_bones(self, armature_object: bpy.types.Object, bone_list: list[str]) -> None:
         _LOG.enter()
+        bones = typing.cast(bpy.types.Armature, armature_object.data).bones
         for name in bone_list:
-            bone = armature_object.data.bones.get(name)
+            # The names come from the rig specific get_reverse_list_of_bones_in_arm(), so they are
+            # bones of the rig the calling operator has already identified.
+            bone = typing.cast(bpy.types.Bone, bones.get(name))
             bone.hide = True
 
-    def _show_bones(self, armature_object, bone_list):
+    def _show_bones(self, armature_object: bpy.types.Object, bone_list: list[str]) -> None:
         _LOG.enter()
+        bones = typing.cast(bpy.types.Armature, armature_object.data).bones
         for name in bone_list:
-            bone = armature_object.data.bones.get(name)
+            # See _hide_bones() above for why the lookup result is cast rather than guarded.
+            bone = typing.cast(bpy.types.Bone, bones.get(name))
             bone.hide = False
 
-    def _apply_lower_upper(self, armature_object):
+    def _apply_lower_upper(self, armature_object: bpy.types.Object) -> None:
         _LOG.enter()
         self._create_hand_ik_bone(armature_object)
         self._create_elbow_ik_bone(armature_object)
@@ -280,7 +291,7 @@ class ArmHelpers(AbstractRigHelper):
             bones_to_hide = self.get_reverse_list_of_bones_in_arm(True, True, True, False)
             self._hide_bones(armature_object, bones_to_hide)
 
-    def _apply_lower_upper_shoulder(self, armature_object):
+    def _apply_lower_upper_shoulder(self, armature_object: bpy.types.Object) -> None:
         _LOG.enter()
         self._create_hand_ik_bone(armature_object)
         self._create_elbow_ik_bone(armature_object)
@@ -293,7 +304,7 @@ class ArmHelpers(AbstractRigHelper):
             bones_to_hide = self.get_reverse_list_of_bones_in_arm(True, True, True, True)
             self._hide_bones(armature_object, bones_to_hide)
 
-    def _apply_arm_chain(self, armature_object):
+    def _apply_arm_chain(self, armature_object: bpy.types.Object) -> None:
         _LOG.enter()
         self._create_hand_ik_bone(armature_object)
         chain_length_entire_arm = self.get_lower_arm_count() + self.get_upper_arm_count()
@@ -302,7 +313,7 @@ class ArmHelpers(AbstractRigHelper):
             bones_to_hide = self.get_reverse_list_of_bones_in_arm(True, True, True, False)
             self._hide_bones(armature_object, bones_to_hide)
 
-    def _apply_shoulder_chain(self, armature_object):
+    def _apply_shoulder_chain(self, armature_object: bpy.types.Object) -> None:
         _LOG.enter()
         self._create_hand_ik_bone(armature_object)
         chain_length_entire_arm = self.get_lower_arm_count() + self.get_upper_arm_count() + self.get_shoulder_count()
@@ -311,55 +322,56 @@ class ArmHelpers(AbstractRigHelper):
             bones_to_hide = self.get_reverse_list_of_bones_in_arm(True, True, True, True)
             self._hide_bones(armature_object, bones_to_hide)
 
-    def get_lower_arm_name(self):
+    def get_lower_arm_name(self) -> str:
         """Abstract method for getting the name of the last bone in the lower arm, must be overriden by rig specific implementation classes."""
         raise NotImplementedError("the get_lower_arm_name() method must be overriden by the rig class")
 
-    def get_upper_arm_name(self):
+    def get_upper_arm_name(self) -> str:
         """Abstract method for getting the name of the last bone in the upper arm, must be overriden by rig specific implementation classes."""
         raise NotImplementedError("the get_upper_arm_name() method must be overriden by the rig class")
 
-    def get_shoulder_name(self):
+    def get_shoulder_name(self) -> str:
         """Abstract method for getting the name of the last bone in the shoulder, must be overriden by rig specific implementation classes."""
         raise NotImplementedError("the get_shoulder_name() method must be overriden by the rig class")
 
-    def get_hand_name(self):
+    def get_hand_name(self) -> str:
         """Abstract method for getting the name of the hand bone, must be overriden by rig specific implementation classes."""
         raise NotImplementedError("the get_hand_name() method must be overriden by the rig class")
 
-    def get_lower_arm_count(self):
+    def get_lower_arm_count(self) -> int:
         """Abstract method for getting the number of bones in the lower arm, must be overriden by rig specific implementation classes."""
         raise NotImplementedError("the get_lower_arm_count() method must be overriden by the rig class")
 
-    def get_upper_arm_count(self):
+    def get_upper_arm_count(self) -> int:
         """Abstract method for getting the number of bones in the upper arm, must be overriden by rig specific implementation classes."""
         raise NotImplementedError("the get_upper_arm_count() method must be overriden by the rig class")
 
-    def get_shoulder_count(self):
+    def get_shoulder_count(self) -> int:
         """Abstract method for getting the number of bones in the shoulder, must be overriden by rig specific implementation classes."""
         raise NotImplementedError("the get_lower_arm_count() method must be overriden by the rig class")
 
-    def get_shoulders_immediate_parent(self):
+    def get_shoulders_immediate_parent(self) -> str:
         """Abstract method for getting the name of the bone immediately before the shoulders,
         must be overriden by rig specific implementation classes."""
         raise NotImplementedError("the get_shoulders_immediate_parent() method must be overriden by the rig class")
 
-    def get_root(self):
+    def get_root(self) -> str:
         """Abstract method for getting the name of the root bone, must be overriden by rig specific implementation classes."""
         raise NotImplementedError("the get_root() method must be overriden by the rig class")
 
-    def add_lower_arm_rotation_constraints(self, armature_object):
+    def add_lower_arm_rotation_constraints(self, armature_object: bpy.types.Object) -> None:
         """Abstract method for settings constraints for the bones in the lower arm."""
         raise NotImplementedError("the add_lower_arm_rotation_constraints() method must be overriden by the rig class")
 
-    def add_upper_arm_rotation_constraints(self, armature_object):
+    def add_upper_arm_rotation_constraints(self, armature_object: bpy.types.Object) -> None:
         """Abstract method for settings constraints for the bones in the upper arm."""
         raise NotImplementedError("the add_upper_arm_rotation_constraints() method must be overriden by the rig class")
 
-    def add_shoulder_rotation_constraints(self, armature_object):
+    def add_shoulder_rotation_constraints(self, armature_object: bpy.types.Object) -> None:
         """Abstract method for settings constraints for the bones in the shoulder."""
         raise NotImplementedError("the add_shoulder_rotation_constraints() method must be overriden by the rig class")
 
-    def get_reverse_list_of_bones_in_arm(self, include_hand=True, include_lower_arm=True, include_upper_arm=True, include_shoulder=True):
+    def get_reverse_list_of_bones_in_arm(self, include_hand: bool=True, include_lower_arm: bool=True,
+                                         include_upper_arm: bool=True, include_shoulder: bool=True) -> list[str]:
         """Abstract method for getting a list of bone names, starting from the wrist and working inwards."""
         raise NotImplementedError("the get_reverse_list_of_bones_in_arm() method must be overriden by the rig class")
