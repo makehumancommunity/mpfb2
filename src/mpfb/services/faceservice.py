@@ -5,7 +5,7 @@ Module with logic for loading and interpolating facial animation targets (viseme
 import bpy, json, os, typing
 from typing import Any
 from .logservice import LogService
-from .targetservice import TargetService
+from .targetservice import TargetService, TargetStackEntry
 from .locationservice import LocationService
 from .objectservice import ObjectService
 from .clothesservice import ClothesService
@@ -306,7 +306,7 @@ class FaceService:
         """
         _LOG.enter()
 
-        target_stack: list[dict[str, Any]] = []
+        target_stack: list[TargetStackEntry] = []
 
         if load_microsoft_visemes:
             for target in MICROSOFT_VISEMES:

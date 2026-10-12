@@ -912,7 +912,9 @@ class Rig:
                 from ..services import TargetService
                 key_name = "temporary_fit_rig_key." + str(secrets.randbelow(9000) + 1000)
                 shape_key = TargetService.create_shape_key(basemesh, key_name, also_create_basis=True, create_from_mix=True)
-                coords = shape_key.data
+                # ShapeKey.data is declared bpy_prop_collection[UnknownType], so its points have no .co
+                # as far as the checker is concerned.
+                coords = typing.cast("bpy.types.bpy_prop_collection[bpy.types.ShapeKeyPoint]", shape_key.data)
 
         for vertex in mesh.vertices:
             vertex_coords = list(typing.cast(typing.Iterable[float], coords[vertex.index].co))  # Either actual vertex or the corresponding shape key point

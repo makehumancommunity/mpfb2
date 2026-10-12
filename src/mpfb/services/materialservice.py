@@ -1,6 +1,7 @@
 """Various functions for working with materials"""
 
-import os, bpy, json, gzip
+import os, bpy, json, gzip, typing
+from typing import Any
 
 from .locationservice import LocationService
 from .logservice import LogService
@@ -11,6 +12,31 @@ from ..entities.nodemodel.v2.materials import NodeWrapperSkin
 from ..entities.nodemodel.v2.composites import NodeWrapperMpfbAlphaMixer
 
 _LOG = LogService.get_logger("services.materialservice")
+
+MaterialType = typing.Literal["empty", "enhanced_skin", "procedural_eyes", "layered_skin", "makeskin", "gameengine", "unknown"]
+"""The seven answers ``identify_material()`` can give.
+
+A literal rather than a bare ``str``, so that the type tests the rest of the module performs against
+the result are checked against the same set of values the identifier can actually return."""
+
+InkLayerNodes = tuple[bpy.types.Node, bpy.types.Node]
+"""The ``(uvmap_node, texture_node)`` pair the four private ink layer builders return.
+
+The nodes are a ``ShaderNodeUVMap`` and a ``ShaderNodeTexImage`` at runtime, but ``NodeService``'s
+factories are not annotated yet, so the base ``Node`` is as far as the checker can be taken for now."""
+
+# On socket default values: NodeSocket does not declare default_value. It is declared on each concrete
+# socket subclass instead, which is what nodeservice's own hasattr() guard acknowledges, so every read
+# or write of one below casts the socket to the subclass it is at runtime. The colour writes then meet
+# bpy_prop_array, which no python sequence satisfies although assigning a tuple to a fixed size float
+# array is ordinary at runtime, so those additionally carry a narrow ignore.
+
+ColorAdjustment = dict[str, Any]
+"""The socket-name to default-value mapping that ``find_color_adjustment()`` returns and
+``apply_color_adjustment()`` accepts.
+
+The values are whatever ``NodeService.get_node_info()`` read off the sockets, which for a mix node
+means a mixture of floats and RGBA sequences, so ``Any`` is the honest value type."""
 
 
 class MaterialService():
@@ -28,49 +54,52 @@ class MaterialService():
     Overall, the MaterialService class provides a comprehensive set of tools for managing MPFB materials in Blender,
     making it easier to work with complex material setups and ensuring consistency across different objects and scenes."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         """You should not instance MaterialService. Use its static methods instead."""
         raise RuntimeError("You should not instance MaterialService. Use its static methods instead.")
 
     @staticmethod
-    def delete_all_materials(blender_object, also_destroy_groups: bool = False) -> None:
+    def delete_all_materials(blender_object: bpy.types.Object, also_destroy_groups: bool = False) -> None:
         """Deletes all materials from the given blender object.
 
         Args:
             blender_object (bpy.types.Object): The blender object to delete materials from.
             also_destroy_groups (bool): Whether to also destroy the groups that were created for the materials.
         """
-        _LOG.dump("Current materials", (blender_object.data.materials, len(blender_object.data.materials)))
-        for material in blender_object.data.materials:
-            material.name = material.name + ".unused"
+        materials = typing.cast(bpy.types.Mesh, blender_object.data).materials
+        _LOG.dump("Current materials", (materials, len(materials)))
+        for material in materials:            
+            mat = typing.cast(bpy.types.Material, material)
+            mat.name = mat.name + ".unused"
             if also_destroy_groups:
-                NodeService.clear_node_tree(material.node_tree, also_destroy_groups=True)
-        while len(blender_object.data.materials) > 0:
-            blender_object.data.materials.pop()
+                NodeService.clear_node_tree(mat.node_tree, also_destroy_groups=True)
+        while len(materials) > 0:
+            materials.pop()
         for block in bpy.data.materials:
             if block.users == 0:
                 bpy.data.materials.remove(block)
 
     @staticmethod
-    def has_materials(blender_object) -> bool:
+    def has_materials(blender_object: bpy.types.Object) -> bool:
         """Check if object has any materials at all assigned"""
         if not blender_object.material_slots:
             return False
         return len(blender_object.material_slots) > 0
 
     @staticmethod
-    def get_material(blender_object, slot: int = 0) -> bpy.types.Material | None:
+    def get_material(blender_object: bpy.types.Object, slot: int = 0) -> bpy.types.Material | None:
         """Return the material in the object's given material slot"""
         if not blender_object.material_slots or len(blender_object.material_slots) < 1:
             return None
         return blender_object.material_slots[slot].material
 
     @staticmethod
-    def identify_material(material) -> str:
+    def identify_material(material: bpy.types.Material | None) -> MaterialType:
         """Try to figure out which kind of material we have"""
         if not material:
             return "empty"
-        nodes = material.node_tree.nodes
+        node_tree = typing.cast(bpy.types.NodeTree, material.node_tree)
+        nodes = node_tree.nodes
 
         if len(nodes) == 0:
             return "empty"
@@ -89,19 +118,19 @@ class MaterialService():
 
         # Since we're not enhanced skin nor procedural eyes, next guess is makeskin. The
         # diffuseIntensity is there in most cases.
-        if NodeService.find_node_by_name(material.node_tree, "diffuseIntensity"):
+        if NodeService.find_node_by_name(node_tree, "diffuseIntensity"):
             return "makeskin"
 
         # The final guess is GameEngine.
         # This might give a false positive if someone added a material with a principled node
         # to a MH object
-        if NodeService.find_node_by_name(material.node_tree, "Principled BSDF"):
+        if NodeService.find_node_by_name(node_tree, "Principled BSDF"):
             return "gameengine"
 
         return "unknown"
 
     @staticmethod
-    def _set_normalmap_in_nodetree(node_tree, filename):
+    def _set_normalmap_in_nodetree(node_tree: bpy.types.NodeTree, filename: str) -> None:
         _LOG.debug("Will set normalmap", filename)
 
         links = node_tree.links
@@ -129,7 +158,9 @@ class MaterialService():
                 # There is a bump map, so hook the normalmap to that
                 to_socket = bump.inputs["Normal"]
             else:
-                to_socket = principled.inputs["Normal"]
+                # find_node_linked_to_socket() raises on a None node, so the call on the line above
+                # has already ruled out a missing principled node by the time we get here.
+                to_socket = typing.cast(bpy.types.Node, principled).inputs["Normal"]
 
             _LOG.debug("to_socket", to_socket)
 
@@ -148,39 +179,48 @@ class MaterialService():
             links.new(from_socket, to_socket)
 
         image_file_name = os.path.basename(filename)
-        image = None
+        image: bpy.types.Image
         if image_file_name in bpy.data.images:
             _LOG.debug("image was previously loaded", filename)
             image = bpy.data.images[image_file_name]
         else:
             image = bpy.data.images.load(filename)
-        image.colorspace_settings.name = "Non-Color"
+        # Image.colorspace_settings cannot be None: DNA_image_types.h:246 declares it as an embedded
+        # ColorManagedColorspaceSettings struct rather than a pointer, so there is nothing for it to be
+        # null for. The RNA enum behind its name carries only "NONE" statically, because the real
+        # colorspace list is populated from OCIO at runtime, so no stub can know "Non-Color".
+        colorspace = typing.cast(bpy.types.ColorManagedInputColorspaceSettings, image.colorspace_settings)
+        colorspace.name = "Non-Color"  # pyright: ignore[reportAttributeAccessIssue]
 
         image_node.image = image
 
     @staticmethod
-    def set_normalmap(material, filename: str) -> None:
+    def set_normalmap(material: bpy.types.Material, filename: str) -> None:
         """Try to modify the material so that it uses the normal map"""
         material_type = MaterialService.identify_material(material)
 
+        node_tree = typing.cast(bpy.types.NodeTree, material.node_tree)
+
         if material_type == "enhanced_skin":
-            group = NodeService.find_first_node_by_type_name(material.node_tree, "ShaderNodeGroup")
-            MaterialService._set_normalmap_in_nodetree(group.node_tree, filename)
+            # identify_material() only answers enhanced_skin after finding a ShaderNodeGroup whose
+            # values carry "Pore detail", so the same search here cannot come back empty.
+            group = typing.cast(bpy.types.ShaderNodeGroup, NodeService.find_first_node_by_type_name(node_tree, "ShaderNodeGroup"))
+            MaterialService._set_normalmap_in_nodetree(typing.cast(bpy.types.NodeTree, group.node_tree), filename)
             return
 
         if material_type in ["makeskin", "layered_skin"]:
-            MaterialService._set_normalmap_in_nodetree(material.node_tree, filename)
+            MaterialService._set_normalmap_in_nodetree(node_tree, filename)
             return
 
         raise ValueError('Cannot set normalmap in material of type ' + material_type)
 
     @staticmethod
-    def assign_new_or_existing_material(name: str, blender_object) -> bpy.types.Material:
+    def assign_new_or_existing_material(name: str, blender_object: bpy.types.Object | None) -> bpy.types.Material:
         """Assigns a new material to the given blender object.
 
         Args:
             name (str): The name of the material to assign.
-            blender_object (bpy.types.Object): The blender object to assign the material to.
+            blender_object (bpy.types.Object | None): The blender object to assign the material to.
 
         Returns:
             bpy.types.Material: The material that was assigned.
@@ -188,13 +228,13 @@ class MaterialService():
         if name in bpy.data.materials:
             material = bpy.data.materials[name]
             if not blender_object is None:
-                blender_object.data.materials.append(material)
+                typing.cast(bpy.types.Mesh, blender_object.data).materials.append(material)
         else:
             material = MaterialService.create_empty_material(name, blender_object)
         return material
 
     @staticmethod
-    def create_empty_material(name: str, blender_object=None) -> bpy.types.Material:
+    def create_empty_material(name: str, blender_object: bpy.types.Object | None = None) -> bpy.types.Material:
         """
         Create a new empty material with the given name, and assign it to the blender object
         if given.
@@ -204,17 +244,19 @@ class MaterialService():
         material.use_nodes = True
         material.blend_method = 'HASHED'
         if blender_object is not None:
-            blender_object.data.materials.append(material)
+            typing.cast(bpy.types.Mesh, blender_object.data).materials.append(material)
         return material
 
     @staticmethod
-    def create_v2_skin_material(name: str, blender_object=None, mhmat_file: str | None = None) -> bpy.types.Material:
+    def create_v2_skin_material(name: str, blender_object: bpy.types.Object | None = None,
+                                mhmat_file: str | None = None) -> bpy.types.Material:
         """Create a new v2 skin material with the given name, and assign it to the blender object.
 
         Args:
             name (str): The name of the material to assign.
-            blender_object (bpy.types.Object): The blender object to assign the material to.
-            mhmat_file (str): The path to the mhmat file to use.
+            blender_object (bpy.types.Object | None): The blender object to assign the material to. A
+                None object raises, despite the default; the argument is only optional in form.
+            mhmat_file (str | None): The path to the mhmat file to use.
 
         Returns:
             bpy.types.Material: The material that was assigned.
@@ -235,8 +277,9 @@ class MaterialService():
 
         mastercolor = NodeService.find_first_group_node_by_tree_name(node_tree, "MpfbSkinMasterColor")
         if mastercolor:
-            # In case we do not find a diffuse texture later on
-            mastercolor.inputs["DiffuseTextureStrength"].default_value = 0.0
+            # In case we do not find a diffuse texture later on. NodeSocket does not declare
+            # default_value; it is declared on each concrete socket subclass.
+            typing.cast(bpy.types.NodeSocketFloat, mastercolor.inputs["DiffuseTextureStrength"]).default_value = 0.0
         else:
             _LOG.warn("Could not find master color control in v2 skin")
 
@@ -259,7 +302,9 @@ class MaterialService():
                 # TODO: link to texco for completeness
 
             if diffuse:
-                node_tree = material.node_tree
+                # Re-read rather than reuse the local: set_normalmap() above has rewritten the tree,
+                # and the declared type of material.node_tree is optional again on every read.
+                node_tree = typing.cast(bpy.types.NodeTree, material.node_tree)
                 diffuse = NodeService.create_image_texture_node(node_tree,
                                                                 name="DiffuseTexture",
                                                                 label="Diffuse Texture",
@@ -267,13 +312,20 @@ class MaterialService():
                                                                 ypos=602,
                                                                 image_path_absolute=diffuse)
                 from_socket = diffuse.outputs["Color"]
-                to_socket = mastercolor.inputs["DiffuseTexture"]
+                # NodeWrapperSkin.create_instance() above unconditionally builds the
+                # MpfbSkinMasterColor group, so the lookup that set mastercolor cannot have missed. The
+                # branch that merely warns above is defensive against a broken node data install, and
+                # this dereference would fail in that case too.
+                master = typing.cast(bpy.types.Node, mastercolor)
+                to_socket = master.inputs["DiffuseTexture"]
                 node_tree.links.new(from_socket, to_socket)
-                mastercolor.inputs["DiffuseTextureStrength"].default_value = 1.0
+                typing.cast(bpy.types.NodeSocketFloat, master.inputs["DiffuseTextureStrength"]).default_value = 1.0
                 to_socket = diffuse.inputs["Vector"]
                 node_tree.links.new(uvsocket, to_socket)
 
-        material.diffuse_color = MaterialService.get_skin_diffuse_color()
+        # Material.diffuse_color is declared bpy_prop_array[float], which no python sequence satisfies,
+        # although assigning a list to a fixed size float array is ordinary at runtime.
+        material.diffuse_color = MaterialService.get_skin_diffuse_color()  # pyright: ignore[reportAttributeAccessIssue]
 
         return material
 
@@ -289,29 +341,36 @@ class MaterialService():
         return blend_path, dir_name, asset_name
 
     @staticmethod
-    def save_material_in_blend_file(blender_object, path_to_blend_file, material_number: int | None = None, fake_user: bool = False) -> None:
+    def save_material_in_blend_file(blender_object: bpy.types.Object, path_to_blend_file: str,
+                                    material_number: int | None = None, fake_user: bool = False) -> None:
         """
         Save the material(s) on the active object to a blend file. If material_number is None, save all
         the object's materials. Otherwise, save material slot with that number. This writes into the file
         but will not overwrite it, although it might overwrite something already in it.
+
+        TODO: Note that the two branches below are the wrong way round, so the method does the opposite of
+        what this docstring says and raises when material_number is left at its default.
         """
         if material_number is not None:
             for mat_slot in blender_object.material_slots:
                 mat = mat_slot.material
-                bpy.data.libraries.write(str(path_to_blend_file), {mat}, fake_user=fake_user)
+                bpy.data.libraries.write(str(path_to_blend_file), {typing.cast(bpy.types.Material, mat)}, fake_user=fake_user)
         else:
-            mat = blender_object.material_slots[material_number].material
-            bpy.data.libraries.write(str(path_to_blend_file), {mat}, fake_user=fake_user)
+            # The index is None on this branch, which is the inverted test described above.
+            mat = blender_object.material_slots[typing.cast(int, material_number)].material
+            bpy.data.libraries.write(str(path_to_blend_file), {typing.cast(bpy.types.Material, mat)}, fake_user=fake_user)
         print('Wrote blend file into:', path_to_blend_file)
 
     @staticmethod
-    def load_material_from_blend_file(path: str, blender_object=None) -> bpy.types.Material:
+    def load_material_from_blend_file(path: str, blender_object: bpy.types.Object | None = None) -> bpy.types.Material:
         """
         Load a material from a blend file determined by path, to a new material slot.
         """
         path, dir_name, asset_name = MaterialService.as_blend_path(path)
         print('Loading material @: ', path, dir_name, asset_name)
-        with bpy.data.libraries.load(path) as (in_basket, out_basket):
+        # BlendDataLibraries.load() is declared -> None in the stubs, although its own docstring there
+        # says it returns the context manager this with statement relies on.
+        with bpy.data.libraries.load(path) as (in_basket, out_basket):  # pyright: ignore[reportGeneralTypeIssues]
             # Weird syntax.
             setattr(out_basket, dir_name, [asset_name])
 
@@ -319,11 +378,12 @@ class MaterialService():
         mat.make_local()
 
         if blender_object is not None:
-            blender_object.data.materials.append(mat)
+            typing.cast(bpy.types.Mesh, blender_object.data).materials.append(mat)
         return mat
 
     @staticmethod
-    def _assign_material_instance(blender_object, material, group_name):
+    def _assign_material_instance(blender_object: bpy.types.Object, material: bpy.types.Material,
+                                  group_name: str) -> None:
         _LOG.enter()
         _LOG.debug("blender_object, material, group_name", (blender_object, material, group_name))
 
@@ -333,11 +393,12 @@ class MaterialService():
         ObjectService.activate_blender_object(blender_object)
         bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
 
-        blender_object.data.materials.append(material)
+        typing.cast(bpy.types.Mesh, blender_object.data).materials.append(material)
         slot_number = blender_object.material_slots.find(material.name)
         _LOG.dump("slot_number", slot_number)
 
-        bpy.context.object.active_material_index = slot_number
+        # activate_blender_object() above made blender_object the active one, so context.object is set.
+        typing.cast(bpy.types.Object, bpy.context.object).active_material_index = slot_number
 
         bpy.ops.object.mode_set(mode='EDIT', toggle=False)
         bpy.ops.mesh.select_all(action='DESELECT')
@@ -348,12 +409,12 @@ class MaterialService():
         bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
 
     @staticmethod
-    def create_and_assign_material_slots(basemesh, bodyproxy=None) -> None:
+    def create_and_assign_material_slots(basemesh: bpy.types.Object, bodyproxy: bpy.types.Object | None = None) -> None:
         """Creates and assigns material slots for each body vertex group.
 
         Args:
-            basemesh (bpy.types.Mesh): The base mesh to assign material slots to.
-            bodyproxy (bpy.types.Object): The body proxy to assign material slots to (optional).
+            basemesh (bpy.types.Object): The base mesh to assign material slots to.
+            bodyproxy (bpy.types.Object | None): The body proxy to assign material slots to (optional).
         """
 
         if not MaterialService.has_materials(basemesh):
@@ -361,7 +422,9 @@ class MaterialService():
 
         _LOG.debug("basemesh, proxymesh", (basemesh, bodyproxy))
 
-        base_material = basemesh.material_slots[0].material
+        # has_materials() above established that there is at least one slot, and a slot created by
+        # MPFB always carries a material.
+        base_material = typing.cast(bpy.types.Material, basemesh.material_slots[0].material)
 
         prefix = str(basemesh.name).split(".")[0]
 
@@ -384,11 +447,12 @@ class MaterialService():
                 _LOG.debug("Not adding slot to bodyproxy because it is none or group does not exist", (bodyproxy, group_name))
 
     @staticmethod
-    def find_color_adjustment(blender_object) -> dict | None:
+    def find_color_adjustment(blender_object: bpy.types.Object | None) -> ColorAdjustment | None:
         """Return a dict with all color adjustments that were applied to the blender object's material slots.
 
         Args:
-            blender_object (bpy.types.Object): The blender object to find color adjustments for.
+            blender_object (bpy.types.Object | None): The blender object to find color adjustments for. A
+                None object is logged and None is returned.
 
         Returns:
             A dict with all color adjustments that were applied to the blender object's material slots.'
@@ -423,12 +487,13 @@ class MaterialService():
         return info["values"]
 
     @staticmethod
-    def apply_color_adjustment(blender_object, color_adjustment) -> None:
+    def apply_color_adjustment(blender_object: bpy.types.Object | None, color_adjustment: ColorAdjustment) -> None:
         """Apply a color adjustment to the blender object's material slots.
 
         Args:
-            blender_object (bpy.types.Object): The blender object to apply the color adjustment to.
-            color_adjustment (dict): The color adjustment to apply.
+            blender_object (bpy.types.Object | None): The blender object to apply the color adjustment
+                to. A None object is logged and the method returns without doing anything.
+            color_adjustment (ColorAdjustment): The color adjustment to apply.
         """
         if not blender_object:
             _LOG.debug("The blender object was none")
@@ -455,7 +520,7 @@ class MaterialService():
         NodeService.set_socket_default_values(mix, color_adjustment)
 
     @staticmethod
-    def _find_principled_and_connected_color_node(node_tree):
+    def _find_principled_and_connected_color_node(node_tree: bpy.types.NodeTree) -> tuple[bpy.types.Node | None, bpy.types.Node | None]:
         """Find the principled and the node connected to base color."""
 
         # First find the principled node
@@ -474,10 +539,10 @@ class MaterialService():
         return principled, connected_node
 
     @staticmethod
-    def _makeskin_first_ink_layer_nodes(material):
+    def _makeskin_first_ink_layer_nodes(material: bpy.types.Material) -> InkLayerNodes:
         """Break the link between the principled node and the diffuseIntensity node, then add new nodes for ink layer 1."""
 
-        node_tree = material.node_tree
+        node_tree = typing.cast(bpy.types.NodeTree, material.node_tree)
 
         principled, diffuse_intensity = MaterialService._find_principled_and_connected_color_node(node_tree)
 
@@ -495,8 +560,11 @@ class MaterialService():
         mix_node = NodeWrapperMpfbAlphaMixer.create_instance(node_tree, name="inkLayer1mix", label="Ink Layer 1 Mix")
         mix_node.location.x = -300
         mix_node.location.y = 1000
-        mix_node.inputs["UpperLayerColor"].default_value = (0.0, 0.0, 0.0, 1.0)
-        mix_node.inputs["UpperLayerAlpha"].default_value = 0.0
+        # Socket default values; see the note at the top of the module.
+        upper_color = typing.cast(bpy.types.NodeSocketColor, mix_node.inputs["UpperLayerColor"])
+        upper_alpha = typing.cast(bpy.types.NodeSocketFloat, mix_node.inputs["UpperLayerAlpha"])
+        upper_color.default_value = (0.0, 0.0, 0.0, 1.0)  # pyright: ignore[reportAttributeAccessIssue]
+        upper_alpha.default_value = 0.0
 
         # Create an image texture node
         texture = NodeService.create_image_texture_node(node_tree, "inkLayer1tex", "Ink layer 1 Texture", xpos=-900, ypos=1100)
@@ -514,7 +582,7 @@ class MaterialService():
         return uvmap, texture
 
     @staticmethod
-    def _makeskin_secondary_ink_layer_nodes(material):
+    def _makeskin_secondary_ink_layer_nodes(material: bpy.types.Material) -> InkLayerNodes:
         """Add an additional ink layer, stacking it over the pre-existing ones."""
 
         if not material:
@@ -530,7 +598,7 @@ class MaterialService():
         number_of_layers = MaterialService.get_number_of_ink_layers(material)
         _LOG.debug("Number of layers", number_of_layers)
 
-        node_tree = material.node_tree
+        node_tree = typing.cast(bpy.types.NodeTree, material.node_tree)
 
         ybase = 300 * number_of_layers
 
@@ -549,8 +617,11 @@ class MaterialService():
             _LOG.debug("mix_node", mix_node)
             mix_node.location.x = -300
             mix_node.location.y = ybase + 1000
-            mix_node.inputs["UpperLayerColor"].default_value = (0.0, 0.0, 0.0, 1.0)
-            mix_node.inputs["UpperLayerAlpha"].default_value = 0.0
+        # Socket default values; see the note at the top of the module.
+            upper_color = typing.cast(bpy.types.NodeSocketColor, mix_node.inputs["UpperLayerColor"])
+            upper_alpha = typing.cast(bpy.types.NodeSocketFloat, mix_node.inputs["UpperLayerAlpha"])
+            upper_color.default_value = (0.0, 0.0, 0.0, 1.0)  # pyright: ignore[reportAttributeAccessIssue]
+            upper_alpha.default_value = 0.0
 
             last_mix_node = NodeService.find_node_by_name(node_tree, f"inkLayer{number_of_layers - 1}mix")
             if last_mix_node is None:
@@ -580,13 +651,13 @@ class MaterialService():
         return uvmap, texture
 
     @staticmethod
-    def _layered_first_ink_layer_nodes(material):
+    def _layered_first_ink_layer_nodes(material: bpy.types.Material) -> InkLayerNodes:
         """Add new nodes for ink layer 1, linked to color control"""
 
-        node_tree = material.node_tree
+        node_tree = typing.cast(bpy.types.NodeTree, material.node_tree)
 
-        color_control = None
-        diffuse_texture = None
+        color_control: bpy.types.Node | None = None
+        diffuse_texture: bpy.types.Node | None = None
         for node in node_tree.nodes:
             _LOG.debug("node", (node, node.name, node.type))
             if node.type == "GROUP" and node.name == "colorgroup":
@@ -598,15 +669,19 @@ class MaterialService():
             raise ValueError("Could not find a color control group in the material. Not a layered material?")
 
         # This is the RGBA value for the skin if no diffuse texture is used
-        default_skin_color = color_control.inputs["SkinColor"].default_value
+        default_skin_color = typing.cast(bpy.types.NodeSocketColor, color_control.inputs["SkinColor"]).default_value
 
         # Create the first alpha layer mixer
         mix_node = NodeWrapperMpfbAlphaMixer.create_instance(node_tree, name="inkLayer1mix", label="Ink Layer 1 Mix")
         mix_node.location.x = -500
         mix_node.location.y = 1000
-        mix_node.inputs["BackgroundColor"].default_value = default_skin_color
-        mix_node.inputs["UpperLayerColor"].default_value = (0.0, 0.0, 0.0, 1.0)
-        mix_node.inputs["UpperLayerAlpha"].default_value = 0.0
+        # Socket default values; see the note at the top of the module.
+        background_color = typing.cast(bpy.types.NodeSocketColor, mix_node.inputs["BackgroundColor"])
+        upper_color = typing.cast(bpy.types.NodeSocketColor, mix_node.inputs["UpperLayerColor"])
+        upper_alpha = typing.cast(bpy.types.NodeSocketFloat, mix_node.inputs["UpperLayerAlpha"])
+        background_color.default_value = default_skin_color
+        upper_color.default_value = (0.0, 0.0, 0.0, 1.0)  # pyright: ignore[reportAttributeAccessIssue]
+        upper_alpha.default_value = 0.0
 
         # Create an image texture node
         texture = NodeService.create_image_texture_node(node_tree, "inkLayer1tex", "Ink layer 1 Texture", xpos=-900, ypos=1100)
@@ -628,7 +703,7 @@ class MaterialService():
         return uvmap, texture
 
     @staticmethod
-    def _layered_secondary_ink_layer_nodes(material):
+    def _layered_secondary_ink_layer_nodes(material: bpy.types.Material) -> InkLayerNodes:
         """Add an additional ink layer, stacking it over the pre-existing ones."""
 
         if not material:
@@ -644,12 +719,10 @@ class MaterialService():
         number_of_layers = MaterialService.get_number_of_ink_layers(material)
         _LOG.debug("Number of layers", number_of_layers)
 
-        node_tree = material.node_tree
+        node_tree = typing.cast(bpy.types.NodeTree, material.node_tree)
 
-        node_tree = material.node_tree
-
-        color_control = None
-        diffuse_texture = None
+        color_control: bpy.types.Node | None = None
+        diffuse_texture: bpy.types.Node | None = None
         for node in node_tree.nodes:
             _LOG.debug("node", (node, node.name, node.type))
             if node.type == "GROUP" and node.name == "colorgroup":
@@ -677,8 +750,11 @@ class MaterialService():
             _LOG.debug("mix_node", mix_node)
             mix_node.location.x = -300
             mix_node.location.y = ybase + 1000
-            mix_node.inputs["UpperLayerColor"].default_value = (0.0, 0.0, 0.0, 1.0)
-            mix_node.inputs["UpperLayerAlpha"].default_value = 0.0
+        # Socket default values; see the note at the top of the module.
+            upper_color = typing.cast(bpy.types.NodeSocketColor, mix_node.inputs["UpperLayerColor"])
+            upper_alpha = typing.cast(bpy.types.NodeSocketFloat, mix_node.inputs["UpperLayerAlpha"])
+            upper_color.default_value = (0.0, 0.0, 0.0, 1.0)  # pyright: ignore[reportAttributeAccessIssue]
+            upper_alpha.default_value = 0.0
 
             last_mix_node = NodeService.find_node_by_name(node_tree, f"inkLayer{number_of_layers - 1}mix")
             if last_mix_node is None:
@@ -710,7 +786,7 @@ class MaterialService():
         return uvmap, texture
 
     @staticmethod
-    def add_focus_nodes(material, uv_map_name=None):
+    def add_focus_nodes(material: bpy.types.Material, uv_map_name: str | None = None) -> tuple[bpy.types.Node, bpy.types.Node, int]:
         """Add a node setup for a focus."""
 
         if not material:
@@ -725,6 +801,11 @@ class MaterialService():
 
         number_of_layers = MaterialService.get_number_of_ink_layers(material)
         _LOG.debug("Number of layers", number_of_layers)
+
+        # The four branches below are exhaustive for the two material types the guard above allows, but
+        # the checker cannot see that, so the pair is bound once up front.
+        uvmap_node: bpy.types.Node
+        texture_node: bpy.types.Node
 
         if material_type == "makeskin" and number_of_layers == 0:
             uvmap_node, texture_node = MaterialService._makeskin_first_ink_layer_nodes(material)
@@ -741,12 +822,14 @@ class MaterialService():
             uvmap_node, texture_node = MaterialService._layered_secondary_ink_layer_nodes(material)
 
         if uv_map_name is not None and uvmap_node is not None:
-            uvmap_node.uv_map = uv_map_name
+            typing.cast(bpy.types.ShaderNodeUVMap, uvmap_node).uv_map = uv_map_name
 
-        return uvmap_node, texture_node, number_of_layers + 1
+        # The four branches are exhaustive for the two material types the guard at the top of the method
+        # allows, so neither name can be unbound here, but the checker cannot follow that.
+        return typing.cast(bpy.types.Node, uvmap_node), typing.cast(bpy.types.Node, texture_node), number_of_layers + 1
 
     @staticmethod
-    def get_number_of_ink_layers(material) -> int:
+    def get_number_of_ink_layers(material: bpy.types.Material | None) -> int:
         """Return information about how many ink layers are present in the material."""
 
         if not material:
@@ -757,7 +840,7 @@ class MaterialService():
 
         max_layer_number = 0
 
-        for node in material.node_tree.nodes:
+        for node in typing.cast(bpy.types.NodeTree, material.node_tree).nodes:
             if isinstance(node, bpy.types.ShaderNodeTexImage) and node.name.startswith("inkLayer"):
                 _LOG.debug("Found a node named", node.name)
                 layer_number = int(node.name.split("inkLayer")[1].split("tex")[0])
@@ -767,7 +850,7 @@ class MaterialService():
         return max_layer_number
 
     @staticmethod
-    def get_ink_layer_info(mesh_object, ink_layer: int = 1) -> tuple[str, str]:
+    def get_ink_layer_info(mesh_object: bpy.types.Object, ink_layer: int = 1) -> tuple[str, str]:
         """Return information about UV map and texture name for a specific ink layer."""
 
         material = MaterialService.get_material(mesh_object)
@@ -781,24 +864,26 @@ class MaterialService():
         tex_name = f"inkLayer{ink_layer}tex"
         uv_name = f"inkLayer{ink_layer}uv"
 
-        tex_node = NodeService.find_node_by_name(material.node_tree, tex_name)
+        node_tree = typing.cast(bpy.types.NodeTree, material.node_tree)
+
+        tex_node = NodeService.find_node_by_name(node_tree, tex_name)
         if tex_node is None:
             raise ValueError(f"The material does not have a node named {tex_name}")
 
-        uv_node = NodeService.find_node_by_name(material.node_tree, uv_name)
+        uv_node = NodeService.find_node_by_name(node_tree, uv_name)
         if uv_node is None:
             raise ValueError(f"The material does not have a node named {uv_name}")
 
-        deduced_uv_name = uv_node.uv_map
+        deduced_uv_name = typing.cast(bpy.types.ShaderNodeUVMap, uv_node).uv_map
         if "UV" in deduced_uv_name:
             deduced_uv_name = ""  # This is assumed to be the basemesh standard UV map
 
-        decuced_image_texture_name = tex_node.image.name
+        decuced_image_texture_name = typing.cast(bpy.types.Image, typing.cast(bpy.types.ShaderNodeTexImage, tex_node).image).name
 
         return deduced_uv_name, decuced_image_texture_name
 
     @staticmethod
-    def load_ink_layer(mesh_object, ink_layer_json_path):
+    def load_ink_layer(mesh_object: bpy.types.Object, ink_layer_json_path: str) -> tuple[bpy.types.Node, bpy.types.Node, int]:
         """Load an ink layer from a JSON file. This will also add a new UV map to the mesh object if needed."""
 
         _LOG.debug("Loading ink layer from", ink_layer_json_path)
@@ -826,7 +911,7 @@ class MaterialService():
         if not os.path.isfile(image_path):
             raise ValueError(f"The image file '{image_name}' does not exist at '{ink_dirname}'")
 
-        uv_map = mesh_object.data.uv_layers[0]
+        uv_map = typing.cast(bpy.types.Mesh, mesh_object.data).uv_layers[0]
         uv_map_name = uv_map.name
 
         material = MaterialService.get_material(mesh_object)
@@ -846,13 +931,15 @@ class MaterialService():
 
             MeshService.add_uv_map_from_dict(mesh_object, uv_map_name, uv_map_dict)
 
-        uvmap_node, texture_node, ink_layer_id = MaterialService.add_focus_nodes(material, uv_map_name=uv_map_name)
-        texture_node.image = bpy.data.images.load(image_path)
+        # add_focus_nodes() raises on a None material, so the narrowing is only moved, not asserted.
+        uvmap_node, texture_node, ink_layer_id = MaterialService.add_focus_nodes(
+            typing.cast(bpy.types.Material, material), uv_map_name=uv_map_name)
+        typing.cast(bpy.types.ShaderNodeTexImage, texture_node).image = bpy.data.images.load(image_path)
 
         return uvmap_node, texture_node, ink_layer_id
 
     @staticmethod
-    def remove_all_makeup(material, basemesh=None) -> None:
+    def remove_all_makeup(material: bpy.types.Material | None, basemesh: bpy.types.Object | None = None) -> None:
         """Remove all ink layers from a material, and optionally remove ink layer UVs from the corresponding basemesh"""
         _LOG.debug("Removing all makeup")
         if not material:
@@ -872,29 +959,32 @@ class MaterialService():
             _LOG.warn("No ink layers found")
             return
 
-        for node in material.node_tree.nodes:
+        node_tree = typing.cast(bpy.types.NodeTree, material.node_tree)
+
+        for node in node_tree.nodes:
             if node.name.startswith("inkLayer"):
                 _LOG.debug("Removing node", node.name)
-                material.node_tree.nodes.remove(node)
+                node_tree.nodes.remove(node)
 
         if material_type == "makeskin":
-            principled = NodeService.find_first_node_by_type_name(material.node_tree, "ShaderNodeBsdfPrincipled")
+            principled = NodeService.find_first_node_by_type_name(node_tree, "ShaderNodeBsdfPrincipled")
             _LOG.debug("Principled node:", principled)
-            diffuse_intensity = NodeService.find_node_by_name(material.node_tree, "diffuseIntensity")
+            diffuse_intensity = NodeService.find_node_by_name(node_tree, "diffuseIntensity")
             _LOG.debug("Connected color node:", diffuse_intensity)
             if principled and diffuse_intensity:
-                NodeService.add_link(material.node_tree, diffuse_intensity, principled, "Color", "Base Color")
+                NodeService.add_link(node_tree, diffuse_intensity, principled, "Color", "Base Color")
             else:
-                diffuse_tex = NodeService.find_node_by_name(material.node_tree, "diffuseTexture")
+                diffuse_tex = NodeService.find_node_by_name(node_tree, "diffuseTexture")
                 _LOG.debug("Diffuse texture", diffuse_tex)
-                if diffuse_tex:
-                    NodeService.add_link(material.node_tree, diffuse_tex, principled, "Color", "Base Color")
+                if diffuse_tex:                    
+                    NodeService.add_link(node_tree, diffuse_tex, principled, "Color", "Base Color")
 
         if basemesh:
-            for uv_layer in basemesh.data.uv_layers:
+            basemesh_data = typing.cast(bpy.types.Mesh, basemesh.data)
+            for uv_layer in basemesh_data.uv_layers:
                 _LOG.debug("Uv layer:", uv_layer.name)
                 if uv_layer.name.startswith("inkLayer"):
-                    basemesh.data.uv_layers.remove(uv_layer)
+                    basemesh_data.uv_layers.remove(uv_layer)
 
     @staticmethod
     def get_skin_diffuse_color() -> list[float]:

@@ -1160,8 +1160,8 @@ class HumanService:
             _LOG.debug("Material type", material_type)
             if material_type in ["layered_skin", "makeskin"]:
                 for ink_layer in makeup:
-                    ink_path = AssetService.find_asset_absolute_path(ink_layer, asset_subdir="ink_layers")
-                    MaterialService.load_ink_layer(basemesh, ink_path)
+                    ink_path = AssetService.find_asset_absolute_path(ink_layer, asset_subdir="ink_layers")                    
+                    MaterialService.load_ink_layer(basemesh, typing.cast(str, ink_path))
 
         # Otherwise all targets will be set to 100% when entering edit mode
         basemesh.use_shape_key_edit_mode = True

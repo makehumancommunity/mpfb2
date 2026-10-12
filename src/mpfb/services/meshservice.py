@@ -378,7 +378,7 @@ class MeshService:
         if number_of_matches == 1:
             # KDTree.find() returns (None, None, None) when it matches nothing, which happens only for a
             # target mesh with no vertices at all. The cast asserts the match that every caller unpacks
-            # unguarded; see features/KDTREE_NO_MATCH_BUG.md for why that is left as it stands.
+            # unguarded.
             return [typing.cast(KDTreeMatch, target_obj_kdtree.find(coord))]  # pyright: ignore[reportArgumentType]
 
         return target_obj_kdtree.find_n(coord, number_of_matches)  # pyright: ignore[reportArgumentType]
@@ -429,8 +429,6 @@ class MeshService:
             if len(face_vertices) != verts_per_face:
                 raise ValueError("Faces must have the same number of vertices. Found both {} and {}".format(len(face_vertices), verts_per_face))
 
-        # verts_per_face is still None for a mesh with no polygons, where numpy.zeros() then raises on it.
-        # That is pre-existing behavior and is left alone; see features/EMPTY_MESH_NUMPY_BUG.md.
         columns = typing.cast(int, verts_per_face)
 
         face_array = numpy.zeros((size, columns), dtype=numpy.uint32)
@@ -459,8 +457,6 @@ class MeshService:
             if len(edge_vertices) != verts_per_edge:
                 raise ValueError("Edges must have the same number of vertices. Found both {} and {}".format(len(edge_vertices), verts_per_edge))
 
-        # verts_per_edge is still None for a mesh with no edges, where numpy.zeros() then raises on it.
-        # That is pre-existing behavior and is left alone; see features/EMPTY_MESH_NUMPY_BUG.md.
         columns = typing.cast(int, verts_per_edge)
 
         edge_array = numpy.zeros((size, columns), dtype=numpy.uint32)

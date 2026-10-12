@@ -36,6 +36,16 @@ A module-level dictionary mapping body part names to vertex index pairs used for
 
 Body parts covered: `Body`, `Head`, `Teeth`, `Torso`, `Arm`, `Hand`, `Leg`, `Foot`, `Eye`, `Genital`.
 
+## Module-Level Types
+
+Two annotation aliases are declared at module level. Neither is part of the calling contract beyond the
+shapes they describe.
+
+| Name | Definition | Notes |
+|------|------------|-------|
+| `MhcloScale` | `tuple[int, int, float]` | One axis scaling reference as the MHCLO format stores it: two basemesh vertex indices and the distance between them in the original asset. Mirrors what `Mhclo.load()` writes into `x_scale`, `y_scale` and `z_scale`. |
+| `ClothesValidationReport` | `dict[str, Any]` | The report `mesh_is_valid_as_clothes()` returns. An alias rather than a `TypedDict` because the MakeClothes panel reads it by looping over a list of key names and indexing with the loop variable. |
+
 ## Public API
 
 ### Clothes Fitting
@@ -48,7 +58,7 @@ Move clothes vertices so they fit the current shape of the basemesh. The method 
 |----------|------|---------|-------------|
 | `clothes` | `bpy.types.Object` | — | The clothes mesh object to refit |
 | `basemesh` | `bpy.types.Object` | — | The basemesh to fit clothes to |
-| `mhclo` | `Mhclo` | `None` | Pre-loaded MHCLO data; auto-loaded from object properties if `None` |
+| `mhclo` | `Mhclo \| None` | `None` | Pre-loaded MHCLO data; auto-loaded from object properties if `None` |
 | `set_parent` | `bool` | `True` | Whether to parent the clothes to the basemesh or its rig |
 
 **Returns:** None
@@ -66,7 +76,10 @@ Compute a reference scale dictionary from a basemesh, measuring the distances be
 | `basemesh` | `bpy.types.Object` | — | The basemesh to measure |
 | `body_part_reference` | `str` | `"Torso"` | Key in `CLOTHES_REFERENCE_SCALE` to use for measurements |
 
-**Returns:** `dict` — A dictionary with keys `x_scale`, `y_scale`, `z_scale` (float distances) plus the vertex indices from the selected body part reference.
+**Returns:** `dict[str, float]` — A dictionary with keys `x_scale`, `y_scale`, `z_scale` (float distances)
+plus the six vertex indices from the selected body part reference (`xmin`, `xmax`, `ymin`, `ymax`, `zmin`,
+`zmax`). The six index entries are `int` at runtime; the value type is `float` because `int` is assignable
+to it, and `Mhclo.write_mhclo()` formats the two groups differently for that reason.
 
 ---
 
@@ -81,7 +94,7 @@ Create or update a "delete" vertex group on the basemesh to hide geometry undern
 | `mhclo` | `Mhclo` | — | The MHCLO object containing delete vertex data |
 | `basemesh` | `bpy.types.Object` | — | The basemesh to add the delete group to |
 | `replace_delete_group` | `bool` | `False` | Remove any existing group with the same name before creating |
-| `delete_group_name` | `str` | `None` | Custom name for the group; uses MHCLO's `delete_group` or `"Delete"` if `None` |
+| `delete_group_name` | `str \| None` | `None` | Custom name for the group; uses MHCLO's `delete_group` or `"Delete"` if `None` |
 | `add_modifier` | `bool` | `True` | Whether to add a MASK modifier for the group |
 | `skip_if_empty_delete_group` | `bool` | `True` | Return immediately if the MHCLO has no delete vertices |
 
@@ -100,7 +113,7 @@ Create a new delete group on the basemesh based on which vertices are covered by
 | `mhclo` | `Mhclo` | — | A populated MHCLO with vertex matchings |
 | `group_name` | `str` | `"Delete"` | Name for the new vertex group |
 
-**Returns:** `bpy.types.VertexGroup` — The newly created delete group.
+**Returns:** None. The group is created on the basemesh and populated, but it is not handed back.
 
 **Raises:** `ValueError` if any argument is `None`, objects are not meshes, or the MHCLO has no matchings or mismatched vertex counts.
 
@@ -149,7 +162,7 @@ Load custom weight files for the given clothes and rig. The method tries loading
 |----------|------|---------|-------------|
 | `clothes` | `bpy.types.Object` | — | The clothes mesh to load weights onto |
 | `armature_object` | `bpy.types.Object` | — | The main armature object |
-| `subrig` | `bpy.types.Object` or `None` | — | The sub-rig armature, or `None` if not applicable |
+| `subrig` | `bpy.types.Object \| None` | — | The sub-rig armature, or `None` if not applicable |
 | `mhclo` | `Mhclo` | — | MHCLO object used to derive weight file paths |
 
 **Returns:** None
@@ -165,8 +178,8 @@ Interpolate a single vertex group from the basemesh to the clothes object. The m
 | `basemesh` | `bpy.types.Object` | — | The basemesh with the source vertex group |
 | `clothes_object` | `bpy.types.Object` | — | The clothes object to add the group to |
 | `vertex_group_name` | `str` | — | Name of the vertex group to interpolate |
-| `match_cutoff` | `float` | `0.3` | Cutoff value for matching vertices |
-| `mhclo_full_path` | `str` | `None` | Path to the MHCLO file; auto-resolved if `None` |
+| `match_cutoff` | `float` | `0.3` | Accepted and ignored. The method body never reads it; every mapped vertex is included regardless |
+| `mhclo_full_path` | `str \| None` | `None` | Path to the MHCLO file; auto-resolved if `None` |
 
 **Returns:** `bpy.types.VertexGroup` — The newly created vertex group on the clothes.
 
@@ -182,7 +195,7 @@ Find the absolute file path to the MHCLO asset of a clothes object by reading th
 |----------|------|---------|-------------|
 | `clothes_object` | `bpy.types.Object` | — | The clothes object to look up |
 
-**Returns:** `str` or `None` — The absolute path to the MHCLO file, or `None` if the properties are missing.
+**Returns:** `str | None` — The absolute path to the MHCLO file, or `None` if the properties are missing.
 
 ---
 
@@ -194,7 +207,7 @@ Update a clothes object's MakeClothes custom properties (author, description, li
 |----------|------|---------|-------------|
 | `clothes_object` | `bpy.types.Object` | — | The clothes object to update |
 | `mhclo` | `Mhclo` | — | The MHCLO object containing metadata |
-| `delete_group_name` | `str` | `None` | Override value for the delete group property |
+| `delete_group_name` | `str \| None` | `None` | Override value for the delete group property |
 
 **Returns:** None
 
@@ -208,14 +221,23 @@ Validate whether a mesh object can be used as clothes for the given basemesh. Pe
 
 | Argument | Type | Default | Description |
 |----------|------|---------|-------------|
-| `mesh_object` | `bpy.types.Object` | — | The candidate clothes mesh |
+| `mesh_object` | `bpy.types.Object \| None` | — | The candidate clothes mesh. A `None` object fails `is_valid_object` and the report comes back with everything else at its default |
 | `basemesh` | `bpy.types.Object` | — | The basemesh to validate against |
 
-**Returns:** `dict` — A validation report with keys: `is_valid_object` (bool), `has_any_vertices` (bool), `has_any_vgroups` (bool), `all_verts_have_max_one_vgroup` (bool), `all_verts_have_min_one_vgroup` (bool), `all_verts_belong_to_faces` (bool), `clothes_groups_exist_on_basemesh` (bool), `objs_same_scale` (bool), `all_checks_ok` (bool), and `warnings` (list of strings).
+**Returns:** `ClothesValidationReport` — A validation report with keys: `is_valid_object` (bool),
+`has_any_vertices` (bool), `has_any_vgroups` (bool), `all_verts_have_max_one_vgroup` (bool),
+`all_verts_have_min_one_vgroup` (bool), `all_verts_belong_to_faces` (bool), `all_faces_same_type` (bool),
+`clothes_groups_exist_on_basemesh` (bool), `objs_same_scale` (bool), `all_checks_ok` (bool), and
+`warnings` (list of strings).
+
+Note that `all_faces_same_type` — set to `False` for a mesh mixing tris and quads — is the one check that
+is *not* folded into `all_checks_ok`. It instead returns early with `all_checks_ok` set to `False`
+explicitly, before the vertex group checks have run, so the other flags are still at their defaults in
+that case.
 
 ---
 
-#### create_mhclo_from_clothes_matching(basemesh, clothes, properties_dict=None, delete_group=None)
+#### create_mhclo_from_clothes_matching(basemesh, clothes, properties_dict=None, delete_group=None, allow_exact=True)
 
 Create an MHCLO object from scratch by matching clothes vertices to the basemesh. For each clothes vertex, a `VertexMatch` is computed that finds the three closest basemesh vertices, their barycentric weights, and the offset. The result is a fully populated MHCLO object that can be saved to a file. If a delete group name is specified and exists on the basemesh, the corresponding vertices are included in the MHCLO's delete list.
 
@@ -223,8 +245,9 @@ Create an MHCLO object from scratch by matching clothes vertices to the basemesh
 |----------|------|---------|-------------|
 | `basemesh` | `bpy.types.Object` | — | The basemesh to match against |
 | `clothes` | `bpy.types.Object` | — | The clothes mesh whose vertices will be matched |
-| `properties_dict` | `dict` | `None` | Optional dictionary of MHCLO metadata properties to set |
-| `delete_group` | `str` | `None` | Name of a vertex group on the basemesh to use as the delete group |
+| `properties_dict` | `dict[str, Any] \| None` | `None` | Optional dictionary of MHCLO metadata properties to set. Keys that do not name an attribute on `Mhclo` are silently skipped |
+| `delete_group` | `str \| None` | `None` | Name of a vertex group on the basemesh to use as the delete group. A missing or absent group is warned about, not raised |
+| `allow_exact` | `bool` | `True` | Passed through to each `VertexMatch`; when `False` the exact-match strategy is disabled and every clothes vertex gets a three-vertex offset match |
 
 **Returns:** `Mhclo` — A populated MHCLO object with vertex matchings.
 

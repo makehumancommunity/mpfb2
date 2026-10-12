@@ -237,7 +237,7 @@ non-unit scale.
 
 The annotation promises a populated tuple, which `mathutils` does not: `KDTree.find()` returns
 `(None, None, None)` when it matches nothing. That can only happen for a target mesh with no vertices at
-all, and every caller unpacks the tuple unguarded; see `features/KDTREE_NO_MATCH_BUG.md`.
+all, and every caller unpacks the tuple unguarded.
 
 ---
 
@@ -268,8 +268,7 @@ Export face vertex indices as a numpy array.
 **Returns:** `numpy.ndarray` — Shape `(num_faces, verts_per_face)`, dtype `uint32`.
 
 **Raises:** `ValueError` — If faces have different vertex counts (mixed tris/quads). A mesh with no
-polygons at all raises `TypeError` from `numpy.zeros()` instead of returning an empty array; see
-`features/EMPTY_MESH_NUMPY_BUG.md`.
+polygons at all raises `TypeError` from `numpy.zeros()` instead of returning an empty array.
 
 ---
 

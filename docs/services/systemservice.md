@@ -104,7 +104,7 @@ This method performs a comprehensive check:
 3. Confirms that `bpy.ops.pose.rigify_upgrade_face` is available
 4. Confirms that `bpy.ops.armature.rigify_collection_set_ui_row` is available
 5. Performs a fifth check whose warning message refers to a UI *column* operator, but which in fact tests
-   `rigify_collection_set_ui_row` a second time — see `features/RIGIFY_UI_COLUMN_CHECK_BUG.md`
+   `rigify_collection_set_ui_row` a second time
 
 All checks must pass for the method to return `True`. Warnings are logged for each missing component.
 

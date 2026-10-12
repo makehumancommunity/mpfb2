@@ -918,7 +918,9 @@ class ObjectService:
             from .targetservice import TargetService
             key_name = "temporary_lowest_point_key." + str(random.randrange(1000, 9999))
             shape_key = TargetService.create_shape_key(basemesh, key_name, also_create_basis=True, create_from_mix=True)
-            vertex_data = shape_key.data
+            # ShapeKey.data is declared bpy_prop_collection[UnknownType], so its points have no .co
+            # as far as the checker is concerned.
+            vertex_data = typing.cast("bpy.types.bpy_prop_collection[bpy.types.ShapeKeyPoint]", shape_key.data)
 
         index = 0
         for vertex in vertex_data:
