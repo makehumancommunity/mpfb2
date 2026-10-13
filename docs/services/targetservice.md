@@ -57,6 +57,19 @@ The macro target system uses these attributes, each with a default value of `0.5
 
 Plus a `race` sub-dictionary with `asian`, `caucasian`, and `african` (defaults: `0.33` each).
 
+## Module-Level Types
+
+One `TypedDict` and four aliases are declared at module level. They are the shapes that cross more than
+one method; none is part of the calling contract beyond that.
+
+| Name | Definition | Notes |
+|------|------------|-------|
+| `TargetStackEntry` | `TypedDict` with `target: str` and `value: float` | One entry in a target stack. A `TypedDict` rather than a `dict[str, Any]` because both keys are read back into positions that require the concrete type — `target` into `target_full_path()`, `value` into `ShapeKey.value` |
+| `ShapeKeyInfo` | `dict[str, Any]` | The intermediate form a target takes between file and shape key. `vertices` holds a list of `(index, x, y, z)` tuples. `name` holds the shape key name — except that `get_shape_key_as_dict()` stores whatever it was handed, so it is a `bpy.types.ShapeKey` rather than a `str` when the caller passed the shape key itself. That is why this is an alias and not a `TypedDict` |
+| `MacroInfo` | `dict[str, Any]` | The macro phenotype dictionary. An alias rather than a `TypedDict` both because the eight float entries are read with a loop variable as the key and because the values arrive from `HumanObjectProperties.get_value()` as `Any` |
+| `MacroComponent` | `list[Any]` | One interpolated `[target name, weight]` pair from `_interpolate_macro_components()`. `Any` because the pair is heterogeneous — a `str` then a `float` — while `list` is homogeneous, so any element type precise enough for the weight leaves the name unusable where it is concatenated into a path |
+| `MacroTarget` | `list[Any]` | One `[target path, weight]` entry in the calculated stack. Heterogeneous for the same reason |
+
 ## Public API
 
 ### Shape Key Creation and Queries
@@ -82,7 +95,7 @@ Check if a Blender object has any shape keys at all.
 
 | Argument | Type | Default | Description |
 |----------|------|---------|-------------|
-| `blender_object` | `bpy.types.Object` | — | The object to check |
+| `blender_object` | `bpy.types.Object \| None` | — | The object to check. A `None` object gives `False` |
 
 **Returns:** `bool` — `True` if the object has at least one shape key.
 
@@ -94,8 +107,8 @@ Check if a Blender object has a specific shape key, optionally checking the enco
 
 | Argument | Type | Default | Description |
 |----------|------|---------|-------------|
-| `blender_object` | `bpy.types.Object` | — | The object to check |
-| `target_name` | `str` | — | The shape key name to look for |
+| `blender_object` | `bpy.types.Object \| None` | — | The object to check. A `None` object gives `False` |
+| `target_name` | `str \| None` | — | The shape key name to look for. A `None` or empty name gives `False` |
 | `also_check_for_encoded` | `bool` | `True` | Also check the encoded version of the name |
 
 **Returns:** `bool` — `True` if the shape key exists.
@@ -108,8 +121,8 @@ Retrieve the current value of a specific shape key.
 
 | Argument | Type | Default | Description |
 |----------|------|---------|-------------|
-| `blender_object` | `bpy.types.Object` | — | The object to query |
-| `target_name` | `str` | — | The shape key name |
+| `blender_object` | `bpy.types.Object \| None` | — | The object to query. A `None` object gives `0.0` |
+| `target_name` | `str \| None` | — | The shape key name. A `None` or empty name gives `0.0` |
 
 **Returns:** `float` — The shape key value, or `0.0` if not found.
 
@@ -121,8 +134,8 @@ Set the value of a specific shape key. Optionally removes the shape key if the v
 
 | Argument | Type | Default | Description |
 |----------|------|---------|-------------|
-| `blender_object` | `bpy.types.Object` | — | The object to modify |
-| `target_name` | `str` | — | The shape key name |
+| `blender_object` | `bpy.types.Object \| None` | — | The object to modify. A `None` object raises |
+| `target_name` | `str \| None` | — | The shape key name. A `None` or empty name raises |
 | `value` | `float` | — | The value to set |
 | `delete_target_on_zero` | `bool` | `False` | Remove the shape key if value is below `0.0001` |
 
@@ -138,11 +151,11 @@ Retrieve all shape keys from an object as a list of name/value dictionaries. Aut
 
 | Argument | Type | Default | Description |
 |----------|------|---------|-------------|
-| `blender_object` | `bpy.types.Object` | — | The mesh object to query |
-| `exclude_starts_with` | `str` | `None` | Exclude shape keys starting with this string (case-insensitive) |
-| `exclude_ends_with` | `str` | `None` | Exclude shape keys ending with this string (case-insensitive) |
+| `blender_object` | `bpy.types.Object \| None` | — | The mesh object to query. A `None` object raises |
+| `exclude_starts_with` | `str \| Iterable[str] \| None` | `None` | Exclude shape keys starting with this string, or with any string in the given iterable (case-insensitive) |
+| `exclude_ends_with` | `str \| Iterable[str] \| None` | `None` | Exclude shape keys ending with this string, or with any string in the given iterable (case-insensitive) |
 
-**Returns:** `list[dict]` — List of `{"target": name, "value": float}` dictionaries.
+**Returns:** `list[TargetStackEntry]` — List of `{"target": name, "value": float}` dictionaries.
 
 **Raises:** `ValueError` if the object is not a valid mesh.
 
@@ -154,7 +167,7 @@ Guess whether a shape key is a MakeHuman target based on its name. Checks for ma
 
 | Argument | Type | Default | Description |
 |----------|------|---------|-------------|
-| `shapekey_name` | `str` | — | The shape key name to check |
+| `shapekey_name` | `str \| None` | — | The shape key name to check. A `None` or empty name gives `False` |
 
 **Returns:** `bool` — `True` if the name matches known target patterns.
 
@@ -168,10 +181,10 @@ Load a shape key from a `.target` or `.target.gz` file and apply it to a Blender
 
 | Argument | Type | Default | Description |
 |----------|------|---------|-------------|
-| `blender_object` | `bpy.types.Object` | — | The mesh object to add the shape key to |
+| `blender_object` | `bpy.types.Object \| None` | — | The mesh object to add the shape key to. A `None` object raises |
 | `full_path` | `str` | — | Absolute path to the target file |
 | `weight` | `float` | `0.0` | Initial value for the shape key |
-| `name` | `str` | `None` | Custom name for the shape key (derived from filename if `None`) |
+| `name` | `str \| None` | `None` | Custom name for the shape key (derived from filename if `None`) |
 
 **Returns:** `bpy.types.ShapeKey` — The created shape key.
 
@@ -186,8 +199,8 @@ Load multiple targets from a target stack list. Each entry must have `"target"` 
 | Argument | Type | Default | Description |
 |----------|------|---------|-------------|
 | `blender_object` | `bpy.types.Object` | — | The mesh object to load targets onto |
-| `target_stack` | `list[dict]` | — | List of `{"target": name, "value": weight}` dictionaries |
-| `encode_target_names` | `bool` | `False` | Whether to encode target names |
+| `target_stack` | `Iterable[TargetStackEntry]` | — | `{"target": name, "value": weight}` dictionaries |
+| `encode_target_names` | `bool` | `False` | Accepted and ignored. The method body never reads it; shape key names come from `filename_to_shapekey_name()`, which decides encoding for itself |
 
 **Returns:** None
 
@@ -201,7 +214,7 @@ Search for a target file by name across system targets, custom targets, and all 
 |----------|------|---------|-------------|
 | `target_name` | `str` | — | The target name to search for |
 
-**Returns:** `str` or `None` — The full file path, or `None` if not found.
+**Returns:** `str | None` — The full file path, or `None` if not found.
 
 ---
 
@@ -238,12 +251,15 @@ Convert a shape key to a dictionary representation containing vertex offsets. Of
 
 | Argument | Type | Default | Description |
 |----------|------|---------|-------------|
-| `blender_object` | `bpy.types.Object` | — | The mesh object containing the shape key |
-| `shape_key_name` | `str` or `bpy.types.ShapeKey` | — | The shape key name or object |
+| `blender_object` | `bpy.types.Object \| None` | — | The mesh object containing the shape key. A `None` object raises |
+| `shape_key_name` | `str \| bpy.types.ShapeKey` | — | The shape key name or object |
 | `smaller_than_counts_as_unmodified` | `float` | `0.0001` | Offset magnitude threshold below which vertices are considered unmodified |
 | `only_modified_verts` | `bool` | `True` | If `True`, only include vertices with offsets above the threshold |
 
-**Returns:** `dict` — `{"name": str, "vertices": [(index, x, y, z), ...]}`.
+**Returns:** `ShapeKeyInfo` — `{"name": ..., "vertices": [(index, x, y, z), ...]}`. Note that `name` holds
+whatever was passed as `shape_key_name`, so it is a `bpy.types.ShapeKey` rather than a `str` when the shape
+key itself was given. Nothing in the tree reads that entry back, which is why the discrepancy has not
+mattered, but `shape_key_info_as_target_string()` would write it verbatim if it did.
 
 **Raises:** `ValueError` if the object has no shape keys or the named shape key doesn't exist.
 
@@ -255,7 +271,7 @@ Convert a shape key info dictionary (as returned by `get_shape_key_as_dict`) to 
 
 | Argument | Type | Default | Description |
 |----------|------|---------|-------------|
-| `shape_key_info` | `dict` | — | Shape key info dictionary |
+| `shape_key_info` | `ShapeKeyInfo` | — | Shape key info dictionary. Only the `vertices` entry is read |
 | `include_header` | `bool` | `True` | Whether to include the standard MakeTarget header |
 
 **Returns:** `str` — Target file content string.
@@ -285,7 +301,7 @@ Parse a line from a MakeHuman Model (`.mhm`) save file and extract the target na
 |----------|------|---------|-------------|
 | `mhm_line` | `str` | — | A line from an MHM file |
 
-**Returns:** `dict` — `{"target": target_name, "value": weight}`.
+**Returns:** `TargetStackEntry` — `{"target": target_name, "value": weight}`.
 
 ---
 
@@ -322,8 +338,8 @@ Convert a target filename to a shape key name by stripping the file extension (`
 | Argument | Type | Default | Description |
 |----------|------|---------|-------------|
 | `filename` | `str` | — | The filename to convert |
-| `macrodetail` | `bool` or `None` | `False` | Whether the file is a macro detail. `None` for auto-detection |
-| `encode_name` | `bool` or `None` | `None` | Whether to encode the name. `None` for automatic |
+| `macrodetail` | `bool \| None` | `False` | Whether the file is a macro detail. `None` for auto-detection |
+| `encode_name` | `bool \| None` | `None` | Whether to encode the name. `None` for automatic |
 
 **Returns:** `str` — The shape key name.
 
@@ -360,7 +376,7 @@ Translate an expression shape key name back to its bare ARKit face unit name. Re
 
 | Argument | Type | Default | Description |
 |----------|------|---------|-------------|
-| `shapekey_name` | `str` | — | A Blender shape key name |
+| `shapekey_name` | `str \| None` | — | A Blender shape key name. A `None` or empty name gives `None` |
 
 **Returns:** `str | None` — The bare ARKit name if the input starts with `!ex-`, otherwise `None`.
 
@@ -372,7 +388,7 @@ Translate an expression shape key name back to its bare ARKit face unit name. Re
 
 Return a dictionary with default values for all macro attributes: gender, age, muscle, weight, proportions, height, cupsize, and firmness at `0.5`, with race values at `0.33` each.
 
-**Returns:** `dict` — Default macro info dictionary.
+**Returns:** `MacroInfo` — Default macro info dictionary.
 
 ---
 
@@ -384,7 +400,7 @@ Read the current macro attribute values stored on a basemesh object's custom pro
 |----------|------|---------|-------------|
 | `basemesh` | `bpy.types.Object` | — | The basemesh to read values from |
 
-**Returns:** `dict` — Macro info dictionary with current values.
+**Returns:** `MacroInfo` — Macro info dictionary with current values.
 
 ---
 
@@ -394,10 +410,10 @@ Calculate the complete target stack from a macro info dictionary. This is the co
 
 | Argument | Type | Default | Description |
 |----------|------|---------|-------------|
-| `macro_info` | `dict` | — | Macro info dictionary (uses defaults if `None`) |
+| `macro_info` | `MacroInfo \| None` | — | Macro info dictionary (uses defaults if `None`) |
 | `cutoff` | `float` | `0.01` | Minimum weight threshold for including a target |
 
-**Returns:** `list[list]` — List of `[target_name, weight]` pairs.
+**Returns:** `list[MacroTarget]` — List of `[target_name, weight]` pairs.
 
 ---
 
@@ -407,7 +423,7 @@ Retrieve the names of all macro target shape keys currently on a basemesh (those
 
 | Argument | Type | Default | Description |
 |----------|------|---------|-------------|
-| `basemesh` | `bpy.types.Object` | — | The basemesh to query |
+| `basemesh` | `bpy.types.Object \| None` | — | The basemesh to query. A `None` object gives an empty list |
 | `decode_names` | `bool` | `True` | Whether to decode encoded shape key names |
 
 **Returns:** `list[str]` — List of macro target names.

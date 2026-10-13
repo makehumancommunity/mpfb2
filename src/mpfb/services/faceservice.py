@@ -2,9 +2,10 @@
 Module with logic for loading and interpolating facial animation targets (visemes and ARKit face units).
 """
 
-import bpy, json, os
+import bpy, json, os, typing
+from typing import Any
 from .logservice import LogService
-from .targetservice import TargetService
+from .targetservice import TargetService, TargetStackEntry
 from .locationservice import LocationService
 from .objectservice import ObjectService
 from .clothesservice import ClothesService
@@ -250,7 +251,7 @@ APPLIED_EXPRESSIONS_PROP = "mpfb_applied_expressions"
 
 # Cache for is_faceunits01_installed(). None means "not yet probed". Filled lazily on first call;
 # can be busted by passing force_recheck=True (used by tests).
-_FACEUNITS01_INSTALLED = None
+_FACEUNITS01_INSTALLED: bool | None = None
 
 # If no vert was shifted more than this in a shape key, assume the shape key is not significant enough to be interpolated.
 SIGNIFICANT_SHIFT_MINIMUM = 0.0001
@@ -289,15 +290,23 @@ class FaceService:
 
     Note that this class is designed to be used without instantiation. All methods are static methods that can be called directly."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         raise RuntimeError("You should not instance FaceService. Use its static methods instead.")
 
     @staticmethod
-    def load_targets(basemesh, load_microsoft_visemes=True, load_meta_visemes=False, load_arkit_faceunits=False):
-        """Bulk load targets, if installed. Will raise exception if target asset pack is not installed."""
+    def load_targets(basemesh: bpy.types.Object, load_microsoft_visemes: bool = True, load_meta_visemes: bool = False,
+                     load_arkit_faceunits: bool = False) -> None:
+        """Bulk load targets, if installed. Will raise exception if target asset pack is not installed.
+
+        Args:
+            basemesh (bpy.types.Object): The basemesh object to load the targets onto.
+            load_microsoft_visemes (bool): Load the MICROSOFT_VISEMES set. Defaults to True.
+            load_meta_visemes (bool): Load the META_VISEMES set. Defaults to False.
+            load_arkit_faceunits (bool): Load the ARKIT_FACEUNITS set. Defaults to False.
+        """
         _LOG.enter()
 
-        target_stack = []
+        target_stack: list[TargetStackEntry] = []
 
         if load_microsoft_visemes:
             for target in MICROSOFT_VISEMES:
@@ -330,7 +339,7 @@ class FaceService:
             TargetService.bulk_load_targets(basemesh, target_stack)
 
     @staticmethod
-    def interpolate_targets(basemesh):
+    def interpolate_targets(basemesh: bpy.types.Object) -> None:
         """Interpolate viseme and faceunit shape keys from the basemesh to child meshes.
 
         For each child mesh that has an associated MHCLO file, this method transfers all non-modelling
@@ -341,12 +350,13 @@ class FaceService:
         """
         _LOG.enter()
 
-        if not basemesh.data.shape_keys or not basemesh.data.shape_keys.key_blocks:
+        basemesh_data = typing.cast(bpy.types.Mesh, basemesh.data)
+        if not basemesh_data.shape_keys or not basemesh_data.shape_keys.key_blocks:
             _LOG.debug("No shape keys on basemesh, nothing to interpolate")
             return
 
         # Temporarily disable all modifiers on the basemesh. Store their state so they can be restored in the end of the function
-        modifier_states = {}
+        modifier_states: dict[str, bool] = {}
         for modifier in basemesh.modifiers:
             _LOG.debug("Disabling modifier", (modifier.name, modifier.show_viewport))
             modifier_states[modifier.name] = modifier.show_viewport
@@ -363,8 +373,8 @@ class FaceService:
         all_relevant_shapekey_names.extend(list(META_VISEMES))
         all_relevant_shapekey_names.extend(list(ARKIT_FACEUNITS))
 
-        shape_keys_to_interpolate = []
-        for key_block in basemesh.data.shape_keys.key_blocks:
+        shape_keys_to_interpolate: list[bpy.types.ShapeKey] = []
+        for key_block in typing.cast(bpy.types.Key, basemesh_data.shape_keys).key_blocks:
             if key_block.name == "Basis":
                 continue
             if key_block.name not in all_relevant_shapekey_names:
@@ -377,7 +387,7 @@ class FaceService:
 
         _LOG.debug("Shape keys to interpolate", [sk.name for sk in shape_keys_to_interpolate])
 
-        basis_coords = [v.co.copy() for v in basemesh.data.vertices]
+        basis_coords = [v.co.copy() for v in basemesh_data.vertices]
 
         for child in children:
             if child == basemesh or child.type != 'MESH':
@@ -393,18 +403,22 @@ class FaceService:
             mhclo = Mhclo()
             mhclo.load(mhclo_path)
 
-            if not child.data.shape_keys:
+            if not typing.cast(bpy.types.Mesh, child.data).shape_keys:
                 child.shape_key_add(name="Basis", from_mix=False)
 
             for source_key in shape_keys_to_interpolate:
-                if source_key.name in child.data.shape_keys.key_blocks:
+                # The shape_key_add() above guarantees a Key datablock, but the checker cannot see that a
+                # mutating call created one. The read stays per-iteration because the shape_key_add() at the
+                # end of this loop body adds to the very collection being tested.
+                child_keys = typing.cast(bpy.types.Key, typing.cast(bpy.types.Mesh, child.data).shape_keys)
+                if source_key.name in child_keys.key_blocks:
                     _LOG.debug("Shape key already exists on child, skipping", (child.name, source_key.name))
                     continue
 
                 # First, calculate all interpolated offsets to check if any are significant
                 significant_changes = []
                 for child_vert_idx in mhclo.verts:
-                    if child_vert_idx >= len(child.data.vertices):
+                    if child_vert_idx >= len(typing.cast(bpy.types.Mesh, child.data).vertices):
                         break
                     mapping = mhclo.verts[child_vert_idx]
                     v0, v1, v2 = mapping["verts"]
@@ -433,7 +447,8 @@ class FaceService:
 
                 # Apply the significant changes
                 for child_vert_idx, interpolated_offset in significant_changes:
-                    new_key.data[child_vert_idx].co = child.data.vertices[child_vert_idx].co + interpolated_offset
+                    new_key.data[child_vert_idx].co = typing.cast(bpy.types.Mesh, child.data).vertices[child_vert_idx].co \
+                        + interpolated_offset
 
                 _LOG.debug("Interpolated shape key to child", (source_key.name, child.name))
 
@@ -443,7 +458,7 @@ class FaceService:
                 modifier.show_viewport = modifier_states[modifier.name]
 
     @staticmethod
-    def configure_lip_sync(basemesh):
+    def configure_lip_sync(basemesh: bpy.types.Object) -> list[str]:
         """Map loaded visemes02 shape keys to the Lip Sync addon's property slots.
 
         This method automates the manual process of selecting shape keys in the Lip Sync panel
@@ -455,7 +470,7 @@ class FaceService:
                 loaded and the Lip Sync addon must be installed and initialised on this object.
 
         Returns:
-            list: A list of viseme IDs (strings) whose target shape key was not found on the mesh.
+            list[str]: A list of viseme IDs whose target shape key was not found on the mesh.
                   An empty list means all mappings were applied successfully.
 
         Raises:
@@ -467,26 +482,32 @@ class FaceService:
         if not SystemService.check_for_lipsync():
             raise ValueError("The Lip Sync addon (iocgpoly_lip_sync) is not enabled. Please enable it in Blender preferences.")
 
-        if not hasattr(basemesh, "lipsync2d_props") or not basemesh.lipsync2d_props.lip_sync_2d_initialized:
+        # lipsync2d_props is registered onto bpy.types.Object by the third-party Lip Sync addon, so it
+        # cannot appear in the stubs. The hasattr() guard on the same line is what makes the access safe.
+        if not hasattr(basemesh, "lipsync2d_props") \
+                or not basemesh.lipsync2d_props.lip_sync_2d_initialized:  # pyright: ignore[reportAttributeAccessIssue]
             raise ValueError("Lip Sync has not been initialised on this object. Use the Lip Sync panel to initialise it first.")
 
-        if not basemesh.data.shape_keys or "viseme_sil" not in basemesh.data.shape_keys.key_blocks:
+        basemesh_data = typing.cast(bpy.types.Mesh, basemesh.data)
+        if not basemesh_data.shape_keys or "viseme_sil" not in basemesh_data.shape_keys.key_blocks:
             raise ValueError("visemes02 shape keys are not loaded on this basemesh. Load the visemes02 pack first.")
 
-        missing = []
+        key_blocks = basemesh_data.shape_keys.key_blocks
+        missing: list[str] = []
         for viseme_id, shape_key_name in VISEMES02_TO_LIPSYNC.items():
             prop_name = "lip_sync_2d_viseme_shape_keys_" + viseme_id
-            if shape_key_name not in basemesh.data.shape_keys.key_blocks:
+            if shape_key_name not in key_blocks:
                 _LOG.warn("Shape key not found on mesh, skipping", (shape_key_name, viseme_id))
                 missing.append(viseme_id)
                 continue
             _LOG.debug("Setting lip sync property", (prop_name, shape_key_name))
-            setattr(basemesh.lipsync2d_props, prop_name, shape_key_name)
+            # Same third-party property as above; the hasattr() guard at the top of the method covers it.
+            setattr(basemesh.lipsync2d_props, prop_name, shape_key_name)  # pyright: ignore[reportAttributeAccessIssue]
 
         return missing
 
     @staticmethod
-    def is_faceunits01_installed(force_recheck=False):
+    def is_faceunits01_installed(force_recheck: bool = False) -> bool:
         """Return True if the faceunits01 asset pack appears to be installed.
 
         Probes for a single canonical face unit target ("cheekPuff") via TargetService.target_full_path.
@@ -501,7 +522,7 @@ class FaceService:
         return _FACEUNITS01_INSTALLED
 
     @staticmethod
-    def set_expression(basemesh, expression_dict):
+    def set_expression(basemesh: bpy.types.Object | None, expression_dict: dict[str, float]) -> None:
         """Apply a partial expression to the basemesh.
 
         For each (face unit name, weight) pair, set the value of the matching ``!ex-{name}`` shape key.
@@ -511,7 +532,7 @@ class FaceService:
         ``clear_expression`` to zero everything first.
 
         Args:
-            basemesh (bpy.types.Object): The basemesh object.
+            basemesh (bpy.types.Object | None): The basemesh object. A None basemesh is warned about and ignored.
             expression_dict (dict[str, float]): Bare ARKit face unit name → weight in [0, 1].
         """
         _LOG.enter()
@@ -526,8 +547,11 @@ class FaceService:
 
             shape_key_name = TargetService.expression_name_to_shapekey_name(face_unit_name)
             existing = None
-            if basemesh.data.shape_keys and basemesh.data.shape_keys.key_blocks:
-                existing = basemesh.data.shape_keys.key_blocks.get(shape_key_name)
+            # Re-read per iteration rather than hoisting: TargetService.load_target() below adds a shape
+            # key, so the collection tested here changes as the loop runs.
+            basemesh_data = typing.cast(bpy.types.Mesh, basemesh.data)
+            if basemesh_data.shape_keys and basemesh_data.shape_keys.key_blocks:
+                existing = basemesh_data.shape_keys.key_blocks.get(shape_key_name)
 
             if existing is None:
                 # Don't load a target on demand just to write a zero into it.
@@ -542,22 +566,23 @@ class FaceService:
                 existing.value = float(weight)
 
     @staticmethod
-    def clear_expression(basemesh):
+    def clear_expression(basemesh: bpy.types.Object | None) -> None:
         """Set every ``!ex-{name}`` shape key on the basemesh to 0.0.
 
         Iterates over ARKIT_FACEUNITS; missing shape keys are silently ignored. Modeling shape keys
         and visemes are not touched.
 
         Args:
-            basemesh (bpy.types.Object): The basemesh object.
+            basemesh (bpy.types.Object | None): The basemesh object. A None basemesh is silently ignored.
         """
         _LOG.enter()
         if basemesh is None or basemesh.data is None:
             return
-        if not basemesh.data.shape_keys or not basemesh.data.shape_keys.key_blocks:
+        basemesh_data = typing.cast(bpy.types.Mesh, basemesh.data)
+        if not basemesh_data.shape_keys or not basemesh_data.shape_keys.key_blocks:
             return
 
-        key_blocks = basemesh.data.shape_keys.key_blocks
+        key_blocks = basemesh_data.shape_keys.key_blocks
         for face_unit_name in ARKIT_FACEUNITS:
             shape_key_name = TargetService.expression_name_to_shapekey_name(face_unit_name)
             block = key_blocks.get(shape_key_name)
@@ -565,7 +590,7 @@ class FaceService:
                 block.value = 0.0
 
     @staticmethod
-    def read_current_expression(basemesh):
+    def read_current_expression(basemesh: bpy.types.Object | None) -> dict[str, float]:
         """Read the current ``!ex-`` shape key values into a dict keyed by bare ARKit names.
 
         The returned dict always contains all 52 ARKIT_FACEUNITS keys; face units whose shape key
@@ -573,7 +598,7 @@ class FaceService:
         composer UI to populate sliders from the current basemesh state without missing entries.
 
         Args:
-            basemesh (bpy.types.Object): The basemesh object.
+            basemesh (bpy.types.Object | None): The basemesh object. A None basemesh yields the all-zero dict.
 
         Returns:
             dict[str, float]: Bare ARKit face unit name → current shape key value.
@@ -582,10 +607,11 @@ class FaceService:
         result = {name: 0.0 for name in ARKIT_FACEUNITS}
         if basemesh is None or basemesh.data is None:
             return result
-        if not basemesh.data.shape_keys or not basemesh.data.shape_keys.key_blocks:
+        basemesh_data = typing.cast(bpy.types.Mesh, basemesh.data)
+        if not basemesh_data.shape_keys or not basemesh_data.shape_keys.key_blocks:
             return result
 
-        for block in basemesh.data.shape_keys.key_blocks:
+        for block in basemesh_data.shape_keys.key_blocks:
             face_unit_name = TargetService.shapekey_name_to_expression_name(block.name)
             if face_unit_name is None:
                 continue
@@ -595,7 +621,7 @@ class FaceService:
         return result
 
     @staticmethod
-    def save_expression(filename, expression_dict, metadata):
+    def save_expression(filename: str, expression_dict: dict[str, float] | None, metadata: dict[str, Any] | None) -> str:
         """Serialize an expression to a JSON file (see docs/fileformats/expression.md).
 
         Filters zero-valued entries and rounds weights to four decimals for stable diffs. The
@@ -608,8 +634,9 @@ class FaceService:
 
         Args:
             filename (str): Output path. Bare names resolve under ``<user_data>/expressions/``.
-            expression_dict (dict[str, float]): Bare ARKit name → weight. Zero entries are dropped.
-            metadata (dict): Top-level metadata fields.
+            expression_dict (dict[str, float] | None): Bare ARKit name → weight. Zero entries are dropped.
+                None is treated as an empty dict.
+            metadata (dict[str, Any] | None): Top-level metadata fields. None is treated as an empty dict.
 
         Returns:
             str: The absolute path actually written to.
@@ -626,7 +653,7 @@ class FaceService:
             target_name = filename if filename.lower().endswith(".json") else filename + ".json"
             absolute_path = os.path.abspath(os.path.join(base, target_name))
 
-        face_units = {}
+        face_units: dict[str, float] = {}
         for name, weight in (expression_dict or {}).items():
             if name not in ARKIT_FACEUNITS:
                 _LOG.warn("Skipping unknown face unit on save", name)
@@ -663,7 +690,7 @@ class FaceService:
         return absolute_path
 
     @staticmethod
-    def load_expression(filename):
+    def load_expression(filename: str) -> tuple[dict[str, float], dict[str, Any]]:
         """Load an expression JSON file (see docs/fileformats/expression.md).
 
         Tolerant of missing optional fields: ``description``, ``tags``, ``author``, ``copyright``,
@@ -674,7 +701,7 @@ class FaceService:
             filename (str): Path to the JSON file.
 
         Returns:
-            tuple[dict[str, float], dict]: (expression_dict, metadata). ``expression_dict`` only
+            tuple[dict[str, float], dict[str, Any]]: (expression_dict, metadata). ``expression_dict`` only
                 contains face units whose names are members of ARKIT_FACEUNITS. ``metadata``
                 contains the seven top-level metadata fields with defaults.
         """
@@ -689,7 +716,7 @@ class FaceService:
             raise ValueError("Expression file does not contain a JSON object: " + str(filename))
 
         raw_face_units = data.get("face_units", {}) or {}
-        expression_dict = {}
+        expression_dict: dict[str, float] = {}
         for name, weight in raw_face_units.items():
             if name not in ARKIT_FACEUNITS:
                 _LOG.warn("Skipping unknown face unit on load", name)
@@ -699,7 +726,7 @@ class FaceService:
             except (TypeError, ValueError):
                 _LOG.warn("Skipping non-numeric weight on load", (name, weight))
 
-        metadata = {
+        metadata: dict[str, Any] = {
             "name":        str(data.get("name", "")),
             "description": str(data.get("description", "")),
             "tags":        list(data.get("tags", []) or []),
@@ -712,7 +739,7 @@ class FaceService:
         return expression_dict, metadata
 
     @staticmethod
-    def _compute_expression_library_relative_path(absolute_path):
+    def _compute_expression_library_relative_path(absolute_path: str) -> str:
         """Strip the matching expressions asset root prefix from an absolute path.
 
         Returns a forward-slash relative path (e.g. ``"smile.json"`` or
@@ -736,7 +763,7 @@ class FaceService:
         return os.path.basename(abs_path)
 
     @staticmethod
-    def list_available_expressions():
+    def list_available_expressions() -> list[tuple[str, str, dict[str, Any]]]:
         """List every expression JSON discovered across the four standard MPFB asset roots.
 
         Scans ``<root>/expressions/*.json`` for every root returned by
@@ -745,7 +772,7 @@ class FaceService:
         roots, the highest-priority root wins — matching the precedence rule used for poses.
 
         Returns:
-            list[tuple[str, str, dict]]: A list of ``(absolute_path, library_relative_path,
+            list[tuple[str, str, dict[str, Any]]]: A list of ``(absolute_path, library_relative_path,
                 metadata)`` tuples. ``metadata`` is the dict returned by ``load_expression``.
                 Files that fail to parse are skipped with a warning so a single malformed file
                 does not break the picker.
@@ -754,7 +781,7 @@ class FaceService:
         from .assetservice import AssetService  # pylint: disable=C0415
         roots = AssetService.get_asset_roots("expressions")
 
-        seen = {}
+        seen: dict[str, tuple[str, str, dict[str, Any]]] = {}
         for root in roots:
             root_norm = os.path.abspath(root)
             if not os.path.isdir(root_norm):
@@ -785,7 +812,7 @@ class FaceService:
         return [seen[rel] for rel in sorted(seen.keys())]
 
     @staticmethod
-    def aggregate_expression_stack(stack):
+    def aggregate_expression_stack(stack: list[Any] | None) -> dict[str, float]:
         """Aggregate a list of applied-expression rows into a single clamped face-unit dict.
 
         Each row is a ``{"asset": <library-relative path>, "weight": <row weight>}`` dict.
@@ -795,8 +822,10 @@ class FaceService:
         still partially apply when one referenced file is missing.
 
         Args:
-            stack (list[dict]): Applied-expressions list as stored in
-                ``basemesh["mpfb_applied_expressions"]``.
+            stack (list[Any] | None): Applied-expressions list as stored in
+                ``basemesh["mpfb_applied_expressions"]``. Rows are expected to be dicts, but the element
+                type is Any because the list comes back from a user-writable ID property, so every row is
+                isinstance-checked here rather than trusted.
 
         Returns:
             dict[str, float]: ``{face_unit_name: weight}`` containing only face units with a
@@ -808,7 +837,7 @@ class FaceService:
         if not stack:
             return {}
 
-        aggregated = {}
+        aggregated: dict[str, float] = {}
         for row in stack:
             asset = row.get("asset") if isinstance(row, dict) else None
             if not asset:
@@ -840,7 +869,7 @@ class FaceService:
                     continue
                 aggregated[face_unit_name] = aggregated.get(face_unit_name, 0.0) + contribution
 
-        clamped = {}
+        clamped: dict[str, float] = {}
         for name, value in aggregated.items():
             if value <= 0.0:
                 continue
@@ -848,8 +877,12 @@ class FaceService:
         return clamped
 
     @staticmethod
-    def _read_applied_expressions(basemesh):
-        """Return the applied-expressions list stored on the basemesh (empty list if absent)."""
+    def _read_applied_expressions(basemesh: bpy.types.Object | None) -> list[Any]:
+        """Return the applied-expressions list stored on the basemesh (empty list if absent).
+
+        The element type is Any rather than dict: the property is user-writable, so the rows are
+        isinstance-checked by the callers which consume them rather than trusted here.
+        """
         if basemesh is None:
             return []
         raw = basemesh.get(APPLIED_EXPRESSIONS_PROP, None)
@@ -868,14 +901,18 @@ class FaceService:
         return value
 
     @staticmethod
-    def _write_applied_expressions(basemesh, stack):
-        """Sort the stack by asset and write it as a JSON-encoded string on the basemesh."""
+    def _write_applied_expressions(basemesh: bpy.types.Object | None, stack: list[Any] | None) -> None:
+        """Sort the stack by asset and write it as a JSON-encoded string on the basemesh.
+
+        As in _read_applied_expressions(), the rows are typed Any and isinstance-checked rather
+        than trusted, since they may have come straight back off the ID property.
+        """
         if basemesh is None:
             return
         if not stack:
             basemesh[APPLIED_EXPRESSIONS_PROP] = json.dumps([])
             return
-        normalized = []
+        normalized: list[dict[str, Any]] = []
         for row in stack:
             if not isinstance(row, dict):
                 continue
@@ -891,7 +928,8 @@ class FaceService:
         basemesh[APPLIED_EXPRESSIONS_PROP] = json.dumps(normalized)
 
     @staticmethod
-    def apply_expression_file(basemesh, filename, weight=1.0, append=True):
+    def apply_expression_file(basemesh: bpy.types.Object | None, filename: str, weight: float = 1.0,
+                              append: bool = True) -> dict[str, float]:
         """Apply a saved expression file to the basemesh through the persistent stack.
 
         Retained as a low-level helper. The expressions-library panel drives the use-side via
@@ -910,7 +948,7 @@ class FaceService:
         belongs to the operator layer, which knows the panel's ``auto_refit`` toggle.
 
         Args:
-            basemesh (bpy.types.Object): The basemesh object.
+            basemesh (bpy.types.Object | None): The basemesh object. None raises ValueError.
             filename (str): Absolute path to an expression JSON file.
             weight (float): Row weight for this expression. Defaults to 1.0.
             append (bool): If True (default), append/replace by asset. If False, replace the
@@ -933,7 +971,7 @@ class FaceService:
 
         if append:
             existing = FaceService._read_applied_expressions(basemesh)
-            stack = []
+            stack: list[Any] = []
             for row in existing:
                 if not isinstance(row, dict):
                     continue
@@ -957,11 +995,18 @@ class FaceService:
         return aggregated
 
     @staticmethod
-    def rebuild_expression_stack(basemesh):
+    def rebuild_expression_stack(basemesh: bpy.types.Object | None) -> dict[str, float]:
         """Re-aggregate ``basemesh[APPLIED_EXPRESSIONS_PROP]`` into live ``!ex-*`` values.
 
         Used after the stack list has been mutated externally and the live shape-key values
         need to be rebuilt from scratch.
+
+        Args:
+            basemesh (bpy.types.Object | None): The basemesh object. None yields an empty dict.
+
+        Returns:
+            dict[str, float]: The aggregated ``{face_unit_name: weight}`` dict that was written via
+                ``set_expression``, or an empty dict if there was nothing to apply.
         """
         _LOG.enter()
         if basemesh is None:
@@ -974,7 +1019,7 @@ class FaceService:
         return aggregated
 
     @staticmethod
-    def clear_applied_expressions(basemesh):
+    def clear_applied_expressions(basemesh: bpy.types.Object | None) -> None:
         """Empty the stack and zero every ``!ex-*`` shape key."""
         _LOG.enter()
         if basemesh is None:
@@ -983,7 +1028,7 @@ class FaceService:
         FaceService.clear_expression(basemesh)
 
     @staticmethod
-    def set_stack_weight(basemesh, asset_fragment, weight):
+    def set_stack_weight(basemesh: bpy.types.Object | None, asset_fragment: str, weight: float) -> dict[str, float]:
         """Set the weight of one expression in the applied-expressions stack.
 
         Entry point used by the expressions-library panel's per-slider update callbacks.
@@ -1001,7 +1046,7 @@ class FaceService:
         whether to invoke ``HumanService.refit`` based on its own scene toggle).
 
         Args:
-            basemesh (bpy.types.Object): The basemesh object.
+            basemesh (bpy.types.Object | None): The basemesh object. None raises ValueError.
             asset_fragment (str): Library-relative path of the expression file.
             weight (float): New slider value in ``[0, 1]``.
 
@@ -1021,7 +1066,7 @@ class FaceService:
             new_weight = 0.0
 
         existing = FaceService._read_applied_expressions(basemesh)
-        stack = []
+        stack: list[Any] = []
         for row in existing:
             if not isinstance(row, dict):
                 continue

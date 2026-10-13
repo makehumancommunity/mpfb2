@@ -1,6 +1,7 @@
 """Functionality for logging and profiling"""
 
-import os, bpy, time, pprint, inspect, json
+import os, bpy, time, pprint, inspect, json, typing
+from types import FrameType
 from .. import get_preference, DEBUG, MPFB_CONTEXTUAL_INFORMATION
 
 # There's a catch 22 where paths should be read from the location
@@ -117,8 +118,12 @@ class Logger():
     def enter(self) -> None:
         """Report that a method was entered, if the log level is at least trace."""
         if self.level >= LogService.TRACE:
-            info = dict()
-            stack = inspect.currentframe().f_back
+            info: dict[str, str] = dict()
+            # Both casts are safe rather than merely convenient: this method is only ever called
+            # from inside another method, so CPython guarantees a current frame which in turn has
+            # a caller frame. Cast instead of guarding, so that behavior is left unchanged.
+            current_frame = typing.cast(FrameType, inspect.currentframe())
+            stack = typing.cast(FrameType, current_frame.f_back)
             info["line_number"] = str(stack.f_lineno)
             info["caller_name"] = stack.f_globals["__name__"]
             info["file_name"] = stack.f_globals["__file__"]
@@ -129,8 +134,12 @@ class Logger():
     def leave(self) -> None:
         """Report that a method is about to be exited, if the log level is at least trace."""
         if self.level >= LogService.TRACE:
-            info = dict()
-            stack = inspect.currentframe().f_back
+            info: dict[str, str] = dict()
+            # Both casts are safe rather than merely convenient: this method is only ever called
+            # from inside another method, so CPython guarantees a current frame which in turn has
+            # a caller frame. Cast instead of guarding, so that behavior is left unchanged.
+            current_frame = typing.cast(FrameType, inspect.currentframe())
+            stack = typing.cast(FrameType, current_frame.f_back)
             info["line_number"] = str(stack.f_lineno)
             info["caller_name"] = stack.f_globals["__name__"]
             info["file_name"] = stack.f_globals["__file__"]

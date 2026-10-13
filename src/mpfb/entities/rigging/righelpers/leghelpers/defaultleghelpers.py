@@ -1,9 +1,12 @@
 """This module constains the rig specific implementation for the default rig."""
 
+import bpy
+
 from .....services import LogService
 _LOG = LogService.get_logger("leghelpers.defaultleghelpers")
 
 from .....services import RigService
+from .....types import RigHelperSettings
 from .leghelpers import LegHelpers
 
 _ROTATION_LIMITS = {
@@ -54,43 +57,43 @@ class DefaultLegHelpers(LegHelpers):
 
     """The rig specific implementation of arm helpers matching the Default and Default-no-toes rigs."""
 
-    def __init__(self, which_leg, settings):
+    def __init__(self, which_leg: str, settings: RigHelperSettings) -> None:
         """Get a new instance of the class. You should not call this directly. Instead, use the get_instance()
         method in the abstract base class."""
 
         _LOG.debug("Constructing DefaultLegHelpers object")
         LegHelpers.__init__(self, which_leg, settings)
 
-    def _sided(self, name):
+    def _sided(self, name: str) -> str:
         if self.which_leg == "right":
             return name + ".R"
         return name + ".L"
 
-    def get_lower_leg_name(self):
+    def get_lower_leg_name(self) -> str:
         return self._sided("lowerleg02")
 
-    def get_upper_leg_name(self):
+    def get_upper_leg_name(self) -> str:
         return self._sided("upperleg02")
 
-    def get_hip_name(self):
+    def get_hip_name(self) -> str:
         return self._sided("pelvis")
 
-    def get_foot_name(self):
+    def get_foot_name(self) -> str:
         return self._sided("foot")
 
-    def get_lower_leg_count(self):
+    def get_lower_leg_count(self) -> int:
         return 2
 
-    def get_upper_leg_count(self):
+    def get_upper_leg_count(self) -> int:
         return 2
 
-    def get_hip_count(self):
+    def get_hip_count(self) -> int:
         return 1
 
-    def get_root(self):
+    def get_root(self) -> str:
         return "root"
 
-    def _sided_rotation_limit(self, unsided_name, armature_object):
+    def _sided_rotation_limit(self, unsided_name: str, armature_object: bpy.types.Object) -> None:
         self.pose_mode()
         if unsided_name in _ROTATION_LIMITS:
             for axis_name in _ROTATION_LIMITS[unsided_name].keys():
@@ -102,7 +105,7 @@ class DefaultLegHelpers(LegHelpers):
                         limits = limits1
                 RigService.set_ik_rotation_limits(name, armature_object, axis=axis_name, min_angle=limits[0], max_angle=limits[1])
 
-    def _sided_rotation_lock(self, unsided_name, armature_object):
+    def _sided_rotation_lock(self, unsided_name: str, armature_object: bpy.types.Object) -> None:
         self.pose_mode()
         if unsided_name in _ROTATION_LOCKS:
             locks = _ROTATION_LOCKS[unsided_name]
@@ -112,19 +115,20 @@ class DefaultLegHelpers(LegHelpers):
             name = self._sided(unsided_name)
             RigService.add_ik_rotation_lock_to_pose_bone(name, armature_object, lock_x=x, lock_y=y, lock_z=z)
 
-    def add_lower_leg_rotation_constraints(self, armature_object):
+    def add_lower_leg_rotation_constraints(self, armature_object: bpy.types.Object) -> None:
         self._sided_rotation_lock("lowerleg02", armature_object)
         self._sided_rotation_limit("lowerleg01", armature_object)
 
-    def add_upper_leg_rotation_constraints(self, armature_object):
+    def add_upper_leg_rotation_constraints(self, armature_object: bpy.types.Object) -> None:
         self._sided_rotation_lock("upperleg02", armature_object)
         self._sided_rotation_limit("upperleg01", armature_object)
 
-    def add_hip_rotation_constraints(self, armature_object):
+    def add_hip_rotation_constraints(self, armature_object: bpy.types.Object) -> None:
         self._sided_rotation_limit("pelvis", armature_object)
         self._sided_rotation_limit("clavicle", armature_object)
 
-    def get_reverse_list_of_bones_in_leg(self, include_foot=True, include_lower_leg=True, include_upper_leg=True, include_hip=True):
+    def get_reverse_list_of_bones_in_leg(self, include_foot: bool=True, include_lower_leg: bool=True,
+                                         include_upper_leg: bool=True, include_hip: bool=True) -> list[str]:
         bone_list = []
         if include_hip:
             bone_list.append(self._sided("pelvis"))

@@ -53,7 +53,7 @@ Return the path to the MPFB user home directory.
 
 | Argument | Type | Default | Description |
 |----------|------|---------|-------------|
-| `sub_path` | `str` | `None` | Optional relative path to append |
+| `sub_path` | `str \| None` | `None` | Optional relative path to append |
 
 **Returns:** `str` — Absolute path to the user home directory or the specified sub-path within it.
 
@@ -67,7 +67,7 @@ Return the path to the user data directory.
 
 | Argument | Type | Default | Description |
 |----------|------|---------|-------------|
-| `sub_path` | `str` | `None` | Optional relative path to append |
+| `sub_path` | `str \| None` | `None` | Optional relative path to append |
 
 **Returns:** `str` — Absolute path to the user data directory.
 
@@ -81,7 +81,7 @@ Return the path to the user config directory.
 
 | Argument | Type | Default | Description |
 |----------|------|---------|-------------|
-| `sub_path` | `str` | `None` | Optional relative path to append |
+| `sub_path` | `str \| None` | `None` | Optional relative path to append |
 
 **Returns:** `str` — Absolute path to the user config directory.
 
@@ -95,7 +95,7 @@ Return the path to the user cache directory.
 
 | Argument | Type | Default | Description |
 |----------|------|---------|-------------|
-| `sub_path` | `str` | `None` | Optional relative path to append |
+| `sub_path` | `str \| None` | `None` | Optional relative path to append |
 
 **Returns:** `str` — Absolute path to the user cache directory.
 
@@ -109,7 +109,7 @@ Return the path to the log directory.
 
 | Argument | Type | Default | Description |
 |----------|------|---------|-------------|
-| `sub_path` | `str` | `None` | Optional relative path to append |
+| `sub_path` | `str \| None` | `None` | Optional relative path to append |
 
 **Returns:** `str` — Absolute path to the log directory.
 
@@ -121,7 +121,7 @@ Return the path to the MPFB addon root directory.
 
 | Argument | Type | Default | Description |
 |----------|------|---------|-------------|
-| `sub_path` | `str` | `None` | Optional relative path to append |
+| `sub_path` | `str \| None` | `None` | Optional relative path to append |
 
 **Returns:** `str` — Absolute path to the addon root (`src/mpfb/`).
 
@@ -135,7 +135,7 @@ Return the path to the MPFB bundled data directory.
 
 | Argument | Type | Default | Description |
 |----------|------|---------|-------------|
-| `sub_path` | `str` | `None` | Optional relative path to append |
+| `sub_path` | `str \| None` | `None` | Optional relative path to append |
 
 **Returns:** `str` — Absolute path to the bundled data directory.
 
@@ -149,7 +149,7 @@ Return the path to the MPFB test directory.
 
 | Argument | Type | Default | Description |
 |----------|------|---------|-------------|
-| `sub_path` | `str` | `None` | Optional relative path to append |
+| `sub_path` | `str \| None` | `None` | Optional relative path to append |
 
 **Returns:** `str` — Absolute path to the test directory.
 
@@ -163,9 +163,9 @@ Return the path to the second root directory.
 
 | Argument | Type | Default | Description |
 |----------|------|---------|-------------|
-| `sub_path` | `str` | `None` | Optional relative path to append |
+| `sub_path` | `str \| None` | `None` | Optional relative path to append |
 
-**Returns:** `str` or `None` — Absolute path if configured, otherwise `None`.
+**Returns:** `str | None` — Absolute path if configured, otherwise `None`.
 
 The second root provides an additional location for asset libraries. It can be set globally via preferences or per-scene via the asset settings panel.
 
@@ -177,9 +177,9 @@ Return the path to the MakeHuman user data directory.
 
 | Argument | Type | Default | Description |
 |----------|------|---------|-------------|
-| `sub_path` | `str` | `None` | Optional relative path to append |
+| `sub_path` | `str \| None` | `None` | Optional relative path to append |
 
-**Returns:** `str` or `None` — Absolute path if enabled, otherwise `None`.
+**Returns:** `str | None` — Absolute path if enabled, otherwise `None`.
 
 Provides access to assets stored in the standalone MakeHuman application's user data directory. Must be explicitly configured or autodiscovered.
 
@@ -231,7 +231,10 @@ Ensure all required directories exist, creating them if necessary.
 
 **Raises:** `IOError` — If a required directory cannot be created.
 
-Called automatically at module load. Creates user home, user data, user config, user cache, and log directories.
+Called automatically at module load. Walks the seven "relevant" directories — user home, user data, user
+config, user cache, logs, MPFB root and MPFB data — creating any which are missing, then verifies in a
+second pass that all seven now exist. The last two are part of the addon's own installation and so exist
+already in any working install.
 
 ---
 

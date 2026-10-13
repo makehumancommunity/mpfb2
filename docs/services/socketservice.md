@@ -15,6 +15,10 @@ The socket protocol is defined by MakeHuman's socket server API. Each call sends
 
 SocketService caches results for certain calls (like directory paths) to avoid repeated network round-trips for static information.
 
+**Every JSON call can return `None`.** A `JsonCall` is constructed with no data, and the reply parser only assigns one when the reply carried a non-empty `data` entry. MakeHuman answers a call it cannot serve by filling in the reply's `error` field and leaving `data` empty, and SocketService never inspects `error`, so a failed call and a successful call which carried nothing are indistinguishable: both arrive as `None`. Callers are expected to check, and the socket object entities under `src/mpfb/entities/socketobject` currently do not — see [SocketObject](../entities/socketobject.md).
+
+The binary calls are **not** nullable. The binary path assigns a `bytearray` unconditionally, even when what the server sent was a JSON error message rather than geometry, so a failed binary call surfaces as a short or unparseable buffer rather than as `None`.
+
 ## Source
 
 `src/mpfb/services/socketservice.py`
@@ -25,6 +29,7 @@ SocketService caches results for certain calls (like directory paths) to avoid r
 |------------|-------|
 | `LogService` | Logging via `LogService.get_logger("services.socketservice")` |
 | `JsonCall` | JSON-serializable function call model |
+| `mpfb.types` | `SocketMeshInfo`, `SocketWeightInfo` and `SocketSkeletonInfo`, the shared aliases for the three JSON payload shapes |
 
 ## Connection Defaults
 
@@ -32,6 +37,16 @@ SocketService caches results for certain calls (like directory paths) to avoid r
 |---------|---------|-------------|
 | Host | `127.0.0.1` | Localhost by default |
 | Port | `12345` | MakeHuman's default socket port |
+
+## Module-Level Types
+
+These three are declared in `src/mpfb/types.py` rather than in this module, because the socket object entities read the same dicts back out. All three are deliberately aliases rather than `TypedDict`s: the values arrive from `json.loads()` as `Any`, and in the `SocketMeshInfo` case no single key set describes both of its producers.
+
+| Name | Definition | Notes |
+|------|------------|-------|
+| `SocketMeshInfo` | `dict[str, Any]` | The description of one mesh, sent ahead of its geometry. Produced both by `get_body_mesh_info()` and as each entry of `get_proxies_info()`. Both carry `name` plus the `verticesShape`, `verticesTypeCode`, `facesShape`, `facesTypeCode`, `textureCoordsShape`, `textureCoordsTypeCode`, `faceUVMappingsShape` and `faceUVMappingsTypeCode` entries which say how to reshape the matching binary payload. The body additionally carries `filename`, `faceGroups` and `faceMask`; a proxy carries `type` and `uuid`, and reports its sizes as `numVertices`, `numFaces`, `numTextureCoords` and `numFaceUVMappings` instead of the four `*Shape` entries. |
+| `SocketWeightInfo` | `dict[str, Any]` | The vertex weight index, sent ahead of the weights themselves. The only key read in MPFB is `weights`, a list with one entry per weighted bone carrying `bone` and `numVertices`. The order of that list is significant: it is what slices the two parallel binary payloads into per bone arrays. |
+| `SocketSkeletonInfo` | `dict[str, Any]` | The skeleton of the currently loaded character. The keys read in MPFB are `name`, which is the string `"none"` when the character has no skeleton, and `bones`, a list of root bones each nesting its own `children`. This is not the same shape as `RigDefinition`, MPFB's own rig file format, which is flat and keyed by bone name. |
 
 ## Public API
 
@@ -67,7 +82,7 @@ Set the port number for socket connections.
 
 Get the MakeHuman user directory path.
 
-**Returns:** `str` — The user data directory path as reported by MakeHuman.
+**Returns:** `str | None` — The user data directory path as reported by MakeHuman, or `None` if the call carried no data.
 
 Results are cached after the first call.
 
@@ -77,7 +92,7 @@ Results are cached after the first call.
 
 Get the MakeHuman system directory path.
 
-**Returns:** `str` — The system data directory path as reported by MakeHuman.
+**Returns:** `str | None` — The system data directory path as reported by MakeHuman, or `None` if the call carried no data.
 
 Results are cached after the first call.
 
@@ -89,7 +104,7 @@ Results are cached after the first call.
 
 Get metadata about the body mesh.
 
-**Returns:** `dict` — Mesh metadata including vertex count, face count, and other properties.
+**Returns:** `SocketMeshInfo | None` — Mesh metadata including the array shapes and type codes needed to read the binary calls below, plus `name`, `filename`, `faceGroups` and `faceMask`. `None` if the call carried no data. See Module-Level Types.
 
 ---
 
@@ -133,7 +148,7 @@ Get body UV face mappings as binary data.
 
 Get material information for the body mesh.
 
-**Returns:** `dict` — Material properties including texture paths, colors, and shader settings.
+**Returns:** `dict[str, Any] | None` — Material properties including texture paths, colors and shader settings, keyed by MHMAT key name. `None` if the call carried no data. This one has no shared alias: the shape belongs to the MHMAT format, which `MhMaterial` and the MHMAT key catalog describe properly.
 
 ---
 
@@ -143,7 +158,7 @@ Get material information for the body mesh.
 
 Get the skeleton definition.
 
-**Returns:** `dict` — Complete skeleton data including bone hierarchy, positions, and constraints.
+**Returns:** `SocketSkeletonInfo | None` — The skeleton as `name` plus a `bones` list of root bones, each nesting its own `children`. `name` is the string `"none"` when the character has no skeleton. `None` if the call carried no data. See Module-Level Types.
 
 ---
 
@@ -153,7 +168,7 @@ Get the skeleton definition.
 
 Get metadata about body vertex weights.
 
-**Returns:** `dict` — Weight metadata including bone names and weight counts.
+**Returns:** `SocketWeightInfo | None` — Weight metadata as a `weights` list, one entry per weighted bone, each carrying `bone` and `numVertices`. `None` if the call carried no data. See Module-Level Types.
 
 ---
 
@@ -175,13 +190,13 @@ Get body vertex weights as binary data.
 
 ### Proxy (Asset) Data
 
-All proxy methods require a UUID parameter identifying the specific proxy asset.
+All proxy methods except `get_proxies_info()` require a UUID parameter identifying the specific proxy asset. `get_proxies_info()` is how that UUID is obtained in the first place.
 
 #### get_proxies_info()
 
 Get information about all loaded proxy assets.
 
-**Returns:** `dict` — Dictionary of proxy metadata keyed by UUID.
+**Returns:** `list[SocketMeshInfo] | None` — A **list**, not a dict: one `SocketMeshInfo` per loaded proxy, each carrying its own `uuid` and `type`. `None` if the call carried no data. See Module-Level Types.
 
 ---
 
@@ -241,7 +256,7 @@ Get metadata about proxy vertex weights.
 |----------|------|---------|-------------|
 | `uuid` | `str` | — | The proxy's unique identifier |
 
-**Returns:** `dict` — Weight metadata for the proxy.
+**Returns:** `SocketWeightInfo | None` — Weight metadata for the proxy, in the same shape as `get_body_weight_info()`. `None` if the call carried no data.
 
 ---
 
@@ -277,7 +292,7 @@ Get material information for a proxy.
 |----------|------|---------|-------------|
 | `uuid` | `str` | — | The proxy's unique identifier |
 
-**Returns:** `dict` — Material properties for the proxy.
+**Returns:** `dict[str, Any] | None` — Material properties for the proxy, in the same shape as `get_body_material_info()`. `None` if the call carried no data.
 
 ---
 
@@ -292,11 +307,14 @@ from mpfb.services.socketservice import SocketService
 SocketService.set_host("127.0.0.1")
 SocketService.set_port(12345)
 
-# Get directory information
+# Get directory information. Both can be None, see the Overview.
 user_dir = SocketService.get_user_dir()
 sys_dir = SocketService.get_sys_dir()
-print(f"MakeHuman user dir: {user_dir}")
-print(f"MakeHuman system dir: {sys_dir}")
+if user_dir is None or sys_dir is None:
+    print("MakeHuman answered, but without directory information")
+else:
+    print(f"MakeHuman user dir: {user_dir}")
+    print(f"MakeHuman system dir: {sys_dir}")
 ```
 
 ### Fetching Body Mesh Data
@@ -307,8 +325,13 @@ import struct
 
 # Get mesh metadata
 mesh_info = SocketService.get_body_mesh_info()
-print(f"Vertex count: {mesh_info.get('numVertices')}")
-print(f"Face count: {mesh_info.get('numFaces')}")
+if mesh_info is None:
+    raise RuntimeError("MakeHuman did not return any mesh info")
+
+# The shapes are what say how to read the binary payloads: [vertex count, 3] and
+# [face count, columns per face]
+print(f"Vertex shape: {mesh_info['verticesShape']}")
+print(f"Face shape: {mesh_info['facesShape']}")
 
 # Get vertex data as binary
 vertex_data = SocketService.get_body_vertices()
@@ -333,11 +356,23 @@ from mpfb.services.socketservice import SocketService
 # Get skeleton definition
 skeleton = SocketService.get_skeleton()
 
-# skeleton contains bone hierarchy and transforms
-for bone_name, bone_data in skeleton.get('bones', {}).items():
-    head = bone_data.get('head')
-    tail = bone_data.get('tail')
-    print(f"Bone '{bone_name}': head={head}, tail={tail}")
+if skeleton is None:
+    raise RuntimeError("MakeHuman did not return a skeleton")
+
+if skeleton["name"] == "none":
+    print("The character has no skeleton")
+else:
+    # "bones" is a list of root bones, each nesting its own "children" list,
+    # so walking it means recursing rather than iterating a flat mapping
+    def print_bone(bone_info, depth=0):
+        head = bone_info.get("head")
+        tail = bone_info.get("tail")
+        print(f"{'  ' * depth}Bone '{bone_info['name']}': head={head}, tail={tail}")
+        for child in bone_info["children"]:
+            print_bone(child, depth + 1)
+
+    for root_bone in skeleton["bones"]:
+        print_bone(root_bone)
 ```
 
 ### Working with Proxies (Clothes, Hair, etc.)
@@ -345,10 +380,11 @@ for bone_name, bone_data in skeleton.get('bones', {}).items():
 ```python
 from mpfb.services.socketservice import SocketService
 
-# Get all loaded proxies
+# Get all loaded proxies. This is a list of dicts, each carrying its own uuid.
 proxies_info = SocketService.get_proxies_info()
 
-for uuid, proxy_data in proxies_info.items():
+for proxy_data in proxies_info or []:
+    uuid = proxy_data["uuid"]
     proxy_name = proxy_data.get('name', 'Unknown')
     proxy_type = proxy_data.get('type', 'Unknown')
     print(f"Proxy: {proxy_name} ({proxy_type}) - UUID: {uuid}")
@@ -359,7 +395,7 @@ for uuid, proxy_data in proxies_info.items():
 
     # Get material info
     material = SocketService.get_proxy_material_info(uuid)
-    print(f"  Material: {material.get('name', 'default')}")
+    print(f"  Material: {(material or {}).get('name', 'default')}")
 ```
 
 ### Fetching Weight Data
@@ -368,10 +404,13 @@ for uuid, proxy_data in proxies_info.items():
 from mpfb.services.socketservice import SocketService
 import struct
 
-# Get weight metadata
+# Get weight metadata. "weights" holds one entry per weighted bone, in the
+# order the two binary payloads below are sliced by.
 weight_info = SocketService.get_body_weight_info()
-bone_names = weight_info.get('bones', [])
-print(f"Bones with weights: {bone_names}")
+if weight_info is None:
+    raise RuntimeError("MakeHuman did not return any weight info")
+for entry in weight_info["weights"]:
+    print(f"Bone {entry['bone']} weights {entry['numVertices']} vertices")
 
 # Get the actual weights
 weight_vertices = SocketService.get_body_weight_vertices()
@@ -392,6 +431,8 @@ def import_from_makehuman():
 
     # Get mesh info
     mesh_info = SocketService.get_body_mesh_info()
+    if mesh_info is None:
+        raise RuntimeError("MakeHuman did not return any mesh info")
 
     # Get vertex positions
     vert_data = SocketService.get_body_vertices()
@@ -424,11 +465,12 @@ def import_from_makehuman():
     material_info = SocketService.get_body_material_info()
     # Create materials...
 
-    # Import proxies
+    # Import proxies. get_proxies_info returns a list, so the uuid comes out of
+    # each entry rather than being the key.
     proxies = SocketService.get_proxies_info()
-    for uuid in proxies:
+    for proxy_info in proxies or []:
+        uuid = proxy_info["uuid"]
         # Import each proxy...
-        pass
 
     return mesh_obj
 ```
@@ -437,11 +479,17 @@ def import_from_makehuman():
 
 ```python
 from mpfb.services.socketservice import SocketService
+import asyncio
 
 def safe_fetch():
     """Fetch with error handling."""
     try:
         mesh_info = SocketService.get_body_mesh_info()
+        if mesh_info is None:
+            # MakeHuman answered, but the call carried no data. The reply's error
+            # field says why, and SocketService does not look at it.
+            print("MakeHuman returned no mesh info")
+            return None
         return mesh_info
     except ConnectionRefusedError:
         print("Could not connect to MakeHuman. Is it running with socket enabled?")

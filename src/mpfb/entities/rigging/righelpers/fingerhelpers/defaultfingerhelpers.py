@@ -1,9 +1,12 @@
 """This module contains the default rig's implementation of the finger helpers class"""
 
+import bpy
+
 from .....services import LogService
 _LOG = LogService.get_logger("fingerhelpers.defaultfingerhelpers")
 
 from .....services import RigService
+from .....types import RigHelperSettings
 from .fingerhelpers import FingerHelpers
 
 _ROTATION_LIMITS = {
@@ -51,19 +54,19 @@ class DefaultFingerHelpers(FingerHelpers):
 
     """The rig specific implementation of finger helpers matching the Default and Default-no-toes rigs."""
 
-    def __init__(self, which_hand, settings):
+    def __init__(self, which_hand: str, settings: RigHelperSettings) -> None:
         """Get a new instance of the class. You should not call this directly. Instead, use the get_instance()
         method in the abstract base class."""
 
         _LOG.debug("Constructing DefaultFingerHelpers object")
         FingerHelpers.__init__(self, which_hand, settings)
 
-    def _sided(self, name):
+    def _sided(self, name: str) -> str:
         if self.which_hand == "right":
             return name + ".R"
         return name + ".L"
 
-    def _sided_rotation_limits(self, finger_number, armature_object):
+    def _sided_rotation_limits(self, finger_number: int, armature_object: bpy.types.Object) -> None:
         self.pose_mode()
         for segment_number in [1, 2, 3]:
             limits = {}
@@ -83,7 +86,7 @@ class DefaultFingerHelpers(FingerHelpers):
                 angles = limits[axis_name]
                 RigService.set_ik_rotation_limits(name, armature_object, axis=axis_name, min_angle=angles[0], max_angle=angles[1])
 
-    def _sided_rotation_locks(self, finger_number, armature_object):
+    def _sided_rotation_locks(self, finger_number: int, armature_object: bpy.types.Object) -> None:
         self.pose_mode()
         for segment_number in [1, 2, 3]:
             locks = {}
@@ -104,26 +107,26 @@ class DefaultFingerHelpers(FingerHelpers):
             name = self._sided("finger" + str(finger_number) + "-" + str(segment_number))
             RigService.add_ik_rotation_lock_to_pose_bone(name, armature_object, lock_x=x, lock_y=y, lock_z=z)
 
-    def add_finger_rotation_constraints(self, finger_number, armature_object):
+    def add_finger_rotation_constraints(self, finger_number: int, armature_object: bpy.types.Object) -> None:
         self.pose_mode()
         self._sided_rotation_limits(finger_number, armature_object)
         self._sided_rotation_locks(finger_number, armature_object)
 
-    def get_reverse_list_of_bones_in_finger(self, finger_number):
+    def get_reverse_list_of_bones_in_finger(self, finger_number: int) -> list[str]:
         bone_list = []
         for segment_number in [3, 2, 1]:
             bone_list.append(self._sided("finger" + str(finger_number) + "-" + str(segment_number)))
         return bone_list
 
-    def get_first_segment_name_of_finger(self, finger_number):
+    def get_first_segment_name_of_finger(self, finger_number: int) -> str:
         return self._sided("finger" + str(finger_number) + "-1")
 
-    def get_last_segment_name_of_finger(self, finger_number):
+    def get_last_segment_name_of_finger(self, finger_number: int) -> str:
         return self._sided("finger" + str(finger_number) + "-3")
 
-    def get_immediate_parent_name_of_finger(self, finger_number):
+    def get_immediate_parent_name_of_finger(self, finger_number: int) -> str:
         return self._sided(_FINGER_PARENT[finger_number])
 
-    def get_finger_segment_count(self, finger_number):
+    def get_finger_segment_count(self, finger_number: int) -> int:
         return 3
 

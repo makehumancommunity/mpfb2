@@ -8,6 +8,21 @@ The service supports multiple rig types: the MPFB **default** rig (with and with
 
 RigService also manages armature refitting — the process of adjusting bone positions to match a morphed basemesh — provides bone visualization tools for displaying bones as empties, NURBS paths, or UV spheres, and owns the Rigify generation pipeline via `generate_rigify_rig`, which is the single implementation shared by every UI path that turns a Rigify meta rig into a generated control rig. All methods are static; the class should never be instantiated.
 
+Two things are worth knowing before reading the method list.
+
+**The bone lookups are nullable, and most of the service does not check them.** `find_pose_bone_by_name`
+and `find_edit_bone_by_name` return `None` for a name the armature does not have, because the blender
+collections they read do. Every other method which takes a bone name and then reads something off the
+bone does so unguarded, so a name that is not in the armature raises `AttributeError` rather than being
+reported. The bone name is a precondition the caller is expected to satisfy; the methods are not defensive
+about it, and there is nothing useful most of them could do with a bone that does not exist. The
+exceptions are noted per method.
+
+**Three areas do not work as documented below, and are marked where they appear.** Weight symmetrization
+is unimplemented and raises on any rig but the default; `get_world_space_location_of_pose_bone` returns
+its two entries under each other's key; and the subrig branch of `ensure_armature_modifier` calls an
+operator form blender removed. Each is described at the method it affects rather than only here.
+
 ## Source
 
 `src/mpfb/services/rigservice.py`
@@ -51,6 +66,21 @@ The `identify_rig()` method returns one of these string identifiers:
 | `"unknown"` | Unrecognized rig type |
 | `"custom.<name>"` | A custom rig saved to user data, where `<name>` is the bare filename (e.g., `"custom.my_rig"`) |
 
+## Module-Level Types
+
+| Name | Definition | Notes |
+|------|------------|-------|
+| `MhwWeights` | `dict[str, Any]` | The MHW weights dictionary, as `get_weights` produces it and `apply_weights` consumes it. The metadata keys — `copyright`, `description`, `license`, `name`, `version` — are written for MakeHuman compatibility and are not read anywhere in MPFB. The only key MPFB reads is `weights`, mapping a vertex group name to a list of `[vertex index, weight]` pairs. An alias rather than a `TypedDict` because a file written by MakeHuman or by an older MPFB need not carry the metadata keys at all, and because the values arrive from `json.load` as `Any`. |
+| `PoseInfo` | `dict[str, Any]` | A serialized pose, as `get_pose_as_dict` writes it and `set_pose_from_dict` reads it: `skeleton_type`, `bone_rotations`, `bone_rotation_modes`, `bone_translations`, `has_ik_bones`, `original_spine_length` and `original_shoulder_width`. An alias rather than a `TypedDict` because a pose file written by an older MPFB carries no `bone_rotation_modes` at all — `set_pose_from_dict` infers the mode from the length of the rotation list in that case. |
+| `SkeletonBoneInfo` | `dict[str, Any]` | One node of the bone tree inside a `SocketSkeletonInfo`, as the private `_add_bone` consumes it: `name`, `headPos`, `tailPos` and `children`, plus the optional `matrix` and `roll`. A node carrying `matrix` has its `roll` ignored. |
+| `RotationMode` | `Literal["QUATERNION", "XYZ", "XZY", "YXZ", "YZX", "ZXY", "ZYX", "AXIS_ANGLE"]` | The eight values blender's bone rotation mode enum accepts, verified against `PoseBone.bl_rna` on both blender 4.2.1 and 5.1, where the list is identical. Used by `normalize_rotation_mode`. |
+
+Three further shapes crossing this service's signatures are declared in `src/mpfb/types.py`, because they
+are shared with the entities layer rather than owned here: `BoneOrientationInfo` and `BoneOrientation`
+(what `get_bone_orientation_info_as_dict` returns, which all four rig helper hierarchies store) and
+`SocketSkeletonInfo` (what `SocketService.get_skeleton` returns, which `create_rig_from_skeleton_info`
+consumes).
+
 ## Public API
 
 ### Rig Creation and Setup
@@ -62,11 +92,19 @@ Create a new armature object from a skeleton information dictionary. The data di
 | Argument | Type | Default | Description |
 |----------|------|---------|-------------|
 | `name` | `str` | — | The name for the new armature |
-| `data` | `dict` | — | Skeleton info dictionary with bone data |
-| `parent` | `bpy.types.Object` | `None` | Optional parent object |
+| `data` | `SocketSkeletonInfo` | — | Skeleton info dictionary with bone data. Each entry of its `bones` list is a `SkeletonBoneInfo`. |
+| `parent` | `bpy.types.Object \| None` | `None` | Optional parent object. **Currently unusable:** see the note below. |
 | `scale` | `float` | `0.1` | Scale factor for bone positions |
 
 **Returns:** `bpy.types.Object` — The created armature object.
+
+> **`parent` does not work.** The argument is handed to `ObjectService.link_blender_object` positionally,
+> so it lands in that method's `collection` parameter rather than its `parent` one. A non-`None` value
+> therefore raises `AttributeError` inside `ObjectService` (a `bpy.types.Object` has no `objects`
+> collection to link into) and the parent is never assigned. Latent: the only caller in the tree —
+> `SocketBodyObject`, which parents the body mesh to the returned armature itself — passes `None`
+> explicitly, and `link_blender_object` then falls back to the active collection, which is the intended
+> behaviour. Pass `None` and parent the result yourself.
 
 ---
 
@@ -77,11 +115,20 @@ Ensure a mesh object has an armature modifier pointing to the given armature. Cr
 | Argument | Type | Default | Description |
 |----------|------|---------|-------------|
 | `obj` | `bpy.types.Object` | — | The mesh object to modify |
-| `armature_object` | `bpy.types.Object` | — | The armature to link |
+| `armature_object` | `bpy.types.Object \| None` | — | The armature to link. A falsy value makes the method retarget the modifiers that already exist and then return without creating any. |
 | `move_to_top` | `bool` | `True` | Move the armature modifier to the top of the stack |
-| `subrig` | `bpy.types.Object` | `None` | Optional subrig armature for a secondary modifier |
+| `subrig` | `bpy.types.Object \| None` | `None` | Optional subrig armature for a secondary modifier |
 
-**Returns:** None
+**Returns:** `None`
+
+> **The subrig branch raises.** The loop that moves the newly created `Armature Subrig` modifier up the
+> stack calls `bpy.ops.object.modifier_move_up({'object': obj}, modifier=...)`, which is the pre-3.2
+> context override form. Blender 4.2 raises `ValueError` and blender 5.x raises `TypeError` for it, so
+> the loop cannot complete on any supported version. The two sibling loops above it — for the plain and
+> the preserve-volume modifiers — use `bpy.context.temp_override()` and work. The branch is only entered
+> when a `subrig` is passed and the mesh does not already carry a `mhmask-subrig` armature modifier, and
+> the loop body is only reached when the mesh carries modifiers *after* the armature ones, which an MPFB
+> basemesh with a helper mask and a subdivision modifier does.
 
 ---
 
@@ -93,7 +140,7 @@ Ensure the armature has hidden empty objects for bone custom shapes (circle, sph
 |----------|------|---------|-------------|
 | `armature_object` | `bpy.types.Object` | — | The armature to check |
 
-**Returns:** None
+**Returns:** `None`
 
 ---
 
@@ -104,9 +151,9 @@ Set the rotation mode of all pose bones in the armature to the specified mode.
 | Argument | Type | Default | Description |
 |----------|------|---------|-------------|
 | `armature_object` | `bpy.types.Object` | — | The armature to normalize |
-| `rotation_mode` | `str` | `"XYZ"` | The Euler rotation order to set |
+| `rotation_mode` | `RotationMode` | `"XYZ"` | The rotation mode to set. One of the eight values of blender's rotation mode enum, not an arbitrary string; see Module-Level Types. |
 
-**Returns:** None
+**Returns:** `None`
 
 ---
 
@@ -114,7 +161,7 @@ Set the rotation mode of all pose bones in the armature to the specified mode.
 
 Copy built-in MPFB pose files (JSON) from the source data directory to the user data directory if they don't already exist. Creates subdirectories as needed.
 
-**Returns:** None
+**Returns:** `None`
 
 ---
 
@@ -129,7 +176,7 @@ Find a pose bone by name in the armature's pose bone collection.
 | `name` | `str` | — | The bone name to find |
 | `armature_object` | `bpy.types.Object` | — | The armature object |
 
-**Returns:** `bpy.types.PoseBone` or `None` — The pose bone, or `None` if not found.
+**Returns:** `bpy.types.PoseBone | None` — The pose bone, or `None` if not found. Note that most of the rest of this service calls this method and then reads the result without checking; see the Overview.
 
 ---
 
@@ -142,7 +189,7 @@ Find an edit bone by name. Requires the armature to be in Edit mode.
 | `name` | `str` | — | The bone name to find |
 | `armature_object` | `bpy.types.Object` | — | The armature object |
 
-**Returns:** `bpy.types.EditBone` or `None` — The edit bone, or `None` if not found.
+**Returns:** `bpy.types.EditBone | None` — The edit bone, or `None` if not found. Requires the armature to be in Edit mode, since `Armature.edit_bones` is empty otherwise.
 
 ---
 
@@ -157,7 +204,9 @@ Activate a specific pose bone, making it the active bone in the armature. Option
 | `also_select_bone` | `bool` | `True` | Also select the bone |
 | `also_deselect_all_other_bones` | `bool` | `True` | Deselect all other bones first |
 
-**Returns:** `bpy.types.PoseBone` — The activated pose bone.
+**Returns:** `bpy.types.PoseBone` — The activated pose bone. Raises `AttributeError` for a name the armature does not have, since the lookup is not checked.
+
+> **Selection does not work on blender 5.** This method selects and deselects by writing `pose_bone.bone.select`. Blender moved that flag from `bpy.types.Bone` to `bpy.types.PoseBone` in 5.0, so the write raises `AttributeError` there; it works on 4.2 and 4.3. No code in MPFB calls this method, which is why it has gone unnoticed. The same two lines appear in `set_pose_from_dict`, where they *are* reachable.
 
 ---
 
@@ -170,7 +219,14 @@ Get the head and tail positions of a pose bone in world space by transforming th
 | `bone_name` | `str` | — | The bone name |
 | `armature_object` | `bpy.types.Object` | — | The armature object |
 
-**Returns:** `dict` — `{"head": Vector, "tail": Vector}` in world space.
+**Returns:** `dict[str, Vector]` — Two entries, `"head"` and `"tail"`, each a position in world space.
+
+> **The two entries are swapped.** `loc["head"]` holds the transformed *tail* and `loc["tail"]` the
+> transformed *head*. The transform itself is correct — `matrix_world @` the bone-local position, which
+> is more correct than the two sibling methods below — but the keys are the wrong way round, so a caller
+> reading the dict by name gets each bone end's position under the other end's key. The sole caller,
+> the OpenPose export operator, does read it by name, so every keypoint it defines as a bone head is
+> exported at that bone's tail and vice versa.
 
 ---
 
@@ -183,7 +239,7 @@ Find the world-space location of a pose bone's tail.
 | `bone_name` | `str` | — | The bone name |
 | `armature_object` | `bpy.types.Object` | — | The armature object |
 
-**Returns:** `Vector` — The tail position in world space.
+**Returns:** `Vector` — The tail position, computed as `bone.tail + armature_object.location`. Note that this is not a full world-space transform: it adds the armature's translation only, so it is correct only for an armature that is neither rotated nor scaled. `get_world_space_location_of_pose_bone` applies `matrix_world` instead.
 
 ---
 
@@ -196,7 +252,7 @@ Find the world-space location of a pose bone's head.
 | `bone_name` | `str` | — | The bone name |
 | `armature_object` | `bpy.types.Object` | — | The armature object |
 
-**Returns:** `Vector` — The head position in world space.
+**Returns:** `Vector` — The head position, computed as `bone.head + armature_object.location`, with the same caveat as the tail method above.
 
 ---
 
@@ -212,7 +268,7 @@ Add a constraint of the specified type to a pose bone.
 | `armature_object` | `bpy.types.Object` | — | The armature object |
 | `constraint_name` | `str` | — | The constraint type (e.g., `'COPY_ROTATION'`, `'IK'`) |
 
-**Returns:** `bpy.types.Constraint` — The created constraint.
+**Returns:** `bpy.types.Constraint` — The created constraint, as the `bpy.types.Constraint` base class. The parameter is deliberately a plain `str` rather than blender's constraint-type enum, because callers build it from asset data; a value the enum does not contain raises at runtime. Callers which set type-specific settings on the result have to narrow it to the subclass the type string selects, which the rig helpers in `entities/rigging/righelpers` do with a `typing.cast`.
 
 ---
 
@@ -225,7 +281,7 @@ Remove all constraints from a pose bone and reset all IK lock and limit flags.
 | `bone_name` | `str` | — | The bone to clear constraints from |
 | `armature_object` | `bpy.types.Object` | — | The armature object |
 
-**Returns:** None
+**Returns:** `None`
 
 ---
 
@@ -242,7 +298,7 @@ Add a Copy Rotation constraint to a pose bone. The constraint copies rotation fr
 | `copy_y` | `bool` | `True` | Copy rotation around Y axis |
 | `copy_z` | `bool` | `True` | Copy rotation around Z axis |
 
-**Returns:** `bpy.types.Constraint` — The created constraint.
+**Returns:** `bpy.types.CopyRotationConstraint` — The created constraint.
 
 ---
 
@@ -258,7 +314,7 @@ Add a Limit Rotation constraint to a pose bone in local space.
 | `limit_y` | `bool` | `False` | Limit rotation around Y axis |
 | `limit_z` | `bool` | `False` | Limit rotation around Z axis |
 
-**Returns:** `bpy.types.Constraint` — The created constraint.
+**Returns:** `bpy.types.LimitRotationConstraint` — The created constraint.
 
 ---
 
@@ -274,7 +330,7 @@ Lock a pose bone's rotation on specified axes during IK solving.
 | `lock_y` | `bool` | `False` | Lock Y axis rotation |
 | `lock_z` | `bool` | `False` | Lock Z axis rotation |
 
-**Returns:** `bpy.types.PoseBone` — The modified pose bone.
+**Returns:** `bpy.types.PoseBone` — The modified pose bone. Raises `AttributeError` for a name the armature does not have.
 
 ---
 
@@ -286,10 +342,10 @@ Add an Inverse Kinematics constraint to a pose bone. The target can be either an
 |----------|------|---------|-------------|
 | `bone_name` | `str` | — | The bone to constrain |
 | `armature_object` | `bpy.types.Object` | — | The armature object |
-| `target` | `bpy.types.Object` or `bpy.types.PoseBone` | — | The IK target |
+| `target` | `bpy.types.Object \| bpy.types.PoseBone` | — | The IK target |
 | `chain_length` | `int` | `2` | Number of bones in the IK chain |
 
-**Returns:** `bpy.types.Constraint` — The created IK constraint.
+**Returns:** `bpy.types.KinematicConstraint` — The created IK constraint.
 
 ---
 
@@ -305,7 +361,9 @@ Set IK rotation limits for a pose bone on a specified axis. Angles are provided 
 | `min_angle` | `float` | `0` | Minimum angle in degrees |
 | `max_angle` | `float` | `0` | Maximum angle in degrees |
 
-**Returns:** None
+**Returns:** `None`
+
+An `axis` other than `"x"`, `"y"` or `"z"` matches none of the three branches and is silently ignored.
 
 ---
 
@@ -319,7 +377,7 @@ Retrieve the orientation information of all bones in an armature, including head
 |----------|------|---------|-------------|
 | `armature_object` | `bpy.types.Object` | — | The armature to analyze |
 
-**Returns:** `dict` — `{"pose_bones": {name: {head, tail, matrix}}, "edit_bones": {name: {head, tail, matrix, roll, length, parent}}}`.
+**Returns:** `BoneOrientationInfo` — `{"pose_bones": {name: BoneOrientation}, "edit_bones": {name: BoneOrientation}}`, where a pose entry carries `head`, `tail` and `matrix` and an edit entry additionally carries `roll`, `length` and `parent`. Declared in `src/mpfb/types.py`, since all four rig helper hierarchies store the result. Note that the method changes mode three times — to `POSE`, then `EDIT`, then back to `OBJECT` — because the two halves are only readable in their own mode.
 
 ---
 
@@ -330,9 +388,9 @@ Set bone orientations from a dictionary (as returned by `get_bone_orientation_in
 | Argument | Type | Default | Description |
 |----------|------|---------|-------------|
 | `armature_object` | `bpy.types.Object` | — | The armature to update |
-| `new_bone_orientation` | `dict` | — | Orientation data dictionary |
+| `new_bone_orientation` | `BoneOrientationInfo` | — | Orientation data dictionary |
 
-**Returns:** None
+**Returns:** `None`
 
 ---
 
@@ -372,14 +430,14 @@ Create an MHW-compatible weights dictionary from the current vertex group weight
 
 | Argument | Type | Default | Description |
 |----------|------|---------|-------------|
-| `armature_objects` | `bpy.types.Object` or `list` | — | The armature(s) to use for bone matching |
+| `armature_objects` | `list[bpy.types.Object] \| bpy.types.Object` | — | The armature(s) to use for bone matching. A single armature is wrapped in a list internally. |
 | `basemesh` | `bpy.types.Object` | — | The mesh to extract weights from |
 | `exclude_weights_below` | `float` | `0.0001` | Minimum weight to include |
 | `all_groups` | `bool` | `False` | Include all vertex groups, not just bone-matching ones |
 | `all_bones` | `bool` | `False` | Include all deform bones even without vertex groups |
 | `all_masks` | `bool` | `True` | Include `mhmask-*` vertex groups |
 
-**Returns:** `dict` — MHW-format weights dictionary with `"weights"` key.
+**Returns:** `MhwWeights` — MHW-format weights dictionary; see Module-Level Types.
 
 ---
 
@@ -389,13 +447,15 @@ Load vertex weights from a JSON file and apply them to the basemesh.
 
 | Argument | Type | Default | Description |
 |----------|------|---------|-------------|
-| `armature_objects` | `bpy.types.Object` or `list` | — | The armature(s) for bone matching |
+| `armature_objects` | `list[bpy.types.Object] \| bpy.types.Object` | — | The armature(s) for bone matching |
 | `basemesh` | `bpy.types.Object` | — | The mesh to apply weights to |
 | `mhw_filename` | `str` | — | Path to the MHW JSON file |
 | `all` | `bool` | `False` | Load all groups even without matching bones |
 | `replace` | `bool` | `False` | Replace existing weights entirely |
 
-**Returns:** None
+**Returns:** `None`
+
+`all` and `replace` are keyword-only.
 
 ---
 
@@ -405,55 +465,73 @@ Apply weights from a dictionary to the basemesh. Maps weight group names to bone
 
 | Argument | Type | Default | Description |
 |----------|------|---------|-------------|
-| `armature_objects` | `list[bpy.types.Object]` or `bpy.types.Object` | — | The armature(s) for bone matching |
+| `armature_objects` | `list[bpy.types.Object] \| bpy.types.Object` | — | The armature(s) for bone matching |
 | `basemesh` | `bpy.types.Object` | — | The mesh to apply weights to |
-| `mhw_dict` | `dict` | — | MHW-format weights dictionary |
+| `mhw_dict` | `MhwWeights` | — | MHW-format weights dictionary; see Module-Level Types |
 | `all` | `bool` | `False` | Load all groups even without matching bones |
 | `replace` | `bool` | `False` | Replace existing weights entirely |
 
-**Returns:** None
+**Returns:** `None`
+
+`all` and `replace` are keyword-only.
 
 ---
 
 #### mirror_bone_weights_to_other_side_bone(armature_object, source_bone_name, target_bone_name)
 
-Mirror vertex weights from a source side bone to the corresponding target side bone.
+**Not implemented.** The body logs the bone pair and returns; no weight is read or written and
+`armature_object` is not touched at all. The name and the signature describe the intent, not the
+behaviour. The only caller is `symmetrize_all_bone_weights`.
 
 | Argument | Type | Default | Description |
 |----------|------|---------|-------------|
-| `armature_object` | `bpy.types.Object` | — | The armature containing the bones |
-| `source_bone_name` | `str` | — | Name of the source bone |
-| `target_bone_name` | `str` | — | Name of the target bone |
+| `armature_object` | `bpy.types.Object` | — | Accepted and unused |
+| `source_bone_name` | `str` | — | Name of the source bone; logged only |
+| `target_bone_name` | `str` | — | Name of the target bone; logged only |
 
-**Returns:** None
+**Returns:** `None`
 
 ---
 
 #### mirror_bone_weights_inside_center_bone(armature_object, bone_name, left_to_right=False)
 
-Mirror vertex weights within a center bone (a bone that spans both sides of the mesh).
+**Not implemented**, in the same way as the method above: the body logs its arguments and returns. Intended
+to mirror weights within a center bone, a bone that spans both sides of the mesh.
 
 | Argument | Type | Default | Description |
 |----------|------|---------|-------------|
-| `armature_object` | `bpy.types.Object` | — | The armature containing the bone |
-| `bone_name` | `str` | — | Name of the center bone |
-| `left_to_right` | `bool` | `False` | If `True`, mirror from left to right |
+| `armature_object` | `bpy.types.Object` | — | Accepted and unused |
+| `bone_name` | `str` | — | Name of the center bone; logged only |
+| `left_to_right` | `bool` | `False` | Logged only |
 
-**Returns:** None
+**Returns:** `None`
 
 ---
 
 #### symmetrize_all_bone_weights(armature_object, left_to_right=False, rig_type=None)
 
-Symmetrize all bone weights across the rig. Identifies side bones by their suffix (e.g., `.L` / `.R`) and mirrors weights from the source side to the destination side. Center bones are mirrored internally.
+Walk the bones of the armature, classify each as a source side, a destination side or a center bone by its
+suffix (`.L` / `.R`), and hand each one to the matching mirror method.
+
+> **This changes no weights.** Both mirror methods it delegates to are unimplemented (see the two entries
+> above), so the walk has no effect. The two UI operators that call it — "Copy left to right" and "Copy
+> right to left" on the MakeWeight panel — nonetheless report `Weight symmetrized`.
+>
+> **It also raises for any rig but the default.** The suffix table is keyed by rig type and carries a
+> single `"default"` row. A falsy or `"unknown"` rig type is rewritten to `"default"`; every other value
+> `identify_rig` can return reaches the lookup unchanged and raises `KeyError` before a single bone is
+> visited. `"default_no_toes"` is the reachable case that matters, being the MPFB default rig without
+> individual toes.
 
 | Argument | Type | Default | Description |
 |----------|------|---------|-------------|
 | `armature_object` | `bpy.types.Object` | — | The armature to symmetrize |
 | `left_to_right` | `bool` | `False` | If `True`, mirror from left to right |
-| `rig_type` | `str` | `None` | Rig type for suffix detection (auto-detected if `None`) |
+| `rig_type` | `str \| None` | `None` | Rig type for suffix detection, auto-detected with `identify_rig` if `None` |
 
-**Returns:** None
+**Returns:** `None`
+
+**Raises:** `KeyError` if the resolved rig type has no row in the suffix table, which is every type other than `"default"`.
 
 ---
 
@@ -466,7 +544,7 @@ Store a list of extra bone names as a custom property on the armature. Used to t
 | Argument | Type | Default | Description |
 |----------|------|---------|-------------|
 | `armature_object` | `bpy.types.Object` | — | The armature to set the property on |
-| `extra_bones` | `list[str]` or `None` | — | List of bone names, or `None` to remove the property |
+| `extra_bones` | `list[str] \| None` | — | List of bone names, or `None` (or an empty list) to remove the property |
 
 **Returns:** None
 
@@ -504,7 +582,7 @@ Identify deform bones that will be generated by Rigify but are not present in th
 |----------|------|---------|-------------|
 | `armature_object` | `bpy.types.Object` | — | The metarig to analyze |
 
-**Returns:** `list[str]` or `None` — Sorted list of extra bone names, or `None`.
+**Returns:** `list[str]` — Sorted list of extra bone names, empty if there are none. **Never `None`**, contrary to what this doc and the method's own annotation previously said: the branch which finds no generated rig falls back to `get_extra_bones`, which answers an empty list.
 
 ---
 
@@ -530,7 +608,7 @@ The helper handles renaming a `.rig`-suffixed meta rig back to `.metarig`, apply
 | `name` | `str` | `""` | Optional basename for the generated rig |
 | `meta_rig_action` | `str` | `"hide"` | What to do with the meta rig after generation: `"keep"`, `"hide"`, or `"delete"`. Unknown values fall back to `"hide"` with a warning. |
 
-**Returns:** `bpy.types.Object` or `None` — The generated (or in-place updated) rigify rig, or `None` if `is_valid_metarig` rejected the meta rig.
+**Returns:** `bpy.types.Object | None` — The generated (or in-place updated) rigify rig, or `None` if `is_valid_metarig` rejected the meta rig.
 
 ---
 
@@ -562,7 +640,7 @@ Infer the corresponding rigify meta-rig type for a generated rigify rig. This is
 |----------|------|---------|-------------|
 | `rigify_object` | `bpy.types.Object` | — | The generated rigify rig armature |
 
-**Returns:** `str` or `None` — A `"rigify.<variant>"` meta-rig type string, or `None` if no signature matches. Callers should fall back to a sensible default and emit a warning when `None` is returned.
+**Returns:** `str | None` — A `"rigify.<variant>"` meta-rig type string, or `None` if no signature matches. Callers should fall back to a sensible default and emit a warning when `None` is returned.
 
 ---
 
@@ -589,10 +667,23 @@ Rotation handling is mode-aware: each bone's `rotation_mode` is set from `pose["
 | Argument | Type | Default | Description |
 |----------|------|---------|-------------|
 | `armature_object` | `bpy.types.Object` | — | The armature to pose |
-| `pose` | `dict` | — | Pose dictionary with `bone_rotations`, `bone_translations`, `skeleton_type` and optionally `bone_rotation_modes` |
+| `pose` | `PoseInfo` | — | Pose dictionary with `bone_rotations`, `bone_translations`, `skeleton_type` and optionally `bone_rotation_modes`; see Module-Level Types |
 | `from_rest_pose` | `bool` | `True` | Clear to rest pose before applying |
 
-**Returns:** None
+**Returns:** `None`
+
+> **The `from_rest_pose=False` path does not work on blender 5.** That path selects the bones the pose
+> mentions by writing `pose_bone.bone.select`, a flag blender moved from `bpy.types.Bone` to
+> `bpy.types.PoseBone` in 5.0, so it raises `AttributeError` there; it works on 4.2 and 4.3. The default
+> path selects with `bpy.ops.pose.select_all` instead and is unaffected. `mpfb.load_partial_pose` is the
+> operator that takes the broken path.
+
+Note that the spine and shoulder measurements are read from four hard-coded bone names — `spine05`,
+`spine01`, `shoulder01.L` and `shoulder01.R` — whenever `pose["skeleton_type"]` contains `"default"`, and
+the lookups are not checked. Those names come from the *saved* pose while the bones are looked up on the
+*current* armature, so applying a default-rig pose to an armature without them raises `AttributeError`.
+The two UI operators cannot reach that, because they choose the pose directory from `identify_rig` on the
+armature they are about to pose.
 
 ---
 
@@ -608,7 +699,7 @@ Serialize the current pose to a dictionary. Includes bone rotations, selected bo
 | `fk_bone_translation` | `bool` | `False` | Include FK bone translations |
 | `onlyselected` | `bool` | `False` | Only include selected bones |
 
-**Returns:** `dict` — Pose dictionary.
+**Returns:** `PoseInfo` — Pose dictionary; see Module-Level Types. The same four hard-coded bone names as `set_pose_from_dict` are read, unchecked, when `identify_rig` reports a default rig — which is what guarantees they exist on this path.
 
 ---
 
@@ -620,7 +711,7 @@ Apply the current pose as the new rest pose. For each child mesh: bakes shape ke
 |----------|------|---------|-------------|
 | `armature_object` | `bpy.types.Object` | — | The armature to apply |
 
-**Returns:** None
+**Returns:** `None`
 
 ---
 
@@ -634,7 +725,9 @@ Copy the pose from one armature to another by matching bone names. By default on
 | `to_armature` | `bpy.types.Object` | — | Target armature |
 | `only_rotation` | `bool` | `True` | If `True`, only copy rotations; if `False`, also copy translations and scales |
 
-**Returns:** None
+**Returns:** `None`
+
+Bones present in the source but not the target are silently skipped, and vice versa; matching is by name only.
 
 ---
 
@@ -651,7 +744,7 @@ Raises `ValueError("Cannot refit a generated rigify rig")` when the input is a g
 | `armature_object` | `bpy.types.Object` | — | The armature to refit |
 | `basemesh` | `bpy.types.Object` | — | The target basemesh |
 
-**Returns:** None
+**Returns:** `None`
 
 **Raises:** `ValueError` if the rig type cannot be identified, if it's a generated Rigify rig (should refit the metarig instead), or if the custom rig is no longer present in user data.
 
@@ -663,10 +756,10 @@ Refit a subrig (secondary armature for clothes/accessories) to match its parent 
 
 | Argument | Type | Default | Description |
 |----------|------|---------|-------------|
-| `armature_object` | `bpy.types.Object` | — | The subrig to refit |
-| `parent_rig` | `bpy.types.Object` | — | The parent rig to fit to |
+| `armature_object` | `bpy.types.Object` | — | The subrig armature object to refit |
+| `parent_rig` | `Rig` | — | The parent rig to fit to. **An `entities.rig.Rig` instance, not an armature object** — this doc previously said `bpy.types.Object`, which was wrong. It is handed straight to `Rig.from_json_file_and_basemesh` as the `parent` of the subrig definition being loaded, and that constructor reads `.armature_object` and `.rig_definition` off it. `HumanService.refit`, the only caller, builds one with `Rig.from_given_basemesh_and_armature`. |
 
-**Returns:** None
+**Returns:** `None`
 
 **Raises:** `ValueError` if the asset mesh or asset file cannot be found.
 
@@ -685,7 +778,9 @@ Set a pose bone's custom shape to an empty object. Ensures the required bone sha
 | `empty_type` | `str` | `"SPHERE"` | Type of empty (`"SPHERE"`, `"CIRCLE"`, `"SINGLE_ARROW"`) |
 | `scale` | `float` | `1.0` | Scale factor for the custom shape |
 
-**Returns:** None
+**Returns:** `None`
+
+The scale is applied through whichever of `custom_shape_scale` and `custom_shape_scale_xyz` the pose bone has, tested with `hasattr`. Only the latter exists on blender 4.2 and later, so the first branch is dead on every supported version and is kept for older ones. If no matching bone shape empty is found, the method logs a warning and leaves the bone alone.
 
 ---
 
@@ -728,11 +823,16 @@ Create a UV sphere object parented to a bone at its head or tail position. Usefu
 
 ```python
 from mpfb.services.rigservice import RigService
+from mpfb.services.objectservice import ObjectService
 
-# Create a rig from skeleton data
+# Create a rig from skeleton data. Leave parent at None: passing anything else raises,
+# for the reason given under create_rig_from_skeleton_info above.
 armature = RigService.create_rig_from_skeleton_info(
-    "MyRig", skeleton_data, parent=basemesh, scale=0.1
+    "MyRig", skeleton_data, parent=None, scale=0.1
 )
+
+# Parent the basemesh to the rig yourself
+ObjectService.link_blender_object(basemesh, parent=armature)
 
 # Add armature modifier to the basemesh
 RigService.ensure_armature_modifier(basemesh, armature)
@@ -756,7 +856,8 @@ pose = RigService.get_pose_as_dict(armature)
 with open("/path/to/pose.json", "w") as f:
     json.dump(pose, f)
 
-# Load and apply a pose
+# Load and apply a pose. Leave from_rest_pose at its default: the partial path
+# selects bones through Bone.select, which blender 5 removed.
 with open("/path/to/pose.json", "r") as f:
     saved_pose = json.load(f)
 RigService.set_pose_from_dict(armature, saved_pose)
@@ -770,7 +871,7 @@ RigService.copy_pose(source_armature, target_armature, only_rotation=True)
 ```python
 from mpfb.services.rigservice import RigService
 
-# Extract weights from current setup
+# Extract weights from current setup. Accepts one armature or a list of them.
 weights = RigService.get_weights(armature, basemesh)
 
 # Save weights to file
@@ -778,8 +879,8 @@ import json
 with open("/path/to/weights.json", "w") as f:
     json.dump(weights, f)
 
-# Load weights from file
-RigService.load_weights(armature, basemesh, "/path/to/weights.json")
+# Load weights from file. all and replace are keyword-only.
+RigService.load_weights(armature, basemesh, "/path/to/weights.json", all=True)
 
 # Get the weight loading fallback chain for a rig type
 fallbacks = RigService.get_rig_weight_fallbacks("default_no_toes")

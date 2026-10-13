@@ -1,6 +1,8 @@
+"""MPFB's enhanced (PBR plus subsurface scattering) skin shader, built from a node tree template."""
 
-import os, json, re
+import os, json, re, typing, bpy
 from pathlib import Path
+from typing import Any
 from .mhmaterial import MhMaterial
 from ...services import LogService
 from ...services import LocationService
@@ -9,14 +11,23 @@ from ...services import MaterialService
 
 _LOG = LogService.get_logger("material.enhancedskinmaterial")
 
+TemplateValues = dict[str, str]
+"""The substitution dict for the enhanced_skin.json node tree template.
+
+Every value is a string, because each one is spliced into the JSON source in place of a
+``"$key"`` placeholder before the document is parsed -- so a number is written as its digits and
+a boolean as the text ``"true"`` or ``"false"``, and a string value carries its own quotes."""
+
 
 class EnhancedSkinMaterial(MhMaterial):
 
-    def __init__(self, importer_presets):
-        MhMaterial.__init__(self)
-        self.presets = importer_presets
+    """An MhMaterial which applies itself as MPFB's enhanced skin node group."""
 
-    def _template(self, template_values, has, tex, key):
+    def __init__(self, importer_presets: dict[str, Any]) -> None:
+        MhMaterial.__init__(self)
+        self.presets: dict[str, Any] = importer_presets
+
+    def _template(self, template_values: TemplateValues, has: str, tex: str, key: str) -> None:
         template_values[has] = "false"
         template_values[tex] = "\"\""
         value = self.get_value(key)
@@ -27,15 +38,20 @@ class EnhancedSkinMaterial(MhMaterial):
         else:
             _LOG.debug(key + " is not set in mhmat")
 
-    def skin_tweaks(self, template_values, blender_material):
-        blender_material.diffuse_color = MaterialService.get_skin_diffuse_color()
+    def skin_tweaks(self, template_values: TemplateValues, blender_material: bpy.types.Material) -> None:
+        """Adjust the template values and the material itself for skin rather than another body part."""
+        # bpy_prop_array declares no constructor and no element assignment, so no python sequence
+        # satisfies it to the checker, although assigning a four element list to a fixed size float
+        # array is ordinary at runtime.
+        blender_material.diffuse_color = MaterialService.get_skin_diffuse_color()  # pyright: ignore[reportAttributeAccessIssue]
         template_values["Roughness"] = "0.45"
 
-    def default_settings(self, blender_material, group_name=None):
+    def default_settings(self, blender_material: bpy.types.Material, group_name: str | None = None) -> TemplateValues:
+        """Build the substitution dict for the template, from the presets and the parsed material."""
         tex_dir = LocationService.get_mpfb_data("textures")
         sss_file = os.path.join(tex_dir, "sss.png")
 
-        template_values = dict()
+        template_values: TemplateValues = dict()
         self._template(template_values, "has_diffusetexture", "diffusetexture_filename", "diffuseTexture")
         self._template(template_values, "has_normalmap", "normalmap_filename", "normalMapTexture")
 
@@ -68,7 +84,8 @@ class EnhancedSkinMaterial(MhMaterial):
 
         return template_values
 
-    def apply_node_tree(self, blender_material, tweaks="SKIN", group_name=None):
+    def apply_node_tree(self, blender_material: bpy.types.Material, tweaks: str = "SKIN", group_name: str | None = None) -> None:
+        """Replace the material's node tree with the enhanced skin template, filled in from the presets."""
 
         template_values = self.default_settings(blender_material, group_name)
 
@@ -96,4 +113,6 @@ class EnhancedSkinMaterial(MhMaterial):
         node_tree_dict = json.loads(template_data)
         _LOG.dump("node_tree_dict", node_tree_dict)
 
-        NodeService.apply_node_tree_from_dict(blender_material.node_tree, node_tree_dict, True)
+        # Material.node_tree is None until use_nodes is set, which every caller does before
+        # getting here, either directly or through MaterialService.create_empty_material().
+        NodeService.apply_node_tree_from_dict(typing.cast(bpy.types.NodeTree, blender_material.node_tree), node_tree_dict, True)

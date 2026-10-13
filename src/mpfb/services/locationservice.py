@@ -1,11 +1,10 @@
 """Module for resolving various locations as paths."""
 
-import os, bpy
+import os, bpy, typing
 from .. import get_preference
 from .. import MPFB_CONTEXTUAL_INFORMATION
 from .logservice import LogService
 from pathlib import Path
-from typing import Optional
 
 _LOG = LogService.get_logger("services.locationservice")
 
@@ -23,10 +22,11 @@ class _LocationService():
     of certain configurations like source distribution and MakeHuman user data enablement.
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
+        """Set up the service. This is called once, when the module is first imported."""
         _LOG.debug("Constructing location service")
 
-        self._user_home = bpy.utils.extension_path_user(MPFB_CONTEXTUAL_INFORMATION["__package__"])
+        self._user_home: str = bpy.utils.extension_path_user(MPFB_CONTEXTUAL_INFORMATION["__package__"])
         _LOG.debug("self._user_home", self._user_home)
 
         overriden_user_home = None
@@ -48,36 +48,36 @@ class _LocationService():
         self._check_set_second_root()
         self._check_set_mh_user_dir()
 
-        self._user_data = os.path.join(self._user_home, "data")
+        self._user_data: str = os.path.join(self._user_home, "data")
         _LOG.debug("self._user_data", self._user_data)
 
-        self._user_config = os.path.join(self._user_home, "config")
+        self._user_config: str = os.path.join(self._user_home, "config")
         _LOG.debug("self._user_config", self._user_config)
 
-        self._user_cache = os.path.join(self._user_home, "cache")
+        self._user_cache: str = os.path.join(self._user_home, "cache")
         _LOG.debug("self._user_cache", self._user_cache)
 
-        self._log_dir = os.path.join(self._user_home, "logs")
+        self._log_dir: str = os.path.join(self._user_home, "logs")
         _LOG.debug("self._log_dir", self._log_dir)
 
         script_location = os.path.dirname(__file__)
 
-        self._mpfb_root = Path(os.path.join(script_location, "..")).resolve()
+        self._mpfb_root: str = str(Path(os.path.join(script_location, "..")).resolve())
         _LOG.debug("self._mpfb_root", self._mpfb_root)
 
-        self._repo_src = os.path.abspath(os.path.realpath(os.path.join(self._mpfb_root, '..')))
+        self._repo_src: str = os.path.abspath(os.path.realpath(os.path.join(self._mpfb_root, '..')))
         _LOG.debug("self._repo_src", self._repo_src)
 
-        self._repo_root = os.path.abspath(os.path.join(self._repo_src, '..'))
+        self._repo_root: str = os.path.abspath(os.path.join(self._repo_src, '..'))
         _LOG.debug("self._repo_root", self._repo_root)
 
-        self._test_root = os.path.abspath(os.path.join(self._repo_root, 'test'))
+        self._test_root: str = os.path.abspath(os.path.join(self._repo_root, 'test'))
         _LOG.debug("self._test_root", self._test_root)
 
-        self._mpfb_data = os.path.join(self._mpfb_root, "data")
+        self._mpfb_data: str = os.path.join(self._mpfb_root, "data")
         _LOG.debug("self._mpfb_data", self._mpfb_data)
 
-        self._relevant_directories = []
+        self._relevant_directories: list[str] = []
         self._relevant_directories.append(self._user_home)
         self._relevant_directories.append(self._user_data)
         self._relevant_directories.append(self._user_config)
@@ -88,22 +88,22 @@ class _LocationService():
         self._relevant_directories.append(self._mpfb_root)
         self._relevant_directories.append(self._mpfb_data)
 
-    def update_mh_data(self):
+    def update_mh_data(self) -> None:
         """
         Updates the MakeHuman user data location based on the current configuration.
         """
         _LOG.debug("Config change: Update MH data location")
         self._check_set_mh_user_dir()
 
-    def update_second_root(self):
+    def update_second_root(self) -> None:
         """
         Updates the second root location based on the current configuration.
         """
         _LOG.debug("Config change: Update second root location")
         self._check_set_second_root()
 
-    def _check_set_second_root(self):
-        self._second_root = None
+    def _check_set_second_root(self) -> None:
+        self._second_root: str | None = None
         try:
             self._second_root = get_preference("mpfb_second_root")
             if self._second_root is not None:
@@ -118,10 +118,10 @@ class _LocationService():
             _LOG.warn("Could not read preference mpfb_second_root")
         _LOG.debug("second root", self._second_root)
 
-    def _check_set_mh_user_dir(self):
+    def _check_set_mh_user_dir(self) -> None:
         _LOG.enter()
-        self._mh_user_data = None
-        self._mh_auto_user_data = False
+        self._mh_user_data: str | None = None
+        self._mh_auto_user_data: bool = False
         mh_user_data = None
         try:
             mh_user_data = get_preference("mh_user_data")
@@ -162,7 +162,7 @@ class _LocationService():
             _LOG.info("mh_user_data explicitly set to", mh_user_data)
             self._mh_user_data = mh_user_data
 
-    def update_mh_user_data_if_relevant(self, new_path):
+    def update_mh_user_data_if_relevant(self, new_path: str) -> None:
         """
         Updates the MakeHuman user data path if autodiscovery is enabled.
 
@@ -172,7 +172,7 @@ class _LocationService():
         if self._mh_auto_user_data:
             self._mh_user_data = new_path
 
-    def ensure_relevant_directories_exist(self):
+    def ensure_relevant_directories_exist(self) -> None:
         """
         Ensures that all relevant directories exist. If any directory does not exist, it will be created.
         If a directory cannot be created, an IOError is raised.
@@ -193,7 +193,7 @@ class _LocationService():
                 _LOG.error("Was not able to create relevant directory:", dir_path)
                 raise IOError('Could not create ' + dir_path)
 
-    def _return_path(self, path, sub_path: Optional[str] = None) -> str:
+    def _return_path(self, path: str, sub_path: str | None = None) -> str:
         _LOG.enter()
         _LOG.trace("_return_path, path is", path)
         _LOG.trace("_return_path, sub_path is", sub_path)
@@ -201,12 +201,12 @@ class _LocationService():
             return path
         return os.path.join(path, sub_path)
 
-    def get_user_home(self, sub_path: Optional[str] = None) -> str:
+    def get_user_home(self, sub_path: str | None = None) -> str:
         """
         Returns the path to the user home directory, optionally appending a sub-path.
 
         Args:
-            sub_path (str, optional): A sub-path to append to the user home directory. Defaults to None.
+            sub_path (str | None): A sub-path to append to the user home directory. Defaults to None.
 
         Returns:
             str: The full path to the user home directory or the specified sub-path within it.
@@ -214,12 +214,12 @@ class _LocationService():
         _LOG.enter()
         return self._return_path(self._user_home, sub_path)
 
-    def get_user_data(self, sub_path: Optional[str] = None) -> str:
+    def get_user_data(self, sub_path: str | None = None) -> str:
         """
         Returns the path to the user data directory, optionally appending a sub-path.
 
         Args:
-            sub_path (str, optional): A sub-path to append to the user data directory. Defaults to None.
+            sub_path (str | None): A sub-path to append to the user data directory. Defaults to None.
 
         Returns:
             str: The full path to the user data directory or the specified sub-path within it.
@@ -227,12 +227,12 @@ class _LocationService():
         _LOG.enter()
         return self._return_path(self._user_data, sub_path)
 
-    def get_user_config(self, sub_path: Optional[str] = None) -> str:
+    def get_user_config(self, sub_path: str | None = None) -> str:
         """
         Returns the path to the user config directory, optionally appending a sub-path.
 
         Args:
-            sub_path (str, optional): A sub-path to append to the user config directory. Defaults to None.
+            sub_path (str | None): A sub-path to append to the user config directory. Defaults to None.
 
         Returns:
             str: The full path to the user config directory or the specified sub-path within it.
@@ -240,12 +240,12 @@ class _LocationService():
         _LOG.enter()
         return self._return_path(self._user_config, sub_path)
 
-    def get_user_cache(self, sub_path: Optional[str] = None) -> str:
+    def get_user_cache(self, sub_path: str | None = None) -> str:
         """
         Returns the path to the user cache directory, optionally appending a sub-path.
 
         Args:
-            sub_path (str, optional): A sub-path to append to the user cache directory. Defaults to None.
+            sub_path (str | None): A sub-path to append to the user cache directory. Defaults to None.
 
         Returns:
             str: The full path to the user cache directory or the specified sub-path within it.
@@ -253,12 +253,12 @@ class _LocationService():
         _LOG.enter()
         return self._return_path(self._user_cache, sub_path)
 
-    def get_mpfb_data(self, sub_path: Optional[str] = None) -> str:
+    def get_mpfb_data(self, sub_path: str | None = None) -> str:
         """
         Returns the path to the MPFB data directory, optionally appending a sub-path.
 
         Args:
-            sub_path (str, optional): A sub-path to append to the MPFB data directory. Defaults to None.
+            sub_path (str | None): A sub-path to append to the MPFB data directory. Defaults to None.
 
         Returns:
             str: The full path to the MPFB data directory or the specified sub-path within it.
@@ -266,12 +266,12 @@ class _LocationService():
         _LOG.enter()
         return self._return_path(self._mpfb_data, sub_path)
 
-    def get_mpfb_root(self, sub_path: Optional[str] = None) -> str:
+    def get_mpfb_root(self, sub_path: str | None = None) -> str:
         """
         Returns the path to the MPFB root directory, optionally appending a sub-path.
 
         Args:
-            sub_path (str, optional): A sub-path to append to the MPFB root directory. Defaults to None.
+            sub_path (str | None): A sub-path to append to the MPFB root directory. Defaults to None.
 
         Returns:
             str: The full path to the MPFB root directory or the specified sub-path within it.
@@ -279,15 +279,16 @@ class _LocationService():
         _LOG.enter()
         return self._return_path(self._mpfb_root, sub_path)
 
-    def get_second_root(self, sub_path: Optional[str] = None) -> str:
+    def get_second_root(self, sub_path: str | None = None) -> str | None:
         """
         Returns the path to the second root directory, optionally appending a sub-path.
 
         Args:
-            sub_path (str, optional): A sub-path to append to the second root directory. Defaults to None.
+            sub_path (str | None): A sub-path to append to the second root directory. Defaults to None.
 
         Returns:
-            str: The full path to the second root directory or the specified sub-path within it, or None if the second root is not set.
+            str | None: The full path to the second root directory or the specified sub-path within it, or None if
+            the second root is not set.
         """
         _LOG.enter()
         sr = self._second_root
@@ -305,12 +306,12 @@ class _LocationService():
 
         return self._return_path(sr, sub_path)
 
-    def get_log_dir(self, sub_path: Optional[str] = None) -> str:
+    def get_log_dir(self, sub_path: str | None = None) -> str:
         """
         Returns the path to the log directory, optionally appending a sub-path.
 
         Args:
-            sub_path (str, optional): A sub-path to append to the log directory. Defaults to None.
+            sub_path (str | None): A sub-path to append to the log directory. Defaults to None.
 
         Returns:
             str: The full path to the log directory or the specified sub-path within it.
@@ -318,27 +319,30 @@ class _LocationService():
         _LOG.enter()
         return self._return_path(self._log_dir, sub_path)
 
-    def get_mh_user_data(self, sub_path: Optional[str] = None) -> str:
+    def get_mh_user_data(self, sub_path: str | None = None) -> str | None:
         """
         Returns the path to the MakeHuman user data directory, optionally appending a sub-path.
 
         Args:
-            sub_path (str, optional): A sub-path to append to the MakeHuman user data directory. Defaults to None.
+            sub_path (str | None): A sub-path to append to the MakeHuman user data directory. Defaults to None.
 
         Returns:
-            str: The full path to the MakeHuman user data directory or the specified sub-path within it, or None if MakeHuman user data is not enabled.
+            str | None: The full path to the MakeHuman user data directory or the specified sub-path within it, or
+            None if MakeHuman user data is not enabled.
         """
         _LOG.enter()
         if not self.is_mh_user_data_enabled():
             return None
-        return self._return_path(self._mh_user_data, sub_path)
+        # is_mh_user_data_enabled() is precisely the "_mh_user_data is not None" test, but the checker cannot
+        # see that through the method call, so the guard above has to be restated as a cast.
+        return self._return_path(typing.cast(str, self._mh_user_data), sub_path)
 
-    def get_mpfb_test(self, sub_path: Optional[str] = None) -> str:
+    def get_mpfb_test(self, sub_path: str | None = None) -> str:
         """
         Returns the path to the MPFB test directory, optionally appending a sub-path.
 
         Args:
-            sub_path (str, optional): A sub-path to append to the MPFB test directory. Defaults to None.
+            sub_path (str | None): A sub-path to append to the MPFB test directory. Defaults to None.
 
         Returns:
             str: The full path to the MPFB test directory or the specified sub-path within it.
@@ -346,7 +350,7 @@ class _LocationService():
         _LOG.enter()
         return self._return_path(self._test_root, sub_path)
 
-    def is_source_dist(self):
+    def is_source_dist(self) -> bool:
         """
         Checks if the current distribution is a source distribution.
 
@@ -355,7 +359,7 @@ class _LocationService():
         """
         return os.path.exists(self._test_root)
 
-    def is_mh_user_data_enabled(self):
+    def is_mh_user_data_enabled(self) -> bool:
         """
         Checks if MakeHuman user data is enabled.
 
@@ -364,7 +368,7 @@ class _LocationService():
         """
         return self._mh_user_data is not None
 
-    def is_mh_auto_user_data_enabled(self):
+    def is_mh_auto_user_data_enabled(self) -> bool:
         """
         Checks if MakeHuman user data autodiscovery is enabled.
 

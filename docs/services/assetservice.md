@@ -26,9 +26,12 @@ In addition, AssetService is responsible for discovering **custom rigs** stored 
 
 In addition to `ASSET_LIBRARY_SECTIONS` and the asset list cache, the module maintains:
 
-- `_CUSTOM_RIGS_CACHE` — A cached list of custom rig dictionaries discovered in user data roots. Initially `None`; populated on the first call to `get_custom_rigs()` and cleared by `invalidate_custom_rig_cache()`.
-- `_ALTERNATIVE_MATERIALS` — Alternative material paths, keyed on `(asset_source, asset_subdir)`. Populated on the first call to `alternative_materials_for_asset()` for a given asset and cleared by `invalidate_alternative_materials_cache()`.
-- `_ALTERNATIVE_MATERIAL_TILES` — The same, but for the UI items produced by `alternative_material_tiles_for_asset()`.
+- `_ASSETS: dict[str, dict[str, dict[str, Any]]]` — The asset list cache, keyed on asset subdir and then on asset label. Populated by `update_asset_list()` and read by `get_asset_list()`.
+- `_ASSET_THUMBS: ImagePreviewCollection | None` — The single `bpy.utils.previews` collection every asset and material thumbnail is loaded into. `None` until the first thumbnail is loaded.
+- `_CUSTOM_RIGS_CACHE: list[dict[str, Any]] | None` — A cached list of custom rig dictionaries discovered in user data roots. Initially `None`; populated on the first call to `get_custom_rigs()` and cleared by `invalidate_custom_rig_cache()`.
+- `_ALTERNATIVE_MATERIALS: dict[tuple[str, str], list[str]]` — Alternative material paths, keyed on `(asset_source, asset_subdir)`. Populated on the first call to `alternative_materials_for_asset()` for a given asset and cleared by `invalidate_alternative_materials_cache()`.
+- `_ALTERNATIVE_MATERIAL_TILES: dict[tuple[str, str], list[dict[str, Any]]]` — The same, but for the UI items produced by `alternative_material_tiles_for_asset()`.
+- `_PACKS: dict[str, dict[str, Any]] | None` — Pack name to that pack's JSON contents, which map asset name to the asset's metadata. `None` means "not yet scanned", which is the state `_ensure_pack_metadata()` tests; an empty dict means "scanned, and there are no packs".
 
 ## Constants
 
@@ -44,6 +47,7 @@ A module-level list of 11 dictionaries, each defining an asset library section. 
 | `object_type` | `str` | MPFB object type for loaded assets |
 | `eye_overrides` | `bool` | Whether the section supports eye material overrides |
 | `skin_overrides` | `bool` | Whether the section supports skin material overrides |
+| `ink_overrides` | `bool` | Whether the section supports ink layer overrides. Present on the Ink layers section only, so callers must use `section.get("ink_overrides", False)` rather than subscripting |
 
 The sections cover: Topologies, Skins, Ink layers, Eyes, Eyebrows, Eyelashes, Hair, Teeth, Tongue, Clothes, and Poses.
 
@@ -75,7 +79,7 @@ Find the absolute path of an asset given a relative path fragment. The fragment 
 | `asset_path_fragment` | `str` | — | The relative path fragment to search for |
 | `asset_subdir` | `str` | `"clothes"` | The asset subdirectory to search within |
 
-**Returns:** `str` or `None` — The absolute path to the asset, or `None` if not found.
+**Returns:** `str | None` — The absolute path to the asset, or `None` if not found.
 
 ---
 
@@ -166,7 +170,7 @@ The returned items have the same shape as those in the asset list, see `update_a
 | `asset_source` | `str \| None` | — | The source path fragment of the asset |
 | `asset_subdir` | `str` | `"clothes"` | The asset subdirectory to search within |
 
-**Returns:** `list[dict]` — List of items describing the alternative materials.
+**Returns:** `list[dict[str, Any]]` — List of items describing the alternative materials.
 
 ---
 
@@ -174,7 +178,10 @@ The returned items have the same shape as those in the asset list, see `update_a
 
 Get the preview for the bundled placeholder image (`data/textures/notfound.thumb`), to be used for assets which do not have a thumbnail of their own.
 
-**Returns:** The preview object, or `None` if the bundled image is missing.
+**Returns:** `Any` — The `bpy.types.ImagePreview` for the placeholder, or `None` if the bundled image is
+missing. Annotated `Any` rather than `ImagePreview | None` because the value is handed straight to a
+`UILayout`'s `icon_value`, and the preview collection is a `dict` subclass whose element type the stubs
+only describe loosely.
 
 ---
 
@@ -223,7 +230,7 @@ Scan an asset subdirectory for files of the given type and update the global ass
 
 #### update_all_asset_lists()
 
-Update the global asset list cache for all sections defined in `ASSET_LIBRARY_SECTIONS`. Also invalidates the alternative materials cache.
+Update the global asset list cache for all sections defined in `ASSET_LIBRARY_SECTIONS`. Also invalidates both the alternative materials cache and the pack metadata cache.
 
 **Returns:** None
 
@@ -276,11 +283,21 @@ Check whether the MakeHuman system assets pack is installed and whether it inclu
 
 ---
 
+#### invalidate_pack_metadata_cache()
+
+Empty the cache of pack metadata, so that it is rescanned on the next request. Called by `update_all_asset_lists()`.
+
+**Returns:** None
+
+---
+
 #### rescan_pack_metadata()
 
 Reload all asset pack metadata from JSON files in the user's `packs` directory. This always performs a fresh scan, replacing any previously cached metadata.
 
 **Returns:** None
+
+Note that a scan which finds no packs at all still counts as having been scanned, so neither this method nor `get_pack_names()` will hit the file system again until `invalidate_pack_metadata_cache()` has been called.
 
 ---
 
@@ -351,6 +368,55 @@ Clear the cached custom rig list so that the next call to `get_custom_rigs()` pe
 Return the list of discovered custom rigs as Blender `EnumProperty` item tuples, suitable for use in a dynamic enum callback. If no custom rigs are found, returns a single placeholder entry.
 
 **Returns:** `list[tuple[str, str, str]]` — List of `(identifier, label, description)` tuples. When no rigs exist, returns `[("NONE", "No custom rigs found", "")]`. Otherwise each entry is `(name, "Custom: " + name, "")`.
+
+---
+
+### Asset Pack Installation
+
+#### check_asset_pack_zip(filename)
+
+Check whether a file is a valid zip containing a MakeHuman asset pack. A valid pack has `packs/` at the
+root of the archive. When it does not, the method tries to tell a fixable re-packaging mistake (a single
+extra root directory, typically from Safari auto-unpacking an archive the user then re-zipped) from a zip
+which is simply not an asset pack.
+
+| Argument | Type | Default | Description |
+|----------|------|---------|-------------|
+| `filename` | `str` | — | The file to check |
+
+**Returns:** `str | None` — `None` if the zip is a valid asset pack, otherwise a short code describing
+what is wrong:
+
+| Code | Meaning |
+|------|---------|
+| `"MACOS"` | One extra root directory, plus `__MACOSX` metadata. Fixable by `fix_and_extract_asset_pack_zip()` |
+| `"STRUCTURE"` | One extra root directory, no `__MACOSX`. Also fixable |
+| `"NO_PACKS"` | No `packs/` directory anywhere the method looks. Not an asset pack |
+| `"INVALID_ZIP: <reason>"` | The file could not be read as a zip at all |
+
+Note that the codes are returned, not raised, and that `None` is the success value — the sense is inverted
+relative to a predicate, so test `is None` rather than truthiness.
+
+---
+
+#### fix_and_extract_asset_pack_zip(filename, target_dir)
+
+Extract an asset pack zip into `target_dir`, stripping one extra root directory when the archive has one
+and always stripping `__MACOSX` metadata. This is the repair path for the `"MACOS"` and `"STRUCTURE"` codes
+returned by `check_asset_pack_zip()`.
+
+| Argument | Type | Default | Description |
+|----------|------|---------|-------------|
+| `filename` | `str` | — | Path to the zip file |
+| `target_dir` | `str` | — | Destination directory, normally the user data dir |
+
+**Returns:** `str | None` — `None` on success, otherwise an error code: `"FIX_FAILED"` when the archive
+still does not yield a `packs/` directory after stripping one root level, or `"FIX_ERROR: <reason>"` when
+extraction or copying raised. As with `check_asset_pack_zip()`, `None` means success.
+
+Extraction goes via a temporary directory, which is removed again whether or not the method succeeds.
+Existing directories in `target_dir` are merged into rather than replaced (`dirs_exist_ok=True`), so
+installing a pack over an older copy of itself overwrites file by file.
 
 ---
 
