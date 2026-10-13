@@ -1,9 +1,16 @@
+"""The catalog of MHMAT keys, and the lookup tables MhMaterial parses against."""
 
 from .mhmatkeytypes import *
 
-MHMAT_KEY_GROUPS = ["Metadata", "Color", "Texture", "Intensity", "SSS", "Various"]
+MHMAT_KEY_GROUPS: list[str] = ["Metadata", "Color", "Texture", "Intensity", "SSS", "Various"]
+"""The group names as_mhmat() writes, in the order it writes them.
 
-MHMAT_KEYS = []
+Every key in MHMAT_KEYS carries one of these as its key_group. The two groups the shader classes
+default to, "Shader" and the "Shaders" MHMAT_SHADER_KEYS passes, are deliberately not here: no key
+in MHMAT_KEYS uses either, so as_mhmat() never reaches a section for them."""
+
+MHMAT_KEYS: list[MhMatKey] = []
+"""Every MHMAT key, in the order the groups below declare them."""
 
 ### METADATA ###
 
@@ -83,7 +90,8 @@ MHMAT_KEYS.append(MhMatBooleanKey("autoBlendSkin", None, 'Various'))
 
 # ALIASES
 
-MHMAT_ALIAS = dict()
+MHMAT_ALIAS: dict[str, str] = {}
+"""Legacy or alternative key name to the canonical name parse_alias() rewrites it to."""
 MHMAT_ALIAS["diffusemapTexture"] = "diffuseTexture"
 MHMAT_ALIAS["bumpTexture"] = "bumpmapTexture"
 MHMAT_ALIAS["albedoTexture"] = "diffuseTexture"
@@ -97,21 +105,29 @@ MHMAT_ALIAS["emissionTexture"] = "emissionColorMapTexture"
 MHMAT_ALIAS["sssTexture"] = "subsurfaceColorMapTexture"
 MHMAT_ALIAS["sssMapTexture"] = "subsurfaceColorMapTexture"
 
-def parse_alias(texture_name):
+def parse_alias(texture_name: str) -> str:
+    """Return the canonical name for a key name, or the name unchanged if it is not an alias."""
     for key in MHMAT_ALIAS.keys():
         name = str(key).lower()
         if str(texture_name).lower() == name:
             return str(MHMAT_ALIAS[key])
     return texture_name
 
-MHMAT_NAME_TO_KEY = {}
+MHMAT_NAME_TO_KEY: dict[str, MhMatKey] = {}
+"""Lowercased key name to the key object, for the O(1) dispatch MhMaterial parses with."""
+
 for keyObj in MHMAT_KEYS:
     keyname = keyObj.key_name_lower
     MHMAT_NAME_TO_KEY[keyname] = keyObj
 
 # SHADERS
 
-MHMAT_SHADER_KEYS = []
+MHMAT_SHADER_KEYS: list[MhMatKey] = []
+"""The shader lines of the format, declared but not read anywhere in MPFB.
+
+MhMaterial parses "shader" and "shaderConfig" lines nowhere and "shaderParam" through MHMAT_KEYS
+instead, so nothing imports this list. It is kept as the format's own record of which shader lines
+exist."""
 
 MHMAT_SHADER_KEYS.append(MhMatStringKey("shader", None, 'Shaders'))
 MHMAT_SHADER_KEYS.append(MhMatStringShaderKey("shaderParam litsphereTexture", None, 'Shaders'))

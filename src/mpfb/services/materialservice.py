@@ -22,9 +22,18 @@ the result are checked against the same set of values the identifier can actuall
 InkLayerNodes = tuple[bpy.types.Node, bpy.types.Node]
 """The ``(uvmap_node, texture_node)`` pair the four private ink layer builders return.
 
-The nodes are a ``ShaderNodeUVMap`` and a ``ShaderNodeTexImage`` at runtime, but ``NodeService``'s
-factories are not annotated yet, so the base ``Node`` is as far as the checker can be taken for now."""
+The nodes are a ``ShaderNodeUVMap`` and a ``ShaderNodeTexImage`` at runtime. The second is now typed
+as such by ``NodeService.create_image_texture_node()``, but the first comes from the generic
+``create_node()``, which answers the ``Node`` base class -- so naming the pair precisely would mean
+a cast at each of the four returns for one caller's benefit. The base class is kept for both."""
 
+# On the node finders: NodeService's find_* methods answer Node | None, and NodeService.add_link()
+# does not check the nodes it is handed, so a None reaches links.new() as one. Where a method below
+# passes a found node on without testing it, the cast records the precondition which makes the
+# lookup safe -- usually that identify_material() has already answered for this material, or that
+# the node was created by the same method a moment earlier. The one exception is
+# remove_all_makeup(), which is noted at the site.
+#
 # On socket default values: NodeSocket does not declare default_value. It is declared on each concrete
 # socket subclass instead, which is what nodeservice's own hasattr() guard acknowledges, so every read
 # or write of one below casts the socket to the subclass it is at runtime. The colour writes then meet
@@ -72,7 +81,9 @@ class MaterialService():
             mat = typing.cast(bpy.types.Material, material)
             mat.name = mat.name + ".unused"
             if also_destroy_groups:
-                NodeService.clear_node_tree(mat.node_tree, also_destroy_groups=True)
+                # Material.node_tree is None until use_nodes is set, which every material MPFB
+                # makes or loads has had set.
+                NodeService.clear_node_tree(typing.cast(bpy.types.NodeTree, mat.node_tree), also_destroy_groups=True)
         while len(materials) > 0:
             materials.pop()
         for block in bpy.data.materials:
@@ -151,7 +162,9 @@ class MaterialService():
             normalmap = NodeService.create_normal_map_node(node_tree, xpos=-300)
             _LOG.debug("Normalmap", normalmap)
 
-            bump = NodeService.find_node_linked_to_socket(node_tree, principled, "Normal")
+            # A material without a principled node would raise out of find_node_linked_to_socket()
+            # here, which tests its own arguments; see the note at the top of the module.
+            bump = NodeService.find_node_linked_to_socket(node_tree, typing.cast(bpy.types.Node, principled), "Normal")
             to_socket = None
             _LOG.debug("Bump", bump)
             if bump:
@@ -192,7 +205,9 @@ class MaterialService():
         colorspace = typing.cast(bpy.types.ColorManagedInputColorspaceSettings, image.colorspace_settings)
         colorspace.name = "Non-Color"  # pyright: ignore[reportAttributeAccessIssue]
 
-        image_node.image = image
+        # Only ShaderNodeTexImage carries an image. image_node is either the node found linked to
+        # the normal map's Color socket, which is one, or the one created above.
+        typing.cast(bpy.types.ShaderNodeTexImage, image_node).image = image
 
     @staticmethod
     def set_normalmap(material: bpy.types.Material, filename: str) -> None:
@@ -517,7 +532,10 @@ class MaterialService():
 
         mix = NodeService.find_node_linked_to_socket(material.node_tree, principled, "Base Color")
 
-        NodeService.set_socket_default_values(mix, color_adjustment)
+        # find_color_adjustment() returns early when there is no mix node; this method does not
+        # test, and set_socket_default_values() silently does nothing for a None, so applying an
+        # adjustment to a material without one changes nothing and reports nothing.
+        NodeService.set_socket_default_values(typing.cast(bpy.types.Node, mix), color_adjustment)
 
     @staticmethod
     def _find_principled_and_connected_color_node(node_tree: bpy.types.NodeTree) -> tuple[bpy.types.Node | None, bpy.types.Node | None]:
@@ -640,9 +658,15 @@ class MaterialService():
             NodeService.add_link(node_tree, last_tex_node, mix_node, "Alpha", "LowerLayerAlpha")
 
             diffuse_intensity = NodeService.find_node_by_name(node_tree, "diffuseIntensity")
-            NodeService.add_link(node_tree, diffuse_intensity, mix_node, "Color", "BackgroundColor")
+            # _makeskin_first_ink_layer_nodes() raises unless a diffuse intensity node is connected
+            # to the principled base colour, and this method only runs for a second layer, so layer
+            # one has already been added and the node is there.
+            NodeService.add_link(node_tree, typing.cast(bpy.types.Node, diffuse_intensity), mix_node, "Color", "BackgroundColor")
         else:
-            mix_node = NodeService.find_node_by_name(node_tree, "inkLayer1mix")
+            # This branch runs for the second layer, so layer one's mixer exists. The two sibling
+            # lookups above raise on a missing node rather than casting; this one is the odd one
+            # out, which is why the cast is here and not another raise.
+            mix_node = typing.cast(bpy.types.Node, NodeService.find_node_by_name(node_tree, "inkLayer1mix"))
             _LOG.debug("mix_node", mix_node)
 
         NodeService.add_link(node_tree, texture, mix_node, "Color", "UpperLayerColor")
@@ -773,7 +797,10 @@ class MaterialService():
             NodeService.add_link(node_tree, last_tex_node, mix_node, "Alpha", "LowerLayerAlpha")
 
         else:
-            mix_node = NodeService.find_node_by_name(node_tree, "inkLayer1mix")
+            # This branch runs for the second layer, so layer one's mixer exists. The two sibling
+            # lookups above raise on a missing node rather than casting; this one is the odd one
+            # out, which is why the cast is here and not another raise.
+            mix_node = typing.cast(bpy.types.Node, NodeService.find_node_by_name(node_tree, "inkLayer1mix"))
             _LOG.debug("mix_node", mix_node)
 
         NodeService.add_link(node_tree, texture, mix_node, "Color", "UpperLayerColor")
@@ -977,7 +1004,14 @@ class MaterialService():
                 diffuse_tex = NodeService.find_node_by_name(node_tree, "diffuseTexture")
                 _LOG.debug("Diffuse texture", diffuse_tex)
                 if diffuse_tex:                    
-                    NodeService.add_link(node_tree, diffuse_tex, principled, "Color", "Base Color")
+                    # The else branch is reached when principled is empty as well as when
+                    # diffuse_intensity is, and it re-uses principled without re-testing it. The ink
+                    # layer nodes have already been deleted by this point, so a makeskin material
+                    # with a diffuse texture and no principled node loses its base colour link and
+                    # raises a TypeError out of links.new(). Re-testing principled, or splitting the
+                    # condition, is the fix; it is a logic change rather than an annotation, so the
+                    # cast only records that the code assumes a principled node here.
+                    NodeService.add_link(node_tree, diffuse_tex, typing.cast(bpy.types.Node, principled), "Color", "Base Color")
 
         if basemesh:
             basemesh_data = typing.cast(bpy.types.Mesh, basemesh.data)

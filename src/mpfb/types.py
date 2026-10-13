@@ -178,3 +178,57 @@ nests its own ``children``. ``RigService.create_rig_from_skeleton_info()`` consu
 This is not the same shape as ``RigDefinition``, which is MPFB's own rig file format: a
 ``SocketSkeletonInfo`` nests its bones as a tree and arrives over the socket, where a
 ``RigDefinition`` is flat, is keyed by bone name and is read from a file."""
+
+NodeInfo = dict[str, Any]
+"""The version 1 description of a single shader node, as ``NodeService.get_node_info()`` writes it.
+
+``type`` holds the node's class name, ``name`` and ``label`` its own, ``location`` a two element
+list of floats and ``create`` a bool which is always ``True`` on the way out. ``values`` maps the
+name of each float, float-factor or colour input socket to its default value, which is a float for
+the first two and a four element list for a colour. The remaining keys are per node type:
+``filename`` and ``colorspace`` for an image texture, ``operation`` and ``use_clamp`` for a maths
+node, ``operation`` alone for a vector maths node, and ``value`` for a value node.
+``get_node_tree_as_dict()`` additionally writes ``group_name`` for a group node, and
+``apply_node_tree_from_dict()`` reads a ``stops`` list for a colour ramp which nothing in MPFB
+writes.
+
+This is the shape the node tree templates under ``data/node_trees`` are written in, so it is also
+what a hand edited template has to produce. It is read by ``MaterialService`` and by the two
+material entities as well as by ``NodeService`` itself, which is why it lives here.
+
+An alias rather than a ``TypedDict`` because the per node type keys make the shape depend on the
+value of ``type``, because the templates arrive through ``json.load()`` as ``Any``, and because
+``create`` is read with ``in`` -- a template entry which omits it is treated as present and true."""
+
+NodeTreeDict = dict[str, Any]
+"""A whole shader node tree as a dict: its nodes, its links and the groups they refer to.
+
+``nodes`` maps a node name to its ``NodeInfo`` and ``links`` is a list of the dicts
+``NodeService.get_link_info()`` produces. ``groups``, which only the outermost level carries, maps
+a group name to a nested ``NodeTreeDict`` which additionally carries that group's own ``inputs``
+and ``outputs`` interface declarations, and which ``_ensure_group_interfaces_exist()`` extends in
+place with ``pre_existing``.
+
+``NodeService.get_node_tree_as_dict()`` produces one and ``apply_node_tree_from_dict()`` consumes
+one, but the common case is neither: the dict is read from a template under ``data/node_trees`` by
+the material entities and by ``HumanService``, which is why it lives here rather than in the
+service.
+
+An alias rather than a ``TypedDict`` because ``groups`` is present at one recursion level and not
+at the others, because the group entries hold two key sets at once -- a nested tree plus the
+interface declarations -- and because every value arrives from ``json.load()`` as ``Any``."""
+
+SocketValues = dict[str, Any]
+"""Input socket name to default value, for the sockets whose value MPFB reads and writes.
+
+``NodeService.get_socket_default_values()`` produces one and ``set_socket_default_values()``
+consumes one, and both restrict themselves to ``NodeSocketColor``, ``NodeSocketFloatFactor`` and
+``NodeSocketFloat`` sockets. So a value is either a float or, for a colour, a four element list.
+It crosses the layer boundary in both directions: ``HumanService`` stores one per node group as a
+character's material settings, and ``MakeSkinMaterial`` reads one to recover MHMAT values from a
+node tree.
+
+``Any`` rather than ``float | list[float]`` as the value type because the dicts are also written
+to and read back from JSON, where the colour arrives as a plain list and is handed straight to a
+socket. ``MaterialService.ColorAdjustment`` is the same shape under a name which says what one
+particular such dict is for."""

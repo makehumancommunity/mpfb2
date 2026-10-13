@@ -159,7 +159,10 @@ class HumanService:
         skin_material = typing.cast(bpy.types.Material, material)
 
         if "enhanced" in material_type:
-            group_node = NodeService.find_first_node_by_type_name(skin_material.node_tree, "ShaderNodeGroup")
+            # Material.node_tree is None until use_nodes is set, which every material MPFB makes or
+            # loads has had set. The seven other reads of a material's node tree in this module carry
+            # the same cast for the same reason.
+            group_node = NodeService.find_first_node_by_type_name(typing.cast(bpy.types.NodeTree, skin_material.node_tree), "ShaderNodeGroup")
             values = None
 
             if group_node:
@@ -175,7 +178,7 @@ class HumanService:
                 # A material slot added by hand in Blender's UI holds no material, which the
                 # reads below do not guard against.
                 slot_material = typing.cast(bpy.types.Material, slot.material)
-                group_node = NodeService.find_first_node_by_type_name(slot_material.node_tree, "ShaderNodeGroup")
+                group_node = NodeService.find_first_node_by_type_name(typing.cast(bpy.types.NodeTree, slot_material.node_tree), "ShaderNodeGroup")
                 if group_node:
                     values = NodeService.get_socket_default_values(group_node)
                     if "colorMixIn" in values:
@@ -188,7 +191,7 @@ class HumanService:
                         human_info["skin_material_settings"][name] = values
 
         if "layered" in material_type:
-            for group_node in NodeService.find_nodes_by_type_name(skin_material.node_tree, "ShaderNodeGroup"):
+            for group_node in NodeService.find_nodes_by_type_name(typing.cast(bpy.types.NodeTree, skin_material.node_tree), "ShaderNodeGroup"):
                 for group in ["color", "body", "face", "ears", "lips", "aureolae", "genitals", "fingernails", "toenails"]:
                     if group_node.name == group + "group":
                         values = NodeService.get_socket_default_values(group_node)
@@ -230,7 +233,8 @@ class HumanService:
 
         # has_materials() above counted the slots without looking inside them, so an eyes object
         # whose only slot is empty reaches this read with no material to read from.
-        group_node = NodeService.find_first_node_by_type_name(typing.cast(bpy.types.Material, material).node_tree, "ShaderNodeGroup")
+        eyes_material = typing.cast(bpy.types.Material, material)
+        group_node = NodeService.find_first_node_by_type_name(typing.cast(bpy.types.NodeTree, eyes_material.node_tree), "ShaderNodeGroup")
         if group_node:
             material_settings = NodeService.get_socket_default_values(group_node)
             if "IrisMinorColor" not in material_settings:
@@ -629,7 +633,7 @@ class HumanService:
                 node_tree_dict = json.load(json_file)
             _LOG.dump("procedural_eyes", node_tree_dict)
             blender_material = MaterialService.create_empty_material(name, clothes)
-            NodeService.apply_node_tree_from_dict(blender_material.node_tree, node_tree_dict, True)
+            NodeService.apply_node_tree_from_dict(typing.cast(bpy.types.NodeTree, blender_material.node_tree), node_tree_dict, True)
             blender_material.blend_method = "BLEND"
             blender_material.show_transparent_back = True
             blender_material.diffuse_color = color  # pyright: ignore[reportAttributeAccessIssue]
@@ -825,7 +829,11 @@ class HumanService:
 
         if skin_type == "MAKESKIN":
             makeskin_material = MakeSkinMaterial()
-            makeskin_material.populate_from_mhmat(mhmat_file)
+            # A None mhmat_file is only valid for skin_type="LAYERED", as the docstring says, and the
+            # existence check above only nulls the path for that type. The guard does not cover a
+            # caller which passes None with another type, so the three casts here, below and in the
+            # ENHANCED branch record the contract rather than enforcing it.
+            makeskin_material.populate_from_mhmat(typing.cast(str, mhmat_file))
             blender_material = MaterialService.create_empty_material(name, basemesh)
             makeskin_material.apply_node_tree(blender_material)
 
@@ -834,13 +842,13 @@ class HumanService:
             from ..entities.nodemodel.v2.materials.nodewrappergameengine import NodeWrapperGameEngine
             blender_material = MaterialService.create_empty_material(name, basemesh)
             mhmat = MhMaterial()
-            mhmat.populate_from_mhmat(mhmat_file)
+            mhmat.populate_from_mhmat(typing.cast(str, mhmat_file))
             NodeWrapperGameEngine.create_instance(blender_material.node_tree, mhmat=mhmat)
 
         if skin_type == "LAYERED":
             blender_material = MaterialService.create_v2_skin_material(name, basemesh, mhmat_file)
             if slot_overrides:
-                for group_node in NodeService.find_nodes_by_type_name(blender_material.node_tree, "ShaderNodeGroup"):
+                for group_node in NodeService.find_nodes_by_type_name(typing.cast(bpy.types.NodeTree, blender_material.node_tree), "ShaderNodeGroup"):
                     for group in ["color", "body", "face", "ears", "lips", "aureolae", "genitals", "fingernails", "toenails"]:
                         if group in slot_overrides and group_node.name == group + "group":
                             NodeService.set_socket_default_values(group_node, slot_overrides[group])
@@ -859,7 +867,7 @@ class HumanService:
             presets["scale_factor"] = scale_name
 
             enhanced_material = EnhancedSkinMaterial(presets)
-            enhanced_material.populate_from_mhmat(mhmat_file)
+            enhanced_material.populate_from_mhmat(typing.cast(str, mhmat_file))
             blender_material = MaterialService.create_empty_material(name, basemesh)
             enhanced_material.apply_node_tree(blender_material)
 
@@ -900,7 +908,7 @@ class HumanService:
                 # The slots were made by create_and_assign_material_slots() above, so each holds a
                 # material; a slot the user added by hand in Blender's UI would not.
                 slot_material = typing.cast(bpy.types.Material, slot.material)
-                group_node = NodeService.find_first_node_by_type_name(slot_material.node_tree, "ShaderNodeGroup")
+                group_node = NodeService.find_first_node_by_type_name(typing.cast(bpy.types.NodeTree, slot_material.node_tree), "ShaderNodeGroup")
                 if group_node:
                     values = NodeService.get_socket_default_values(group_node)
                     if "colorMixIn" in values:
@@ -992,7 +1000,7 @@ class HumanService:
         # has_materials() above counted the slots without looking inside them, so an eyes object
         # whose only slot is empty reaches this read with no material to read from.
         material = typing.cast(bpy.types.Material, slot.material)
-        group_node = NodeService.find_first_node_by_type_name(material.node_tree, "ShaderNodeGroup")
+        group_node = NodeService.find_first_node_by_type_name(typing.cast(bpy.types.NodeTree, material.node_tree), "ShaderNodeGroup")
         if group_node:
             material_settings = NodeService.get_socket_default_values(group_node)
             if "IrisMinorColor" in material_settings:

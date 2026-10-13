@@ -142,7 +142,24 @@ reusing one name, since a single name cannot carry two different casts.
 `typing.cast(bpy.types.FModifierCycles, fcurve.modifiers.new(type='CYCLES'))` in
 `animationservice.py`.
 
-**`PoseBone.constraints.new()` is the third member of the family**, and the one with the most call
+**`NodeTree.nodes.new()` is the third member of the family.** It returns `bpy.types.Node`, which carries
+`name`, `label`, `location`, `inputs` and `outputs` and nothing type-specific, so a caller which sets `image`,
+`operation`, `blend_type`, `uv_map` or `color_ramp` narrows to the subclass the `bl_idname` string selects:
+
+```python
+texture = typing.cast(bpy.types.ShaderNodeTexImage,
+                      NodeService.create_node(node_tree, "ShaderNodeTexImage"))
+texture.image = image
+```
+
+`NodeService`'s own type-specific factories are nothing but this cast over `create_node()`, which is why
+`create_principled_node()` can honestly return `bpy.types.ShaderNodeBsdfPrincipled`. Note that the string decides
+the class here as surely as a modifier's `type` does, but that `update_node_with_settings_from_dict()` is the
+dangerous variant of the pattern: it picks its subclass from `node_info["type"]`, a value read out of a JSON
+template rather than written in the source, so a template whose `type` disagrees with the node it is applied to
+turns a silenced cast into a runtime `AttributeError`.
+
+**`PoseBone.constraints.new()` is the fourth member of the family**, and the one with the most call
 sites. It returns `bpy.types.Constraint`, which carries none of `target`, `subtarget`, `use_x` or
 `use_z`, so a caller which sets any of those narrows to the subclass the type string selects:
 
@@ -233,12 +250,13 @@ properties blender *does* declare stay checked; above, `armature_data.collection
 `armature_data` rather than off `rigify_data`. State once per module why the `Any` is there,
 rather than repeating the reason at every site.
 
-### An attribute the stubs lack may be a blender 5 removal
+### An attribute the stubs lack may be a blender removal
 
 The stubs are generated against a 5.x build, so they are not only *behind* the runtime, they are also
 *ahead* of it. An attribute pyright says is unknown may be one blender removed between 4.2 and 5.x, in
 which case the diagnostic is correct for the newer half of the supported range and a narrow ignore
-hides a genuine incompatibility.
+hides a genuine incompatibility — or one blender removed *before* 4.2, in which case the diagnostic is
+correct for the whole supported range and the code has been dead since before the addon's own floor.
 
 Probe both ends before deciding. The cheap check is the RNA, which does not need a scene:
 
@@ -253,9 +271,34 @@ Two cases found this way so far, both in the rig code:
 |-----------|-----|-----|---------|
 | `Bone.select` | present | **absent**, moved to `PoseBone.select` | a real incompatibility; `rigservice.py` writes it at four sites |
 | `PoseBone.custom_shape_scale` | absent | absent | removed before the supported floor; the code's own `hasattr` guard makes the branch dead |
+| `NodeTree.inputs`, `NodeTree.outputs` | absent | absent | removed in 4.0 in favour of `NodeTree.interface`, two minor versions below the floor. No guard, so the branch which reads them in `nodeservice.py` raises on every supported version |
 
 `EditBone.select` is present on both, so a diagnostic on a bone `select` write is not automatically one
 of these — it depends which of the three bone classes the expression reaches.
+
+The `NodeTree` row is the interesting one of the three, because it is the case the subsection title warns about
+with nothing to soften it: not a stub gap, not a version split, and not guarded by a `hasattr` either. A narrow
+ignore there silences a diagnostic which was right about both supported versions, which is why it carries a
+comment naming `interface.items_tree` as what the code should be reading instead.
+
+### Optional pointers which are never empty in practice
+
+A good deal of the remaining noise is a declared-optional pointer which a particular piece of code has already
+guaranteed. Three families turn up repeatedly in the node and material code, all narrowed with a cast and a
+one-line reason:
+
+| expression | declared | why the cast is safe |
+|------------|----------|----------------------|
+| `material.node_tree` | `ShaderNodeTree \| None` | `None` only until `use_nodes` is set, which every material MPFB makes or loads has had set |
+| `group_node.node_tree` | `ShaderNodeTree \| None` | `None` only for a group node added by hand and never assigned a tree |
+| `link.from_node`, `from_socket`, `to_node`, `to_socket` | `Node \| None`, `NodeSocket \| None` | the RNA agrees these are nullable on both supported versions, but a link which is in a tree's `links` collection always has all four, and that is the only way one is reached |
+
+Two embedded structs are a stronger case still, because they cannot be `None` at all: `Image.colorspace_settings`
+and `NodeTree.interface` are structs on their owner rather than pointers, so the stub's `| None` is simply
+wrong. Both are recorded at their casts, with the DNA declaration as the evidence.
+
+Bind the cast to a local where the same pointer is read more than once in a scope — `get_link_info()` narrows its
+four endpoints once at the top rather than fourteen times down the body.
 
 ### A correct diagnostic against code that is wrong
 
@@ -299,6 +342,32 @@ aa = typing.cast("typing.Sequence[float]", bone.rotation_axis_angle)
 if abs(aa[0]) > 0.0001:
     ...
 ```
+
+`mathutils.Vector` has the same shape of gap: the stubs declare neither `__iter__` nor `__len__` on it, so
+`list(node.location)` is a `reportArgumentType` although it is ordinary at runtime. Same fix as a
+`bpy_prop_array` read:
+
+```python
+node_info["location"] = list(typing.cast("typing.Sequence[float]", node.location))
+```
+
+**`NodeSocket.default_value` is the one place where `Any` beats naming a subclass.** It is not declared on
+`bpy.types.NodeSocket` at all; each concrete socket class declares its own, with its own type — a `float` on
+`NodeSocketFloat`, a four element `bpy_prop_array` on `NodeSocketColor`, a `str` on `NodeSocketString`. Where the
+surrounding code has established the class, cast to it:
+
+```python
+if isinstance(node_input, NodeSocketColor):
+    values[node_input.name] = list(typing.cast("typing.Sequence[float]", node_input.default_value))
+else:
+    values[node_input.name] = typing.cast(bpy.types.NodeSocketFloat, node_input).default_value
+```
+
+Where it has not — a method which walks every socket one node carries, or one whose caller names the socket and
+so decides what comes back — the honest cast is to `Any`, because naming a single subclass would be a guess
+rather than a narrowing. A *write* has no cast form for the colour case at all, so `Any` is the only option
+there. State the reason once per module, as `nodeservice.py` and `materialservice.py` both do at the top, rather
+than at each of the dozen sites.
 
 Where the stubs describe less than the runtime does, prefer a narrow
 `# pyright: ignore[reportSomething]` carrying a comment over a bare `# type: ignore`. Stub

@@ -50,7 +50,7 @@ shapes they describe.
 | Name | Definition | Notes |
 |------|------------|-------|
 | `MaterialType` | `Literal["empty", "enhanced_skin", "procedural_eyes", "layered_skin", "makeskin", "gameengine", "unknown"]` | The seven answers `identify_material()` can give |
-| `InkLayerNodes` | `tuple[bpy.types.Node, bpy.types.Node]` | The `(uvmap_node, texture_node)` pair the four private ink layer builders return. The nodes are a `ShaderNodeUVMap` and a `ShaderNodeTexImage` at runtime, but `NodeService`'s factories are not annotated yet, so the base `Node` is as far as the declaration goes |
+| `InkLayerNodes` | `tuple[bpy.types.Node, bpy.types.Node]` | The `(uvmap_node, texture_node)` pair the four private ink layer builders return. The nodes are a `ShaderNodeUVMap` and a `ShaderNodeTexImage` at runtime. `NodeService.create_image_texture_node()` now types the second as such, but the first comes from the generic `create_node()`, which answers the `Node` base class, so the base class is kept for both rather than casting at each of the four returns |
 | `ColorAdjustment` | `dict[str, Any]` | The socket-name to default-value mapping `find_color_adjustment()` returns and `apply_color_adjustment()` accepts. The values are whatever `NodeService.get_node_info()` read off the sockets, which for a mix node means a mixture of floats and RGBA sequences, so `Any` is the honest value type |
 
 ## Public API
@@ -209,6 +209,12 @@ Apply color adjustments to the object's first material slot. Sets the default va
 | `color_adjustment` | `ColorAdjustment` | — | Dictionary of socket values to apply |
 
 **Returns:** None
+
+**Restriction:** unlike `find_color_adjustment()`, which returns early when the material has no mix node
+connected to the Principled BSDF's Base Color, this method does not test for one. The `None` reaches
+`NodeService.set_socket_default_values()`, which answers a node with no `inputs` attribute with a log line and
+no change — so applying an adjustment to a material without a mix node silently does nothing and reports
+nothing.
 
 ---
 
