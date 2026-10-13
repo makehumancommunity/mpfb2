@@ -37,6 +37,15 @@ BoneChain = list[str]
 ParentChainBone = tuple[str, float | None, BoneChain]
 VertexWeights = dict[str, float]
 
+# Note on the RigService bone finders, referred to from the sites below which call them.
+#
+# RigService.find_edit_bone_by_name() and find_pose_bone_by_name() return an optional, because the
+# blender collections they read do. Every call below looks up a bone name taken from this rig's own
+# definition, in an armature this class has just built from that same definition, so the lookup
+# cannot miss; the casts record that contract. reposition_edit_bone() is the exception and already
+# guards, because it runs against an armature the caller supplied rather than one this class built,
+# and it warns and skips a bone the definition names but the armature does not have.
+
 class Rig:
 
     """Entity class representing an armature."""
@@ -212,7 +221,7 @@ class Rig:
 
             rig.cleanup_float_values()
 
-        if extra_bones := RigService.find_extra_bones(rig.armature_object):
+        if extra_bones := RigService.find_extra_bones(typing.cast(bpy.types.Object, rig.armature_object)):
             rig.rig_header["extra_bones"] = extra_bones
 
         if rigify_ui:
@@ -378,8 +387,8 @@ class Rig:
         # Apply roll strategies after head-tail positions have been set
         for bone_name in self.rig_definition.keys():
             bone_info = self.rig_definition[bone_name]
-            bone = RigService.find_edit_bone_by_name(bone_name, armature_object)
-            self._align_roll_by_strategy(bone, bone_info)
+            roll_bone = typing.cast(bpy.types.EditBone, RigService.find_edit_bone_by_name(bone_name, armature_object))
+            self._align_roll_by_strategy(roll_bone, bone_info)
 
         bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
 
@@ -471,7 +480,7 @@ class Rig:
         bpy.ops.object.mode_set(mode='EDIT', toggle=False)
         for bone_name in self.rig_definition.keys():
             bone_info = self.rig_definition[bone_name]
-            bone = RigService.find_edit_bone_by_name(bone_name, armature_object)
+            bone = typing.cast(bpy.types.EditBone, RigService.find_edit_bone_by_name(bone_name, armature_object))
             if bone_info["parent"]:
                 bone.parent = RigService.find_edit_bone_by_name(bone_info["parent"], armature_object)
             bone.use_connect = bone_info["use_connect"]
@@ -499,7 +508,10 @@ class Rig:
         armature_object = typing.cast(bpy.types.Object, self.armature_object)
         bpy.ops.object.mode_set(mode='POSE', toggle=False)
         for bone_name, bone_info in self.rig_definition.items():
-            bone = RigService.find_pose_bone_by_name(bone_name, armature_object)
+            bone = typing.cast(bpy.types.PoseBone, RigService.find_pose_bone_by_name(bone_name, armature_object))
+            # One Any cast per bone rather than one per access, for the rigify properties; see the
+            # note at the top of the module.
+            bone_any = typing.cast(typing.Any, bone)
 
             bone.rotation_mode = bone_info.get("rotation_mode", "QUATERNION")
 
@@ -509,14 +521,14 @@ class Rig:
             rigify = bone_info["rigify"]
 
             if "rigify_type" in rigify and rigify["rigify_type"]:
-                bone.rigify_type = rigify["rigify_type"]
+                bone_any.rigify_type = rigify["rigify_type"]
 
             if "rigify_parameters" in rigify:
                 for key in rigify["rigify_parameters"].keys():
                     value = rigify["rigify_parameters"][key]
                     _LOG.debug("Will attempt to set bone.parameters.", key)
                     if key.endswith("_coll_refs"):
-                        ref_list = getattr(bone.rigify_parameters, key, None)
+                        ref_list = getattr(bone_any.rigify_parameters, key, None)
                         if ref_list is not None and hasattr(ref_list, 'add'):
                             for name in value:
                                 ref = ref_list.add()
@@ -525,7 +537,7 @@ class Rig:
                             _LOG.error("Rigify bone collection reference list not found.", key)
                     else:
                         try:
-                            setattr(bone.rigify_parameters, str(key), value)
+                            setattr(bone_any.rigify_parameters, str(key), value)
                         except AttributeError:
                             _LOG.error("Rigify bone parameter not found.", key)
 
@@ -772,7 +784,7 @@ class Rig:
         BoneOpsArmatureProperties.set_value("developer_mode", True, entity_reference=armature_object.data)
 
         for bone_name, bone_info in self.rig_definition.items():
-            bone = RigService.find_pose_bone_by_name(bone_name, armature_object).bone
+            bone = typing.cast(bpy.types.PoseBone, RigService.find_pose_bone_by_name(bone_name, armature_object)).bone
 
             self.assign_bone_end_strategy(bone, bone_info["head"], False)
             self.assign_bone_end_strategy(bone, bone_info["tail"], True)
@@ -1274,7 +1286,7 @@ class Rig:
         if not isinstance(mesh, bpy.types.Mesh):
             raise TypeError(f"basemesh.data must be a Mesh, got {type(mesh).__name__}")
 
-        def_bones = set(RigService.get_deform_group_bones(self.armature_object))
+        def_bones = set(RigService.get_deform_group_bones(typing.cast(bpy.types.Object, self.armature_object)))
         weights: VertexWeights = {}
 
         if 0 <= vertex < len(mesh.vertices):

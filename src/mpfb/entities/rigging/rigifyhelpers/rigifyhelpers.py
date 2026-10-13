@@ -23,6 +23,11 @@ from ....services import RigService
 # the bpy stubs. Operator calls therefore carry a narrow ignore and property accesses go through a
 # cast to Any, the same way entities/rig.py reads rigify_type and rigify_parameters off a pose bone.
 # Each site is guarded at runtime by SystemService.check_for_rigify().
+#
+# The RigService bone finders return an optional because the blender collections they read do. Every
+# lookup below names a bone from one of the get_list_of_*_bones() lists, which the concrete subclass
+# defines for the rig it was selected for, so the casts record a contract the caller is expected to
+# satisfy rather than a guarantee pyright can check.
 
 class RigifyHelpers():
 
@@ -360,7 +365,7 @@ class RigifyHelpers():
 
         for bone_name in bone_names:
             _LOG.debug("About to set use_connect on", bone_name)
-            edit_bone = RigService.find_edit_bone_by_name(bone_name, armature_object)
+            edit_bone = typing.cast(bpy.types.EditBone, RigService.find_edit_bone_by_name(bone_name, armature_object))
             edit_bone.use_connect = True
         bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
 
@@ -370,7 +375,7 @@ class RigifyHelpers():
         _LOG.dump("Spine", spine)
         self._set_use_connect_on_bones(armature_object, spine)
         bpy.ops.object.mode_set(mode='POSE', toggle=False)
-        first_spine_bone = RigService.find_pose_bone_by_name(spine[0], armature_object)
+        first_spine_bone = typing.cast(typing.Any, RigService.find_pose_bone_by_name(spine[0], armature_object))
         first_spine_bone.rigify_type = 'spines.basic_spine'
         first_spine_bone.rigify_parameters.segments = len(spine)
         # TODO: change layers
@@ -382,7 +387,7 @@ class RigifyHelpers():
             arm = self.get_list_of_arm_bones(side)  # pylint: disable=E1111
             _LOG.dump("Arm", arm)
             self._set_use_connect_on_bones(armature_object, arm)
-            first_arm_bone = RigService.find_pose_bone_by_name(arm[0], armature_object)
+            first_arm_bone = typing.cast(typing.Any, RigService.find_pose_bone_by_name(arm[0], armature_object))
             first_arm_bone.rigify_type = 'limbs.arm'
             # first_arm_bone.rigify_parameters.segments = len(arm)
         # TODO: change layers
@@ -396,19 +401,19 @@ class RigifyHelpers():
             bpy.ops.object.mode_set(mode='POSE', toggle=False)
 
             toe_bone_name = leg[-1]
-            toe = RigService.find_pose_bone_by_name(toe_bone_name, armature_object)
+            toe = typing.cast(bpy.types.PoseBone, RigService.find_pose_bone_by_name(toe_bone_name, armature_object))
             toe_bone_head = toe.head
             toe_bone_length = toe.length
             _LOG.debug("Toe bone", (toe_bone_name, toe_bone_head, toe_bone_length))
 
             foot_bone_name = self.get_foot_name(side)
             _LOG.debug("Foot bone name", foot_bone_name)
-            foot = RigService.find_pose_bone_by_name(foot_bone_name, armature_object)
+            foot = typing.cast(bpy.types.PoseBone, RigService.find_pose_bone_by_name(foot_bone_name, armature_object))
             foot_bone_head = foot.head
             foot_bone_length = foot.length
             _LOG.debug("Foot bone data", (foot_bone_head, foot_bone_length))
 
-            first_leg_bone = RigService.find_pose_bone_by_name(leg[0], armature_object)
+            first_leg_bone = typing.cast(typing.Any, RigService.find_pose_bone_by_name(leg[0], armature_object))
             first_leg_bone.rigify_type = 'limbs.leg'
 
             bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
@@ -446,7 +451,7 @@ class RigifyHelpers():
             _LOG.dump("Shoulder", shoulder)
             self._set_use_connect_on_bones(armature_object, shoulder)
             bpy.ops.object.mode_set(mode='POSE', toggle=False)
-            first_shoulder_bone = RigService.find_pose_bone_by_name(shoulder[0], armature_object)
+            first_shoulder_bone = typing.cast(typing.Any, RigService.find_pose_bone_by_name(shoulder[0], armature_object))
             first_shoulder_bone.rigify_type = 'basic.super_copy'
 
     def _setup_head(self, armature_object: bpy.types.Object) -> None:
@@ -455,7 +460,7 @@ class RigifyHelpers():
         _LOG.dump("Head", head)
         self._set_use_connect_on_bones(armature_object, head)
         bpy.ops.object.mode_set(mode='POSE', toggle=False)
-        first_head_bone = RigService.find_pose_bone_by_name(head[0], armature_object)
+        first_head_bone = typing.cast(typing.Any, RigService.find_pose_bone_by_name(head[0], armature_object))
         first_head_bone.rigify_type = 'spines.super_head'
 
     def _setup_fingers(self, armature_object: bpy.types.Object) -> None:
@@ -466,7 +471,7 @@ class RigifyHelpers():
                 _LOG.dump("Finger", finger)
                 self._set_use_connect_on_bones(armature_object, finger)
                 bpy.ops.object.mode_set(mode='POSE', toggle=False)
-                first_finger_bone = RigService.find_pose_bone_by_name(finger[0], armature_object)
+                first_finger_bone = typing.cast(typing.Any, RigService.find_pose_bone_by_name(finger[0], armature_object))
                 first_finger_bone.rigify_type = 'limbs.super_finger'
 
     def get_foot_name(self, left_side: bool=True) -> str:

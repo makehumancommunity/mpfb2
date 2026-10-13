@@ -230,7 +230,10 @@ class SocketBodyObject(SocketMeshObject):
 
         if import_rig and self.has_rig():
             # If a rig is available, we'll likely want to use it as parent for the mesh
-            parent = RigService.create_rig_from_skeleton_info(name, self._skeleton_info, parent=None, scale=self._scale)
+            # has_rig() is only true once arrange_skeleton_info() has assigned _skeleton_info, which
+            # pyright cannot see through the bool it reads; see the note on the unarranged arrays above.
+            skeleton_info = typing.cast(SocketSkeletonInfo, self._skeleton_info)
+            parent = RigService.create_rig_from_skeleton_info(name, skeleton_info, parent=None, scale=self._scale)
             # Custom property identifying the rig
             GeneralObjectProperties.set_value("object_type", "Skeleton", parent)
 

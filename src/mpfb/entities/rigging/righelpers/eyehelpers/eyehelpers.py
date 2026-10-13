@@ -11,6 +11,14 @@ from ..abstractrighelper import AbstractRigHelper
 
 # The helpers are only reachable from operators which poll for an active armature, so every
 # armature_object.data read below is narrowed with a cast rather than an isinstance guard.
+#
+# The same applies to the RigService bone finders, which return an optional because the blender
+# collections they read do. Every lookup below either names a helper bone this class created a few
+# lines earlier or a bone of the rig the concrete subclass was selected for, so the casts record a
+# contract the caller is expected to satisfy rather than a guarantee pyright can check.
+#
+# PoseBone.lock_rotation and lock_scale are bpy_prop_array, which the stubs declare without
+# __setitem__ although both are assignable per element at runtime; hence the narrow ignores.
 
 
 class EyeHelpers(AbstractRigHelper):
@@ -56,7 +64,7 @@ class EyeHelpers(AbstractRigHelper):
         self.edit_mode()
 
         for bone_name in ["left_eye_ik", "right_eye_ik", "eye_ik"]:
-            bone = RigService.find_edit_bone_by_name(bone_name, armature_object)
+            bone = typing.cast(bpy.types.EditBone, RigService.find_edit_bone_by_name(bone_name, armature_object))
             typing.cast(bpy.types.Armature, armature_object.data).edit_bones.remove(bone)
 
         _LOG.debug("Done")
@@ -91,8 +99,8 @@ class EyeHelpers(AbstractRigHelper):
             bone.tail = tail = tail + length * 4
             bone.roll = self._bone_info["edit_bones"][bone_name]["roll"]
 
-        left_eye_bone = RigService.find_edit_bone_by_name("left_eye_ik", armature_object)
-        right_eye_bone = RigService.find_edit_bone_by_name("right_eye_ik", armature_object)
+        left_eye_bone = typing.cast(bpy.types.EditBone, RigService.find_edit_bone_by_name("left_eye_ik", armature_object))
+        right_eye_bone = typing.cast(bpy.types.EditBone, RigService.find_edit_bone_by_name("right_eye_ik", armature_object))
 
         bone = bones.new("eye_ik")
         bone.head = (left_eye_bone.head + right_eye_bone.head) / 2
@@ -115,15 +123,15 @@ class EyeHelpers(AbstractRigHelper):
         RigService.display_pose_bone_as_empty(armature_object, "eye_ik", "CIRCLE", scale=1.4)
 
         for side in ["left", "right"]:
-            pose_bone = RigService.find_pose_bone_by_name(side + "_eye_ik", armature_object)
+            pose_bone = typing.cast(bpy.types.PoseBone, RigService.find_pose_bone_by_name(side + "_eye_ik", armature_object))
             for i in range(3):
-                pose_bone.lock_rotation[i] = True
-                pose_bone.lock_scale[i] = True
+                pose_bone.lock_rotation[i] = True  # pyright: ignore[reportIndexIssue]
+                pose_bone.lock_scale[i] = True  # pyright: ignore[reportIndexIssue]
 
     def _apply_ik_constraint(self, armature_object: bpy.types.Object) -> None:
         _LOG.enter()
-        right = RigService.find_pose_bone_by_name("right_eye_ik", armature_object)
-        left = RigService.find_pose_bone_by_name("left_eye_ik", armature_object)
+        right = typing.cast(bpy.types.PoseBone, RigService.find_pose_bone_by_name("right_eye_ik", armature_object))
+        left = typing.cast(bpy.types.PoseBone, RigService.find_pose_bone_by_name("left_eye_ik", armature_object))
         RigService.add_ik_constraint_to_pose_bone(self.get_eye_name(True), armature_object, right, chain_length=1)
         RigService.add_ik_constraint_to_pose_bone(self.get_eye_name(False), armature_object, left, chain_length=1)
 

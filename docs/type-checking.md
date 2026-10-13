@@ -142,6 +142,23 @@ reusing one name, since a single name cannot carry two different casts.
 `typing.cast(bpy.types.FModifierCycles, fcurve.modifiers.new(type='CYCLES'))` in
 `animationservice.py`.
 
+**`PoseBone.constraints.new()` is the third member of the family**, and the one with the most call
+sites. It returns `bpy.types.Constraint`, which carries none of `target`, `subtarget`, `use_x` or
+`use_z`, so a caller which sets any of those narrows to the subclass the type string selects:
+
+```python
+constraint = typing.cast(bpy.types.CopyRotationConstraint,
+                         RigService.add_bone_constraint_to_pose_bone(name, armature_object, "COPY_ROTATION"))
+constraint.target = armature_object
+constraint.subtarget = other_bone_name
+```
+
+The subclass names are not always guessable from the type string: `'IK'` selects
+`bpy.types.KinematicConstraint` and `'LIMIT_ROTATION'` selects `bpy.types.LimitRotationConstraint`.
+`RigService.add_bone_constraint_to_pose_bone()` keeps its `constraint_name` parameter a plain `str`
+rather than the stub's enum, because callers build it from asset data; the stub's `Literal` is
+silenced there with one narrow ignore at the `new()` call, not at every caller.
+
 ### Attributes populated after construction
 
 An abstract base which initialises an attribute to `None` and leaves its subclasses to fill it
@@ -161,6 +178,33 @@ repeating the reason at each site. Bind the cast to a local where the same attri
 more than once in a scope, as with `object.data` above. A guard is preferable where the method
 has something sensible to do with the `None`; where it has not, a guard only moves the failure
 one line and adds a branch nothing can reach.
+
+### Assigning `Any` keeps the declared type, including its `None`
+
+A variable declared `X | None` and then assigned a value pyright infers as `Any` does **not** narrow to
+`X`; it stays `X | None`, because pyright falls back to the declared type when the assigned type tells
+it nothing. That is easy to miss when the `Any` comes from several frames away:
+
+```python
+guessed_rig: str | None = None
+...
+if guessed_rig == "unknown":
+    for custom_rig in AssetService.get_custom_rigs():   # list[dict[str, Any]]
+        ...
+        guessed_rig = "custom." + custom_rig["name"]    # str + Any -> declared type kept
+...
+return guessed_rig                                      # reportReturnType: str | None vs str
+```
+
+`reveal_type()` is the quick way to find where it happened — add it, run pyright over the single file,
+remove it. The fix is a cast on the `Any`, not a wider return type:
+
+```python
+                    guessed_rig = "custom." + typing.cast(str, custom_rig["name"])
+```
+
+Widening the return to `str | None` instead would push the problem onto every caller for the sake of a
+value the function never actually returns.
 
 ### Properties and operators registered by another add-on
 
@@ -189,7 +233,72 @@ properties blender *does* declare stay checked; above, `armature_data.collection
 `armature_data` rather than off `rigify_data`. State once per module why the `Any` is there,
 rather than repeating the reason at every site.
 
+### An attribute the stubs lack may be a blender 5 removal
+
+The stubs are generated against a 5.x build, so they are not only *behind* the runtime, they are also
+*ahead* of it. An attribute pyright says is unknown may be one blender removed between 4.2 and 5.x, in
+which case the diagnostic is correct for the newer half of the supported range and a narrow ignore
+hides a genuine incompatibility.
+
+Probe both ends before deciding. The cheap check is the RNA, which does not need a scene:
+
+```bash
+blender-4.2.1 -b --python-expr \
+  'import bpy; print("select" in bpy.types.Bone.bl_rna.properties)'
+```
+
+Two cases found this way so far, both in the rig code:
+
+| attribute | 4.2 | 5.1 | verdict |
+|-----------|-----|-----|---------|
+| `Bone.select` | present | **absent**, moved to `PoseBone.select` | a real incompatibility; `rigservice.py` writes it at four sites |
+| `PoseBone.custom_shape_scale` | absent | absent | removed before the supported floor; the code's own `hasattr` guard makes the branch dead |
+
+`EditBone.select` is present on both, so a diagnostic on a bone `select` write is not automatically one
+of these — it depends which of the three bone classes the expression reaches.
+
+### A correct diagnostic against code that is wrong
+
+Most ignores in the tree exist because a stub describes less than the runtime does. A few exist for the
+opposite reason: pyright is right and the code is broken, and the annotation work does not fix logic
+(see the "report, do not silently fix" rule in the issue #374 planning document). Those still have to be
+silenced for the file to reach zero, which makes them the one kind of ignore that can hide something
+real.
+
+Two rules keep them honest:
+
+- **The comment states the fault itself**, in enough detail that a reader of the code does not need to
+  look anything up — what the correct call or attribute would be, and on which blender versions the
+  current one fails. It states the fault itself rather than pointing at a planning or bug document,
+  since those are not referred to from code or from `docs/`.
+- **The reference doc says so too**, at the method, so that a caller reading the API learns it without
+  reading the source.
+
+An example from `rigservice.py`:
+
+```python
+            while obj.modifiers.find(sub_modifier.name) > index_sub:
+                # The dict is the pre-3.2 context override form, which blender removed: 4.2 raises
+                # ValueError and 5.0 onwards raises TypeError here, so this loop cannot run to
+                # completion on any supported version. The two blocks above do the same move with
+                # bpy.context.temp_override(), which is the form that works. Left as it stands
+                # because changing it is a logic fix rather than an annotation.
+                bpy.ops.object.modifier_move_up({'object': obj}, modifier=sub_modifier.name)  # pyright: ignore[reportArgumentType]
+```
+
 ### Narrow ignores, and re-checking them
+
+`bpy_prop_array` is the most frequent single source of these. The stubs declare it without
+`__getitem__` or `__setitem__`, although both work at runtime, so per-element reads and writes of
+`PoseBone.lock_scale`, `lock_rotation`, `lock_location` and `rotation_axis_angle` all draw a
+diagnostic. For a write, a narrow `# pyright: ignore[reportIndexIssue]` on the line is the only option.
+For a read, prefer one cast bound to a local over an ignore per subscript, since the latter multiplies:
+
+```python
+aa = typing.cast("typing.Sequence[float]", bone.rotation_axis_angle)
+if abs(aa[0]) > 0.0001:
+    ...
+```
 
 Where the stubs describe less than the runtime does, prefer a narrow
 `# pyright: ignore[reportSomething]` carrying a comment over a bare `# type: ignore`. Stub

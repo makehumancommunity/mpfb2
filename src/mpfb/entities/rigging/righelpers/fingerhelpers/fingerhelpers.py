@@ -12,6 +12,14 @@ from ..abstractrighelper import AbstractRigHelper
 
 # The helpers are only reachable from operators which poll for an active armature, so every
 # armature_object.data read below is narrowed with a cast rather than an isinstance guard.
+#
+# The same applies to the RigService bone finders, which return an optional because the blender
+# collections they read do. Every lookup below either names a helper bone this class created a few
+# lines earlier or a bone of the rig the concrete subclass was selected for, so the casts record a
+# contract the caller is expected to satisfy rather than a guarantee pyright can check.
+#
+# PoseBone.lock_location and lock_scale are bpy_prop_array, which the stubs declare without
+# __setitem__ although both are assignable per element at runtime; hence the narrow ignores.
 
 
 class FingerHelpers(AbstractRigHelper):
@@ -100,7 +108,7 @@ class FingerHelpers(AbstractRigHelper):
             parent_name = self.get_immediate_parent_name_of_finger(finger_number)
             parent_bone = RigService.find_edit_bone_by_name(parent_name, armature_object)
 
-            grip_bone = RigService.find_edit_bone_by_name(grip_name, armature_object)
+            grip_bone = typing.cast(bpy.types.EditBone, RigService.find_edit_bone_by_name(grip_name, armature_object))
             grip_bone.parent = parent_bone
 
             self.pose_mode()
@@ -129,7 +137,7 @@ class FingerHelpers(AbstractRigHelper):
             parent_name = self.get_immediate_parent_name_of_finger(finger_number)
             parent_bone = RigService.find_edit_bone_by_name(parent_name, armature_object)
 
-            ik_bone = RigService.find_edit_bone_by_name(ik_name, armature_object)
+            ik_bone = typing.cast(bpy.types.EditBone, RigService.find_edit_bone_by_name(ik_name, armature_object))
             ik_bone.parent = parent_bone
 
             chain_length = self.get_finger_segment_count(finger_number)
@@ -143,7 +151,7 @@ class FingerHelpers(AbstractRigHelper):
         self.pose_mode()
         tip_name = self.get_last_segment_name_of_finger(finger_number)
         ik_name = self._get_point_ik_bone_name_for_finger(finger_number)
-        ik_bone = RigService.find_pose_bone_by_name(ik_name, armature_object)
+        ik_bone = typing.cast(bpy.types.PoseBone, RigService.find_pose_bone_by_name(ik_name, armature_object))
         self.add_finger_rotation_constraints(finger_number, armature_object)
         RigService.add_ik_constraint_to_pose_bone(tip_name, armature_object, ik_bone, chain_length)
 
@@ -172,14 +180,16 @@ class FingerHelpers(AbstractRigHelper):
         self.pose_mode()
 
         RigService.display_pose_bone_as_empty(armature_object, bone_name, empty_type="SPHERE")
-        pose_bone = RigService.find_pose_bone_by_name(bone_name, armature_object)
+        pose_bone = typing.cast(bpy.types.PoseBone, RigService.find_pose_bone_by_name(bone_name, armature_object))
 
         scales = [0.5, 0.5, 0.5, 0.5, 0.7]
 
         scale = scales[finger_number - 1]
         if hasattr(pose_bone, "custom_shape_scale"):
-            pose_bone.custom_shape_scale = scale
-            _LOG.debug("scale", pose_bone.custom_shape_scale)
+            # Removed from PoseBone before the oldest supported blender: absent from the RNA on both
+            # 4.2.1 and 5.1, so the hasattr guard makes this branch unreachable there.
+            pose_bone.custom_shape_scale = scale  # pyright: ignore[reportAttributeAccessIssue]
+            _LOG.debug("scale", pose_bone.custom_shape_scale)  # pyright: ignore[reportAttributeAccessIssue]
         if hasattr(pose_bone, "custom_shape_scale_xyz"):
             pose_bone.custom_shape_scale_xyz = [scale, scale, scale]
             _LOG.debug("scale", pose_bone.custom_shape_scale_xyz)
@@ -206,9 +216,9 @@ class FingerHelpers(AbstractRigHelper):
         self.pose_mode()
 
         bone_name = self._get_grip_bone_name_for_finger(finger_number)
-        pose_bone = RigService.find_pose_bone_by_name(bone_name, armature_object)
+        pose_bone = typing.cast(bpy.types.PoseBone, RigService.find_pose_bone_by_name(bone_name, armature_object))
 
-        root_bone = RigService.find_pose_bone_by_name(root_name, armature_object)
+        root_bone = typing.cast(bpy.types.PoseBone, RigService.find_pose_bone_by_name(root_name, armature_object))
 
         pose_bone.location = root_bone.location
 
@@ -218,15 +228,17 @@ class FingerHelpers(AbstractRigHelper):
 
         scale = scales[finger_number - 1]
         if hasattr(pose_bone, "custom_shape_scale"):
-            pose_bone.custom_shape_scale = scale
-            _LOG.debug("scale", pose_bone.custom_shape_scale)
+            # Removed from PoseBone before the oldest supported blender: absent from the RNA on both
+            # 4.2.1 and 5.1, so the hasattr guard makes this branch unreachable there.
+            pose_bone.custom_shape_scale = scale  # pyright: ignore[reportAttributeAccessIssue]
+            _LOG.debug("scale", pose_bone.custom_shape_scale)  # pyright: ignore[reportAttributeAccessIssue]
         if hasattr(pose_bone, "custom_shape_scale_xyz"):
             pose_bone.custom_shape_scale_xyz = [scale, scale, scale]
             _LOG.debug("scale", pose_bone.custom_shape_scale_xyz)
 
         for i in range(3):
-            pose_bone.lock_location[i] = True
-            pose_bone.lock_scale[i] = True
+            pose_bone.lock_location[i] = True  # pyright: ignore[reportIndexIssue]
+            pose_bone.lock_scale[i] = True  # pyright: ignore[reportIndexIssue]
 
     def _create_master_grip_bone(self, armature_object: bpy.types.Object) -> None:
         _LOG.enter()
@@ -264,10 +276,10 @@ class FingerHelpers(AbstractRigHelper):
 
         self.pose_mode()
 
-        pose_bone = RigService.find_pose_bone_by_name(bone_name, armature_object)
+        pose_bone = typing.cast(bpy.types.PoseBone, RigService.find_pose_bone_by_name(bone_name, armature_object))
 
-        root_bone3 = RigService.find_pose_bone_by_name(finger3_root_name, armature_object)
-        root_bone4 = RigService.find_pose_bone_by_name(finger4_root_name, armature_object)
+        root_bone3 = typing.cast(bpy.types.PoseBone, RigService.find_pose_bone_by_name(finger3_root_name, armature_object))
+        root_bone4 = typing.cast(bpy.types.PoseBone, RigService.find_pose_bone_by_name(finger4_root_name, armature_object))
 
         pose_bone.location = (root_bone3.location + root_bone4.location) / 2
 
@@ -275,15 +287,17 @@ class FingerHelpers(AbstractRigHelper):
 
         scale = 0.6
         if hasattr(pose_bone, "custom_shape_scale"):
-            pose_bone.custom_shape_scale = scale
-            _LOG.debug("scale", pose_bone.custom_shape_scale)
+            # Removed from PoseBone before the oldest supported blender: absent from the RNA on both
+            # 4.2.1 and 5.1, so the hasattr guard makes this branch unreachable there.
+            pose_bone.custom_shape_scale = scale  # pyright: ignore[reportAttributeAccessIssue]
+            _LOG.debug("scale", pose_bone.custom_shape_scale)  # pyright: ignore[reportAttributeAccessIssue]
         if hasattr(pose_bone, "custom_shape_scale_xyz"):
             pose_bone.custom_shape_scale_xyz = [scale, scale, scale]
             _LOG.debug("scale", pose_bone.custom_shape_scale_xyz)
 
         for i in range(3):
-            pose_bone.lock_location[i] = True
-            pose_bone.lock_scale[i] = True
+            pose_bone.lock_location[i] = True  # pyright: ignore[reportIndexIssue]
+            pose_bone.lock_scale[i] = True  # pyright: ignore[reportIndexIssue]
 
     # ---- METHODS FOR REMOVING AND RESETTING
 

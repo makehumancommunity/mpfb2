@@ -12,6 +12,17 @@ from ..abstractrighelper import AbstractRigHelper
 
 # The helpers are only reachable from operators which poll for an active armature, so every
 # armature_object.data read below is narrowed with a cast rather than an isinstance guard.
+#
+# The same applies to the RigService bone finders, which return an optional because the blender
+# collections they read do. Every lookup below either names a helper bone this class created a few
+# lines earlier or a bone of the rig the concrete subclass was selected for, so the casts record a
+# contract the caller is expected to satisfy rather than a guarantee pyright can check. Where a
+# lookup really may miss, the code already guards -- _set_parent()'s elbow and shoulder bones are
+# the example -- and those guards are left alone.
+#
+# RigService.add_bone_constraint_to_pose_bone() returns the bpy.types.Constraint base class, which
+# carries none of target, subtarget, use_x or use_z, so each result is cast to the subclass the
+# constraint type string selects.
 
 class ArmHelpers(AbstractRigHelper):
 
@@ -119,7 +130,7 @@ class ArmHelpers(AbstractRigHelper):
         if not strategy or strategy == "NONE":
             return
 
-        hand_ik = RigService.find_edit_bone_by_name(self.which_arm + "_hand_ik", armature_object)
+        hand_ik = typing.cast(bpy.types.EditBone, RigService.find_edit_bone_by_name(self.which_arm + "_hand_ik", armature_object))
         elbow_ik = None
         shoulder_ik = None
 
@@ -176,23 +187,25 @@ class ArmHelpers(AbstractRigHelper):
 
         if self.settings["arm_target_rotates_hand"]:
 
-            constraint = RigService.add_bone_constraint_to_pose_bone(self.get_hand_name(), armature_object, "COPY_ROTATION")
+            constraint = typing.cast(bpy.types.CopyRotationConstraint,
+                                     RigService.add_bone_constraint_to_pose_bone(self.get_hand_name(), armature_object, "COPY_ROTATION"))
             constraint.target = armature_object
             constraint.subtarget = self.which_arm + "_hand_ik"
 
             if self.settings["arm_target_rotates_lower_arm"]:
                 lower_arm_segments = self.get_reverse_list_of_bones_in_arm(False, True, False, False)
                 for name in lower_arm_segments:
-                    constraint = RigService.add_bone_constraint_to_pose_bone(name, armature_object, "COPY_ROTATION")
-                    constraint.target = armature_object
-                    constraint.subtarget = self.which_arm + "_hand_ik"
-                    constraint.use_x = False
-                    constraint.use_z = False
-                    constraint.influence = 0.4 / len(lower_arm_segments)
+                    segment_constraint = typing.cast(bpy.types.CopyRotationConstraint,
+                                                     RigService.add_bone_constraint_to_pose_bone(name, armature_object, "COPY_ROTATION"))
+                    segment_constraint.target = armature_object
+                    segment_constraint.subtarget = self.which_arm + "_hand_ik"
+                    segment_constraint.use_x = False
+                    segment_constraint.use_z = False
+                    segment_constraint.influence = 0.4 / len(lower_arm_segments)
 
-        pose_bone = RigService.find_pose_bone_by_name(self.which_arm + "_hand_ik", armature_object)
+        pose_bone = typing.cast(bpy.types.PoseBone, RigService.find_pose_bone_by_name(self.which_arm + "_hand_ik", armature_object))
         for i in range(3):
-            pose_bone.lock_scale[i] = True
+            pose_bone.lock_scale[i] = True  # pyright: ignore[reportIndexIssue]
 
     def _create_elbow_ik_bone(self, armature_object: bpy.types.Object) -> None:
         _LOG.enter()
@@ -211,9 +224,9 @@ class ArmHelpers(AbstractRigHelper):
 
         RigService.display_pose_bone_as_empty(armature_object, self.which_arm + "_elbow_ik", empty_type="SPHERE")
 
-        pose_bone = RigService.find_pose_bone_by_name(self.which_arm + "_elbow_ik", armature_object)
+        pose_bone = typing.cast(bpy.types.PoseBone, RigService.find_pose_bone_by_name(self.which_arm + "_elbow_ik", armature_object))
         for i in range(3):
-            pose_bone.lock_scale[i] = True
+            pose_bone.lock_scale[i] = True  # pyright: ignore[reportIndexIssue]
 
     def _create_shoulder_ik_bone(self, armature_object: bpy.types.Object) -> None:
         _LOG.enter()
@@ -232,16 +245,16 @@ class ArmHelpers(AbstractRigHelper):
 
         RigService.display_pose_bone_as_empty(armature_object, self.which_arm + "_shoulder_ik", empty_type="SPHERE")
 
-        pose_bone = RigService.find_pose_bone_by_name(self.which_arm + "_shoulder_ik", armature_object)
+        pose_bone = typing.cast(bpy.types.PoseBone, RigService.find_pose_bone_by_name(self.which_arm + "_shoulder_ik", armature_object))
         for i in range(3):
-            pose_bone.lock_scale[i] = True
+            pose_bone.lock_scale[i] = True  # pyright: ignore[reportIndexIssue]
 
     def _set_lower_arm_ik_target(self, armature_object: bpy.types.Object, chain_length: int) -> None:
         _LOG.enter()
         self.pose_mode()
         lower_arm_name = self.get_lower_arm_name()
         hand_name = self.which_arm + "_hand_ik"
-        hand_bone = RigService.find_pose_bone_by_name(hand_name, armature_object)
+        hand_bone = typing.cast(bpy.types.PoseBone, RigService.find_pose_bone_by_name(hand_name, armature_object))
         self.add_lower_arm_rotation_constraints(armature_object)
         RigService.add_ik_constraint_to_pose_bone(lower_arm_name, armature_object, hand_bone, chain_length)
 
@@ -250,7 +263,7 @@ class ArmHelpers(AbstractRigHelper):
         self.pose_mode()
         upper_arm_name = self.get_upper_arm_name()
         elbow_name = self.which_arm + "_elbow_ik"
-        elbow_bone = RigService.find_pose_bone_by_name(elbow_name, armature_object)
+        elbow_bone = typing.cast(bpy.types.PoseBone, RigService.find_pose_bone_by_name(elbow_name, armature_object))
         self.add_upper_arm_rotation_constraints(armature_object)
         RigService.add_ik_constraint_to_pose_bone(upper_arm_name, armature_object, elbow_bone, chain_length)
 
@@ -259,7 +272,7 @@ class ArmHelpers(AbstractRigHelper):
         self.pose_mode()
         shoulder_name = self.get_shoulder_name()
         shoulder_ik_name = self.which_arm + "_shoulder_ik"
-        shoulder_bone = RigService.find_pose_bone_by_name(shoulder_ik_name, armature_object)
+        shoulder_bone = typing.cast(bpy.types.PoseBone, RigService.find_pose_bone_by_name(shoulder_ik_name, armature_object))
         self.add_shoulder_rotation_constraints(armature_object)
         RigService.add_ik_constraint_to_pose_bone(shoulder_name, armature_object, shoulder_bone, chain_length)
 
