@@ -1,13 +1,36 @@
 """Service for working with animations and poses"""
 
 import bpy, os, typing
-from typing import Optional
+from typing import Any
 from .logservice import LogService
 from .rigservice import RigService
 from .objectservice import ObjectService
 from .systemservice import SystemService
 
 _LOG = LogService.get_logger("services.animationservice")
+
+AnimationDict = dict[str, Any]
+"""A serialized animation, as produced by get_key_frames_as_dict() and read back by
+set_key_frames_from_dict(). Deliberately an alias rather than a TypedDict: the frame numbers below
+"animation_data" are int keys in a dict which comes straight from get_key_frames_as_dict() and str
+keys in the same dict once it has been round-tripped through json, and a typed shape would have to
+reject one of the two producers in order to describe the other."""
+
+# Note on the legacy action API, referred to from the five sites which read it below.
+#
+# Action.fcurves and Action.groups are the pre-slotted-action properties. They were deprecated in
+# blender 4.4 and removed in blender 5.0, where an action's curves are reached through its layers,
+# slots and channelbags instead. The bpy stubs are generated against a 5.x build, so the attributes
+# genuinely are absent from the type and the ignores below are not stub noise: every method which
+# reads them works on blender 4.2 and 4.3 only. The casts beside the ignores state the element type
+# the 4.x runtime yields, so that the loop bodies remain checked.
+
+# Note on animation data, referred to from the same four methods.
+#
+# Object.animation_data is None for an armature which has never been animated, and
+# AnimData.action is None for one whose action has been unlinked. None of the methods below
+# guards against either, so they raise AttributeError rather than returning empty in those cases.
+# The two casts in each of them record that, rather than asserting a guarantee which does not exist.
 
 
 class AnimationService:
@@ -22,7 +45,7 @@ class AnimationService:
     and object management, respectively.
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Do not instance, there are only static methods in the class"""
         raise RuntimeError("You should not instance AnimationService. Use its static methods instead.")
 
@@ -44,7 +67,9 @@ class AnimationService:
 
         # First, import the bvh file as an armature
         bpy.ops.import_anim.bvh(filepath=bvh_file_path, axis_forward='Y', axis_up='Z', rotate_mode='XYZ')
-        source_rig = bpy.context.object
+        # bpy.ops raises RuntimeError rather than returning when an operator fails, so a normal
+        # return from the call above means the bvh armature exists and is the active object.
+        source_rig = typing.cast(bpy.types.Object, bpy.context.object)
         _LOG.debug("source_rig", source_rig)
 
         # Put the source armature in edit mode
@@ -72,7 +97,9 @@ class AnimationService:
         bpy.ops.object.mode_set(mode='POSE', toggle=False)
 
         # Now rotations will behave the same way as in the source armature, so we can just copy the rotations
-        for source_pose_bone in source_rig.pose.bones:
+        # Object.pose is declared optional, but it is populated for every armature object, and
+        # source_rig is one by construction: bpy.ops.import_anim.bvh creates an armature.
+        for source_pose_bone in typing.cast(bpy.types.Pose, source_rig.pose).bones:
             dest_pose_bone = RigService.find_pose_bone_by_name(source_pose_bone.name, dest_rig)
             if dest_pose_bone:
                 dest_pose_bone.rotation_euler = source_pose_bone.rotation_euler.copy()
@@ -95,7 +122,7 @@ class AnimationService:
         bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
 
     @staticmethod
-    def get_max_keyframe(armature_object: bpy.types.Object) -> Optional[int]:
+    def get_max_keyframe(armature_object: bpy.types.Object | None) -> int | None:
         """
         Get the maximum keyframe number for the given armature object.
 
@@ -103,25 +130,31 @@ class AnimationService:
         and returns the highest keyframe number found.
 
         Args:
-            armature_object (bpy.types.Object): The armature object to scan for keyframes.
+            armature_object (bpy.types.Object | None): The armature object to scan for keyframes.
 
         Returns:
-            int or None: The maximum keyframe number, or None if no keyframes are found or if the armature object is None.
+            int | None: The maximum keyframe number, or None if no keyframes are found or if the armature object is None.
+
+        Raises:
+            AttributeError: If the armature object has no animation data or no action assigned.
         """
         if not armature_object:
             _LOG.error("armature_object is None")
             return None
 
-        max_keyframe = None
+        max_keyframe: int | None = None
 
-        anim = armature_object.animation_data
+        # See the note on animation data at the top of this module.
+        anim = typing.cast(bpy.types.AnimData, armature_object.animation_data)
         _LOG.debug("animation_data", anim)
 
-        action = anim.action
+        action = typing.cast(bpy.types.Action, anim.action)
         _LOG.debug("action", action)
         _LOG.debug("action frame range", action.frame_range)
 
-        for fcurve in action.fcurves:
+        # See the note on the legacy action API at the top of this module.
+        fcurves = typing.cast("bpy.types.bpy_prop_collection[bpy.types.FCurve]", action.fcurves)  # pyright: ignore[reportAttributeAccessIssue]
+        for fcurve in fcurves:
             for keyframe in fcurve.keyframe_points:
                 if not max_keyframe or (keyframe and keyframe.co and keyframe.co[0] and keyframe.co[0] > max_keyframe):
                     max_keyframe = int(keyframe.co[0])
@@ -133,23 +166,32 @@ class AnimationService:
         return max_keyframe
 
     @staticmethod
-    def make_cyclic(armature_object: bpy.types.Object, bone_with_offset: Optional[str] = None) -> None:
-        """Make an animation cyclic by adding a modifier to each fcurve. Optionally add offset parameter to one bone."""
+    def make_cyclic(armature_object: bpy.types.Object, bone_with_offset: str | None = None) -> None:
+        """Make an animation cyclic by adding a modifier to each fcurve. Optionally add offset parameter to one bone.
 
-        anim = armature_object.animation_data
+        Raises:
+            AttributeError: If the armature object has no animation data or no action assigned.
+        """
+
+        # See the note on animation data at the top of this module.
+        anim = typing.cast(bpy.types.AnimData, armature_object.animation_data)
         _LOG.debug("animation_data", anim)
 
-        action = anim.action
+        action = typing.cast(bpy.types.Action, anim.action)
         _LOG.debug("action", action)
 
-        for fcurve in action.fcurves:
+        # See the note on the legacy action API at the top of this module.
+        fcurves = typing.cast("bpy.types.bpy_prop_collection[bpy.types.FCurve]", action.fcurves)  # pyright: ignore[reportAttributeAccessIssue]
+        for fcurve in fcurves:
             _LOG.debug("fcurve", (fcurve.group, fcurve.data_path))
-            modifier = fcurve.modifiers.new(type='CYCLES')
+            # FModifiers.new() returns the FModifier base class, and mode_after is declared on the
+            # FModifierCycles subclass which the 'CYCLES' type argument selects.
+            modifier = typing.cast(bpy.types.FModifierCycles, fcurve.modifiers.new(type='CYCLES'))
             if bone_with_offset and (bone_with_offset in str(fcurve) or bone_with_offset in str(fcurve.group)):
                 modifier.mode_after = 'REPEAT_OFFSET'
 
     @staticmethod
-    def get_bone_movement_distance(armature_object: bpy.types.Object, bone_name: str, start_keyframe: int, end_keyframe: int) -> list:
+    def get_bone_movement_distance(armature_object: bpy.types.Object, bone_name: str, start_keyframe: int, end_keyframe: int) -> list[float]:
         """
         Calculate the movement distance of a bone between two keyframes.
 
@@ -163,7 +205,9 @@ class AnimationService:
             end_keyframe (int): The ending keyframe number.
 
         Returns:
-            list: A list containing the movement distance [dx, dy, dz] of the bone between the two keyframes.
+            list[float]: A list containing the movement distance [dx, dy, dz] of the bone between the two keyframes.
+            A missing bone is logged as an error and leaves that end of the measurement at the origin
+            rather than aborting, so the result is then a distance to or from [0.0, 0.0, 0.0].
         """
         start_loc = [0.0, 0.0, 0.0]
         end_loc = [0.0, 0.0, 0.0]
@@ -189,7 +233,8 @@ class AnimationService:
         return [end_loc[0] - start_loc[0], end_loc[1] - start_loc[1], end_loc[2] - start_loc[2]]
 
     @staticmethod
-    def move_bone_for_all_keyframes(armature_object: bpy.types.Object, bone_name: str, distance: list, start_keyframe: int, end_keyframe: int) -> None:
+    def move_bone_for_all_keyframes(armature_object: bpy.types.Object | None, bone_name: str, distance: list[float],
+                                    start_keyframe: int, end_keyframe: int) -> None:
         """
         Move a bone by a specified distance for all keyframes within a given range.
 
@@ -197,9 +242,9 @@ class AnimationService:
         and inserts a new keyframe with the updated location.
 
         Args:
-            armature_object (bpy.types.Object): The armature object containing the bone.
+            armature_object (bpy.types.Object | None): The armature object containing the bone. A None is logged and ignored.
             bone_name (str): The name of the bone to move.
-            distance (list): A list containing the distance [dx, dy, dz] to move the bone.
+            distance (list[float]): A list containing the distance [dx, dy, dz] to move the bone.
             start_keyframe (int): The starting keyframe number.
             end_keyframe (int): The ending keyframe number.
         """
@@ -221,19 +266,18 @@ class AnimationService:
             bone.keyframe_insert(data_path="location", frame=keyframe)
 
     @staticmethod
-    def duplicate_keyframes(armature_object: bpy.types.Object, start_duplicate_at: int, first_keyframe: int, last_keyframe: int) -> None:
+    def duplicate_keyframes(armature_object: bpy.types.Object | None, start_duplicate_at: int, first_keyframe: int, last_keyframe: int) -> None:
         """
-        Move a bone by a specified distance for all keyframes within a given range.
+        Duplicate a range of keyframes to a new position in the timeline.
 
-        This function iterates through each keyframe in the specified range, moves the bone by the given distance,
-        and inserts a new keyframe with the updated location.
+        This function iterates over each frame in the source range and calls duplicate_keyframe to copy
+        it to the matching frame in the destination range.
 
         Args:
-            armature_object (bpy.types.Object): The armature object containing the bone.
-            bone_name (str): The name of the bone to move.
-            distance (list): A list containing the distance [dx, dy, dz] to move the bone.
-            start_keyframe (int): The starting keyframe number.
-            end_keyframe (int): The ending keyframe number.
+            armature_object (bpy.types.Object | None): The armature object with animation data. A None is logged and ignored.
+            start_duplicate_at (int): The frame number where the duplicated range should begin.
+            first_keyframe (int): The first frame of the source range.
+            last_keyframe (int): The last frame of the source range, inclusive.
         """
         if not armature_object:
             _LOG.error("armature_object is None")
@@ -245,13 +289,16 @@ class AnimationService:
             AnimationService.duplicate_keyframe(armature_object, source_keyframe, target_keyframe)
 
     @staticmethod
-    def duplicate_keyframe(armature_object: bpy.types.Object, source_keyframe: int, target_keyframe: int) -> None:
-        """Duplicates a keyframe from one armature object to another.
+    def duplicate_keyframe(armature_object: bpy.types.Object | None, source_keyframe: int, target_keyframe: int) -> None:
+        """Duplicates a keyframe to another position in the timeline, for every fcurve in the action.
 
         Args:
-            armature_object (bpy.types.Object): Armature object to duplicate the keyframe from.
-            source_keyframe (bpy.types.PoseBone): Keyframe to duplicate.
-            target_keyframe (bpy.types.PoseBone): Keyframe to duplicate the keyframe to.
+            armature_object (bpy.types.Object | None): Armature object holding the keyframe. A None is logged and ignored.
+            source_keyframe (int): Frame number to duplicate. A 0 is logged and ignored, since the guard tests it for truth.
+            target_keyframe (int): Frame number to duplicate it to. A 0 is logged and ignored, for the same reason.
+
+        Raises:
+            AttributeError: If the armature object has no animation data or no action assigned.
         """
         if not armature_object:
             _LOG.error("armature_object is None")
@@ -263,14 +310,17 @@ class AnimationService:
             _LOG.error("target_keyframe is None")
             return
 
-        anim = armature_object.animation_data
+        # See the note on animation data at the top of this module.
+        anim = typing.cast(bpy.types.AnimData, armature_object.animation_data)
         _LOG.dump("animation_data", anim)
 
-        action = anim.action
+        action = typing.cast(bpy.types.Action, anim.action)
         _LOG.dump("action", action)
         _LOG.dump("action frame range", action.frame_range)
 
-        for fcurve in action.fcurves:
+        # See the note on the legacy action API at the top of this module.
+        fcurves = typing.cast("bpy.types.bpy_prop_collection[bpy.types.FCurve]", action.fcurves)  # pyright: ignore[reportAttributeAccessIssue]
+        for fcurve in fcurves:
             if source_keyframe > len(fcurve.keyframe_points) - 1 or not fcurve.keyframe_points[source_keyframe]:
                 continue
 
@@ -291,21 +341,28 @@ class AnimationService:
             new_keyframe.back = old_keyframe.back
 
     @staticmethod
-    def get_key_frames_as_dict(armature_object: bpy.types.Object) -> dict:
-        """Scan through all key frames set for pose bones and return a dict with all info."""
+    def get_key_frames_as_dict(armature_object: bpy.types.Object) -> AnimationDict:
+        """Scan through all key frames set for pose bones and return a dict with all info.
+
+        Raises:
+            AttributeError: If the armature object has no animation data or no action assigned.
+        """
         _LOG.enter()
 
-        anim = armature_object.animation_data
+        # See the note on animation data at the top of this module.
+        anim = typing.cast(bpy.types.AnimData, armature_object.animation_data)
         _LOG.debug("animation_data", anim)
 
-        action = anim.action
+        action = typing.cast(bpy.types.Action, anim.action)
         _LOG.debug("action", action)
         _LOG.debug("action frame range", action.frame_range)
 
-        for group in action.groups:
+        # See the note on the legacy action API at the top of this module.
+        groups = typing.cast("bpy.types.bpy_prop_collection[bpy.types.ActionGroup]", action.groups)  # pyright: ignore[reportAttributeAccessIssue]
+        for group in groups:
             _LOG.dump("Action group ", group)
 
-        full_dict = dict()
+        full_dict: AnimationDict = dict()
         full_dict["animation_data"] = dict()
         animation_data = full_dict["animation_data"]
 
@@ -313,7 +370,9 @@ class AnimationService:
         meta = full_dict["metadata"]
         meta["rig"] = RigService.identify_rig(armature_object)
 
-        for fcurve in action.fcurves:
+        # See the note on the legacy action API at the top of this module.
+        fcurves = typing.cast("bpy.types.bpy_prop_collection[bpy.types.FCurve]", action.fcurves)  # pyright: ignore[reportAttributeAccessIssue]
+        for fcurve in fcurves:
             _LOG.debug("fcurve, data_path", (fcurve, fcurve.data_path))
             curve_name = fcurve.data_path
             if "\"" in curve_name:
@@ -355,16 +414,26 @@ class AnimationService:
                 fdata[curve_type]["values"][curve_idx] = result
 
                 metadata["interpolation"] = str(keyframe.interpolation)
-                metadata["handle_left"] = list(keyframe.handle_left)
-                metadata["handle_right"] = list(keyframe.handle_right)
+                # mathutils.Vector declares __getitem__ and __len__ but not __iter__, so it does not
+                # satisfy Iterable although list() consumes it happily at runtime.
+                metadata["handle_left"] = list(keyframe.handle_left)  # pyright: ignore[reportArgumentType]
+                metadata["handle_right"] = list(keyframe.handle_right)  # pyright: ignore[reportArgumentType]
                 metadata["handle_left_type"] = str(keyframe.handle_left_type)
                 metadata["handle_right_type"] = str(keyframe.handle_right_type)
 
         return full_dict
 
     @staticmethod
-    def set_key_frames_from_dict(armature_object: bpy.types.Object, animation_dict: dict, frame_offset: int = 0, skip_first_frame: bool = False) -> None:
-        """Assign key frames for pose bones."""
+    def set_key_frames_from_dict(armature_object: bpy.types.Object, animation_dict: AnimationDict,
+                                 frame_offset: int = 0, skip_first_frame: bool = False) -> None:
+        """Assign key frames for pose bones.
+
+        Note that the whole per-frame body sits behind a "skip_first_frame" test, so with the default
+        False nothing is assigned at all. See the reference documentation for this service.
+
+        Raises:
+            ValueError: If the animation dict names a bone which the armature does not have.
+        """
         _LOG.enter()
 
         animation = animation_dict["animation_data"]
