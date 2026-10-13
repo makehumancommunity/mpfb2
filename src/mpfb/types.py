@@ -140,3 +140,41 @@ contain, and ``override_clothes_model`` and ``override_eyes_model`` are read wit
 An alias rather than a ``TypedDict`` precisely because of that split: the mandatory key set differs
 between the three entry points, and the UI layer builds the dict by copying the defaults and then
 overwriting entries from a ``SceneConfigSet``, whose values arrive as ``Any``."""
+
+SocketMeshInfo = dict[str, Any]
+"""The description of one mesh which MakeHuman's socket server sends ahead of its geometry.
+
+Two calls produce one: ``SocketService.get_body_mesh_info()`` for the base mesh, and each entry of
+the list ``SocketService.get_proxies_info()`` returns for a proxy (clothes, eyes, a body proxy and so
+on). The two do not carry the same keys, which is why this is one shape rather than two. Both carry
+``name`` and the ``verticesShape``, ``verticesTypeCode``, ``facesShape``, ``facesTypeCode``,
+``textureCoordsShape``, ``textureCoordsTypeCode``, ``faceUVMappingsShape`` and
+``faceUVMappingsTypeCode`` entries which ``SocketMeshObject.convert_to_shaped_numpy_array()`` reads in
+order to reshape the matching binary call's payload. The base mesh additionally carries ``filename``,
+``faceGroups`` and ``faceMask``; a proxy carries ``type`` and ``uuid``, and reports its sizes as
+``numVertices``, ``numFaces``, ``numTextureCoords`` and ``numFaceUVMappings`` instead of the four
+``*Shape`` entries, which ``SocketProxyObject`` fills in from them.
+
+An alias rather than a ``TypedDict`` for that reason: no single shape describes both producers, the
+values arrive from ``json.loads()`` as ``Any``, and ``SocketProxyObject.__init__()`` extends the dict
+it was handed with the four missing ``*Shape`` entries."""
+
+SocketWeightInfo = dict[str, Any]
+"""The vertex weight index which MakeHuman's socket server sends ahead of the weights themselves.
+
+``SocketService.get_body_weight_info()`` and ``SocketService.get_proxy_weight_info()`` both return
+one. The single key read in MPFB is ``weights``, a list with one entry per weighted bone, each
+carrying ``bone`` (the bone name) and ``numVertices`` (how many of the following vertex indices and
+weight values belong to it). ``SocketMeshObject.arrange_weights()`` walks that list in order to slice
+the two parallel binary payloads into per bone arrays, so the order of the list is significant."""
+
+SocketSkeletonInfo = dict[str, Any]
+"""The skeleton which MakeHuman's socket server describes for the currently loaded character.
+
+``SocketService.get_skeleton()`` returns one. The keys read in MPFB are ``name``, which is the string
+``"none"`` when the character has no skeleton, and ``bones``, a list of root bones each of which
+nests its own ``children``. ``RigService.create_rig_from_skeleton_info()`` consumes the latter.
+
+This is not the same shape as ``RigDefinition``, which is MPFB's own rig file format: a
+``SocketSkeletonInfo`` nests its bones as a tree and arrives over the socket, where a
+``RigDefinition`` is flat, is keyed by bone name and is read from a file."""

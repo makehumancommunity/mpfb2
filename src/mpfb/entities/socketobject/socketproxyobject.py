@@ -2,6 +2,7 @@
 for more info."""
 
 import numpy, bpy, typing
+from typing import Any
 from ...services import LogService
 from ...services import SocketService
 from ...services import ObjectService
@@ -9,8 +10,18 @@ from ...services import ModifierService
 from .socketmeshobject import SocketMeshObject
 from ..objectproperties import GeneralObjectProperties
 from ._extra_vertex_groups import vertex_group_information
+from ...types import SocketMeshInfo
 
 _LOG = LogService.get_logger("socketobject.socketbodyobject")
+
+# Note on the casts below, which fall into two groups.
+#
+# The numpy arrays inherited from SocketMeshObject are None until arranged; see the note at the top
+# of socketmeshobject.py for why reading them through a cast is the honest shape here.
+#
+# Object.modifiers.new() is declared as returning the Modifier base class, which carries none of the
+# per type settings. Each cast names the subclass the type argument selects, as the service layer
+# already does at its own six modifiers.new() sites.
 
 
 class SocketProxyObject(SocketMeshObject):
@@ -19,7 +30,8 @@ class SocketProxyObject(SocketMeshObject):
     to sort and transform things as far as possible in numpy before applying the
     data as a blender mesh object."""
 
-    def __init__(self, proxy_info, importer_presets=None, import_weights=False):
+    def __init__(self, proxy_info: SocketMeshInfo, importer_presets: dict[str, Any] | None = None,
+                 import_weights: bool = False) -> None:
         """Construct a SocketProxyObject and populate it with numpy data and other
         info fetched from MH via socket."""
 
@@ -27,7 +39,7 @@ class SocketProxyObject(SocketMeshObject):
         _LOG.debug("Constructing new socket proxy object of type", proxy_info["type"])
 
         self._object_info = dict(proxy_info)
-        self._has_rig = import_weights
+        self._has_rig: bool = import_weights
 
         # The socket plugin does not expose the following values for proxies, or at least not
         # always. This is probably a bug that should be fixed in the socket service, but we
@@ -70,12 +82,13 @@ class SocketProxyObject(SocketMeshObject):
         else:
             _LOG.debug("Will not attempt to weight proxy", self._object_info["name"])
 
-    def get_lowest_point(self):
+    def get_lowest_point(self) -> float:
         """Find the vertex coordinate with the lowest Z value"""
         _LOG.enter()
-        return numpy.amin(self._vertices[:, 2])  # minimum value in Z column
+        # See the note on the casts at the top of the module
+        return numpy.amin(typing.cast(numpy.ndarray, self._vertices)[:, 2])  # minimum value in Z column
 
-    def arrange_extra_vertex_groups(self):
+    def arrange_extra_vertex_groups(self) -> None:
         """Take information from the _extra_vertex_groups dict and use it to create extra vertex
         groups on the body."""
         if not "uuid" in self._object_info:
@@ -85,7 +98,8 @@ class SocketProxyObject(SocketMeshObject):
             group_info = vertex_group_information[uuid]
             self.create_vertex_groups_from_dict(group_info)
 
-    def as_blender_mesh_object(self, parent=None, name_prefix=None):
+    def as_blender_mesh_object(self, parent: bpy.types.Object | None = None,
+                               name_prefix: str | None = None) -> bpy.types.Object:
         """Use all the collected numpy data and transform to construct a blender mesh object"""
         _LOG.enter()
 
@@ -105,7 +119,10 @@ class SocketProxyObject(SocketMeshObject):
         # Next most efficient available way to convert a set of numpy arrays to a mesh.
         # The most efficient way listed online causes segfaults for me and is hard to
         # understand.
-        mesh.from_pydata(self._vertices.tolist(), [], self._faces.tolist())
+        # See the note on the casts at the top of the module
+        vertices = typing.cast(numpy.ndarray, self._vertices)
+        faces = typing.cast(numpy.ndarray, self._faces)
+        mesh.from_pydata(vertices.tolist(), [], faces.tolist())
 
         _LOG.dump("Vertex groups", self._vertex_groups_by_name)
 
@@ -122,19 +139,19 @@ class SocketProxyObject(SocketMeshObject):
             # Update vertex weights with actual weights
             self.apply_vertex_weights_if_needed(mesh, vgroup)
 
-        self.create_uv_layer(obj.data)
+        self.create_uv_layer(mesh)
 
         if self._importer_presets["add_subdiv_modifier"]:
-            modifier = obj.modifiers.new("Subdivision", 'SUBSURF')
-            modifier.levels = 0  # viewport level
-            modifier.render_levels = self._importer_presets["subdiv_levels"]
+            subsurf = typing.cast(bpy.types.SubsurfModifier, obj.modifiers.new("Subdivision", 'SUBSURF'))
+            subsurf.levels = 0  # viewport level
+            subsurf.render_levels = self._importer_presets["subdiv_levels"]
 
         _LOG.debug("parent", parent)
         if parent and parent.type == "ARMATURE":
             ModifierService.create_armature_modifier(obj, parent, "Armature")
 
         if "Delete" in self._vertex_groups_by_name and self._vertex_groups_by_name["Delete"].size > 0:
-            mask = obj.modifiers.new("Hide delete group", 'MASK')
+            mask = typing.cast(bpy.types.MaskModifier, obj.modifiers.new("Hide delete group", 'MASK'))
             mask.vertex_group = "Delete"
             mask.show_in_editmode = True
             mask.show_on_cage = True

@@ -2,10 +2,27 @@
 """This module only contains the SocketMeshObject. See the class docstring
 for more info."""
 
-import gc, numpy
+import bpy, gc, numpy, typing
+from typing import Any
 from ...services import LogService
+from ...types import SocketMeshInfo, SocketWeightInfo
 
 _LOG = LogService.get_logger("socketobject.socketmeshobject")
+
+# Note on the numpy arrays, referred to from the methods which read them below.
+#
+# The five arrays are None until the matching arrange_* method has been called, which is why they
+# are declared nullable. Both concrete subclasses call those methods from their own constructor,
+# so an object which exists at all has them populated, and the casts in the methods below record
+# that rather than asserting a guarantee the abstract class itself makes. A guard is not an option
+# here: there is nothing useful for these methods to do with an unarranged mesh.
+#
+# Note on the importer presets, referred to from the constructor below.
+#
+# importer_presets defaults to None, but neither subclass survives being handed None: both
+# subscript the dict unconditionally while still inside their own constructor. The default is
+# therefore not a supported way of calling them, and the cast records that the stored dict is the
+# one a caller passed.
 
 class SocketMeshObject:
     """This is an abstract helper object for importing meshes from MakeHuman.
@@ -13,7 +30,7 @@ class SocketMeshObject:
     and transform things as far as possible in numpy before applying the
     data as a blender mesh object."""
 
-    def __init__(self, importer_presets=None, object_type="GENERAL"):
+    def __init__(self, importer_presets: dict[str, Any] | None = None, object_type: str = "GENERAL") -> None:
         """Construct a SockeMeshObject. Normally this is only called by
         descendants. It is unlikely you want to directly instance a
         SocketMeshObject."""
@@ -21,21 +38,21 @@ class SocketMeshObject:
         # TODO: Make sure importer_presets is a dict, not a sceneconfigset
 
         _LOG.debug("Constructing new socket mesh object")
-        self._importer_presets = importer_presets
-        self._object_info = dict()
-        self._object_type = object_type
-        self._vertices = None
-        self._faces = None
-        self._texco = None
-        self._uvmappings = None
-        self._sorted_face_uv_and_texco = None
-        self._vertex_groups_by_name = dict()
-        self._vertex_groups_by_index = dict()
-        self._weight_info = dict()
-        self._weights_by_name = dict()
-        self._scale = 1
+        self._importer_presets: dict[str, Any] = typing.cast(dict[str, Any], importer_presets)
+        self._object_info: SocketMeshInfo = dict()
+        self._object_type: str = object_type
+        self._vertices: numpy.ndarray | None = None
+        self._faces: numpy.ndarray | None = None
+        self._texco: numpy.ndarray | None = None
+        self._uvmappings: numpy.ndarray | None = None
+        self._sorted_face_uv_and_texco: numpy.ndarray | None = None
+        self._vertex_groups_by_name: dict[str, numpy.ndarray] = dict()
+        self._vertex_groups_by_index: dict[Any, Any] = dict()
+        self._weight_info: SocketWeightInfo | None = dict()
+        self._weights_by_name: dict[str, numpy.ndarray] = dict()
+        self._scale: float = 1
 
-    def __del__(self):
+    def __del__(self) -> None:
         """Function aimed at trying to help garbage collection along a bit.
         It is not immediately obvious it does much difference, but it
         probably doesn't hurt either"""
@@ -48,33 +65,34 @@ class SocketMeshObject:
         del self._vertex_groups_by_name
         gc.collect()
 
-    def get_importer_presets(self):
+    def get_importer_presets(self) -> dict[str, Any]:
         """Getter for the importer presets, which is a dict that should have been given in the constructor"""
         _LOG.enter()
         return self._importer_presets
 
-    def get_object_info(self):
+    def get_object_info(self) -> SocketMeshInfo:
         """Getter for object information: That is, the initial information about the object,
         fetched from MakeHuman via the socket."""
         _LOG.enter()
         return self._object_info
 
-    def get_object_type(self):
+    def get_object_type(self) -> str:
         """Getter for object type. Type is Basemesh, Proxymeshes, Clothes, Eyes and so on and so forth."""
         _LOG.enter()
         return self._object_type
 
-    def get_name(self):
+    def get_name(self) -> str:
         """Convenience call from getting name from object_info"""
         _LOG.enter()
         return self._object_info["name"]
 
-    def get_filename(self):
+    def get_filename(self) -> str:
         """Convenience call from getting filename from object_info"""
         _LOG.enter()
         return  self._object_info["filename"]
 
-    def convert_to_shaped_numpy_array(self, shape_key, type_code_key, data_from_socket, rescale=None):
+    def convert_to_shaped_numpy_array(self, shape_key: str, type_code_key: str, data_from_socket: bytearray,
+                                      rescale: float | None = None) -> numpy.ndarray:
         """Convenience method for converting any byte array to a numpy array with the proper shape.
         shape_key and type_code_key are which keys in the object info that contains the information
         about the shape and type respective. The data_from_socket param is expected to be raw binary
@@ -95,7 +113,7 @@ class SocketMeshObject:
         _LOG.dump("reshaped_data", reshaped_data)
         return reshaped_data
 
-    def arrange_vertices(self, data_from_socket):
+    def arrange_vertices(self, data_from_socket: bytearray) -> None:
         """Take a raw byte array, expected to represent a numpy array as fetched via the SocketService,
         and convert it to a multidimensional array containing info about vertex positions."""
         _LOG.enter()
@@ -124,13 +142,13 @@ class SocketMeshObject:
 
         _LOG.dump("final reshaped vertices", self._vertices)
 
-    def arrange_faces(self, data_from_socket):
+    def arrange_faces(self, data_from_socket: bytearray) -> None:
         """Take a raw byte array, expected to represent a numpy array as fetched via the SocketService,
         and convert it to a multidimensional array containing info about faces."""
         _LOG.enter()
         self._faces = self.convert_to_shaped_numpy_array("facesShape", "facesTypeCode", data_from_socket)
 
-    def arrange_uv_and_texco(self, uv_data_from_socket, texco_data_from_socket):
+    def arrange_uv_and_texco(self, uv_data_from_socket: bytearray, texco_data_from_socket: bytearray) -> None:
         """Take two raw byte arrays, expected to represent numpy arrays as fetched via the SocketService,
         and convert them to information about texture coordinates and UV mappings."""
         _LOG.enter()
@@ -139,11 +157,13 @@ class SocketMeshObject:
 
         # Yet another crazy syntax. But this line combines the texco and uvmappings arrays into one by using the uv mappings
         # as indexes for picking values from the texco array
-        self._sorted_face_uv_and_texco = self._texco[self._uvmappings[:]]
+        texco = typing.cast(numpy.ndarray, self._texco)
+        uvmappings = typing.cast(numpy.ndarray, self._uvmappings)
+        self._sorted_face_uv_and_texco = texco[uvmappings[:]]
 
         _LOG.dump("Sorted uv and texco", self._sorted_face_uv_and_texco)
 
-    def arrange_weights(self, weights_vertices_data, weights_data):
+    def arrange_weights(self, weights_vertices_data: bytearray, weights_data: bytearray) -> None:
         """Take two raw byte arrays, expected to represent one-dimensional numpy arrays as fetched via the SocketService,
         and convert them to arrays with vertex weights. Before doing this, an implementing subclass must have fetched
         and set _weight_info.
@@ -175,7 +195,7 @@ class SocketMeshObject:
             current_position = current_position + length
             #_LOG.dump(bone, weights)
 
-    def arrange_face_group_arrays(self):
+    def arrange_face_group_arrays(self) -> None:
         """The information we get from MakeHuman is about *face* groups, not *vertex* groups. This method
         converts the face group information to vertex group information."""
         _LOG.enter()
@@ -183,6 +203,9 @@ class SocketMeshObject:
         if "faceGroups" not in self._object_info:
             _LOG.debug("This object has no face groups")
             return
+
+        # See the note on the numpy arrays at the top of the module
+        faces_array = typing.cast(numpy.ndarray, self._faces)
 
         for face_group in self._object_info["faceGroups"]:
             name = face_group["name"]
@@ -195,7 +218,7 @@ class SocketMeshObject:
 
                 # _faces contains vertex indexes making up faces. We pick all the faces between
                 # start and stop (across all columns) and add it to a new array
-                faces = self._faces[start:stop, :]
+                faces = faces_array[start:stop, :]
 
                 # Convert this to a one-dimensional array of vertex indexes
                 verts_to_add = numpy.unique(faces.flatten())
@@ -206,12 +229,12 @@ class SocketMeshObject:
                 else:
                     numpy.concatenate((self._vertex_groups_by_name[name], verts_to_add))
 
-    def create_vertex_groups_from_dict(self, group_information):
+    def create_vertex_groups_from_dict(self, group_information: dict[str, list[int]]) -> None:
         """Take arrays of vertex indices and use these to create extra vertex groups."""
         for name in group_information.keys():
             self._vertex_groups_by_name[name] = numpy.array(group_information[name])
 
-    def arrange_face_mask_array(self, mask_applicable_to_group=None):
+    def arrange_face_mask_array(self, mask_applicable_to_group: str | None = None) -> None:
         """The face mask is basically the inverted sum total of all combined delete groups.
         This method convert the information about the mask (as defined by a list of *faces*
         to *display*) and converts it to a vertex group to be used as inverted mask (as
@@ -227,7 +250,10 @@ class SocketMeshObject:
 
         _LOG.debug("faceMask", self._object_info["faceMask"])
 
-        face_mask_verts = None
+        # See the note on the numpy arrays at the top of the module
+        faces_array = typing.cast(numpy.ndarray, self._faces)
+
+        face_mask_verts: numpy.ndarray | None = None
         for start_stop in self._object_info["faceMask"]:
             # A face mask is a set of start/stop indexes, such as [ [0, 2], [5, 8] ]
             # representing the faces numbered 0 1 2 5 6 7 8
@@ -237,7 +263,7 @@ class SocketMeshObject:
 
             # _faces contains vertex indexes making up faces. We pick all the faces between
             # start and stop (across all columns) and add it to a new array
-            faces = self._faces[start:stop, :]
+            faces = faces_array[start:stop, :]
 
             _LOG.dump("faces", faces)
 
@@ -260,17 +286,18 @@ class SocketMeshObject:
         if mask_applicable_to_group:
             all_verts = self._vertex_groups_by_name[mask_applicable_to_group]
         else:
-            all_verts = numpy.arange(0, self._vertices.size, dtype=numpy.int32)
+            all_verts = numpy.arange(0, typing.cast(numpy.ndarray, self._vertices).size, dtype=numpy.int32)
 
         # Create an inverted mask by finding all vertices *not* listed in the arrays constructed
         # above, and make sure we only mention each vertex once.
-        verts_to_hide = numpy.unique(numpy.setdiff1d(all_verts, face_mask_verts, assume_unique=True))
+        # The loop above has run at least once, since a zero length face mask returned above
+        verts_to_hide = numpy.unique(numpy.setdiff1d(all_verts, typing.cast(numpy.ndarray, face_mask_verts), assume_unique=True))
 
         # The end result is a new vertex group "Delete"
         self._vertex_groups_by_name["Delete"] = verts_to_hide
 
 
-    def apply_vertex_weights_if_needed(self, mesh, vertex_group):
+    def apply_vertex_weights_if_needed(self, mesh: bpy.types.Mesh, vertex_group: bpy.types.VertexGroup) -> None:
         """Perform the actual weighting for a particular (blender) vertex group in the specified mesh."""
         _LOG.enter()
         name = vertex_group.name
@@ -293,13 +320,14 @@ class SocketMeshObject:
                 if group.group == vertex_group.index:
                     group.weight = vertex_weight
 
-    def create_uv_layer(self, mesh):
+    def create_uv_layer(self, mesh: bpy.types.Mesh) -> None:
         """Create a new UV layer for the mesh, based on the uv and texco information
         previously collected"""
         _LOG.enter()
         uv_layer = mesh.uv_layers.new()
 
-        flattened_sorted_uv_texco = self._sorted_face_uv_and_texco.flatten()
+        # See the note on the numpy arrays at the top of the module
+        flattened_sorted_uv_texco = typing.cast(numpy.ndarray, self._sorted_face_uv_and_texco).flatten()
 
         # Crazy blender syntax. Basically we iterate over each point in the uv layer and
         # set its "uv" property to a value in the given array. The first point with pick

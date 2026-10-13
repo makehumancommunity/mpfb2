@@ -68,6 +68,12 @@ One style, applied everywhere in scope:
   there. That module must import nothing from MPFB, so it cannot disturb the deferred-import
   rule in `__init__.py`.
 - **`Any` deliberately** rather than a bare parameter, where a precise type would mislead.
+- **`X | None` rather than `Any` for a return which really can be `None`**, even when the value
+  is otherwise shapeless. `Any` is for a value whose *type* cannot usefully be named; it is not
+  a way to make a nullable return quiet. `SocketService`'s JSON calls are the example: the
+  payload is `dict[str, Any]` because it came from `json.loads()`, but the `None` it returns
+  when MakeHuman declines a call is a fact worth keeping in the signature, where `Any` would
+  have hidden it from every caller.
 - **`if TYPE_CHECKING:` with a quoted annotation** where an annotation would otherwise need a
   circular or runtime-unavailable import. `from __future__ import annotations` is deliberately
   *not* used; see the issue #374 planning document for the reasoning.
@@ -111,6 +117,50 @@ every one of those errors is noise.
 Be aware of what `cast` does and does not buy you. It silences the diagnostic without proving
 anything, so a function handed an armature where it expects a mesh still fails at runtime, now
 with no checker signal at all. Prefer a guard wherever one is cheap.
+
+### Narrowing a new modifier
+
+`ObjectModifiers.new()` is declared as returning the `bpy.types.Modifier` base class, which
+carries only the settings every modifier has. Everything type-specific — `vertex_group`,
+`invert_vertex_group`, `levels`, `render_levels` — is declared on the subclass that the `type`
+argument selects, so cast to that subclass at the call:
+
+```python
+mask = typing.cast(bpy.types.MaskModifier, basemesh.modifiers.new("Hide helpers", 'MASK'))
+mask.vertex_group = "body"
+mask.invert_vertex_group = True
+
+subsurf = typing.cast(bpy.types.SubsurfModifier, basemesh.modifiers.new("Subdivision", 'SUBSURF'))
+subsurf.render_levels = 2
+```
+
+Unlike the `object.data` case this is not a guess: the `type` argument determines the class, so
+the cast is as safe as the string is correct. Give each modifier its own local rather than
+reusing one name, since a single name cannot carry two different casts.
+
+`FModifiers.new()` behaves the same way, hence
+`typing.cast(bpy.types.FModifierCycles, fcurve.modifiers.new(type='CYCLES'))` in
+`animationservice.py`.
+
+### Attributes populated after construction
+
+An abstract base which initialises an attribute to `None` and leaves its subclasses to fill it
+in gets `X | None`, which is what the base class actually promises, and the methods which read
+it narrow with a cast:
+
+```python
+# in the base class
+self._vertices: numpy.ndarray | None = None
+
+# in a method which runs only after a subclass constructor has arranged it
+vertices = typing.cast(numpy.ndarray, self._vertices)
+```
+
+State once per module why the cast is there, as with the `Any` case below, rather than
+repeating the reason at each site. Bind the cast to a local where the same attribute is read
+more than once in a scope, as with `object.data` above. A guard is preferable where the method
+has something sensible to do with the `None`; where it has not, a guard only moves the failure
+one line and adds a branch nothing can reach.
 
 ### Properties and operators registered by another add-on
 
