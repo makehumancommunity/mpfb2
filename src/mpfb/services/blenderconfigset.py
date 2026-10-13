@@ -268,12 +268,20 @@ class BlenderConfigSet(ConfigurationSet):
             entity_property = StringProperty(name=name, description=description, default=default,
                                          subtype='DIR_PATH', get=getter, set=setter, update=use_update)
         if proptype == "int":
-            entity_property = IntProperty(name=name, description=description, default=default, get=getter, set=setter, update=use_update)  # pylint: disable=E1111
+            # Missing bound must be omitted
+            numeric_limits = {}
+            if min is not None:
+                numeric_limits["min"] = min
+            if max is not None:
+                numeric_limits["max"] = max
+            entity_property = IntProperty(name=name, description=description, default=default, get=getter, set=setter, update=use_update, **numeric_limits)  # pylint: disable=E1111
         if proptype == "float":
-            if min is None:
-                entity_property = FloatProperty(name=name, description=description, default=default, get=getter, set=setter, update=use_update)  # pylint: disable=E1111
-            else:
-                entity_property = FloatProperty(name=name, description=description, default=default, min=min, max=max, get=getter, set=setter, update=use_update)  # pylint: disable=E1111
+            numeric_limits = {}
+            if min is not None:
+                numeric_limits["min"] = min
+            if max is not None:
+                numeric_limits["max"] = max
+            entity_property = FloatProperty(name=name, description=description, default=default, get=getter, set=setter, update=use_update, **numeric_limits)  # pylint: disable=E1111
         if proptype == "vector_location":
             entity_property = FloatVectorProperty(name=name, description=description, default=default,
                                                   size=3, subtype='XYZ', unit='LENGTH', get=getter, set=setter, update=use_update)
@@ -406,8 +414,8 @@ class BlenderConfigSet(ConfigurationSet):
             prop = self._find_property(name)
             _LOG.debug("Drawing property", (name, type(prop), prop))
             if prop is None:
-                _LOG.warn("Tried to draw a non-existing property", name)
-                self.deferred_draw_property(entity_reference, component_to_draw_on, name, text)
+                _LOG.debug("Tried to draw a property which has no known definition", name)
+                self.deferred_draw_property(entity_reference, component_to_draw_on, name, text, **kwargs)
             else:
                 label = prop.get("label", "") if text is None else text
                 is_default = True
@@ -421,10 +429,10 @@ class BlenderConfigSet(ConfigurationSet):
                     component_to_draw_on.prop(entity_reference, prop["full_name"], text=label, **kwargs)
 
     def deferred_draw_property(self, entity_reference: Any, component_to_draw_on: bpy.types.UILayout,
-                               property_name: str, text: str | None = None) -> None:
+                               property_name: str, text: str | None = None, **kwargs: Any) -> None:
         """Abstract method that can be overridden by subclasses to implement drawing logic for properties which
         are not known to the configset."""
-        _LOG.debug("Deferred draw not overridden")
+        _LOG.warn("Deferred draw not overridden, cannot draw property", property_name)
 
 
     def get_property_id_for_draw(self, name: str) -> str | None:
