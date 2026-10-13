@@ -14,6 +14,22 @@ Characters with **custom rigs** (user-defined rigs saved to the `rigs/` director
 
 `src/mpfb/services/humanservice.py`
 
+## Module-Level Types
+
+`HumanService` declares no aliases of its own. The shapes that cross its signatures are declared
+elsewhere and imported, and the Type columns below use those names.
+
+| Name | Declared in | Definition | Notes |
+|------|-------------|------------|-------|
+| `HumanInfo` | `src/mpfb/types.py` | `dict[str, Any]` | The character definition dictionary: what is written as `human.<name>.json`, read back, and what an MHM file is parsed into. An alias rather than a `TypedDict` because a preset written by an older MPFB carries only a subset of the keys, because the values arrive from `json.load()` as `Any`, and because the loading path writes `material_instances` and `name` into the dict it was handed |
+| `DeserializationSettings` | `src/mpfb/types.py` | `dict[str, Any]` | The settings dict controlling how a `HumanInfo` is turned back into a character. An alias rather than a `TypedDict` because the mandatory key set differs between the three entry points — see `get_default_deserialization_settings()` and `deserialize_from_mhm()` below |
+| `MacroInfo` | `services/targetservice.py` | `dict[str, Any]` | The macro phenotype dictionary, as stored under `human_info["phenotype"]` |
+| `ColorAdjustment` | `services/materialservice.py` | `dict[str, Any]` | One socket-name to default-value mapping, as stored under `human_info["color_adjustments"][uuid]` |
+
+`src/mpfb/types.py` is the shared-types module described in
+`docs/type-checking.md`; it imports nothing from MPFB, so importing it cannot disturb the
+deferred-import rule in `__init__.py`.
+
 ## Dependencies
 
 | Dependency | Usage |
@@ -52,7 +68,7 @@ Create a new human basemesh with the specified settings. Loads the basemesh via 
 | `extra_vertex_groups` | `bool` | `True` | Include extra vertex groups (Mid, Right, Left, basemesh extras) |
 | `feet_on_ground` | `bool` | `True` | Translate the mesh so the lowest point sits at Z=0 |
 | `scale` | `float` | `0.1` | Scale factor for the basemesh (0.1 = decimeters) |
-| `macro_detail_dict` | `dict` | `None` | Macro detail settings; uses `TargetService.get_default_macro_info_dict()` if `None` |
+| `macro_detail_dict` | `MacroInfo \| None` | `None` | Macro detail settings; uses `TargetService.get_default_macro_info_dict()` if `None` |
 
 **Returns:** `bpy.types.Object` — The created basemesh object.
 
@@ -67,9 +83,9 @@ Add a built-in rig to the basemesh. Supports both standard rigs and Rigify meta-
 | `basemesh` | `bpy.types.Object` | — | The basemesh to attach the rig to |
 | `rig_name` | `str` | — | Rig identifier (e.g., `"default"`, `"rigify.human_toes"`) |
 | `import_weights` | `bool` | `True` | Whether to load bone weights from the weight file |
-| `operator` | `bpy.types.Operator` | `None` | Optional operator for error reporting via `operator.report` |
+| `operator` | `bpy.types.Operator \| None` | `None` | Optional operator for error reporting via `operator.report` |
 
-**Returns:** `bpy.types.Object` or `None` — The created armature object, or `None` if the rig file was not found.
+**Returns:** `bpy.types.Object | None` — The created armature object, or `None` if the rig file was not found.
 
 **Raises:** `NotImplementedError` if a Rigify rig is requested but Rigify is not enabled. `IOError` if the rig file is missing and no operator is provided.
 
@@ -84,9 +100,9 @@ Load a custom rig from user data and attach it to the given basemesh. The rig is
 | `basemesh` | `bpy.types.Object` | — | The basemesh to attach the rig to |
 | `rig_name` | `str` | — | Full rig name including prefix (e.g., `"custom.my_rig"`) |
 | `import_weights` | `bool` | `True` | Whether to load weights and create an armature modifier |
-| `operator` | `bpy.types.Operator` | `None` | Optional operator for error/warning reporting via `operator.report` |
+| `operator` | `bpy.types.Operator \| None` | `None` | Optional operator for error/warning reporting via `operator.report` |
 
-**Returns:** `bpy.types.Object` or `None` — The created armature object, or `None` if the custom rig was not found in user data.
+**Returns:** `bpy.types.Object | None` — The created armature object, or `None` if the custom rig was not found in user data.
 
 **Raises:** `ValueError` if the rig is not found and no operator is provided (when an operator is provided, an `ERROR` report is issued and `None` is returned instead).
 
@@ -94,7 +110,7 @@ Load a custom rig from user data and attach it to the given basemesh. The rig is
 
 ### Asset Management
 
-#### add_mhclo_asset(mhclo_file, basemesh, asset_type="Clothes", subdiv_levels=1, material_type="MAKESKIN", alternative_materials=None, color_adjustments=None, set_up_rigging=True, interpolate_weights=True, import_subrig=True, import_weights=True)
+#### add_mhclo_asset(mhclo_file, basemesh, asset_type="Clothes", subdiv_levels=1, material_type="MAKESKIN", alternative_materials=None, color_adjustments=None, set_up_rigging=True, interpolate_weights=True, import_subrig=True, import_weights=True, *, operator=None)
 
 Load an MHCLO asset (clothes, body part, proxy, etc.) and fully integrate it with the basemesh: import the mesh, assign materials, fit to the character, set up delete groups, configure rigging, and add a subdivision modifier. Material setup supports MAKESKIN, GAMEENGINE, and PROCEDURAL_EYES types, with optional alternative material and color adjustment overrides.
 
@@ -105,12 +121,13 @@ Load an MHCLO asset (clothes, body part, proxy, etc.) and fully integrate it wit
 | `asset_type` | `str` | `"Clothes"` | Asset category (e.g., `"Clothes"`, `"Eyes"`, `"Hair"`, `"Proxymeshes"`) |
 | `subdiv_levels` | `int` | `1` | Render subdivision levels; set to `0` to skip |
 | `material_type` | `str` | `"MAKESKIN"` | Material type: `"MAKESKIN"`, `"GAMEENGINE"`, `"PROCEDURAL_EYES"`, or `"NONE"` |
-| `alternative_materials` | `dict` | `None` | UUID-keyed dictionary of alternative material path fragments |
-| `color_adjustments` | `dict` | `None` | UUID-keyed dictionary of color adjustment settings |
+| `alternative_materials` | `dict[str, str] \| None` | `None` | UUID-keyed dictionary of alternative material path fragments |
+| `color_adjustments` | `dict[str, ColorAdjustment] \| None` | `None` | UUID-keyed dictionary of color adjustment settings |
 | `set_up_rigging` | `bool` | `True` | Whether to rig the asset to the character's armature |
 | `interpolate_weights` | `bool` | `True` | Whether to interpolate bone weights from basemesh |
 | `import_subrig` | `bool` | `True` | Whether to import a custom sub-rig |
 | `import_weights` | `bool` | `True` | Whether to load custom weight files |
+| `operator` | `bpy.types.Operator \| None` | `None` | Keyword-only. Optional operator used to report a missing material file as a `WARNING` |
 
 **Returns:** `bpy.types.Object` — The imported clothes/asset mesh object.
 
@@ -118,20 +135,26 @@ Load an MHCLO asset (clothes, body part, proxy, etc.) and fully integrate it wit
 
 ---
 
-#### set_character_skin(mhmat_file, basemesh, bodyproxy=None, skin_type="ENHANCED_SSS", material_instances=True, slot_overrides=None)
+#### set_character_skin(mhmat_file, basemesh, bodyproxy=None, skin_type="ENHANCED_SSS", material_instances=True, slot_overrides=None, *, operator=None)
 
 Set the skin material for a character. Supports multiple skin material types: MAKESKIN (simple node-based), GAMEENGINE (optimized for game export), LAYERED (multi-group v2 skin), and ENHANCED/ENHANCED_SSS (procedural skin with optional subsurface scattering). When `material_instances` is enabled for enhanced skins, separate material slots are created for different body zones with per-slot settings from the default or overridden configuration.
 
 | Argument | Type | Default | Description |
 |----------|------|---------|-------------|
-| `mhmat_file` | `str` | — | Absolute path to the MHMAT skin material file |
+| `mhmat_file` | `str \| None` | — | Absolute path to the MHMAT skin material file. `None` is only valid together with `skin_type="LAYERED"`, which then builds the material with no mhmat values; every other skin type reaches a loader which requires a path |
 | `basemesh` | `bpy.types.Object` | — | The basemesh to apply the skin to |
-| `bodyproxy` | `bpy.types.Object` | `None` | Optional body proxy; auto-discovered if `None` |
+| `bodyproxy` | `bpy.types.Object \| None` | `None` | Optional body proxy; auto-discovered if `None` |
 | `skin_type` | `str` | `"ENHANCED_SSS"` | Skin material type: `"MAKESKIN"`, `"GAMEENGINE"`, `"LAYERED"`, `"ENHANCED"`, or `"ENHANCED_SSS"` |
 | `material_instances` | `bool` | `True` | Create separate material slots per body zone |
-| `slot_overrides` | `dict` | `None` | Per-slot material settings keyed by zone name (e.g., `"body"`, `"face"`) |
+| `slot_overrides` | `dict[str, dict[str, Any]] \| None` | `None` | Per-slot material settings keyed by zone name (e.g., `"body"`, `"face"`) |
+| `operator` | `bpy.types.Operator \| None` | `None` | Keyword-only. Optional operator used to report a missing mhmat file as a `WARNING` |
 
-**Returns:** None
+**Returns:** `None`
+
+A path which does not exist is handled rather than passed on: a warning is logged, the `operator` is
+asked to report it if one was given, the argument is dropped, and the method returns without creating
+anything unless `skin_type` is `"LAYERED"`. A `mhmat_file` of `None` does not go through that check, so
+it reaches the per-type material builders directly.
 
 ---
 
@@ -141,10 +164,10 @@ Unload and remove an equipped MHCLO asset. Removes the associated delete-group M
 
 | Argument | Type | Default | Description |
 |----------|------|---------|-------------|
-| `basemesh` | `bpy.types.Object` | — | The basemesh the asset belongs to |
-| `asset` | `bpy.types.Object` | — | The asset object to remove |
+| `basemesh` | `bpy.types.Object \| None` | — | The basemesh the asset belongs to. A `None` basemesh only means its delete-group modifier is not removed |
+| `asset` | `bpy.types.Object \| None` | — | The asset object to remove. The method returns without doing anything for `None` |
 
-**Returns:** None
+**Returns:** `None`
 
 ---
 
@@ -154,9 +177,9 @@ Retrieve the `asset_source` property values of all mesh assets currently equippe
 
 | Argument | Type | Default | Description |
 |----------|------|---------|-------------|
-| `basemesh` | `bpy.types.Object` | — | The basemesh to query |
+| `basemesh` | `bpy.types.Object \| None` | — | The basemesh to query |
 
-**Returns:** `list[str]` — List of asset source path fragments.
+**Returns:** `list[str]` — List of asset source path fragments, or an empty list for a `None` basemesh.
 
 ---
 
@@ -168,8 +191,8 @@ Serialize a fully assembled character to a JSON string. Collects phenotype (macr
 
 | Argument | Type | Default | Description |
 |----------|------|---------|-------------|
-| `basemesh` | `bpy.types.Object` | — | The basemesh of the character to serialize |
-| `save_clothes` | `bool` | `False` | Whether to include clothes in the serialization |
+| `basemesh` | `bpy.types.Object \| None` | — | The basemesh of the character to serialize. `None` raises |
+| `save_clothes` | `bool` | `False` | Accepted for compatibility and currently without effect: clothes are always included, whatever this is set to |
 
 **Returns:** `str` — JSON string representation of the character.
 
@@ -183,13 +206,13 @@ Serialize a character to a JSON file. Calls `serialize_to_json_string` and write
 
 | Argument | Type | Default | Description |
 |----------|------|---------|-------------|
-| `basemesh` | `bpy.types.Object` | — | The basemesh to serialize |
+| `basemesh` | `bpy.types.Object \| None` | — | The basemesh to serialize. `None` raises |
 | `filename` | `str` | — | Output file path |
-| `save_clothes` | `bool` | `False` | Whether to include clothes |
+| `save_clothes` | `bool` | `False` | Forwarded to `serialize_to_json_string()`, which ignores it |
 
-**Returns:** None
+**Returns:** `None`
 
-**Raises:** `ValueError` if filename is `None` or empty.
+**Raises:** `ValueError` if filename is empty, or anything `serialize_to_json_string()` raises.
 
 ---
 
@@ -201,12 +224,12 @@ Reconstruct a full character from a `human_info` dictionary and deserialization 
 
 | Argument | Type | Default | Description |
 |----------|------|---------|-------------|
-| `human_info` | `dict` | — | Character definition dictionary (phenotype, rig, assets, materials, etc.) |
-| `deserialization_settings` | `dict` | — | Settings controlling the deserialization process (see `get_default_deserialization_settings`) |
+| `human_info` | `HumanInfo` | — | Character definition dictionary (phenotype, rig, assets, materials, etc.). The method writes `material_instances` into the dict it is handed |
+| `deserialization_settings` | `DeserializationSettings` | — | Settings controlling the deserialization process (see `get_default_deserialization_settings`). `mask_helpers`, `detailed_helpers`, `extra_vertex_groups`, `feet_on_ground`, `scale`, `subdiv_levels`, `load_clothes` and `material_instances` are read directly and must be present |
 
 **Returns:** `bpy.types.Object` — The created basemesh object.
 
-**Raises:** `ValueError` if `human_info` is `None` or empty, or if a referenced custom rig is not found in user data.
+**Raises:** `ValueError` if a referenced custom rig is not found in user data, `NotImplementedError` if the preset names a Rigify rig but Rigify is not enabled, and `IOError` if a built-in rig's definition file is missing. The method also carries guards which would raise `ValueError` for a `None` or empty `human_info`, but both sit below a write to `human_info` and so cannot be reached: a `None` argument raises `TypeError` at that write instead, and an empty dict is no longer empty by the time it is tested.
 
 ---
 
@@ -216,8 +239,8 @@ Load a character definition from a JSON file and deserialize it. The preset name
 
 | Argument | Type | Default | Description |
 |----------|------|---------|-------------|
-| `filename` | `str` | — | Path to the JSON file |
-| `deserialization_settings` | `dict` | — | Deserialization settings dictionary |
+| `filename` | `str` | — | Path to the JSON file. The base name must follow the `human.<name>.json` pattern the preset writer uses; one that does not raises `AttributeError` when the name is extracted |
+| `deserialization_settings` | `DeserializationSettings` | — | Deserialization settings dictionary |
 
 **Returns:** `bpy.types.Object` — The created basemesh object.
 
@@ -232,7 +255,7 @@ Import a character from a MakeHuman Model (.mhm) file. Parses modifier lines (ma
 | Argument | Type | Default | Description |
 |----------|------|---------|-------------|
 | `filename` | `str` | — | Path to the MHM file |
-| `deserialization_settings` | `dict` | — | Settings dictionary; must include `clothes_deep_search` and `bodypart_deep_search` booleans |
+| `deserialization_settings` | `DeserializationSettings` | — | Settings dictionary; must include `clothes_deep_search` and `bodypart_deep_search` booleans, which `get_default_deserialization_settings()` does not supply, in addition to everything `deserialize_from_dict()` reads |
 
 **Returns:** `bpy.types.Object` — The created basemesh object.
 
@@ -244,7 +267,7 @@ Import a character from a MakeHuman Model (.mhm) file. Parses modifier lines (ma
 
 Return a dictionary with default values for all deserialization options.
 
-**Returns:** `dict` — Default settings:
+**Returns:** `DeserializationSettings` — Default settings:
 
 | Key | Default | Description |
 |-----|---------|-------------|
@@ -259,6 +282,9 @@ Return a dictionary with default values for all deserialization options.
 | `override_rig` | `"PRESET"` | Rig override (`"PRESET"` uses the saved value, `"NONE"` skips rig) |
 | `material_instances` | `"NEVER"` | Material instance mode for enhanced skins |
 
+The dict does not carry `clothes_deep_search` or `bodypart_deep_search`, so it cannot be passed to
+`deserialize_from_mhm()` unchanged; the MHM operator adds both before calling it.
+
 ---
 
 ### Presets
@@ -267,7 +293,7 @@ Return a dictionary with default values for all deserialization options.
 
 Scan the user config directory for files matching `human.*.json` and refresh the cached preset list.
 
-**Returns:** None
+**Returns:** `None`
 
 ---
 
@@ -280,23 +306,24 @@ Return the list of available human presets.
 | `as_list_enum` | `bool` | `True` | Return as Blender EnumProperty-compatible list of `(id, name, description)` tuples |
 | `use_cache` | `bool` | `True` | Use the cached list if available |
 
-**Returns:** `list` — List of tuples (if `as_list_enum=True`) or list of strings.
+**Returns:** `list[str] | list[tuple[str, str, str]]` — A list of `(id, name, description)` tuples if `as_list_enum` is `True`, otherwise a list of preset names. The second form is the cached list itself rather than a copy.
 
 ---
 
 ### Refitting
 
-#### refit(blender_object)
+#### refit(blender_object, *, operator=None)
 
 Refit a character after target changes. Finds the basemesh from the given object's relatives, re-fits all equipped clothes and proxy meshes via `ClothesService.fit_clothes_to_human`, and re-positions the rig and any sub-rigs.
 
 | Argument | Type | Default | Description |
 |----------|------|---------|-------------|
-| `blender_object` | `bpy.types.Object` | — | Any object belonging to the character (basemesh, rig, clothes, etc.) |
+| `blender_object` | `bpy.types.Object \| None` | — | Any object belonging to the character (basemesh, rig, clothes, etc.) |
+| `operator` | `bpy.types.Operator \| None` | `None` | Keyword-only. Optional operator used to report, as an `ERROR`, that the rig is a generated rigify rig with no meta rig in the scene |
 
-**Returns:** None
+**Returns:** `None`
 
-**Raises:** `ValueError` if the basemesh cannot be found as a relative of the given object.
+**Raises:** `ValueError` if the basemesh cannot be found as a relative of the given object, which includes the case where `blender_object` is `None`. A generated rigify rig with no meta rig in the scene is caught rather than propagated: it is logged as a warning, reported as an `ERROR` if an `operator` was given, and the method returns without refitting the sub-rigs. Any other `ValueError` from `RigService.refit_existing_armature()` is re-raised.
 
 ---
 

@@ -1,7 +1,9 @@
+"""The MHMAT material file: parsing it, reading values out of it and writing it back."""
 
-import re, os
+import re, os, typing
+from typing import Any
 from .mhmatkeys import MHMAT_KEY_GROUPS, MHMAT_NAME_TO_KEY, parse_alias
-from .mhmatkeytypes import MhMatFileKey
+from .mhmatkeytypes import MhMatFileKey, MhMatValue
 from ...services import SocketService
 from ...services import LogService
 
@@ -9,16 +11,30 @@ _LOG = LogService.get_logger("material.mhmaterial")
 
 class MhMaterial:
 
-    def __init__(self):
+    """An MHMAT material, as a dict of parsed key/value pairs.
 
-        self._settings = dict()
-        self._shader_config = dict()
+    Populate it from a file with ``populate_from_mhmat()`` or from a running MakeHuman with one of
+    the two socket calls, read values back out with ``get_value()``, and serialise it with
+    ``as_mhmat()``."""
+
+    location: str
+    """The directory of the last file read, used to resolve relative texture paths.
+
+    Annotated on the class rather than assigned in ``__init__()`` because that is where the code
+    puts it: only ``populate_from_mhmat()`` sets it, and only ``_parse_material_line()`` reads it,
+    which nothing but ``populate_from_mhmat()`` calls. An instance populated over the socket
+    therefore never has the attribute at all."""
+
+    def __init__(self) -> None:
+
+        self._settings: dict[str, Any] = dict()
+        self._shader_config: dict[str, Any] = dict()
 
         # TODO: handle litsphere and shaderconfig
-        self.lit_sphere = dict()
-        self.shader_config = dict()
+        self.lit_sphere: dict[str, Any] = dict()
+        self.shader_config: dict[str, Any] = dict()
 
-    def _parse_material_line(self, line):
+    def _parse_material_line(self, line: str) -> None:
         match = re.search(r'^([a-zA-Z]+)\s+(.*)$', line)
         if match:
             key = match.group(1)
@@ -28,7 +44,7 @@ class MhMaterial:
                 key = parse_alias(key)
 
             key_lower = key.lower()
-            value = None
+            value: MhMatValue = None
 
             if key_lower in MHMAT_NAME_TO_KEY:
                 key_obj = MHMAT_NAME_TO_KEY[key_lower]
@@ -50,14 +66,22 @@ class MhMaterial:
             #
             # handle multiple occurences of tag (create a comma-separated entry)
             #
+            # The two casts below take the parsed value without testing the None which every parser
+            # in mhmatkeytypes returns for a line its own regex rejects, and both cases are
+            # reachable from a hand written material file. A second "tag" line carrying no value,
+            # after a first one which did, is a TypeError on the concatenation; a "shaderParam"
+            # line which does not carry exactly two arguments is a TypeError on the subscript. A
+            # value test in each branch is the fix, and is a logic change rather than an
+            # annotation, so the casts only record what the code already assumes.
             if key == 'tag':
                 if key in self._settings and self._settings[key]:
-                    self._settings[key] += ", " + value
+                    self._settings[key] += ", " + typing.cast(str, value)
                 else:
                     self._settings[key] = value
             elif key == 'shaderParam':
-                if value[0] == "litsphereTexture":
-                    match = re.search(r'^litspheres\/(.*)\.png$', value[1])
+                shader_param = typing.cast(list[str], value)
+                if shader_param[0] == "litsphereTexture":
+                    match = re.search(r'^litspheres\/(.*)\.png$', shader_param[1])
                     if match:
                         self._settings["litsphereTexture"] = match.group(1)
                         _LOG.debug("litsphereTexture", self._settings["litsphereTexture"])
@@ -70,7 +94,8 @@ class MhMaterial:
             else:
                 _LOG.warn("Unparseable line:", line)
 
-    def populate_from_mhmat(self, file_name):
+    def populate_from_mhmat(self, file_name: str) -> None:
+        """Read and parse an MHMAT file, adding everything it declares to this material."""
 
         full_path = os.path.abspath(file_name)
         file_location = os.path.dirname(full_path)
@@ -85,7 +110,7 @@ class MhMaterial:
                 line = f.readline()
         _LOG.dump("Final material:", self._settings)
 
-    def _populate(self, material_info, load_mhmat_if_provided=False):
+    def _populate(self, material_info: dict[str, Any], load_mhmat_if_provided: bool = False) -> None:
         _LOG.dump("material_info", material_info)
         if "materialFile" in material_info and str(material_info["materialFile"]).strip() and load_mhmat_if_provided:
             self.populate_from_mhmat(material_info["materialFile"])
@@ -95,15 +120,27 @@ class MhMaterial:
                     self._settings[key] = material_info[key]
             _LOG.dump("Final material:", self._settings)
 
-    def populate_from_body_material_socket_call(self, load_mhmat_if_provided=False):
-        material_info = SocketService.get_body_material_info()
+    def populate_from_body_material_socket_call(self, load_mhmat_if_provided: bool = False) -> None:
+        """Populate this material from the body material of a running MakeHuman, over the socket."""
+        # A socket call MakeHuman declines answers with an empty payload, which arrives here as
+        # None, and _populate() iterates whatever it is handed. The cast records that this method
+        # assumes a reply; checking for the refusal, and reporting the reason MakeHuman sent with
+        # it, is a logic change rather than an annotation.
+        material_info = typing.cast(dict[str, Any], SocketService.get_body_material_info())
         self._populate(material_info, load_mhmat_if_provided)
 
-    def populate_from_proxy_material_socket_call(self, uuid, load_mhmat_if_provided=False):
-        material_info = SocketService.get_proxy_material_info(uuid)
+    def populate_from_proxy_material_socket_call(self, uuid: str, load_mhmat_if_provided: bool = False) -> None:
+        """Populate this material from a proxy material of a running MakeHuman, over the socket."""
+        # See the note in populate_from_body_material_socket_call() for the cast.
+        material_info = typing.cast(dict[str, Any], SocketService.get_proxy_material_info(uuid))
         self._populate(material_info, load_mhmat_if_provided)
 
-    def get_value(self, mhmat_key_name, case_insensitive=True):
+    def get_value(self, mhmat_key_name: str, case_insensitive: bool = True) -> Any:
+        """Return the value stored for a key, or None if it is absent or was never given a value.
+
+        The return is Any because it is whatever the key's own parser produced: a str, a float, a
+        bool, or a list of either floats or strings, depending entirely on which key was asked
+        for. See ``mhmatkeytypes.MhMatValue`` for the full set."""
         if mhmat_key_name in self._settings and self._settings[mhmat_key_name]:
             _LOG.debug("value existed with current case", (mhmat_key_name, self._settings[mhmat_key_name]))
             return self._settings[mhmat_key_name]
@@ -123,7 +160,8 @@ class MhMaterial:
 
         return None
 
-    def as_mhmat(self):
+    def as_mhmat(self) -> str:
+        """Serialise this material to the text of an MHMAT file."""
         mat = "# This is a material for MakeHuman or MPFB\n"
 
         for key_group in MHMAT_KEY_GROUPS:
@@ -141,6 +179,11 @@ class MhMaterial:
         mat = mat + "\n"
         mat = mat + "// Shader properties (only affects how things look in MakeHuman)\n\n"
 
+        # Nothing anywhere in MPFB writes lit_sphere or shader_config, so both are always the empty
+        # dicts __init__() made and neither block below runs. The lit_sphere one could not run as
+        # written in any case: it interpolates the dict itself into the path rather than a texture
+        # name. The litsphere a parsed material does carry is in _settings["litsphereTexture"] and
+        # is written by the key group loop above, as one of the "Various" keys.
         if self.lit_sphere:
             mat = mat + "shader shaders/glsl/litsphere\n"
             mat = mat + "shaderParam litsphereTexture litspheres/" + str(self.lit_sphere) + ".png\n"

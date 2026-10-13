@@ -2,6 +2,7 @@
 
 import os, re
 from fnmatch import fnmatch
+from typing import Any
 from .logservice import LogService
 from .locationservice import LocationService
 from .. import VERSION, get_preference
@@ -12,6 +13,14 @@ _LOG = LogService.get_logger("services.uiservice")
 # is 64 and the RNA check is "id_len >= 64", which makes setattr(bpy.types.Scene, ...) raise a
 # TypeError. 63 is therefore the longest identifier which can actually be used.
 MAX_BLENDER_IDENTIFIER_LENGTH = 63
+
+PanelEnumItem = tuple[str, str, str, int]
+"""One entry in a panel's enum property list: (identifier, label, description, number).
+
+This is blender's EnumPropertyItem 4-tuple form, which is what the rebuild_*_panel_list
+methods below construct and the matching get_*_panel_list methods hand to bpy.props.
+It is declared here rather than in mpfb.types because no other module uses this shape.
+"""
 
 
 class _UiService():
@@ -38,9 +47,10 @@ class _UiService():
 
     MAX_IDENTIFIER_LENGTH = MAX_BLENDER_IDENTIFIER_LENGTH
 
-    def __init__(self):
+    def __init__(self) -> None:
+        """Set up the service. This is called once, when the module is first imported."""
         _LOG.debug("Constructing ui service")
-        self._state = dict()
+        self._state: dict[str, Any] = dict()
         self.set_value("PROPERTYPREFIX", "MPFB_")
 
         ui_prefix = "MPFB v%d.%d.%d" % (VERSION[0], VERSION[1], VERSION[2])
@@ -78,7 +88,7 @@ class _UiService():
                 "HAIREDITORCATEGORY"]:
                 self.set_value(category, ui_prefix)
 
-    def get_value(self, name):
+    def get_value(self, name: str) -> Any:
         """
         Retrieve the value associated with the given name from the internal state.
 
@@ -86,25 +96,27 @@ class _UiService():
             name (str): The name of the value to retrieve.
 
         Returns:
-            The value associated with the given name if it exists in the state, otherwise None.
+            Any: The value associated with the given name if it exists in the state, otherwise None. The
+            return is deliberately Any, since the state holds both plain strings (the UI prefixes and
+            category names) and lists of PanelEnumItem.
         """
         _LOG.enter()
         if name in self._state:
             return self._state[name]
         return None
 
-    def set_value(self, name, value):
+    def set_value(self, name: str, value: Any) -> None:
         """
         Set the value associated with the given name in the internal state.
 
         Args:
             name (str): The name of the value to set.
-            value: The value to associate with the given name.
+            value (Any): The value to associate with the given name.
         """
         _LOG.enter()
         self._state[name] = value
 
-    def _add_presets_to_list(self, presets, current_id):
+    def _add_presets_to_list(self, presets: list[PanelEnumItem], current_id: int) -> None:
         for file_name in os.listdir(LocationService.get_user_config()):
             _LOG.trace("file name", file_name)
             if fnmatch(file_name, "importer_presets.*.json"):
@@ -115,7 +127,7 @@ class _UiService():
                     presets.append((name, name, "the " + name + " presets", current_id))
                     current_id = current_id + 1
 
-    def rebuild_importer_presets_panel_list(self):
+    def rebuild_importer_presets_panel_list(self) -> None:
         """
         Rebuild the list of available importer presets for the presets panel.
 
@@ -133,16 +145,17 @@ class _UiService():
         self._add_presets_to_list(presets, current_id)
         self.set_value("importer_presets_panel_list", presets)
 
-    def get_importer_presets_panel_list(self):
+    def get_importer_presets_panel_list(self) -> list[PanelEnumItem] | None:
         """
         Retrieve the list of available importer presets for the presets panel.
 
         Returns:
-            list: The list of available importer presets stored in the internal state under the key "importer_presets_panel_list".
+            list[PanelEnumItem] | None: The list of available importer presets stored in the internal state under the key
+            "importer_presets_panel_list", or None if rebuild_importer_presets_panel_list() has not been called yet.
         """
         return self.get_value("importer_presets_panel_list")
 
-    def rebuild_importer_panel_list(self):
+    def rebuild_importer_panel_list(self) -> None:
         """
         Rebuild the list of available importer presets for the importer panel.
 
@@ -160,16 +173,17 @@ class _UiService():
         self._add_presets_to_list(presets, current_id)
         self.set_value("importer_panel_list", presets)
 
-    def get_importer_panel_list(self):
+    def get_importer_panel_list(self) -> list[PanelEnumItem] | None:
         """
         Retrieve the list of available importer presets for the importer panel.
 
         Returns:
-            list: The list of available importer presets stored in the internal state under the key "importer_panel_list".
+            list[PanelEnumItem] | None: The list of available importer presets stored in the internal state under the key
+            "importer_panel_list", or None if rebuild_importer_panel_list() has not been called yet.
         """
         return self.get_value("importer_panel_list")
 
-    def _add_settings_to_list(self, settings, current_id):
+    def _add_settings_to_list(self, settings: list[PanelEnumItem], current_id: int) -> None:
         for file_name in os.listdir(LocationService.get_user_config()):
             _LOG.trace("file name", file_name)
             if fnmatch(file_name, "enhanced_settings.*.json"):
@@ -180,7 +194,7 @@ class _UiService():
                     settings.append((name, name, "the " + name + " settings", current_id))
                     current_id = current_id + 1
 
-    def rebuild_enhanced_settings_panel_list(self):
+    def rebuild_enhanced_settings_panel_list(self) -> None:
         """
         Rebuild the list of available enhanced settings for the enhanced skin settings panel.
 
@@ -197,16 +211,17 @@ class _UiService():
         self._add_settings_to_list(settings, current_id)
         self.set_value("enhanced_settings_panel_list", settings)
 
-    def get_enhanced_settings_panel_list(self):
+    def get_enhanced_settings_panel_list(self) -> list[PanelEnumItem] | None:
         """
         Retrieve the list of available enhanced settings for the enhanced settings panel.
 
         Returns:
-            list: The list of available enhanced settings stored in the internal state under the key "enhanced_settings_panel_list".
+            list[PanelEnumItem] | None: The list of available enhanced settings stored in the internal state under the key
+            "enhanced_settings_panel_list", or None if rebuild_enhanced_settings_panel_list() has not been called yet.
         """
         return self.get_value("enhanced_settings_panel_list")
 
-    def rebuild_importer_enhanced_settings_panel_list(self):
+    def rebuild_importer_enhanced_settings_panel_list(self) -> None:
         """
         Rebuild the list of available enhanced material settings for the importer panel.
 
@@ -226,16 +241,18 @@ class _UiService():
         self._add_settings_to_list(presets, current_id)
         self.set_value("importer_enhanced_settings_panel_list", presets)
 
-    def get_importer_enhanced_settings_panel_list(self):
+    def get_importer_enhanced_settings_panel_list(self) -> list[PanelEnumItem] | None:
         """
         Retrieve the list of available enhanced material settings for the importer panel.
 
         Returns:
-            list: The list of available enhanced material settings stored in the internal state under the key "importer_enhanced_settings_panel_list".
+            list[PanelEnumItem] | None: The list of available enhanced material settings stored in the internal state under the
+            key "importer_enhanced_settings_panel_list", or None if rebuild_importer_enhanced_settings_panel_list() has not been
+            called yet.
         """
         return self.get_value("importer_enhanced_settings_panel_list")
 
-    def _add_eye_settings_to_list(self, settings, current_id):
+    def _add_eye_settings_to_list(self, settings: list[PanelEnumItem], current_id: int) -> None:
         for file_name in os.listdir(LocationService.get_user_config()):
             _LOG.trace("file name", file_name)
             if fnmatch(file_name, "eye_settings.*.json"):
@@ -246,7 +263,7 @@ class _UiService():
                     settings.append((name, name, "the " + name + " settings", current_id))
                     current_id = current_id + 1
 
-    def rebuild_eye_settings_panel_list(self):
+    def rebuild_eye_settings_panel_list(self) -> None:
         """
         Rebuild the list of available eye settings for the eye settings panel.
 
@@ -263,16 +280,17 @@ class _UiService():
         self._add_eye_settings_to_list(settings, current_id)
         self.set_value("eye_settings_panel_list", settings)
 
-    def get_eye_settings_panel_list(self):
+    def get_eye_settings_panel_list(self) -> list[PanelEnumItem] | None:
         """
         Retrieve the list of available eye settings for the eye settings panel.
 
         Returns:
-            list: The list of available eye settings stored in the internal state under the key "eye_settings_panel_list".
+            list[PanelEnumItem] | None: The list of available eye settings stored in the internal state under the key
+            "eye_settings_panel_list", or None if rebuild_eye_settings_panel_list() has not been called yet.
         """
         return self.get_value("eye_settings_panel_list")
 
-    def rebuild_importer_eye_settings_panel_list(self):
+    def rebuild_importer_eye_settings_panel_list(self) -> None:
         """
         Rebuild the list of available eye material settings for the importer panel.
 
@@ -290,16 +308,17 @@ class _UiService():
         self._add_eye_settings_to_list(presets, current_id)
         self.set_value("importer_eye_settings_panel_list", presets)
 
-    def get_importer_eye_settings_panel_list(self):
+    def get_importer_eye_settings_panel_list(self) -> list[PanelEnumItem] | None:
         """
         Retrieve the list of available eye material settings for the importer panel.
 
         Returns:
-            list: The list of available eye material settings stored in the internal state under the key "importer_eye_settings_panel_list".
+            list[PanelEnumItem] | None: The list of available eye material settings stored in the internal state under the key
+            "importer_eye_settings_panel_list", or None if rebuild_importer_eye_settings_panel_list() has not been called yet.
         """
         return self.get_value("importer_eye_settings_panel_list")
 
-    def as_valid_identifier(self, raw_string):
+    def as_valid_identifier(self, raw_string: str) -> str:
         """
         Convert a raw string into a valid identifier by replacing non-alphanumeric characters with underscores.
 
@@ -311,7 +330,7 @@ class _UiService():
         """
         return re.sub(r'[^a-zA-Z0-9_]', "_", raw_string)
 
-    def is_valid_identifier_length(self, raw_string):
+    def is_valid_identifier_length(self, raw_string: str) -> bool:
         """
         Check if a raw string is short enough to be used as a blender property identifier.
 

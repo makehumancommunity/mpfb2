@@ -1,6 +1,8 @@
 """Fundamental functionality for managing configuration settings."""
 
 from abc import ABC, abstractmethod
+from collections.abc import Collection
+from typing import Any
 import json
 
 from .logservice import LogService
@@ -12,10 +14,16 @@ class ConfigurationSet(ABC):
     for managing configuration settings. It defines a set of abstract methods that must be implemented by any
     subclass, ensuring that the subclass provides specific functionality for getting, setting, and managing
     configuration keys and values. Additionally, it provides concrete methods for serializing and deserializing
-    configuration data to and from JSON files."""
+    configuration data to and from JSON files.
+
+    The "entity_reference" threaded through most of these methods is the object the settings are stored on.
+    It is deliberately typed as Any, since what counts as a valid reference is decided by the concrete
+    subclass: BlenderConfigSet requires an instance of the bpy type it was constructed with, SceneConfigSet
+    additionally accepts a bpy.types.Context to take the scene from, and a subclass backed by something other
+    than blender need not take a blender entity at all."""
 
     @abstractmethod
-    def get_value(self, name, default_value=None, entity_reference=None):
+    def get_value(self, name: str, default_value: Any = None, entity_reference: Any = None) -> Any:
         """
         Retrieve the value of a configuration setting by its name.
 
@@ -30,7 +38,7 @@ class ConfigurationSet(ABC):
         raise NotImplementedError('This method should be overridden by subclasses')
 
     @abstractmethod
-    def set_value(self, name, value, entity_reference=None):
+    def set_value(self, name: str, value: Any, entity_reference: Any = None) -> None:
         """
         Set the value of a configuration setting by its name.
 
@@ -42,17 +50,18 @@ class ConfigurationSet(ABC):
         raise NotImplementedError('This method should be overridden by subclasses')
 
     @abstractmethod
-    def get_keys(self):
+    def get_keys(self) -> Collection[str]:
         """
-        Retrieve a list of all configuration keys.
+        Retrieve all configuration keys.
 
         Returns:
-            list: A list of all configuration keys.
+            Collection[str]: All configuration keys. Subclasses are free to return any sized, iterable
+            container, for example the keys view of a dict or a set.
         """
         raise NotImplementedError('This method should be overridden by subclasses')
 
     @abstractmethod
-    def has_key(self, name):
+    def has_key(self, name: str) -> bool:
         """
         Check if a configuration key exists.
 
@@ -65,7 +74,7 @@ class ConfigurationSet(ABC):
         raise NotImplementedError('This method should be overridden by subclasses')
 
     @abstractmethod
-    def has_key_with_value(self, name, entity_reference=None):
+    def has_key_with_value(self, name: str, entity_reference: Any = None) -> bool:
         """
         Check if a configuration key exists and has a value.
 
@@ -78,21 +87,22 @@ class ConfigurationSet(ABC):
         """
         raise NotImplementedError('This method should be overridden by subclasses')
 
-    def as_dict(self, entity_reference=None, exclude_keys=None, json_with_overrides=None):
+    def as_dict(self, entity_reference: Any = None, exclude_keys: Collection[str] | None = None,
+                json_with_overrides: str | None = None) -> dict[str, Any]:
         """
         Convert the configuration settings to a dictionary.
 
         Args:
             entity_reference (optional): An optional reference to an entity for context.
-            exclude_keys (list, optional): A list of keys to exclude from the dictionary.
+            exclude_keys (optional): Keys to exclude from the dictionary.
             json_with_overrides (str, optional): Path to a JSON file with override values.
 
         Returns:
             dict: A dictionary of configuration settings.
         """
         _LOG.enter()
-        out = dict()
-        json_data = None
+        out: dict[str, Any] = dict()
+        json_data: dict[str, Any] | None = None
         if not json_with_overrides is None:
             with open(json_with_overrides, "r", encoding="utf-8") as json_file:
                 json_data = json.load(json_file)
@@ -109,21 +119,22 @@ class ConfigurationSet(ABC):
 
         return out
 
-    def serialize_to_json(self, json_file_path, entity_reference=None, exclude_keys=None):
+    def serialize_to_json(self, json_file_path: str, entity_reference: Any = None,
+                          exclude_keys: Collection[str] | None = None) -> None:
         """
         Serialize the configuration settings to a JSON file.
 
         Args:
             json_file_path (str): The path to the JSON file.
             entity_reference (optional): An optional reference to an entity for context.
-            exclude_keys (list, optional): A list of keys to exclude from the JSON file.
+            exclude_keys (optional): Keys to exclude from the JSON file.
         """
         _LOG.enter()
         values = self.as_dict(entity_reference=entity_reference, exclude_keys=exclude_keys)
         with open(json_file_path, "w", encoding="utf-8") as json_file:
             json.dump(values, json_file, indent=4, sort_keys=True)
 
-    def deserialize_from_json(self, json_file_path, entity_reference=None):
+    def deserialize_from_json(self, json_file_path: str, entity_reference: Any = None) -> None:
         """
         Deserialize configuration settings from a JSON file.
 
@@ -132,7 +143,7 @@ class ConfigurationSet(ABC):
             entity_reference (optional): An optional reference to an entity for context.
         """
         _LOG.enter()
-        json_data = None
+        json_data: dict[str, Any] | None = None
         with open(json_file_path, "r", encoding="utf-8") as json_file:
             json_data = json.load(json_file)
         if json_data is not None:

@@ -92,8 +92,7 @@ and prefixed shape key names is encapsulated in two `TargetService` helpers:
 ## Producer / consumer
 
 Expression files are produced by the `MakeExpression` composer panel under `Create assets`
-(`src/mpfb/ui/create_assets/makeexpression/`) and consumed by the "Use expression" UI defined
-in [Using expressions](../../features/expression/expressions_use.md). Both go through
+(`src/mpfb/ui/create_assets/makeexpression/`) and consumed by the "Use expression" UI. Both go through
 `FaceService.save_expression(filename, expression_dict, metadata)` and
 `FaceService.load_expression(filename)` exclusively — UI code does not parse or write the JSON
 directly.

@@ -8,6 +8,7 @@
 from ....services import LogService
 _LOG = LogService.get_logger("rigifyhelpers.gameenginerigifyhelpers")
 
+from ....types import RigifySettings
 from .rigifyhelpers import RigifyHelpers
 
 
@@ -15,28 +16,28 @@ class GameEngineRigifyHelpers(RigifyHelpers):
 
     """The rig specific implementation of rigify helpers matching the Game engine rig."""
 
-    def __init__(self, settings):
+    def __init__(self, settings: RigifySettings) -> None:
         """Get a new instance of the class. You should not call this directly. Instead, use the get_instance()
         method in the abstract base class."""
 
         _LOG.debug("Constructing GameEngineRigifyHelpers object")
         RigifyHelpers.__init__(self, settings)
 
-    def get_foot_name(self, left_side=True):
+    def get_foot_name(self, left_side: bool=True) -> str:
         if left_side:
             side = "_l"
         else:
             side = "_r"
         return "foot" + side
 
-    def get_list_of_spine_bones(self):
+    def get_list_of_spine_bones(self) -> list[str]:
         _LOG.enter()
         bones = ["pelvis"]
         for i in range(3):
             bones.append("spine_0" + str(i + 1))
         return bones
 
-    def get_list_of_arm_bones(self, left_side=True):
+    def get_list_of_arm_bones(self, left_side: bool=True) -> list[str]:
         _LOG.enter()
         bone_names = ["upperarm", "lowerarm", "hand"]
         bones = []
@@ -48,7 +49,7 @@ class GameEngineRigifyHelpers(RigifyHelpers):
             bones.append(bone_name + side)
         return bones
 
-    def get_list_of_leg_bones(self, left_side=True):
+    def get_list_of_leg_bones(self, left_side: bool=True) -> list[str]:
         _LOG.enter()
         bone_names = ["thigh", "calf", "foot", "ball"]
         bones = []
@@ -60,7 +61,7 @@ class GameEngineRigifyHelpers(RigifyHelpers):
             bones.append(bone_name + side)
         return bones
 
-    def get_list_of_shoulder_bones(self, left_side=True):
+    def get_list_of_shoulder_bones(self, left_side: bool=True) -> list[str]:
         _LOG.enter()
         bone_names = ["clavicle"]
         bones = []
@@ -72,11 +73,11 @@ class GameEngineRigifyHelpers(RigifyHelpers):
             bones.append(bone_name + side)
         return bones
 
-    def get_list_of_head_bones(self):
+    def get_list_of_head_bones(self) -> list[str]:
         _LOG.enter()
         return ["neck_01", "head"]
 
-    def get_list_of_finger_bones(self, finger_number, left_side=True):
+    def get_list_of_finger_bones(self, finger_number: int, left_side: bool=True) -> list[str]:
         finger_names = ["thumb", "index", "middle", "ring", "pinky"]
         if left_side:
             side = "_l"

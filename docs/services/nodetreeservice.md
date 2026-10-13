@@ -22,6 +22,16 @@ All methods are static; the class should never be instantiated.
 |------------|-------|
 | `LogService` | Logging via `LogService.get_logger("services.nodetreeservice")` |
 
+## Module-Level Types
+
+| Name | Definition | Description |
+|------|------------|-------------|
+| `SocketInOut` | `typing.Literal["INPUT", "OUTPUT"]` | Which side of a node group's interface a socket sits on. This is blender's own `in_out` enum, as declared on `bpy.types.NodeTreeInterfaceSocket`, so the two always agree. |
+
+Every method takes the node tree as `bpy.types.NodeTree` rather than `bpy.types.ShaderNodeTree`: both
+`interface.items_tree` and `interface.new_socket()` are declared on `NodeTree` itself, so nothing here is
+shader specific, even though shader trees are all MPFB passes in practice.
+
 ## Socket Types
 
 Common socket type identifiers for use with `create_socket()`:
@@ -51,11 +61,11 @@ Get an interface socket by name and direction.
 
 | Argument | Type | Default | Description |
 |----------|------|---------|-------------|
-| `node_tree` | `bpy.types.ShaderNodeTree` | — | The node tree to search |
+| `node_tree` | `bpy.types.NodeTree` | — | The node tree to search |
 | `socket_name` | `str` | — | Name of the socket |
-| `in_out` | `str` | `"INPUT"` | Socket direction: `"INPUT"` or `"OUTPUT"` |
+| `in_out` | `SocketInOut` | `"INPUT"` | Socket direction: `"INPUT"` or `"OUTPUT"` |
 
-**Returns:** `bpy.types.NodeTreeInterfaceSocket` or `None`
+**Returns:** `bpy.types.NodeTreeInterfaceSocket | None`
 
 Searches through `node_tree.interface.items_tree` for a socket matching both the name and direction.
 
@@ -67,10 +77,10 @@ Get an input socket by name.
 
 | Argument | Type | Default | Description |
 |----------|------|---------|-------------|
-| `node_tree` | `bpy.types.ShaderNodeTree` | — | The node tree to search |
+| `node_tree` | `bpy.types.NodeTree` | — | The node tree to search |
 | `socket_name` | `str` | — | Name of the socket |
 
-**Returns:** `bpy.types.NodeTreeInterfaceSocket` or `None`
+**Returns:** `bpy.types.NodeTreeInterfaceSocket | None`
 
 Convenience wrapper for `get_socket()` with `in_out="INPUT"`.
 
@@ -82,10 +92,10 @@ Get an output socket by name.
 
 | Argument | Type | Default | Description |
 |----------|------|---------|-------------|
-| `node_tree` | `bpy.types.ShaderNodeTree` | — | The node tree to search |
+| `node_tree` | `bpy.types.NodeTree` | — | The node tree to search |
 | `socket_name` | `str` | — | Name of the socket |
 
-**Returns:** `bpy.types.NodeTreeInterfaceSocket` or `None`
+**Returns:** `bpy.types.NodeTreeInterfaceSocket | None`
 
 Convenience wrapper for `get_socket()` with `in_out="OUTPUT"`.
 
@@ -99,9 +109,9 @@ Check if a socket exists.
 
 | Argument | Type | Default | Description |
 |----------|------|---------|-------------|
-| `node_tree` | `bpy.types.ShaderNodeTree` | — | The node tree to search |
+| `node_tree` | `bpy.types.NodeTree` | — | The node tree to search |
 | `socket_name` | `str` | — | Name of the socket |
-| `in_out` | `str` | `"INPUT"` | Socket direction: `"INPUT"` or `"OUTPUT"` |
+| `in_out` | `SocketInOut` | `"INPUT"` | Socket direction: `"INPUT"` or `"OUTPUT"` |
 
 **Returns:** `bool` — `True` if the socket exists.
 
@@ -113,7 +123,7 @@ Check if an input socket exists.
 
 | Argument | Type | Default | Description |
 |----------|------|---------|-------------|
-| `node_tree` | `bpy.types.ShaderNodeTree` | — | The node tree to search |
+| `node_tree` | `bpy.types.NodeTree` | — | The node tree to search |
 | `socket_name` | `str` | — | Name of the socket |
 
 **Returns:** `bool` — `True` if the input socket exists.
@@ -126,7 +136,7 @@ Check if an output socket exists.
 
 | Argument | Type | Default | Description |
 |----------|------|---------|-------------|
-| `node_tree` | `bpy.types.ShaderNodeTree` | — | The node tree to search |
+| `node_tree` | `bpy.types.NodeTree` | — | The node tree to search |
 | `socket_name` | `str` | — | Name of the socket |
 
 **Returns:** `bool` — `True` if the output socket exists.
@@ -141,10 +151,10 @@ Create a new interface socket.
 
 | Argument | Type | Default | Description |
 |----------|------|---------|-------------|
-| `node_tree` | `bpy.types.ShaderNodeTree` | — | The node tree |
+| `node_tree` | `bpy.types.NodeTree` | — | The node tree |
 | `socket_name` | `str` | — | Name for the new socket |
 | `socket_type` | `str` | — | Socket type (e.g., `"NodeSocketFloat"`) |
-| `in_out` | `str` | `"INPUT"` | Socket direction: `"INPUT"` or `"OUTPUT"` |
+| `in_out` | `SocketInOut` | `"INPUT"` | Socket direction: `"INPUT"` or `"OUTPUT"` |
 
 **Returns:** `bpy.types.NodeTreeInterfaceSocket` — The newly created socket.
 
@@ -158,7 +168,7 @@ Create a new input socket.
 
 | Argument | Type | Default | Description |
 |----------|------|---------|-------------|
-| `node_tree` | `bpy.types.ShaderNodeTree` | — | The node tree |
+| `node_tree` | `bpy.types.NodeTree` | — | The node tree |
 | `socket_name` | `str` | — | Name for the new socket |
 | `socket_type` | `str` | — | Socket type |
 
@@ -172,7 +182,7 @@ Create a new output socket.
 
 | Argument | Type | Default | Description |
 |----------|------|---------|-------------|
-| `node_tree` | `bpy.types.ShaderNodeTree` | — | The node tree |
+| `node_tree` | `bpy.types.NodeTree` | — | The node tree |
 | `socket_name` | `str` | — | Name for the new socket |
 | `socket_type` | `str` | — | Socket type |
 

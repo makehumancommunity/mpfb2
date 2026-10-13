@@ -45,6 +45,18 @@ UiService initializes the following category values, used for panel organization
 
 ## Public API
 
+### A note on the `get_*_panel_list()` return type
+
+All six list getters read straight out of the internal state dict, and therefore return `None` rather
+than an empty list until the matching `rebuild_*_panel_list()` method has populated it. Only
+`rebuild_importer_presets_panel_list()` and `rebuild_importer_panel_list()` run at module load time, so
+the four settings lists are `None` on a fresh session until something rebuilds them. Every caller in
+`src/mpfb/ui` tests for `None` before use, and new callers must do the same.
+
+The element type is the module level alias `PanelEnumItem`, which is
+`tuple[str, str, str, int]` — blender's EnumPropertyItem 4-tuple of
+`(identifier, label, description, number)`.
+
 ### State Management
 
 #### get_value(name)
@@ -55,7 +67,9 @@ Retrieve a value from internal state.
 |----------|------|---------|-------------|
 | `name` | `str` | — | The key to look up |
 
-**Returns:** Value associated with the key, or `None` if not found.
+**Returns:** `Any` — Value associated with the key, or `None` if not found. The type is deliberately
+`Any`: the state holds both plain strings (the UI prefixes and category names) and lists of
+`PanelEnumItem`.
 
 ---
 
@@ -66,7 +80,7 @@ Store a value in internal state.
 | Argument | Type | Default | Description |
 |----------|------|---------|-------------|
 | `name` | `str` | — | The key to store under |
-| `value` | `any` | — | The value to store |
+| `value` | `Any` | — | The value to store |
 
 **Returns:** None
 
@@ -90,7 +104,9 @@ Results are stored internally and retrieved via `get_importer_presets_panel_list
 
 Retrieve the list of available importer presets for the presets panel.
 
-**Returns:** `list[tuple]` — List of preset tuples in Blender enum format: `(identifier, name, description, index)`.
+**Returns:** `list[PanelEnumItem] | None` — List of preset tuples in Blender enum format:
+`(identifier, name, description, index)`. `None` until the matching `rebuild_` method has been called;
+see the note under Public API.
 
 ---
 
@@ -108,7 +124,8 @@ Similar to `rebuild_importer_presets_panel_list()`, but the list includes additi
 
 Retrieve the list of available importer presets for the importer panel.
 
-**Returns:** `list[tuple]` — List of preset tuples in Blender enum format.
+**Returns:** `list[PanelEnumItem] | None` — List of preset tuples in Blender enum format, or `None`
+until the matching `rebuild_` method has been called.
 
 ---
 
@@ -128,7 +145,8 @@ Scans for files matching `enhanced_settings.*.json` in the user configuration di
 
 Retrieve the list of available enhanced settings.
 
-**Returns:** `list[tuple]` — List of settings tuples in Blender enum format.
+**Returns:** `list[PanelEnumItem] | None` — List of settings tuples in Blender enum format, or `None`
+until the matching `rebuild_` method has been called.
 
 ---
 
@@ -149,7 +167,8 @@ The list includes special options:
 
 Retrieve the list of available enhanced material settings for the importer.
 
-**Returns:** `list[tuple]` — List of settings tuples in Blender enum format.
+**Returns:** `list[PanelEnumItem] | None` — List of settings tuples in Blender enum format, or `None`
+until the matching `rebuild_` method has been called.
 
 ---
 
@@ -169,7 +188,8 @@ Scans for files matching `eye_settings.*.json` in the user configuration directo
 
 Retrieve the list of available eye settings.
 
-**Returns:** `list[tuple]` — List of settings tuples in Blender enum format.
+**Returns:** `list[PanelEnumItem] | None` — List of settings tuples in Blender enum format, or `None`
+until the matching `rebuild_` method has been called.
 
 ---
 
@@ -189,7 +209,8 @@ The list includes:
 
 Retrieve the list of available eye material settings for the importer.
 
-**Returns:** `list[tuple]` — List of settings tuples in Blender enum format.
+**Returns:** `list[PanelEnumItem] | None` — List of settings tuples in Blender enum format, or `None`
+until the matching `rebuild_` method has been called.
 
 ---
 
