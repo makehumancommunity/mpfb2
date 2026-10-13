@@ -134,8 +134,26 @@ class DynamicConfigSet(BlenderConfigSet):
 
             # Set the value if we had one. Properties with getter and setter keep their value elsewhere.
             if value is not None:
+                if prop_def.get("type") == "enum":
+                    value = self._enum_identifier(prop_def, value)
                 setattr(entity_reference, long_name, value)
                 _LOG.debug(f"Restored value {value} for property {long_name}")
+
+    @staticmethod
+    def _enum_identifier(prop_def, value):
+        """The enum identifier for a value read back from the custom properties.
+
+        Up to blender 4.5 the values of bpy.props properties are stored with the custom properties
+        and enum is stored as the number of its item. Enum property refuses that number, so it is turned back into the identifier.
+        In 5.0 those values are stored apart and never reach this point.
+        """
+        if not isinstance(value, int) or isinstance(value, bool):
+            return value
+        for index, item in enumerate(prop_def.get("items") or []):
+            number = item[3] if len(item) > 3 else index
+            if number == value:
+                return item[0]
+        return value
 
     def _serialize_property(self, entity_reference, short_name, property_definition):
         """Store the property definition on the entity, so that it can be rebuilt after a reload.

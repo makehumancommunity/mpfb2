@@ -63,13 +63,25 @@ class MPFB_OT_DeleteHair_Operator(MpfbOperator):
                 node_group_names.add(group.name)
                 self._collect_dependencies(group, node_group_names, image_names)
 
+    @staticmethod
+    def _node_group_in_use(node_group):
+        """Whether anything still uses the node group.
+
+        In blender 4.2 the hair shader group keeps a user count 1 after the material holding it was removed, although nothing refers to it.
+        """
+        if node_group.use_fake_user:
+            return True
+        if node_group.users == 0:
+            return False
+        return bool(bpy.data.user_map(subset=[node_group]).get(node_group))
+
     def _purge_node_groups(self, node_group_names, image_names):
         """Remove the listed node groups which nothing uses any longer, repeated since removal orphans nested groups."""
         while True:
             removed_something = False
             for name in sorted(node_group_names):
                 node_group = bpy.data.node_groups.get(name)
-                if node_group is None or node_group.users > 0:
+                if node_group is None or self._node_group_in_use(node_group):
                     continue
                 self._collect_dependencies(node_group, node_group_names, image_names)
                 bpy.data.node_groups.remove(node_group)

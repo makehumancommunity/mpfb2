@@ -57,6 +57,7 @@ _UV_PARKING_OFFSET = 10.0
 
 
 _PORTAL_DIRECTION_NODE = "PortalDirection"
+_PORTAL_LIFT_NODE = "PortalLift"
 
 
 def _build_ray_portal_material(capture_depth=0.0, outward=False):
@@ -84,20 +85,19 @@ def _build_ray_portal_material(capture_depth=0.0, outward=False):
     invert.name = _PORTAL_DIRECTION_NODE
     invert.inputs[1].default_value = (1.0, 1.0, 1.0) if outward else (-1.0, -1.0, -1.0)
 
-    origin = geometry.outputs['Position']
-    if capture_depth > 0.0:
-        lift = nodes.new(type='ShaderNodeVectorMath')
-        lift.operation = 'SCALE'
-        lift.location = (-400, 200)
-        links.new(geometry.outputs['Normal'], lift.inputs[0])
-        lift.inputs['Scale'].default_value = capture_depth
+    lift = nodes.new(type='ShaderNodeVectorMath')
+    lift.operation = 'SCALE'
+    lift.name = _PORTAL_LIFT_NODE
+    lift.location = (-400, 200)
+    links.new(geometry.outputs['Normal'], lift.inputs[0])
+    lift.inputs['Scale'].default_value = capture_depth
 
-        moved = nodes.new(type='ShaderNodeVectorMath')
-        moved.operation = 'ADD'
-        moved.location = (-200, 200)
-        links.new(geometry.outputs['Position'], moved.inputs[0])
-        links.new(lift.outputs['Vector'], moved.inputs[1])
-        origin = moved.outputs['Vector']
+    moved = nodes.new(type='ShaderNodeVectorMath')
+    moved.operation = 'ADD'
+    moved.location = (-200, 200)
+    links.new(geometry.outputs['Position'], moved.inputs[0])
+    links.new(lift.outputs['Vector'], moved.inputs[1])
+    origin = moved.outputs['Vector']
 
     links.new(origin, portal.inputs['Position'])
     links.new(geometry.outputs['Normal'], invert.inputs['Vector'])
@@ -775,6 +775,16 @@ def _flip_portal_direction(material):
     return True
 
 
+def _set_portal_lift(material, scale):
+    """Move the ray start along the surface normal. Returns the scale it replaced."""
+    node = material.node_tree.nodes.get(_PORTAL_LIFT_NODE)
+    if node is None:
+        return None
+    previous = node.inputs['Scale'].default_value
+    node.inputs['Scale'].default_value = scale
+    return previous
+
+
 def _bake_other_side(state):
     """Bake the hair on the far side of each card as well and blend it into the result.
 
@@ -789,6 +799,17 @@ def _bake_other_side(state):
     if not _flip_portal_direction(card_material):
         _LOG.warn("The ray portal has no direction node to flip, so the second side was skipped")
         return False
+
+    # The first shell pass starts above the tips and looks inward. Flipping only the
+    # direction would look out into empty space, so the second pass starts just
+    # outside the skin and looks outward. The first hit is then the inner side.
+    previous_lift = None
+    if state.get("target") == cg.BAKE_TARGET_BODY_SHELL:
+        shell_height = float(state.get("shell_height") or 0.0)
+        inset = shell_height - _SHELL_CAPTURE_MARGIN
+        if inset < _SHELL_CAPTURE_MARGIN:
+            inset = shell_height * 0.5
+        previous_lift = _set_portal_lift(card_material, -inset)
 
     original_hair_materials = [slot.material for slot in hair_obj.material_slots]
     colour_image = None
@@ -838,6 +859,8 @@ def _bake_other_side(state):
     finally:
         state["bake_texture_node"].image = bake_image
         _flip_portal_direction(card_material)
+        if previous_lift is not None:
+            _set_portal_lift(card_material, previous_lift)
         hair_obj.data.materials.clear()
         for material in original_hair_materials:
             hair_obj.data.materials.append(material)
@@ -1529,14 +1552,14 @@ class MPFB_OT_BakeHair_Operator(MpfbOperator):
         if cards_mode == cg.CARDS_MODE_SHELL and target != cg.BAKE_TARGET_BODY_DIRECT:
             wanted_maps["side_on"] = True
             wanted_maps["root_tip"] = True
-        analytic_uvs = properties.get_value(f"{asset_name}_cards_analytic_uvs", True, entity_reference=basemesh)
+        analytic_uvs = properties.get_value(f"{asset_name}_cards_analytic_uvs", False, entity_reference=basemesh)
         edge_fade = properties.get_value(f"{asset_name}_cards_body_edge_fade", False, entity_reference=basemesh)
         edge_fade_width = int(properties.get_value(f"{asset_name}_cards_body_edge_fade_width", 2, entity_reference=basemesh))
         # Zero for everything except the body shell, which measures its own lift below.
         capture_depth = 0.0
-        # Only the card-shaped targets - on the body targets the reverse direction looks away from the hair.
+        # Body texture stays one-sided: its ray already looks outward
         double_sided = (bool(properties.get_value(f"{asset_name}_cards_double_sided", False, entity_reference=basemesh))
-                        and target in (cg.BAKE_TARGET_CARDS, cg.BAKE_TARGET_CUSTOM))
+                        and target in (cg.BAKE_TARGET_CARDS, cg.BAKE_TARGET_CUSTOM, cg.BAKE_TARGET_BODY_SHELL))
         limit_rays = properties.get_value(f"{asset_name}_cards_limit_ray_range", False, entity_reference=basemesh)
         ray_range = properties.get_value(f"{asset_name}_cards_ray_range", 0.1, entity_reference=basemesh)
 
@@ -1544,6 +1567,7 @@ class MPFB_OT_BakeHair_Operator(MpfbOperator):
         if target in cg.BODY_BAKE_TARGETS:
             limit_rays = True
 
+        shell_height = 0.0
         if target == cg.BAKE_TARGET_BODY_SHELL:
             # Ray starting on the shell would only capture the hair below the shell height and miss the tips.
             shell_height = float(properties.get_value(
@@ -1597,6 +1621,7 @@ class MPFB_OT_BakeHair_Operator(MpfbOperator):
             "swapped_materials": [],
             "edge_fade": bool(edge_fade) and target == cg.BAKE_TARGET_BODY_SHELL,
             "edge_fade_width": edge_fade_width,
+            "shell_height": shell_height,
             # Passed to the extra map shader builders. The depth map is scaled by the ray range.
             "shader_options": {
                 "ray_range": ray_range if limit_rays else None,

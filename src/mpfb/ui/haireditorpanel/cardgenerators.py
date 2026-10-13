@@ -133,6 +133,34 @@ def _group_input_node(node_group):
     return next(n for n in node_group.nodes if n.bl_idname == 'NodeGroupInput')
 
 
+def _use_voxel_size(node):
+    """Use a voxel size instead of voxel count.
+
+    Blender 4.2 keeps that choice on the node.
+    Later versions expose it as a socket.
+    """
+    socket = node.inputs.get("Resolution Mode")
+    if socket is not None:
+        socket.default_value = "Size"
+    else:
+        node.resolution_mode = "VOXEL_SIZE"
+
+
+def _enabled_socket(sockets, name):
+    """The live socket of this name.
+
+    Blender 5.1 keeps every data-type variant in collection and disables the unused ones.
+    Blender 5.2 leaves only the live socket, so index which was ok on 5.1 is out of range.
+    """
+    enabled = [socket for socket in sockets if socket.name == name and socket.enabled]
+    if enabled:
+        return enabled[0]
+    for socket in sockets:
+        if socket.name == name:
+            return socket
+    raise KeyError(name)
+
+
 def _strand_root_position(node_group, location):
     """Where each strand grows out of the scalp.
 
@@ -265,7 +293,7 @@ def _build_strand_selection(node_group, selection_method, basemesh,
         jitter_extra.data_type = 'FLOAT'
         jitter_extra.operation = 'LESS_THAN'
         jitter_extra.location = (-240, 20)
-        links.new(random_value.outputs[1], jitter_extra.inputs[0])
+        links.new(_enabled_socket(random_value.outputs, "Value"), jitter_extra.inputs[0])
         links.new(jitter_mul.outputs[0], jitter_extra.inputs[1])
 
         keep = nodes.new('FunctionNodeBooleanMath')
@@ -322,7 +350,7 @@ def _build_strand_selection(node_group, selection_method, basemesh,
     compare.data_type = 'FLOAT'
     compare.operation = 'GREATER_THAN'
     compare.location = (-600, -300)
-    links.new(random_value.outputs[1], compare.inputs[0])
+    links.new(_enabled_socket(random_value.outputs, "Value"), compare.inputs[0])
     links.new(effective_density.outputs[0], compare.inputs[1])
     return compare.outputs['Result']
 
@@ -368,7 +396,7 @@ def _build_cluster_blend(node_group, geometry_socket, location):
     capture.location = (location[0] - 360, location[1] - 100)
     capture.capture_items.new('INT', "strand_parity")
     links.new(geometry_socket, capture.inputs[0])
-    links.new(own_parity, capture.inputs[1])
+    links.new(own_parity, _enabled_socket(capture.inputs, "strand_parity"))
 
     strand_points = nodes.new('GeometryNodeCurveToPoints')
     strand_points.mode = 'EVALUATED'
@@ -388,7 +416,7 @@ def _build_cluster_blend(node_group, geometry_socket, location):
     proximity.target_element = 'POINTS'
     proximity.location = (location[0] + 260, location[1] - 40)
     links.new(strand_points.outputs['Points'], proximity.inputs['Geometry'])
-    links.new(capture.outputs[1], proximity.inputs['Group ID'])
+    links.new(_enabled_socket(capture.outputs, "strand_parity"), proximity.inputs['Group ID'])
     links.new(position.outputs['Position'], proximity.inputs['Sample Position'])
     links.new(as_int(other_parity.outputs[0], (location[0] - 160, location[1] - 260)),
               proximity.inputs['Sample Group ID'])
@@ -484,16 +512,16 @@ def _capture_per_curve_random_vector(node_group, geometry_socket, location):
     random_value = nodes.new('FunctionNodeRandomValue')
     random_value.data_type = 'FLOAT_VECTOR'
     random_value.location = (location[0], location[1] - 60)
-    links.new(group_in.outputs['Seed'], random_value.inputs[8])  # Seed
-    links.new(index_node.outputs['Index'], random_value.inputs[7])  # ID
+    links.new(group_in.outputs['Seed'], _enabled_socket(random_value.inputs, "Seed"))
+    links.new(index_node.outputs['Index'], _enabled_socket(random_value.inputs, "ID"))
 
     capture = nodes.new('GeometryNodeCaptureAttribute')
     capture.domain = 'CURVE'
     capture.location = (location[0] + 200, location[1])
     capture.capture_items.new('VECTOR', "per_curve_random")
     links.new(geometry_socket, capture.inputs[0])
-    links.new(random_value.outputs[0], capture.inputs[1])
-    return capture.outputs[0], capture.outputs[1]
+    links.new(_enabled_socket(random_value.outputs, "Value"), _enabled_socket(capture.inputs, "per_curve_random"))
+    return capture.outputs[0], _enabled_socket(capture.outputs, "per_curve_random")
 
 
 # ------------------------------------------------------------------------
@@ -799,9 +827,19 @@ def _build_ribbon_shape(node_group, curve_socket, basemesh, base_width_socket=No
 
     curve_to_mesh = nodes.new('GeometryNodeCurveToMesh')
     curve_to_mesh.location = (x + 1260, y - 100)
-    links.new(store_u.outputs['Geometry'], curve_to_mesh.inputs['Curve'])
     links.new(store_v.outputs['Geometry'], curve_to_mesh.inputs['Profile Curve'])
-    links.new(ribbon_width.outputs[0], curve_to_mesh.inputs['Scale'])
+    # Unit-long profile, so this factor is the card width in metres.
+    # 4.2 has no Scale input and uses radius instead with a fraction of milimeter
+    scale_input = curve_to_mesh.inputs.get('Scale')
+    if scale_input is not None:
+        links.new(store_u.outputs['Geometry'], curve_to_mesh.inputs['Curve'])
+        links.new(ribbon_width.outputs[0], scale_input)
+    else:
+        set_radius = nodes.new('GeometryNodeSetCurveRadius')
+        set_radius.location = (x + 1080, y + 160)
+        links.new(store_u.outputs['Geometry'], set_radius.inputs['Curve'])
+        links.new(ribbon_width.outputs[0], set_radius.inputs['Radius'])
+        links.new(set_radius.outputs['Curve'], curve_to_mesh.inputs['Curve'])
 
     return _store_card_uvs(node_group, curve_to_mesh.outputs['Mesh'], (x + 1500, y))
 
@@ -1010,7 +1048,7 @@ def _build_shell_base(node_group, basemesh):
     _add_input(node_group, 'Strand radius', 'NodeSocketFloat', 0.015, (0.001, 0.05))
     to_volume = nodes.new('GeometryNodePointsToVolume')
     to_volume.location = (-360, 0)
-    to_volume.inputs['Resolution Mode'].default_value = 'Size'
+    _use_voxel_size(to_volume)
     links.new(resample.outputs['Curve'], to_volume.inputs['Points'])
     links.new(group_in.outputs['Voxel size'], to_volume.inputs['Voxel Size'])
     links.new(group_in.outputs['Strand radius'], to_volume.inputs['Radius'])
@@ -1018,7 +1056,7 @@ def _build_shell_base(node_group, basemesh):
     _add_input(node_group, 'Adaptivity', 'NodeSocketFloat', 0.3, (0.0, 1.0))
     to_mesh = nodes.new('GeometryNodeVolumeToMesh')
     to_mesh.location = (-160, 0)
-    to_mesh.inputs['Resolution Mode'].default_value = 'Size'
+    _use_voxel_size(to_mesh)
     links.new(to_volume.outputs['Volume'], to_mesh.inputs['Volume'])
     links.new(group_in.outputs['Voxel size'], to_mesh.inputs['Voxel Size'])
     links.new(group_in.outputs['Adaptivity'], to_mesh.inputs['Adaptivity'])

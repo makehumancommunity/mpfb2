@@ -80,15 +80,13 @@ class MPFB_PT_Hair_Editor_Panel(Abstract_Panel):
     def _material_properties(self, basemesh, layout, asset_name, properties, definitions, is_fur):
         body = self._section(layout, basemesh, properties, asset_name, "colour", "Colour")
 
-        # The fur shader can be driven either by a texture or by the two colors, never by both
+        # The fur shader can be driven either by a texture or by the two colors, never by both.
         uses_texture = False
         if is_fur:
             uses_texture = properties.get_value(f"{asset_name}_use_texture", False, entity_reference=basemesh)
 
         for name in definitions:
             if uses_texture and name in ["color1", "color2"]:
-                continue
-            if not uses_texture and name == "texture_path":
                 continue
             properties.draw_properties(basemesh, body, [f"{asset_name}_{name}"], text=_label(name))
 
@@ -325,7 +323,7 @@ class MPFB_PT_Hair_Editor_Panel(Abstract_Panel):
                 sharing.label(text="the asset, so a shared texture already")
                 sharing.label(text="ends in tips rather than in a straight cut.")
             if self._flag(atlas, basemesh, properties, asset_name, "cards_analytic_uvs",
-                          "Use generated UV layout", default=True, is_fur=is_fur):
+                          "Use generated UV layout", is_fur=is_fur):
                 atlas.label(text="One cell per card, hair down the cell,", icon='INFO')
                 atlas.label(text="every card oriented the same way.")
             else:
@@ -367,14 +365,19 @@ class MPFB_PT_Hair_Editor_Panel(Abstract_Panel):
         self._flag(capture, basemesh, properties, asset_name, "cards_glossy", "Glossy",
                    default=True, is_fur=is_fur)
         self._draw_cards_props(basemesh, capture, asset_name, properties, ["cards_samples"])
-        if target in (cg.BAKE_TARGET_CARDS, cg.BAKE_TARGET_CUSTOM):
+        if target in (cg.BAKE_TARGET_CARDS, cg.BAKE_TARGET_CUSTOM, cg.BAKE_TARGET_BODY_SHELL):
             if self._flag(capture, basemesh, properties, asset_name, "cards_double_sided",
                           "Capture both sides", is_fur=is_fur):
                 capture.label(text="A second pass with the ray reversed,", icon='INFO')
                 capture.label(text="blended by coverage. Doubles the colour bake time.")
-                capture.label(text="Meant for the cluster modes: on tiles and")
-                capture.label(text="ribbons it can double-count hair that")
-                capture.label(text="that neighbouring cards already carry.")
+                if target == cg.BAKE_TARGET_BODY_SHELL:
+                    capture.label(text="Pass starts just outside the skin")
+                    capture.label(text="and looks outward, so the inner side")
+                    capture.label(text="of the hair is captured too.")
+                else:
+                    capture.label(text="Meant for the cluster modes: on tiles and")
+                    capture.label(text="ribbons it can double-count hair that")
+                    capture.label(text="that neighbouring cards already carry.")
 
         if target == cg.BAKE_TARGET_BODY_DIRECT:
             capture.label(text="Rays travel outwards, from the skin up through the hair", icon='INFO')

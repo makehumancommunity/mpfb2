@@ -260,15 +260,20 @@ class BlenderConfigSet(ConfigurationSet):
             entity_property = StringProperty(name=name, description=description, default=default,
                                          subtype='DIR_PATH', get=getter, set=setter, update=use_update)
         if proptype == "int":
-            if min is None:
-                entity_property = IntProperty(name=name, description=description, default=default, get=getter, set=setter, update=use_update)  # pylint: disable=E1111
-            else:
-                entity_property = IntProperty(name=name, description=description, default=default, min=min, max=max, get=getter, set=setter, update=use_update)  # pylint: disable=E1111
+            # Missing bound must be omitted
+            numeric_limits = {}
+            if min is not None:
+                numeric_limits["min"] = min
+            if max is not None:
+                numeric_limits["max"] = max
+            entity_property = IntProperty(name=name, description=description, default=default, get=getter, set=setter, update=use_update, **numeric_limits)  # pylint: disable=E1111
         if proptype == "float":
-            if min is None:
-                entity_property = FloatProperty(name=name, description=description, default=default, get=getter, set=setter, update=use_update)  # pylint: disable=E1111
-            else:
-                entity_property = FloatProperty(name=name, description=description, default=default, min=min, max=max, get=getter, set=setter, update=use_update)  # pylint: disable=E1111
+            numeric_limits = {}
+            if min is not None:
+                numeric_limits["min"] = min
+            if max is not None:
+                numeric_limits["max"] = max
+            entity_property = FloatProperty(name=name, description=description, default=default, get=getter, set=setter, update=use_update, **numeric_limits)  # pylint: disable=E1111
         if proptype == "vector_location":
             entity_property = FloatVectorProperty(name=name, description=description, default=default,
                                                   size=3, subtype='XYZ', unit='LENGTH', get=getter, set=setter, update=use_update)
