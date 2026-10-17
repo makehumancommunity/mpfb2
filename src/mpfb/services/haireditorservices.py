@@ -14,6 +14,10 @@ class HairEditorService():
     _BLEND_PATH_CACHE = {}
     _MISSING_BLEND_TTL = 2.0
 
+    # hair.blend in the first version of hair editor asset pack is about 19.6 MB, current one about 27.3 MB.
+    # Anything below this is taken to be the old pack, which lacks assets the newer features rely on.
+    _OUTDATED_HAIR_BLEND_MAX_BYTES = 23 * 1024 * 1024
+
     def __init__(self):
         raise RuntimeError("You should not instance HairEditorService. Use its static methods instead.")
 
@@ -100,6 +104,20 @@ class HairEditorService():
             bool: True if the hair blend file exists, False otherwise.
         """
         return HairEditorService.get_hair_blend_path() is not None
+
+    @staticmethod
+    def is_hair_pack_outdated():
+        """Check if the installed hair asset blend comes from the old asset pack.
+
+        The pack itself carries no version, so the size of hair.blend is used to tell the two apart.
+        """
+        path = HairEditorService.get_hair_blend_path()
+        if path is None:
+            return False
+        try:
+            return os.path.getsize(path) < HairEditorService._OUTDATED_HAIR_BLEND_MAX_BYTES
+        except OSError:
+            return False
 
     @staticmethod
     def is_fur_asset_installed():

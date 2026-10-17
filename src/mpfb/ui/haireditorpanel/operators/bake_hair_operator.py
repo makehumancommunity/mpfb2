@@ -1280,7 +1280,7 @@ class MPFB_OT_BakeHair_Operator(MpfbOperator):
 
         return settings
 
-    def _apply_bake_settings(self, scene, samples):
+    def _apply_bake_settings(self, scene, samples, keep_world=False):
         scene.render.engine = 'CYCLES'
         scene.render.film_transparent = True
         scene.cycles.samples = samples
@@ -1288,8 +1288,9 @@ class MPFB_OT_BakeHair_Operator(MpfbOperator):
             if hasattr(scene.cycles, key):
                 setattr(scene.cycles, key, value)
 
+        # With the current scene lighting the world may be part of the light (an HDRI), so it is left alone
         world = scene.world
-        if world and world.use_nodes and "Background" in world.node_tree.nodes:
+        if not keep_world and world and world.use_nodes and "Background" in world.node_tree.nodes:
             world.node_tree.nodes["Background"].inputs[0].default_value = (0, 0, 0, 0)
 
     def _unwrap_cards(self, bake_target, atlas_fraction, prefer_generated_uvs, resolution=1024, hair_obj=None):
@@ -1413,6 +1414,9 @@ class MPFB_OT_BakeHair_Operator(MpfbOperator):
 
     def _light_placement(self, basemesh, hair_obj, mode):
         """Where the bake lights go, and whether they cast. Returns (locations, casts_shadows)."""
+        if mode == cg.LIGHT_MODE_SCENE:
+            # The scenes own lights are used, nothing is added
+            return [], False
         if mode == cg.LIGHT_MODE_FIXED:
             return [basemesh.location + Vector((0, -2, 3)),
                     basemesh.location + Vector((0, 2, 3))], True
@@ -1667,8 +1671,12 @@ class MPFB_OT_BakeHair_Operator(MpfbOperator):
             # Both flags are saved, since visible_get() only covers the viewport.
             hidden_objects = []
             keep_visible = {basemesh.name, hair_obj.name, bake_target.name, body_surface.name}
+            # Lights are not captured by the cards, so with the current scene lighting they stay on
+            use_scene_lighting = glossy and light_mode == cg.LIGHT_MODE_SCENE
             for obj in bpy.data.objects:
                 if obj.name in keep_visible:
+                    continue
+                if use_scene_lighting and obj.type == 'LIGHT':
                     continue
                 if obj.visible_get():
                     hidden_objects.append((obj, (obj.hide_render, obj.hide_viewport)))
@@ -1690,7 +1698,10 @@ class MPFB_OT_BakeHair_Operator(MpfbOperator):
             for key in _RAY_VISIBILITY:
                 setattr(bake_target, key, False)
 
-            self._apply_bake_settings(scene, samples)
+            self._apply_bake_settings(scene, samples, keep_world=use_scene_lighting)
+            if use_scene_lighting and not any(obj.type == 'LIGHT' and obj.visible_get() for obj in scene.objects):
+                self.report({'WARNING'}, "Baking with the current scene lighting, but there are no visible "
+                                         "lights in the scene. Only the world will light the hair")
 
             state["card_material"] = _build_ray_portal_material(capture_depth, outward=direct_to_body)
             if direct_to_body:

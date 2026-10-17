@@ -467,8 +467,20 @@ class MPFB_PT_Hair_Editor_Panel(Abstract_Panel):
             lights.label(text="Shadowless lights aimed across the", icon='INFO')
             lights.label(text="strands, from the asset's own root-to-tip")
             lights.label(text="directions. Strongest sheen band.")
+        elif light_mode == cg.LIGHT_MODE_SCENE:
+            scene_lights = [obj for obj in bpy.context.scene.objects
+                            if obj.type == 'LIGHT' and obj.visible_get()]
+            lights.label(text="The lights and the world of the scene", icon='INFO')
+            lights.label(text="are used as they are, no bake lights")
+            lights.label(text="are added. Emissive meshes are hidden.")
+            if scene_lights:
+                lights.label(text=f"{len(scene_lights)} visible light(s) in the scene")
+            else:
+                lights.label(text="No visible lights in the scene,", icon='ERROR')
+                lights.label(text="only the world will light the hair.")
 
-        if light_mode is not None:
+        # The scene's own lights keep their own wattage - the strength slider only applies to the bake lights
+        if light_mode is not None and light_mode != cg.LIGHT_MODE_SCENE:
             properties.draw_properties(basemesh, lights,
                                         [f"{asset_name}_cards_light_strength"],
                                         text="Light strength", slider=True)
@@ -477,12 +489,16 @@ class MPFB_PT_Hair_Editor_Panel(Abstract_Panel):
             watts = cg.light_base_energy(light_mode) * strength
             lights.label(text=f"= {watts:.0f} W per light")
         # Only relevant while the lights cast shadows
-        if light_mode in (cg.LIGHT_MODE_FIXED, cg.LIGHT_MODE_BBOX):
+        if light_mode in (cg.LIGHT_MODE_FIXED, cg.LIGHT_MODE_BBOX, cg.LIGHT_MODE_SCENE):
             if self._flag(lights, basemesh, properties, asset_name, "cards_body_shadows",
                           "Body casts shadows", is_fur=is_fur):
-                lights.label(text="The background is black and these lights", icon='ERROR')
-                lights.label(text="are the only light, so the body's shadow")
-                lights.label(text="bakes in as a hard dark band.")
+                if light_mode == cg.LIGHT_MODE_SCENE:
+                    lights.label(text="Scene lights that cast shadows will", icon='ERROR')
+                    lights.label(text="bake the body's shadow into the hair.")
+                else:
+                    lights.label(text="The background is black and these lights", icon='ERROR')
+                    lights.label(text="are the only light, so the body's shadow")
+                    lights.label(text="bakes in as a hard dark band.")
 
         properties.draw_properties(basemesh, box, [f"{asset_name}_cards_texture_dst"], text="Destination")
 
@@ -751,6 +767,13 @@ class MPFB_PT_Hair_Editor_Panel(Abstract_Panel):
             layout.label(text="installed. Download from")
             layout.label(text="asset packs page.")
             return
+
+        if HairEditorService.is_hair_pack_outdated():
+            warning = layout.box()
+            warning.label(text="Old hair editor asset pack", icon='ERROR')
+            warning.label(text="Some features need the newer pack.")
+            warning.label(text="Download the current version from")
+            warning.label(text="the asset packs page.")
 
         self._hair_panel(basemesh, layout)
 

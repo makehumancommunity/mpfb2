@@ -58,6 +58,7 @@ LIGHT_MODE_FIXED = "FIXED"
 LIGHT_MODE_BBOX = "BBOX"
 LIGHT_MODE_NO_SHADOW = "NO_SHADOW"
 LIGHT_MODE_ACROSS_STRANDS = "ACROSS_STRANDS"
+LIGHT_MODE_SCENE = "SCENE"
 
 LIGHT_MODE_ITEMS = [
     (LIGHT_MODE_FIXED, "Two lights, fixed offset",
@@ -68,6 +69,8 @@ LIGHT_MODE_ITEMS = [
      "As above, but the lights dont cast shadows."),
     (LIGHT_MODE_ACROSS_STRANDS, "Two lights, across the strands",
      "Two shadowless lights placed perpendicular to the main hair growth direction, so the hair is lit from the side."),
+    (LIGHT_MODE_SCENE, "Current scene lighting",
+     "Use the lights and the world already in the scene, as they are. No bake lights are added"),
     ]
 
 # Full strength in watts per mode so they can use same scale in UI
@@ -76,6 +79,7 @@ LIGHT_MODE_BASE_ENERGY = {
     LIGHT_MODE_BBOX: 200.0,
     LIGHT_MODE_NO_SHADOW: 10.0,
     LIGHT_MODE_ACROSS_STRANDS: 10.0,
+    LIGHT_MODE_SCENE: 0.0,     # No lights added, scenes own lights keep their own strength
     }
 
 
