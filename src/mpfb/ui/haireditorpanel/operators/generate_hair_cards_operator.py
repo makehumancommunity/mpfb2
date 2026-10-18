@@ -181,8 +181,6 @@ class MPFB_OT_GenerateHairCards_Operator(MpfbOperator):
             create_cards_properties(properties, basemesh, self.hair_asset,
                                     values=read_cards_settings(basemesh, self.hair_asset),
                                     mode=get_cards_mode(properties, basemesh, self.hair_asset))
-        else:
-            self.report({'INFO'}, f"Imported cards for '{self.hair_asset}'. You might need to manually align them to fit correctly.")
 
         create_cards_bake_properties(properties, basemesh, self.hair_asset)
         set_cards_flag(properties, basemesh, self.hair_asset, kind, "generated", True)

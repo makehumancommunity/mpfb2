@@ -356,18 +356,19 @@ def test_card_settings_drive_the_generator(hair_with_cards):
     assert hair_with_cards.get("cards_segments") == 17
 
 
-def test_hand_modelled_cards_are_imported_from_the_pack(character):
+def test_hand_modelled_cards_in_the_pack_are_not_imported(character):
+    """They did not fit the hair and had nothing to set up, so random tiles are generated even for such an asset."""
     require_pack_asset(_ASSET_WITH_PACK_CARDS)
     if f"{_ASSET_WITH_PACK_CARDS}_cards" not in pack_objects():
         pytest.skip("The pack no longer ships hand modelled cards for this asset")
     asset = AppliedAsset(character, apply_hair(character, _ASSET_WITH_PACK_CARDS))
     try:
-        result, report = run_hardened(Generate, character,
-                                      hair_asset=asset.asset_name, is_fur=False)
+        asset.set("cards_mode", cg.CARDS_MODE_TILES)
+        result, _report = run_hardened(Generate, character,
+                                       hair_asset=asset.asset_name, is_fur=False)
         assert result == {'FINISHED'}
-        report.assert_reported('INFO', "Imported cards")
         assert asset.card_obj is not None and asset.card_obj.parent == character
-        assert not hp.has_cards_generator(asset.asset_name)
+        assert hp.has_cards_generator(asset.asset_name)
         assert asset.flag("generated")
     finally:
         delete_hair(character, asset.asset_name)
