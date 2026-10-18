@@ -482,6 +482,43 @@ def create_cards_bake_properties(config_set, basemesh, asset_name):
             propdef["max"] = value_range[1]
         config_set.set_value_dynamic(propname, current, propdef, entity_reference=basemesh)
 
+def asset_property_suffixes(kind):
+    """Every setting an asset can have, as the part of its name after "<asset>_"."""
+    fur = kind == "fur"
+    suffixes = set(DYNAMIC_FUR_PROPS_DEFINITIONS if fur else DYNAMIC_HAIR_PROPS_DEFINITIONS)
+    suffixes |= set(DYNAMIC_FUR_MATERIAL_PROPS_DEFINITIONS if fur else DYNAMIC_HAIR_MATERIAL_PROPS_DEFINITIONS)
+    suffixes |= set(DYNAMIC_CARDS_PROPS_DEFINITIONS)
+    suffixes |= set(DYNAMIC_CARDS_CONFIG_PROPS_DEFINITIONS)
+    suffixes |= set(DYNAMIC_CARDS_BAKE_PROPS_DEFINITIONS)
+    suffixes |= {f"{kind}_asset_open", f"{kind}_cards_are_generated", f"{kind}_cards_are_baked"}
+    return suffixes
+
+def is_asset_property(key, asset_name, kind):
+    """Whether a dynamic property (short name) belongs to this asset."""
+    prefix = f"{asset_name}_"
+    if not key.startswith(prefix):
+        return False
+    rest = key[len(prefix):]
+    # Everything about the cards is named cards_..., this catches settings of older versions no longer defined
+    return rest in asset_property_suffixes(kind) or rest.startswith("cards_")
+
+def remove_asset_properties(config_set, basemesh, asset_name, kind):
+    """Remove every setting of one asset from the basemesh, and nothing of any other asset. Returns the removed names."""
+    dynamic_prefix = config_set.dynamic_prefix
+    names = set()
+    for prop in basemesh.bl_rna.properties:
+        if prop.identifier.startswith(dynamic_prefix):
+            names.add(prop.identifier[len(dynamic_prefix):])
+    # Not yet registered (right after loading a file), or only the serialized definition is left
+    for key in basemesh.keys():
+        name = str(key).replace("$", "")
+        if name.startswith(dynamic_prefix):
+            names.add(name[len(dynamic_prefix):])
+    removed = sorted(name for name in names if is_asset_property(name, asset_name, kind))
+    for name in removed:
+        config_set.remove_dynamic_key(name, basemesh)
+    return removed
+
 # Suffixes of the extra maps the bake operator can produce alongside the main color texture
 BAKED_EXTRA_MAP_KEYS = ("normal", "ao", "root_tip", "flow", "depth", "side_on")
 
@@ -496,7 +533,7 @@ def get_cards_object(asset_name):
     return bpy.data.objects.get(asset_name + CARDS_OBJECT_SUFFIX)
 
 def has_cards_generator(asset_name):
-    """Check if the cards of the given asset are driven by a generated node group (cards shipped in an asset pack are not)."""
+    """Check if the cards of the given asset are driven by a generated node group (cluster boxes are not)."""
     card_obj = get_cards_object(asset_name)
     return card_obj is not None and CARDS_MODIFIER_NAME in card_obj.modifiers
 
@@ -526,8 +563,15 @@ def get_cards_flag(config_set, basemesh, asset_name, kind, flag):
     return config_set.get_value(f"{asset_name}_{kind}_cards_are_{flag}", False, entity_reference=basemesh)
 
 class HairGetterSetterFactory():
+    """Works out what a dynamic hair/fur property drives from its name, and makes the getter and setter for it.
 
-    def __init__(self, name, prefix=DYNAMIC_PREFIX, fur=False):
+    The name is "<prefix><asset>_<setting>", and both the asset and the setting can contain underscores.
+    The name alone can be read in more ways: "afro_roll_length" is the "roll_length" of "afro" or the "length" of
+    "afro_roll". Every reading is kept as a candidate. The most specific one (longest setting name) is the default, and
+    the getter and setter pick the candidate whose asset is actually on the character.
+    """
+
+    def __init__(self, name, prefix=DYNAMIC_PREFIX, fur=False, _candidate=None):
         self.prefix = prefix
         self.full_property_name = name
         self.short_property_name = None
@@ -556,76 +600,52 @@ class HairGetterSetterFactory():
             self.base_prop_definitions = DYNAMIC_HAIR_PROPS_DEFINITIONS
             self.base_prop_material_definition = DYNAMIC_HAIR_MATERIAL_PROPS_DEFINITIONS
 
-        # Cards are checked first, "cards_density" would otherwise be mistaken for the "density" of the hair curves
-        self._attempt_deducing_from_cards()
-        if not self.is_cards_property:
-            self._attempt_deducing_from_hair()
-        if not self.is_cards_property and not self.is_hair_property:
-            self._attempt_deducing_from_material()
+        self.candidates = [_candidate] if _candidate is not None else self._find_candidates()
+        if self.candidates:
+            self._apply_candidate(self.candidates[0])
 
-        if self.managed_to_deduce_property:
-            self._interpolate_hair_object_name()
+    def _find_candidates(self):
+        """Every kind/setting/definition the name can be read as, the most specific first."""
+        body = re.sub("^" + self.prefix, "", self.full_property_name)
+        candidates = []
+        for kind, definitions in (("cards", DYNAMIC_CARDS_PROPS_DEFINITIONS), ("hair", self.base_prop_definitions),
+                                  ("material", self.base_prop_material_definition)):
+            for key, definition in definitions.items():
+                # The asset name in front of the setting cannot be empty
+                if body.endswith("_" + key) and len(body) > len(key) + 1:
+                    candidates.append((kind, key, definition))
+        # "cards_density" before the hair "density", "roll_length" before "length"
+        kind_order = {"cards": 0, "hair": 1, "material": 2}
+        candidates.sort(key=lambda candidate: (-len(candidate[1]), kind_order[candidate[0]]))
+        return candidates
 
-    def _attempt_deducing_from_cards(self):
-        candidate = (None, None)
-        for key in DYNAMIC_CARDS_PROPS_DEFINITIONS:
-            if self.full_property_name.endswith(key):
-                candidate = (key, DYNAMIC_CARDS_PROPS_DEFINITIONS[key])
-        if candidate[0] is None:
-            return
-
-        self.short_property_name = candidate[0]
-        definition = candidate[1]
-
-        self.socket_name = definition[0]
-        if definition[1] is not None:
-            self.min = definition[1][0]
-            self.max = definition[1][1]
-        self.default_value = definition[2]
-        self.is_cards_property = True
+    def _apply_candidate(self, candidate):
+        kind, key, definition = candidate
+        self.short_property_name = key
         self.managed_to_deduce_property = True
-
-    def _attempt_deducing_from_hair(self):
-        if "color" in self.full_property_name:
-            # Break here to avoid clashing with properties from the other set
-            return
-        candidate = (None, None)
-        for key in self.base_prop_definitions:
-            if self.full_property_name.endswith(key):
-                # Can't break here, since it will find "length" before "roll_length"
-                candidate = (key, self.base_prop_definitions[key])
-        if candidate[0] is None:
-            return
-
-        self.short_property_name = candidate[0]
-        definition = candidate[1]
-
-        self.modifier_name = definition[0]
-        self.modifier_attribute = definition[1]
-        self.min = definition[2][0]
-        self.max = definition[2][1]
-        self.default_value = self.min
-        self.is_hair_property = True
-        self.managed_to_deduce_property = True
-
-    def _attempt_deducing_from_material(self):
-        candidate = (None, None)
-        for key in self.base_prop_material_definition:
-            if self.full_property_name.endswith(key):
-                candidate = (key, self.base_prop_material_definition[key])
-        if candidate[0] is None:
-            return
-        self.short_property_name = candidate[0]
-        definition = candidate[1]
-
-        self.modifier_name = definition[0]
-        self.modifier_attribute = definition[1]
-        if self.short_property_name in ["use_texture", "texture_path"]:
-            self.is_texture_property = True
+        if kind == "cards":
+            self.socket_name = definition[0]
+            if definition[1] is not None:
+                self.min = definition[1][0]
+                self.max = definition[1][1]
+            self.default_value = definition[2]
+            self.is_cards_property = True
+        elif kind == "hair":
+            self.modifier_name = definition[0]
+            self.modifier_attribute = definition[1]
+            self.min = definition[2][0]
+            self.max = definition[2][1]
+            self.default_value = self.min
+            self.is_hair_property = True
         else:
-            self.is_material_property = True
-        self.default_value = self._deduce_material_default(self.modifier_attribute)
-        self.managed_to_deduce_property = True
+            self.modifier_name = definition[0]
+            self.modifier_attribute = definition[1]
+            if key in ["use_texture", "texture_path"]:
+                self.is_texture_property = True
+            else:
+                self.is_material_property = True
+            self.default_value = self._deduce_material_default(self.modifier_attribute)
+        self._interpolate_hair_object_name()
 
     def _deduce_material_default(self, specification):
         """Work out a fallback value of the right type, so that a getter never returns None."""
@@ -639,8 +659,19 @@ class HairGetterSetterFactory():
 
     def _interpolate_hair_object_name(self):
         hair_name = re.sub("^" + self.prefix, "", self.full_property_name)
-        hair_name = re.sub("_" + self.short_property_name + "$", "", hair_name)
-        self.hair_object_name = hair_name
+        self.hair_object_name = hair_name[:-(len(self.short_property_name) + 1)]
+
+    def _readings(self):
+        """One factory per way the name can be read, in order they are tried."""
+        return [self] + [HairGetterSetterFactory(self.full_property_name, prefix=self.prefix, fur=self.is_fur,
+                                                 _candidate=candidate) for candidate in self.candidates[1:]]
+
+    def resolve(self, source):
+        """The reading of the name whose asset is on the character ``source``, or default if none is."""
+        for reading in self._readings():
+            if reading._get_hair_object(source) is not None:
+                return reading
+        return self
 
     def _get_hair_object(self, source):
         """Find the hair/fur object belonging to this property, amongst the children of the basemesh ``source``.
@@ -935,7 +966,7 @@ class HairGetterSetterFactory():
                 return self.default_value
             modifier = card_obj.modifiers.get(CARDS_MODIFIER_NAME)
             if modifier is None:
-                _LOG.debug("Card object has no hair cards modifier (expected for cluster boxes / pack-provided cards)", card_obj.name)
+                _LOG.debug("Card object has no hair cards modifier (expected for cluster boxes)", card_obj.name)
                 return self.default_value
             identifier = find_cards_socket_identifier(modifier.node_group, self.socket_name)
             if identifier is None:
@@ -954,7 +985,7 @@ class HairGetterSetterFactory():
                 return
             modifier = card_obj.modifiers.get(CARDS_MODIFIER_NAME)
             if modifier is None:
-                _LOG.debug("Card object has no hair cards modifier (expected for cluster boxes / pack-provided cards)", card_obj.name)
+                _LOG.debug("Card object has no hair cards modifier (expected for cluster boxes)", card_obj.name)
                 return
             identifier = find_cards_socket_identifier(modifier.node_group, self.socket_name)
             if identifier is None:
@@ -1022,7 +1053,7 @@ class HairGetterSetterFactory():
             _LOG.debug("Modifier, value after", (modifier, ModifierService.get_node_group_input(modifier, self.modifier_attribute)))
         return setter
 
-    def generate_getter(self):
+    def _own_getter(self):
         if self.is_cards_property:
             return self._cards_getter()
         if self.is_hair_property:
@@ -1033,7 +1064,7 @@ class HairGetterSetterFactory():
             return self._texture_getter()
         return None
 
-    def generate_setter(self):
+    def _own_setter(self):
         if self.is_cards_property:
             return self._cards_setter()
         if self.is_hair_property:
@@ -1043,6 +1074,34 @@ class HairGetterSetterFactory():
         if self.is_texture_property:
             return self._texture_setter()
         return None
+
+    def generate_getter(self):
+        if not self.managed_to_deduce_property:
+            return None
+        if len(self.candidates) == 1:
+            return self._own_getter()
+        readings = [(reading, reading._own_getter()) for reading in self._readings()]
+
+        def getter(source):
+            for reading, reading_getter in readings:
+                if reading._get_hair_object(source) is not None:
+                    return reading_getter(source)
+            return readings[0][1](source)
+        return getter
+
+    def generate_setter(self):
+        if not self.managed_to_deduce_property:
+            return None
+        if len(self.candidates) == 1:
+            return self._own_setter()
+        readings = [(reading, reading._own_setter()) for reading in self._readings()]
+
+        def setter(source, value):
+            for reading, reading_setter in readings:
+                if reading._get_hair_object(source) is not None:
+                    return reading_setter(source, value)
+            return readings[0][1](source, value)
+        return setter
 
 def dynamic_setter_factory(configset, name):
     factory = HairGetterSetterFactory(name)

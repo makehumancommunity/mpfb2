@@ -436,9 +436,10 @@ def _pick_atlas_variants(islands, fraction, exposure=None):
             ranked = sorted(members, key=lambda index: (-exposure.get(index, 0.0), index))
             chosen = sorted(ranked[:variant_count])
         variant_indices.extend(chosen)
-        for position, index in enumerate(members):
-            if index not in chosen:
-                assignment[index] = chosen[position % len(chosen)]
+        # Unbaked cards are assigned to variants in round-robin, so each baked island represents about the same number of copies.
+        rest = [index for index in members if index not in chosen]
+        for position, index in enumerate(rest):
+            assignment[index] = chosen[position % len(chosen)]
     return sorted(variant_indices), assignment
 
 
@@ -619,6 +620,21 @@ def _pack_card_uvs_into_grid(card_obj, fraction, resolution=1024, exposure=None)
     return {"final_uvs": final_uvs}
 
 
+def _shifted(values, axis, shift):
+    """``values`` moved by one pixel along ``axis``, with zeros coming in at the edge."""
+    import numpy as np
+
+    out = np.zeros_like(values)
+    source = [slice(None)] * values.ndim
+    target = [slice(None)] * values.ndim
+    if shift > 0:
+        source[axis], target[axis] = slice(None, -1), slice(1, None)
+    else:
+        source[axis], target[axis] = slice(1, None), slice(None, -1)
+    out[tuple(target)] = values[tuple(source)]
+    return out
+
+
 def _dilate_image_colour(image, passes=4):
     """Bleed the baked colour a few pixels into the transparent area.
 
@@ -641,9 +657,10 @@ def _dilate_image_colour(image, passes=4):
         weight = filled.astype(np.float32)
         neighbour_colour = np.zeros_like(colour)
         neighbour_weight = np.zeros_like(weight)
+        # Not wrapped around, the opposite edge of atlas belongs to another card
         for axis, shift in ((0, 1), (0, -1), (1, 1), (1, -1)):
-            neighbour_colour += np.roll(colour * weight[:, :, None], shift, axis=axis)
-            neighbour_weight += np.roll(weight, shift, axis=axis)
+            neighbour_colour += _shifted(colour * weight[:, :, None], axis, shift)
+            neighbour_weight += _shifted(weight, axis, shift)
         spread = (~filled) & (neighbour_weight > 0)
         if not spread.any():
             break
@@ -1668,7 +1685,7 @@ class MPFB_OT_BakeHair_Operator(MpfbOperator):
             state["scene_settings"] = self._store_scene_settings(scene)
 
             # Everything but the character, the hair and the cards is hidden, as the cards capture whatever is behind them.
-            # Both flags are saved, since visible_get() only covers the viewport.
+            # Both flags are saved. An object hidden only in the viewport still renders.
             hidden_objects = []
             keep_visible = {basemesh.name, hair_obj.name, bake_target.name, body_surface.name}
             # Lights are not captured by the cards, so with the current scene lighting they stay on
@@ -1678,7 +1695,7 @@ class MPFB_OT_BakeHair_Operator(MpfbOperator):
                     continue
                 if use_scene_lighting and obj.type == 'LIGHT':
                     continue
-                if obj.visible_get():
+                if obj.visible_get() or HairEditorService.is_rendered(obj, scene, context.view_layer):
                     hidden_objects.append((obj, (obj.hide_render, obj.hide_viewport)))
                     obj.hide_render = True
                     obj.hide_viewport = True
@@ -1699,9 +1716,11 @@ class MPFB_OT_BakeHair_Operator(MpfbOperator):
                 setattr(bake_target, key, False)
 
             self._apply_bake_settings(scene, samples, keep_world=use_scene_lighting)
-            if use_scene_lighting and not any(obj.type == 'LIGHT' and obj.visible_get() for obj in scene.objects):
-                self.report({'WARNING'}, "Baking with the current scene lighting, but there are no visible "
-                                         "lights in the scene. Only the world will light the hair")
+            if use_scene_lighting and not any(
+                    obj.type == 'LIGHT' and HairEditorService.is_rendered(obj, scene, context.view_layer)
+                    for obj in scene.objects):
+                self.report({'WARNING'}, "Baking with the current scene lighting, but no light in the scene"
+                                         "is enabled for render. Only the world will light the hair")
 
             state["card_material"] = _build_ray_portal_material(capture_depth, outward=direct_to_body)
             if direct_to_body:

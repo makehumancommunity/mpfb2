@@ -22,7 +22,7 @@ from .hairproperties import (get_light_mode, get_light_strength,
                              get_cards_flag,
                              has_cards_generator, get_cards_mode, get_cards_selection_method,
                              get_bake_target, resolve_body_surface, body_has_material,
-                             CARDS_OBJECT_SUFFIX)
+                             resolve_custom_surface, CARDS_OBJECT_SUFFIX)
 from . import cardgenerators as cg
 from . import bodyoverlay
 from .operators import toggle_section_operator
@@ -237,7 +237,7 @@ class MPFB_PT_Hair_Editor_Panel(Abstract_Panel):
 
     def _appearance_section(self, basemesh, layout, asset_name, target, properties):
         """Shader knobs for an asset which has already been baked, drawn straight from the material nodes."""
-        node_tree = self._baked_node_tree(basemesh, asset_name, target)
+        node_tree = self._baked_node_tree(basemesh, asset_name, target, properties)
         if node_tree is None:
             return
         shader = bodyoverlay.find_tagged_node(node_tree, bodyoverlay.ROLE_SHADER, asset_name)
@@ -291,10 +291,14 @@ class MPFB_PT_Hair_Editor_Panel(Abstract_Panel):
                 if socket is not None and not socket.is_linked:
                     body.prop(socket, "default_value", text=socket_name)
 
-    def _baked_node_tree(self, basemesh, asset_name, target):
+    def _baked_node_tree(self, basemesh, asset_name, target, properties):
         """The node tree holding this asset's baked shader, wherever it ended up."""
         if target == cg.BAKE_TARGET_BODY_DIRECT:
             surface_obj = resolve_body_surface(basemesh)
+            material = MaterialService.get_material(surface_obj) if surface_obj else None
+        elif target == cg.BAKE_TARGET_CUSTOM:
+            # The baked material went onto the user mesh, no card object
+            surface_obj = resolve_custom_surface(properties, basemesh, asset_name)
             material = MaterialService.get_material(surface_obj) if surface_obj else None
         else:
             card_name = f"{asset_name}{CARDS_OBJECT_SUFFIX}"
@@ -468,15 +472,15 @@ class MPFB_PT_Hair_Editor_Panel(Abstract_Panel):
             lights.label(text="strands, from the asset's own root-to-tip")
             lights.label(text="directions. Strongest sheen band.")
         elif light_mode == cg.LIGHT_MODE_SCENE:
-            scene_lights = [obj for obj in bpy.context.scene.objects
-                            if obj.type == 'LIGHT' and obj.visible_get()]
+            scene_lights = [obj for obj in bpy.context.scene.objects if obj.type == 'LIGHT'
+                            and HairEditorService.is_rendered(obj, bpy.context.scene, bpy.context.view_layer)]
             lights.label(text="The lights and the world of the scene", icon='INFO')
             lights.label(text="are used as they are, no bake lights")
             lights.label(text="are added. Emissive meshes are hidden.")
             if scene_lights:
-                lights.label(text=f"{len(scene_lights)} visible light(s) in the scene")
+                lights.label(text=f"{len(scene_lights)} light(s) in the scene render")
             else:
-                lights.label(text="No visible lights in the scene,", icon='ERROR')
+                lights.label(text="No light in the scene is enabled for render,", icon='ERROR')
                 lights.label(text="only the world will light the hair.")
 
         # The scene's own lights keep their own wattage - the strength slider only applies to the bake lights
@@ -617,7 +621,7 @@ class MPFB_PT_Hair_Editor_Panel(Abstract_Panel):
             self._appearance_section(basemesh, box, asset_name, target, properties)
             # Body-texture target is a shader blended over the skin, there is no own texture to write alpha into
             if target != cg.BAKE_TARGET_BODY_DIRECT:
-                node_tree = self._baked_node_tree(basemesh, asset_name, target)
+                node_tree = self._baked_node_tree(basemesh, asset_name, target, properties)
                 if node_tree is not None and any(
                         bodyoverlay.find_tagged_node(node_tree, role, asset_name) is not None
                         for role in (bodyoverlay.ROLE_ALPHA_RAMP, bodyoverlay.ROLE_SIDE_ON_CUTOFF,
@@ -687,7 +691,7 @@ class MPFB_PT_Hair_Editor_Panel(Abstract_Panel):
 
         mode_box.label(text="Mode applies on Regenerate", icon='FILE_REFRESH')
 
-        # Cards shipped in an asset pack or computed in python (cluster boxes) have no live node group to edit
+        # Cards computed in python (cluster boxes) have no live node group to edit
         if has_cards_generator(asset_name):
             self._placement_section(basemesh, mode_box, asset_name, properties, mode)
             self._card_shape_section(basemesh, mode_box, asset_name, properties, mode)

@@ -129,6 +129,21 @@ class HairEditorService():
         return HairEditorService.get_fur_blend_path() is not None
 
     @staticmethod
+    def is_rendered(obj, scene, view_layer):
+        """Check if cycles would render the object."""
+        if obj.hide_render:
+            return False
+        return HairEditorService._rendered_through(view_layer.layer_collection, obj, False)
+
+    @staticmethod
+    def _rendered_through(layer_collection, obj, hidden_above):
+        """Whether some path from this layer collection down to obj has no collection hidden for render or excluded on it."""
+        hidden = hidden_above or layer_collection.exclude or layer_collection.collection.hide_render
+        if not hidden and obj.name in layer_collection.collection.objects:
+            return True
+        return any(HairEditorService._rendered_through(child, obj, hidden) for child in layer_collection.children)
+
+    @staticmethod
     def join_texture_node_to_shader(img_node, shader_nodes, group_node, links, storage_key, store_links):
         """Joins given texture node to principled shaders inside "Hair shader EEVEE" group node
            and stores previous links so they can be recreated later

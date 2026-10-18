@@ -759,7 +759,8 @@ def _build_ribbon_shape(node_group, curve_socket, basemesh, base_width_socket=No
     offset_geometry = _build_offset(node_group, extended, basemesh, (x, y))
 
     # Taper: the ribbon narrows towards the tip according to "Taper" (0 = uniform, 1 = to a point)
-    _add_input(node_group, 'Card width', 'NodeSocketFloat', 0.03, (0.001, 0.5))
+    if base_width_socket is None:
+        _add_input(node_group, 'Card width', 'NodeSocketFloat', 0.03, (0.001, 0.5))
     _add_input(node_group, 'Taper', 'NodeSocketFloat', 0.3, (0.0, 1.0))
     spline_param = nodes.new('GeometryNodeSplineParameter')
     spline_param.location = (x, y + 260)
@@ -1111,35 +1112,64 @@ def build_shell_node_group(group_name, basemesh=None):
 # CLUSTER_BOX - computed once in python and needs regenerating (not a live node group)
 # --------------------------------------------------------------------------------------
 
-def _kmeans_roots(roots, cluster_count, seed, iterations=12):
-    """K-means over strand root positions, seeded for reproducibility."""
+# Roots * clusters up to which k-means is run several times and the best run is kept.
+# Above it a single run is made for performance reasons.
+_KMEANS_RESTART_BUDGET = 2_000_000
+
+
+def _kmeans_roots(roots, cluster_count, seed, iterations=12, restarts=None):
+    """K-means over strand root positions, seeded for reproducibility.
+
+    Starts from k-means++ centres (each next centre is picked with a probability growing with its squared distance
+    from the centres picked so far) and keeps the best of a few runs.
+    """
     import numpy as np
 
     rng = np.random.RandomState(seed)
     cluster_count = min(cluster_count, len(roots))
-    seed_indices = rng.choice(len(roots), size=cluster_count, replace=False)
-    centers = roots[seed_indices].copy()
+    if restarts is None:
+        restarts = 3 if len(roots) * cluster_count <= _KMEANS_RESTART_BUDGET else 1
 
-    def assign(points):
-        """Nearest centre per point, in chunks to keep the distance matrix small."""
-        out = np.empty(len(points), dtype=np.int64)
-        for start in range(0, len(points), 4096):
-            block = points[start:start + 4096]
+    def assign(centers):
+        """Nearest centre per root and the distance to it, in chunks to keep the distance matrix small."""
+        out = np.empty(len(roots), dtype=np.int64)
+        nearest = np.empty(len(roots), dtype=np.float64)
+        for start in range(0, len(roots), 4096):
+            block = roots[start:start + 4096]
             distances = np.linalg.norm(block[:, None, :] - centers[None, :, :], axis=2)
             out[start:start + 4096] = np.argmin(distances, axis=1)
-        return out
+            nearest[start:start + 4096] = distances.min(axis=1)
+        return out, nearest
 
-    assignments = np.zeros(len(roots), dtype=np.int64)
-    for _ in range(iterations):
-        assignments = assign(roots)
-        for cluster_index in range(cluster_count):
-            members = roots[assignments == cluster_index]
-            if len(members) > 0:
-                centers[cluster_index] = members.mean(axis=0)
-            else:
-                # Re-seed empty clusters from a random strand
-                centers[cluster_index] = roots[rng.randint(0, len(roots))]
-    return assignments, cluster_count
+    def starting_centers():
+        centers = np.empty((cluster_count, roots.shape[1]), dtype=np.float64)
+        centers[0] = roots[rng.randint(0, len(roots))]
+        closest = np.linalg.norm(roots - centers[0], axis=1) ** 2
+        for index in range(1, cluster_count):
+            total = closest.sum()
+            # Every root already on centre (duplicate roots)
+            pick = rng.randint(0, len(roots)) if total <= 0.0 else rng.choice(len(roots), p=closest / total)
+            centers[index] = roots[pick]
+            closest = np.minimum(closest, np.linalg.norm(roots - centers[index], axis=1) ** 2)
+        return centers
+
+    best = None
+    for _run in range(max(1, restarts)):
+        centers = starting_centers()
+        for _ in range(iterations):
+            assignments, _nearest = assign(centers)
+            for cluster_index in range(cluster_count):
+                members = roots[assignments == cluster_index]
+                if len(members) > 0:
+                    centers[cluster_index] = members.mean(axis=0)
+                else:
+                    # Re-seed empty clusters from a random strand
+                    centers[cluster_index] = roots[rng.randint(0, len(roots))]
+        assignments, nearest = assign(centers)
+        spread = float((nearest ** 2).sum())
+        if best is None or spread < best[0]:
+            best = (spread, assignments)
+    return best[1], cluster_count
 
 
 def _evaluated_curves(hair_obj, depsgraph=None):

@@ -8,58 +8,27 @@
 # ------------------------------------------------------------------------------
 from ....services.logservice import LogService
 from ....services.objectservice import ObjectService
-from ....services.haireditorservices import HairEditorService
 from .... import ClassManager
 from ...mpfboperator import MpfbOperator
 from ...pollstrategy import pollstrategy, PollStrategy
 from ..hairproperties import (HAIR_PROPERTIES, FUR_PROPERTIES, CARDS_MODIFIER_NAME,
                               CARDS_OBJECT_SUFFIX, create_cards_properties,
                               create_cards_bake_properties, create_cards_config_properties,
-                              set_cards_flag, get_pack_asset_name, get_cards_mode,
+                              set_cards_flag, get_cards_mode,
                               get_cards_selection_method, read_cards_settings,
                               get_bake_target, resolve_body_surface)
 from .. import cardgenerators as cg
 
 import bpy
-from mathutils import Vector
 
 _LOG = LogService.get_logger("haireditorpanel.generate_hair_cards_operator")
 
 
-def _load_cards_from_asset_pack(is_fur, hair_obj, pack_card_name, target_name):
-    """Load a hand modelled card object from the asset blend, if the asset pack has one. It is renamed to ``target_name``."""
-    blend_path = HairEditorService.get_fur_blend_path() if is_fur else HairEditorService.get_hair_blend_path()
-    if not blend_path:
-        return None
-
-    try:
-        with bpy.data.libraries.load(blend_path, link=False) as (data_from, data_to):
-            if pack_card_name not in data_from.objects:
-                return None
-            data_to.objects = [pack_card_name]
-    except Exception as e:
-        _LOG.warn("Could not read card object from asset blend", (blend_path, e))
-        return None
-
-    card_obj = data_to.objects[0]
-    if card_obj is None:
-        return None
-
-    bpy.context.collection.objects.link(card_obj)
-    card_obj.name = target_name
-
-    # Align the card asset approximately to the curve asset it replaces
-    bounding_box = [hair_obj.matrix_world @ Vector(corner) for corner in hair_obj.bound_box]
-    card_obj.location = sum(bounding_box, Vector()) / len(bounding_box)
-
-    return card_obj
-
-
 def build_cards_for_asset(context, basemesh, hair_obj, card_name, is_fur, properties, asset_name):
-    """Build (or import) the card object for one hair/fur asset, according to its current mode.
+    """Build the card object for one hair/fur asset, according to its current mode.
 
-    Returns (card_obj, used_generator), where used_generator is False when a ready made card object
-    was imported from the asset pack.
+    Returns (card_obj, used_generator), where used_generator is False when the card object is a finished
+    mesh without a generator node group (cluster boxes).
     """
     target = get_bake_target(properties, basemesh, asset_name)
 
@@ -98,14 +67,8 @@ def build_cards_for_asset(context, basemesh, hair_obj, card_name, is_fur, proper
 
     mode = get_cards_mode(properties, basemesh, asset_name)
 
-    if mode == cg.CARDS_MODE_TILES:
-        pack_name = get_pack_asset_name(hair_obj, fallback=asset_name)
-        card_obj = _load_cards_from_asset_pack(is_fur, hair_obj, f"{pack_name}{CARDS_OBJECT_SUFFIX}", card_name)
-        if card_obj is not None:
-            # Already placed in world space, so parenting must keep that position
-            card_obj.parent = basemesh
-            card_obj.matrix_parent_inverse = basemesh.matrix_world.inverted()
-            return card_obj, False
+    # Cards are always generated, the hand modelled ones in the asset pack (<asset>_cards) are no longer loaded
+    # User can now create own card mesh using Custom Mesh target
 
     if mode in cg.CLUSTER_MODES:
         cluster_settings = (

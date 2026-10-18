@@ -12,7 +12,9 @@ from .... import ClassManager
 from ...mpfboperator import MpfbOperator
 from ...pollstrategy import pollstrategy, PollStrategy
 from ..hairproperties import HAIR_PROPERTIES, FUR_PROPERTIES, CARDS_MODIFIER_NAME, CARDS_OBJECT_SUFFIX, \
-    baked_image_names, forget_cards_settings
+    baked_image_names, forget_cards_settings, remove_asset_properties, resolve_body_surface, \
+    resolve_custom_surface, restore_custom_mesh_materials
+from .. import bodyoverlay
 from .toggle_section_operator import forget_asset as forget_section_folds
 
 import bpy
@@ -133,13 +135,27 @@ class MPFB_OT_DeleteHair_Operator(MpfbOperator):
         for material in materials:
             self._collect_dependencies(material.node_tree, node_group_names, image_names)
 
+        properties = FUR_PROPERTIES if self.is_fur else HAIR_PROPERTIES
+        kind = "fur" if self.is_fur else "hair"
+
+        # Baked hair textures are deleted together with hair objects
+        # This does not work for "Body texture" bake and "Custom mesh" so it must be cleaned here.
+        removed_overlays = bodyoverlay.remove_overlay(resolve_body_surface(basemesh), self.hair_asset)
+        _LOG.debug("Removed the body texture overlay from material slots", removed_overlays)
+        custom_surface = resolve_custom_surface(properties, basemesh, self.hair_asset)
+        if custom_surface is not None:
+            baked = [slot.material for slot in custom_surface.material_slots
+                     if slot.material is not None and slot.material.name.startswith(f"{self.hair_asset}_baked")]
+            if restore_custom_mesh_materials(custom_surface):
+                materials.update(baked)
+
         for obj in objects_to_delete:
             bpy.data.objects.remove(obj, do_unlink=True)
         for datablock in object_data:
             self._remove_object_data(datablock)
 
-        properties = FUR_PROPERTIES if self.is_fur else HAIR_PROPERTIES
-        removed = properties.remove_dynamic_keys_with_prefix(f"{self.hair_asset}_", basemesh)
+        # Not by prefix alone
+        removed = remove_asset_properties(properties, basemesh, self.hair_asset, kind)
         _LOG.debug("Removed properties", removed)
 
         # Card settings are a plain custom property, so the sweep above does not remove them
