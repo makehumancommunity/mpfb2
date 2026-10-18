@@ -210,15 +210,6 @@ def test_body_shadows_are_offered_where_lights_cast(bake_settings, mode, offered
     assert ("cards_body_shadows" in drawn_flags(_draw_bake_section(basemesh, asset))) == offered
 
 
-@pytest.mark.parametrize("mode, warning", [(cg.LIGHT_MODE_FIXED, "The background is black and these lights"),
-                                           (cg.LIGHT_MODE_SCENE, "Scene lights that cast shadows will")])
-def test_body_shadows_warn_about_what_they_do(bake_settings, mode, warning):
-    basemesh, asset = bake_settings
-    _set(basemesh, asset, "cards_light_mode", mode)
-    _set(basemesh, asset, "cards_body_shadows", True)
-    assert warning in labels(_draw_bake_section(basemesh, asset))
-
-
 def test_diffuse_bake_has_no_lighting(bake_settings):
     basemesh, asset = bake_settings
     _set(basemesh, asset, "cards_glossy", False)
@@ -238,6 +229,15 @@ def test_cards_offer_texture_sharing(bake_settings):
     _set(basemesh, asset, "cards_atlas_enabled", True)
     assert _drew_prop(_draw_bake_section(basemesh, asset), asset, "cards_atlas_fraction")
     assert _bake_button(log)
+
+
+def test_tighter_packing_is_the_generated_layout_and_the_default(bake_settings):
+    """Pack UVs tighter is cards_analytic_uvs - the generator's own layout fills the atlas cells completely."""
+    basemesh, asset = bake_settings
+    tighter = "Tighter UV packing uses the texture space"
+    assert tighter in labels(_draw_bake_section(basemesh, asset))
+    _set(basemesh, asset, "cards_analytic_uvs", False)
+    assert tighter not in labels(_draw_bake_section(basemesh, asset))
 
 
 def test_shell_offers_no_texture_sharing(bake_settings):
@@ -264,8 +264,7 @@ def test_other_targets_bake_into_their_own_layout(bake_settings, target, note):
 def test_body_targets_always_limit_the_rays(bake_settings, target):
     basemesh, asset = bake_settings
     log = _draw_bake_section(basemesh, asset, target=target, mode=None)
-    assert "Ray range is always on for body targets" in labels(log)
-    assert "cards_limit_ray_range" not in drawn_flags(log)
+    assert "cards_limit_ray_range" not in drawn_flags(log), "a forced setting must not look optional"
     assert _drew_prop(log, asset, "cards_ray_range")
 
 
@@ -294,7 +293,7 @@ def test_body_shell_edge_fade(bake_settings, fade, width, warned):
     log = _draw_bake_section(basemesh, asset, target=cg.BAKE_TARGET_BODY_SHELL, mode=None)
     assert "cards_body_edge_fade" in drawn_flags(log)
     assert _drew_prop(log, asset, "cards_body_edge_fade_width") == fade
-    assert any(label.startswith("Wider than the face dilation") for label in labels(log)) == warned
+    assert any(label.startswith("Fade is wider than Face dilation") for label in labels(log)) == warned
 
 
 def test_double_sided_note_depends_on_the_target(bake_settings):

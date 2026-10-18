@@ -803,15 +803,15 @@ def _build_ribbon_shape(node_group, curve_socket, basemesh, base_width_socket=No
     links.new(offset_geometry, set_tilt.inputs['Curve'])
     links.new(twist_angle.outputs[0], set_tilt.inputs['Tilt'])
 
-    # UVs: U along the strand, V across the ribbon.
-    # Curve to Mesh carries point attributes of both inputs (U on curve, V on profile).
-    store_u = nodes.new('GeometryNodeStoreNamedAttribute')
-    store_u.data_type = 'FLOAT'
-    store_u.domain = 'POINT'
-    store_u.inputs['Name'].default_value = _CARD_U_ATTRIBUTE
-    store_u.location = (x + 1080, y)
-    links.new(set_tilt.outputs['Curve'], store_u.inputs['Geometry'])
-    links.new(spline_param.outputs['Factor'], store_u.inputs['Value'])
+    # UVs: V along the strand, U across the ribbon, the same as tiles and cluster boxes (the atlas packs cards that way).
+    # Curve to Mesh carries point attributes of both inputs (V on curve, U on profile).
+    store_along = nodes.new('GeometryNodeStoreNamedAttribute')
+    store_along.data_type = 'FLOAT'
+    store_along.domain = 'POINT'
+    store_along.inputs['Name'].default_value = _CARD_V_ATTRIBUTE
+    store_along.location = (x + 1080, y)
+    links.new(set_tilt.outputs['Curve'], store_along.inputs['Geometry'])
+    links.new(spline_param.outputs['Factor'], store_along.inputs['Value'])
 
     # Unit-long profile, so Scale is card width in metres
     profile = nodes.new('GeometryNodeCurvePrimitiveLine')
@@ -822,27 +822,27 @@ def _build_ribbon_shape(node_group, curve_socket, basemesh, base_width_socket=No
     profile_param = nodes.new('GeometryNodeSplineParameter')
     profile_param.location = (x + 720, y - 460)
 
-    store_v = nodes.new('GeometryNodeStoreNamedAttribute')
-    store_v.data_type = 'FLOAT'
-    store_v.domain = 'POINT'
-    store_v.inputs['Name'].default_value = _CARD_V_ATTRIBUTE
-    store_v.location = (x + 900, y - 320)
-    links.new(profile.outputs['Curve'], store_v.inputs['Geometry'])
-    links.new(profile_param.outputs['Factor'], store_v.inputs['Value'])
+    store_across = nodes.new('GeometryNodeStoreNamedAttribute')
+    store_across.data_type = 'FLOAT'
+    store_across.domain = 'POINT'
+    store_across.inputs['Name'].default_value = _CARD_U_ATTRIBUTE
+    store_across.location = (x + 900, y - 320)
+    links.new(profile.outputs['Curve'], store_across.inputs['Geometry'])
+    links.new(profile_param.outputs['Factor'], store_across.inputs['Value'])
 
     curve_to_mesh = nodes.new('GeometryNodeCurveToMesh')
     curve_to_mesh.location = (x + 1260, y - 100)
-    links.new(store_v.outputs['Geometry'], curve_to_mesh.inputs['Profile Curve'])
+    links.new(store_across.outputs['Geometry'], curve_to_mesh.inputs['Profile Curve'])
     # Unit-long profile, so this factor is the card width in metres.
     # 4.2 has no Scale input and uses radius instead with a fraction of milimeter
     scale_input = curve_to_mesh.inputs.get('Scale')
     if scale_input is not None:
-        links.new(store_u.outputs['Geometry'], curve_to_mesh.inputs['Curve'])
+        links.new(store_along.outputs['Geometry'], curve_to_mesh.inputs['Curve'])
         links.new(ribbon_width.outputs[0], scale_input)
     else:
         set_radius = nodes.new('GeometryNodeSetCurveRadius')
         set_radius.location = (x + 1080, y + 160)
-        links.new(store_u.outputs['Geometry'], set_radius.inputs['Curve'])
+        links.new(store_along.outputs['Geometry'], set_radius.inputs['Curve'])
         links.new(ribbon_width.outputs[0], set_radius.inputs['Radius'])
         links.new(set_radius.outputs['Curve'], curve_to_mesh.inputs['Curve'])
 

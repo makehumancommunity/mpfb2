@@ -327,22 +327,14 @@ class MPFB_PT_Hair_Editor_Panel(Abstract_Panel):
                 sharing.label(text="the asset, so a shared texture already")
                 sharing.label(text="ends in tips rather than in a straight cut.")
             if self._flag(atlas, basemesh, properties, asset_name, "cards_analytic_uvs",
-                          "Use generated UV layout", is_fur=is_fur):
-                atlas.label(text="One cell per card, hair down the cell,", icon='INFO')
-                atlas.label(text="every card oriented the same way.")
-            else:
-                atlas.label(text="Smart UV Project packs tighter,", icon='INFO')
-                atlas.label(text="but rotates cards to do it: fewer texels")
-                atlas.label(text="along each strand, and cards")
-                atlas.label(text="can no longer share a texture.")
+                          "Pack UVs tighter", default=True, is_fur=is_fur):
+                atlas.label(text="Tighter UV packing uses the texture space", icon='INFO')
+                atlas.label(text="better, but can slightly deform the hair.")
         elif target == cg.BAKE_TARGET_CUSTOM:
             atlas.label(text="Baked 1:1 into the mesh's own UV layout,", icon='INFO')
-            atlas.label(text="which is the point of this target - nothing")
-            atlas.label(text="is unwrapped and nothing is repacked.")
+            atlas.label(text="nothing is unwrapped or repacked.")
         elif target == cg.BAKE_TARGET_BODY_DIRECT:
             atlas.label(text="Baked 1:1 into the body's own UV layout.", icon='INFO')
-            atlas.label(text="An asset covering little of the body gets")
-            atlas.label(text="little of the texture.")
         else:
             atlas.label(text="Baked into the shell's copy of the body UVs,", icon='INFO')
             atlas.label(text="rescaled so the patch uses the whole texture.")
@@ -353,17 +345,17 @@ class MPFB_PT_Hair_Editor_Panel(Abstract_Panel):
                           "Fade out at the edges", is_fur=is_fur):
                 self._draw_cards_props(basemesh, atlas, asset_name, properties,
                                         ["cards_body_edge_fade_width"])
-                atlas.label(text="The patch ends in a hard cut, but the fur", icon='INFO')
-                atlas.label(text="it stands for does not - this thins the")
-                atlas.label(text="alpha out towards that cut.")
+                atlas.label(text="Gradually thins the alpha towards the edge", icon='INFO')
+                atlas.label(text="of the shell, so it doesn't end in a hard line.")
                 dilation = int(properties.get_value(f"{asset_name}_cards_body_face_dilation", 1,
                                                     entity_reference=basemesh))
                 width = int(properties.get_value(f"{asset_name}_cards_body_edge_fade_width", 2,
                                                  entity_reference=basemesh))
                 if width > dilation:
                     # Dilation rings are the natural fade zone, a wider fade thins the area hair grows from
-                    atlas.label(text=f"Wider than the face dilation ({dilation}), so the", icon='ERROR')
-                    atlas.label(text="fade reaches into the fur-bearing area.")
+                    atlas.label(text=f"Fade is wider than Face dilation ({dilation}), so it", icon='ERROR')
+                    atlas.label(text="potentially thins the fur itself,")
+                    atlas.label(text="not only the added border.")
 
         capture = self._section(box, basemesh, properties, asset_name, "capture", "Capture")
         self._flag(capture, basemesh, properties, asset_name, "cards_glossy", "Glossy",
@@ -372,8 +364,9 @@ class MPFB_PT_Hair_Editor_Panel(Abstract_Panel):
         if target in (cg.BAKE_TARGET_CARDS, cg.BAKE_TARGET_CUSTOM, cg.BAKE_TARGET_BODY_SHELL):
             if self._flag(capture, basemesh, properties, asset_name, "cards_double_sided",
                           "Capture both sides", is_fur=is_fur):
-                capture.label(text="A second pass with the ray reversed,", icon='INFO')
-                capture.label(text="blended by coverage. Doubles the colour bake time.")
+                capture.label(text="Bakes a second time from the other side and", icon='INFO')
+                capture.label(text="mixes both by how much hair each one saw.")
+                capture.label(text="Doubles the colour bake time.")
                 if target == cg.BAKE_TARGET_BODY_SHELL:
                     capture.label(text="Pass starts just outside the skin")
                     capture.label(text="and looks outward, so the inner side")
@@ -381,21 +374,10 @@ class MPFB_PT_Hair_Editor_Panel(Abstract_Panel):
                 else:
                     capture.label(text="Meant for the cluster modes: on tiles and")
                     capture.label(text="ribbons it can double-count hair that")
-                    capture.label(text="that neighbouring cards already carry.")
-
-        if target == cg.BAKE_TARGET_BODY_DIRECT:
-            capture.label(text="Rays travel outwards, from the skin up through the hair", icon='INFO')
-        elif target == cg.BAKE_TARGET_BODY_SHELL:
-            # Shell rays travel inwards, so the bake starts them above the hair; this slider is extra reach on top
-            capture.label(text="Measured automatically: rays start above the hair", icon='INFO')
-            capture.label(text="so the whole length is captured.")
-            capture.label(text="This adds extra reach on top.")
-        else:
-            capture.label(text="0 = only hair behind the card; higher centres the slab on it", icon='INFO')
+                    capture.label(text="neighbouring cards already carry.")
 
         if target in cg.BODY_BAKE_TARGETS:
-            # Forced on for body targets, otherwise rays pass through the body and pick up hair on the far side
-            capture.label(text="Ray range is always on for body targets", icon='CHECKBOX_HLT')
+            # Forced on for body targets, otherwise rays pass through the body and pick up hair on the far side.
             properties.draw_properties(basemesh, capture, [f"{asset_name}_cards_ray_range"],
                                         text="Ray range / depth scale")
             if target == cg.BAKE_TARGET_BODY_SHELL:
@@ -410,9 +392,6 @@ class MPFB_PT_Hair_Editor_Panel(Abstract_Panel):
                                             text="Ray range / depth scale")
 
         maps = self._section(box, basemesh, properties, asset_name, "maps", "Maps")
-        maps.label(text="The alpha mask is always baked into the", icon='INFO')
-        maps.label(text="colour texture's alpha channel. Without it")
-        maps.label(text="the cards would be opaque rectangles.")
         # The volume shell always bakes side-on and root/tip (the end-on cutoff needs them). Same condition as in the bake.
         # Shown as a note instead of ticked boxes, because the bake overrides the properties without changing them.
         forced = (get_cards_mode(properties, basemesh, asset_name) == cg.CARDS_MODE_SHELL
@@ -439,10 +418,6 @@ class MPFB_PT_Hair_Editor_Panel(Abstract_Panel):
             maps.label(text="Normal map is OBJECT space, not tangent space", icon='ERROR')
             maps.label(text="Set the engine's normal map node to object space,")
             maps.label(text="or it will light the hair wrongly.")
-        maps.label(text="Colour is always bled past the hair's edges", icon='INFO')
-        maps.label(text="so filtering cannot mix it with the black")
-        maps.label(text="nothing beside it. The alpha is untouched,")
-        maps.label(text="so the silhouette stays exactly as baked.")
 
         lights = self._section(box, basemesh, properties, asset_name, "lights", "Lights")
         # A diffuse bake is plain albedo (direct and indirect passes off), so lighting has no effect on it
@@ -464,9 +439,9 @@ class MPFB_PT_Hair_Editor_Panel(Abstract_Panel):
             lights.label(text="Two lights placed from the hair's own", icon='INFO')
             lights.label(text="bounding box. They cast shadows.")
         elif light_mode == cg.LIGHT_MODE_NO_SHADOW:
-            lights.label(text="Bounding box placement, but the lights", icon='INFO')
-            lights.label(text="cast nothing. Keeps the sheen, drops the")
-            lights.label(text="dark bands. Use the AO map for depth.")
+            lights.label(text="Like Bounding box, but without shadows:", icon='INFO')
+            lights.label(text="highlights stay, no dark streaks.")
+            lights.label(text="Bake the AO map for depth.")
         elif light_mode == cg.LIGHT_MODE_ACROSS_STRANDS:
             lights.label(text="Shadowless lights aimed across the", icon='INFO')
             lights.label(text="strands, from the asset's own root-to-tip")
@@ -494,15 +469,8 @@ class MPFB_PT_Hair_Editor_Panel(Abstract_Panel):
             lights.label(text=f"= {watts:.0f} W per light")
         # Only relevant while the lights cast shadows
         if light_mode in (cg.LIGHT_MODE_FIXED, cg.LIGHT_MODE_BBOX, cg.LIGHT_MODE_SCENE):
-            if self._flag(lights, basemesh, properties, asset_name, "cards_body_shadows",
-                          "Body casts shadows", is_fur=is_fur):
-                if light_mode == cg.LIGHT_MODE_SCENE:
-                    lights.label(text="Scene lights that cast shadows will", icon='ERROR')
-                    lights.label(text="bake the body's shadow into the hair.")
-                else:
-                    lights.label(text="The background is black and these lights", icon='ERROR')
-                    lights.label(text="are the only light, so the body's shadow")
-                    lights.label(text="bakes in as a hard dark band.")
+            self._flag(lights, basemesh, properties, asset_name, "cards_body_shadows",
+                       "Body casts shadows", is_fur=is_fur)
 
         properties.draw_properties(basemesh, box, [f"{asset_name}_cards_texture_dst"], text="Destination")
 
@@ -545,8 +513,7 @@ class MPFB_PT_Hair_Editor_Panel(Abstract_Panel):
         self._draw_cards_props(basemesh, box, asset_name, properties,
                                 ["cards_body_height", "cards_body_normal_smooth"])
         box.label(text="Height is how far off the skin the shell floats.", icon='INFO')
-        box.label(text="Smoothing spreads the offset direction, which is")
-        box.label(text="what keeps concave places from folding in.")
+        box.label(text="Smoothing keeps concave places from folding in.")
         self._draw_cards_props(basemesh, box, asset_name, properties, ["cards_body_face_dilation"])
         box.label(text="Face dilation applies on Regenerate", icon='FILE_REFRESH')
 

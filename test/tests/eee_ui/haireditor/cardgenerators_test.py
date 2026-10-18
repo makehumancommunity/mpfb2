@@ -294,6 +294,39 @@ def test_zero_density_produces_nothing(scratch, mode):
     assert _faces(cards) == 0
 
 
+def _cluster_ribbon_cards():
+    """Cluster ribbons the way the operator makes them - the averaged chains with the node group on top."""
+    mesh = cg.build_cluster_ribbon_mesh(_three_bundles(name="cardgen_bundles_uvs"), 3, 3, 0, 8)
+    cards = link(bpy.data.objects.new("cardgen_cluster_cards", mesh))
+    modifier = cards.modifiers.new(name=hairproperties.CARDS_MODIFIER_NAME, type='NODES')
+    modifier.node_group = cg.build_cluster_ribbon_node_group("cardgen_cluster_uvs", None)
+    select(cards)
+    bpy.ops.object.convert(target='MESH')
+    return cards
+
+
+@pytest.mark.parametrize("mode", [cg.CARDS_MODE_TILES, cg.CARDS_MODE_RIBBON, cg.CARDS_MODE_CLUSTER_RIBBON])
+def test_card_uvs_run_along_the_strands_in_v(scratch, mode):
+    """The atlas is cut into tall cells for long cards, so V has to follow the hair or the texture gets squashed."""
+    if mode == cg.CARDS_MODE_CLUSTER_RIBBON:
+        cards = _cluster_ribbon_cards()
+    else:
+        node_group = _build(mode, cg.SELECTION_METHOD_RANDOM, None, f"cardgen_uv_direction_{mode}")
+        cards = _evaluate_cards(_hair_for_cards(), node_group, {"Density": 1.0})
+    mesh = cards.data
+    assert len(mesh.polygons) > 0
+    uv_layer = mesh.uv_layers[cg.CARDS_UV_MAP]
+    for face in mesh.polygons:
+        # The strands grow up, so going up a card has to go up in V
+        corners = [(mesh.vertices[mesh.loops[index].vertex_index].co.z, uv_layer.data[index].uv.y)
+                   for index in face.loop_indices]
+        middle = sum(z for z, _v in corners) / len(corners)
+        upper = [v for z, v in corners if z > middle]
+        lower = [v for z, v in corners if z <= middle]
+        assert upper and lower, f"face {face.index} does not climb along the strand"
+        assert min(upper) > max(lower), f"V does not follow the strand on face {face.index}"
+
+
 def test_more_density_keeps_more_strands(scratch):
     hair_obj = _hair_for_cards()
     node_group = cg.build_ribbon_node_group("cardgen_eval_density", cg.SELECTION_METHOD_RANDOM, None)

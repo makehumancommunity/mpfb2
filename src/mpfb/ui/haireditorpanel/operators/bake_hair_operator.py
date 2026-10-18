@@ -1573,7 +1573,7 @@ class MPFB_OT_BakeHair_Operator(MpfbOperator):
         if cards_mode == cg.CARDS_MODE_SHELL and target != cg.BAKE_TARGET_BODY_DIRECT:
             wanted_maps["side_on"] = True
             wanted_maps["root_tip"] = True
-        analytic_uvs = properties.get_value(f"{asset_name}_cards_analytic_uvs", False, entity_reference=basemesh)
+        analytic_uvs = properties.get_value(f"{asset_name}_cards_analytic_uvs", True, entity_reference=basemesh)
         edge_fade = properties.get_value(f"{asset_name}_cards_body_edge_fade", False, entity_reference=basemesh)
         edge_fade_width = int(properties.get_value(f"{asset_name}_cards_body_edge_fade_width", 2, entity_reference=basemesh))
         # Zero for everything except the body shell, which measures its own lift below.
