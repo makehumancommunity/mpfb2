@@ -80,7 +80,7 @@ class ClothesCommon:
             obj_mat = MaterialService.get_material(clothes)
             mat_type = MaterialService.identify_material(obj_mat)
 
-        if save_material and mat_type == "makeskin" and not ".proxy" in file_name:
+        if save_material and mat_type in ["gameengine", "makeskin"] and not ".proxy" in file_name:
             material = MakeSkinMaterial()
             material.populate_from_object(clothes)
 
