@@ -1,9 +1,13 @@
 """Module for convenience methods for hair editor"""
 
 import os, bpy, json, time
+from typing import TYPE_CHECKING
 
 from .logservice import LogService
 from .locationservice import LocationService
+
+if TYPE_CHECKING:
+    import numpy as np
 
 _LOG = LogService.get_logger("services.haireditorservice")
 
@@ -18,11 +22,11 @@ class HairEditorService():
     # Anything below this is taken to be the old pack, which lacks assets the newer features rely on.
     _OUTDATED_HAIR_BLEND_MAX_BYTES = 23 * 1024 * 1024
 
-    def __init__(self):
+    def __init__(self) -> None:
         raise RuntimeError("You should not instance HairEditorService. Use its static methods instead.")
 
     @staticmethod
-    def read_image_pixels(image):
+    def read_image_pixels(image: bpy.types.Image) -> "np.ndarray":
         """An image pixels as a flat float32 array of width*height*channels."""
         import numpy as np
 
@@ -32,14 +36,14 @@ class HairEditorService():
         return buffer
 
     @staticmethod
-    def write_image_pixels(image, values):
+    def write_image_pixels(image: bpy.types.Image, values: "np.ndarray") -> None:
         """Write a flat float array back into an image."""
         import numpy as np
 
         image.pixels.foreach_set(np.ascontiguousarray(values, dtype=np.float32).ravel())
 
     @staticmethod
-    def _get_hair_or_fur_blend_path(search_term="hair"):
+    def _get_hair_or_fur_blend_path(search_term: str = "hair") -> str | None:
         """The path to the hair or fur asset blend, or None.
 
         Cached because the panel asks on every redraw. A found path is kept, a missing one expires
@@ -56,7 +60,7 @@ class HairEditorService():
         return path
 
     @staticmethod
-    def _search_for_hair_or_fur_blend(search_term="hair"):
+    def _search_for_hair_or_fur_blend(search_term: str = "hair") -> str | None:
         user_data_hair = LocationService.get_user_data("hair")
         if os.path.exists(user_data_hair):
             blend = os.path.join(user_data_hair, "haireditor", search_term + ".blend")
@@ -77,7 +81,7 @@ class HairEditorService():
         return None
 
     @staticmethod
-    def get_hair_blend_path():
+    def get_hair_blend_path() -> str | None:
         """Get the path to the hair blend file.
 
         Returns:
@@ -87,7 +91,7 @@ class HairEditorService():
         return HairEditorService._get_hair_or_fur_blend_path(search_term="hair")
 
     @staticmethod
-    def get_fur_blend_path():
+    def get_fur_blend_path() -> str | None:
         """Get the path to the fur blend file.
 
         Returns:
@@ -97,7 +101,7 @@ class HairEditorService():
         return HairEditorService._get_hair_or_fur_blend_path(search_term="fur")
 
     @staticmethod
-    def is_hair_asset_installed():
+    def is_hair_asset_installed() -> bool:
         """Check if the hair asset blend file is installed.
 
         Returns:
@@ -106,7 +110,7 @@ class HairEditorService():
         return HairEditorService.get_hair_blend_path() is not None
 
     @staticmethod
-    def is_hair_pack_outdated():
+    def is_hair_pack_outdated() -> bool:
         """Check if the installed hair asset blend comes from the old asset pack.
 
         The pack itself carries no version, so the size of hair.blend is used to tell the two apart.
@@ -120,7 +124,7 @@ class HairEditorService():
             return False
 
     @staticmethod
-    def is_fur_asset_installed():
+    def is_fur_asset_installed() -> bool:
         """Check if the fur asset blend file is installed.
 
         Returns:
@@ -129,14 +133,14 @@ class HairEditorService():
         return HairEditorService.get_fur_blend_path() is not None
 
     @staticmethod
-    def is_rendered(obj, scene, view_layer):
+    def is_rendered(obj: bpy.types.Object, scene: bpy.types.Scene, view_layer: bpy.types.ViewLayer) -> bool:
         """Check if cycles would render the object."""
         if obj.hide_render:
             return False
         return HairEditorService._rendered_through(view_layer.layer_collection, obj, False)
 
     @staticmethod
-    def _rendered_through(layer_collection, obj, hidden_above):
+    def _rendered_through(layer_collection: bpy.types.LayerCollection, obj: bpy.types.Object, hidden_above: bool) -> bool:
         """Whether some path from this layer collection down to obj has no collection hidden for render or excluded on it."""
         hidden = hidden_above or layer_collection.exclude or layer_collection.collection.hide_render
         if not hidden and obj.name in layer_collection.collection.objects:
@@ -144,7 +148,7 @@ class HairEditorService():
         return any(HairEditorService._rendered_through(child, obj, hidden) for child in layer_collection.children)
 
     @staticmethod
-    def join_texture_node_to_shader(img_node, shader_nodes, group_node, links, storage_key, store_links):
+    def join_texture_node_to_shader(img_node: bpy.types.Node | None, shader_nodes: list[bpy.types.Node], group_node: bpy.types.Node, links: bpy.types.NodeLinks, storage_key: str, store_links: bool) -> None:
         """Joins given texture node to principled shaders inside "Hair shader EEVEE" group node
            and stores previous links so they can be recreated later
         """
@@ -165,7 +169,7 @@ class HairEditorService():
         return
 
     @staticmethod
-    def restore_shader_links(img_node, shader_nodes, group_node, nodes, links, storage_key):
+    def restore_shader_links(img_node: bpy.types.Node | None, shader_nodes: list[bpy.types.Node], group_node: bpy.types.Node, nodes: bpy.types.Nodes, links: bpy.types.NodeLinks, storage_key: str) -> None:
         """Restores previous color links to principled shaders inside "Hair shader EEVEE" group node
            after turing off usage of texture
         """
@@ -199,7 +203,7 @@ class HairEditorService():
         return
 
     @staticmethod
-    def discard_unused_images(images_before_load):
+    def discard_unused_images(images_before_load: set[str]) -> None:
         """Throw away unused images which came along when an asset was loaded (asset packs contain textures of other assets).
 
         Args:
@@ -212,12 +216,12 @@ class HairEditorService():
                 bpy.data.images.remove(image)
 
     @staticmethod
-    def list_image_names():
+    def list_image_names() -> set[str]:
         """The names of all images currently in the file, for use with discard_unused_images()."""
         return {image.name for image in bpy.data.images}
 
     @staticmethod
-    def attach_curves_to_basemesh(hair_obj, basemesh):
+    def attach_curves_to_basemesh(hair_obj: bpy.types.Object, basemesh: bpy.types.Object) -> bool:
         """Make freshly loaded hair curves grow on the given basemesh.
 
         Assets are stored with the character they were groomed on, so the imported one is removed afterwards.

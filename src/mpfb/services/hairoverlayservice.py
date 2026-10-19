@@ -36,11 +36,11 @@ ROLE_SIDE_ON_TIPS = "side_on_tips"
 class HairOverlayService():
     """Shaders made of the baked hair maps, for the baked materials and for the body texture overlay. All methods are static methods."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         raise RuntimeError("You should not instance HairOverlayService. Use its static methods instead.")
 
     @staticmethod
-    def build_fur_shader(node_tree, images, location=(0, 0)):
+    def build_fur_shader(node_tree: bpy.types.NodeTree, images: dict[str, bpy.types.Image], location: tuple[float, float] = (0, 0)) -> tuple[bpy.types.NodeSocket, bpy.types.NodeSocket, list[bpy.types.Node]]:
         """Nodes turning the baked maps into a shader.
 
         Returns (shader_socket, alpha_socket, created_nodes). ``images`` maps map keys ("color",
@@ -131,7 +131,7 @@ class HairOverlayService():
         return bsdf.outputs['BSDF'], alpha, created
 
     @staticmethod
-    def find_tagged_node(node_tree, role, asset_name=None):
+    def find_tagged_node(node_tree: bpy.types.NodeTree | None, role: str, asset_name: str | None = None) -> bpy.types.Node | None:
         """The node this module added for ``role``, or None. Found by tag, since the skin material has other nodes too."""
         if node_tree is None:
             return None
@@ -144,7 +144,7 @@ class HairOverlayService():
         return None
 
     @staticmethod
-    def build_baked_material(name, images, edge_fade_attribute=None):
+    def build_baked_material(name: str, images: dict[str, bpy.types.Image], edge_fade_attribute: str | None = None) -> bpy.types.Material:
         """A standalone material showing only the baked hair, for the cards and the body shell.
 
         ``edge_fade_attribute`` optionally names a per-vertex 0..1 weight to multiply into the alpha (soft edge of the body shell).
@@ -177,7 +177,7 @@ class HairOverlayService():
         return material
 
     @staticmethod
-    def _bounded_factor(nodes, label, location, role=None, default=0.0):
+    def _bounded_factor(nodes: bpy.types.Nodes, label: str, location: tuple[float, float], role: str | None = None, default: float = 0.0) -> tuple[bpy.types.Node, bpy.types.NodeSocket]:
         """A 0..1 control. Returns (node, output socket).
 
         Mix Factor is used because blender draws it as a 0..1 slider, a plain Math input would be unbounded.
@@ -196,7 +196,7 @@ class HairOverlayService():
         return node, node.outputs[0]
 
     @staticmethod
-    def _multiply_in_side_on_cutoff(node_tree, alpha_socket, images):
+    def _multiply_in_side_on_cutoff(node_tree: bpy.types.NodeTree, alpha_socket: bpy.types.NodeSocket, images: dict[str, bpy.types.Image]) -> bpy.types.NodeSocket:
         """Hide texels whose hair was captured end-on. Returns the gated alpha socket.
 
         The side-on map holds 1 - |dot(strand tangent, ray direction)|: white where the strand crossed the capture ray,
@@ -307,7 +307,7 @@ class HairOverlayService():
         return multiply.outputs['Value']
 
     @staticmethod
-    def _multiply_in_depth_cutoff(node_tree, alpha_socket, depth_image):
+    def _multiply_in_depth_cutoff(node_tree: bpy.types.NodeTree, alpha_socket: bpy.types.NodeSocket, depth_image: bpy.types.Image) -> bpy.types.NodeSocket:
         """Hide texels whose hair was found too close to the surface. Returns the gated alpha socket.
 
         Undesired artifacts often appear where the shell sits on a strand, so the ray hits at almost no distance.
@@ -346,7 +346,7 @@ class HairOverlayService():
         return multiply.outputs['Value']
 
     @staticmethod
-    def _multiply_in_edge_fade(node_tree, alpha_socket, attribute_name):
+    def _multiply_in_edge_fade(node_tree: bpy.types.NodeTree, alpha_socket: bpy.types.NodeSocket, attribute_name: str) -> bpy.types.NodeSocket:
         """Attenuate an alpha socket at the shell rim by a per-vertex weight, and return the attenuated socket.
 
         Placed after the levels ramp, otherwise the ramp would make the faded rim opaque again.
@@ -378,11 +378,11 @@ class HairOverlayService():
         return multiply.outputs['Value']
 
     @staticmethod
-    def _material_output(node_tree):
+    def _material_output(node_tree: bpy.types.NodeTree) -> bpy.types.Node | None:
         return next((n for n in node_tree.nodes if n.bl_idname == 'ShaderNodeOutputMaterial'), None)
 
     @staticmethod
-    def apply_overlay(surface_obj, asset_name, images):
+    def apply_overlay(surface_obj: bpy.types.Object, asset_name: str, images: dict[str, bpy.types.Image]) -> int:
         """Blend the baked hair over the skin as a Mix Shader in front of the material output.
 
         Mixing shaders keeps the body opaque and the hair keeps its own roughness and normal.
@@ -420,7 +420,7 @@ class HairOverlayService():
         return applied
 
     @staticmethod
-    def remove_overlay(surface_obj, asset_name):
+    def remove_overlay(surface_obj: bpy.types.Object | None, asset_name: str) -> int:
         """Take the overlay back out, reconnecting the skin shader from the first input of the Mix Shader."""
         if surface_obj is None:
             return 0
@@ -447,7 +447,7 @@ class HairOverlayService():
         return removed
 
     @staticmethod
-    def has_overlay(surface_obj, asset_name):
+    def has_overlay(surface_obj: bpy.types.Object | None, asset_name: str) -> bool:
         """Whether this assets overlay is currently sitting in the surface material."""
         if surface_obj is None:
             return False

@@ -14,10 +14,15 @@ Every other parameter is a live modifier input socket.
 """
 
 import math
+from collections.abc import Iterator
+from typing import Any, TYPE_CHECKING
 
 import bpy
 from contextlib import contextmanager
 from mathutils import Vector
+
+if TYPE_CHECKING:
+    import numpy as np
 
 # Shared with hairproperties
 CLUSTER_RIBBON_PROFILE_STEPS = 5
@@ -140,16 +145,16 @@ SHELL_EDGE_FADE_ATTRIBUTE = "mpfb_shell_edge_fade"
 class HairCardService():
     """Building the hair cards: geometry node groups for the generated modes, and meshes computed in python. All methods are static methods."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         raise RuntimeError("You should not instance HairCardService. Use its static methods instead.")
 
     @staticmethod
-    def light_base_energy(mode):
+    def light_base_energy(mode: str) -> float:
         """Watts per light at strength 1.0 for the given mode."""
         return LIGHT_MODE_BASE_ENERGY.get(mode, 200.0)
 
     @staticmethod
-    def _new_group(name):
+    def _new_group(name: str) -> bpy.types.NodeTree:
         node_group = bpy.data.node_groups.new(name, 'GeometryNodeTree')
         interface = node_group.interface
         interface.new_socket('Geometry', in_out='INPUT', socket_type='NodeSocketGeometry')
@@ -161,7 +166,7 @@ class HairCardService():
         return node_group
 
     @staticmethod
-    def _add_input(node_group, socket_name, socket_type, default=None, value_range=None):
+    def _add_input(node_group: bpy.types.NodeTree, socket_name: str, socket_type: str, default: Any = None, value_range: tuple[float, float] | None = None) -> Any:
         socket = node_group.interface.new_socket(socket_name, in_out='INPUT', socket_type=socket_type)
         if default is not None:
             socket.default_value = default
@@ -171,11 +176,11 @@ class HairCardService():
         return socket
 
     @staticmethod
-    def _group_input_node(node_group):
+    def _group_input_node(node_group: bpy.types.NodeTree) -> bpy.types.Node:
         return next(n for n in node_group.nodes if n.bl_idname == 'NodeGroupInput')
 
     @staticmethod
-    def _use_voxel_size(node):
+    def _use_voxel_size(node: bpy.types.Node) -> None:
         """Use a voxel size instead of voxel count.
 
         Blender 4.2 keeps that choice on the node.
@@ -188,7 +193,7 @@ class HairCardService():
             node.resolution_mode = "VOXEL_SIZE"
 
     @staticmethod
-    def _enabled_socket(sockets, name):
+    def _enabled_socket(sockets: Any, name: str) -> bpy.types.NodeSocket:
         """The live socket of this name.
 
         Blender 5.1 keeps every data-type variant in collection and disables the unused ones.
@@ -203,7 +208,7 @@ class HairCardService():
         raise KeyError(name)
 
     @staticmethod
-    def _strand_root_position(node_group, location):
+    def _strand_root_position(node_group: bpy.types.NodeTree, location: tuple[float, float]) -> bpy.types.NodeSocket:
         """Where each strand grows out of the scalp.
 
         A plain Position on the curve domain is averaged over the strand.
@@ -231,8 +236,8 @@ class HairCardService():
         return root.outputs['Value']
 
     @staticmethod
-    def _build_strand_selection(node_group, selection_method, basemesh,
-                                density_socket='Density', density_default=0.01):
+    def _build_strand_selection(node_group: bpy.types.NodeTree, selection_method: str, basemesh: bpy.types.Object | None,
+                                density_socket: str = 'Density', density_default: float = 0.01) -> bpy.types.NodeSocket:
         """Build the part of the graph which decides which curves are kept as cards.
 
         Returns the boolean output socket meaning "delete this curve", going into a Delete Geometry Selection input.
@@ -397,7 +402,7 @@ class HairCardService():
         return compare.outputs['Result']
 
     @staticmethod
-    def _build_cluster_blend(node_group, geometry_socket, location):
+    def _build_cluster_blend(node_group: bpy.types.NodeTree, geometry_socket: bpy.types.NodeSocket, location: tuple[float, float]) -> bpy.types.NodeSocket:
         """Blend each kept strand points towards the points of its nearest neighbouring strand.
 
         A pairwise blend with the nearest strand from the other half of the strand pool.
@@ -486,7 +491,7 @@ class HairCardService():
         return set_position.outputs['Geometry']
 
     @staticmethod
-    def _build_offset(node_group, geometry_socket, basemesh, location):
+    def _build_offset(node_group: bpy.types.NodeTree, geometry_socket: bpy.types.NodeSocket, basemesh: bpy.types.Object | None, location: tuple[float, float]) -> bpy.types.NodeSocket:
         """Push every point away from the scalp by the live "Offset" input.
 
         The direction is basemesh surface normal at the nearest point. Without basemesh it falls back to curve normal.
@@ -539,7 +544,7 @@ class HairCardService():
         return offset_pos.outputs['Geometry']
 
     @staticmethod
-    def _capture_per_curve_random_vector(node_group, geometry_socket, location):
+    def _capture_per_curve_random_vector(node_group: bpy.types.NodeTree, geometry_socket: bpy.types.NodeSocket, location: tuple[float, float]) -> tuple[bpy.types.NodeSocket, bpy.types.NodeSocket]:
         """One random 0..1 vector per curve (constant along all of a strand points).
 
         Returns (geometry_output_socket, vector_attribute_output_socket).
@@ -566,7 +571,7 @@ class HairCardService():
         return capture.outputs[0], HairCardService._enabled_socket(capture.outputs, "per_curve_random")
 
     @staticmethod
-    def build_tiles_node_group(group_name, selection_method, basemesh):
+    def build_tiles_node_group(group_name: str, selection_method: str, basemesh: bpy.types.Object | None) -> bpy.types.NodeTree:
         node_group = HairCardService._new_group(group_name)
         nodes = node_group.nodes
         links = node_group.links
@@ -730,7 +735,7 @@ class HairCardService():
         return node_group
 
     @staticmethod
-    def _build_tip_extension(node_group, curve_socket, location):
+    def _build_tip_extension(node_group: bpy.types.NodeTree, curve_socket: bpy.types.NodeSocket, location: tuple[float, float]) -> bpy.types.NodeSocket:
         """Push the last point of every curve out along its own tangent. Returns the curve socket.
 
         Extending the card past the strand tip gives the bake somewhere to put the last bit of hair.
@@ -765,8 +770,8 @@ class HairCardService():
         return set_position.outputs['Geometry']
 
     @staticmethod
-    def _build_ribbon_shape(node_group, curve_socket, basemesh, base_width_socket=None,
-                            location=(0, 0), profile_steps=16):
+    def _build_ribbon_shape(node_group: bpy.types.NodeTree, curve_socket: bpy.types.NodeSocket, basemesh: bpy.types.Object | None, base_width_socket: bpy.types.NodeSocket | None = None,
+                            location: tuple[float, float] = (0, 0), profile_steps: int = 16) -> bpy.types.NodeSocket:
         """Turn a set of curves into taperable, twistable ribbon cards with hair-aligned UVs.
 
         Shared by RIBBON (one card per strand) and CLUSTER_RIBBON (one card per cluster).
@@ -879,7 +884,7 @@ class HairCardService():
         return HairCardService._store_card_uvs(node_group, curve_to_mesh.outputs['Mesh'], (x + 1500, y))
 
     @staticmethod
-    def _store_card_uvs(node_group, mesh_socket, location):
+    def _store_card_uvs(node_group: bpy.types.NodeTree, mesh_socket: bpy.types.NodeSocket, location: tuple[float, float]) -> bpy.types.NodeSocket:
         """Combine the scratch U/V attributes left by _build_ribbon_shape() into UV map."""
         nodes = node_group.nodes
         links = node_group.links
@@ -918,7 +923,7 @@ class HairCardService():
         return geometry
 
     @staticmethod
-    def build_ribbon_node_group(group_name, selection_method, basemesh):
+    def build_ribbon_node_group(group_name: str, selection_method: str, basemesh: bpy.types.Object | None) -> bpy.types.NodeTree:
         node_group = HairCardService._new_group(group_name)
         nodes = node_group.nodes
         links = node_group.links
@@ -941,7 +946,7 @@ class HairCardService():
         return node_group
 
     @staticmethod
-    def build_cluster_ribbon_node_group(group_name, basemesh):
+    def build_cluster_ribbon_node_group(group_name: str, basemesh: bpy.types.Object | None) -> bpy.types.NodeTree:
         """Shape the pre-averaged cluster poly-lines from build_cluster_ribbon_mesh() into ribbon cards.
 
         No strand selection here, the input is already one poly-line per cluster (bundle).
@@ -988,7 +993,7 @@ class HairCardService():
         return node_group
 
     @staticmethod
-    def _build_shell_hug(node_group, shell_socket, curves_socket, location):
+    def _build_shell_hug(node_group: bpy.types.NodeTree, shell_socket: bpy.types.NodeSocket, curves_socket: bpy.types.NodeSocket, location: tuple[float, float]) -> bpy.types.NodeSocket:
         """Pull every shell vertex towards the nearest actual hair point by the "Hug strands" amount.
 
         0: Shell is just raw isosurface inflated by the strand radius 
@@ -1037,7 +1042,7 @@ class HairCardService():
         return set_position.outputs['Geometry']
 
     @staticmethod
-    def _build_shell_base(node_group, basemesh):
+    def _build_shell_base(node_group: bpy.types.NodeTree, basemesh: bpy.types.Object | None) -> bpy.types.NodeSocket:
         """Thin the strands, turn them into a volume and back into a smoothed mesh shell.
 
         Points to Volume puts a sphere of "Strand radius" around every sampled strand point, so the hull is inflated by that radius.
@@ -1111,7 +1116,7 @@ class HairCardService():
         return index_switch.outputs['Output']
 
     @staticmethod
-    def build_shell_node_group(group_name, basemesh=None):
+    def build_shell_node_group(group_name: str, basemesh: bpy.types.Object | None = None) -> bpy.types.NodeTree:
         node_group = HairCardService._new_group(group_name)
         nodes = node_group.nodes
         links = node_group.links
@@ -1123,7 +1128,7 @@ class HairCardService():
         return node_group
 
     @staticmethod
-    def _kmeans_roots(roots, cluster_count, seed, iterations=12, restarts=None):
+    def _kmeans_roots(roots: "np.ndarray", cluster_count: int, seed: int, iterations: int = 12, restarts: int | None = None) -> tuple["np.ndarray", int]:
         """K-means over strand root positions, seeded for reproducibility.
 
         Starts from k-means++ centres (each next centre is picked with a probability growing with its squared distance
@@ -1178,7 +1183,7 @@ class HairCardService():
         return best[1], cluster_count
 
     @staticmethod
-    def _evaluated_curves(hair_obj, depsgraph=None):
+    def _evaluated_curves(hair_obj: bpy.types.Object, depsgraph: bpy.types.Depsgraph | None = None) -> bpy.types.Curves:
         """The hair curves as the viewport shows them (with the grooming stack applied).
 
         Falls back to the raw data if the evaluated object carries no curves.
@@ -1195,7 +1200,7 @@ class HairCardService():
         return hair_obj.data
 
     @staticmethod
-    def _read_clustered_strands(hair_obj, cluster_count, min_strands, seed, depsgraph):
+    def _read_clustered_strands(hair_obj: bpy.types.Object, cluster_count: int, min_strands: int, seed: int, depsgraph: bpy.types.Depsgraph | None) -> dict[str, Any] | None:
         """Reads the evaluated groom into numpy and groups strands into clusters by their roots.
 
         Returns None if there is not enough hair to form a single cluster, otherwise a dict with the flat point positions,
@@ -1232,7 +1237,7 @@ class HairCardService():
             }
 
     @staticmethod
-    def _bundle_members(clustered, cluster_index, min_strands):
+    def _bundle_members(clustered: dict[str, Any], cluster_index: int, min_strands: int) -> "np.ndarray | None":
         """Indices of the strands in one cluster strided down to a sane number if they are too many, None if too few."""
         import numpy as np
 
@@ -1245,7 +1250,7 @@ class HairCardService():
         return members
 
     @staticmethod
-    def build_cluster_ribbon_mesh(hair_obj, cluster_count, min_strands, seed, samples, depsgraph=None):
+    def build_cluster_ribbon_mesh(hair_obj: bpy.types.Object, cluster_count: int, min_strands: int, seed: int, samples: int, depsgraph: bpy.types.Depsgraph | None = None) -> bpy.types.Mesh | None:
         """Build one averaged poly-line per cluster of nearby strands as a base for ribbon card.
 
         Member strands are resampled onto a common 0..1 parameter before being averaged.
@@ -1321,7 +1326,7 @@ class HairCardService():
         return mesh
 
     @staticmethod
-    def build_cluster_box_mesh(hair_obj, cluster_count, min_strands, seed, depsgraph=None):
+    def build_cluster_box_mesh(hair_obj: bpy.types.Object, cluster_count: int, min_strands: int, seed: int, depsgraph: bpy.types.Depsgraph | None = None) -> bpy.types.Mesh | None:
         """Build one oriented quad per cluster of nearby strands.
 
         Strand roots are grouped with k-means
@@ -1410,7 +1415,7 @@ class HairCardService():
 
     @staticmethod
     @contextmanager
-    def _evaluated_surface(surface_obj, depsgraph=None):
+    def _evaluated_surface(surface_obj: bpy.types.Object, depsgraph: bpy.types.Depsgraph | None = None) -> Iterator[bpy.types.Mesh]:
         """The body mesh as it appears on screen (hidden helpers, applied morphs etc.), for the duration of the block."""
         if depsgraph is None:
             depsgraph = bpy.context.evaluated_depsgraph_get()
@@ -1421,7 +1426,7 @@ class HairCardService():
             evaluated.to_mesh_clear()
 
     @staticmethod
-    def _body_face_indices(surface_obj, mesh):
+    def _body_face_indices(surface_obj: bpy.types.Object, mesh: bpy.types.Mesh) -> set[int] | None:
         """The faces of ``mesh`` that are actual body surface (None if can't be determined)."""
         criteria = []
         for modifier in surface_obj.modifiers:
@@ -1445,7 +1450,7 @@ class HairCardService():
         return allowed
 
     @staticmethod
-    def _fur_bearing_faces_in(mesh, surface_obj, hair_obj, face_dilation, depsgraph=None):
+    def _fur_bearing_faces_in(mesh: bpy.types.Mesh, surface_obj: bpy.types.Object, hair_obj: bpy.types.Object, face_dilation: int, depsgraph: bpy.types.Depsgraph | None = None) -> set[int]:
         """Which faces of an already opened evaluated body mesh the hair asset grows out of."""
         import numpy as np
         from mathutils.bvhtree import BVHTree
@@ -1485,7 +1490,7 @@ class HairCardService():
         return faces
 
     @staticmethod
-    def _fur_bearing_faces(surface_obj, hair_obj, face_dilation, depsgraph=None):
+    def _fur_bearing_faces(surface_obj: bpy.types.Object, hair_obj: bpy.types.Object, face_dilation: int, depsgraph: bpy.types.Depsgraph | None = None) -> set[int]:
         """Indices of the evaluated body faces the hair asset grows out of.
 
         Used only for counting and measuring as indices are only valid for the evaluated mesh.
@@ -1494,7 +1499,7 @@ class HairCardService():
             return HairCardService._fur_bearing_faces_in(mesh, surface_obj, hair_obj, face_dilation, depsgraph)
 
     @staticmethod
-    def _grow_face_set(mesh, faces):
+    def _grow_face_set(mesh: bpy.types.Mesh, faces: set[int]) -> set[int]:
         """The given faces plus every face sharing a vertex with them."""
         wanted_vertices = set()
         for index in faces:
@@ -1508,7 +1513,7 @@ class HairCardService():
         return grown
 
     @staticmethod
-    def build_body_shell_mesh(surface_obj, hair_obj, face_dilation, depsgraph=None):
+    def build_body_shell_mesh(surface_obj: bpy.types.Object, hair_obj: bpy.types.Object, face_dilation: int, depsgraph: bpy.types.Depsgraph | None = None) -> bpy.types.Mesh | None:
         """A mesh holding just the body faces the asset grows from, with its UVs renormalised.
 
         Cut out of the body as it currently appears (_evaluated_surface).
@@ -1560,7 +1565,7 @@ class HairCardService():
         return mesh
 
     @staticmethod
-    def hair_extent_above_surface(surface_obj, hair_obj, depsgraph=None, samples=4000):
+    def hair_extent_above_surface(surface_obj: bpy.types.Object, hair_obj: bpy.types.Object, depsgraph: bpy.types.Depsgraph | None = None, samples: int = 4000) -> float:
         """How far out of the body the hair reaches, in metres, or 0.0 if it cannot be measured.
 
         Used to start the body shell bake rays far enough out to capture the whole length of the fur.
@@ -1594,7 +1599,7 @@ class HairCardService():
 
     @staticmethod
     @contextmanager
-    def body_held_at_rest_pose(rig):
+    def body_held_at_rest_pose(rig: bpy.types.Object | None) -> Iterator[None]:
         """Hold the character in its rest pose for the duration of the block.
 
         ``surfacedeform_bind`` silently refuses to bind (``is_bound`` stays False) while the armature is posed,
@@ -1615,7 +1620,7 @@ class HairCardService():
             bpy.context.view_layer.update()
 
     @staticmethod
-    def weight_body_shell_to_rig(shell_obj, surface_obj, rig):
+    def weight_body_shell_to_rig(shell_obj: bpy.types.Object, surface_obj: bpy.types.Object, rig: bpy.types.Object | None) -> bool:
         """Give shell the bone weights of the body, so that it exports as skinned geometry.
 
         The shell vertices are body vertices, so the body weights apply verbatim and are already in the mesh.
@@ -1638,7 +1643,7 @@ class HairCardService():
         return True
 
     @staticmethod
-    def body_shell_is_weighted_to(shell_obj, rig):
+    def body_shell_is_weighted_to(shell_obj: bpy.types.Object | None, rig: bpy.types.Object | None) -> bool:
         """Whether this shell would deform with the given rig on its own."""
         if shell_obj is None or rig is None:
             return False
@@ -1646,7 +1651,7 @@ class HairCardService():
                    for modifier in shell_obj.modifiers)
 
     @staticmethod
-    def bind_body_shell_to_body(context, shell_obj, surface_obj):
+    def bind_body_shell_to_body(context: bpy.types.Context, shell_obj: bpy.types.Object, surface_obj: bpy.types.Object) -> bool:
         """Tie the shell back to the body surface it was cut from. Returns whether succeeded.
 
         Surface Deform binds against the evaluated body, so the shell follows shape keys, targets and the armature.
@@ -1676,7 +1681,7 @@ class HairCardService():
         return True
 
     @staticmethod
-    def store_shell_edge_fade(mesh, width_in_rings):
+    def store_shell_edge_fade(mesh: bpy.types.Mesh, width_in_rings: int) -> bool:
         """Write a 0..1 weight per vertex: 0 on the patch border, 1 once ``width_in_rings`` faces in.
 
         The shell is a patch with a hard border, this lets the baked shader fade out on the rim of the shell.
@@ -1727,7 +1732,7 @@ class HairCardService():
             bm.free()
 
     @staticmethod
-    def build_body_shell_node_group(group_name):
+    def build_body_shell_node_group(group_name: str) -> bpy.types.NodeTree:
         """Float the duplicated body faces off the skin, along a smoothed normal.
 
         Normals are blurred first, so the offset does not self-intersect on concave parts of the body (e.g. armpit, behind the ear).
