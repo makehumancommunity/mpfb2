@@ -12,7 +12,7 @@ import bpy
 import pytest
 
 from ... import ObjectService
-from .haireditor_fixtures import (hairsetup, HAIR_PROPERTIES, scratch, character, select, link, make_grid,
+from .haireditor_fixtures import (hairsetup, HairEditorService, HAIR_PROPERTIES, scratch, character, select, link, make_grid,
                                   make_material)
 
 
@@ -65,7 +65,7 @@ def test_eevee_renders_the_hair_as_strips(character):
 
 def test_unused_images_from_the_asset_are_discarded(scratch):
     existing = bpy.data.images.new("setup_existing_unused", 4, 4)
-    before = hairsetup.list_image_names()
+    before = HairEditorService.list_image_names()
     assert existing.name in before
 
     orphan = bpy.data.images.new("setup_orphan", 4, 4)
@@ -76,7 +76,7 @@ def test_unused_images_from_the_asset_are_discarded(scratch):
     material = make_material("setup_uses_an_image")
     material.node_tree.nodes.new('ShaderNodeTexImage').image = used
 
-    hairsetup.discard_unused_images(before)
+    HairEditorService.discard_unused_images(before)
     assert orphan_name not in bpy.data.images
     assert protected.name in bpy.data.images
     assert used.name in bpy.data.images
@@ -86,13 +86,13 @@ def test_unused_images_from_the_asset_are_discarded(scratch):
 def test_only_hair_curves_can_be_attached(scratch):
     body = make_grid("setup_attach_body")
     not_hair = make_grid("setup_attach_not_hair")
-    assert not hairsetup.attach_curves_to_basemesh(not_hair, body)
+    assert not HairEditorService.attach_curves_to_basemesh(not_hair, body)
 
 
 def test_curves_without_a_surface_are_attached(scratch):
     body = make_grid("setup_attach_body_plain")
     hair_obj = link(bpy.data.objects.new("setup_attach_hair", bpy.data.hair_curves.new("setup_attach_hair")))
-    assert hairsetup.attach_curves_to_basemesh(hair_obj, body)
+    assert HairEditorService.attach_curves_to_basemesh(hair_obj, body)
     assert hair_obj.data.surface == body
 
 
@@ -105,7 +105,7 @@ def test_surface_brought_along_by_the_asset_is_thrown_away(scratch):
     hair_obj = link(bpy.data.objects.new("setup_attach_hair_loaded", bpy.data.hair_curves.new("setup_loaded")))
     hair_obj.data.surface = groomed_on
 
-    assert hairsetup.attach_curves_to_basemesh(hair_obj, body)
+    assert HairEditorService.attach_curves_to_basemesh(hair_obj, body)
     assert hair_obj.data.surface == body
     assert "setup_groomed_on" not in bpy.data.objects
     assert "setup_groomed_on" not in bpy.data.meshes
@@ -117,7 +117,7 @@ def test_surface_in_the_scene_is_kept(scratch):
     in_scene = make_grid("setup_surface_in_scene")
     hair_obj = link(bpy.data.objects.new("setup_attach_hair_kept", bpy.data.hair_curves.new("setup_kept")))
     hair_obj.data.surface = in_scene
-    assert hairsetup.attach_curves_to_basemesh(hair_obj, body)
+    assert HairEditorService.attach_curves_to_basemesh(hair_obj, body)
     assert "setup_surface_in_scene" in bpy.data.objects
 
 
@@ -125,5 +125,5 @@ def test_attaching_to_the_same_surface_again(scratch):
     body = make_grid("setup_same_body")
     hair_obj = link(bpy.data.objects.new("setup_attach_hair_same", bpy.data.hair_curves.new("setup_same")))
     hair_obj.data.surface = body
-    assert hairsetup.attach_curves_to_basemesh(hair_obj, body)
+    assert HairEditorService.attach_curves_to_basemesh(hair_obj, body)
     assert "setup_same_body" in bpy.data.objects

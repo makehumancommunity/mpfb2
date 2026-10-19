@@ -14,7 +14,7 @@ from ...pollstrategy import pollstrategy, PollStrategy
 from ..hairproperties import HAIR_PROPERTIES, FUR_PROPERTIES, CARDS_MODIFIER_NAME, CARDS_OBJECT_SUFFIX, \
     baked_image_names, forget_cards_settings, remove_asset_properties, resolve_body_surface, \
     resolve_custom_surface, restore_custom_mesh_materials
-from .. import bodyoverlay
+from ....services.hairoverlayservice import HairOverlayService
 from .toggle_section_operator import forget_asset as forget_section_folds
 
 import bpy
@@ -140,7 +140,7 @@ class MPFB_OT_DeleteHair_Operator(MpfbOperator):
 
         # Baked hair textures are deleted together with hair objects
         # This does not work for "Body texture" bake and "Custom mesh" so it must be cleaned here.
-        removed_overlays = bodyoverlay.remove_overlay(resolve_body_surface(basemesh), self.hair_asset)
+        removed_overlays = HairOverlayService.remove_overlay(resolve_body_surface(basemesh), self.hair_asset)
         _LOG.debug("Removed the body texture overlay from material slots", removed_overlays)
         custom_surface = resolve_custom_surface(properties, basemesh, self.hair_asset)
         if custom_surface is not None:

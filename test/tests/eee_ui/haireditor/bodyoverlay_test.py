@@ -4,14 +4,14 @@
 # Date:         17.10.2026
 # University:   Brno University of Technology
 # Supervisor:   Ing. Tomáš Chlubna, Ph.D.
-# Description:  unit tests for the baked hair material and the skin overlay (bodyoverlay.py)
+# Description:  unit tests for the baked hair material and the skin overlay (services/hairoverlayservice.py)
 # ------------------------------------------------------------------------------
-"""Tests for bodyoverlay.py: the material built out of the baked maps, and blending it over a skin material."""
+"""Tests for HairOverlayService: the material built out of the baked maps, and blending it over a skin material."""
 
 import bpy
 import pytest
 
-from .haireditor_fixtures import bodyoverlay, scratch, make_grid, make_material, surface_link_source
+from .haireditor_fixtures import hairoverlayservice as bodyoverlay, HairOverlayService, scratch, make_grid, make_material, surface_link_source
 
 _MAP_KEYS = ("color", "normal", "ao", "root_tip", "flow", "depth", "side_on")
 
@@ -34,7 +34,7 @@ def _roles(node_tree):
 
 def test_baked_material_from_the_colour_alone(scratch):
     images = _images()
-    material = bodyoverlay.build_baked_material("overlay_colour_only", images)
+    material = HairOverlayService.build_baked_material("overlay_colour_only", images)
     principled = _principled(material)
 
     assert surface_link_source(material) == principled
@@ -48,7 +48,7 @@ def test_baked_material_from_the_colour_alone(scratch):
 
 def test_baked_material_uses_every_map(scratch):
     images = _images(_MAP_KEYS)
-    material = bodyoverlay.build_baked_material("overlay_all_maps", images, edge_fade_attribute="fade")
+    material = HairOverlayService.build_baked_material("overlay_all_maps", images, edge_fade_attribute="fade")
     principled = _principled(material)
 
     assert _sampled_images(material.node_tree) == set(images.values())
@@ -66,10 +66,10 @@ def test_baked_material_uses_every_map(scratch):
 
 
 def test_edge_fade_reads_the_named_attribute(scratch):
-    material = bodyoverlay.build_baked_material("overlay_fade", _images(), edge_fade_attribute="my_fade")
+    material = HairOverlayService.build_baked_material("overlay_fade", _images(), edge_fade_attribute="my_fade")
     attributes = [node for node in material.node_tree.nodes if node.bl_idname == 'ShaderNodeAttribute']
     assert [node.attribute_name for node in attributes] == ["my_fade"]
-    fade = bodyoverlay.find_tagged_node(material.node_tree, bodyoverlay.ROLE_EDGE_FADE)
+    fade = HairOverlayService.find_tagged_node(material.node_tree, bodyoverlay.ROLE_EDGE_FADE)
     assert fade is not None
     # The fade comes after the levels ramp, otherwise the ramp would make the faded rim opaque again
     assert _principled(material).inputs['Alpha'].links[0].from_node == fade
@@ -77,33 +77,33 @@ def test_edge_fade_reads_the_named_attribute(scratch):
 
 def test_depth_cutoff_does_nothing_until_moved(scratch):
     """With the threshold at zero the depth cutoff must leave the alpha alone."""
-    material = bodyoverlay.build_baked_material("overlay_depth_cutoff", _images(("color", "depth")))
-    depth = bodyoverlay.find_tagged_node(material.node_tree, bodyoverlay.ROLE_DEPTH_CUTOFF)
+    material = HairOverlayService.build_baked_material("overlay_depth_cutoff", _images(("color", "depth")))
+    depth = HairOverlayService.find_tagged_node(material.node_tree, bodyoverlay.ROLE_DEPTH_CUTOFF)
     assert depth.operation == 'LESS_THAN'
     assert depth.inputs[1].default_value == 0.0
 
 
 def test_side_on_cutoff_starts_at_the_volume_shell_values(scratch):
     """Only the volume shell bakes the side-on map by default, so its cutoff starts where it works for the shell."""
-    material = bodyoverlay.build_baked_material("overlay_side_on", _images(("color", "side_on", "root_tip")))
-    cutoff = bodyoverlay.find_tagged_node(material.node_tree, bodyoverlay.ROLE_SIDE_ON_CUTOFF)
-    tips = bodyoverlay.find_tagged_node(material.node_tree, bodyoverlay.ROLE_SIDE_ON_TIPS)
+    material = HairOverlayService.build_baked_material("overlay_side_on", _images(("color", "side_on", "root_tip")))
+    cutoff = HairOverlayService.find_tagged_node(material.node_tree, bodyoverlay.ROLE_SIDE_ON_CUTOFF)
+    tips = HairOverlayService.find_tagged_node(material.node_tree, bodyoverlay.ROLE_SIDE_ON_TIPS)
     assert cutoff.inputs[0].default_value == pytest.approx(0.3)
     assert tips.inputs[0].default_value == pytest.approx(1.0)
 
 
 def test_side_on_cutoff_without_the_root_tip_map(scratch):
-    material = bodyoverlay.build_baked_material("overlay_side_on_alone", _images(("color", "side_on")))
-    assert bodyoverlay.find_tagged_node(material.node_tree, bodyoverlay.ROLE_SIDE_ON_CUTOFF) is not None
-    assert bodyoverlay.find_tagged_node(material.node_tree, bodyoverlay.ROLE_SIDE_ON_TIPS) is None
+    material = HairOverlayService.build_baked_material("overlay_side_on_alone", _images(("color", "side_on")))
+    assert HairOverlayService.find_tagged_node(material.node_tree, bodyoverlay.ROLE_SIDE_ON_CUTOFF) is not None
+    assert HairOverlayService.find_tagged_node(material.node_tree, bodyoverlay.ROLE_SIDE_ON_TIPS) is None
 
 
 def test_find_tagged_node(scratch):
-    material = bodyoverlay.build_baked_material("overlay_find", _images())
-    ramp = bodyoverlay.find_tagged_node(material.node_tree, bodyoverlay.ROLE_ALPHA_RAMP)
+    material = HairOverlayService.build_baked_material("overlay_find", _images())
+    ramp = HairOverlayService.find_tagged_node(material.node_tree, bodyoverlay.ROLE_ALPHA_RAMP)
     assert ramp is not None and ramp.bl_idname == 'ShaderNodeValToRGB'
-    assert bodyoverlay.find_tagged_node(material.node_tree, "no such role") is None
-    assert bodyoverlay.find_tagged_node(None, bodyoverlay.ROLE_ALPHA_RAMP) is None
+    assert HairOverlayService.find_tagged_node(material.node_tree, "no such role") is None
+    assert HairOverlayService.find_tagged_node(None, bodyoverlay.ROLE_ALPHA_RAMP) is None
 
 
 # ---------------------------------------------------------------------------
@@ -122,20 +122,20 @@ def test_overlay_is_mixed_over_the_skin(scratch):
     skin = body.data.materials[0]
     skin_shader = surface_link_source(skin)
 
-    assert bodyoverlay.apply_overlay(body, "fluff", _images()) == 1
+    assert HairOverlayService.apply_overlay(body, "fluff", _images()) == 1
     mix = surface_link_source(skin)
     assert mix.bl_idname == 'ShaderNodeMixShader'
     assert mix.inputs[1].links[0].from_node == skin_shader, "the skin stays underneath"
     assert mix.inputs['Fac'].is_linked, "the hair alpha decides where the skin shows through"
-    assert bodyoverlay.has_overlay(body, "fluff")
-    assert not bodyoverlay.has_overlay(body, "another asset")
+    assert HairOverlayService.has_overlay(body, "fluff")
+    assert not HairOverlayService.has_overlay(body, "another asset")
 
 
 def test_overlay_is_not_stacked_twice(scratch):
     """Reapplying (after a rebake) replaces the overlay of that asset instead of adding a second one."""
     body = _skinned_body()
-    bodyoverlay.apply_overlay(body, "fluff", _images(prefix="first"))
-    bodyoverlay.apply_overlay(body, "fluff", _images(prefix="second"))
+    HairOverlayService.apply_overlay(body, "fluff", _images(prefix="first"))
+    HairOverlayService.apply_overlay(body, "fluff", _images(prefix="second"))
     mixes = [node for node in body.data.materials[0].node_tree.nodes if node.bl_idname == 'ShaderNodeMixShader']
     assert len(mixes) == 1
 
@@ -146,12 +146,12 @@ def test_overlay_is_taken_out_again(scratch):
     skin_shader = surface_link_source(skin)
     node_count = len(skin.node_tree.nodes)
 
-    bodyoverlay.apply_overlay(body, "fluff", _images())
-    assert bodyoverlay.remove_overlay(body, "fluff") == 1
+    HairOverlayService.apply_overlay(body, "fluff", _images())
+    assert HairOverlayService.remove_overlay(body, "fluff") == 1
     assert surface_link_source(skin) == skin_shader
     assert len(skin.node_tree.nodes) == node_count, "every node the overlay added has to go"
-    assert not bodyoverlay.has_overlay(body, "fluff")
-    assert bodyoverlay.remove_overlay(body, "fluff") == 0
+    assert not HairOverlayService.has_overlay(body, "fluff")
+    assert HairOverlayService.remove_overlay(body, "fluff") == 0
 
 
 def test_two_overlays_come_off_in_any_order(scratch):
@@ -159,20 +159,20 @@ def test_two_overlays_come_off_in_any_order(scratch):
     skin = body.data.materials[0]
     skin_shader = surface_link_source(skin)
 
-    bodyoverlay.apply_overlay(body, "arms", _images(prefix="arms"))
-    bodyoverlay.apply_overlay(body, "legs", _images(prefix="legs"))
-    bodyoverlay.remove_overlay(body, "arms")
-    assert bodyoverlay.has_overlay(body, "legs")
+    HairOverlayService.apply_overlay(body, "arms", _images(prefix="arms"))
+    HairOverlayService.apply_overlay(body, "legs", _images(prefix="legs"))
+    HairOverlayService.remove_overlay(body, "arms")
+    assert HairOverlayService.has_overlay(body, "legs")
     legs_mix = surface_link_source(skin)
     assert legs_mix.inputs[1].links[0].from_node == skin_shader, "the chain has to close up where arms was"
 
-    bodyoverlay.remove_overlay(body, "legs")
+    HairOverlayService.remove_overlay(body, "legs")
     assert surface_link_source(skin) == skin_shader
 
 
 def test_overlay_goes_into_every_skin_slot(scratch):
     body = _skinned_body(slots=2)
-    assert bodyoverlay.apply_overlay(body, "fluff", _images()) == 2
+    assert HairOverlayService.apply_overlay(body, "fluff", _images()) == 2
 
 
 def test_overlay_skips_what_it_cannot_blend_over(scratch):
@@ -183,21 +183,21 @@ def test_overlay_skips_what_it_cannot_blend_over(scratch):
     for link in list(output.inputs['Surface'].links):
         unconnected.node_tree.links.remove(link)
     body.data.materials.append(unconnected)
-    assert bodyoverlay.apply_overlay(body, "fluff", _images()) == 0
-    assert not bodyoverlay.has_overlay(body, "fluff")
+    assert HairOverlayService.apply_overlay(body, "fluff", _images()) == 0
+    assert not HairOverlayService.has_overlay(body, "fluff")
 
 
 def test_overlay_lookups_without_a_body():
-    assert bodyoverlay.remove_overlay(None, "fluff") == 0
-    assert not bodyoverlay.has_overlay(None, "fluff")
+    assert HairOverlayService.remove_overlay(None, "fluff") == 0
+    assert not HairOverlayService.has_overlay(None, "fluff")
 
 
 def test_overlay_role_lookup_is_per_asset(scratch):
     body = _skinned_body()
-    bodyoverlay.apply_overlay(body, "arms", _images(prefix="arms"))
-    bodyoverlay.apply_overlay(body, "legs", _images(prefix="legs"))
+    HairOverlayService.apply_overlay(body, "arms", _images(prefix="arms"))
+    HairOverlayService.apply_overlay(body, "legs", _images(prefix="legs"))
     tree = body.data.materials[0].node_tree
-    arms_ramp = bodyoverlay.find_tagged_node(tree, bodyoverlay.ROLE_ALPHA_RAMP, "arms")
-    legs_ramp = bodyoverlay.find_tagged_node(tree, bodyoverlay.ROLE_ALPHA_RAMP, "legs")
+    arms_ramp = HairOverlayService.find_tagged_node(tree, bodyoverlay.ROLE_ALPHA_RAMP, "arms")
+    legs_ramp = HairOverlayService.find_tagged_node(tree, bodyoverlay.ROLE_ALPHA_RAMP, "legs")
     assert arms_ramp is not None and legs_ramp is not None and arms_ramp != legs_ramp
     assert arms_ramp.get(bodyoverlay.OVERLAY_TAG) == "arms"

@@ -16,8 +16,8 @@ from ..hairproperties import (HAIR_PROPERTIES, FUR_PROPERTIES, CARDS_OBJECT_SUFF
                               baked_image_names, create_cards_properties, read_cards_settings,
                               get_bake_target, resolve_body_surface, get_cards_mode,
                               resolve_custom_surface, restore_custom_mesh_materials)
-from .. import bodyoverlay
-from .. import cardgenerators as cg
+from ....services import haircardservice as cg
+from ....services.hairoverlayservice import HairOverlayService
 from .generate_hair_cards_operator import build_cards_for_asset
 
 import bpy
@@ -73,7 +73,7 @@ class MPFB_OT_UnbakeHair_Operator(MpfbOperator):
         if target == cg.BAKE_TARGET_BODY_DIRECT:
             # Nothing was built for this target, the result is a Mix Shader inside the skin material
             surface_obj = resolve_body_surface(basemesh)
-            removed = bodyoverlay.remove_overlay(surface_obj, self.hair_asset)
+            removed = HairOverlayService.remove_overlay(surface_obj, self.hair_asset)
             _LOG.debug("Removed fur overlay from material slots", removed)
 
         if target == cg.BAKE_TARGET_CUSTOM:

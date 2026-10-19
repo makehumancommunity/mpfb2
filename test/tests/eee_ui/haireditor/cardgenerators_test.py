@@ -4,9 +4,9 @@
 # Date:         17.10.2026
 # University:   Brno University of Technology
 # Supervisor:   Ing. Tomáš Chlubna, Ph.D.
-# Description:  unit tests for the hair cards generators (cardgenerators.py)
+# Description:  unit tests for the hair cards generators (services/haircardservice.py)
 # ------------------------------------------------------------------------------
-"""Tests for cardgenerators.py.
+"""Tests for HairCardService.
 
 None of these need the asset pack: the node groups are built and evaluated on hand made hair curves, and the
 python side generators (cluster cards, body shell) get small scenes with a known answer.
@@ -18,7 +18,7 @@ import bpy
 import pytest
 
 from ... import ModifierService
-from .haireditor_fixtures import (cardgenerators as cg, hairproperties, scratch, select, link, make_hair_curves,
+from .haireditor_fixtures import (haircardservice as cg, HairCardService, hairproperties, scratch, select, link, make_hair_curves,
                                   bundle_of_strands, make_grid, make_rig)
 
 find_socket = hairproperties.find_cards_socket_identifier
@@ -50,11 +50,11 @@ def test_every_light_mode_has_its_own_base_energy():
 
 
 def test_scene_lighting_adds_no_energy():
-    assert cg.light_base_energy(cg.LIGHT_MODE_SCENE) == 0.0
+    assert HairCardService.light_base_energy(cg.LIGHT_MODE_SCENE) == 0.0
 
 
 def test_unknown_light_mode_gets_the_generic_energy():
-    assert cg.light_base_energy("NOT_A_MODE") == 200.0
+    assert HairCardService.light_base_energy("NOT_A_MODE") == 200.0
 
 
 @pytest.mark.parametrize("items", [cg.CARDS_MODE_ITEMS, cg.BAKE_TARGET_ITEMS, cg.LIGHT_MODE_ITEMS,
@@ -79,7 +79,7 @@ def test_mode_groups_only_name_existing_modes():
 # ---------------------------------------------------------------------------
 
 def test_new_group_has_only_geometry_in_and_out(scratch):
-    node_group = cg._new_group("cardgen_new_group")
+    node_group = HairCardService._new_group("cardgen_new_group")
     assert sorted(node.bl_idname for node in node_group.nodes) == ['NodeGroupInput', 'NodeGroupOutput']
     sockets = [(item.name, item.in_out) for item in node_group.interface.items_tree
                if getattr(item, "item_type", None) == "SOCKET"]
@@ -87,39 +87,39 @@ def test_new_group_has_only_geometry_in_and_out(scratch):
 
 
 def test_add_input_sets_default_and_range(scratch):
-    node_group = cg._new_group("cardgen_add_input")
-    socket = cg._add_input(node_group, "Amount", 'NodeSocketFloat', 0.25, (0.1, 0.9))
+    node_group = HairCardService._new_group("cardgen_add_input")
+    socket = HairCardService._add_input(node_group, "Amount", 'NodeSocketFloat', 0.25, (0.1, 0.9))
     assert socket.default_value == pytest.approx(0.25)
     assert socket.min_value == pytest.approx(0.1)
     assert socket.max_value == pytest.approx(0.9)
     # Strings have no range, which must not raise
-    text = cg._add_input(node_group, "Name", 'NodeSocketString', "abc", (0, 1))
+    text = HairCardService._add_input(node_group, "Name", 'NodeSocketString', "abc", (0, 1))
     assert text.default_value == "abc"
 
 
 def test_enabled_socket_picks_the_live_variant(scratch):
     """Blender 5.1 keeps a disabled socket per data type, 5.2 only the live one. Either way the live one is wanted."""
-    node_group = cg._new_group("cardgen_enabled_socket")
+    node_group = HairCardService._new_group("cardgen_enabled_socket")
     random_value = node_group.nodes.new('FunctionNodeRandomValue')
     random_value.data_type = 'FLOAT'
-    socket = cg._enabled_socket(random_value.outputs, "Value")
+    socket = HairCardService._enabled_socket(random_value.outputs, "Value")
     assert socket.enabled
     assert socket.type == 'VALUE'
 
 
 def test_enabled_socket_raises_for_a_missing_name(scratch):
-    node_group = cg._new_group("cardgen_enabled_socket_missing")
+    node_group = HairCardService._new_group("cardgen_enabled_socket_missing")
     random_value = node_group.nodes.new('FunctionNodeRandomValue')
     with pytest.raises(KeyError):
-        cg._enabled_socket(random_value.outputs, "Not a socket")
+        HairCardService._enabled_socket(random_value.outputs, "Not a socket")
 
 
 @pytest.mark.parametrize("node_type", ['GeometryNodePointsToVolume', 'GeometryNodeVolumeToMesh'])
 def test_use_voxel_size(scratch, node_type):
     """4.2 keeps the resolution mode on the node, later versions as a socket. Both have to end up on voxel size."""
-    node_group = cg._new_group("cardgen_voxel_size")
+    node_group = HairCardService._new_group("cardgen_voxel_size")
     node = node_group.nodes.new(node_type)
-    cg._use_voxel_size(node)
+    HairCardService._use_voxel_size(node)
     socket = node.inputs.get("Resolution Mode")
     if socket is not None:
         assert socket.default_value == "Size"
@@ -142,13 +142,13 @@ _SHELL_SOCKETS = {"Volume density", "Seed", "Weight vertex group", "Strand sampl
 
 def _build(mode, selection_method, basemesh, name):
     if mode == cg.CARDS_MODE_TILES:
-        return cg.build_tiles_node_group(name, selection_method, basemesh)
+        return HairCardService.build_tiles_node_group(name, selection_method, basemesh)
     if mode == cg.CARDS_MODE_RIBBON:
-        return cg.build_ribbon_node_group(name, selection_method, basemesh)
+        return HairCardService.build_ribbon_node_group(name, selection_method, basemesh)
     if mode == cg.CARDS_MODE_SHELL:
-        return cg.build_shell_node_group(name, basemesh)
+        return HairCardService.build_shell_node_group(name, basemesh)
     if mode == cg.CARDS_MODE_CLUSTER_RIBBON:
-        return cg.build_cluster_ribbon_node_group(name, basemesh)
+        return HairCardService.build_cluster_ribbon_node_group(name, basemesh)
     raise ValueError(mode)
 
 
@@ -165,25 +165,25 @@ def test_strand_based_modes_offer_their_sockets(scratch, mode, expected, selecti
 
 def test_poisson_selection_needs_a_basemesh(scratch):
     """Without a scalp to sample there is nothing to distribute points on, so it falls back to random selection."""
-    node_group = cg.build_tiles_node_group("cardgen_poisson_no_scalp", cg.SELECTION_METHOD_POISSON, None)
+    node_group = HairCardService.build_tiles_node_group("cardgen_poisson_no_scalp", cg.SELECTION_METHOD_POISSON, None)
     assert "Poisson radius" not in _input_sockets(node_group)
 
 
 def test_shell_offers_its_sockets(scratch):
-    node_group = cg.build_shell_node_group("cardgen_shell", make_grid("cardgen_shell_scalp"))
+    node_group = HairCardService.build_shell_node_group("cardgen_shell", make_grid("cardgen_shell_scalp"))
     assert set(_input_sockets(node_group)) - {"Geometry"} == _SHELL_SOCKETS
 
 
 def test_cluster_ribbon_offers_its_sockets(scratch):
     """The bundles are already averaged in python, so there is no strand selection in this graph."""
-    node_group = cg.build_cluster_ribbon_node_group("cardgen_cluster_ribbon", None)
+    node_group = HairCardService.build_cluster_ribbon_node_group("cardgen_cluster_ribbon", None)
     sockets = set(_input_sockets(node_group)) - {"Geometry"}
     assert "Width from cluster" in sockets
     assert not sockets & {"Density", "Seed", "Jitter"}
 
 
 def test_body_shell_group_offers_its_sockets(scratch):
-    node_group = cg.build_body_shell_node_group("cardgen_body_shell")
+    node_group = HairCardService.build_body_shell_node_group("cardgen_body_shell")
     assert set(_input_sockets(node_group)) - {"Geometry"} == {"Height", "Normal smoothing"}
 
 
@@ -196,7 +196,7 @@ def test_socket_defaults_match_the_property_definitions(scratch, mode):
     with another, until the user touches the slider.
     """
     if mode == "BODY_SHELL":
-        node_group = cg.build_body_shell_node_group("cardgen_defaults_body_shell")
+        node_group = HairCardService.build_body_shell_node_group("cardgen_defaults_body_shell")
     else:
         node_group = _build(mode, cg.SELECTION_METHOD_RANDOM, make_grid("cardgen_defaults_scalp"),
                             f"cardgen_defaults_{mode}")
@@ -223,9 +223,9 @@ def test_every_socket_has_a_property(scratch):
     groups = [_build(mode, method, scalp, f"cardgen_unreachable_{mode}_{method}")
               for mode in (cg.CARDS_MODE_TILES, cg.CARDS_MODE_RIBBON)
               for method in (cg.SELECTION_METHOD_RANDOM, cg.SELECTION_METHOD_EVERY_NTH, cg.SELECTION_METHOD_POISSON)]
-    groups += [cg.build_shell_node_group("cardgen_unreachable_shell", scalp),
-               cg.build_cluster_ribbon_node_group("cardgen_unreachable_cluster", scalp),
-               cg.build_body_shell_node_group("cardgen_unreachable_body")]
+    groups += [HairCardService.build_shell_node_group("cardgen_unreachable_shell", scalp),
+               HairCardService.build_cluster_ribbon_node_group("cardgen_unreachable_cluster", scalp),
+               HairCardService.build_body_shell_node_group("cardgen_unreachable_body")]
     for node_group in groups:
         missing = set(_input_sockets(node_group)) - socket_names - {"Geometry"}
         assert not missing, f"{node_group.name} has sockets no property drives: {missing}"
@@ -296,10 +296,10 @@ def test_zero_density_produces_nothing(scratch, mode):
 
 def _cluster_ribbon_cards():
     """Cluster ribbons the way the operator makes them - the averaged chains with the node group on top."""
-    mesh = cg.build_cluster_ribbon_mesh(_three_bundles(name="cardgen_bundles_uvs"), 3, 3, 0, 8)
+    mesh = HairCardService.build_cluster_ribbon_mesh(_three_bundles(name="cardgen_bundles_uvs"), 3, 3, 0, 8)
     cards = link(bpy.data.objects.new("cardgen_cluster_cards", mesh))
     modifier = cards.modifiers.new(name=hairproperties.CARDS_MODIFIER_NAME, type='NODES')
-    modifier.node_group = cg.build_cluster_ribbon_node_group("cardgen_cluster_uvs", None)
+    modifier.node_group = HairCardService.build_cluster_ribbon_node_group("cardgen_cluster_uvs", None)
     select(cards)
     bpy.ops.object.convert(target='MESH')
     return cards
@@ -329,7 +329,7 @@ def test_card_uvs_run_along_the_strands_in_v(scratch, mode):
 
 def test_more_density_keeps_more_strands(scratch):
     hair_obj = _hair_for_cards()
-    node_group = cg.build_ribbon_node_group("cardgen_eval_density", cg.SELECTION_METHOD_RANDOM, None)
+    node_group = HairCardService.build_ribbon_node_group("cardgen_eval_density", cg.SELECTION_METHOD_RANDOM, None)
     few = _faces(_evaluate_cards(hair_obj, node_group, {"Density": 0.3, "Seed": 3}))
     all_of_them = _faces(_evaluate_cards(hair_obj, node_group, {"Density": 1.0, "Seed": 3}))
     assert few < all_of_them
@@ -338,7 +338,7 @@ def test_more_density_keeps_more_strands(scratch):
 def test_every_nth_keeps_about_the_right_share(scratch):
     """Density 0.5 with no jitter keeps every second strand: half of the twenty."""
     hair_obj = _hair_for_cards()
-    node_group = cg.build_ribbon_node_group("cardgen_eval_nth", cg.SELECTION_METHOD_EVERY_NTH, None)
+    node_group = HairCardService.build_ribbon_node_group("cardgen_eval_nth", cg.SELECTION_METHOD_EVERY_NTH, None)
     everything = len(_evaluate_cards(hair_obj, node_group, {"Density": 1.0, "Jitter": 0.0}).data.polygons)
     half = len(_evaluate_cards(hair_obj, node_group, {"Density": 0.5, "Jitter": 0.0}).data.polygons)
     assert half == pytest.approx(everything / 2, abs=everything / 20)
@@ -352,7 +352,7 @@ def test_weight_vertex_group_masks_the_strands(scratch):
     group.add([vertex.index for vertex in scalp.data.vertices if vertex.co.x < -0.01], 1.0, 'REPLACE')
     group.add([vertex.index for vertex in scalp.data.vertices if vertex.co.x >= -0.01], 0.0, 'REPLACE')
 
-    node_group = cg.build_ribbon_node_group("cardgen_eval_weight", cg.SELECTION_METHOD_RANDOM, scalp)
+    node_group = HairCardService.build_ribbon_node_group("cardgen_eval_weight", cg.SELECTION_METHOD_RANDOM, scalp)
     cards = _evaluate_cards(hair_obj, node_group, {"Density": 1.0, "Weight vertex group": "keep_left"})
     assert len(cards.data.polygons) > 0
     assert max(vertex.co.x for vertex in cards.data.vertices) < 0.0
@@ -365,7 +365,7 @@ def test_weight_vertex_group_masks_the_strands(scratch):
 def test_offset_pushes_cards_off_the_scalp(scratch):
     hair_obj = _hair_for_cards()
     scalp = make_grid("cardgen_offset_scalp")
-    node_group = cg.build_ribbon_node_group("cardgen_eval_offset", cg.SELECTION_METHOD_RANDOM, scalp)
+    node_group = HairCardService.build_ribbon_node_group("cardgen_eval_offset", cg.SELECTION_METHOD_RANDOM, scalp)
     flat = _evaluate_cards(hair_obj, node_group, {"Density": 1.0, "Offset": 0.0})
     lifted = _evaluate_cards(hair_obj, node_group, {"Density": 1.0, "Offset": 0.05})
     lowest = lambda obj: min(vertex.co.z for vertex in obj.data.vertices)
@@ -374,7 +374,7 @@ def test_offset_pushes_cards_off_the_scalp(scratch):
 
 def test_shell_wraps_the_strands_in_a_closed_mesh(scratch):
     hair_obj = _hair_for_cards()
-    node_group = cg.build_shell_node_group("cardgen_eval_shell", None)
+    node_group = HairCardService.build_shell_node_group("cardgen_eval_shell", None)
     shell = _evaluate_cards(hair_obj, node_group, {"Volume density": 1.0})
     assert len(shell.data.polygons) > 0
     zs = [vertex.co.z for vertex in shell.data.vertices]
@@ -391,7 +391,7 @@ def test_kmeans_separates_obvious_groups():
     rng = np.random.RandomState(1)
     centres = np.array([[-1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [1.0, 0.0, 0.0]])
     roots = np.concatenate([centre + rng.normal(scale=0.02, size=(30, 3)) for centre in centres])
-    assignments, count = cg._kmeans_roots(roots, 3, seed=1)
+    assignments, count = HairCardService._kmeans_roots(roots, 3, seed=1)
     assert count == 3
     assert _groups_kept_whole(assignments, 3, 30)
 
@@ -409,7 +409,7 @@ def test_kmeans_separates_obvious_groups_for_any_seed():
     rng = np.random.RandomState(1)
     centres = np.array([[-1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [1.0, 0.0, 0.0]])
     roots = np.concatenate([centre + rng.normal(scale=0.02, size=(30, 3)) for centre in centres])
-    failed = [seed for seed in range(10) if not _groups_kept_whole(cg._kmeans_roots(roots, 3, seed)[0], 3, 30)]
+    failed = [seed for seed in range(10) if not _groups_kept_whole(HairCardService._kmeans_roots(roots, 3, seed)[0], 3, 30)]
     assert not failed, f"obvious groups were mixed up with the seeds {failed}"
 
 
@@ -417,8 +417,8 @@ def test_kmeans_is_reproducible_for_a_seed():
     import numpy as np
 
     roots = np.random.RandomState(5).uniform(size=(200, 3))
-    first, _count = cg._kmeans_roots(roots, 10, seed=7)
-    second, _count = cg._kmeans_roots(roots, 10, seed=7)
+    first, _count = HairCardService._kmeans_roots(roots, 10, seed=7)
+    second, _count = HairCardService._kmeans_roots(roots, 10, seed=7)
     assert (first == second).all()
 
 
@@ -426,7 +426,7 @@ def test_kmeans_never_asks_for_more_clusters_than_strands():
     import numpy as np
 
     roots = np.random.RandomState(2).uniform(size=(4, 3))
-    assignments, count = cg._kmeans_roots(roots, 40, seed=0)
+    assignments, count = HairCardService._kmeans_roots(roots, 40, seed=0)
     assert count == 4
     assert sorted(assignments.tolist()) == [0, 1, 2, 3]
 
@@ -435,8 +435,8 @@ def test_bundle_members_drops_small_and_strides_big_clusters():
     import numpy as np
 
     clustered = {"assignments": np.array([0] * 450 + [1] * 2)}
-    assert cg._bundle_members(clustered, 1, min_strands=3) is None
-    members = cg._bundle_members(clustered, 0, min_strands=3)
+    assert HairCardService._bundle_members(clustered, 1, min_strands=3) is None
+    members = HairCardService._bundle_members(clustered, 0, min_strands=3)
     assert len(members) == cg._MAX_MEMBERS_PER_BUNDLE
     assert len(set(members.tolist())) == len(members)
 
@@ -458,7 +458,7 @@ def _face_points(mesh, face):
 def test_cluster_boxes_follow_the_bundles(scratch, direction):
     """One card per bundle, lying along the strands, with V running from the roots to the tips."""
     hair_obj = _three_bundles(direction)
-    mesh = cg.build_cluster_box_mesh(hair_obj, cluster_count=3, min_strands=3, seed=0)
+    mesh = HairCardService.build_cluster_box_mesh(hair_obj, cluster_count=3, min_strands=3, seed=0)
     assert mesh is not None
     assert len(mesh.polygons) == 3
     for face in mesh.polygons:
@@ -475,14 +475,14 @@ def test_cluster_boxes_follow_the_bundles(scratch, direction):
 
 def test_cluster_boxes_need_enough_strands(scratch):
     hair_obj = _three_bundles()
-    assert cg.build_cluster_box_mesh(hair_obj, cluster_count=3, min_strands=7, seed=0) is None
-    assert cg.build_cluster_ribbon_mesh(hair_obj, 3, 7, 0, 8) is None
+    assert HairCardService.build_cluster_box_mesh(hair_obj, cluster_count=3, min_strands=7, seed=0) is None
+    assert HairCardService.build_cluster_ribbon_mesh(hair_obj, 3, 7, 0, 8) is None
 
 
 def test_cluster_ribbons_are_averaged_chains(scratch):
     hair_obj = _three_bundles()
     samples = 8
-    mesh = cg.build_cluster_ribbon_mesh(hair_obj, 3, 3, 0, samples)
+    mesh = HairCardService.build_cluster_ribbon_mesh(hair_obj, 3, 3, 0, samples)
     assert mesh is not None
     assert len(mesh.vertices) == 3 * samples
     assert len(mesh.edges) == 3 * (samples - 1)
@@ -502,15 +502,15 @@ def test_cluster_ribbons_resample_by_length(scratch):
     strands = [[(x, 0.0, 0.0), (x, 0.0, 0.001), (x, 0.0, 0.002), (x, 0.0, 0.003), (x, 0.0, 0.2)]
                for x in (0.0, 0.005, 0.01)]
     hair_obj = make_hair_curves("cardgen_bunched", strands)
-    mesh = cg.build_cluster_ribbon_mesh(hair_obj, 1, 3, 0, 3)
+    mesh = HairCardService.build_cluster_ribbon_mesh(hair_obj, 1, 3, 0, 3)
     assert mesh.vertices[1].co.z == pytest.approx(0.1, abs=0.005)
     bpy.data.meshes.remove(mesh)
 
 
 def test_cluster_cards_of_an_empty_groom(scratch):
     hair_obj = make_hair_curves("cardgen_empty", [])
-    assert cg.build_cluster_box_mesh(hair_obj, 3, 1, 0) is None
-    assert cg.build_cluster_ribbon_mesh(hair_obj, 3, 1, 0, 8) is None
+    assert HairCardService.build_cluster_box_mesh(hair_obj, 3, 1, 0) is None
+    assert HairCardService.build_cluster_ribbon_mesh(hair_obj, 3, 1, 0, 8) is None
 
 
 # ---------------------------------------------------------------------------
@@ -528,14 +528,14 @@ def _face_centre(row, column, per_side=4, size=1.0):
 
 def test_grow_face_set_adds_one_ring(scratch):
     grid = make_grid("cardgen_grow", faces_per_side=4)
-    grown = cg._grow_face_set(grid.data, {_face_index(1, 1)})
+    grown = HairCardService._grow_face_set(grid.data, {_face_index(1, 1)})
     expected = {_face_index(row, column) for row in range(3) for column in range(3)}
     assert grown == expected
 
 
 def test_body_faces_without_mask_are_unknown(scratch):
     grid = make_grid("cardgen_no_mask")
-    assert cg._body_face_indices(grid, grid.data) is None
+    assert HairCardService._body_face_indices(grid, grid.data) is None
 
 
 def _left_half_group(grid):
@@ -552,7 +552,7 @@ def test_body_faces_follow_the_mask_modifier(scratch, inverted, expected_columns
     mask = grid.modifiers.new(name="Hide helpers", type='MASK')
     mask.vertex_group = "left"
     mask.invert_vertex_group = inverted
-    allowed = cg._body_face_indices(grid, grid.data)
+    allowed = HairCardService._body_face_indices(grid, grid.data)
     assert allowed == {_face_index(row, column) for row in range(4) for column in expected_columns}
 
 
@@ -560,8 +560,8 @@ def test_fur_bearing_faces(scratch):
     grid = make_grid("cardgen_fur_faces")
     hair_obj = make_hair_curves("cardgen_fur_faces_hair",
                                 bundle_of_strands(_face_centre(1, 1), count=4, spread=0.01, length=0.05))
-    assert cg._fur_bearing_faces(grid, hair_obj, 0) == {_face_index(1, 1)}
-    assert len(cg._fur_bearing_faces(grid, hair_obj, 1)) == 9
+    assert HairCardService._fur_bearing_faces(grid, hair_obj, 0) == {_face_index(1, 1)}
+    assert len(HairCardService._fur_bearing_faces(grid, hair_obj, 1)) == 9
 
 
 def test_fur_bearing_faces_stay_inside_the_body(scratch):
@@ -573,7 +573,7 @@ def test_fur_bearing_faces_stay_inside_the_body(scratch):
     hair_obj = make_hair_curves("cardgen_fur_faces_masked_hair",
                                 bundle_of_strands(_face_centre(1, 1), count=4, spread=0.01, length=0.05))
     # Two columns of the evaluated (masked) body remain, the ring around the face covers three rows of them
-    assert len(cg._fur_bearing_faces(grid, hair_obj, 1)) == 6
+    assert len(HairCardService._fur_bearing_faces(grid, hair_obj, 1)) == 6
 
 
 def test_fur_bearing_faces_respect_transforms(scratch):
@@ -582,16 +582,16 @@ def test_fur_bearing_faces_respect_transforms(scratch):
     root = _face_centre(2, 3)
     hair_obj = make_hair_curves("cardgen_fur_moved_hair", bundle_of_strands(root, count=3, spread=0.005),
                                 location=(5.0, 0.0, 0.0))
-    assert cg._fur_bearing_faces(grid, hair_obj, 0) == {_face_index(2, 3)}
+    assert HairCardService._fur_bearing_faces(grid, hair_obj, 0) == {_face_index(2, 3)}
 
 
 def test_body_shell_mesh_is_cut_from_the_grown_faces(scratch):
     grid = make_grid("cardgen_shell_body")
     hair_obj = make_hair_curves("cardgen_shell_hair",
                                 bundle_of_strands(_face_centre(1, 1), count=4, spread=0.01, length=0.05))
-    single = cg.build_body_shell_mesh(grid, hair_obj, 0)
+    single = HairCardService.build_body_shell_mesh(grid, hair_obj, 0)
     assert len(single.polygons) == 1
-    grown = cg.build_body_shell_mesh(grid, hair_obj, 1)
+    grown = HairCardService.build_body_shell_mesh(grid, hair_obj, 1)
     assert len(grown.polygons) == 9
 
     # The patch is renormalised to use the whole texture
@@ -606,25 +606,25 @@ def test_body_shell_mesh_is_cut_from_the_grown_faces(scratch):
 def test_body_shell_of_an_empty_groom(scratch):
     grid = make_grid("cardgen_shell_nothing")
     hair_obj = make_hair_curves("cardgen_shell_nothing_hair", [])
-    assert cg.build_body_shell_mesh(grid, hair_obj, 1) is None
+    assert HairCardService.build_body_shell_mesh(grid, hair_obj, 1) is None
 
 
 def test_hair_extent_above_surface(scratch):
     grid = make_grid("cardgen_extent")
     hair_obj = make_hair_curves("cardgen_extent_hair", bundle_of_strands((0.0, 0.0, 0.0), length=0.2),
                                 location=(0.0, 0.0, 0.1))
-    assert cg.hair_extent_above_surface(grid, hair_obj) == pytest.approx(0.3, abs=0.002)
+    assert HairCardService.hair_extent_above_surface(grid, hair_obj) == pytest.approx(0.3, abs=0.002)
 
 
 def test_hair_extent_of_an_empty_groom(scratch):
     grid = make_grid("cardgen_extent_nothing")
-    assert cg.hair_extent_above_surface(grid, make_hair_curves("cardgen_extent_none", [])) == 0.0
+    assert HairCardService.hair_extent_above_surface(grid, make_hair_curves("cardgen_extent_none", [])) == 0.0
 
 
 def test_rest_pose_is_held_and_given_back(scratch):
     rig = make_rig("cardgen_rest_rig")
     rig.data.pose_position = 'POSE'
-    with cg.body_held_at_rest_pose(rig):
+    with HairCardService.body_held_at_rest_pose(rig):
         assert rig.data.pose_position == 'REST'
     assert rig.data.pose_position == 'POSE'
 
@@ -633,13 +633,13 @@ def test_rest_pose_is_given_back_after_an_error(scratch):
     rig = make_rig("cardgen_rest_rig_error")
     rig.data.pose_position = 'POSE'
     with pytest.raises(ValueError):
-        with cg.body_held_at_rest_pose(rig):
+        with HairCardService.body_held_at_rest_pose(rig):
             raise ValueError("building the shell failed")
     assert rig.data.pose_position == 'POSE'
 
 
 def test_rest_pose_without_a_rig_does_nothing():
-    with cg.body_held_at_rest_pose(None):
+    with HairCardService.body_held_at_rest_pose(None):
         pass
 
 
@@ -651,25 +651,25 @@ def test_shell_gets_the_body_weights(scratch):
     shell.vertex_groups.new(name="spine")
     rig = make_rig("cardgen_weight_rig")
 
-    assert not cg.body_shell_is_weighted_to(shell, rig)
-    assert cg.weight_body_shell_to_rig(shell, surface, rig)
+    assert not HairCardService.body_shell_is_weighted_to(shell, rig)
+    assert HairCardService.weight_body_shell_to_rig(shell, surface, rig)
     assert sorted(group.name for group in shell.vertex_groups) == ["neck", "spine"]
-    assert cg.body_shell_is_weighted_to(shell, rig)
-    assert not cg.body_shell_is_weighted_to(shell, None)
-    assert not cg.body_shell_is_weighted_to(None, rig)
+    assert HairCardService.body_shell_is_weighted_to(shell, rig)
+    assert not HairCardService.body_shell_is_weighted_to(shell, None)
+    assert not HairCardService.body_shell_is_weighted_to(None, rig)
 
 
 def test_shell_without_a_rig_is_not_weighted(scratch):
     surface = make_grid("cardgen_weight_body_no_rig")
     shell = make_grid("cardgen_weight_shell_no_rig")
-    assert not cg.weight_body_shell_to_rig(shell, surface, None)
+    assert not HairCardService.weight_body_shell_to_rig(shell, surface, None)
     assert len(shell.modifiers) == 0
 
 
 def test_shell_binds_to_the_body(scratch):
     surface = make_grid("cardgen_bind_body")
     shell = make_grid("cardgen_bind_shell", location=(0.0, 0.0, 0.01))
-    assert cg.bind_body_shell_to_body(bpy.context, shell, surface)
+    assert HairCardService.bind_body_shell_to_body(bpy.context, shell, surface)
     follow = shell.modifiers.get(cg.BODY_SHELL_FOLLOW_MODIFIER_NAME)
     assert follow is not None and follow.is_bound
 
@@ -679,7 +679,7 @@ def test_unbindable_shell_is_left_static(scratch):
     empty_mesh = bpy.data.meshes.new("cardgen_bind_nothing")
     surface = link(bpy.data.objects.new("cardgen_bind_nothing", empty_mesh))
     shell = make_grid("cardgen_bind_shell_alone")
-    assert not cg.bind_body_shell_to_body(bpy.context, shell, surface)
+    assert not HairCardService.bind_body_shell_to_body(bpy.context, shell, surface)
     assert cg.BODY_SHELL_FOLLOW_MODIFIER_NAME not in shell.modifiers
 
 
@@ -689,7 +689,7 @@ def _fade_at(mesh, row, column, per_side):
 
 def test_edge_fade_ramps_from_the_border(scratch):
     grid = make_grid("cardgen_fade", faces_per_side=6)
-    assert cg.store_shell_edge_fade(grid.data, 2)
+    assert HairCardService.store_shell_edge_fade(grid.data, 2)
     assert _fade_at(grid.data, 0, 0, 6) == pytest.approx(0.0)
     assert _fade_at(grid.data, 0, 3, 6) == pytest.approx(0.0)
     assert _fade_at(grid.data, 1, 1, 6) == pytest.approx(0.5)
@@ -701,14 +701,14 @@ def test_edge_fade_ramps_from_the_border(scratch):
 def test_edge_fade_can_be_stored_again(scratch):
     """Baking twice writes into the attribute which is already there instead of failing on a duplicate."""
     grid = make_grid("cardgen_fade_twice", faces_per_side=6)
-    assert cg.store_shell_edge_fade(grid.data, 1)
-    assert cg.store_shell_edge_fade(grid.data, 3)
+    assert HairCardService.store_shell_edge_fade(grid.data, 1)
+    assert HairCardService.store_shell_edge_fade(grid.data, 3)
     assert _fade_at(grid.data, 1, 1, 6) == pytest.approx(1.0 / 3.0)
 
 
 def test_edge_fade_of_width_zero_does_nothing(scratch):
     grid = make_grid("cardgen_fade_zero")
-    assert not cg.store_shell_edge_fade(grid.data, 0)
+    assert not HairCardService.store_shell_edge_fade(grid.data, 0)
     assert cg.SHELL_EDGE_FADE_ATTRIBUTE not in grid.data.attributes
 
 
@@ -720,5 +720,5 @@ def test_edge_fade_of_a_closed_shell_does_nothing(scratch):
     bmesh.ops.create_cube(bm, size=1.0)
     bm.to_mesh(mesh)
     bm.free()
-    assert not cg.store_shell_edge_fade(mesh, 2)
+    assert not HairCardService.store_shell_edge_fade(mesh, 2)
     assert cg.SHELL_EDGE_FADE_ATTRIBUTE not in mesh.attributes

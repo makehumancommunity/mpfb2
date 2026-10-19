@@ -1,15 +1,15 @@
 from ...services.logservice import LogService
-from ...services.locationservice import LocationService
 from ...services.objectservice import ObjectService
 from ...services.materialservice import MaterialService
 from ...services.nodeservice import NodeService
 from ...services.dynamicconfigset import DynamicConfigSet
 from ...services.haireditorservices import HairEditorService
 from ...services.modifierservice import ModifierService
-from .cardgenerators import (CARDS_MODE_ITEMS, CARDS_MODE_TILES, CARDS_MODE_CLUSTER_RIBBON,
-                             CLUSTER_RIBBON_PROFILE_STEPS, SELECTION_METHOD_ITEMS,
-                             SELECTION_METHOD_RANDOM, BAKE_TARGET_ITEMS, BAKE_TARGET_CARDS,
-                             LIGHT_MODE_ITEMS, LIGHT_MODE_FIXED, LIGHT_MODE_BBOX)
+from ...services.hairbakeservice import HairBakeService
+from ...services.haircardservice import (CARDS_MODE_ITEMS, CARDS_MODE_TILES, CARDS_MODE_CLUSTER_RIBBON,
+                                         CLUSTER_RIBBON_PROFILE_STEPS, SELECTION_METHOD_ITEMS,
+                                         SELECTION_METHOD_RANDOM, BAKE_TARGET_ITEMS, BAKE_TARGET_CARDS,
+                                         LIGHT_MODE_ITEMS, LIGHT_MODE_FIXED, LIGHT_MODE_BBOX)
 
 import bpy, os, re, json
 
@@ -300,9 +300,6 @@ def find_cards_socket_identifier(node_group, socket_name):
             return item.identifier
     return None
 
-def get_default_bake_directory():
-    """The directory baked card textures are written to unless the user picks another one."""
-    return LocationService.get_user_home("baked_hair_cards")
 
 # Card placement/shape values live in the sockets of the generated node group, so they are lost on regenerate, mode switch and bake.
 # They are also remembered in a custom property on the basemesh, so that they come back after unbake or switching modes.
@@ -461,7 +458,7 @@ def create_cards_bake_properties(config_set, basemesh, asset_name):
 
     for name, (proptype, value_range, default, description) in DYNAMIC_CARDS_BAKE_PROPS_DEFINITIONS.items():
         if default is None:
-            default = get_default_bake_directory()
+            default = HairBakeService.get_default_bake_directory()
         propname = f"{asset_name}_{name}"
         current = config_set.get_value(propname, default, entity_reference=basemesh)
         propdef = {

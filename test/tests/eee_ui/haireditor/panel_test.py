@@ -19,7 +19,7 @@ import bpy
 import pytest
 
 from ... import ObjectService
-from .haireditor_fixtures import (mpfb_module, HairEditorService, hairproperties as hp, cardgenerators as cg, haireditorpanel,
+from .haireditor_fixtures import (mpfb_module, HairEditorService, hairproperties as hp, haircardservice as cg, HairCardService, haireditorpanel,
                                   toggle_section_operator, HAIR_PROPERTIES, scratch, character, hair_character,
                                   select, link, make_grid, FakeLayout, panel_instance, labels, drawn_props,
                                   drawn_flags, unfold_every_section, draw_asset_block)
@@ -143,7 +143,7 @@ def test_bake_lights_offer_their_strength(bake_settings, mode):
     log = _draw_bake_section(basemesh, asset)
     assert _drew_prop(log, asset, "cards_light_mode")
     assert _drew_prop(log, asset, "cards_light_strength")
-    assert f"= {cg.light_base_energy(mode) * 0.5:.0f} W per light" in labels(log)
+    assert f"= {HairCardService.light_base_energy(mode) * 0.5:.0f} W per light" in labels(log)
 
 
 def test_scene_lighting_has_no_strength_slider(bake_settings):

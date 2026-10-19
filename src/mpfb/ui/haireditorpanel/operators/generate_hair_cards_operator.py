@@ -17,7 +17,8 @@ from ..hairproperties import (HAIR_PROPERTIES, FUR_PROPERTIES, CARDS_MODIFIER_NA
                               set_cards_flag, get_cards_mode,
                               get_cards_selection_method, read_cards_settings,
                               get_bake_target, resolve_body_surface)
-from .. import cardgenerators as cg
+from ....services import haircardservice as cg
+from ....services.haircardservice import HairCardService
 
 import bpy
 
@@ -38,8 +39,8 @@ def build_cards_for_asset(context, basemesh, hair_obj, card_name, is_fur, proper
         rig = ObjectService.find_object_of_type_amongst_nearest_relatives(basemesh, "Skeleton")
 
         # The shell has to be built in rest pose, Surface Deform will not bind otherwise
-        with cg.body_held_at_rest_pose(rig):
-            mesh = cg.build_body_shell_mesh(
+        with HairCardService.body_held_at_rest_pose(rig):
+            mesh = HairCardService.build_body_shell_mesh(
                 surface_obj, hair_obj,
                 int(properties.get_value(f"{asset_name}_cards_body_face_dilation", 1, entity_reference=basemesh)),
                 depsgraph=context.evaluated_depsgraph_get())
@@ -55,14 +56,14 @@ def build_cards_for_asset(context, basemesh, hair_obj, card_name, is_fur, proper
             card_obj.matrix_basis = surface_obj.matrix_world.copy()
 
             # Modifier order: armature, Surface Deform, then the height offset (works on deformed normals)
-            if not cg.weight_body_shell_to_rig(card_obj, surface_obj, rig):
+            if not HairCardService.weight_body_shell_to_rig(card_obj, surface_obj, rig):
                 _LOG.debug("No rig on this character, so the body shell is not weighted", card_name)
-            if not cg.bind_body_shell_to_body(context, card_obj, surface_obj):
+            if not HairCardService.bind_body_shell_to_body(context, card_obj, surface_obj):
                 _LOG.warn("Could not bind the body shell to the body, it will not follow later "
                           "reshaping", card_name)
 
             modifier = card_obj.modifiers.new(name=CARDS_MODIFIER_NAME, type='NODES')
-            modifier.node_group = cg.build_body_shell_node_group(f"{card_name}_{CARDS_MODIFIER_NAME}")
+            modifier.node_group = HairCardService.build_body_shell_node_group(f"{card_name}_{CARDS_MODIFIER_NAME}")
         return card_obj, True
 
     mode = get_cards_mode(properties, basemesh, asset_name)
@@ -79,11 +80,11 @@ def build_cards_for_asset(context, basemesh, hair_obj, card_name, is_fur, proper
         depsgraph = context.evaluated_depsgraph_get()
 
         if mode == cg.CARDS_MODE_CLUSTER_BOX:
-            data = cg.build_cluster_box_mesh(hair_obj, *cluster_settings, depsgraph=depsgraph)
+            data = HairCardService.build_cluster_box_mesh(hair_obj, *cluster_settings, depsgraph=depsgraph)
         else:
             samples = int(properties.get_value(
                 f"{asset_name}_cards_cluster_samples", 24, entity_reference=basemesh))
-            data = cg.build_cluster_ribbon_mesh(hair_obj, *cluster_settings, samples, depsgraph=depsgraph)
+            data = HairCardService.build_cluster_ribbon_mesh(hair_obj, *cluster_settings, samples, depsgraph=depsgraph)
 
         if data is None:
             raise ValueError("Not enough strands to form any cluster card with the current settings")
@@ -100,7 +101,7 @@ def build_cards_for_asset(context, basemesh, hair_obj, card_name, is_fur, proper
             return card_obj, False
 
         modifier = card_obj.modifiers.new(name=CARDS_MODIFIER_NAME, type='NODES')
-        modifier.node_group = cg.build_cluster_ribbon_node_group(
+        modifier.node_group = HairCardService.build_cluster_ribbon_node_group(
             f"{card_name}_{CARDS_MODIFIER_NAME}", basemesh)
         return card_obj, True
 
@@ -108,11 +109,11 @@ def build_cards_for_asset(context, basemesh, hair_obj, card_name, is_fur, proper
     group_name = f"{card_name}_{CARDS_MODIFIER_NAME}"
 
     if mode == cg.CARDS_MODE_RIBBON:
-        node_group = cg.build_ribbon_node_group(group_name, selection_method, basemesh)
+        node_group = HairCardService.build_ribbon_node_group(group_name, selection_method, basemesh)
     elif mode == cg.CARDS_MODE_SHELL:
-        node_group = cg.build_shell_node_group(group_name, basemesh)
+        node_group = HairCardService.build_shell_node_group(group_name, basemesh)
     else:
-        node_group = cg.build_tiles_node_group(group_name, selection_method, basemesh)
+        node_group = HairCardService.build_tiles_node_group(group_name, selection_method, basemesh)
 
     card_obj = hair_obj.copy()
     card_obj.data = hair_obj.data.copy()

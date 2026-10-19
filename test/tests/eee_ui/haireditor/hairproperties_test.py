@@ -20,7 +20,7 @@ import os
 import bpy
 import pytest
 
-from .haireditor_fixtures import (hairproperties as hp, cardgenerators as cg, HAIR_PROPERTIES, FUR_PROPERTIES,
+from .haireditor_fixtures import (hairproperties as hp, haircardservice as cg, HairCardService, HairBakeService, HAIR_PROPERTIES, FUR_PROPERTIES,
                                   scratch, link, make_grid, make_material)
 
 Factory = hp.HairGetterSetterFactory
@@ -296,7 +296,7 @@ def test_bake_properties_are_created_with_defaults(stand_in, asset_name):
     hp.create_cards_bake_properties(HAIR_PROPERTIES, stand_in, asset_name)
     for name, (_proptype, _range, default, _description) in hp.DYNAMIC_CARDS_BAKE_PROPS_DEFINITIONS.items():
         if default is None:
-            default = hp.get_default_bake_directory()
+            default = HairBakeService.get_default_bake_directory()
         value = HAIR_PROPERTIES.get_value(f"{asset_name}_{name}", None, entity_reference=stand_in)
         assert value == pytest.approx(default) if isinstance(default, float) else value == default, name
 
@@ -393,7 +393,7 @@ def test_baked_image_names_cover_every_map():
 
 
 def test_default_bake_directory_is_in_the_user_home():
-    assert os.path.basename(os.path.normpath(hp.get_default_bake_directory())) == "baked_hair_cards"
+    assert os.path.basename(os.path.normpath(HairBakeService.get_default_bake_directory())) == "baked_hair_cards"
 
 
 def test_pack_asset_name(scratch):
@@ -405,7 +405,7 @@ def test_pack_asset_name(scratch):
 
 
 def test_find_cards_socket_identifier(scratch):
-    node_group = cg.build_tiles_node_group("hp_sockets", cg.SELECTION_METHOD_RANDOM, None)
+    node_group = HairCardService.build_tiles_node_group("hp_sockets", cg.SELECTION_METHOD_RANDOM, None)
     identifier = hp.find_cards_socket_identifier(node_group, "Segments")
     assert identifier is not None
     found = next(item for item in node_group.interface.items_tree if getattr(item, "identifier", None) == identifier)
@@ -486,7 +486,7 @@ def _tiles_cards(basemesh, asset_name):
     """A card object with a tiles generator, a child of the basemesh like the generate operator makes it."""
     card_obj = _child(basemesh, f"{asset_name}_cards", bpy.data.hair_curves.new(f"{asset_name}_cards"))
     modifier = card_obj.modifiers.new(name=hp.CARDS_MODIFIER_NAME, type='NODES')
-    modifier.node_group = cg.build_tiles_node_group(f"{asset_name}_cards_{hp.CARDS_MODIFIER_NAME}",
+    modifier.node_group = HairCardService.build_tiles_node_group(f"{asset_name}_cards_{hp.CARDS_MODIFIER_NAME}",
                                                     cg.SELECTION_METHOD_RANDOM, None)
     return card_obj, modifier
 

@@ -20,8 +20,8 @@ from ...pollstrategy import pollstrategy, PollStrategy
 from ..hairproperties import (HAIR_PROPERTIES, FUR_PROPERTIES, CARDS_OBJECT_SUFFIX,
                               BAKED_EXTRA_MAP_KEYS, get_cards_flag, get_bake_target,
                               resolve_custom_surface)
-from .. import bodyoverlay
-from .. import cardgenerators as cg
+from ....services import haircardservice as cg
+from ....services.hairoverlayservice import HairOverlayService
 
 import bpy
 
@@ -191,7 +191,7 @@ class MPFB_OT_FlattenHairAlpha_Operator(MpfbOperator):
         images = {key: image for key, image in self._baked_images(material).items()
                   if key not in _ALPHA_ONLY_MAPS}
         images["color"] = colour
-        rebuilt = bodyoverlay.build_baked_material(f"{self.hair_asset}_baked_flat", images)
+        rebuilt = HairOverlayService.build_baked_material(f"{self.hair_asset}_baked_flat", images)
         obj.data.materials.clear()
         obj.data.materials.append(rebuilt)
         if material.users == 0:

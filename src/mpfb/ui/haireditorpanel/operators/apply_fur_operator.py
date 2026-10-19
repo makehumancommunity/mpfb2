@@ -18,7 +18,7 @@ from ...mpfboperator import MpfbOperator
 from ...pollstrategy import pollstrategy, PollStrategy
 from ..hairproperties import FUR_PROPERTIES, DYNAMIC_FUR_PROPS_DEFINITIONS, DYNAMIC_FUR_MATERIAL_PROPS_DEFINITIONS, \
     set_cards_flag, PACK_NAME_PROPERTY, create_cards_config_properties, create_cards_bake_properties
-from ..hairsetup import ensure_hair_setup, attach_curves_to_basemesh, discard_unused_images, list_image_names
+from ..hairsetup import ensure_hair_setup
 import bpy, os
 from mathutils import Matrix
 
@@ -62,7 +62,7 @@ class MPFB_OT_ApplyFur_Operator(MpfbOperator):
         brace_name = f"{object_name}_brace"
 
         objects_to_load = []
-        images_before_load = list_image_names()
+        images_before_load = HairEditorService.list_image_names()
 
         try:
             with bpy.data.libraries.load(blend_path, link=False) as (data_from, data_to):
@@ -107,10 +107,10 @@ class MPFB_OT_ApplyFur_Operator(MpfbOperator):
         context.view_layer.objects.active = hair_obj
 
         # Set Human as surface in Hair Curves data settings
-        if not attach_curves_to_basemesh(hair_obj, basemesh):
+        if not HairEditorService.attach_curves_to_basemesh(hair_obj, basemesh):
             self.report({'WARNING'}, f"Object '{object_name}' is not hair curves!")
 
-        discard_unused_images(images_before_load)
+        HairEditorService.discard_unused_images(images_before_load)
 
         # Parent hair to Human. The asset was groomed on a character standing at the origin.
         # Own transform is therefore relative to that character and has to stay so - an identity parent

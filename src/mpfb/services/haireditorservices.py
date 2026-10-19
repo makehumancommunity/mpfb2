@@ -197,3 +197,63 @@ class HairEditorService():
             del group_node[storage_key]
         _LOG.debug("Restored %d original link(s)", restored)
         return
+
+    @staticmethod
+    def discard_unused_images(images_before_load):
+        """Throw away unused images which came along when an asset was loaded (asset packs contain textures of other assets).
+
+        Args:
+            images_before_load: The names of the images which existed before the asset was loaded, as
+                returned by list_image_names().
+        """
+        for image in [image for image in bpy.data.images if image.name not in images_before_load]:
+            if image.users < 1:
+                _LOG.debug("Discarding unused image which came with an asset", image.name)
+                bpy.data.images.remove(image)
+
+    @staticmethod
+    def list_image_names():
+        """The names of all images currently in the file, for use with discard_unused_images()."""
+        return {image.name for image in bpy.data.images}
+
+    @staticmethod
+    def attach_curves_to_basemesh(hair_obj, basemesh):
+        """Make freshly loaded hair curves grow on the given basemesh.
+
+        Assets are stored with the character they were groomed on, so the imported one is removed afterwards.
+
+        Args:
+            hair_obj: The hair curves object which was just loaded from an asset.
+            basemesh: The basemesh the curves should grow on.
+
+        Returns:
+            bool: True if the curves were attached, False if the object cannot carry a surface.
+        """
+        _LOG.enter()
+        if hair_obj.type != "CURVES" or not hasattr(hair_obj.data, "surface"):
+            return False
+
+        imported_surface = hair_obj.data.surface
+        hair_obj.data.surface = basemesh
+
+        if imported_surface is None or imported_surface == basemesh:
+            return True
+
+        # Something in the scene is using the mesh, so it cant be thrown away
+        if imported_surface.users_collection:
+            _LOG.debug("Keeping the surface which came with the asset, since it is in use", imported_surface.name)
+            return True
+
+        mesh = imported_surface.data
+        materials = list(mesh.materials) if mesh else []
+
+        _LOG.debug("Discarding the surface which came with the asset", imported_surface.name)
+        bpy.data.objects.remove(imported_surface, do_unlink=True)
+
+        if mesh is not None and mesh.users == 0:
+            bpy.data.meshes.remove(mesh)
+        for material in materials:
+            if material.users == 0:
+                bpy.data.materials.remove(material)
+
+        return True

@@ -13,8 +13,8 @@ from ...mpfboperator import MpfbOperator
 from ...pollstrategy import pollstrategy, PollStrategy
 from ..hairproperties import (HAIR_PROPERTIES, FUR_PROPERTIES, baked_image_names,
                               get_cards_flag, resolve_body_surface, body_has_material)
-from .. import bodyoverlay
-from .bake_hair_operator import resolve_bake_path
+from ....services.hairoverlayservice import HairOverlayService
+from ....services.hairbakeservice import HairBakeService
 
 import bpy, os
 
@@ -61,7 +61,7 @@ class MPFB_OT_ReapplyFurOverlay_Operator(MpfbOperator):
                         "Could not find the baked colour texture, in the file or on disk; bake again")
             return {'CANCELLED'}
 
-        applied = bodyoverlay.apply_overlay(surface_obj, self.hair_asset, images)
+        applied = HairOverlayService.apply_overlay(surface_obj, self.hair_asset, images)
         if not applied:
             self.report({'ERROR'}, "No skin material could be found to blend the hair over")
             return {'CANCELLED'}
@@ -80,7 +80,7 @@ class MPFB_OT_ReapplyFurOverlay_Operator(MpfbOperator):
             image = bpy.data.images.get(name)
             if image is None:
                 suffix = "" if key == "color" else f"_{key}"
-                path = resolve_bake_path(self.hair_asset, destination, suffix=suffix)
+                path = HairBakeService.resolve_bake_path(self.hair_asset, destination, suffix=suffix)
                 if os.path.isfile(path):
                     try:
                         image = bpy.data.images.load(path, check_existing=True)

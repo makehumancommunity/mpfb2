@@ -22,8 +22,9 @@ from mathutils import Matrix
 
 from ... import ObjectService, ModifierService, HumanService
 from .._helpers import HumanFixture
-from .haireditor_fixtures import (mpfb_module, HairEditorService, hairproperties as hp, cardgenerators as cg,
-                                  bodyoverlay, bake_module, hairsetup, toggle_section_operator, HAIR_PROPERTIES, FUR_PROPERTIES, HAIR_ASSET,
+from .haireditor_fixtures import (mpfb_module, HairEditorService, hairproperties as hp, haircardservice as cg,
+                                  hairoverlayservice as bodyoverlay, HairCardService, HairOverlayService,
+                                  HairBakeService, hairsetup, toggle_section_operator, HAIR_PROPERTIES, FUR_PROPERTIES, HAIR_ASSET,
                                   SECOND_HAIR_ASSET, FUR_ASSET, scratch, character, hair_character, fur_character,
                                   AppliedAsset, apply_hair, delete_hair, select, link, make_grid, make_material,
                                   pack_objects, require_pack_asset, use_fast_bake, run_hardened, datablock_counts,
@@ -111,7 +112,7 @@ def _background(world_):
 def bake_spy(monkeypatch):
     """Records what the scene looked like at every bake pass, while the scene is set up for baking."""
     seen = []
-    original = bake_module._run_bake_passes
+    original = HairBakeService._run_bake_passes
 
     def spy(state, bake_type):
         scene = state["scene"]
@@ -129,7 +130,7 @@ def bake_spy(monkeypatch):
             })
         return original(state, bake_type)
 
-    monkeypatch.setattr(bake_module, "_run_bake_passes", spy)
+    monkeypatch.setattr(HairBakeService, "_run_bake_passes", staticmethod(spy))
     return seen
 
 
@@ -479,7 +480,7 @@ def test_bake_lights_of_every_mode(hair_with_cards, tmp_path, bake_spy, mode):
     report.assert_no_errors()
     lights = bake_spy[0]["bake_lights"]
     assert len(lights) == 2
-    assert all(energy == pytest.approx(cg.light_base_energy(mode)) for energy, _shadow in lights)
+    assert all(energy == pytest.approx(HairCardService.light_base_energy(mode)) for energy, _shadow in lights)
     assert not [obj for obj in bpy.data.objects if obj.name.startswith("BakeHairLight")]
 
 
@@ -608,7 +609,7 @@ def test_failed_bake_changes_nothing(hair_with_cards, tmp_path, monkeypatch, wor
     def broken(state, bake_type):
         raise RuntimeError("the render failed")
 
-    monkeypatch.setattr(bake_module, "_run_bake_passes", broken)
+    monkeypatch.setattr(HairBakeService, "_run_bake_passes", staticmethod(broken))
     cards_before = hair_with_cards.card_obj
     materials = [slot.material for slot in hair_with_cards.hair_obj.material_slots]
     result, report = _bake(hair_with_cards, tmp_path)
@@ -670,7 +671,7 @@ def test_alpha_is_written_into_the_texture(hair_with_cards, tmp_path):
     material = hair_with_cards.card_obj.data.materials[0]
     assert material.name == f"{asset_name}_baked_flat"
     for role in (bodyoverlay.ROLE_DEPTH_CUTOFF, bodyoverlay.ROLE_SIDE_ON_CUTOFF):
-        assert bodyoverlay.find_tagged_node(material.node_tree, role) is None, "the tuning would apply twice"
+        assert HairOverlayService.find_tagged_node(material.node_tree, role) is None, "the tuning would apply twice"
     assert f"{asset_name}_baked" not in bpy.data.materials
 
 
@@ -690,7 +691,7 @@ def test_bake_onto_the_body_texture(hair_character, tmp_path):
     result, report = _bake(hair_character, tmp_path)
     assert result == {'FINISHED'}, report.reports
     surface = hp.resolve_body_surface(hair_character.basemesh)
-    assert bodyoverlay.has_overlay(surface, hair_character.asset_name)
+    assert HairOverlayService.has_overlay(surface, hair_character.asset_name)
     assert hair_character.card_obj is None, "nothing is built for this target"
     assert hair_character.flag("baked")
 
@@ -698,12 +699,12 @@ def test_bake_onto_the_body_texture(hair_character, tmp_path):
     assert "Baked onto the body's texture." in labels(log)
     assert ("operator", "mpfb.reapply_fur_overlay_operator") in log
 
-    bodyoverlay.remove_overlay(surface, hair_character.asset_name)
+    HairOverlayService.remove_overlay(surface, hair_character.asset_name)
     assert hair_character.run("reapply_fur_overlay_operator") == {'FINISHED'}
-    assert bodyoverlay.has_overlay(surface, hair_character.asset_name)
+    assert HairOverlayService.has_overlay(surface, hair_character.asset_name)
 
     assert hair_character.run("unbake_hair_operator") == {'FINISHED'}
-    assert not bodyoverlay.has_overlay(surface, hair_character.asset_name)
+    assert not HairOverlayService.has_overlay(surface, hair_character.asset_name)
     assert skin.name in bpy.data.materials
 
 
@@ -713,13 +714,13 @@ def test_body_texture_overlay_comes_back_from_disk(hair_character, tmp_path):
     hair_character.set("cards_bake_target", cg.BAKE_TARGET_BODY_DIRECT)
     _bake(hair_character, tmp_path)
     surface = hp.resolve_body_surface(hair_character.basemesh)
-    bodyoverlay.remove_overlay(surface, hair_character.asset_name)
+    HairOverlayService.remove_overlay(surface, hair_character.asset_name)
     for name in hp.baked_image_names(hair_character.asset_name):
         image = bpy.data.images.get(name)
         if image is not None:
             bpy.data.images.remove(image)
     assert hair_character.run("reapply_fur_overlay_operator") == {'FINISHED'}
-    assert bodyoverlay.has_overlay(surface, hair_character.asset_name)
+    assert HairOverlayService.has_overlay(surface, hair_character.asset_name)
 
 
 def test_deleting_a_body_texture_asset_takes_the_overlay_off(hair_character, tmp_path):
@@ -728,7 +729,7 @@ def test_deleting_a_body_texture_asset_takes_the_overlay_off(hair_character, tmp
     _bake(hair_character, tmp_path)
     surface = hp.resolve_body_surface(hair_character.basemesh)
     delete_hair(hair_character.basemesh, hair_character.asset_name)
-    assert not bodyoverlay.has_overlay(surface, hair_character.asset_name)
+    assert not HairOverlayService.has_overlay(surface, hair_character.asset_name)
 
 
 def test_bake_onto_a_custom_mesh(hair_character, tmp_path):
@@ -805,7 +806,7 @@ def test_body_shell(fur_character, tmp_path):
     shell = fur.card_obj
     assert cg.SHELL_EDGE_FADE_ATTRIBUTE in shell.data.attributes
     material = shell.data.materials[0]
-    assert bodyoverlay.find_tagged_node(material.node_tree, bodyoverlay.ROLE_EDGE_FADE) is not None
+    assert HairOverlayService.find_tagged_node(material.node_tree, bodyoverlay.ROLE_EDGE_FADE) is not None
     assert not _temporary_bake_leftovers()
 
     assert fur.run("unbake_hair_operator") == {'FINISHED'}

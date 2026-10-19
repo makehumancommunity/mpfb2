@@ -23,8 +23,10 @@ from .hairproperties import (get_light_mode, get_light_strength,
                              has_cards_generator, get_cards_mode, get_cards_selection_method,
                              get_bake_target, resolve_body_surface, body_has_material,
                              resolve_custom_surface, CARDS_OBJECT_SUFFIX)
-from . import cardgenerators as cg
-from . import bodyoverlay
+from ...services import haircardservice as cg
+from ...services.haircardservice import HairCardService
+from ...services import hairoverlayservice as bodyoverlay
+from ...services.hairoverlayservice import HairOverlayService
 from .operators import toggle_section_operator
 
 import bpy
@@ -240,8 +242,8 @@ class MPFB_PT_Hair_Editor_Panel(Abstract_Panel):
         node_tree = self._baked_node_tree(basemesh, asset_name, target, properties)
         if node_tree is None:
             return
-        shader = bodyoverlay.find_tagged_node(node_tree, bodyoverlay.ROLE_SHADER, asset_name)
-        ramp = bodyoverlay.find_tagged_node(node_tree, bodyoverlay.ROLE_ALPHA_RAMP, asset_name)
+        shader = HairOverlayService.find_tagged_node(node_tree, bodyoverlay.ROLE_SHADER, asset_name)
+        ramp = HairOverlayService.find_tagged_node(node_tree, bodyoverlay.ROLE_ALPHA_RAMP, asset_name)
         if shader is None and ramp is None:
             return
 
@@ -254,7 +256,7 @@ class MPFB_PT_Hair_Editor_Panel(Abstract_Panel):
             body.label(text="texels solid; drag the black stop right")
             body.label(text="to make them disappear.")
 
-        side_on = bodyoverlay.find_tagged_node(node_tree, bodyoverlay.ROLE_SIDE_ON_CUTOFF,
+        side_on = HairOverlayService.find_tagged_node(node_tree, bodyoverlay.ROLE_SIDE_ON_CUTOFF,
                                                asset_name)
         if side_on is not None:
             body.separator()
@@ -264,7 +266,7 @@ class MPFB_PT_Hair_Editor_Panel(Abstract_Panel):
             body.label(text="along a strand instead of across it.")
             body.label(text="0 changes nothing.")
             # Only exists when the root/tip map was baked
-            tips = bodyoverlay.find_tagged_node(node_tree, bodyoverlay.ROLE_SIDE_ON_TIPS,
+            tips = HairOverlayService.find_tagged_node(node_tree, bodyoverlay.ROLE_SIDE_ON_TIPS,
                                                 asset_name)
             if tips is not None:
                 body.prop(tips.inputs[0], "default_value",
@@ -276,7 +278,7 @@ class MPFB_PT_Hair_Editor_Panel(Abstract_Panel):
                 body.label(text="Bake the root/tip map too and this can", icon='INFO')
                 body.label(text="weigh in where along the strand it is.")
 
-        cutoff = bodyoverlay.find_tagged_node(node_tree, bodyoverlay.ROLE_DEPTH_CUTOFF, asset_name)
+        cutoff = HairOverlayService.find_tagged_node(node_tree, bodyoverlay.ROLE_DEPTH_CUTOFF, asset_name)
         if cutoff is not None:
             body.separator()
             body.prop(cutoff.inputs[1], "default_value", text="Hide hair found closer than",
@@ -465,7 +467,7 @@ class MPFB_PT_Hair_Editor_Panel(Abstract_Panel):
                                         text="Light strength", slider=True)
             # Modes need different wattages, so the slider is a multiple of each mode's base energy
             strength = get_light_strength(properties, basemesh, asset_name)
-            watts = cg.light_base_energy(light_mode) * strength
+            watts = HairCardService.light_base_energy(light_mode) * strength
             lights.label(text=f"= {watts:.0f} W per light")
         # Only relevant while the lights cast shadows
         if light_mode in (cg.LIGHT_MODE_FIXED, cg.LIGHT_MODE_BBOX, cg.LIGHT_MODE_SCENE):
@@ -502,7 +504,7 @@ class MPFB_PT_Hair_Editor_Panel(Abstract_Panel):
             layout.label(text="Regenerate it after adding a rig.")
             return
 
-        if not cg.body_shell_is_weighted_to(shell_obj, rig):
+        if not HairCardService.body_shell_is_weighted_to(shell_obj, rig):
             layout.label(text="Built before the rig was added.", icon='ERROR')
             layout.label(text="It still follows the body, but it carries no")
             layout.label(text="bone weights - Regenerate to weight it.")
@@ -590,7 +592,7 @@ class MPFB_PT_Hair_Editor_Panel(Abstract_Panel):
             if target != cg.BAKE_TARGET_BODY_DIRECT:
                 node_tree = self._baked_node_tree(basemesh, asset_name, target, properties)
                 if node_tree is not None and any(
-                        bodyoverlay.find_tagged_node(node_tree, role, asset_name) is not None
+                        HairOverlayService.find_tagged_node(node_tree, role, asset_name) is not None
                         for role in (bodyoverlay.ROLE_ALPHA_RAMP, bodyoverlay.ROLE_SIDE_ON_CUTOFF,
                                      bodyoverlay.ROLE_DEPTH_CUTOFF, bodyoverlay.ROLE_EDGE_FADE)):
                     box.separator()
