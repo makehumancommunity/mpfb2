@@ -40,7 +40,8 @@ class SystemService:
             subprocess.call(["xdg-open", path])
             return
         if platform == "WINDOWS":
-            os.startfile(path)  # pylint: disable=E1101
+            # os.startfile only exists on Windows, so neither pylint nor pyright can see it here.
+            os.startfile(path)  # pylint: disable=E1101 # pyright: ignore[reportAttributeAccessIssue]
             return
         if platform == "MACOS":
             subprocess.call(["open", path])

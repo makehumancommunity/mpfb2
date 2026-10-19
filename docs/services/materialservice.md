@@ -39,6 +39,20 @@ The `identify_material()` method returns one of these string identifiers:
 | `"gameengine"` | Simple material with a `Principled BSDF` node |
 | `"unknown"` | None of the above patterns matched |
 
+`identify_material()` returns these as the `MaterialType` literal rather than a bare `str`, so the type
+tests the rest of the module performs against the result are checked against the same seven values.
+
+## Module-Level Types
+
+Three annotation aliases are declared at module level. None is part of the calling contract beyond the
+shapes they describe.
+
+| Name | Definition | Notes |
+|------|------------|-------|
+| `MaterialType` | `Literal["empty", "enhanced_skin", "procedural_eyes", "layered_skin", "makeskin", "gameengine", "unknown"]` | The seven answers `identify_material()` can give |
+| `InkLayerNodes` | `tuple[bpy.types.Node, bpy.types.Node]` | The `(uvmap_node, texture_node)` pair the four private ink layer builders return. The nodes are a `ShaderNodeUVMap` and a `ShaderNodeTexImage` at runtime. `NodeService.create_image_texture_node()` now types the second as such, but the first comes from the generic `create_node()`, which answers the `Node` base class, so the base class is kept for both rather than casting at each of the four returns |
+| `ColorAdjustment` | `dict[str, Any]` | The socket-name to default-value mapping `find_color_adjustment()` returns and `apply_color_adjustment()` accepts. The values are whatever `NodeService.get_node_info()` read off the sockets, which for a mix node means a mixture of floats and RGBA sequences, so `Any` is the honest value type |
+
 ## Public API
 
 ### Material Lifecycle
@@ -50,7 +64,7 @@ Create a new empty material with nodes enabled and `HASHED` blend method. Option
 | Argument | Type | Default | Description |
 |----------|------|---------|-------------|
 | `name` | `str` | — | The name for the new material |
-| `blender_object` | `bpy.types.Object` | `None` | Optional object to assign the material to |
+| `blender_object` | `bpy.types.Object \| None` | `None` | Optional object to assign the material to |
 
 **Returns:** `bpy.types.Material` — The newly created material.
 
@@ -63,7 +77,7 @@ Assign a material to an object by name. If a material with the given name alread
 | Argument | Type | Default | Description |
 |----------|------|---------|-------------|
 | `name` | `str` | — | The name of the material to assign |
-| `blender_object` | `bpy.types.Object` | — | The object to assign the material to |
+| `blender_object` | `bpy.types.Object \| None` | — | The object to assign the material to. A `None` object is accepted: the material is created or looked up but assigned to nothing |
 
 **Returns:** `bpy.types.Material` — The assigned material.
 
@@ -76,8 +90,8 @@ Create a v2 enhanced skin material using the `NodeWrapperSkin` node group. Delet
 | Argument | Type | Default | Description |
 |----------|------|---------|-------------|
 | `name` | `str` | — | The name for the skin material |
-| `blender_object` | `bpy.types.Object` | `None` | The object to assign the material to (required) |
-| `mhmat_file` | `str` | `None` | Optional path to an `.mhmat` file for texture setup |
+| `blender_object` | `bpy.types.Object \| None` | `None` | The object to assign the material to. Optional in form only — a `None` object raises, despite the default |
+| `mhmat_file` | `str \| None` | `None` | Optional path to an `.mhmat` file for texture setup |
 
 **Returns:** `bpy.types.Material` — The created skin material.
 
@@ -96,6 +110,10 @@ Delete all materials from a Blender object. Materials are renamed with an `.unus
 
 **Returns:** None
 
+**Restriction:** the loop over the object's materials does not guard against an empty material slot, which
+a mesh's material collection yields as `None`, so an object carrying one raises `AttributeError` partway
+through — after earlier slots have already been renamed to `.unused`. 
+
 ---
 
 #### create_and_assign_material_slots(basemesh, bodyproxy=None)
@@ -105,7 +123,7 @@ Create per-body-part material slots for the basemesh (and optionally a body prox
 | Argument | Type | Default | Description |
 |----------|------|---------|-------------|
 | `basemesh` | `bpy.types.Object` | — | The base mesh to create material slots on |
-| `bodyproxy` | `bpy.types.Object` | `None` | Optional body proxy to also assign slots to |
+| `bodyproxy` | `bpy.types.Object \| None` | `None` | Optional body proxy to also assign slots to |
 
 **Returns:** None
 
@@ -136,7 +154,7 @@ Return the material in the specified material slot.
 | `blender_object` | `bpy.types.Object` | — | The object to query |
 | `slot` | `int` | `0` | The material slot index |
 
-**Returns:** `bpy.types.Material` or `None` — The material in the slot, or `None` if no materials exist.
+**Returns:** `bpy.types.Material | None` — The material in the slot, or `None` if no materials exist, and also `None` for a slot the user left empty.
 
 ---
 
@@ -146,9 +164,9 @@ Determine the type of a material by examining its node tree structure. Checks fo
 
 | Argument | Type | Default | Description |
 |----------|------|---------|-------------|
-| `material` | `bpy.types.Material` | — | The material to identify |
+| `material` | `bpy.types.Material \| None` | — | The material to identify. A `None` material gives `"empty"` |
 
-**Returns:** `str` — One of the material type identifiers (see Constants section).
+**Returns:** `MaterialType` — One of the seven material type identifiers (see the section above).
 
 ---
 
@@ -175,9 +193,9 @@ Return all color adjustments currently applied to the object's first material sl
 
 | Argument | Type | Default | Description |
 |----------|------|---------|-------------|
-| `blender_object` | `bpy.types.Object` | — | The object to query |
+| `blender_object` | `bpy.types.Object \| None` | — | The object to query. A `None` object is logged and gives `None` |
 
-**Returns:** `dict` or `None` — Dictionary of socket values from the color adjustment node, or `None` if not found.
+**Returns:** `ColorAdjustment | None` — Dictionary of socket values from the color adjustment node, or `None` if not found.
 
 ---
 
@@ -187,10 +205,16 @@ Apply color adjustments to the object's first material slot. Sets the default va
 
 | Argument | Type | Default | Description |
 |----------|------|---------|-------------|
-| `blender_object` | `bpy.types.Object` | — | The object to modify |
-| `color_adjustment` | `dict` | — | Dictionary of socket values to apply |
+| `blender_object` | `bpy.types.Object \| None` | — | The object to modify. A `None` object is logged and the method returns |
+| `color_adjustment` | `ColorAdjustment` | — | Dictionary of socket values to apply |
 
 **Returns:** None
+
+**Restriction:** unlike `find_color_adjustment()`, which returns early when the material has no mix node
+connected to the Principled BSDF's Base Color, this method does not test for one. The `None` reaches
+`NodeService.set_socket_default_values()`, which answers a node with no `inputs` attribute with a log line and
+no change — so applying an adjustment to a material without a mix node silently does nothing and reports
+nothing.
 
 ---
 
@@ -203,9 +227,9 @@ Add a new ink layer to a material by creating the necessary node setup (alpha mi
 | Argument | Type | Default | Description |
 |----------|------|---------|-------------|
 | `material` | `bpy.types.Material` | — | The material to add ink layer nodes to |
-| `uv_map_name` | `str` | `None` | Optional UV map name to set on the UV map node |
+| `uv_map_name` | `str \| None` | `None` | Optional UV map name to set on the UV map node |
 
-**Returns:** `tuple` — `(uvmap_node, texture_node, layer_number)` where `layer_number` is the new ink layer's index.
+**Returns:** `tuple[bpy.types.Node, bpy.types.Node, int]` — `(uvmap_node, texture_node, layer_number)` where `layer_number` is the new ink layer's index.
 
 **Raises:** `ValueError` if the material is not MakeSkin or layered skin type.
 
@@ -217,7 +241,7 @@ Count the number of ink layers present in a material by scanning for image textu
 
 | Argument | Type | Default | Description |
 |----------|------|---------|-------------|
-| `material` | `bpy.types.Material` | — | The material to inspect |
+| `material` | `bpy.types.Material \| None` | — | The material to inspect. A `None` material raises |
 
 **Returns:** `int` — The number of ink layers (0 if none).
 
@@ -247,9 +271,9 @@ Load an ink layer from a JSON definition file. The JSON must contain `focus`, `i
 | Argument | Type | Default | Description |
 |----------|------|---------|-------------|
 | `mesh_object` | `bpy.types.Object` | — | The mesh object to add the ink layer to |
-| `ink_layer_json_path` | `str` | — | Path to the ink layer JSON definition file |
+| `ink_layer_json_path` | `str` | — | Path to the ink layer JSON definition file. Must be a real path: a `None` reaches `open()` and raises `TypeError`, which is how `HumanService` currently fails on a MHM naming an uninstalled makeup asset. |
 
-**Returns:** `tuple` — `(uvmap_node, texture_node, ink_layer_id)`.
+**Returns:** `tuple[bpy.types.Node, bpy.types.Node, int]` — `(uvmap_node, texture_node, ink_layer_id)`.
 
 **Raises:** `ValueError` if the image file doesn't exist or the focus file can't be found.
 
@@ -261,10 +285,14 @@ Remove all ink layers from a material. Deletes all nodes with names starting wit
 
 | Argument | Type | Default | Description |
 |----------|------|---------|-------------|
-| `material` | `bpy.types.Material` | — | The material to clean up |
-| `basemesh` | `bpy.types.Object` | `None` | Optional basemesh to remove ink layer UV maps from |
+| `material` | `bpy.types.Material \| None` | — | The material to clean up. A `None` material is logged and the method returns |
+| `basemesh` | `bpy.types.Object \| None` | `None` | Optional basemesh to remove ink layer UV maps from |
 
 **Returns:** None
+
+**Restriction:** on the MakeSkin path, the fallback branch that relinks a `diffuseTexture` node reuses
+`principled` without re-testing it, so a MakeSkin material with no Principled BSDF raises
+`AttributeError` inside `NodeService.add_link()` — after the ink layer nodes have already been deleted.
 
 ---
 
@@ -290,10 +318,14 @@ Save materials from an object to a `.blend` file. If `material_number` is `None`
 |----------|------|---------|-------------|
 | `blender_object` | `bpy.types.Object` | — | The object whose materials to save |
 | `path_to_blend_file` | `str` | — | Path to the destination `.blend` file |
-| `material_number` | `int` | `None` | Specific material slot to save, or `None` for all |
+| `material_number` | `int \| None` | `None` | Specific material slot to save, or `None` for all |
 | `fake_user` | `bool` | `False` | Whether to set fake user on saved materials |
 
 **Returns:** None
+
+**This method does not work as described.** Its two branches are the wrong way round: passing a slot
+number writes every slot and ignores the number, while leaving the default `None` subscripts
+`material_slots[None]` and raises `TypeError`. It has no callers anywhere in the tree. 
 
 ---
 
@@ -304,7 +336,7 @@ Load a material from a `.blend` file. The path should be in the format `file.ble
 | Argument | Type | Default | Description |
 |----------|------|---------|-------------|
 | `path` | `str` | — | Blend file asset path (see `as_blend_path`) |
-| `blender_object` | `bpy.types.Object` | `None` | Optional object to assign the material to |
+| `blender_object` | `bpy.types.Object \| None` | `None` | Optional object to assign the material to |
 
 **Returns:** `bpy.types.Material` — The loaded material.
 

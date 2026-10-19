@@ -1,7 +1,8 @@
 {
   "include": [
     "src/mpfb/services",
-    "src/mpfb/entities"
+    "src/mpfb/entities",
+    "src/mpfb/types.py"
   ],
   "exclude": [
     "src/mpfb/entities/nodemodel",

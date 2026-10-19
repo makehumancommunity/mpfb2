@@ -1,20 +1,33 @@
 """This module contains utility functions scanning asset repositories."""
 
-import os, bpy, json, zipfile, shutil, tempfile
+import os, bpy, json, zipfile, shutil, tempfile, typing
 from pathlib import Path
 from typing import Any
+from bpy.utils.previews import ImagePreviewCollection
 from .logservice import LogService
 from .locationservice import LocationService
 from .systemservice import SystemService
 
 _LOG = LogService.get_logger("services.assetservice")
 
-_ASSETS = dict()
-_ASSET_THUMBS = None
-_ALTERNATIVE_MATERIALS = dict()
-_ALTERNATIVE_MATERIAL_TILES = dict()
-_PACKS = None
-_CUSTOM_RIGS_CACHE = None
+# Asset subdir -> asset label -> the item dict described by update_asset_list().
+_ASSETS: dict[str, dict[str, dict[str, Any]]] = dict()
+
+# The one preview collection all asset thumbnails are loaded into. None until the first load.
+_ASSET_THUMBS: ImagePreviewCollection | None = None
+
+# (asset source, asset subdir) -> absolute paths of the asset's alternative material files.
+_ALTERNATIVE_MATERIALS: dict[tuple[str, str], list[str]] = dict()
+
+# (asset source, asset subdir) -> the UI tile dicts built by alternative_material_tiles_for_asset().
+_ALTERNATIVE_MATERIAL_TILES: dict[tuple[str, str], list[dict[str, Any]]] = dict()
+
+# Pack name -> the pack's JSON contents, which map asset name to that asset's metadata. None means
+# "not yet scanned", which is what _ensure_pack_metadata() tests; an empty dict means "scanned, no packs".
+_PACKS: dict[str, dict[str, Any]] | None = None
+
+# The list built by get_custom_rigs(). None means "not yet scanned".
+_CUSTOM_RIGS_CACHE: list[dict[str, Any]] | None = None
 
 ASSET_LIBRARY_SECTIONS = [
         {
@@ -298,11 +311,15 @@ class AssetService:
         _LOG.debug("Parent dir to match against", parent_dir)
         possible_materials = set()
         for mat in AssetService.find_asset_files_matching_pattern(roots, "*.mhmat"):
-            if SystemService.string_contains_path_segment(mat, parent_dir):
-                possible_materials.add(str(mat))
+            # find_asset_files_matching_pattern() yields Path objects, and string_contains_path_segment()
+            # wants a str. It stringifies internally anyway, so this is the same call it already made; the
+            # conversion is spelled out here to match the str(mat) on the following line.
+            mat_path = str(mat)
+            if SystemService.string_contains_path_segment(mat_path, parent_dir):
+                possible_materials.add(mat_path)
             # If asset_subdir is "eyes", then also match the alternative location for materials
-            elif asset_subdir == "eyes" and SystemService.string_contains_path_segment(mat, "materials"):
-                possible_materials.add(str(mat))
+            elif asset_subdir == "eyes" and SystemService.string_contains_path_segment(mat_path, "materials"):
+                possible_materials.add(mat_path)
         possible_materials = sorted(possible_materials)
         _LOG.debug("alternative_materials_for_asset, possible materials", possible_materials)
         if len(possible_materials) < 2 and _LOG.debug_enabled():
@@ -320,7 +337,10 @@ class AssetService:
         Get the preview to use for assets which do not have a thumbnail of their own.
 
         Returns:
-            The preview object for the bundled placeholder image, or None if it could not be loaded.
+            Any: The bpy.types.ImagePreview for the bundled placeholder image, or None if it could not be
+            loaded. Annotated Any rather than ImagePreview | None because the value goes straight into a
+            UILayout's icon_value, and the preview collection is a dict subclass whose element type the
+            stubs only describe loosely.
         """
         global _ASSET_THUMBS
 
@@ -643,7 +663,9 @@ class AssetService:
             list: A sorted list of asset pack names.
         """
         AssetService._ensure_pack_metadata()
-        names = list(_PACKS.keys())
+        # _ensure_pack_metadata() has just replaced a None _PACKS with a dict, but the checker cannot
+        # see that through the call, so the guarantee has to be restated as a cast.
+        names = list(typing.cast(dict[str, dict[str, Any]], _PACKS).keys())
         names.sort()
         return names
 
@@ -669,7 +691,8 @@ class AssetService:
             list: A sorted list of asset names in the specified pack.
         """
         AssetService._ensure_pack_metadata()
-        pack_data = _PACKS.get(pack_name, dict())
+        # As in get_pack_names(): _ensure_pack_metadata() guarantees a dict, the checker cannot see it.
+        pack_data = typing.cast(dict[str, dict[str, Any]], _PACKS).get(pack_name, dict())
         names = list(pack_data.keys())
         names.sort()
         return names
@@ -780,7 +803,7 @@ class AssetService:
             filename (str): The file to check.
 
         Returns:
-            str or None: None if everything is fine, otherwise a string describing the error.
+            str | None: None if everything is fine, otherwise a string describing the error.
             Possible error strings: "MACOS", "STRUCTURE", "NO_PACKS", "INVALID_ZIP: <reason>"
         """
         try:
@@ -827,7 +850,8 @@ class AssetService:
             target_dir (str): Destination directory (user data dir).
 
         Returns:
-            None on success, or a string describing the error.
+            str | None: None on success, or a string describing the error. Possible error strings:
+            "FIX_FAILED", "FIX_ERROR: <reason>".
         """
         tmp_dir = tempfile.mkdtemp()
         try:

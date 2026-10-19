@@ -129,6 +129,10 @@ In many cases, an entity class is a wrapper for a file format (see above).
 - [MakeSkinMaterial](entities/material/makeskinmaterial.md) — bridges MHMAT format with Blender node-based materials (MakeSkin workflow)
 - [EnhancedSkinMaterial](entities/material/enhancedskinmaterial.md) — advanced skin shader with PBR and subsurface scattering support
 
+### Socket import entities
+
+- [SocketObject](entities/socketobject.md) — `SocketMeshObject`, `SocketBodyObject` and `SocketProxyObject`: numpy-first staging of a character imported from a running MakeHuman over the socket
+
 ### Rig entity
 
 - [Rig](entities/rig.md) — armature serialisation/deserialisation and JSON Blender round-trip, with positioning-strategy system

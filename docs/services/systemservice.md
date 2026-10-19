@@ -6,7 +6,7 @@ SystemService provides static utility methods for various system-level tasks in 
 
 The service is designed for cross-platform compatibility, automatically detecting whether MPFB is running on Linux, Windows, or macOS and adjusting its behavior accordingly. This is particularly important for operations like opening file browsers, which require different system commands on each platform.
 
-SystemService also serves as a gatekeeper for addon dependencies. Before using features that rely on external addons like Rigify, other parts of MPFB can query SystemService to verify availability. This prevents cryptic errors when optional dependencies are missing.
+SystemService also serves as a gatekeeper for addon dependencies. Before using features that rely on external addons — Rigify, the Lip Sync addon, the BVH importer — other parts of MPFB can query SystemService to verify availability. This prevents cryptic errors when optional dependencies are missing.
 
 All methods are static; the class should never be instantiated.
 
@@ -63,7 +63,32 @@ Check if the Blender OBJ importer is available.
 
 **Returns:** `bool` — Always returns `True` in modern Blender versions.
 
-This method exists for historical compatibility. In Blender 4.x, the OBJ importer is built-in and always available.
+This method exists for historical compatibility. In Blender 4.x, the OBJ importer is built-in and always available. Calling it logs a warning that the check is superfluous.
+
+---
+
+### check_for_lipsync()
+
+Check if the Lip Sync addon is enabled.
+
+**Returns:** `bool` — `True` if the addon is present in the preferences and enabled, `False` otherwise.
+
+The addon is located by scanning `bpy.context.preferences.addons` for a key containing `iocgpoly_lip_sync`, since the
+module name varies with how the addon was installed. If no such key exists, or `addon_utils.check()` reports the addon
+as not enabled, a warning is logged and the method returns `False`.
+
+---
+
+### check_for_bvh()
+
+Check if the Blender BVH importer addon (`io_anim_bvh`) is enabled.
+
+**Returns:** `bool` — `True` if the importer is enabled, `False` otherwise.
+
+The check is `hasattr(bpy.types, "IMPORT_ANIM_OT_bvh")`, not `hasattr(bpy.ops.import_anim, "bvh")`. The latter cannot
+be used: `bpy.ops` builds an operator wrapper for any name without consulting the registry, so it answers `True` even
+when the addon is disabled. The operator *type*, derived from the `bl_idname` `import_anim.bvh`, is only present in
+`bpy.types` while the addon is actually enabled.
 
 ---
 
@@ -78,6 +103,8 @@ This method performs a comprehensive check:
 2. Confirms that `bpy.ops.pose.rigify_generate` is available
 3. Confirms that `bpy.ops.pose.rigify_upgrade_face` is available
 4. Confirms that `bpy.ops.armature.rigify_collection_set_ui_row` is available
+5. Performs a fifth check whose warning message refers to a UI *column* operator, but which in fact tests
+   `rigify_collection_set_ui_row` a second time
 
 All checks must pass for the method to return `True`. Warnings are logged for each missing component.
 
@@ -119,7 +146,7 @@ Check if the running Blender version meets a minimum requirement.
 
 | Argument | Type | Default | Description |
 |----------|------|---------|-------------|
-| `version` | `tuple[int, int, int]` | `(4, 2, 0)` | A three-element tuple of (major, minor, patch) version numbers |
+| `version` | `tuple[int, int, int]` | `LOWEST_FUNCTIONAL_BLENDER_VERSION` (`(4, 2, 0)`) | A three-element tuple of (major, minor, patch) version numbers |
 
 **Returns:** `bool` — `True` if the running Blender version is equal to or greater than the specified version.
 

@@ -49,9 +49,23 @@ Initialise `EnhancedSkinMaterial` with the required importer preset dictionary.
 
 | Argument | Type | Default | Description |
 |----------|------|---------|-------------|
-| `importer_presets` | dict | — | Preset dictionary (required; no default). Must contain at least `"skin_material_type"`. Optionally `"scale_factor"` for SSS radius scaling. |
+| `importer_presets` | `dict[str, Any]` | — | Preset dictionary (required; no default). Must contain at least `"skin_material_type"`, which `default_settings` subscripts rather than looks up, so a dict without it is a `KeyError`. Optionally `"scale_factor"` for SSS radius scaling, which *is* tested with `in` |
 
 **Returns:** `None`.
+
+### Attributes
+
+| Attribute | Type | Description |
+|-----------|------|-------------|
+| `presets` | `dict[str, Any]` | The constructor's `importer_presets`, read by `default_settings` |
+
+Inherited from [`MhMaterial`](mhmaterial.md): `_settings`, `_shader_config`, `lit_sphere`, `shader_config`, `location`.
+
+### Module-Level Types
+
+| Name | Definition | What it is |
+|------|------------|------------|
+| `TemplateValues` | `dict[str, str]` | The substitution dict for `enhanced_skin.json`. Every value is a string, because each one is spliced into the JSON source in place of a `"$key"` placeholder before the document is parsed — so a number is written as its digits and a string value carries its own quotes |
 
 ---
 
@@ -59,14 +73,14 @@ Initialise `EnhancedSkinMaterial` with the required importer preset dictionary.
 
 Build and return the template-value dict used to substitute placeholders in `enhanced_skin.json`.
 
-Derives texture paths from `self._settings` (diffuse texture, normal map). Sets `has_sss` based on whether `"sss"` appears in `skin_material_type`. Sets `sss_radius_scale` from `scale_factor`. Sets `Roughness` to `"0.5"` as the initial value (may be overridden by `skin_tweaks`). Sets `group_name` from the parameter, the material name, or the fallback `"mpfb_enhanced_skin"`.
+Derives texture paths from `self._settings` (diffuse texture, normal map), reading each through the inherited `get_value`, which is case-insensitive — hence `"normalMapTexture"` here against `"normalmapTexture"` in the key catalog. Sets `has_sss` based on whether `"sss"` appears in `skin_material_type`. Sets `sss_radius_scale` from `scale_factor`. Sets `Roughness` to `"0.5"` as the initial value (may be overridden by `skin_tweaks`). Sets `group_name` from the parameter, the material name, or the fallback `"mpfb_enhanced_skin"`.
 
 | Argument | Type | Default | Description |
 |----------|------|---------|-------------|
 | `blender_material` | `bpy.types.Material` | — | Used to derive the node-group name when `group_name` is not supplied |
-| `group_name` | str or None | `None` | Explicit name for the shader node group; if `None`, falls back to the material name |
+| `group_name` | `str \| None` | `None` | Explicit name for the shader node group; if `None`, falls back to the material name |
 
-**Returns:** A `dict[str, str]` mapping template variable names to their string values.
+**Returns:** `TemplateValues` — template variable name to its string value.
 
 ---
 
@@ -78,7 +92,7 @@ Sets `blender_material.diffuse_color` to the canonical skin diffuse colour from 
 
 | Argument | Type | Default | Description |
 |----------|------|---------|-------------|
-| `template_values` | dict | — | The template dict produced by `default_settings`; modified in-place |
+| `template_values` | `TemplateValues` | — | The template dict produced by `default_settings`; modified in-place |
 | `blender_material` | `bpy.types.Material` | — | The Blender material whose `diffuse_color` is updated |
 
 **Returns:** `None`.
@@ -93,9 +107,9 @@ Backslashes in all substitution values are normalised to forward slashes before 
 
 | Argument | Type | Default | Description |
 |----------|------|---------|-------------|
-| `blender_material` | `bpy.types.Material` | — | The Blender material whose node tree will be replaced |
-| `tweaks` | str | `"SKIN"` | If `"SKIN"`, call `skin_tweaks` to adjust roughness and diffuse colour; any other value skips tweaks |
-| `group_name` | str or None | `None` | Passed through to `default_settings` for node-group naming |
+| `blender_material` | `bpy.types.Material` | — | The Blender material whose node tree will be replaced. Its `use_nodes` must already be set, since the node tree is read off it |
+| `tweaks` | `str` | `"SKIN"` | If `"SKIN"`, call `skin_tweaks` to adjust roughness and diffuse colour; any other value skips tweaks |
+| `group_name` | `str \| None` | `None` | Passed through to `default_settings` for node-group naming |
 
 **Returns:** `None`.
 

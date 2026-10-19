@@ -26,7 +26,18 @@ Viseme and face unit loading and interpolation is handled by `FaceService`. Expo
 | `LogService` | Logging via `LogService.get_logger("services.exportservice")` |
 | `TargetService` | Checking for shape keys, baking targets, and reapplying details |
 | `ObjectService` | Duplicating objects, finding relatives, activating objects, and getting child lists |
-| `FaceService` | Provides `MICROSOFT_VISEMES`, `META_VISEMES`, `ARKIT_FACEUNITS`, and `SIGNIFICANT_SHIFT_MINIMUM` constants |
+| `FaceService` | Provides the `MICROSOFT_VISEMES`, `META_VISEMES`, `ARKIT_FACEUNITS` and `SIGNIFICANT_SHIFT_MINIMUM` module constants |
+
+## Module-Level Types
+
+| Name | Definition | Description |
+|------|------------|-------------|
+| `VertexDelta` | `tuple[int, float, float, float]` | One significant vertex shift inside a shape key: `(vertex index, dx, dy, dz)`. Only shifts longer than `SIGNIFICANT_SHIFT_MINIMUM` are recorded. |
+| `ShapeKeyDeltas` | `tuple[str, float, list[VertexDelta]]` | One rebuilt shape key: its name, its value, and the vertex shifts that make it up. |
+| `ShapeKeySnapshot` | `TypedDict` with `name: str` and `value: float` | The metadata kept for one shape key while its mesh is rebuilt under it. A `TypedDict` rather than a plain `dict[str, Any]` because the two keys carry different types and both are read back into positions that require the concrete one: the name into `Object.shape_key_add()` and the value into `ShapeKey.value`. |
+
+All three describe the internals of `_apply_modifiers_keep_shapekeys` and are not part of the service's
+calling contract.
 
 ## Public API
 
@@ -38,13 +49,18 @@ Creates a deep copy of the character hierarchy, including any rig and all child 
 
 | Argument | Type | Default | Description |
 |----------|------|---------|-------------|
-| `source_object` | `bpy.types.Object` | — | The source object to copy. Typically the basemesh or the rig. The basemesh is located via `ObjectService.find_object_of_type_amongst_nearest_relatives`. |
+| `source_object` | `bpy.types.Object \| None` | — | The source object to copy. Typically the basemesh or the rig. The basemesh is located via `ObjectService.find_object_of_type_amongst_nearest_relatives`, which accepts `None` and returns `None` for it, so passing `None` raises the `ValueError` below rather than failing earlier. |
 | `name_suffix` | `str` | `"_export_copy"` | Suffix appended to the name of every duplicated object |
-| `place_in_collection` | `bpy.types.Collection` | `None` | Collection where duplicated objects are placed. If `None`, Blender's default collection is used. |
+| `place_in_collection` | `bpy.types.Collection \| None` | `None` | Collection where duplicated objects are placed. If `None`, Blender's default collection is used. |
 
 **Returns:** `bpy.types.Object` — The root object of the duplicated hierarchy (the new rig if a rig is present, otherwise the new basemesh).
 
-**Raises:** `ValueError` if no basemesh can be found among the nearest relatives of `source_object`.
+**Raises:** `ValueError` if no basemesh can be found among the nearest relatives of `source_object`,
+which includes the case where `source_object` is itself `None`.
+
+The return type is non-optional even though `ObjectService.duplicate_blender_object()` is declared
+`bpy.types.Object | None`: that method returns `None` only when handed `None`, and neither call inside this
+one can, so both results are narrowed with a `typing.cast`.
 
 ---
 
@@ -54,7 +70,9 @@ Creates a deep copy of the character hierarchy, including any rig and all child 
 
 Bakes mask and subdivision modifiers into the mesh geometry and optionally removes helper/joint geometry. When the basemesh has shape keys, baking uses a copy-bake-apply-delta strategy (implemented in the private `_apply_modifiers_keep_shapekeys` method): for each shape key a temporary duplicate is created, modifiers are applied, and the resulting vertex deltas versus a modifier-applied Basis mesh become the new shape key data on the final mesh. This preserves all shape keys through modifier application. When no shape keys are present, modifiers are applied directly.
 
-Subdivision modifier levels are set to `render_levels` before baking. Mask modifiers on the `body` vertex group (non-inverted) remove helper geometry from the mesh; if this removal is not baked, `remove_helpers` triggers a vertex-group-based deletion instead.
+Subdivision modifier levels are set to `render_levels` before baking, but only when `bake_subdiv` is
+`True`; without it the SUBSURF modifiers are left exactly as they are, on the basemesh and on the proxy
+alike. Mask modifiers on the `body` vertex group (non-inverted) remove helper geometry from the mesh; if this removal is not baked, `remove_helpers` triggers a vertex-group-based deletion instead.
 
 If `also_proxy=True`, the same mask and subdivision baking is applied to the body proxy mesh (if one exists), without the shape key preservation logic.
 
@@ -67,6 +85,11 @@ If `also_proxy=True`, the same mask and subdivision baking is applied to the bod
 | `also_proxy` | `bool` | `True` | Also apply modifiers on the body proxy mesh, if present |
 
 **Returns:** None
+
+Two of the `also_proxy` paths return early — when no `Proxymeshes` object is found among the basemesh's
+nearest relatives, and when the proxy has no mask or subdivision modifiers to bake. Both log at debug level
+and leave the character's root object active and solely selected, which is the same state the method ends in
+normally, so neither is observable to a caller.
 
 ---
 

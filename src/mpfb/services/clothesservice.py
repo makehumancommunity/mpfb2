@@ -1,8 +1,10 @@
 """This module contains utility functions for clothes."""
 
-import random, os, bpy, time, bmesh, numpy  # pylint: disable=C0412
+import random, os, bpy, time, bmesh, numpy, typing  # pylint: disable=C0412
+from collections.abc import Sequence, Sized
+from typing import Any
 from .objectservice import ObjectService
-from .meshservice import MeshService
+from .meshservice import MeshService, VertexWeight
 from .logservice import LogService
 from .locationservice import LocationService
 from .assetservice import AssetService
@@ -16,7 +18,28 @@ from ..entities.meshcrossref import MeshCrossRef
 
 _LOG = LogService.get_logger("services.clothesservice")
 
-CLOTHES_REFERENCE_SCALE = {
+MhcloScale = tuple[int, int, float]
+"""One axis scaling reference as the MHCLO format stores it: two basemesh vertex indices and the
+distance between them in the original asset.
+
+This mirrors the shape ``Mhclo.load()`` writes into ``x_scale``, ``y_scale`` and ``z_scale``. It is
+declared here rather than in ``src/mpfb/types.py`` because no other module in scope uses it, and it
+is needed here because ``entities/clothes/mhclo.py`` is not yet annotated, so those three attributes
+are still inferred as plain ``None`` from their initialisers."""
+
+ClothesValidationReport = dict[str, Any]
+"""The report ``mesh_is_valid_as_clothes()`` returns.
+
+Nine keys hold a ``bool`` -- ``is_valid_object``, ``has_any_vertices``, ``has_any_vgroups``,
+``all_verts_have_max_one_vgroup``, ``all_verts_have_min_one_vgroup``, ``all_verts_belong_to_faces``,
+``all_faces_same_type``, ``clothes_groups_exist_on_basemesh`` and ``objs_same_scale`` -- plus
+``all_checks_ok``, the conjunction of all but ``all_faces_same_type``, and ``warnings``, a
+``list[str]``.
+
+Deliberately an alias rather than a ``TypedDict``: the MakeClothes panel reads the report by looping
+over a list of key names and indexing with the loop variable, which a ``TypedDict`` cannot model."""
+
+CLOTHES_REFERENCE_SCALE: dict[str, dict[str, int]] = {
                         "Body": {
                             "xmin": 13868,
                             "xmax": 14308,
@@ -113,12 +136,13 @@ class ClothesService:
     As the class only contains static methods, it should not be instantiated.
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         """You should not instance ClothesService. Use its static methods instead."""
         raise RuntimeError("You should not instance ClothesService. Use its static methods instead.")
 
     @staticmethod
-    def fit_clothes_to_human(clothes, basemesh, mhclo=None, set_parent=True):
+    def fit_clothes_to_human(clothes: bpy.types.Object, basemesh: bpy.types.Object, mhclo: Mhclo | None = None,
+                             set_parent: bool = True) -> None:
         """Move clothes vertices so they fit the current shape of the base mesh."""
 
         _LOG.dump("Given MHCLO object", mhclo)
@@ -160,8 +184,12 @@ class ClothesService:
         # getting vertex positions.
         key_name = "temporary_fitting_key." + str(random.randrange(1000, 9999))
         basemesh.shape_key_add(name=key_name, from_mix=True)
-        shape_key = basemesh.data.shape_keys.key_blocks[key_name]
-        human_vertices = shape_key.data
+        # The read has to follow the shape_key_add() which creates the key, so .data cannot be cached
+        # across it.
+        shape_key = typing.cast(bpy.types.Key, typing.cast(bpy.types.Mesh, basemesh.data).shape_keys).key_blocks[key_name]
+        # ShapeKey.data is declared bpy_prop_collection[UnknownType] in the stubs, so the points it
+        # yields have no .co as far as the checker is concerned.
+        human_vertices = typing.cast("bpy.types.bpy_prop_collection[bpy.types.ShapeKeyPoint]", shape_key.data)
         human_vertices_count = len(human_vertices)
 
         scale_factor = GeneralObjectProperties.get_value("scale_factor", entity_reference=basemesh)
@@ -171,16 +199,20 @@ class ClothesService:
         # Fallback for if no scale is specified in mhclo
         z_size = y_size = x_size = scale_factor
 
-        if mhclo.x_scale:
-            if mhclo.x_scale[0] >= human_vertices_count or mhclo.x_scale[1] > human_vertices_count \
-                or mhclo.y_scale[0] >= human_vertices_count or mhclo.y_scale[1] >= human_vertices_count \
-                or mhclo.z_scale[0] >= human_vertices_count or mhclo.z_scale[1] >= human_vertices_count:
+        if mhclo.x_scale:            
+            x_scale = typing.cast(MhcloScale, mhclo.x_scale)
+            y_scale = typing.cast(MhcloScale, mhclo.y_scale)
+            z_scale = typing.cast(MhcloScale, mhclo.z_scale)
+
+            if x_scale[0] >= human_vertices_count or x_scale[1] > human_vertices_count \
+                or y_scale[0] >= human_vertices_count or y_scale[1] >= human_vertices_count \
+                or z_scale[0] >= human_vertices_count or z_scale[1] >= human_vertices_count:
                 _LOG.warn("Giving up refitting, not inside")
                 raise ValueError("Cannot refit as we are not inside")
 
-            x_size = abs(human_vertices[mhclo.x_scale[0]].co[0] - human_vertices[mhclo.x_scale[1]].co[0]) / mhclo.x_scale[2]
-            y_size = abs(human_vertices[mhclo.y_scale[0]].co[2] - human_vertices[mhclo.y_scale[1]].co[2]) / mhclo.y_scale[2]
-            z_size = abs(human_vertices[mhclo.z_scale[0]].co[1] - human_vertices[mhclo.z_scale[1]].co[1]) / mhclo.z_scale[2]
+            x_size = abs(human_vertices[x_scale[0]].co[0] - human_vertices[x_scale[1]].co[0]) / x_scale[2]
+            y_size = abs(human_vertices[y_scale[0]].co[2] - human_vertices[y_scale[1]].co[2]) / y_scale[2]
+            z_size = abs(human_vertices[z_scale[0]].co[1] - human_vertices[z_scale[1]].co[1]) / z_scale[2]
 
         _LOG.debug("x_scale, y_scale, z_scale", (mhclo.x_scale, mhclo.y_scale, mhclo.z_scale))
         _LOG.debug("x_size, y_size, z_size", (x_size, y_size, z_size))
@@ -188,8 +220,8 @@ class ClothesService:
         mesh = mhclo.clothes.data
         assert isinstance(mesh, bpy.types.Mesh)
 
-        edit_bmesh = None
-        current_shape_settings = None
+        edit_bmesh: bmesh.types.BMesh | None = None
+        current_shape_settings: tuple[int | None, bool, bool] | None = None
         current_active_object = bpy.context.view_layer.objects.active
 
         # If the mesh has shape keys, switch to edit mode to update.
@@ -208,7 +240,7 @@ class ClothesService:
             assert mhclo.clothes.mode == 'EDIT'
 
             edit_bmesh = bmesh.from_edit_mesh(mesh)
-            clothes_vertices = edit_bmesh.verts
+            clothes_vertices: "bmesh.types.BMVertSeq | bpy.types.bpy_prop_collection[bpy.types.MeshVertex]" = edit_bmesh.verts
 
         else:
             clothes_vertices = mesh.vertices
@@ -238,9 +270,11 @@ class ClothesService:
 
             bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
 
+            # current_shape_settings is assigned in the same branch that assigns edit_bmesh, so it
+            # cannot be None here.
             (mhclo.clothes.active_shape_key_index,
              mhclo.clothes.use_shape_key_edit_mode,
-             mhclo.clothes.show_only_shape_key) = current_shape_settings
+             mhclo.clothes.show_only_shape_key) = typing.cast(tuple[int | None, bool, bool], current_shape_settings)
 
             bpy.context.view_layer.objects.active = current_active_object
 
@@ -257,7 +291,7 @@ class ClothesService:
         basemesh.shape_key_remove(shape_key)
 
     @staticmethod
-    def _conservative_mask(basemesh, vertices_list):
+    def _conservative_mask(basemesh: bpy.types.Object, vertices_list: list[int]) -> None:
 
         vertices_list.sort()
 
@@ -292,7 +326,9 @@ class ClothesService:
         _LOG.time("excluding vertices")
 
     @staticmethod
-    def update_delete_group(mhclo, basemesh, replace_delete_group=False, delete_group_name=None, add_modifier=True, skip_if_empty_delete_group=True):
+    def update_delete_group(mhclo: Mhclo, basemesh: bpy.types.Object, replace_delete_group: bool = False,
+                            delete_group_name: str | None = None, add_modifier: bool = True,
+                            skip_if_empty_delete_group: bool = True) -> None:
         """Create or update a "delete" group on the base mesh."""
 
         if skip_if_empty_delete_group:
@@ -308,7 +344,8 @@ class ClothesService:
 
         # If requested, remove the previously existing delete group.
         if replace_delete_group and mhclo.delete and delete_group_name in basemesh.vertex_groups:
-            vertex_group = basemesh.vertex_groups.get(delete_group_name)
+            # The membership test on the line above is what rules out the None that get() can return.
+            vertex_group = typing.cast(bpy.types.VertexGroup, basemesh.vertex_groups.get(delete_group_name))
             basemesh.vertex_groups.remove(vertex_group)
 
         # We'll want to set up the delete group even if it doesn't contain any vertices. This
@@ -316,16 +353,16 @@ class ClothesService:
         if delete_group_name not in basemesh.vertex_groups:
             delete_group = basemesh.vertex_groups.new(name=delete_group_name)
         else:
-            delete_group = basemesh.vertex_groups.get(delete_group_name)
+            delete_group = typing.cast(bpy.types.VertexGroup, basemesh.vertex_groups.get(delete_group_name))
 
-        human_vertices_count = len(basemesh.data.vertices)
+        human_vertices_count = len(typing.cast(bpy.types.Mesh, basemesh.data).vertices)
 
         # If the clothes do not have a defined delete group, we can skip the next step
         if mhclo.delete:
             # Find vertices to delete. For safety check so that the vertex index actually
             # exist in the base mesh. It might refer to a helper index that have been excluded
             # or deleted.
-            delete_vertices_list = []
+            delete_vertices_list: list[int] = []
             for vertex_to_delete in  mhclo.delverts:
                 if vertex_to_delete < human_vertices_count:
                     delete_vertices_list.append(int(vertex_to_delete))
@@ -340,16 +377,16 @@ class ClothesService:
 
         for modifier in basemesh.modifiers:
             if modifier.type == "MASK":
-                if modifier.vertex_group == delete_group_name:
+                if typing.cast(bpy.types.MaskModifier, modifier).vertex_group == delete_group_name:
                     has_applicable_modifier = True
 
         if add_modifier and not has_applicable_modifier:
-            modifier = basemesh.modifiers.new(name=delete_group_name, type="MASK")
-            modifier.vertex_group = delete_group_name
-            modifier.invert_vertex_group = True
+            mask = typing.cast(bpy.types.MaskModifier, basemesh.modifiers.new(name=delete_group_name, type="MASK"))
+            mask.vertex_group = delete_group_name
+            mask.invert_vertex_group = True
 
     @staticmethod
-    def find_clothes_absolute_path(clothes_object):
+    def find_clothes_absolute_path(clothes_object: bpy.types.Object) -> str | None:
         """
         Find the absolute path to the clothes asset.
 
@@ -360,7 +397,7 @@ class ClothesService:
             clothes_object (bpy.types.Object): The clothes object for which to find the asset path.
 
         Returns:
-            str: The absolute path to the clothes asset, or None if the asset source or object type is not found.
+            str | None: The absolute path to the clothes asset, or None if the asset source or object type is not found.
         """
         asset_source = GeneralObjectProperties.get_value("asset_source", entity_reference=clothes_object)
         object_type = ObjectService.get_object_type(clothes_object).lower()
@@ -372,7 +409,9 @@ class ClothesService:
         return None
 
     @staticmethod
-    def interpolate_vertex_group_from_basemesh_to_clothes(basemesh, clothes_object, vertex_group_name, match_cutoff=0.3, mhclo_full_path=None):
+    def interpolate_vertex_group_from_basemesh_to_clothes(basemesh: bpy.types.Object, clothes_object: bpy.types.Object,
+                                                          vertex_group_name: str, match_cutoff: float = 0.3,
+                                                          mhclo_full_path: str | None = None) -> bpy.types.VertexGroup:
         """
         Interpolate a vertex group from the base mesh to the clothes object.
 
@@ -404,7 +443,7 @@ class ClothesService:
         mhclo = Mhclo()
         mhclo.load(mhclo_full_path)
 
-        relevant_clothes_vert_idxs = []
+        relevant_clothes_vert_idxs: list[int] = []
 
         for clothes_vert_idx in mhclo.verts:
             mhclo_vert = mhclo.verts[clothes_vert_idx]
@@ -423,21 +462,24 @@ class ClothesService:
         return new_vert_group
 
     @staticmethod
-    def interpolate_weights(basemesh, clothes, rig, mhclo):
+    def interpolate_weights(basemesh: bpy.types.Object, clothes: bpy.types.Object, rig: bpy.types.Object,
+                            mhclo: Mhclo) -> None:
         """Try to copy rigging weights from the base mesh to the clothes mesh, hopefully
         making the clothes fit the provided rig."""
 
         # Create an empty outline with placeholders arrays that will contain lists of
         # vertices + weights per vertex group
-        clothes_weights = dict()
-        for bone in rig.data.bones:
+        # VertexWeight is Sequence[Any] because the pair it describes is heterogeneous: an int vertex
+        # index then a float weight. See the alias in meshservice for the full reasoning.
+        clothes_weights: dict[str, list[VertexWeight]] = dict()
+        for bone in typing.cast(bpy.types.Armature, rig.data).bones:
             # The vertex groups have the same names as the bones
             clothes_weights[str(bone.name)] = []
 
         # Build cross reference dicts to easily map between a vertex group index and
         # a vertex group name
-        group_name_to_index = dict()
-        group_index_to_name = dict()
+        group_name_to_index: dict[str, int] = dict()
+        group_index_to_name: dict[int, str] = dict()
         for group in basemesh.vertex_groups:
             # Force interpolation of rigify deform groups or masks even if no bone in metarig
             if group.name.startswith("DEF-") or group.name.startswith("mhmask-"):
@@ -457,12 +499,14 @@ class ClothesService:
         #
         # By multiplying that weight with the vertex group weight of the human vertex, we
         # get the interpolated vertex group weight for the clothes vertex.
+        basemesh_vertices = typing.cast(bpy.types.Mesh, basemesh.data).vertices
+
         for vert_number in range(len(mhclo.verts)):
             clothes_vert = mhclo.verts[vert_number]
-            groups = dict()
+            groups: dict[int, float] = dict()
             for match_vert in range(3):
                 # Which human vert is the clothes vert tied to?
-                human_vert = basemesh.data.vertices[clothes_vert["verts"][match_vert]]
+                human_vert = basemesh_vertices[clothes_vert["verts"][match_vert]]
 
                 # .. and by how much?
                 assigned_weight = clothes_vert["weights"][match_vert]
@@ -516,26 +560,28 @@ class ClothesService:
                 for weight_info in weights:
                     vertex_index = weight_info[0]
                     weight = weight_info[1]
-                    for group in clothes.data.vertices[vertex_index].groups:
+                    for group in typing.cast(bpy.types.Mesh, clothes.data).vertices[vertex_index].groups:
                         if int(group.group) == group_index:
                             group.weight = weight
 
     @staticmethod
-    def set_up_rigging(basemesh, clothes, rig, mhclo, *,
-                       interpolate_weights=True, import_subrig=True, import_weights=True):
+    def set_up_rigging(basemesh: bpy.types.Object, clothes: bpy.types.Object, rig: bpy.types.Object, mhclo: Mhclo, *,
+                       interpolate_weights: bool = True, import_subrig: bool = True, import_weights: bool = True) -> None:
         """Set up weights and a custom sub-rig for the given clothes object."""
 
-        subrig = None
+        subrig: bpy.types.Object | None = None
 
         if import_subrig:
-            file_name = mhclo.basename + ".mpfbskel"
+            # Mhclo.basename is initialised to None and set to a str by load(); the cast stands in for
+            # the annotation entities/clothes/mhclo.py does not have yet.
+            file_name = typing.cast(str, mhclo.basename) + ".mpfbskel"
 
             if os.path.isfile(file_name):
                 parent_rig = Rig.from_given_basemesh_and_armature(basemesh, rig, fast_positions=True)
                 subrig_data = Rig.from_json_file_and_basemesh(file_name, clothes, parent=parent_rig)
                 subrig = subrig_data.create_armature_and_fit_to_basemesh(add_modifier=False)
 
-                subrig.name = subrig.data.name = clothes.name + ".rig"
+                subrig.name = typing.cast(bpy.types.Armature, subrig.data).name = clothes.name + ".rig"
 
                 if mhclo.uuid:
                     GeneralObjectProperties.set_value("uuid", mhclo.uuid, entity_reference=subrig)
@@ -557,14 +603,15 @@ class ClothesService:
         RigService.ensure_armature_modifier(clothes, rig, subrig=subrig)
 
     @staticmethod
-    def load_custom_weights(clothes, armature_object, subrig, mhclo):
+    def load_custom_weights(clothes: bpy.types.Object, armature_object: bpy.types.Object,
+                            subrig: bpy.types.Object | None, mhclo: Mhclo) -> None:
         """Try to load custom weights for the given clothes and rig."""
 
         armatures = [armature_object]
         if subrig:
             armatures.append(subrig)
 
-        def try_load_weights(suffix, all=False):
+        def try_load_weights(suffix: str | None, all: bool = False) -> bool:
             file_name = mhclo.get_weights_filename(suffix)
 
             if os.path.isfile(file_name):
@@ -589,7 +636,8 @@ class ClothesService:
                     break
 
     @staticmethod
-    def set_makeclothes_object_properties_from_mhclo(clothes_object, mhclo, delete_group_name=None):
+    def set_makeclothes_object_properties_from_mhclo(clothes_object: bpy.types.Object, mhclo: Mhclo,
+                                                     delete_group_name: str | None = None) -> None:
         """This will update the clothes object's properties with metadata values
         from the mhclo object."""
 
@@ -616,12 +664,13 @@ class ClothesService:
             MakeClothesObjectProperties.set_value("delete_group", delete_group_name, entity_reference=clothes_object)
 
     @staticmethod
-    def mesh_is_valid_as_clothes(mesh_object, basemesh):
+    def mesh_is_valid_as_clothes(mesh_object: bpy.types.Object | None, basemesh: bpy.types.Object) -> ClothesValidationReport:
         """
         Validates if the given mesh object can be used as clothes for the provided basemesh.
 
         Args:
-            mesh_object (bpy.types.Object): The mesh object to be validated.
+            mesh_object (bpy.types.Object | None): The mesh object to be validated. A None object fails
+                the is_valid_object check and the report is returned with everything else at its default.
             basemesh (bpy.types.Object): The base mesh object to compare against.
 
         Returns:
@@ -632,13 +681,14 @@ class ClothesService:
                 - all_verts_have_max_one_vgroup (bool): Whether all vertices have at most one vertex group.
                 - all_verts_have_min_one_vgroup (bool): Whether all vertices have at least one vertex group.
                 - all_verts_belong_to_faces (bool): Whether all vertices belong to at least one face.
+                - all_faces_same_type (bool): Whether every face has the same number of vertices.
                 - all_checks_ok (bool): Whether all validation checks passed.
                 - clothes_groups_exist_on_basemesh (bool): Whether the clothes groups exist on the basemesh.
                 - objs_same_scale: Whether the clothes object and basemesh have the same scale.
                 - warnings (list): A list of warnings encountered during validation.
         """
 
-        report = {
+        report: ClothesValidationReport = {
             "is_valid_object": False,
             "has_any_vertices": False,
             "has_any_vgroups": False,
@@ -657,14 +707,18 @@ class ClothesService:
 
         report["is_valid_object"] = True
 
-        if not mesh_object.data.vertices or len(mesh_object.data.vertices) < 1:
+        mesh_data = typing.cast(bpy.types.Mesh, mesh_object.data)
+
+        if not mesh_data.vertices or len(mesh_data.vertices) < 1:
             return report
 
         report["has_any_vertices"] = True
 
-        verts_per_face = None
-        for face in mesh_object.data.polygons:
-            n = len(face.vertices)
+        verts_per_face: int | None = None
+        for face in mesh_data.polygons:
+            # bpy_prop_array declares only foreach_get/foreach_set, so the checker does not consider
+            # the fixed size vertex array sized even though it plainly is at runtime.
+            n = len(typing.cast(Sequence[int], face.vertices))
             if verts_per_face is None:
                 verts_per_face = n
             elif n != verts_per_face:
@@ -674,9 +728,11 @@ class ClothesService:
                 return report
 
         xref = MeshCrossRef(mesh_object)
+        # MeshCrossRef only leaves these two at None when it reads them back from a cache, which needs
+        # both cache_dir and read_cache, neither of which is passed here.
         report["has_any_vgroups"] = len(xref.group_index_to_group_name) > 0
-        report["all_verts_have_min_one_vgroup"] = len(xref.vertices_without_group) < 1
-        report["all_verts_have_max_one_vgroup"] = len(xref.vertices_with_multiple_groups) < 1
+        report["all_verts_have_min_one_vgroup"] = len(typing.cast(Sized, xref.vertices_without_group)) < 1
+        report["all_verts_have_max_one_vgroup"] = len(typing.cast(Sized, xref.vertices_with_multiple_groups)) < 1
 
         _LOG.debug("Faces by vertex", xref.faces_by_vertex)
         for vert_index in range(len(xref.faces_by_vertex)):
@@ -685,7 +741,7 @@ class ClothesService:
                 _LOG.debug("Number of faces for vertex {} is less than 1".format(vert_index))
                 report["all_verts_belong_to_faces"] = False
 
-        paired_groups = []
+        paired_groups: list[str] = []
         basemesh_groups = {group.name for group in basemesh.vertex_groups}
         for group_name in xref.group_index_to_group_name:
             if group_name not in basemesh_groups:
@@ -721,7 +777,9 @@ class ClothesService:
         return report
 
     @staticmethod
-    def create_mhclo_from_clothes_matching(basemesh, clothes, properties_dict=None, delete_group=None, allow_exact=True):
+    def create_mhclo_from_clothes_matching(basemesh: bpy.types.Object, clothes: bpy.types.Object,
+                                           properties_dict: dict[str, Any] | None = None,
+                                           delete_group: str | None = None, allow_exact: bool = True) -> Mhclo:
         """Create a MHCLO object by matching vertices on the clothes to vertices on the basemesh."""
         mhclo = Mhclo()
         mhclo.verts = dict()
@@ -763,7 +821,9 @@ class ClothesService:
                 max_pole = len(edges)
 
         if max_pole:
-            mhclo.max_pole = max_pole
+            # Mhclo.max_pole is initialised to None and entities/clothes/mhclo.py is not annotated yet,
+            # so the checker has inferred the attribute as None-typed rather than int | None.
+            mhclo.max_pole = max_pole  # pyright: ignore[reportAttributeAccessIssue]
 
         before = time.time()
         for vert in range(len(clothes_xref.vertex_coordinates)):
@@ -781,7 +841,7 @@ class ClothesService:
 
         if delete_group and delete_group in basemesh.vertex_groups:
             mhclo.delete_group = delete_group
-            all_verts = []
+            all_verts: list[float] = []
             for vert in MeshService.find_vertices_in_vertex_group(basemesh, delete_group):
                 all_verts.append(vert[0])
             all_verts.sort()
@@ -794,10 +854,10 @@ class ClothesService:
         return mhclo
 
     @staticmethod
-    def get_reference_scale(basemesh, body_part_reference="Torso"):
+    def get_reference_scale(basemesh: bpy.types.Object, body_part_reference: str = "Torso") -> dict[str, float]:
         """Get a reference scale from a basemesh object."""
 
-        reference_scale = {
+        reference_scale: dict[str, float] = {
             "x_scale": 1.0,
             "y_scale": 1.0,
             "z_scale": 1.0
@@ -805,7 +865,7 @@ class ClothesService:
 
         # Cannot have modifiers which alter the number of vertices
         mesh_object = basemesh.copy()
-        mesh_object.data = basemesh.data.copy()
+        mesh_object.data = typing.cast(bpy.types.Mesh, basemesh.data).copy()
         ObjectService.link_blender_object(mesh_object)
         for modifier in mesh_object.modifiers:
             if modifier.type in ["MASK", "SUBSURF"]:
@@ -816,7 +876,7 @@ class ClothesService:
         mesh = evaluated_mesh.to_mesh(preserve_all_data_layers=True, depsgraph=depsgraph)
 
         dimensions = CLOTHES_REFERENCE_SCALE[body_part_reference]
-        coords = dict()
+        coords: dict[str, Vector] = dict()
         for key in dimensions.keys():
             vertex_index = dimensions[key]
             coords[key] = mesh.vertices[vertex_index].co
@@ -845,17 +905,18 @@ class ClothesService:
         return reference_scale
 
     @staticmethod
-    def create_new_delete_group(basemesh, clothes, mhclo, group_name="Delete"):
+    def create_new_delete_group(basemesh: bpy.types.Object, clothes: bpy.types.Object, mhclo: Mhclo,
+                                group_name: str = "Delete") -> None:
         """
         Creates a new delete group on the given basemesh based on which vertices are covered by the clothes.
 
         Args:
-            basemesh (bpy.types.Mesh): The basemesh object. This needs to be a valid MakeHuman basemesh object.
-            clothes (bpy.types.Mesh): The clothes object. This needs to match the mesh in the mhclo object
+            basemesh (bpy.types.Object): The basemesh object. This needs to be a valid MakeHuman basemesh object.
+            clothes (bpy.types.Object): The clothes object. This needs to match the mesh in the mhclo object
             mhclo (mpfb.entities.clothes.mhclo.Mhclo): A mhclo object describing the matching between the clothes and the base mesh.
 
         Returns:
-            bpy.types.VertexGroup: The new delete group.
+            None.
         """
         if not basemesh or not clothes or not mhclo:
             raise ValueError("basemesh, clothes and mhclo must be valid objects")
@@ -868,12 +929,14 @@ class ClothesService:
 
         _LOG.dump("mhclo.verts", mhclo.verts)
 
-        if len(mhclo.verts.keys()) != len(clothes.data.vertices):
+        clothes_vertices = typing.cast(bpy.types.Mesh, clothes.data).vertices
+
+        if len(mhclo.verts.keys()) != len(clothes_vertices):
             _LOG.error("len mhclo.verts", len(mhclo.verts))
-            _LOG.error("len clothes.data.vertices", len(clothes.data.vertices))
+            _LOG.error("len clothes.data.vertices", len(clothes_vertices))
             raise ValueError("The clothes mesh does not have the same number of vertices as the MHCLO object")
 
-        all_verts_raw = []
+        all_verts_raw: list[int] = []
         for vert_idx in mhclo.verts:
             vert_match = mhclo.verts[vert_idx]
             all_verts_raw.extend(vert_match["verts"])
@@ -888,12 +951,15 @@ class ClothesService:
         # We will thus extend the list to also include all other verts which belong to a face which was touched by
         # the first set
 
-        face_verts_raw = []
+        face_verts_raw: list[int] = []
+
+        basemesh_polygons = typing.cast(bpy.types.Mesh, basemesh.data).polygons
 
         for vert in all_verts:
-            for polygon in basemesh.data.polygons:
-                if vert in polygon.vertices:
-                    face_verts_raw.extend(list(polygon.vertices))
+            for polygon in basemesh_polygons:
+                polygon_vertices = typing.cast(Sequence[int], polygon.vertices)
+                if vert in polygon_vertices:
+                    face_verts_raw.extend(list(polygon_vertices))
 
         face_verts = numpy.sort(numpy.unique(numpy.array(face_verts_raw, dtype=numpy.int32))).tolist()
 

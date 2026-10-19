@@ -9,10 +9,13 @@ On top of this, it will also scan the object for properties with a name starting
 methods in BlenderConfigSet will be extended to handle these dynamic properties.
 """
 
-import bpy, json
+import bpy, json, typing
+from collections.abc import Collection
+from typing import Any
 from bpy.props import StringProperty
 from .logservice import LogService
 from .blenderconfigset import BlenderConfigSet
+from ..types import PropertyAccessorFactory, PropertyDefinition
 
 _LOG = LogService.get_logger("configuration.dynamicconfigset")
 #_LOG.set_level(LogService.DEBUG)
@@ -23,12 +26,20 @@ class DynamicConfigSet(BlenderConfigSet):
     """Specific management of configuration when the storage entity is an object and there are extra properties
     which are dynamic and changing continuously."""
 
-    def __init__(self, properties, prefix="", dynamic_prefix=None, getter_factory=None, setter_factory=None):
+    def __init__(self, properties: list[PropertyDefinition], prefix: str = "", dynamic_prefix: str | None = None,
+                 getter_factory: PropertyAccessorFactory | None = None,
+                 setter_factory: PropertyAccessorFactory | None = None) -> None:
         _LOG.debug("Constructing new dynamic config set with prefix, dynamic_prefix", (prefix, dynamic_prefix))
         BlenderConfigSet.__init__(self, properties, bpy.types.Object, prefix, getter_factory=getter_factory, setter_factory=setter_factory)
-        self.dynamic_prefix = dynamic_prefix
+        # Declared as str, not "str | None", even though the parameter still accepts None. Every method
+        # below concatenates this onto a short name, so a None prefix is a TypeError waiting to happen
+        # rather than a supported mode; both call sites in the tree supply a prefix. 
+        self.dynamic_prefix: str = typing.cast(str, dynamic_prefix)
 
-    def _find_property(self, name):
+    def _find_property(self, name: str) -> PropertyDefinition | None:
+        # Note that the two getattr branches below return a registered blender property rather than a
+        # property definition dict, which is not what the inherited contract promises. Annotated to the
+        # contract; the discrepancy is pre-existing and left alone here.
         prop = super()._find_property(name)
         _LOG.debug("Property from super", prop)
         if prop is not None:
@@ -40,11 +51,11 @@ class DynamicConfigSet(BlenderConfigSet):
         _LOG.debug("Did not find property", name)
         return None
 
-    def _deserialize_property(self, entity_reference, long_name):
+    def _deserialize_property(self, entity_reference: bpy.types.Object, long_name: str) -> None:
         serialized_name = f"${long_name}$"
         _LOG.debug("Deserializing property", serialized_name)
-        value = None
-        serialized_prop_def = None
+        value: Any = None
+        serialized_prop_def: Any = None
         for item in entity_reference.items():
             prop = item[0]
             if prop == long_name:
@@ -72,7 +83,8 @@ class DynamicConfigSet(BlenderConfigSet):
                 setattr(entity_reference, long_name, value)
                 _LOG.debug(f"Restored value {value} for property {long_name}")
 
-    def _serialize_property(self, entity_reference, short_name, property_definition):
+    def _serialize_property(self, entity_reference: bpy.types.Object, short_name: str,
+                            property_definition: PropertyDefinition) -> None:
         serialized_name = f"${self.dynamic_prefix}{short_name}$"
         serialized_property_def = json.dumps(property_definition)
         if not hasattr(entity_reference, serialized_name):
@@ -81,9 +93,9 @@ class DynamicConfigSet(BlenderConfigSet):
             setattr(self._bpytype, serialized_name, serialized_property_prop)
         setattr(entity_reference, serialized_name, serialized_property_def)
 
-    def _deserialization_timer(self, entity_reference, prop):
+    def _deserialization_timer(self, entity_reference: bpy.types.Object, prop: str) -> None:
         _LOG.info("Will attempt to reconstruct custom property", prop)
-        def callback():
+        def callback() -> None:
             _LOG.debug("About to execute timed creation", prop)
             try:
                 self._deserialize_property(entity_reference, prop)
@@ -91,8 +103,8 @@ class DynamicConfigSet(BlenderConfigSet):
                 _LOG.error("Error deserializing property", (prop, e))
         bpy.app.timers.register(callback, first_interval=0.1)
 
-    def _list_object_properties_matching_dynamic_prefix(self, entity_reference):
-        prop_names = []
+    def _list_object_properties_matching_dynamic_prefix(self, entity_reference: bpy.types.Object | None) -> Collection[str]:
+        prop_names: list[str] = []
         if self.dynamic_prefix is None:
             _LOG.warn("dynamic_prefix is None in this DynamicConfigSet")
             return []
@@ -124,7 +136,7 @@ class DynamicConfigSet(BlenderConfigSet):
 
         return set(prop_names)
 
-    def has_key(self, name, entity_reference=None):
+    def has_key(self, name: str, entity_reference: Any = None) -> bool:
         """Checks if the config set contains the provided property name.
 
         Args:
@@ -148,7 +160,7 @@ class DynamicConfigSet(BlenderConfigSet):
             _LOG.debug("No entity reference provided, cannot check dynamic properties")
         return False
 
-    def has_key_with_value(self, name, entity_reference):
+    def has_key_with_value(self, name: str, entity_reference: Any) -> bool:
         """
         Checks if a property with the given name exists and has a value in the configuration set.
 
@@ -166,7 +178,8 @@ class DynamicConfigSet(BlenderConfigSet):
         _LOG.debug("Has property value", (name, value))
         return not value is None
 
-    def set_value_dynamic(self, name, value, property_definition, entity_reference):
+    def set_value_dynamic(self, name: str, value: Any, property_definition: PropertyDefinition,
+                          entity_reference: bpy.types.Object | None) -> None:
         """
         Sets the value of a dynamic property in the configuration set, without storing it in the list
         of pre-defined properties.
@@ -174,7 +187,7 @@ class DynamicConfigSet(BlenderConfigSet):
         Args:
             name (str): The name of the property to set.
             value: The value to set.
-            property_definition: The blender property to set on the class, for example a StringProperty.
+            property_definition: The definition dict for the property, in the same shape add_property takes.
             entity_reference (optional): The Blender entity reference to set the property value on.
         """
         _LOG.enter()
@@ -203,7 +216,7 @@ class DynamicConfigSet(BlenderConfigSet):
             # scene updates etc) can take an unreasonably long time.
             _LOG.debug("Avoiding property set since value is identical to existing value", (value, existing_value))
 
-    def get_value(self, name, default_value=None, entity_reference=None):
+    def get_value(self, name: str, default_value: Any = None, entity_reference: Any = None) -> Any:
         """
         Retrieves the value of a property from a Blender entity, including dynamic properties.
 
@@ -241,12 +254,12 @@ class DynamicConfigSet(BlenderConfigSet):
 
         return value
 
-    def get_keys(self, entity_reference):
+    def get_keys(self, entity_reference: bpy.types.Object | None) -> set[str]:
         """
         Retrieves all the short names of the properties in the configuration set, including dynamic properties.
 
         Returns:
-            dict_keys: An array with a list of all the short names of the properties.
+            set[str]: All the short names of the properties.
         """
         _LOG.enter()
         properties = list(super().get_keys())
@@ -258,7 +271,7 @@ class DynamicConfigSet(BlenderConfigSet):
         _LOG.debug("All keys", properties)
         return properties
 
-    def get_fullname_key_from_shortname_key(self, key_name, entity_reference):
+    def get_fullname_key_from_shortname_key(self, key_name: str, entity_reference: bpy.types.Object | None) -> str:
         """
         Constructs the full property name using the prefix and the provided short name,
         taking dynamic properties into account.
@@ -273,15 +286,15 @@ class DynamicConfigSet(BlenderConfigSet):
             return self.dynamic_prefix + key_name
         return self._prefix + key_name
 
-    def get_dynamic_keys(self, entity_reference):
+    def get_dynamic_keys(self, entity_reference: bpy.types.Object | None) -> list[str]:
         """
         Retrieves all the short names of the dynamic properties in the configuration set, excluding predefined properties.
 
         Returns:
-            dict_keys: An array with a list of all the short names of dynamic properties.
+            list[str]: All the short names of dynamic properties.
         """
         _LOG.enter()
-        properties = []
+        properties: list[str] = []
         for prop in self._list_object_properties_matching_dynamic_prefix(entity_reference):
             properties.append(prop.replace(self.dynamic_prefix, ""))
         properties.sort()
@@ -289,7 +302,9 @@ class DynamicConfigSet(BlenderConfigSet):
         return properties
 
     @staticmethod
-    def from_definitions_in_json_directory(properties_dir, prefix="", dynamic_prefix="", getter_factory=None, setter_factory=None):
+    def from_definitions_in_json_directory(properties_dir: str, prefix: str = "", dynamic_prefix: str = "",
+                                           getter_factory: PropertyAccessorFactory | None = None,
+                                           setter_factory: PropertyAccessorFactory | None = None) -> "DynamicConfigSet":
         """
         Creates a DynamicConfigSet instance from property definitions in a specified directory.
         The JSON files will form "predefined" properties. Use methods on resulting object to
@@ -306,7 +321,8 @@ class DynamicConfigSet(BlenderConfigSet):
         known_properties = BlenderConfigSet.get_definitions_in_json_directory(properties_dir)
         return DynamicConfigSet(known_properties, prefix=prefix, dynamic_prefix=dynamic_prefix, getter_factory=getter_factory, setter_factory=setter_factory)
 
-    def deferred_draw_property(self, entity_reference, component_to_draw_on, property_name, text=None):
+    def deferred_draw_property(self, entity_reference: Any, component_to_draw_on: bpy.types.UILayout,
+                               property_name: str, text: str | None = None) -> None:
         """
         Draw a dynamic property that may not be registered with the RNA system.
         This handles both properties created in the current session and those loaded from a saved file.

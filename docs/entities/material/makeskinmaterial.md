@@ -14,6 +14,8 @@ See the [MHMAT file format reference](../../fileformats/mhmat.md) and [Material 
 
 `populate_from_object` reads texture nodes and Principled BSDF socket values from an existing Blender object's node tree, populating `_settings` so that `as_mhmat` (inherited from `MhMaterial`) can serialise them. `export_to_disk` then writes the MHMAT file and optionally copies all referenced textures into the target directory with normalised names.
 
+> **Displacement map intensity is never exported.** The module-level `_NODE_SOCKET_VALUES` table reads the displacement node's `Scale` socket into the settings key `displacementmapIntensity`, with a lowercase *m*, while the MHMAT key in `MHMAT_KEYS` is `displacementMapIntensity`. `as_mhmat` only writes keys whose exact name is in `_settings`, so the value lands in an entry nothing reads and the real key stays at its `None` default — which `as_mhmat` then lists among the commented-out "would also have been valid" lines. The import direction is unaffected: `_template` reaches the key through `get_value`, which is case-insensitive.
+
 ## Source
 
 `src/mpfb/entities/material/makeskinmaterial.py`
@@ -38,9 +40,25 @@ Initialise `MakeSkinMaterial` with optional importer preset values.
 
 | Argument | Type | Default | Description |
 |----------|------|---------|-------------|
-| `importer_presets` | dict or None | `None` | Preset dictionary from the importer UI; stored in `self.presets` |
+| `importer_presets` | `dict[str, Any] \| None` | `None` | Preset dictionary from the importer UI; stored in `self.presets` |
 
 **Returns:** `None`.
+
+Unlike [`EnhancedSkinMaterial`](enhancedskinmaterial.md), this class never reads `self.presets`, so the `None` default is harmless here.
+
+### Attributes
+
+| Attribute | Type | Description |
+|-----------|------|-------------|
+| `presets` | `dict[str, Any] \| None` | Whatever was handed to the constructor. Stored and not read |
+
+Inherited from [`MhMaterial`](mhmaterial.md): `_settings`, `_shader_config`, `lit_sphere`, `shader_config`, `location`.
+
+### Module-Level Types
+
+| Name | Definition | What it is |
+|------|------------|------------|
+| `TemplateValues` | `dict[str, str]` | The substitution dict for `makeskin.json`. Every value is a string, because each one is spliced into the JSON source in place of a `"$key"` placeholder before the document is parsed — so a boolean is the text `"true"` or `"false"`, a colour is the text of a JSON array, and a file name carries its own quotes |
 
 ---
 
@@ -52,8 +70,8 @@ If `template_values` is `None`, the method builds the dict automatically by scan
 
 | Argument | Type | Default | Description |
 |----------|------|---------|-------------|
-| `blender_material` | `bpy.types.Material` | — | The Blender material whose node tree will be replaced |
-| `template_values` | dict or None | `None` | Pre-built substitution dict; if `None`, built automatically from `self._settings` |
+| `blender_material` | `bpy.types.Material` | — | The Blender material whose node tree will be replaced. Its `use_nodes` must already be set, since the node tree is read off it |
+| `template_values` | `TemplateValues \| None` | `None` | Pre-built substitution dict; if `None`, built automatically from `self._settings` |
 
 **Returns:** `None`.
 
@@ -66,6 +84,8 @@ If `template_values` is `None`, the method builds the dict automatically by scan
 Add a `ShaderNodeUVMap` node upstream of any texture node in the material that does not already have a UV input connected.
 
 The new UV Map node is positioned 300 units to the left and 200 units below the texture node and linked to the object's first UV layer.
+
+Only the thirteen node names built from the module's `_TEXTURE_NAMES` list are looked at, which is every image texture node the `makeskin.json` template creates. The object must have a material in its first slot and a UV layer on its mesh; neither is checked.
 
 | Argument | Type | Default | Description |
 |----------|------|---------|-------------|
@@ -98,10 +118,12 @@ If a texture node has an unsaved image and both `mhmat_dir` and `mhmat_bn` are p
 | Argument | Type | Default | Description |
 |----------|------|---------|-------------|
 | `blender_object` | `bpy.types.Object` | — | Object whose first material slot is checked |
-| `mhmat_dir` | str or None | `None` | Target directory for auto-saving unsaved images |
-| `mhmat_bn` | str or None | `None` | Base name prefix for auto-saved images |
+| `mhmat_dir` | `str \| None` | `None` | Target directory for auto-saving unsaved images |
+| `mhmat_bn` | `str \| None` | `None` | Base name prefix for auto-saved images |
 
-**Returns:** `None` if all textures are saved; otherwise an error message `str` describing the first problem found.
+**Returns:** `str | None` — `None` if all textures are saved; otherwise a message describing the first problem found.
+
+Scans the same thirteen node names as `ensure_uvmap_node_for_texture_nodes`.
 
 ---
 
@@ -113,8 +135,8 @@ When `normalize_textures=True`, each texture referenced in `_settings` is copied
 
 | Argument | Type | Default | Description |
 |----------|------|---------|-------------|
-| `mhmat_path` | str | — | Full path of the output `.mhmat` file |
-| `normalize_textures` | bool | `True` | If `True`, copy and rename textures alongside the MHMAT file |
+| `mhmat_path` | `str` | — | Full path of the output `.mhmat` file |
+| `normalize_textures` | `bool` | `True` | If `True`, copy and rename textures alongside the MHMAT file |
 
 **Returns:** `None`.
 
@@ -130,11 +152,13 @@ Scene properties control which texture slots are included (`create_<type>` flags
 |----------|------|---------|-------------|
 | `blender_object` | `bpy.types.Object` | — | Object that will receive the new material |
 | `scene` | `bpy.types.Scene` | — | Scene providing `MAKESKIN_PROPERTIES` configuration |
-| `name` | str | `"MakeSkinMaterial"` | Name for the new Blender material |
+| `name` | `str` | `"MakeSkinMaterial"` | Name for the new Blender material |
 
 **Returns:** `None`.
 
 **Raises:** `ValueError` if `blender_object` or `scene` is `None`.
+
+The second pass looks each enabled part's node up by `<part>Texture`, which is safe because the template was given the same `create_<part>` flags in the first pass. Four of the thirteen textures are keyed in `makeskin.json` under an abbreviated name — `aoTexture`, `emcTexture`, `emsTexture`, `subsTexture` — but each carries the full `<part>Texture` name in its own `name` entry, and `NodeService.update_node_with_settings_from_dict` applies that, so the node ends up under the name this method searches for.
 
 ---
 

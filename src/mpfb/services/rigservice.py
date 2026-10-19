@@ -1,6 +1,7 @@
 """Utility functions for working with rigs, bones and weights."""
 
 import bpy, os, fnmatch, shutil, json, re, typing
+from typing import Any
 from bpy.types import PoseBone
 from collections import defaultdict
 from mathutils import Matrix, Vector
@@ -10,22 +11,96 @@ from .systemservice import SystemService
 from .targetservice import TargetService
 from .objectservice import ObjectService
 from ..entities.objectproperties import SkeletonObjectProperties
+from ..types import BoneOrientation, BoneOrientationInfo, SocketSkeletonInfo
+
+if typing.TYPE_CHECKING:
+    # Imported for annotations only. The runtime import sits inside
+    # _do_refit_existing_armature(), because entities.rig imports this service back.
+    from ..entities.rig import Rig
 
 _LOG = LogService.get_logger("services.rigservice")
 
 _RADIAN = 0.0174532925
+
+MhwWeights = dict[str, Any]
+"""The MHW weights dictionary: MakeHuman's own save format for a set of vertex weights.
+
+``get_weights()`` produces one, ``apply_weights()`` consumes one and ``load_weights()`` reads one
+from a json file. The metadata keys -- ``copyright``, ``description``, ``license``, ``name`` and
+``version`` -- are written for MHW compatibility and are not read anywhere in MPFB. The only key
+MPFB reads is ``weights``, mapping a vertex group name to a list of ``[vertex index, weight]``
+pairs.
+
+An alias rather than a ``TypedDict`` because a file written by MakeHuman or by an older MPFB need
+not carry the metadata keys at all, so ``apply_weights()`` reads only ``weights`` and ignores the
+rest, and because the values arrive from ``json.load()`` as ``Any``."""
+
+PoseInfo = dict[str, Any]
+"""A serialized pose, as ``get_pose_as_dict()`` writes it and ``set_pose_from_dict()`` reads it.
+
+``skeleton_type`` holds an ``identify_rig()`` string, ``bone_rotations`` maps a bone name to a 3 or
+4 element list, ``bone_rotation_modes`` maps a bone name to its rotation mode, ``bone_translations``
+maps a bone name to a 3 element list, ``has_ik_bones`` is a bool and ``original_spine_length`` and
+``original_shoulder_width`` are floats used to rescale translations onto a differently proportioned
+character.
+
+An alias rather than a ``TypedDict`` because a pose file written by an older MPFB carries no
+``bone_rotation_modes`` at all -- ``set_pose_from_dict()`` infers the mode from the length of the
+rotation list in that case -- and because the values arrive from ``json.load()`` as ``Any``."""
+
+RotationMode = typing.Literal["QUATERNION", "XYZ", "XZY", "YXZ", "YZX", "ZXY", "ZYX", "AXIS_ANGLE"]
+"""The eight values blender's bone and object ``rotation_mode`` enum accepts.
+
+Verified against ``PoseBone.bl_rna`` on both blender 4.2.1 and blender 5.1, where the list is
+identical."""
+
+SkeletonBoneInfo = dict[str, Any]
+"""One node of the bone tree inside a ``SocketSkeletonInfo``, as ``_add_bone()`` consumes it.
+
+``name`` is the bone name, ``headPos`` and ``tailPos`` are 3 element sequences in MakeHuman's
+Y-up centimetre space, and ``children`` is a list of further ``SkeletonBoneInfo``. ``matrix`` (a 3x3
+or 4x4 row sequence) and ``roll`` (a float) are each optional and are read with ``in``; a node
+carrying ``matrix`` has its ``roll`` ignored. An alias rather than a ``TypedDict`` for that reason
+and because the values come over the socket as ``Any``."""
+
+# Note on find_pose_bone_by_name(), referred to from the methods below which call it.
+#
+# It returns PoseBone | None, because Object.pose.bones.get() does. Every method in this service
+# which takes a bone name and then reads an attribute off the result does so unguarded, so a name
+# which is not in the armature raises AttributeError rather than being reported: the name is a
+# precondition the caller is expected to satisfy, which is what the casts below record. A guard was
+# considered and rejected -- there is nothing any of these methods can usefully do with a bone that
+# does not exist, so a guard would only move the failure one line and add a branch no test reaches.
+
+# Note on Bone.select, referred to from the four sites below which assign it.
+#
+# Blender moved bone selection off bpy.types.Bone: 4.2 carries Bone.select, 5.0 onwards does not and
+# exposes PoseBone.select instead. Verified directly on both, where `pose_bone.bone.select = True`
+# succeeds on 4.2.1 and raises AttributeError on 5.1. The bpy stubs are generated against a 5.x build,
+# so the four diagnostics below are correct rather than stub noise: these lines work on blender 4.2 and
+# 4.3 only. The ignores keep the file at zero without pretending otherwise, because changing the
+# attribute is a logic fix rather than an annotation.
+
+# Note on rigify, referred to from the sites below which touch it.
+#
+# Rigify is an optional add-on. Its operators (bpy.ops.pose.rigify_generate,
+# bpy.ops.pose.rigify_upgrade_face), its RNA properties on bpy.types.Armature
+# (rigify_rig_basename, rigify_generate_mode) and the rigify package itself do not exist unless the
+# add-on is enabled, so none of them is in the bpy stubs and no narrowing will find them. The
+# ignores and the Any cast below record that; every one of those sites sits behind a caller-level
+# SystemService.check_for_rigify() check or its own try/except ImportError.
 
 
 class RigService:
     """The RigService class is a utility class designed to provide various static methods for working with armatures, rigs, bones,
     bone contraints, poses and weights. The class is not meant to be instantiated, as all methods are static and can be called directly."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Do not instance, there are only static methods in the class"""
         raise RuntimeError("You should not instance RigService. Use its static methods instead.")
 
     @staticmethod
-    def ensure_global_poses_are_available():
+    def ensure_global_poses_are_available() -> None:
         """
         Ensures that global poses are available by copying them from the source directory to the user directory if they do not already exist.
 
@@ -57,7 +132,7 @@ class RigService:
                             _LOG.debug("Pose already exists in user dir", expected)
 
     @staticmethod
-    def apply_pose_as_rest_pose(armature_object):
+    def apply_pose_as_rest_pose(armature_object: bpy.types.Object) -> None:
         """This will a) apply the pose modifier on each child mesh, b) apply the current pose as rest pose on the armature_object,
         and c) create a new pose modifier on each child mesh."""
         _LOG.enter()
@@ -72,7 +147,8 @@ class RigService:
             for modifier in child.modifiers:
                 if modifier.type == 'ARMATURE':
                     _LOG.debug("Will apply modifier", modifier)
-                    if not modifier.use_multi_modifier and modifier.object == armature_object:
+                    armature_modifier = typing.cast(bpy.types.ArmatureModifier, modifier)
+                    if not armature_modifier.use_multi_modifier and armature_modifier.object == armature_object:
                         bpy.ops.object.modifier_apply(modifier=modifier.name)
 
         ObjectService.deselect_and_deactivate_all()
@@ -91,7 +167,8 @@ class RigService:
         ObjectService.activate_blender_object(armature_object)
 
     @staticmethod
-    def ensure_armature_modifier(obj, armature_object, *, move_to_top=True, subrig=None):
+    def ensure_armature_modifier(obj: bpy.types.Object, armature_object: bpy.types.Object | None, *,
+                                 move_to_top: bool = True, subrig: bpy.types.Object | None = None) -> None:
         """
         Ensures that the specified object has an armature modifier linked to the given armature obj.
         If the modifier does not exist, it will be created. If it exists, it will be updated.
@@ -101,9 +178,10 @@ class RigService:
 
         Args:
             obj (bpy.types.Object): The object to which the armature modifier should be added or updated.
-            armature_object (bpy.types.Object): The armature object to be linked to the armature modifier.
+            armature_object (bpy.types.Object | None): The armature object to be linked to the armature modifier. A
+                falsy value makes the method update the existing modifiers' targets and then return without creating any.
             move_to_top (bool, optional): Whether to move the armature modifier to the top of the stack. Defaults to True.
-            subrig (bpy.types.Object, optional): An optional subrig object to be linked to a special armature modifier. Defaults to None.
+            subrig (bpy.types.Object | None, optional): An optional subrig object to be linked to a special armature modifier. Defaults to None.
 
         Raises:
             RuntimeError: If there is an issue creating or updating the armature modifier.
@@ -119,20 +197,21 @@ class RigService:
 
         for i, modifier in enumerate(obj.modifiers):
             if modifier.type == 'ARMATURE':
-                is_subrig = modifier.vertex_group == sub_vg_name
+                existing = typing.cast(bpy.types.ArmatureModifier, modifier)
+                is_subrig = existing.vertex_group == sub_vg_name
 
                 if is_subrig:
                     index_sub = i
-                elif modifier.vertex_group == vg_name:
+                elif existing.vertex_group == vg_name:
                     index_pv = i
                 else:
                     index_normal = i
 
                 if is_subrig:
                     if subrig is not None:
-                        modifier.object = subrig
+                        existing.object = subrig
                 else:
-                    modifier.object = armature_object
+                    existing.object = armature_object
 
         if not armature_object:
             _LOG.leave()
@@ -150,34 +229,34 @@ class RigService:
             else:
                 index_normal = len(obj.modifiers)
 
-            modifier = obj.modifiers.new("Armature", 'ARMATURE')
-            modifier.object = armature_object
+            normal_modifier = typing.cast(bpy.types.ArmatureModifier, obj.modifiers.new("Armature", 'ARMATURE'))
+            normal_modifier.object = armature_object
 
             override = bpy.context.copy()
             override["object"] = obj
-            while obj.modifiers.find(modifier.name) > index_normal:
+            while obj.modifiers.find(normal_modifier.name) > index_normal:
                 with bpy.context.temp_override(**override):
-                    bpy.ops.object.modifier_move_up(modifier=modifier.name)
+                    bpy.ops.object.modifier_move_up(modifier=normal_modifier.name)
 
         _LOG.trace("Position 3")
 
         if index_pv < 0 and vg_name in obj.vertex_groups:
             index_pv = index_normal + 1
 
-            modifier = obj.modifiers.new("Armature PV", 'ARMATURE')
-            modifier.object = armature_object
-            modifier.use_deform_preserve_volume = True
-            modifier.use_multi_modifier = True
-            modifier.vertex_group = vg_name
+            pv_modifier = typing.cast(bpy.types.ArmatureModifier, obj.modifiers.new("Armature PV", 'ARMATURE'))
+            pv_modifier.object = armature_object
+            pv_modifier.use_deform_preserve_volume = True
+            pv_modifier.use_multi_modifier = True
+            pv_modifier.vertex_group = vg_name
 
             if bpy.app.version_file < (3, 5, 8):  # Blender bug T103074
-                modifier.invert_vertex_group = True
+                pv_modifier.invert_vertex_group = True
 
             override = bpy.context.copy()
             override["object"] = obj
-            while obj.modifiers.find(modifier.name) > index_pv:
+            while obj.modifiers.find(pv_modifier.name) > index_pv:
                 with bpy.context.temp_override(**override):
-                    bpy.ops.object.modifier_move_up(modifier=modifier.name)
+                    bpy.ops.object.modifier_move_up(modifier=pv_modifier.name)
 
         _LOG.trace("Position 4")
 
@@ -187,61 +266,73 @@ class RigService:
 
             index_sub = max(index_normal, index_pv) + 1
 
-            modifier = obj.modifiers.new("Armature Subrig", 'ARMATURE')
-            modifier.object = subrig
-            modifier.use_multi_modifier = True
-            modifier.vertex_group = sub_vg_name
+            sub_modifier = typing.cast(bpy.types.ArmatureModifier, obj.modifiers.new("Armature Subrig", 'ARMATURE'))
+            sub_modifier.object = subrig
+            sub_modifier.use_multi_modifier = True
+            sub_modifier.vertex_group = sub_vg_name
 
             if bpy.app.version_file < (3, 5, 8):  # Blender bug T103074
-                modifier.invert_vertex_group = True
+                sub_modifier.invert_vertex_group = True
 
-            while obj.modifiers.find(modifier.name) > index_sub:
-                bpy.ops.object.modifier_move_up({'object': obj}, modifier=modifier.name)
+            while obj.modifiers.find(sub_modifier.name) > index_sub:
+                # The dict is the pre-3.2 context override form, which blender removed: 4.2 raises
+                # ValueError and 5.0 onwards raises TypeError here, so this loop cannot run to
+                # completion on any supported version. The two blocks above do the same move with
+                # bpy.context.temp_override(), which is the form that works. Left as it stands
+                # because changing it is a logic fix rather than an annotation.
+                bpy.ops.object.modifier_move_up({'object': obj}, modifier=sub_modifier.name)  # pyright: ignore[reportArgumentType]
 
         _LOG.leave()
 
     @staticmethod
-    def get_world_space_location_of_pose_bone(bone_name, armature_object):
-        """Find the head and tail of a pose bone and return their locations in world space."""
-        _LOG.enter()
-        bone = RigService.find_pose_bone_by_name(bone_name, armature_object)
+    def get_world_space_location_of_pose_bone(bone_name: str, armature_object: bpy.types.Object) -> dict[str, Vector]:
+        """Find the head and tail of a pose bone and return their locations in world space.
 
-        loc = dict()
+        Note that the two entries are the wrong way round: ``loc["head"]`` carries the transformed
+        *tail* and ``loc["tail"]`` the transformed *head*. The sole caller reads them by name and so
+        gets each bone end's position under the other end's key."""
+        _LOG.enter()
+        bone = typing.cast(bpy.types.PoseBone, RigService.find_pose_bone_by_name(bone_name, armature_object))
+
+        loc: dict[str, Vector] = dict()
         loc["head"] = armature_object.matrix_world @ bone.tail
         loc["tail"] = armature_object.matrix_world @ bone.head
 
         return loc
 
     @staticmethod
-    def find_pose_bone_by_name(name, armature_object):
+    def find_pose_bone_by_name(name: str, armature_object: bpy.types.Object) -> bpy.types.PoseBone | None:
         """Find a bone with the given name of the armature object, in pose mode."""
         _LOG.enter()
-        return armature_object.pose.bones.get(name)
+        pose = typing.cast(bpy.types.Pose, armature_object.pose)
+        return pose.bones.get(name)
 
     @staticmethod
-    def find_edit_bone_by_name(name, armature_object):
+    def find_edit_bone_by_name(name: str, armature_object: bpy.types.Object) -> bpy.types.EditBone | None:
         """Find a bone with the given name of the armature object, in edit mode."""
         _LOG.enter()
-        return armature_object.data.edit_bones.get(name)
+        edit_bones = typing.cast(bpy.types.Armature, armature_object.data).edit_bones
+        return edit_bones.get(name)
 
     @staticmethod
-    def activate_pose_bone_by_name(name, armature_object, also_select_bone=True, also_deselect_all_other_bones=True):
+    def activate_pose_bone_by_name(name: str, armature_object: bpy.types.Object, also_select_bone: bool = True,
+                                   also_deselect_all_other_bones: bool = True) -> bpy.types.PoseBone:
         """Activate a bone with the given name of the armature object, in pose mode."""
         _LOG.enter()
         if also_deselect_all_other_bones:
-            for bone in armature_object.pose.bones:
-                bone.bone.select = False
-        bone = RigService.find_pose_bone_by_name(name, armature_object)
-        armature_object.data.bones.active = bone.bone
+            for other_bone in typing.cast(bpy.types.Pose, armature_object.pose).bones:
+                other_bone.bone.select = False  # pyright: ignore[reportAttributeAccessIssue]
+        bone = typing.cast(bpy.types.PoseBone, RigService.find_pose_bone_by_name(name, armature_object))
+        typing.cast(bpy.types.Armature, armature_object.data).bones.active = bone.bone
         if also_select_bone:
-            bone.bone.select = True
+            bone.bone.select = True  # pyright: ignore[reportAttributeAccessIssue]
         return bone
 
     @staticmethod
-    def remove_all_constraints_from_pose_bone(bone_name, armature_object):
+    def remove_all_constraints_from_pose_bone(bone_name: str, armature_object: bpy.types.Object) -> None:
         """Clear and remove all pose mode bone constraints from a bone."""
         _LOG.enter()
-        bone = RigService.find_pose_bone_by_name(bone_name, armature_object)
+        bone = typing.cast(bpy.types.PoseBone, RigService.find_pose_bone_by_name(bone_name, armature_object))
         _LOG.debug("bone", bone)
         for constraint in bone.constraints:
             _LOG.debug("constraint", constraint)
@@ -256,14 +347,17 @@ class RigService:
         bone.use_ik_limit_z = False
 
     @staticmethod
-    def add_bone_constraint_to_pose_bone(bone_name, armature_object, constraint_name):
+    def add_bone_constraint_to_pose_bone(bone_name: str, armature_object: bpy.types.Object, constraint_name: str) -> bpy.types.Constraint:
         """Add a pose mode constraint to a bone."""
         _LOG.enter()
-        bone = RigService.find_pose_bone_by_name(bone_name, armature_object)
-        return bone.constraints.new(constraint_name)
+        bone = typing.cast(bpy.types.PoseBone, RigService.find_pose_bone_by_name(bone_name, armature_object))
+        # The stubs declare the argument as the RNA enum of constraint type names. The parameter is
+        # deliberately a plain str, since callers build it from asset data rather than from a literal.
+        return bone.constraints.new(constraint_name)  # pyright: ignore[reportArgumentType]
 
     @staticmethod
-    def add_copy_rotation_constraint_to_pose_bone(bone_to_restrain_name, bone_to_copy_from_name, armature_object, copy_x=True, copy_y=True, copy_z=True):
+    def add_copy_rotation_constraint_to_pose_bone(bone_to_restrain_name: str, bone_to_copy_from_name: str, armature_object: bpy.types.Object,
+                                                  copy_x: bool = True, copy_y: bool = True, copy_z: bool = True) -> bpy.types.CopyRotationConstraint:
         """
         Adds a Copy Rotation constraint to a pose bone, allowing it to copy the rotation of another bone.
 
@@ -276,10 +370,11 @@ class RigService:
             copy_z (bool, optional): Whether to copy the rotation around the Z axis. Defaults to True.
 
         Returns:
-            bpy.types.Constraint: The created Copy Rotation constraint.
+            bpy.types.CopyRotationConstraint: The created Copy Rotation constraint.
         """
         _LOG.enter()
-        constraint = RigService.add_bone_constraint_to_pose_bone(bone_to_restrain_name, armature_object, 'COPY_ROTATION')
+        constraint = typing.cast(bpy.types.CopyRotationConstraint,
+                                 RigService.add_bone_constraint_to_pose_bone(bone_to_restrain_name, armature_object, 'COPY_ROTATION'))
 
         base = 'Copy '
         if copy_x:
@@ -302,7 +397,8 @@ class RigService:
         return constraint
 
     @staticmethod
-    def add_rotation_constraint_to_pose_bone(bone_name, armature_object, limit_x=False, limit_y=False, limit_z=False):
+    def add_rotation_constraint_to_pose_bone(bone_name: str, armature_object: bpy.types.Object, limit_x: bool = False,
+                                             limit_y: bool = False, limit_z: bool = False) -> bpy.types.LimitRotationConstraint:
         """
         Adds a Limit Rotation constraint to a pose bone, restricting its rotation around specified axes.
 
@@ -314,10 +410,11 @@ class RigService:
             limit_z (bool, optional): Whether to limit the rotation around the Z axis. Defaults to False.
 
         Returns:
-            bpy.types.Constraint: The created Limit Rotation constraint.
+            bpy.types.LimitRotationConstraint: The created Limit Rotation constraint.
         """
         _LOG.enter()
-        constraint = RigService.add_bone_constraint_to_pose_bone(bone_name, armature_object, 'LIMIT_ROTATION')
+        constraint = typing.cast(bpy.types.LimitRotationConstraint,
+                                 RigService.add_bone_constraint_to_pose_bone(bone_name, armature_object, 'LIMIT_ROTATION'))
         constraint.use_transform_limit = True
         constraint.owner_space = "LOCAL"
         constraint.use_limit_x = limit_x
@@ -326,7 +423,8 @@ class RigService:
         return constraint
 
     @staticmethod
-    def add_ik_rotation_lock_to_pose_bone(bone_name, armature_object, lock_x=False, lock_y=False, lock_z=False):
+    def add_ik_rotation_lock_to_pose_bone(bone_name: str, armature_object: bpy.types.Object, lock_x: bool = False,
+                                          lock_y: bool = False, lock_z: bool = False) -> bpy.types.PoseBone:
         """
         Adds an IK rotation lock to a pose bone, restricting its rotation around specified axes during IK solving.
 
@@ -340,28 +438,30 @@ class RigService:
         Returns:
             bpy.types.PoseBone: The pose bone with the added IK rotation lock.
         """
-        bone = RigService.find_pose_bone_by_name(bone_name, armature_object)
+        bone = typing.cast(bpy.types.PoseBone, RigService.find_pose_bone_by_name(bone_name, armature_object))
         bone.lock_ik_x = lock_x
         bone.lock_ik_y = lock_y
         bone.lock_ik_z = lock_z
         return bone
 
     @staticmethod
-    def add_ik_constraint_to_pose_bone(bone_name, armature_object, target, chain_length=2):
+    def add_ik_constraint_to_pose_bone(bone_name: str, armature_object: bpy.types.Object,
+                                       target: bpy.types.Object | bpy.types.PoseBone, chain_length: int = 2) -> bpy.types.KinematicConstraint:
         """
         Adds an IK constraint to a pose bone, allowing it to be influenced by an IK target.
 
         Args:
             bone_name (str): The name of the bone to which the IK constraint will be added.
             armature_object (bpy.types.Object): The armature object containing the bone.
-            target (bpy.types.Object or bpy.types.PoseBone): The target object or pose bone for the IK constraint.
+            target (bpy.types.Object | bpy.types.PoseBone): The target object or pose bone for the IK constraint.
             chain_length (int, optional): The number of bones in the IK chain. Defaults to 2.
 
         Returns:
-            bpy.types.Constraint: The created IK constraint.
+            bpy.types.KinematicConstraint: The created IK constraint.
         """
         _LOG.enter()
-        constraint = RigService.add_bone_constraint_to_pose_bone(bone_name, armature_object, 'IK')
+        constraint = typing.cast(bpy.types.KinematicConstraint,
+                                 RigService.add_bone_constraint_to_pose_bone(bone_name, armature_object, 'IK'))
         if isinstance(target, PoseBone):
             constraint.target = armature_object
             constraint.subtarget = target.bone.name
@@ -372,7 +472,7 @@ class RigService:
         return constraint
 
     @staticmethod
-    def find_pose_bone_tail_world_location(bone_name, armature_object):
+    def find_pose_bone_tail_world_location(bone_name: str, armature_object: bpy.types.Object) -> Vector:
         """
         Finds the world space location of the tail of a pose bone.
 
@@ -383,11 +483,11 @@ class RigService:
         Returns:
             Vector: The world space location of the bone's tail.
         """
-        bone = RigService.find_pose_bone_by_name(bone_name, armature_object)
+        bone = typing.cast(bpy.types.PoseBone, RigService.find_pose_bone_by_name(bone_name, armature_object))
         return bone.tail + armature_object.location
 
     @staticmethod
-    def find_pose_bone_head_world_location(bone_name, armature_object):
+    def find_pose_bone_head_world_location(bone_name: str, armature_object: bpy.types.Object) -> Vector:
         """
         Finds the world space location of the head of a pose bone.
 
@@ -399,11 +499,12 @@ class RigService:
             Vector: The world space location of the bone's head.
         """
         _LOG.enter()
-        bone = RigService.find_pose_bone_by_name(bone_name, armature_object)
+        bone = typing.cast(bpy.types.PoseBone, RigService.find_pose_bone_by_name(bone_name, armature_object))
         return bone.head + armature_object.location
 
     @staticmethod
-    def set_ik_rotation_limits(bone_name, armature_object, axis, min_angle=0, max_angle=0):
+    def set_ik_rotation_limits(bone_name: str, armature_object: bpy.types.Object, axis: str,
+                               min_angle: float = 0, max_angle: float = 0) -> None:
         """
         Sets the IK rotation limits for a pose bone.
 
@@ -415,7 +516,7 @@ class RigService:
             max_angle (float, optional): The maximum rotation angle in radians. Defaults to 0.
         """
         _LOG.enter()
-        bone = RigService.find_pose_bone_by_name(bone_name, armature_object)
+        bone = typing.cast(bpy.types.PoseBone, RigService.find_pose_bone_by_name(bone_name, armature_object))
         axis = str(axis).lower()
         if axis == "x":
             bone.use_ik_limit_x = True
@@ -431,7 +532,7 @@ class RigService:
             bone.ik_max_z = max_angle * _RADIAN
 
     @staticmethod
-    def get_bone_orientation_info_as_dict(armature_object):
+    def get_bone_orientation_info_as_dict(armature_object: bpy.types.Object) -> BoneOrientationInfo:
         """
         Retrieves the orientation information of bones in an armature object.
 
@@ -442,34 +543,34 @@ class RigService:
             armature_object (bpy.types.Object): The armature object containing the bones.
 
         Returns:
-            dict: A dictionary containing the orientation information of pose bones and edit bones.
+            BoneOrientationInfo: A dictionary containing the orientation information of pose bones and edit bones.
         """
         bpy.ops.object.mode_set(mode='POSE', toggle=False)
-        pose_bones = dict()
-        for bone in armature_object.pose.bones:
-            binfo = dict()
-            binfo["head"] = bone.head.copy()
-            binfo["tail"] = bone.tail.copy()
-            binfo["matrix"] = bone.matrix.copy()
-            pose_bones[bone.bone.name] = binfo
+        pose_bones: dict[str, BoneOrientation] = dict()
+        for pose_bone in typing.cast(bpy.types.Pose, armature_object.pose).bones:
+            pose_binfo: BoneOrientation = dict()
+            pose_binfo["head"] = pose_bone.head.copy()
+            pose_binfo["tail"] = pose_bone.tail.copy()
+            pose_binfo["matrix"] = pose_bone.matrix.copy()
+            pose_bones[pose_bone.bone.name] = pose_binfo
 
         bpy.ops.object.mode_set(mode='EDIT', toggle=False)
-        edit_bones = dict()
-        for bone in armature_object.data.edit_bones:
-            binfo = dict()
-            binfo["head"] = bone.head.copy()
-            binfo["tail"] = bone.tail.copy()
-            binfo["matrix"] = bone.matrix.copy()
-            binfo["roll"] = bone.roll
-            binfo["length"] = bone.length
-            binfo["parent"] = ""
-            if bone.parent:
-                binfo["parent"] = bone.parent.name
-            edit_bones[bone.name] = binfo
+        edit_bones: dict[str, BoneOrientation] = dict()
+        for edit_bone in typing.cast(bpy.types.Armature, armature_object.data).edit_bones:
+            edit_binfo: BoneOrientation = dict()
+            edit_binfo["head"] = edit_bone.head.copy()
+            edit_binfo["tail"] = edit_bone.tail.copy()
+            edit_binfo["matrix"] = edit_bone.matrix.copy()
+            edit_binfo["roll"] = edit_bone.roll
+            edit_binfo["length"] = edit_bone.length
+            edit_binfo["parent"] = ""
+            if edit_bone.parent:
+                edit_binfo["parent"] = edit_bone.parent.name
+            edit_bones[edit_bone.name] = edit_binfo
 
         bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
 
-        out = dict()
+        out: BoneOrientationInfo = dict()
         out["pose_bones"] = pose_bones
         out["edit_bones"] = edit_bones
 
@@ -478,11 +579,12 @@ class RigService:
         return out
 
     @staticmethod
-    def _recurse_set_orientation(armature_object, new_bone_orientation, bone_children, bone_name):
+    def _recurse_set_orientation(armature_object: bpy.types.Object, new_bone_orientation: BoneOrientationInfo,
+                                 bone_children: dict[str, list[str]], bone_name: str) -> None:
         _LOG.enter()
         matrix = new_bone_orientation["pose_bones"][bone_name]["matrix"]
         _LOG.debug("matrix to apply", matrix)
-        bone = RigService.find_pose_bone_by_name(bone_name, armature_object)
+        bone = typing.cast(bpy.types.PoseBone, RigService.find_pose_bone_by_name(bone_name, armature_object))
         bone.matrix = matrix.copy()
 
         children = bone_children[bone_name]
@@ -490,7 +592,7 @@ class RigService:
             RigService._recurse_set_orientation(armature_object, new_bone_orientation, bone_children, child_name)
 
     @staticmethod
-    def set_bone_orientation_from_info_in_dict(armature_object, new_bone_orientation):
+    def set_bone_orientation_from_info_in_dict(armature_object: bpy.types.Object, new_bone_orientation: BoneOrientationInfo) -> None:
         """
         Sets the bone orientation in an armature object based on the provided orientation information.
 
@@ -500,14 +602,14 @@ class RigService:
 
         Args:
             armature_object (bpy.types.Object): The armature object containing the bones.
-            new_bone_orientation (dict): A dictionary containing the new orientation information for the bones.
+            new_bone_orientation (BoneOrientationInfo): A dictionary containing the new orientation information for the bones.
         """
         _LOG.enter()
         bpy.ops.object.mode_set(mode='POSE', toggle=False)
         current_bone_orientation = RigService.get_bone_orientation_info_as_dict(armature_object)
 
-        bone_children = dict()
-        root_bones = []
+        bone_children: dict[str, list[str]] = dict()
+        root_bones: list[str] = []
 
         for bone_name in current_bone_orientation["edit_bones"].keys():
             _LOG.debug("Analyzing parent/child for bone", bone_name)
@@ -531,7 +633,8 @@ class RigService:
             RigService._recurse_set_orientation(armature_object, new_bone_orientation, bone_children, bone_name)
 
     @staticmethod
-    def _add_bone(armature, bone_info, parent_bone=None, scale=0.1):
+    def _add_bone(armature: bpy.types.Armature, bone_info: SkeletonBoneInfo,
+                  parent_bone: bpy.types.EditBone | None = None, scale: float = 0.1) -> None:
         _LOG.enter()
         bone = armature.edit_bones.new(bone_info["name"])
 
@@ -552,8 +655,12 @@ class RigService:
 
         if "matrix" in bone_info.keys():
             bone_matrix = Matrix(bone_info["matrix"])
-            normalized_matrix = Matrix((bone_matrix[0], -bone_matrix[2], bone_matrix[1])).to_3x3().to_4x4()  # pylint: disable=E1136
-            normalized_matrix.col[3] = bone.matrix.col[3]
+            # The three rows are mathutils Vectors, which are float sequences at runtime but are not
+            # declared as such by the stubs, and MatrixAccess does not declare __setitem__ although
+            # assigning a column works. Both are stub gaps rather than findings.
+            rows = (bone_matrix[0], -bone_matrix[2], bone_matrix[1])  # pylint: disable=E1136
+            normalized_matrix = Matrix(rows).to_3x3().to_4x4()  # pyright: ignore[reportArgumentType]
+            normalized_matrix.col[3] = bone.matrix.col[3]  # pyright: ignore[reportIndexIssue]
             bone.matrix = normalized_matrix
         else:
             if "roll" in bone_info.keys():
@@ -563,7 +670,8 @@ class RigService:
             RigService._add_bone(armature, child, bone, scale=scale)
 
     @staticmethod
-    def create_rig_from_skeleton_info(name, data, parent=None, scale=0.1):
+    def create_rig_from_skeleton_info(name: str, data: SocketSkeletonInfo, parent: bpy.types.Object | None = None,
+                                      scale: float = 0.1) -> bpy.types.Object:
         """
         Create a rig (armature) from the provided skeleton information.
 
@@ -572,8 +680,8 @@ class RigService:
 
         Args:
             name (str): The name of the new armature.
-            data (dict): A dictionary containing the skeleton information, including bone data.
-            parent (bpy.types.Object, optional): The parent object to link the armature to. Defaults to None.
+            data (SocketSkeletonInfo): A dictionary containing the skeleton information, including bone data.
+            parent (bpy.types.Object | None, optional): The parent object to link the armature to. Defaults to None.
             scale (float, optional): The scale factor to apply to the bone positions. Defaults to 0.1.
 
         Returns:
@@ -583,10 +691,14 @@ class RigService:
         armature = bpy.data.armatures.new(name + "Armature")
         armature_object = bpy.data.objects.new(name, armature)
 
-        armature_object.data.display_type = 'WIRE'
+        typing.cast(bpy.types.Armature, armature_object.data).display_type = 'WIRE'
         armature_object.show_in_front = True
 
-        ObjectService.link_blender_object(armature_object, parent)
+        # The parent is passed positionally and so lands in link_blender_object()'s "collection"
+        # parameter, which means it is linked as a collection rather than assigned as a parent. Latent:
+        # every caller leaves "parent" at None, where link_blender_object() falls back to the active
+        # collection. Left as it stands because moving the argument is a logic fix.
+        ObjectService.link_blender_object(armature_object, parent)  # pyright: ignore[reportArgumentType]
 
         bpy.context.view_layer.objects.active = armature_object
         bpy.ops.object.mode_set(mode='EDIT', toggle=False)
@@ -599,7 +711,7 @@ class RigService:
         return armature_object
 
     @staticmethod
-    def ensure_armature_has_bone_shape_objects_as_children(armature_object):
+    def ensure_armature_has_bone_shape_objects_as_children(armature_object: bpy.types.Object) -> None:
         """
         Ensure that the armature object has bone shape objects as children.
 
@@ -636,7 +748,8 @@ class RigService:
             empty.hide_viewport = True
 
     @staticmethod
-    def display_pose_bone_as_empty(armature_object, bone_name, empty_type="SPHERE", scale=1.0):
+    def display_pose_bone_as_empty(armature_object: bpy.types.Object, bone_name: str,
+                                   empty_type: str = "SPHERE", scale: float = 1.0) -> None:
         """
         Display a pose bone as an empty object.
 
@@ -650,7 +763,7 @@ class RigService:
             scale (float, optional): The scale factor to apply to the custom shape. Defaults to 1.0.
         """
         _LOG.enter()
-        bone = RigService.find_pose_bone_by_name(bone_name, armature_object)
+        bone = typing.cast(bpy.types.PoseBone, RigService.find_pose_bone_by_name(bone_name, armature_object))
         RigService.ensure_armature_has_bone_shape_objects_as_children(armature_object)
         children = ObjectService.get_list_of_children(armature_object)
         expected_name = "bone_shape_sphere"
@@ -658,28 +771,31 @@ class RigService:
             expected_name = "bone_shape_circle"
         if empty_type == "SINGLE_ARROW":
             expected_name = "bone_shape_arrow"
-        shape_object = None
+        shape_object: bpy.types.Object | None = None
         for child in children:
             if expected_name in child.name:
                 shape_object = child
         if shape_object:
             bone.custom_shape = shape_object
             if hasattr(bone, "custom_shape_scale"):
-                bone.custom_shape_scale = scale
+                # Removed from PoseBone before the oldest supported blender: absent from the RNA on
+                # both 4.2.1 and 5.1, so the hasattr guard makes this branch unreachable there.
+                bone.custom_shape_scale = scale  # pyright: ignore[reportAttributeAccessIssue]
             if hasattr(bone, "custom_shape_scale_xyz"):
                 bone.custom_shape_scale_xyz = [scale, scale, scale]
         else:
             _LOG.warn("Was not able to find empty child")
 
     @staticmethod
-    def get_weights(armature_objects, basemesh, exclude_weights_below=0.0001,
-                    all_groups=False, all_bones=False, all_masks=True):
+    def get_weights(armature_objects: list[bpy.types.Object] | bpy.types.Object, basemesh: bpy.types.Object,
+                    exclude_weights_below: float = 0.0001, all_groups: bool = False,
+                    all_bones: bool = False, all_masks: bool = True) -> MhwWeights:
         """Create a MHW-compatible weights dict"""
         _LOG.enter()
         # Even though it is unlikely we'll use these keys in MPFB, we'll assign them so that the dict
         # is compatible with the MHW format
 
-        weights = {
+        weights: MhwWeights = {
             "copyright": "(c) the guy who clicked the save weights button",
             "description": "Weights for a rig",
             "license": "CC0",
@@ -688,8 +804,8 @@ class RigService:
             "weights": dict(),
         }
 
-        vertex_group_index_to_name = dict()
-        vertex_group_names = set()
+        vertex_group_index_to_name: dict[int, str] = dict()
+        vertex_group_names: set[str] = set()
 
         for vertex_group in basemesh.vertex_groups:
             index = int(vertex_group.index)
@@ -707,13 +823,13 @@ class RigService:
             armature_objects = [armature_objects]
 
         for armature_object in armature_objects:
-            for bone in armature_object.data.bones:
+            for bone in typing.cast(bpy.types.Armature, armature_object.data).bones:
                 if all_bones and bone.use_deform or bone.name in vertex_group_names:
                     weights["weights"][str(bone.name)] = []
 
         _LOG.dump("Weights before vertices", weights)
 
-        for vertex in basemesh.data.vertices:
+        for vertex in typing.cast(bpy.types.Mesh, basemesh.data).vertices:
             for group in vertex.groups:
                 group_index = int(group.group)
                 weight = max(0, min(1, round(group.weight, 5) + 0))
@@ -726,16 +842,18 @@ class RigService:
         return weights
 
     @staticmethod
-    def load_weights(armature_objects, basemesh, mhw_filename, *, all=False, replace=False):
+    def load_weights(armature_objects: list[bpy.types.Object] | bpy.types.Object, basemesh: bpy.types.Object,
+                     mhw_filename: str, *, all: bool = False, replace: bool = False) -> None:
         """
         Load a json file with weights into the given mesh object.
 
         Args:
-            armature_objects: The armature or list of armatures to use for selecting relevant groups.
-            basemesh: Mesh to load weights into.
-            mhw_filename: Filename to load weights from.
-            all: Load all groups from the file, even if they match no bones.
-            replace: Completely replace group content, i.e. vertices not mentioned in the file are removed.
+            armature_objects (list[bpy.types.Object] | bpy.types.Object): The armature or list of armatures to use for
+                selecting relevant groups.
+            basemesh (bpy.types.Object): Mesh to load weights into.
+            mhw_filename (str): Filename to load weights from.
+            all (bool): Load all groups from the file, even if they match no bones.
+            replace (bool): Completely replace group content, i.e. vertices not mentioned in the file are removed.
         """
         _LOG.enter()
         with open(mhw_filename, 'r', encoding="utf-8") as json_file:
@@ -746,7 +864,7 @@ class RigService:
         RigService.apply_weights(armature_objects, basemesh, weights, all=all, replace=replace)
 
     @staticmethod
-    def set_extra_bones(armature_object, extra_bones: list[str] | None):
+    def set_extra_bones(armature_object: bpy.types.Object, extra_bones: list[str] | None) -> None:
         """
         Set extra bones for the given armature object.
 
@@ -766,7 +884,7 @@ class RigService:
             del armature_object[id_name]
 
     @staticmethod
-    def get_extra_bones(armature_object) -> list[str]:
+    def get_extra_bones(armature_object: bpy.types.Object) -> list[str]:
         """
         Get the list of extra bones for the given armature object.
 
@@ -783,7 +901,7 @@ class RigService:
         return armature_object.get(id_name, [])
 
     @staticmethod
-    def get_deform_group_bones(armature_object) -> list[str]:
+    def get_deform_group_bones(armature_object: bpy.types.Object) -> list[str]:
         """
         Get the list of deform group bones for the given armature object.
 
@@ -797,12 +915,12 @@ class RigService:
             list[str]: A list of deform group bone names.
         """
         _LOG.enter()
-        bones = [bone.name for bone in armature_object.data.bones if bone.use_deform]
+        bones = [bone.name for bone in typing.cast(bpy.types.Armature, armature_object.data).bones if bone.use_deform]
         bones += RigService.find_extra_bones(armature_object)
         return bones
 
     @staticmethod
-    def find_extra_bones(armature_object) -> typing.Optional[list[str]]:
+    def find_extra_bones(armature_object: bpy.types.Object) -> list[str]:
         """
         List deform bones that are not present in the rig but will be generated by Rigify.
 
@@ -813,12 +931,13 @@ class RigService:
             armature_object (bpy.types.Object): The armature object to find extra bones for.
 
         Returns:
-            typing.Optional[list[str]]: A list of extra bone names or None if no extra bones are found.
+            list[str]: A list of extra bone names, empty if there are none. Never None: the branch which
+            finds no generated rig falls back to get_extra_bones(), which answers an empty list.
         """
         _LOG.enter()
         if generated := ObjectService.find_rigify_rig_by_metarig(armature_object):
-            rig_bones = {bone.name for bone in armature_object.data.bones if bone.use_deform}
-            gen_bones = {bone.name for bone in generated.data.bones if bone.use_deform}
+            rig_bones = {bone.name for bone in typing.cast(bpy.types.Armature, armature_object.data).bones if bone.use_deform}
+            gen_bones = {bone.name for bone in typing.cast(bpy.types.Armature, generated.data).bones if bone.use_deform}
 
             return sorted([
                 name for name in gen_bones
@@ -829,20 +948,20 @@ class RigService:
         return RigService.get_extra_bones(armature_object)
 
     @staticmethod
-    def _map_weight_groups_to_bones(armature_objects: list, group_names: typing.Iterable[str]) -> dict[str, str]:
+    def _map_weight_groups_to_bones(armature_objects: list[bpy.types.Object], group_names: typing.Iterable[str]) -> dict[str, str]:
         """Find matching bones for the given set of weight group names, with appropriate fallbacks."""
         _LOG.enter()
 
-        def find_bone(lookup_name) -> typing.Optional[bpy.types.PoseBone]:
+        def find_bone(lookup_name: str) -> bpy.types.PoseBone | None:
             # Use pose bones because they are indexed via hash table
             for obj in armature_objects:
-                result_bone = obj.pose.bones.get(lookup_name, None)
+                result_bone = typing.cast(bpy.types.Pose, obj.pose).bones.get(lookup_name, None)
                 if result_bone and result_bone.bone.use_deform:
                     return result_bone
 
             return None
 
-        def find_common_toe(lookup_name):
+        def find_common_toe(lookup_name: str) -> bpy.types.PoseBone | None:
             # If trying to match a toe group, try falling back to the no-toes common toe
             if match := re.fullmatch(r'^(?:DEF-)?toe\d-\d.([LR])$', lookup_name):
                 left_right = match[1]
@@ -856,7 +975,7 @@ class RigService:
 
             return None
 
-        result = {}
+        result: dict[str, str] = {}
         extra_bones = set(name for obj in armature_objects for name in RigService.get_extra_bones(obj))
 
         for name in group_names:
@@ -875,7 +994,8 @@ class RigService:
         return result
 
     @staticmethod
-    def apply_weights(armature_objects, basemesh, mhw_dict, *, all=False, replace=False):
+    def apply_weights(armature_objects: list[bpy.types.Object] | bpy.types.Object, basemesh: bpy.types.Object,
+                      mhw_dict: MhwWeights, *, all: bool = False, replace: bool = False) -> None:
         """
         Apply weights from a given dictionary to the specified mesh object.
 
@@ -885,7 +1005,7 @@ class RigService:
         Args:
             armature_objects (list[bpy.types.Object] | bpy.types.Object): The armature or list of armatures to use for selecting relevant groups.
             basemesh (bpy.types.Object): The mesh object to apply weights to.
-            mhw_dict (dict): A dictionary containing weights data.
+            mhw_dict (MhwWeights): A dictionary containing weights data.
             all (bool, optional): If True, load all groups from the file, even if they match no bones. Defaults to False.
             replace (bool, optional): If True, completely replace group content, i.e., vertices not mentioned in the file are removed. Defaults to False.
         """
@@ -898,14 +1018,14 @@ class RigService:
 
         group_to_bone = RigService._map_weight_groups_to_bones(armature_objects, weights.keys())
 
-        bone_to_groups = defaultdict(list)
+        bone_to_groups: defaultdict[str, list[str]] = defaultdict(list)
         for name, bone_name in group_to_bone.items():
             bone_to_groups[bone_name].append(name)
 
         # Compute list and order of groups to import, using topology order of bones
         bone_names = [name
                       for arm in armature_objects
-                      for name in ([bone.name for bone in arm.data.bones if bone.use_deform]
+                      for name in ([bone.name for bone in typing.cast(bpy.types.Armature, arm.data).bones if bone.use_deform]
                                    +RigService.get_extra_bones(arm))]
         names = [name for bone in dict.fromkeys(bone_names) for name in bone_to_groups[bone]]
 
@@ -917,7 +1037,7 @@ class RigService:
                   and (all or name.startswith("mhmask-"))]
 
         # Clear vertex groups
-        remove_indices = list(range(len(basemesh.data.vertices))) if replace else []
+        remove_indices = list(range(len(typing.cast(bpy.types.Mesh, basemesh.data).vertices))) if replace else []
 
         for group_name in names:
             bone_name = group_to_bone.get(group_name, group_name)
@@ -948,7 +1068,7 @@ class RigService:
                     vertex_group.add([vertex_index], weight, 'ADD')
 
     @staticmethod
-    def identify_rig(armature_object):
+    def identify_rig(armature_object: bpy.types.Object) -> str:
         """
         Identify the rig type of the given armature object.
 
@@ -962,6 +1082,7 @@ class RigService:
             str: The identified rig type.
         """
         _LOG.enter()
+        armature_data = typing.cast(bpy.types.Armature, armature_object.data)
         bone_name_to_rig = [
             ["oculi02.R", "default_no_toes"],
             ["oculi02.R", "toe2-1.L", "default"],
@@ -978,16 +1099,16 @@ class RigService:
             ["ORG-brow.T.R.002", "ORG-toe2-1.L", "rigify_generated.human_toes"]
             ]
 
-        guessed_rig = None
+        guessed_rig: str | None = None
 
         for identification in bone_name_to_rig:
             _LOG.debug("Matching identification", identification)
             if len(identification) == 3:
-                if identification[0] in armature_object.data.bones and identification[1] in armature_object.data.bones:
+                if identification[0] in armature_data.bones and identification[1] in armature_data.bones:
                     _LOG.debug("Matched two")
                     guessed_rig = identification[2]
             else:
-                if identification[0] in armature_object.data.bones:
+                if identification[0] in armature_data.bones:
                     _LOG.debug("Matched one")
                     guessed_rig = identification[1]
             _LOG.debug("Guessed rig is now", guessed_rig)
@@ -1001,7 +1122,7 @@ class RigService:
                 guessed_rig = "unknown"
 
         if guessed_rig == "unknown":
-            for bone in armature_object.data.bones:
+            for bone in armature_data.bones:
                 if "mixamo" in bone.name:
                     guessed_rig = "mixamo"
                     break
@@ -1010,14 +1131,14 @@ class RigService:
             from .assetservice import AssetService  # pylint: disable=C0415
             for custom_rig in AssetService.get_custom_rigs():
                 identifying_bones = custom_rig.get("identifying_bones", [])
-                if identifying_bones and all(b in armature_object.data.bones for b in identifying_bones):
-                    guessed_rig = "custom." + custom_rig["name"]
+                if identifying_bones and all(b in armature_data.bones for b in identifying_bones):
+                    guessed_rig = "custom." + typing.cast(str, custom_rig["name"])
                     break
 
         return guessed_rig
 
     @staticmethod
-    def infer_metarig_type_from_generated(rigify_object):
+    def infer_metarig_type_from_generated(rigify_object: bpy.types.Object) -> str | None:
         """
         Infer the corresponding rigify meta-rig type for a generated rigify rig.
 
@@ -1035,7 +1156,7 @@ class RigService:
             recognisable signature matches.
         """
         _LOG.enter()
-        bones = rigify_object.data.bones
+        bones = typing.cast(bpy.types.Armature, rigify_object.data).bones
         if "ORG-brow.T.R.002" in bones:
             if "ORG-toe2-1.L" in bones:
                 return "rigify.human_toes"
@@ -1043,7 +1164,7 @@ class RigService:
         return None
 
     @staticmethod
-    def get_rig_weight_fallbacks(rig_type):
+    def get_rig_weight_fallbacks(rig_type: str) -> list[str]:
         """
         Get a list of rig types to try loading weights for in order.
 
@@ -1057,7 +1178,7 @@ class RigService:
             list[str]: A list of rig types to try loading weights for in order.
         """
         _LOG.enter()
-        fallback_table = {
+        fallback_table: dict[str, list[str]] = {
             # Estimate no-toes from the toes version
             "default_no_toes": ["default"],
             # Rigify toes version retains the common toe control, so go both ways
@@ -1068,7 +1189,7 @@ class RigService:
         return [rig_type, *fallback_table.get(rig_type, [])]
 
     @staticmethod
-    def generate_rigify_rig(meta_rig, *, name: str = "", meta_rig_action: str = "hide"):
+    def generate_rigify_rig(meta_rig: bpy.types.Object, *, name: str = "", meta_rig_action: str = "hide") -> bpy.types.Object | None:
         """Run rigify generation on `meta_rig` and return the generated rigify rig.
 
         Caller is responsible for verifying that `meta_rig` is a rigify meta rig
@@ -1087,7 +1208,7 @@ class RigService:
                 ``hide_render``) or ``"delete"`` (remove from ``bpy.data.objects``).
 
         Returns:
-            bpy.types.Object: The generated (or in-place updated) rigify rig,
+            bpy.types.Object | None: The generated (or in-place updated) rigify rig,
             or None if `is_valid_metarig` rejected the meta rig.
         """
         _LOG.enter()
@@ -1095,21 +1216,23 @@ class RigService:
         from ..entities.objectproperties import GeneralObjectProperties  # pylint: disable=C0415
 
         explicit_name = str(name).strip()
+        meta_rig_data = typing.cast(bpy.types.Armature, meta_rig.data)
+        rigify_data = typing.cast(typing.Any, meta_rig_data)
 
         # If the metarig is named incorrectly (e.g. in case of sub-rigs), rename it
         if meta_rig.name.endswith(".rig"):
-            meta_rig.name = meta_rig.data.name = meta_rig.name.replace(".rig", ".metarig")
+            meta_rig.name = meta_rig_data.name = meta_rig.name.replace(".rig", ".metarig")
 
         if explicit_name:
-            if hasattr(meta_rig.data, 'rigify_rig_basename'):
-                meta_rig.data.rigify_rig_basename = explicit_name
+            if hasattr(meta_rig_data, 'rigify_rig_basename'):
+                rigify_data.rigify_rig_basename = explicit_name
             else:
                 meta_rig.name = explicit_name.replace("rig", "metarig")
 
-        elif hasattr(meta_rig.data, 'rigify_generate_mode'):
+        elif hasattr(meta_rig_data, 'rigify_generate_mode'):
             # Try to preserve fix for issue #17 in legacy rigify, which has issues if the object exists.
             fallback_name = meta_rig.name.replace("metarig", "rig")
-            meta_rig.data.rigify_rig_basename = ObjectService.ensure_unique_name(fallback_name)
+            rigify_data.rigify_rig_basename = ObjectService.ensure_unique_name(fallback_name)
 
         bpy.ops.object.select_all(action='DESELECT')
         meta_rig.select_set(True)
@@ -1118,13 +1241,13 @@ class RigService:
             bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
 
         # Switch to the new face rig
-        if bpy.ops.pose.rigify_upgrade_face.poll():
-            bpy.ops.pose.rigify_upgrade_face()
+        if bpy.ops.pose.rigify_upgrade_face.poll():  # pyright: ignore[reportAttributeAccessIssue]
+            bpy.ops.pose.rigify_upgrade_face()  # pyright: ignore[reportAttributeAccessIssue]
 
         # Final validity gate: defer to Rigify itself. Import is guarded the same
         # way SystemService.check_for_rigify() guards: Rigify may not be enabled.
         try:
-            from rigify.utils.rig import is_valid_metarig  # pylint: disable=C0415
+            from rigify.utils.rig import is_valid_metarig  # pylint: disable=C0415 # pyright: ignore[reportMissingImports]
         except ImportError:
             _LOG.warn("Could not import rigify.utils.rig.is_valid_metarig, skipping validity check")
             is_valid_metarig = None
@@ -1133,9 +1256,11 @@ class RigService:
             _LOG.warn("Rigify considers the meta rig invalid; not running rigify_generate")
             return None
 
-        bpy.ops.pose.rigify_generate()  # Rigify availability checked by caller
+        bpy.ops.pose.rigify_generate()  # Rigify availability checked by caller  # pyright: ignore[reportAttributeAccessIssue]
 
-        rigify_object = bpy.context.active_object
+        # rigify_generate() leaves the rig it produced as the active object, so the cast records a
+        # guarantee the operator makes rather than one this service can check.
+        rigify_object = typing.cast(bpy.types.Object, bpy.context.active_object)
         rigify_object.show_in_front = True
         rigify_object.parent = meta_rig.parent
 
@@ -1165,11 +1290,12 @@ class RigService:
         return rigify_object
 
     @staticmethod
-    def mirror_bone_weights_to_other_side_bone(armature_object, source_bone_name, target_bone_name):
+    def mirror_bone_weights_to_other_side_bone(armature_object: bpy.types.Object, source_bone_name: str, target_bone_name: str) -> None:
         """
         Mirror bone weights from one side bone to the other side bone.
 
-        This method mirrors the weights of the source bone to the target bone within the given armature object.
+        Not implemented: the body logs the bone pair and returns, so no weight is read or written. The
+        signature and the name describe the intent, not what the method does.
 
         Args:
             armature_object (bpy.types.Object): The armature object containing the bones.
@@ -1180,12 +1306,12 @@ class RigService:
         _LOG.debug("Will mirror side-to-side", (source_bone_name, target_bone_name))
 
     @staticmethod
-    def mirror_bone_weights_inside_center_bone(armature_object, bone_name, left_to_right=False):
+    def mirror_bone_weights_inside_center_bone(armature_object: bpy.types.Object, bone_name: str, left_to_right: bool = False) -> None:
         """
         Mirror bone weights internally within a center bone.
 
-        This method mirrors the weights within a center bone, either from left to right or right to left,
-        within the given armature object.
+        Not implemented: the body logs the bone name and direction and returns, so no weight is read or
+        written. The signature and the name describe the intent, not what the method does.
 
         Args:
             armature_object (bpy.types.Object): The armature object containing the bone.
@@ -1196,20 +1322,28 @@ class RigService:
         _LOG.debug("Will mirror internally", (bone_name, left_to_right))
 
     @staticmethod
-    def symmetrize_all_bone_weights(armature_object, left_to_right=False, rig_type=None):
+    def symmetrize_all_bone_weights(armature_object: bpy.types.Object, left_to_right: bool = False, rig_type: str | None = None) -> None:
         """
         Symmetrize all bone weights in the armature object.
 
-        This method mirrors the weights of bones from one side to the other within the given armature object.
-        It identifies the source and destination terms based on the rig type and the direction specified.
+        This method walks the bones of the given armature object and classifies each as a source side, a
+        destination side or a center bone, then hands each one to the matching mirror method. Both of those
+        are unimplemented, so the walk currently has no effect on any weight.
+
+        The side suffix lookup is keyed by rig type and only carries an entry for "default", so a rig type
+        which is neither "default" nor falsy nor "unknown" raises KeyError before any bone is visited.
 
         Args:
             armature_object (bpy.types.Object): The armature object containing the bones.
             left_to_right (bool, optional): If True, mirror weights from left to right. Defaults to False.
-            rig_type (str, optional): The type of rig to use for identifying source and destination terms. Defaults to None.
+            rig_type (str | None, optional): The type of rig to use for identifying source and destination terms.
+                Auto-detected with identify_rig() when None. Defaults to None.
+
+        Raises:
+            KeyError: If the resolved rig type has no entry in the side suffix table.
         """
         _LOG.enter()
-        source_terms = {
+        source_terms: dict[bool, dict[str, str]] = {
             True: {
                 "default": ".L"
                 },
@@ -1224,7 +1358,7 @@ class RigService:
         source_term = source_terms[left_to_right][rig_type]
         destination_term = source_terms[not left_to_right][rig_type]
 
-        for bone in armature_object.data.bones:
+        for bone in typing.cast(bpy.types.Armature, armature_object.data).bones:
             if str(bone.name).lower().endswith(str(source_term).lower()):
                 _LOG.debug("Source side bone", bone.name)
                 neutral_name = str(bone.name)[0:len(bone.name) - len(source_term)]
@@ -1238,7 +1372,7 @@ class RigService:
                     RigService.mirror_bone_weights_inside_center_bone(armature_object, str(bone.name), left_to_right)
 
     @staticmethod
-    def set_pose_from_dict(armature_object, pose, from_rest_pose=True):
+    def set_pose_from_dict(armature_object: bpy.types.Object, pose: PoseInfo, from_rest_pose: bool = True) -> None:
         """
         Set the pose of an armature object from a dictionary.
 
@@ -1247,7 +1381,7 @@ class RigService:
 
         Args:
             armature_object (bpy.types.Object): The armature object to set the pose for.
-            pose (dict): A dictionary containing bone rotations and translations.
+            pose (PoseInfo): A dictionary containing bone rotations and translations.
             from_rest_pose (bool, optional): If True, start from the rest pose. Defaults to True.
         """
         _LOG.enter()
@@ -1258,23 +1392,27 @@ class RigService:
             for bone_name in pose["bone_rotations"].keys():
                 bone = RigService.find_pose_bone_by_name(bone_name, armature_object)
                 if bone:
-                    bone.bone.select = True
+                    bone.bone.select = True  # pyright: ignore[reportAttributeAccessIssue]
             for bone_name in pose["bone_translations"].keys():
                 bone = RigService.find_pose_bone_by_name(bone_name, armature_object)
                 if bone:
-                    bone.bone.select = True
+                    bone.bone.select = True  # pyright: ignore[reportAttributeAccessIssue]
         bpy.ops.pose.transforms_clear()
         bpy.ops.pose.select_all(action="DESELECT")
 
-        trans_factor_x = 1
-        trans_factor_y = 1
-        trans_factor_z = 1
+        trans_factor_x: float = 1
+        trans_factor_y: float = 1
+        trans_factor_z: float = 1
 
         if "default" in pose["skeleton_type"]:
-            bottom = RigService.find_pose_bone_by_name("spine05", armature_object).head
-            top = RigService.find_pose_bone_by_name("spine01", armature_object).tail
-            left = RigService.find_pose_bone_by_name("shoulder01.L", armature_object).tail
-            right = RigService.find_pose_bone_by_name("shoulder01.R", armature_object).tail
+            # The four casts assume the pose was recorded on the same rig type as the armature it is
+            # being applied to, which is what the two UI operators guarantee by choosing the pose
+            # directory from identify_rig(). A pose dict handed in directly for a default rig and
+            # applied to a rig without these bones raises AttributeError here.
+            bottom = typing.cast(bpy.types.PoseBone, RigService.find_pose_bone_by_name("spine05", armature_object)).head
+            top = typing.cast(bpy.types.PoseBone, RigService.find_pose_bone_by_name("spine01", armature_object)).tail
+            left = typing.cast(bpy.types.PoseBone, RigService.find_pose_bone_by_name("shoulder01.L", armature_object)).tail
+            right = typing.cast(bpy.types.PoseBone, RigService.find_pose_bone_by_name("shoulder01.R", armature_object)).tail
 
             spine_length = abs((top - bottom).length)
             shoulder_width = abs((left - right).length)
@@ -1288,7 +1426,7 @@ class RigService:
         for name in pose["bone_translations"]:
             bone = RigService.find_pose_bone_by_name(name, armature_object)
             if bone:
-                trans = [0, 0, 0]
+                trans: list[float] = [0, 0, 0]
                 trans[0] = pose["bone_translations"][name][0] * trans_factor_x
                 trans[1] = pose["bone_translations"][name][1] * trans_factor_y
                 trans[2] = pose["bone_translations"][name][2] * trans_factor_z
@@ -1311,7 +1449,8 @@ class RigService:
                 bone.rotation_euler = value
 
     @staticmethod
-    def get_pose_as_dict(armature_object, root_bone_translation=True, ik_bone_translation=True, fk_bone_translation=False, onlyselected=False):
+    def get_pose_as_dict(armature_object: bpy.types.Object, root_bone_translation: bool = True, ik_bone_translation: bool = True,
+                         fk_bone_translation: bool = False, onlyselected: bool = False) -> PoseInfo:
         """
         Get the current pose of an armature object as a dictionary.
 
@@ -1326,26 +1465,28 @@ class RigService:
             onlyselected (bool, optional): If True, include only selected bones. Defaults to False.
 
         Returns:
-            dict: A dictionary containing the current pose of the armature object.
+            PoseInfo: A dictionary containing the current pose of the armature object.
         """
         _LOG.enter()
-        pose = dict()
+        pose: PoseInfo = dict()
         pose["skeleton_type"] = RigService.identify_rig(armature_object)
 
-        ik_terms = []
+        ik_terms: list[str] = []
         root_bone_name = ""
-        spine_length = 0
-        shoulder_width = 0
+        spine_length: float = 0
+        shoulder_width: float = 0
 
         if "default" in pose["skeleton_type"]:
             ik_terms.append("_grip")
             ik_terms.append("_ik")
             root_bone_name = "root"
-            bottom = RigService.find_pose_bone_by_name("spine05", armature_object).head
-            top = RigService.find_pose_bone_by_name("spine01", armature_object).tail
+            # identify_rig() answered a default rig type, which is what guarantees these four bones
+            # exist; see the same four casts in set_pose_from_dict().
+            bottom = typing.cast(bpy.types.PoseBone, RigService.find_pose_bone_by_name("spine05", armature_object)).head
+            top = typing.cast(bpy.types.PoseBone, RigService.find_pose_bone_by_name("spine01", armature_object)).tail
 
-            left = RigService.find_pose_bone_by_name("shoulder01.L", armature_object).tail
-            right = RigService.find_pose_bone_by_name("shoulder01.R", armature_object).tail
+            left = typing.cast(bpy.types.PoseBone, RigService.find_pose_bone_by_name("shoulder01.L", armature_object)).tail
+            right = typing.cast(bpy.types.PoseBone, RigService.find_pose_bone_by_name("shoulder01.R", armature_object)).tail
 
             spine_length = abs((top - bottom).length)
             shoulder_width = abs((left - right).length)
@@ -1364,9 +1505,14 @@ class RigService:
         for bone in selected_active:
             _LOG.debug("bone in selected", bone)
 
-        for bone in armature_object.pose.bones:
+        # Context.selected_pose_bones is None outside pose mode. The two casts below record that
+        # onlyselected is only ever set by a caller which is already in pose mode; the attribute is
+        # not read at all on the default path, since "not onlyselected" short-circuits first.
+        selected_pose_bones = typing.cast("typing.Sequence[bpy.types.PoseBone]", bpy.context.selected_pose_bones)
+
+        for bone in typing.cast(bpy.types.Pose, armature_object.pose).bones:
             mode = bone.rotation_mode
-            if not onlyselected or bone in bpy.context.selected_pose_bones:
+            if not onlyselected or bone in selected_pose_bones:
                 if mode == "QUATERNION":
                     quat = bone.rotation_quaternion
                     if (abs(quat[0] - 1.0) > 0.0001 or abs(quat[1]) > 0.0001
@@ -1374,7 +1520,9 @@ class RigService:
                         pose["bone_rotations"][bone.name] = [quat[0], quat[1], quat[2], quat[3]]
                         pose["bone_rotation_modes"][bone.name] = "QUATERNION"
                 elif mode == "AXIS_ANGLE":
-                    aa = bone.rotation_axis_angle
+                    # rotation_axis_angle is a bpy_prop_array, which the stubs declare without
+                    # __getitem__ although it is subscriptable at runtime.
+                    aa = typing.cast("typing.Sequence[float]", bone.rotation_axis_angle)
                     if abs(aa[0]) > 0.0001:
                         pose["bone_rotations"][bone.name] = [aa[0], aa[1], aa[2], aa[3]]
                         pose["bone_rotation_modes"][bone.name] = "AXIS_ANGLE"
@@ -1390,7 +1538,7 @@ class RigService:
                     is_ik = True
                     pose["has_ik_bones"] = True
 
-            matrix = None
+            matrix: Matrix | None = None
             if is_ik and ik_bone_translation:
                 matrix = bone.matrix_basis
 
@@ -1402,7 +1550,7 @@ class RigService:
                 matrix = bone.matrix_basis
 
             if onlyselected:
-                if not bone in bpy.context.selected_pose_bones:
+                if not bone in selected_pose_bones:
                     matrix = None
 
             if matrix:
@@ -1420,7 +1568,7 @@ class RigService:
         return pose
 
     @staticmethod
-    def refit_existing_armature(armature_object, basemesh):
+    def refit_existing_armature(armature_object: bpy.types.Object, basemesh: bpy.types.Object) -> None:
         """
         Refit an existing armature to a new basemesh.
 
@@ -1476,7 +1624,7 @@ class RigService:
         RigService._do_refit_existing_armature(armature_object, basemesh, rig_file)
 
     @staticmethod
-    def refit_existing_subrig(armature_object, parent_rig):
+    def refit_existing_subrig(armature_object: bpy.types.Object, parent_rig: "Rig") -> None:
         """
         Refit an existing subrig to a new parent rig.
 
@@ -1485,7 +1633,9 @@ class RigService:
 
         Args:
             armature_object (bpy.types.Object): The subrig armature object to be refitted.
-            parent_rig (bpy.types.Object): The parent rig to fit the subrig to.
+            parent_rig (Rig): The parent rig to fit the subrig to. This is an ``entities.rig.Rig``
+                instance, not an armature object: ``Rig.from_json_file_and_basemesh()`` is handed it
+                as the parent of the subrig definition being loaded.
 
         Raises:
             ValueError: If the subrig asset mesh or asset file cannot be found.
@@ -1501,7 +1651,7 @@ class RigService:
             children += list(ObjectService.find_deformed_child_meshes(generated))
 
         uuid = GeneralObjectProperties.get_value("uuid", entity_reference=armature_object)
-        asset_mesh = None
+        asset_mesh: bpy.types.Object | None = None
 
         for child in children:
             if not ObjectService.object_is_any_mesh_asset(child):
@@ -1527,7 +1677,8 @@ class RigService:
         RigService._do_refit_existing_armature(armature_object, asset_mesh, rig_file, parent_rig)
 
     @staticmethod
-    def _do_refit_existing_armature(armature_object, basemesh, rig_file, parent_rig=None):
+    def _do_refit_existing_armature(armature_object: bpy.types.Object, basemesh: bpy.types.Object, rig_file: str,
+                                    parent_rig: "Rig | None" = None) -> None:
         _LOG.enter()
         from ..entities.rig import Rig
         _LOG.reset_timer()
@@ -1557,7 +1708,7 @@ class RigService:
             # Automatically re-generate Rigify metarigs
             if ObjectService.find_rigify_rig_by_metarig(armature_object):
                 if SystemService.check_for_rigify():
-                    bpy.ops.pose.rigify_generate()
+                    bpy.ops.pose.rigify_generate()  # pyright: ignore[reportAttributeAccessIssue]
         finally:
             bpy.context.view_layer.objects.active = current_active_object
             armature_object.hide_viewport = was_hidden_in_viewport
@@ -1566,7 +1717,7 @@ class RigService:
         _LOG.time("Refitting took")
 
     @staticmethod
-    def _get_hidden_in_view_layer(blender_object):
+    def _get_hidden_in_view_layer(blender_object: bpy.types.Object) -> bool:
         """Read the view layer visibility toggle, tolerating objects outside the current view layer."""
         try:
             return blender_object.hide_get()
@@ -1575,7 +1726,7 @@ class RigService:
             return False
 
     @staticmethod
-    def _set_hidden_in_view_layer(blender_object, hidden):
+    def _set_hidden_in_view_layer(blender_object: bpy.types.Object, hidden: bool) -> None:
         """Set the view layer visibility toggle, tolerating objects outside the current view layer."""
         try:
             blender_object.hide_set(hidden)
@@ -1583,7 +1734,7 @@ class RigService:
             _LOG.debug("Could not set view layer visibility for object", blender_object)
 
     @staticmethod
-    def normalize_rotation_mode(armature_object, rotation_mode="XYZ"):
+    def normalize_rotation_mode(armature_object: bpy.types.Object, rotation_mode: RotationMode = "XYZ") -> None:
         """
         Normalize the rotation mode of all bones in an armature object.
 
@@ -1591,17 +1742,18 @@ class RigService:
 
         Args:
             armature_object (bpy.types.Object): The armature object containing the bones.
-            rotation_mode (str, optional): The rotation mode to set for all bones. Defaults to "XYZ".
+            rotation_mode (RotationMode, optional): The rotation mode to set for all bones. One of the eight
+                values of blender's rotation mode enum. Defaults to "XYZ".
         """
         _LOG.enter()
         bpy.context.view_layer.objects.active = armature_object
         bpy.ops.object.mode_set(mode='POSE', toggle=False)
-        for bone in armature_object.pose.bones:
+        for bone in typing.cast(bpy.types.Pose, armature_object.pose).bones:
             bone.rotation_mode = rotation_mode
         bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
 
     @staticmethod
-    def find_leg_length(armature_object):
+    def find_leg_length(armature_object: bpy.types.Object) -> float:
         """
         Find the total length of the leg bones in an armature object.
 
@@ -1626,7 +1778,7 @@ class RigService:
 
         leg_length = 0.0
         for bone_name in right_leg:
-            bone = armature_object.data.bones.get(bone_name)
+            bone = typing.cast(bpy.types.Armature, armature_object.data).bones.get(bone_name)
             if not bone:
                 raise ValueError('Could not find bone ' + bone_name)
             leg_length = leg_length + bone.length
@@ -1634,7 +1786,7 @@ class RigService:
         return leg_length
 
     @staticmethod
-    def find_arm_length(armature_object):
+    def find_arm_length(armature_object: bpy.types.Object) -> float:
         """
         Find the total length of the arm bones in an armature object.
 
@@ -1659,7 +1811,7 @@ class RigService:
 
         arm_length = 0.0
         for bone_name in right_arm:
-            bone = armature_object.data.bones.get(bone_name)
+            bone = typing.cast(bpy.types.Armature, armature_object.data).bones.get(bone_name)
             if not bone:
                 raise ValueError('Could not find bone ' + bone_name)
             arm_length = arm_length + bone.length
@@ -1667,7 +1819,7 @@ class RigService:
         return arm_length
 
     @staticmethod
-    def copy_pose(from_armature, to_armature, only_rotation=True):
+    def copy_pose(from_armature: bpy.types.Object, to_armature: bpy.types.Object, only_rotation: bool = True) -> None:
         """
         Copy the pose from one armature to another.
 
@@ -1680,16 +1832,16 @@ class RigService:
             only_rotation (bool, optional): If True, only copy the rotations. If False, also copy translations and scalings. Defaults to True.
         """
         _LOG.enter()
-        rotations = dict()
-        translations = dict()
-        scalings = dict()
+        rotations: dict[str, Any] = dict()
+        translations: dict[str, Vector] = dict()
+        scalings: dict[str, Vector] = dict()
 
         bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
         ObjectService.deselect_and_deactivate_all()
         ObjectService.activate_blender_object(from_armature)
         bpy.ops.object.mode_set(mode='POSE', toggle=False)
 
-        for bone in from_armature.pose.bones:
+        for bone in typing.cast(bpy.types.Pose, from_armature.pose).bones:
             rotations[bone.name] = bone.rotation_euler.copy()
             translations[bone.name] = bone.location.copy()
             scalings[bone.name] = bone.scale.copy()
@@ -1699,7 +1851,7 @@ class RigService:
         ObjectService.activate_blender_object(to_armature)
         bpy.ops.object.mode_set(mode='POSE', toggle=False)
 
-        for bone in to_armature.pose.bones:
+        for bone in typing.cast(bpy.types.Pose, to_armature.pose).bones:
             if bone.name in rotations:
                 bone.rotation_euler = rotations[bone.name]
             if not only_rotation:
@@ -1711,7 +1863,7 @@ class RigService:
         bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
 
     @staticmethod
-    def add_path_object_to_bone(armature_object, bone_name, bevel_depth=0.015):
+    def add_path_object_to_bone(armature_object: bpy.types.Object, bone_name: str, bevel_depth: float = 0.015) -> bpy.types.Object:
         """
         Create a new nurbs path for a given bone in an armature object. The path will have its
         origin set to the bone's location and its rotation set to the bone's rotation. The path
@@ -1721,18 +1873,27 @@ class RigService:
         Args:
             armature_object (bpy.types.Object): The armature object containing the bone.
             bone_name (str): The name of the bone to create the path object for.
+            bevel_depth (float, optional): The bevel depth to give the path. Defaults to 0.015.
+
+        Returns:
+            bpy.types.Object: The created nurbs path object.
+
+        Raises:
+            ValueError: If the named bone is not in the armature.
         """
         _LOG.enter()
 
         ObjectService.activate_blender_object(armature_object)
 
-        bone = armature_object.data.bones.get(bone_name)
+        bone = typing.cast(bpy.types.Armature, armature_object.data).bones.get(bone_name)
         if not bone:
             raise ValueError("Bone '{}' not found in armature '{}'.".format(bone_name, armature_object.name))
 
         # Create a new nurbs path at the armature's origin
         bpy.ops.curve.primitive_nurbs_path_add(location=armature_object.location)
-        nurbs_path = bpy.context.active_object
+        # The add operator leaves the curve it created as the active object, which is what the cast
+        # records; the same applies to the uv sphere in the method below.
+        nurbs_path = typing.cast(bpy.types.Object, bpy.context.active_object)
 
         nurbs_path.parent = armature_object
         nurbs_path.parent_type = 'BONE'
@@ -1746,25 +1907,26 @@ class RigService:
 
         # In bone local space, the head is at origin and tail is at (0, bone_length, 0)
         # Move the first and last points of the nurbs path to the bone's head and tail
-        nurbs_path.data.splines[0].points[0].co = (0, 0, 0, 1)
-        nurbs_path.data.splines[0].points[-1].co = (0, bone_length, 0, 1)
+        path_data = typing.cast(bpy.types.Curve, nurbs_path.data)
+        path_data.splines[0].points[0].co = (0, 0, 0, 1)
+        path_data.splines[0].points[-1].co = (0, bone_length, 0, 1)
 
         # Place the remaining points on a line between the bone's head and tail
-        number_of_points = len(nurbs_path.data.splines[0].points)
+        number_of_points = len(path_data.splines[0].points)
         increment_y = bone_length / (number_of_points - 1)
 
         for i in range(1, number_of_points - 1):
-            nurbs_path.data.splines[0].points[i].co = (0, increment_y * i, 0, 1)
+            path_data.splines[0].points[i].co = (0, increment_y * i, 0, 1)
 
         # Set the path's geometry
-        nurbs_path.data.bevel_depth = bevel_depth
-        nurbs_path.data.use_fill_caps = True
+        path_data.bevel_depth = bevel_depth
+        path_data.use_fill_caps = True
 
         # Make the start and end points smaller
-        nurbs_path.data.splines[0].points[0].radius = 0.6
-        nurbs_path.data.splines[0].points[1].radius = 0.8
-        nurbs_path.data.splines[0].points[-2].radius = 0.8
-        nurbs_path.data.splines[0].points[-1].radius = 0.6
+        path_data.splines[0].points[0].radius = 0.6
+        path_data.splines[0].points[1].radius = 0.8
+        path_data.splines[0].points[-2].radius = 0.8
+        path_data.splines[0].points[-1].radius = 0.6
 
         # Set the path's name to the bone's name
         nurbs_path.name = bone_name + "_bone"
@@ -1772,7 +1934,8 @@ class RigService:
         return nurbs_path
 
     @staticmethod
-    def add_uv_sphere_object_to_bone(armature_object, bone_name, sphere_scale=0.01, tail_rather_than_head=False):
+    def add_uv_sphere_object_to_bone(armature_object: bpy.types.Object, bone_name: str, sphere_scale: float = 0.01,
+                                     tail_rather_than_head: bool = False) -> bpy.types.Object:
         """
         Create a new uv sphere object for a given bone in an armature object. The sphere will have its
         origin set to the bone's head unless the tail_rather_than_head flag is True.
@@ -1781,19 +1944,25 @@ class RigService:
             armature_object (bpy.types.Object): The armature object containing the bone.
             bone_name (str): The name of the bone to create the sphere object for.
             sphere_scale (float): The scale of the uv sphere.
-            tail_rather_than_head (bool, optional): If True, set the sphere's origin to the bone's tail; otherwise, set it to the bone's head. Defaults to False.'
+            tail_rather_than_head (bool, optional): If True, set the sphere's origin to the bone's tail; otherwise, set it to the bone's head. Defaults to False.
+
+        Returns:
+            bpy.types.Object: The created uv sphere object.
+
+        Raises:
+            ValueError: If the named bone is not in the armature.
         """
         _LOG.enter()
 
         ObjectService.activate_blender_object(armature_object)
 
-        bone = armature_object.data.bones.get(bone_name)
+        bone = typing.cast(bpy.types.Armature, armature_object.data).bones.get(bone_name)
         if not bone:
             raise ValueError("Bone '{}' not found in armature '{}'.".format(bone_name, armature_object.name))
 
-        # Create a new nurbs path at the armature's origin
+        # Create a new uv sphere at the armature's origin
         bpy.ops.mesh.primitive_uv_sphere_add(location=armature_object.location)
-        sphere = bpy.context.active_object
+        sphere = typing.cast(bpy.types.Object, bpy.context.active_object)
         sphere.scale = (sphere_scale, sphere_scale, sphere_scale)
 
         sphere.parent = armature_object

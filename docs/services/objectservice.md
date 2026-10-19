@@ -63,7 +63,7 @@ Create a new mesh object with an empty mesh data block.
 | Argument | Type | Default | Description |
 |----------|------|---------|-------------|
 | `name` | `str` | `"NewObject"` | The name for the new object |
-| `parent` | `bpy.types.Object` | `None` | Optional parent object |
+| `parent` | `bpy.types.Object \| None` | `None` | Optional parent object |
 | `skip_linking` | `bool` | `False` | If `True`, don't link to the current collection |
 
 **Returns:** `bpy.types.Object` — The newly created mesh object.
@@ -79,7 +79,7 @@ Create a new armature object with an armature data block.
 | Argument | Type | Default | Description |
 |----------|------|---------|-------------|
 | `name` | `str` | `"NewObject"` | The name for the new object |
-| `parent` | `bpy.types.Object` | `None` | Optional parent object |
+| `parent` | `bpy.types.Object \| None` | `None` | Optional parent object |
 
 **Returns:** `bpy.types.Object` — The newly created armature object.
 
@@ -95,7 +95,7 @@ Create a new empty object.
 |----------|------|---------|-------------|
 | `name` | `str` | — | The name for the empty object |
 | `empty_type` | `str` | `"SPHERE"` | The empty display type (e.g., `"PLAIN_AXES"`, `"ARROWS"`, `"SPHERE"`) |
-| `parent` | `bpy.types.Object` | `None` | Optional parent object |
+| `parent` | `bpy.types.Object \| None` | `None` | Optional parent object |
 
 **Returns:** `bpy.types.Object` — The newly created empty object.
 
@@ -108,10 +108,28 @@ Link an object to a collection and optionally set its parent.
 | Argument | Type | Default | Description |
 |----------|------|---------|-------------|
 | `object_to_link` | `bpy.types.Object` | — | The object to link |
-| `collection` | `bpy.types.Collection` | `None` | Target collection (defaults to current context collection) |
-| `parent` | `bpy.types.Object` | `None` | Optional parent object |
+| `collection` | `bpy.types.Collection \| None` | `None` | Target collection (defaults to current context collection) |
+| `parent` | `bpy.types.Object \| None` | `None` | Optional parent object |
 
 **Returns:** None
+
+---
+
+#### duplicate_blender_object(object_to_copy, collection=None, parent=None)
+
+Duplicate an object, including a copy of its data block.
+
+| Argument | Type | Default | Description |
+|----------|------|---------|-------------|
+| `object_to_copy` | `bpy.types.Object \| None` | — | The object to duplicate |
+| `collection` | `bpy.types.Collection \| None` | `None` | Target collection (defaults to current context collection) |
+| `parent` | `bpy.types.Object \| None` | `None` | Optional parent for the copy |
+
+**Returns:** `bpy.types.Object \| None` — The new object, or `None` when `object_to_copy` was `None`.
+
+The data block is deep-copied rather than shared, so the duplicate can be morphed or re-weighted without
+affecting the original. The copy is always linked to a collection; unlike `link_blender_object()` this is not
+optional. Callers that reach for `.data` on the result must account for the `None` case.
 
 ---
 
@@ -154,7 +172,7 @@ Make an object selected and active.
 | Argument | Type | Default | Description |
 |----------|------|---------|-------------|
 | `object_to_make_active` | `bpy.types.Object` | — | The object to activate |
-| `context` | `bpy.types.Context` | `None` | Blender context (defaults to `bpy.context`) |
+| `context` | `bpy.types.Context \| None` | `None` | Blender context (defaults to `bpy.context`) |
 | `deselect_all` | `bool` | `False` | If `True`, deselect all other objects first |
 
 **Returns:** None
@@ -219,7 +237,7 @@ Find the object that uses a specific data block.
 |----------|------|---------|-------------|
 | `id_data` | `bpy.types.ID` | — | The data block to search for (e.g., mesh, armature) |
 
-**Returns:** `bpy.types.Object` or `None` — The object using that data block.
+**Returns:** `bpy.types.Object \| None` — The object using that data block.
 
 ---
 
@@ -270,6 +288,12 @@ Get all selected mesh objects.
 
 ### Object Type Identification
 
+All of the `object_is_*` predicates below take a single required argument, `blender_object`, of type
+`bpy.types.Object | None`, and so carry no argument table of their own. Passing `None` is allowed: it is the
+common case where a caller forwards the result of a `find_*` method without checking it first. Note that the
+return type is not uniformly `bool` — several of these return the truthy value they found, or `None` for a
+`None` object, rather than a strict boolean. Each entry states its own return type.
+
 #### get_object_type(blender_object)
 
 Get the MPFB object type of an object.
@@ -289,7 +313,7 @@ Check if an object matches one or more MPFB types.
 | Argument | Type | Default | Description |
 |----------|------|---------|-------------|
 | `blender_object` | `bpy.types.Object \| None` | — | The object to check |
-| `mpfb_type_name` | `str` or `Sequence[str]` | — | Type name or list of acceptable type names |
+| `mpfb_type_name` | `str \| Sequence[str]` | — | Type name or list of acceptable type names |
 
 **Returns:** `bool` — `True` if the object matches any of the specified types.
 
@@ -394,12 +418,12 @@ Find a single object of the specified type among relatives.
 | Argument | Type | Default | Description |
 |----------|------|---------|-------------|
 | `blender_object` | `bpy.types.Object \| None` | — | The starting object |
-| `mpfb_type_name` | `str` or `Sequence[str]` | `"Basemesh"` | Type(s) to search for |
+| `mpfb_type_name` | `str \| Sequence[str]` | `"Basemesh"` | Type(s) to search for |
 | `only_parents` | `bool` | `False` | Only search up the parent chain |
 | `strict_parent` | `bool` | `False` | Stop at non-MakeHuman parents |
 | `only_children` | `bool` | `False` | Only search children |
 
-**Returns:** `bpy.types.Object` or `None` — The first matching object found.
+**Returns:** `bpy.types.Object \| None` — The first matching object found.
 
 Searches the object itself, its children, parents, and siblings.
 
@@ -412,12 +436,12 @@ Find all objects of the specified type among relatives.
 | Argument | Type | Default | Description |
 |----------|------|---------|-------------|
 | `blender_object` | `bpy.types.Object \| None` | — | The starting object |
-| `mpfb_type_name` | `str` or `Sequence[str]` | `"Basemesh"` | Type(s) to search for |
+| `mpfb_type_name` | `str \| Sequence[str]` | `"Basemesh"` | Type(s) to search for |
 | `only_parents` | `bool` | `False` | Only search up the parent chain |
 | `strict_parent` | `bool` | `False` | Stop at non-MakeHuman parents |
 | `only_children` | `bool` | `False` | Only search children |
 
-**Returns:** `Generator[bpy.types.Object]` — Generator yielding matching objects.
+**Returns:** `Generator[bpy.types.Object, None, None]` — Generator yielding matching objects.
 
 ---
 
@@ -425,7 +449,15 @@ Find all objects of the specified type among relatives.
 
 Find all related MPFB objects.
 
-**Returns:** `Generator[bpy.types.Object]` — Generator yielding all related MPFB objects.
+| Argument | Type | Default | Description |
+|----------|------|---------|-------------|
+| `blender_object` | `bpy.types.Object \| None` | — | The starting object |
+| `**kwargs` | `bool` | — | Any of the keyword-only flags of `find_all_objects_of_type_amongst_nearest_relatives()`: `only_parents`, `strict_parent`, `only_children` |
+
+**Returns:** `Generator[bpy.types.Object, None, None]` — Generator yielding all related MPFB objects.
+
+A thin wrapper that calls `find_all_objects_of_type_amongst_nearest_relatives()` with a fixed set of MPFB types
+and forwards `**kwargs` unchanged.
 
 ---
 
@@ -433,7 +465,15 @@ Find all related MPFB objects.
 
 Find all related skeleton objects.
 
-**Returns:** `Generator[bpy.types.Object]` — Generator yielding skeleton objects.
+| Argument | Type | Default | Description |
+|----------|------|---------|-------------|
+| `blender_object` | `bpy.types.Object \| None` | — | The starting object |
+| `**kwargs` | `bool` | — | Any of the keyword-only flags of `find_all_objects_of_type_amongst_nearest_relatives()`: `only_parents`, `strict_parent`, `only_children` |
+
+**Returns:** `Generator[bpy.types.Object, None, None]` — Generator yielding skeleton objects.
+
+A thin wrapper that calls `find_all_objects_of_type_amongst_nearest_relatives()` with a fixed set of MPFB types
+and forwards `**kwargs` unchanged.
 
 ---
 
@@ -441,7 +481,15 @@ Find all related skeleton objects.
 
 Find all related mesh objects (basemesh and assets).
 
-**Returns:** `Generator[bpy.types.Object]` — Generator yielding mesh objects.
+| Argument | Type | Default | Description |
+|----------|------|---------|-------------|
+| `blender_object` | `bpy.types.Object \| None` | — | The starting object |
+| `**kwargs` | `bool` | — | Any of the keyword-only flags of `find_all_objects_of_type_amongst_nearest_relatives()`: `only_parents`, `strict_parent`, `only_children` |
+
+**Returns:** `Generator[bpy.types.Object, None, None]` — Generator yielding mesh objects.
+
+A thin wrapper that calls `find_all_objects_of_type_amongst_nearest_relatives()` with a fixed set of MPFB types
+and forwards `**kwargs` unchanged.
 
 ---
 
@@ -449,7 +497,15 @@ Find all related mesh objects (basemesh and assets).
 
 Find all related mesh asset objects (not basemesh).
 
-**Returns:** `Generator[bpy.types.Object]` — Generator yielding mesh asset objects.
+| Argument | Type | Default | Description |
+|----------|------|---------|-------------|
+| `blender_object` | `bpy.types.Object \| None` | — | The starting object |
+| `**kwargs` | `bool` | — | Any of the keyword-only flags of `find_all_objects_of_type_amongst_nearest_relatives()`: `only_parents`, `strict_parent`, `only_children` |
+
+**Returns:** `Generator[bpy.types.Object, None, None]` — Generator yielding mesh asset objects.
+
+A thin wrapper that calls `find_all_objects_of_type_amongst_nearest_relatives()` with a fixed set of MPFB types
+and forwards `**kwargs` unchanged.
 
 ---
 
@@ -457,7 +513,15 @@ Find all related mesh asset objects (not basemesh).
 
 Find all related body part assets (eyes, teeth, etc.).
 
-**Returns:** `Generator[bpy.types.Object]` — Generator yielding body part objects.
+| Argument | Type | Default | Description |
+|----------|------|---------|-------------|
+| `blender_object` | `bpy.types.Object \| None` | — | The starting object |
+| `**kwargs` | `bool` | — | Any of the keyword-only flags of `find_all_objects_of_type_amongst_nearest_relatives()`: `only_parents`, `strict_parent`, `only_children` |
+
+**Returns:** `Generator[bpy.types.Object, None, None]` — Generator yielding body part objects.
+
+A thin wrapper that calls `find_all_objects_of_type_amongst_nearest_relatives()` with a fixed set of MPFB types
+and forwards `**kwargs` unchanged.
 
 ---
 
@@ -469,7 +533,7 @@ Find all mesh objects deformed by an armature.
 |----------|------|---------|-------------|
 | `armature_object` | `bpy.types.Object \| None` | — | The armature to check |
 
-**Returns:** `Generator[bpy.types.Object]` — Generator yielding deformed mesh objects.
+**Returns:** `Generator[bpy.types.Object, None, None]` — Generator yielding deformed mesh objects.
 
 ---
 
@@ -487,7 +551,8 @@ Find all mesh objects deformed by an armature.
 
 #### object_is_generated_rigify_rig(blender_object)
 
-Check if an object is a generated Rigify rig.
+Check if an object is a generated Rigify rig. Takes a single required `blender_object` of type
+`bpy.types.Object | None`.
 
 **Returns:** `bool | None` — Truthy (the `rig_id` value) if the armature has a `rig_id` data property; `None` when the object is `None`.
 
@@ -514,7 +579,7 @@ Find the metarig associated with a generated Rigify rig.
 |----------|------|---------|-------------|
 | `blender_object` | `bpy.types.Object \| None` | — | The generated rig |
 
-**Returns:** `bpy.types.Object` or `None` — The associated metarig.
+**Returns:** `bpy.types.Object \| None` — The associated metarig.
 
 ---
 
@@ -526,7 +591,7 @@ Find the generated rig associated with a Rigify metarig.
 |----------|------|---------|-------------|
 | `blender_object` | `bpy.types.Object \| None` | — | The metarig |
 
-**Returns:** `bpy.types.Object` or `None` — The generated rig.
+**Returns:** `bpy.types.Object \| None` — The generated rig.
 
 ---
 
@@ -536,12 +601,16 @@ Find the base rig, basemesh, and directly controlled mesh for an armature.
 
 | Argument | Type | Default | Description |
 |----------|------|---------|-------------|
-| `armature_object` | `bpy.types.Object` | — | The armature to analyze |
-| `operator` | `bpy.types.Operator` | `None` | Operator for error reporting |
-| `is_subrig` | `bool` | `None` | Override subrig detection |
+| `armature_object` | `bpy.types.Object \| None` | — | The armature to analyze |
+| `operator` | `bpy.types.Operator \| None` | `None` | Operator for error reporting |
+| `is_subrig` | `bool \| None` | `None` | Override subrig detection; `None` means detect it |
 | `only_basemesh` | `bool` | `False` | Only find basemesh, not direct mesh |
 
-**Returns:** `tuple[Object, Object, Object]` — `(base_rig, basemesh, direct_mesh)`, any may be `None`.
+**Returns:** `tuple[bpy.types.Object \| None, bpy.types.Object \| None, bpy.types.Object \| None]` —
+`(base_rig, basemesh, direct_mesh)`, any of which may be `None`.
+
+To determine success, check `direct_mesh` for `None`. When `operator` is given, each failure path also reports an
+`ERROR` through it; when it is `None` the method fails silently and the caller must inspect the result.
 
 ---
 
@@ -554,7 +623,7 @@ Load a Wavefront OBJ file into Blender.
 | Argument | Type | Default | Description |
 |----------|------|---------|-------------|
 | `filepath` | `str` | — | Path to the OBJ file |
-| `context` | `bpy.types.Context` | `None` | Blender context |
+| `context` | `bpy.types.Context \| None` | `None` | Blender context |
 
 **Returns:** `bpy.types.Object` — The loaded mesh object.
 
@@ -570,7 +639,7 @@ Save a mesh object to a Wavefront OBJ file.
 |----------|------|---------|-------------|
 | `filepath` | `str` | — | Path for the OBJ file |
 | `mesh_object` | `bpy.types.Object` | — | The mesh to save |
-| `context` | `bpy.types.Context` | `None` | Blender context |
+| `context` | `bpy.types.Context \| None` | `None` | Blender context |
 
 **Returns:** None
 
@@ -584,10 +653,10 @@ Load the MPFB base mesh.
 
 | Argument | Type | Default | Description |
 |----------|------|---------|-------------|
-| `context` | `bpy.types.Context` | `None` | Blender context |
+| `context` | `bpy.types.Context \| None` | `None` | Blender context |
 | `scale_factor` | `float` | `1.0` | Scale to apply to the mesh |
 | `load_vertex_groups` | `bool` | `True` | Whether to load vertex groups |
-| `exclude_vertex_groups` | `list[str]` | `None` | Vertex groups to skip |
+| `exclude_vertex_groups` | `list[str] \| None` | `None` | Vertex groups to skip |
 
 **Returns:** `bpy.types.Object` — The loaded basemesh with smooth shading and MPFB properties set.
 
@@ -629,7 +698,7 @@ Assign vertex groups from a definition dictionary.
 |----------|------|---------|-------------|
 | `blender_object` | `bpy.types.Object` | — | The mesh object |
 | `vertex_group_definition` | `dict` | — | Dict mapping group names to vertex index lists |
-| `exclude_groups` | `list[str]` | `None` | Groups to skip |
+| `exclude_groups` | `list[str] \| None` | `None` | Groups to skip |
 
 **Returns:** None
 

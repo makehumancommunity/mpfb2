@@ -1,9 +1,16 @@
 """Helper for managing mode switches."""
 
-import bpy
+import bpy, typing
 
 from ....services import LogService
 _LOG = LogService.get_logger("abstractrighelper")
+
+HelperMode = typing.Literal["EDIT", "POSE", "OBJECT"]
+"""The three interaction modes the rig helpers switch between.
+
+A ``Literal`` rather than a bare ``str`` because ``bpy.ops.object.mode_set()`` declares its ``mode``
+argument as a literal of the full set of object modes, and because these three are the only ones the
+helpers have any use for."""
 
 class AbstractRigHelper():
     """
@@ -13,12 +20,12 @@ class AbstractRigHelper():
     and ensures that mode changes are performed only when necessary.
     """
 
-    def checked_mode_set(self, mode):
+    def checked_mode_set(self, mode: HelperMode) -> None:
         """
         Set the Blender mode if it's different from the current mode.
 
         Args:
-            mode (str): The desired Blender mode ('EDIT', 'POSE', or 'OBJECT').
+            mode: The desired Blender mode ('EDIT', 'POSE', or 'OBJECT').
 
         Note:
             This method checks the current mode before switching to avoid unnecessary mode changes.
@@ -30,7 +37,7 @@ class AbstractRigHelper():
         else:
             _LOG.trace("Current mode is already", mode)
 
-    def edit_mode(self):
+    def edit_mode(self) -> None:
         """
         Switch to Edit mode.
 
@@ -38,7 +45,7 @@ class AbstractRigHelper():
         """
         self.checked_mode_set('EDIT')
 
-    def pose_mode(self):
+    def pose_mode(self) -> None:
         """
         Switch to Pose mode.
 
@@ -46,7 +53,7 @@ class AbstractRigHelper():
         """
         self.checked_mode_set('POSE')
 
-    def object_mode(self):
+    def object_mode(self) -> None:
         """
         Switch to Object mode.
 

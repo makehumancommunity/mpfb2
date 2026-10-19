@@ -1,13 +1,24 @@
-import os, json, shutil, bpy
+"""The MakeSkin workflow: an MHMAT material as a blender node tree, and back again."""
+
+import os, json, shutil, typing, bpy
 from pathlib import Path
+from typing import Any
 from .mhmaterial import MhMaterial
 from .mhmatkeys import MHMAT_KEYS
+from .mhmatkeytypes import MhMatKey
 from ...services import LogService
 from ...services import LocationService
 from ...services import NodeService
 from ...services import MaterialService
 
 _LOG = LogService.get_logger("material.makeskinmaterial")
+
+TemplateValues = dict[str, str]
+"""The substitution dict for the makeskin.json node tree template.
+
+Every value is a string, because each one is spliced into the JSON source in place of a
+``"$key"`` placeholder before the document is parsed. A boolean is therefore the text ``"true"``
+or ``"false"``, a colour the text of a JSON array, and a file name carries its own quotes."""
 
 _WARN_BL4_NAMES = [
     "subsurfaceColorMap"
@@ -43,12 +54,14 @@ _NONCOLOR = [
     "transmissionmap"
     ]
 
-_NODE_SOCKET_VALUES = []  # key name, node name, socket name
+_NODE_SOCKET_VALUES: list[list[str]] = []  # key name, node name, socket name
 _NODE_SOCKET_VALUES.append(["diffuseColor", "Principled BSDF", "Base Color"])  # First pick up color from principled
 _NODE_SOCKET_VALUES.append(["diffuseColor", "diffuseIntensity", "Color1"])  # Then overwrite with intensity node if any
 _NODE_SOCKET_VALUES.append(["diffuseIntensity", "diffuseIntensity", "Fac"])
 _NODE_SOCKET_VALUES.append(["bumpmapIntensity", "bumpmap", "Strength"])
 _NODE_SOCKET_VALUES.append(["normalmapIntensity", "normalmap", "Strength"])
+# The MHMAT key is "displacementMapIntensity", with a capital M. This row writes a settings entry
+# which no key in MHMAT_KEYS matches, so as_mhmat() never writes the value out again.
 _NODE_SOCKET_VALUES.append(["displacementmapIntensity", "displacementmap", "Scale"])
 _NODE_SOCKET_VALUES.append(["metallic", "Principled BSDF", "Metallic"])
 _NODE_SOCKET_VALUES.append(["ior", "Principled BSDF", "IOR"])
@@ -57,11 +70,13 @@ _NODE_SOCKET_VALUES.append(["roughness", "Principled BSDF", "Roughness"])
 
 class MakeSkinMaterial(MhMaterial):
 
-    def __init__(self, importer_presets=None):
-        MhMaterial.__init__(self)
-        self.presets = importer_presets
+    """An MhMaterial which can be applied as, and read back out of, a MakeSkin node tree."""
 
-    def _template(self, template_values, has, tex, key):
+    def __init__(self, importer_presets: dict[str, Any] | None = None) -> None:
+        MhMaterial.__init__(self)
+        self.presets: dict[str, Any] | None = importer_presets
+
+    def _template(self, template_values: TemplateValues, has: str, tex: str, key: str) -> None:
         template_values[has] = "false"
         template_values[tex] = "\"\""
         setting = self.get_value(key)
@@ -74,7 +89,8 @@ class MakeSkinMaterial(MhMaterial):
         else:
             _LOG.debug(key + " is not set in mhmat")
 
-    def apply_node_tree(self, blender_material, template_values=None):
+    def apply_node_tree(self, blender_material: bpy.types.Material, template_values: TemplateValues | None = None) -> None:
+        """Replace the material's node tree with the makeskin template, filled in from this material."""
         tree_dir = LocationService.get_mpfb_data("node_trees")
         json_file = os.path.join(tree_dir, "makeskin.json")
 
@@ -141,9 +157,11 @@ class MakeSkinMaterial(MhMaterial):
 
         _LOG.dump("node_tree", node_tree_dict)
 
-        NodeService.apply_node_tree_from_dict(blender_material.node_tree, node_tree_dict, True)
+        # Material.node_tree is None until use_nodes is set, which every caller does before getting
+        # here, either directly or through MaterialService.create_empty_material().
+        NodeService.apply_node_tree_from_dict(typing.cast(bpy.types.NodeTree, blender_material.node_tree), node_tree_dict, True)
 
-    def _set_texture(self, node_tree, name):
+    def _set_texture(self, node_tree: bpy.types.NodeTree, name: str) -> None:
         _LOG.enter()
         node = NodeService.find_node_by_name(node_tree, name)
         _LOG.debug("expected_name, node", (name, node))
@@ -157,14 +175,18 @@ class MakeSkinMaterial(MhMaterial):
         else:
             _LOG.debug("Could not find a node for", name)
 
-    def _set_config_value(self, blender_object, expected_name):
+    def _set_config_value(self, blender_object: bpy.types.Object, expected_name: str) -> None:
         from ...ui.create_assets.makeskin import MakeSkinObjectProperties
         if MakeSkinObjectProperties.has_key(expected_name):
             self._settings[expected_name] = MakeSkinObjectProperties.get_value(expected_name, entity_reference=blender_object)
 
-    def ensure_uvmap_node_for_texture_nodes(self, blender_object):
-        material = blender_object.material_slots[0].material
-        node_tree = material.node_tree
+    def ensure_uvmap_node_for_texture_nodes(self, blender_object: bpy.types.Object) -> None:
+        """Give every texture node in the object's first material a UV map node, where it has none.
+
+        Only the thirteen node names built from _TEXTURE_NAMES are looked at, which is every
+        texture node the makeskin template creates."""
+        material = typing.cast(bpy.types.Material, blender_object.material_slots[0].material)
+        node_tree = typing.cast(bpy.types.NodeTree, material.node_tree)
 
         for texture_name_base in _TEXTURE_NAMES:
             texture_name = texture_name_base + "Texture"
@@ -188,19 +210,23 @@ class MakeSkinMaterial(MhMaterial):
                         ypos=node_y)
 
                     NodeService.add_link(node_tree, uvmap_node, node, "UV", "Vector")
-                    uvmap_node.uv_map = blender_object.data.uv_layers[0].name
+                    # create_node() returns the Node base class, which carries nothing specific to
+                    # the type the name selected; uv_map is declared on ShaderNodeUVMap.
+                    typing.cast(bpy.types.ShaderNodeUVMap, uvmap_node).uv_map = \
+                        typing.cast(bpy.types.Mesh, blender_object.data).uv_layers[0].name
 
-    def populate_from_object(self, blender_object):
-        blender_material = blender_object.material_slots[0].material
+    def populate_from_object(self, blender_object: bpy.types.Object) -> None:
+        """Read an existing MakeSkin material off an object and store it as MHMAT settings."""
+        blender_material = typing.cast(bpy.types.Material, blender_object.material_slots[0].material)
 
-        key_by_name = dict()
+        key_by_name: dict[str, MhMatKey] = dict()
 
         for key in MHMAT_KEYS:
             _LOG.debug("populate from object", (key.key_name, key.default_value, key.key_group))
             self._settings[key.key_name] = key.default_value
             key_by_name[key.key_name] = key
             if key.key_group == "Texture":
-                self._set_texture(blender_material.node_tree, key.key_name)
+                self._set_texture(typing.cast(bpy.types.NodeTree, blender_material.node_tree), key.key_name)
             if key.key_group in ["Metadata", "Various"]:
                 self._set_config_value(blender_object, key.key_name)
 
@@ -209,7 +235,7 @@ class MakeSkinMaterial(MhMaterial):
             node_name = nsv[1]
             socket_name = nsv[2]
 
-            node = NodeService.find_node_by_name(blender_material.node_tree, node_name)
+            node = NodeService.find_node_by_name(typing.cast(bpy.types.NodeTree, blender_material.node_tree), node_name)
             if node:
                 socket_values = NodeService.get_socket_default_values(node)
                 if socket_values and socket_name in socket_values:
@@ -218,7 +244,10 @@ class MakeSkinMaterial(MhMaterial):
         from ...ui.create_assets.makeskin import MakeSkinObjectProperties
         if MakeSkinObjectProperties.get_value("sss_enable", entity_reference=blender_object):
             self._settings["sssEnabled"] = True
-            node = NodeService.find_node_by_name(blender_material.node_tree, "Principled BSDF")
+            # A makeskin material always has a principled node, since the template's own is not
+            # conditional, so this lookup cannot come back empty for a material this class made.
+            node = typing.cast(bpy.types.Node,
+                               NodeService.find_node_by_name(typing.cast(bpy.types.NodeTree, blender_material.node_tree), "Principled BSDF"))
             socket_values = NodeService.get_socket_default_values(node)
             if "Subsurface Radius" in socket_values:
                 radius = socket_values["Subsurface Radius"]
@@ -232,16 +261,23 @@ class MakeSkinMaterial(MhMaterial):
 
         _LOG.dump("\n\n\nRESULTS, POPULATE FROM OBJECT\n\n\n", self._settings)
 
-    def check_that_all_textures_are_saved(self, blender_object, mhmat_dir=None, mhmat_bn=None):
-        material = blender_object.material_slots[0].material
-        node_tree = material.node_tree
+    def check_that_all_textures_are_saved(self, blender_object: bpy.types.Object, mhmat_dir: str | None = None,
+                                          mhmat_bn: str | None = None) -> str | None:
+        """Save any unsaved texture image, and return a message describing the first one which could not be.
+
+        Only the thirteen node names built from _TEXTURE_NAMES are looked at, which is every
+        texture node the makeskin template creates."""
+        material = typing.cast(bpy.types.Material, blender_object.material_slots[0].material)
+        node_tree = typing.cast(bpy.types.NodeTree, material.node_tree)
 
         for texture_name_base in _TEXTURE_NAMES:
             texture_name = texture_name_base + "Texture"
             node = NodeService.find_node_by_name(node_tree, texture_name)
             _LOG.debug("texture name, node", (texture_name, node))
             if node:
-                image = node.image
+                # Only ShaderNodeTexImage carries an image, and the names searched for are the
+                # template's own image texture nodes.
+                image = typing.cast(bpy.types.ShaderNodeTexImage, node).image
                 if not image:
                     return "The " + node.name + " does not have an image"
                 node_info = NodeService.get_node_info(node)
@@ -262,7 +298,8 @@ class MakeSkinMaterial(MhMaterial):
 
         return None
 
-    def export_to_disk(self, mhmat_path, normalize_textures=True):
+    def export_to_disk(self, mhmat_path: str, normalize_textures: bool = True) -> None:
+        """Write this material as an MHMAT file, optionally copying its textures in beside it."""
         if normalize_textures:
             mhmat_loc = os.path.dirname(mhmat_path)
             mhmat_base = str(os.path.basename(mhmat_path)).replace(".mhmat", "").replace(" ", "_")
@@ -286,7 +323,9 @@ class MakeSkinMaterial(MhMaterial):
     # TODO: Method for writing MHMAT attributes as BlenderConfigSet attributes
 
     @staticmethod
-    def create_makeskin_template_material(blender_object, scene, name="MakeSkinMaterial"):
+    def create_makeskin_template_material(blender_object: bpy.types.Object, scene: bpy.types.Scene,
+                                          name: str = "MakeSkinMaterial") -> None:
+        """Create a new material on the object from the makeskin template, as the scene settings ask for."""
 
         from ...ui.create_assets.makeskin.makeskinpanel import MAKESKIN_PROPERTIES
 
@@ -295,7 +334,7 @@ class MakeSkinMaterial(MhMaterial):
         if scene is None:
             raise ValueError('Must provide a scene')
 
-        template_values = dict()
+        template_values: TemplateValues = dict()
         for part in _TEXTURE_NAMES:
             _LOG.debug("checking texture", part)
             if MAKESKIN_PROPERTIES.get_value("create_" + part, entity_reference=scene):
@@ -314,10 +353,23 @@ class MakeSkinMaterial(MhMaterial):
         if resolution and resolution != "NONE":
             for part in _TEXTURE_NAMES:
                 if MAKESKIN_PROPERTIES.get_value("create_" + part, entity_reference=scene):
-                    node = NodeService.find_node_by_name(material.node_tree, part + "Texture")
+                    # The template was given the same create_<part> flags above, so the node for an
+                    # enabled part always exists here. Four of the thirteen are keyed in
+                    # makeskin.json under an abbreviated name -- aoTexture, emcTexture, emsTexture
+                    # and subsTexture -- but each of those carries the full <part>Texture name in
+                    # its own "name" entry, which is what the node ends up called.
+                    node = typing.cast(bpy.types.ShaderNodeTexImage,
+                                       NodeService.find_node_by_name(typing.cast(bpy.types.NodeTree, material.node_tree), part + "Texture"))
                     _LOG.debug("create image for", (part, node))
                     side = int(resolution)
                     bpy.ops.image.new(name=part + "Texture", width=side, height=side)
                     node.image = bpy.data.images[part + "Texture"]
                     if part in _NONCOLOR:
-                        node.image.colorspace_settings.name = "Non-Color"
+                        # Image.colorspace_settings cannot be None: it is an embedded struct rather
+                        # than a pointer, so there is nothing for it to be null for. The RNA enum
+                        # behind its name carries only "NONE" statically, because the real
+                        # colorspace list is populated from OCIO at runtime, so no stub can know
+                        # "Non-Color".
+                        colorspace = typing.cast(bpy.types.ColorManagedInputColorspaceSettings,
+                                                 typing.cast(bpy.types.Image, node.image).colorspace_settings)
+                        colorspace.name = "Non-Color"  # pyright: ignore[reportAttributeAccessIssue]

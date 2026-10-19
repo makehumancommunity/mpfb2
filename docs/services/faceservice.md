@@ -76,7 +76,7 @@ For each `(face_unit_name, weight)` pair: validates that `face_unit_name` is in 
 
 | Argument | Type | Default | Description |
 |----------|------|---------|-------------|
-| `basemesh` | `bpy.types.Object` | — | The basemesh object |
+| `basemesh` | `bpy.types.Object \| None` | — | The basemesh object. `None` is warned about and ignored |
 | `expression_dict` | `dict[str, float]` | — | Bare ARKit name → weight in [0, 1] |
 
 **Returns:** None
@@ -89,7 +89,7 @@ Sets every `!ex-{name}` shape key on the basemesh to `0.0`. Iterates over `ARKIT
 
 | Argument | Type | Default | Description |
 |----------|------|---------|-------------|
-| `basemesh` | `bpy.types.Object` | — | The basemesh object |
+| `basemesh` | `bpy.types.Object \| None` | — | The basemesh object. `None` is silently ignored |
 
 **Returns:** None
 
@@ -101,7 +101,7 @@ Reads the current `!ex-` shape key values into a dict keyed by bare ARKit names.
 
 | Argument | Type | Default | Description |
 |----------|------|---------|-------------|
-| `basemesh` | `bpy.types.Object` | — | The basemesh object |
+| `basemesh` | `bpy.types.Object \| None` | — | The basemesh object. `None` yields the all-zero dict |
 
 **Returns:** `dict[str, float]` — Bare ARKit face unit name → current shape key value.
 
@@ -116,8 +116,8 @@ If `filename` is a bare basename (no directory part), it is resolved under `Loca
 | Argument | Type | Default | Description |
 |----------|------|---------|-------------|
 | `filename` | `str` | — | Output path. Bare names resolve under `<user_data>/expressions/` |
-| `expression_dict` | `dict[str, float]` | — | Bare ARKit name → weight; zero entries are dropped |
-| `metadata` | `dict` | — | Top-level metadata fields |
+| `expression_dict` | `dict[str, float] \| None` | — | Bare ARKit name → weight; zero entries are dropped. `None` is treated as an empty dict |
+| `metadata` | `dict[str, Any] \| None` | — | Top-level metadata fields. `None` is treated as an empty dict |
 
 **Returns:** `str` — The absolute path actually written to.
 
@@ -133,7 +133,7 @@ Loads an expression JSON file (see [Expression file format](../fileformats/expre
 |----------|------|---------|-------------|
 | `filename` | `str` | — | Path to the JSON file |
 
-**Returns:** `tuple[dict[str, float], dict]` — `(expression_dict, metadata)`. `expression_dict` only contains face units whose names are members of `ARKIT_FACEUNITS`. `metadata` contains the seven top-level metadata fields with defaults.
+**Returns:** `tuple[dict[str, float], dict[str, Any]]` — `(expression_dict, metadata)`. `expression_dict` only contains face units whose names are members of `ARKIT_FACEUNITS`. `metadata` contains the seven top-level metadata fields with defaults.
 
 **Raises:** `IOError` — if the file does not exist; `ValueError` — if the document is not a JSON object.
 
@@ -146,9 +146,10 @@ Scans every standard MPFB asset root under `expressions/` and returns one entry 
 root wins — matching the precedence rule for poses. Files that fail to parse are skipped with a
 warning so a single malformed file does not break the picker.
 
-**Returns:** `list[tuple[str, str, dict]]` — Each tuple is
+**Returns:** `list[tuple[str, str, dict[str, Any]]]` — Each tuple is
 `(absolute_path, library_relative_path, metadata)` where `metadata` is the dict returned by
-`load_expression`.
+`load_expression`, plus an extra `label` key this method adds: the metadata `name` when it is a
+non-empty string, otherwise the file's basename with underscores turned into spaces.
 
 ---
 
@@ -163,7 +164,7 @@ skipped with a warning. Used by `set_stack_weight`, `apply_expression_file`,
 
 | Argument | Type | Default | Description |
 |----------|------|---------|-------------|
-| `stack` | `list[dict]` | — | Applied-expressions list (typically read from `basemesh["mpfb_applied_expressions"]`) |
+| `stack` | `list[Any] \| None` | — | Applied-expressions list (typically read from `basemesh["mpfb_applied_expressions"]`). The element type is `Any` rather than `dict` because the list comes back off a user-writable ID property, so every row is isinstance-checked here rather than trusted |
 
 **Returns:** `dict[str, float]` — `{face_unit_name: weight}` containing only non-zero entries.
 
@@ -183,7 +184,7 @@ invoke `HumanService.refit` based on its own scene toggle.
 
 | Argument | Type | Default | Description |
 |----------|------|---------|-------------|
-| `basemesh` | `bpy.types.Object` | — | The basemesh object |
+| `basemesh` | `bpy.types.Object \| None` | — | The basemesh object. `None` raises `ValueError` |
 | `asset_fragment` | `str` | — | Library-relative path of the expression file (the value stored in the stack's `asset` field) |
 | `weight` | `float` | — | New slider value in `[0, 1]`; `0.0` removes the row |
 
@@ -209,7 +210,7 @@ belongs to the calling operator, which reads its panel's `auto_refit` toggle.
 
 | Argument | Type | Default | Description |
 |----------|------|---------|-------------|
-| `basemesh` | `bpy.types.Object` | — | The basemesh object |
+| `basemesh` | `bpy.types.Object \| None` | — | The basemesh object. `None` raises `ValueError` |
 | `filename` | `str` | — | Absolute path to an expression JSON file |
 | `weight` | `float` | `1.0` | Row weight for this expression |
 | `append` | `bool` | `True` | If `True`, append/replace by asset. If `False`, replace the stack with a single row. |
@@ -228,7 +229,7 @@ refreshing.
 
 | Argument | Type | Default | Description |
 |----------|------|---------|-------------|
-| `basemesh` | `bpy.types.Object` | — | The basemesh object |
+| `basemesh` | `bpy.types.Object \| None` | — | The basemesh object. `None` yields an empty dict |
 
 **Returns:** `dict[str, float]` — The aggregated dict that was written.
 
@@ -241,7 +242,7 @@ Empties the persistent stack (`basemesh["mpfb_applied_expressions"]`) and zeroes
 
 | Argument | Type | Default | Description |
 |----------|------|---------|-------------|
-| `basemesh` | `bpy.types.Object` | — | The basemesh object |
+| `basemesh` | `bpy.types.Object \| None` | — | The basemesh object. `None` is silently ignored |
 
 **Returns:** None
 
@@ -273,7 +274,7 @@ The mapping is driven by the `VISEMES02_TO_LIPSYNC` constant. For each entry, th
 |----------|------|---------|-------------|
 | `basemesh` | `bpy.types.Object` | — | The basemesh to configure. Must have visemes02 loaded and Lip Sync initialised. |
 
-**Returns:** `list` — A list of viseme IDs whose target shape key was not found on the mesh. An empty list means all mappings were applied successfully.
+**Returns:** `list[str]` — A list of viseme IDs whose target shape key was not found on the mesh. An empty list means all mappings were applied successfully.
 
 **Raises:**
 - `ValueError` — if the Lip Sync addon (`iocgpoly_lip_sync`) is not enabled in Blender preferences.
