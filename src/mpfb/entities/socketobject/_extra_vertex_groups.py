@@ -1,7 +1,9 @@
 
 groups_which_should_not_get_specific_material = ["nippleTip", "scalp"]
 
-vertex_group_information = dict()
+# Vertex group name to the vertex indices it holds, for each mesh the information is available for:
+# the key "basemesh" for the base mesh itself, and a proxy's uuid for a proxy.
+vertex_group_information: dict[str, dict[str, list[int]]] = dict()
 
 # Base mesh
 vertex_group_information["basemesh"] = dict()

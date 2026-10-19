@@ -10,6 +10,12 @@ Key capabilities include: **node tree lifecycle management** (creation, destruct
 
 NodeService also manages MPFB's custom shader node groups. These are composite nodes that encapsulate common material patterns. The `ensure_v2_node_groups_exist()` method creates and validates all required node groups at addon startup.
 
+Two things are worth knowing before calling anything here. First, **every `find_*` method answers `bpy.types.Node | None` (or an empty list), and `add_link()` does not check the nodes or sockets it is given** — a name which does not exist reaches `links.new()` as `None` and raises `TypeError` naming neither of the two names that were wrong. Callers in MPFB rely on a material's own structure to guarantee the lookup instead of testing it, which is why several of them carry a `typing.cast` at the call rather than a guard.
+
+Second, the node tree arguments are typed `bpy.types.NodeTree`, not `bpy.types.ShaderNodeTree`. Nothing in this service needs the shader subclass, and the common argument is `material.node_tree`, which the Blender stubs declare as `ShaderNodeTree | None` — so a caller reading it off a material passes it through a cast for the `None`, not for the subclass.
+
+> **`get_node_tree_as_dict()` cannot serialise a tree which contains a node group.** Its group branch reads `NodeTree.inputs` and `NodeTree.outputs`, which Blender replaced with `NodeTree.interface` in 4.0 — two minor versions below this addon's own floor. The reads raise `AttributeError` on every supported version, verified on 4.2.1 and on 5.1. See the method entry below.
+
 All methods are static; the class should never be instantiated.
 
 ## Source
@@ -21,7 +27,30 @@ All methods are static; the class should never be instantiated.
 | Dependency | Usage |
 |------------|-------|
 | `LogService` | Logging via `LogService.get_logger("services.nodeservice")` |
-| `NodeTreeService` | Node tree interface socket operations |
+| `NodeTreeService` | Node tree interface socket operations, and the `SocketInOut` literal |
+
+## Module-Level Types
+
+Declared in `nodeservice.py`:
+
+| Name | Definition | What it is |
+|------|------------|------------|
+| `NodeInfoV2` | `dict[str, Any]` | The v2 description of one node: `class`, `inputs`, `outputs` and `attributes`. Only the developer operators in the UI layer read one, which is why it is local rather than shared |
+| `LinkInfo` | `dict[str, str \| int]` | One link: `from_node`, `to_node`, `from_socket`, `to_socket`. The two socket entries are names, or the socket index where the node carries more than one socket of that name |
+
+Declared in `src/mpfb/types.py`, because they cross into `MaterialService`, `HumanService` and the material entities:
+
+| Name | Definition | What it is |
+|------|------------|------------|
+| `NodeInfo` | `dict[str, Any]` | The v1 description of one node, and the shape the JSON templates under `data/node_trees` are written in |
+| `NodeTreeDict` | `dict[str, Any]` | A whole tree: `nodes`, `links` and, at the outermost level only, `groups` |
+| `SocketValues` | `dict[str, Any]` | Input socket name to default value, for the three socket classes this service reads and writes |
+
+Imported from `NodeTreeService`:
+
+| Name | Definition | What it is |
+|------|------------|------------|
+| `SocketInOut` | `Literal["INPUT", "OUTPUT"]` | The direction argument of the two private interface socket helpers |
 
 ## Public API
 
@@ -34,8 +63,8 @@ Create a new shader node tree.
 | Argument | Type | Default | Description |
 |----------|------|---------|-------------|
 | `node_tree_name` | `str` | — | Name for the new node tree |
-| `inputs` | `list` | `None` | Optional input socket definitions (currently unused) |
-| `outputs` | `list` | `None` | Optional output socket definitions (currently unused) |
+| `inputs` | `list[Any] \| None` | `None` | Accepted and never read |
+| `outputs` | `list[Any] \| None` | `None` | Accepted and never read |
 
 **Returns:** `bpy.types.ShaderNodeTree` — The newly created node tree.
 
@@ -47,7 +76,7 @@ Remove a shader node tree from Blender's data.
 
 | Argument | Type | Default | Description |
 |----------|------|---------|-------------|
-| `node_tree` | `bpy.types.ShaderNodeTree` | — | The node tree to remove |
+| `node_tree` | `bpy.types.NodeTree` | — | The node tree to remove |
 
 **Returns:** None
 
@@ -59,7 +88,7 @@ Delete all nodes in a node tree while preserving the tree instance.
 
 | Argument | Type | Default | Description |
 |----------|------|---------|-------------|
-| `node_tree` | `bpy.types.ShaderNodeTree` | — | The node tree to clear |
+| `node_tree` | `bpy.types.NodeTree` | — | The node tree to clear |
 | `also_destroy_groups` | `bool` | `False` | Also destroy referenced node groups |
 
 **Returns:** None
@@ -106,13 +135,15 @@ Get detailed v2 format information about a node.
 |----------|------|---------|-------------|
 | `node` | `bpy.types.Node` | — | The node to inspect |
 
-**Returns:** `dict` — Dictionary containing:
+**Returns:** `NodeInfoV2` — Dictionary containing:
 - `class`: Node class name
-- `inputs`: Dict of input socket information (name, identifier, class, value_type, default_value)
+- `inputs`: Dict of input socket information (name, identifier, class, value_type, default_value), plus `min_value` and `max_value` for a float socket on a group node
 - `outputs`: Dict of output socket information
 - `attributes`: Dict of node attributes (name, class, value)
 
 **Raises:** `ValueError` — If node is `None`.
+
+The `min_value`/`max_value` lookup is guarded by `hasattr(node, "node_tree")` rather than by the node's class, so a node type which carries an empty `node_tree` — a group node added but never assigned a tree — raises `AttributeError` there rather than being skipped.
 
 ---
 
@@ -124,13 +155,15 @@ Get v1 format information about a node.
 |----------|------|---------|-------------|
 | `node` | `bpy.types.Node` | — | The node to inspect |
 
-**Returns:** `dict` — Dictionary containing:
+**Returns:** `NodeInfo` — Dictionary containing:
 - `type`: Node class name
 - `name`: Node name
 - `label`: Node label
 - `location`: Node position as list
-- `values`: Dict of input socket default values
+- `values`: `SocketValues` — input socket default values
 - `create`: Boolean (always `True`)
+
+Plus, for the node types it knows: `filename` and `colorspace` for a `ShaderNodeTexImage`, `operation` and `use_clamp` for a `ShaderNodeMath`, `operation` for a `ShaderNodeVectorMath`, and `value` for a `ShaderNodeValue`.
 
 ---
 
@@ -142,11 +175,13 @@ Get information about a node link.
 |----------|------|---------|-------------|
 | `link` | `bpy.types.NodeLink` | — | The link to inspect |
 
-**Returns:** `dict` — Dictionary containing:
+**Returns:** `LinkInfo` — Dictionary containing:
 - `from_node`: Source node name
 - `to_node`: Destination node name
 - `from_socket`: Source socket name or index (if name is ambiguous)
 - `to_socket`: Destination socket name or index (if name is ambiguous)
+
+All four endpoints of a `bpy.types.NodeLink` are declared optional by the stubs, and the RNA agrees on both supported Blender versions, but a link which is actually in a tree's `links` collection always has all four — which is the only way one reaches this method.
 
 ---
 
@@ -156,15 +191,17 @@ Serialize an entire node tree to a dictionary.
 
 | Argument | Type | Default | Description |
 |----------|------|---------|-------------|
-| `node_tree` | `bpy.types.ShaderNodeTree` | — | The node tree to serialize |
+| `node_tree` | `bpy.types.NodeTree` | — | The node tree to serialize |
 | `recurse_groups` | `bool` | `True` | Also serialize referenced node groups |
-| `group_dict` | `dict` | `None` | Internal: shared group dictionary for recursion |
+| `group_dict` | `dict[str, NodeTreeDict] \| None` | `None` | Internal: shared group dictionary for recursion |
 | `recursion_level` | `int` | `0` | Internal: current recursion depth |
 
-**Returns:** `dict` — Dictionary containing:
-- `nodes`: Dict of node information keyed by node name
-- `links`: List of link information dicts
+**Returns:** `NodeTreeDict` — Dictionary containing:
+- `nodes`: Dict of `NodeInfo` keyed by node name
+- `links`: List of `LinkInfo` dicts
 - `groups`: Dict of node group definitions (only at recursion level 0)
+
+> **This method cannot serialise a tree which contains a `ShaderNodeGroup`.** Once it has recursed into the group's own tree it reads `node.node_tree.inputs` and `node.node_tree.outputs` to record the group's interface. Neither attribute exists: Blender replaced them with `NodeTree.interface` in 4.0, and neither name appears in `NodeTree.bl_rna.properties` on 4.2.1 or on 5.1, so both reads raise `AttributeError`. `NodeTreeService.get_socket()` walks `interface.items_tree`, which is the form that works, and is what the three statements in that branch would have to be rewritten against. Until then, the method is usable only on a flat tree, or with `recurse_groups=False` — which skips the whole branch, interface records included.
 
 ---
 
@@ -172,7 +209,7 @@ Serialize an entire node tree to a dictionary.
 
 Get a list of all known shader node classes.
 
-**Returns:** `list` — List of shader node class objects.
+**Returns:** `list[type[bpy.types.ShaderNode]]` — The classes themselves, not their names: every class in `bpy.types` which has `bpy.types.ShaderNode` as a *direct* base. The list is built once at import time, so a node class registered later by another add-on is not in it.
 
 ---
 
@@ -186,9 +223,9 @@ Get default values for all input sockets of a node.
 |----------|------|---------|-------------|
 | `node` | `bpy.types.Node` | — | The node to query |
 
-**Returns:** `dict` — Dictionary mapping socket names to default values.
+**Returns:** `SocketValues` — Dictionary mapping socket names to default values: a `float` for the two float socket classes and a four element `list[float]` for a colour.
 
-Only returns values for `NodeSocketColor`, `NodeSocketFloatFactor`, and `NodeSocketFloat` socket types.
+Only returns values for `NodeSocketColor`, `NodeSocketFloatFactor`, and `NodeSocketFloat` socket types. A node with no `inputs` attribute at all yields an empty dict rather than raising.
 
 ---
 
@@ -199,9 +236,11 @@ Set input socket default values from a dictionary.
 | Argument | Type | Default | Description |
 |----------|------|---------|-------------|
 | `node` | `bpy.types.Node` | — | The node to update |
-| `values` | `dict` | — | Dictionary mapping socket names to values |
+| `values` | `SocketValues` | — | Dictionary mapping socket names to values |
 
 **Returns:** None
+
+Names in `values` which the node does not carry are ignored silently, and a node with no `inputs` attribute is a logged no-op rather than an error.
 
 ---
 
@@ -214,7 +253,7 @@ Get the default value of a specific input socket.
 | `node` | `bpy.types.Node` | — | The node to query |
 | `socket_name` | `str` | — | Name of the input socket |
 
-**Returns:** Value of the socket, or `None` if not found.
+**Returns:** `Any` — whatever the named socket holds, which is a `float`, a `bool`, a `str` or a colour depending entirely on which socket the caller asked for; `Any` is therefore the deliberate answer rather than a placeholder. `None` is also a genuine return, for a node with no inputs or no input of that name.
 
 **Raises:** `ValueError` — If node is `None`.
 
@@ -228,10 +267,10 @@ Find an input socket by identifier or name.
 |----------|------|---------|-------------|
 | `node` | `bpy.types.Node` | — | The node to search |
 | `socket_identifier` | `str` | — | Socket identifier to find |
-| `socket_name` | `str` | `None` | Alternative socket name |
+| `socket_name` | `str \| None` | `None` | Alternative socket name |
 | `force_find_by_name` | `bool` | `False` | Only search by name |
 
-**Returns:** `bpy.types.NodeSocket` or `None`
+**Returns:** `bpy.types.NodeSocket | None`
 
 For `ShaderNodeGroup` nodes, prefers name over identifier when `socket_name` is provided.
 
@@ -245,10 +284,10 @@ Find an output socket by identifier or name.
 |----------|------|---------|-------------|
 | `node` | `bpy.types.Node` | — | The node to search |
 | `socket_identifier` | `str` | — | Socket identifier to find |
-| `socket_name` | `str` | `None` | Alternative socket name |
+| `socket_name` | `str \| None` | `None` | Alternative socket name |
 | `force_find_by_name` | `bool` | `False` | Only search by name |
 
-**Returns:** `bpy.types.NodeSocket` or `None`
+**Returns:** `bpy.types.NodeSocket | None`
 
 ---
 
@@ -260,10 +299,10 @@ Find a node by its name.
 
 | Argument | Type | Default | Description |
 |----------|------|---------|-------------|
-| `node_tree` | `bpy.types.ShaderNodeTree` | — | The node tree to search |
+| `node_tree` | `bpy.types.NodeTree` | — | The node tree to search |
 | `node_name` | `str` | — | Name of the node |
 
-**Returns:** `bpy.types.Node` or `None`
+**Returns:** `bpy.types.Node | None`
 
 ---
 
@@ -273,7 +312,7 @@ Find all nodes of a specific type.
 
 | Argument | Type | Default | Description |
 |----------|------|---------|-------------|
-| `node_tree` | `bpy.types.ShaderNodeTree` | — | The node tree to search |
+| `node_tree` | `bpy.types.NodeTree` | — | The node tree to search |
 | `type_name` | `str` | — | Node type name (class name or `node.type`) |
 
 **Returns:** `list[bpy.types.Node]` — List of matching nodes.
@@ -286,10 +325,10 @@ Find the first node of a specific type.
 
 | Argument | Type | Default | Description |
 |----------|------|---------|-------------|
-| `node_tree` | `bpy.types.ShaderNodeTree` | — | The node tree to search |
+| `node_tree` | `bpy.types.NodeTree` | — | The node tree to search |
 | `type_name` | `str` | — | Node type name |
 
-**Returns:** `bpy.types.Node` or `None`
+**Returns:** `bpy.types.Node | None`
 
 ---
 
@@ -299,10 +338,10 @@ Find the first group node using a specific node tree.
 
 | Argument | Type | Default | Description |
 |----------|------|---------|-------------|
-| `node_tree` | `bpy.types.ShaderNodeTree` | — | The node tree to search |
+| `node_tree` | `bpy.types.NodeTree` | — | The node tree to search |
 | `tree_name` | `str` | — | Name of the referenced node tree |
 
-**Returns:** `bpy.types.ShaderNodeGroup` or `None`
+**Returns:** `bpy.types.ShaderNodeGroup | None`
 
 ---
 
@@ -312,8 +351,8 @@ Find all nodes of a specific class.
 
 | Argument | Type | Default | Description |
 |----------|------|---------|-------------|
-| `node_tree` | `bpy.types.ShaderNodeTree` | — | The node tree to search |
-| `type_class` | `type` | — | Node class to find |
+| `node_tree` | `bpy.types.NodeTree` | — | The node tree to search |
+| `type_class` | `type` | — | Node class to find, passed straight to `isinstance()` |
 
 **Returns:** `list[bpy.types.Node]` — List of matching nodes.
 
@@ -325,10 +364,10 @@ Find the first node of a specific class.
 
 | Argument | Type | Default | Description |
 |----------|------|---------|-------------|
-| `node_tree` | `bpy.types.ShaderNodeTree` | — | The node tree to search |
-| `type_class` | `type` | — | Node class to find |
+| `node_tree` | `bpy.types.NodeTree` | — | The node tree to search |
+| `type_class` | `type` | — | Node class to find, passed straight to `isinstance()` |
 
-**Returns:** `bpy.types.Node` or `None`
+**Returns:** `bpy.types.Node | None`
 
 ---
 
@@ -340,11 +379,11 @@ Find the node that connects to a specific input socket.
 
 | Argument | Type | Default | Description |
 |----------|------|---------|-------------|
-| `node_tree` | `bpy.types.ShaderNodeTree` | — | The node tree |
+| `node_tree` | `bpy.types.NodeTree` | — | The node tree |
 | `node_which_is_linked_to` | `bpy.types.Node` | — | The destination node |
 | `name_of_socket` | `str` | — | Name of the input socket |
 
-**Returns:** `bpy.types.Node` or `None` — The source node of the link.
+**Returns:** `bpy.types.Node | None` — The source node of the link.
 
 **Raises:** `ValueError` — If node or socket name is `None`.
 
@@ -356,7 +395,7 @@ Remove the link connected to a specific input socket.
 
 | Argument | Type | Default | Description |
 |----------|------|---------|-------------|
-| `node_tree` | `bpy.types.ShaderNodeTree` | — | The node tree |
+| `node_tree` | `bpy.types.NodeTree` | — | The node tree |
 | `node_which_is_linked_to` | `bpy.types.Node` | — | The destination node |
 | `name_of_socket` | `str` | — | Name of the input socket |
 
@@ -372,13 +411,15 @@ Create a link between two nodes.
 
 | Argument | Type | Default | Description |
 |----------|------|---------|-------------|
-| `node_tree` | `bpy.types.ShaderNodeTree` | — | The node tree |
+| `node_tree` | `bpy.types.NodeTree` | — | The node tree |
 | `from_node` | `bpy.types.Node` | — | The source node |
 | `to_node` | `bpy.types.Node` | — | The destination node |
 | `from_socket_name` | `str` | — | Name of the output socket |
 | `to_socket_name` | `str` | — | Name of the input socket |
 
 **Returns:** None
+
+> **Neither socket name is checked.** Each is resolved with the socket finder above, which answers `None` for a name the node does not carry, and the result goes straight to `links.new()` — which raises `TypeError` without saying which of the two names was wrong. The same applies to the nodes: `add_link()` does not test them, so a caller passing an unguarded `find_*` result reaches the same `TypeError`.
 
 ---
 
@@ -390,14 +431,14 @@ Create a new node of the specified type.
 
 | Argument | Type | Default | Description |
 |----------|------|---------|-------------|
-| `node_tree` | `bpy.types.ShaderNodeTree` | — | The node tree |
+| `node_tree` | `bpy.types.NodeTree` | — | The node tree |
 | `type_name` | `str` | — | Node type name (e.g., `"ShaderNodeBsdfPrincipled"`) |
-| `name` | `str` | `None` | Optional node name |
-| `label` | `str` | `None` | Optional node label |
+| `name` | `str \| None` | `None` | Optional node name |
+| `label` | `str \| None` | `None` | Optional node label |
 | `xpos` | `float` | `0` | X position in node editor |
 | `ypos` | `float` | `0` | Y position in node editor |
 
-**Returns:** `bpy.types.Node` — The newly created node.
+**Returns:** `bpy.types.Node` — The newly created node. The base class, not the subclass the type name selects: a caller which needs the subclass narrows it with a `typing.cast`, which is what the type-specific factories below do.
 
 ---
 
@@ -407,14 +448,16 @@ Create a node from a dictionary definition.
 
 | Argument | Type | Default | Description |
 |----------|------|---------|-------------|
-| `node_tree` | `bpy.types.ShaderNodeTree` | — | The node tree |
-| `node_info` | `dict` | — | Node definition dictionary |
+| `node_tree` | `bpy.types.NodeTree` | — | The node tree |
+| `node_info` | `NodeInfo` | — | Node definition dictionary |
 
 **Returns:** `bpy.types.Node` — The newly created node.
 
 The dictionary should contain at minimum a `type` key with the node type name.
 
 ---
+
+The six factories below take the same arguments as `create_node()` — `node_tree`, `name`, `label`, `xpos`, `ypos` — and differ only in the type name they pass and the subclass they narrow the result to. Each one is a `typing.cast` over `create_node()`, which is as safe as the type name is correct.
 
 #### create_principled_node(node_tree, name=None, label=None, xpos=0, ypos=0)
 
@@ -462,7 +505,7 @@ Create a Value node.
 
 | Argument | Type | Default | Description |
 |----------|------|---------|-------------|
-| `default_value` | `float` | `0.0` | Initial value (currently unused) |
+| `default_value` | `float` | `0.0` | Accepted and never applied; set the node's output socket afterwards to give it a value |
 
 **Returns:** `bpy.types.ShaderNodeValue`
 
@@ -470,11 +513,11 @@ Create a Value node.
 
 #### create_attibute_node(node_tree, name=None, label=None, xpos=0, ypos=0, default_value="")
 
-Create an Attribute node.
+Create an Attribute node. The method name is misspelled — "attibute" — and is kept as it is because renaming it would break callers.
 
 | Argument | Type | Default | Description |
 |----------|------|---------|-------------|
-| `default_value` | `str` | `""` | Initial attribute name (currently unused) |
+| `default_value` | `str` | `""` | Accepted and never applied; set `attribute_name` on the returned node instead |
 
 **Returns:** `bpy.types.ShaderNodeAttribute`
 
@@ -486,7 +529,7 @@ Create an Image Texture node with optional image.
 
 | Argument | Type | Default | Description |
 |----------|------|---------|-------------|
-| `image_path_absolute` | `str` | `None` | Absolute path to image file |
+| `image_path_absolute` | `str \| None` | `None` | Absolute path to image file |
 | `colorspace` | `str` | `"sRGB"` | Color space for the image |
 
 **Returns:** `bpy.types.ShaderNodeTexImage`
@@ -505,7 +548,7 @@ Get the file path of an image texture node's image.
 |----------|------|---------|-------------|
 | `image_texture_node` | `bpy.types.ShaderNodeTexImage` | — | The image texture node |
 
-**Returns:** `str` or `None` — Normalized absolute path, or `None` if not available.
+**Returns:** `str | None` — Normalized absolute path, or `None` if the node has no image, the image has no file path, or the path is not a file.
 
 ---
 
@@ -517,11 +560,11 @@ Set the image in an image texture node.
 |----------|------|---------|-------------|
 | `node` | `bpy.types.ShaderNodeTexImage` | — | The image texture node |
 | `file_name` | `str` | — | Path to the image file |
-| `colorspace` | `str` | `None` | Color space (defaults to `"sRGB"`) |
+| `colorspace` | `str \| None` | `None` | Color space; `None` means `"sRGB"` |
 
 **Returns:** None
 
-Loads the image if not already in Blender's data, and applies the colorspace setting.
+Loads the image if not already in Blender's data, and applies the colorspace setting. An empty or whitespace-only `file_name`, and a path which does not exist, are both logged and returned from without touching the node. A colorspace name Blender does not know is caught and logged, leaving whatever the image already had.
 
 ---
 
@@ -532,7 +575,7 @@ Update an image texture node from a dictionary.
 | Argument | Type | Default | Description |
 |----------|------|---------|-------------|
 | `node` | `bpy.types.ShaderNodeTexImage` | — | The image texture node |
-| `node_info` | `dict` | — | Dictionary with `filename` and optional `colorspace` |
+| `node_info` | `NodeInfo` | — | Dictionary with `filename` and optional `colorspace` |
 
 **Returns:** None
 
@@ -547,11 +590,11 @@ Update a node's settings from a dictionary.
 | Argument | Type | Default | Description |
 |----------|------|---------|-------------|
 | `node` | `bpy.types.Node` | — | The node to update |
-| `node_info` | `dict` | — | Dictionary with node settings |
+| `node_info` | `NodeInfo` | — | Dictionary with node settings |
 
 **Returns:** None
 
-Handles special cases for various node types including `ShaderNodeGroup`, `ShaderNodeTexImage`, `ShaderNodeMath`, `ShaderNodeMixRGB`, and `ShaderNodeValue`.
+Handles special cases for various node types including `ShaderNodeGroup`, `ShaderNodeTexImage`, `ShaderNodeMath`, `ShaderNodeMixRGB`, and `ShaderNodeValue`. Each branch is selected on `node_info["type"]` and then writes a property declared only on that subclass, so a dict whose `type` disagrees with the node it is applied to is an `AttributeError`. One pairing is worth noting: `ShaderNodeMath` and `ShaderNodeVectorMath` share a branch, but only the former has `use_clamp`, so a vector maths entry carrying `use_clamp` fails there.
 
 ---
 
@@ -561,17 +604,29 @@ Apply an entire node tree configuration from a dictionary.
 
 | Argument | Type | Default | Description |
 |----------|------|---------|-------------|
-| `target_node_tree` | `bpy.types.ShaderNodeTree` | — | The node tree to update |
-| `dict_with_node_tree` | `dict` | — | Complete node tree definition |
+| `target_node_tree` | `bpy.types.NodeTree` | — | The node tree to update |
+| `dict_with_node_tree` | `NodeTreeDict` | — | Complete node tree definition |
 | `wipe_node_tree` | `bool` | `False` | Clear existing nodes first |
 
 **Returns:** None
 
 **Raises:** `ValueError` — If node tree definitions are invalid or links are broken.
 
-Creates all node groups first, then creates nodes, then creates links.
+Creates all node groups first, then creates nodes, then creates links. A link whose target socket already has one raises; a link whose socket does not exist at all is only logged.
 
 ---
+
+## Private helpers
+
+Not part of the API, but worth knowing about if you are reading the source.
+
+| Method | Note |
+|--------|------|
+| `_has_socket(node_tree, socket_name, in_out="INPUT")` | A duplicate of `NodeTreeService.has_socket()`, which it predates. Prefer the service. |
+| `_create_socket(node_tree, socket_name, socket_type, in_out="INPUT")` | A duplicate of `NodeTreeService.create_socket()`, same story. |
+| `_find_socket_by_identifier_or_name(...)` | The body behind the two public socket finders. For a `ShaderNodeGroup` it prefers the name over the identifier; for everything else the identifier wins unless `force_find_by_name` is set. |
+| `_ensure_group_interfaces_exist(dict_with_node_tree, force_wipe_group_node_trees=False)` | Creates each group named in the dict's `groups`, gives it Group Input and Group Output nodes, and adds the declared interface sockets. Marks each group `pre_existing` so `apply_node_tree_from_dict()` knows not to rebuild it. |
+| `_add_tex_image_info(node, node_info)` | Writes `colorspace` and `filename` into a `NodeInfo` for an image texture node. |
 
 ## Examples
 
@@ -617,6 +672,10 @@ NodeService.add_link(node_tree, diffuse_tex, principled, "Color", "Base Color")
 ```
 
 ### Serializing and Recreating Node Trees
+
+This only works for a material whose node tree is flat. A tree holding a `ShaderNodeGroup` — which every MPFB
+enhanced-skin or layered-skin material does — raises `AttributeError` out of `get_node_tree_as_dict()`; see that
+method's entry above.
 
 ```python
 from mpfb.services.nodeservice import NodeService
@@ -678,6 +737,10 @@ group_nodes = NodeService.find_nodes_by_type_name(
     material.node_tree, "ShaderNodeGroup"
 )
 for gn in group_nodes:
-    if gn.node_tree.name == "MPFB_Skin":
+    # node_tree is empty for a group node which has never been assigned one
+    if gn.node_tree and gn.node_tree.name == "MPFB_Skin":
         print(f"Found skin group: {gn.name}")
+
+# Or, more directly:
+skin_node = NodeService.find_first_group_node_by_tree_name(material.node_tree, "MPFB_Skin")
 ```

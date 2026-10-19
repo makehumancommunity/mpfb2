@@ -14,9 +14,11 @@ In blender, targets are stored in the object's shape keys. Conceptually, there i
 mapping between a target and a shape key.
 """
 
-import os, gzip, bpy, json, random, re
+import os, gzip, bpy, json, random, re, typing
+from collections.abc import Iterable
 from itertools import count
 from pathlib import Path
+from typing import Any
 from .logservice import LogService
 from .assetservice import AssetService
 from .locationservice import LocationService
@@ -38,10 +40,54 @@ _HEADER = """# This is a target file for MakeHuman
 # basemesh hm08
 """
 
-_MIRROR_LEFT = None
-_MIRROR_RIGHT = None
+MacroComponent = list[Any]
+"""One interpolated macro component, as the ``[target name, weight]`` pair
+``_interpolate_macro_components()`` produces.
 
-_MACRO_CONFIG = dict()
+Deliberately ``list[Any]``: the pair is heterogeneous -- a ``str`` name then a ``float`` weight --
+while ``list`` is homogeneous, so any element type precise enough for the weight leaves the name
+unusable where it is concatenated into a target path, and the other way round."""
+
+MacroTarget = list[Any]
+"""One entry in the stack ``calculate_target_stack_from_macro_info_dict()`` returns: the
+``[target path, weight]`` pair naming a target file under the macrodetails data directory and the
+weight to load it at. Heterogeneous for the same reason as ``MacroComponent`` above."""
+
+MacroInfo = dict[str, Any]
+"""The macro phenotype dictionary.
+
+Eight keys -- ``gender``, ``age``, ``muscle``, ``weight``, ``proportions``, ``height``, ``cupsize``
+and ``firmness`` -- hold a float in 0..1, and ``race`` holds a nested dict with ``asian``,
+``caucasian`` and ``african``. Deliberately an alias rather than a ``TypedDict``, both because the
+eight float entries are read with a loop variable as the key, which a ``TypedDict`` cannot model, and
+because the values arrive from ``HumanObjectProperties.get_value()`` as ``Any`` anyway."""
+
+ShapeKeyInfo = dict[str, Any]
+"""The intermediate form a target takes between file and shape key.
+
+``vertices`` holds a list of ``(index, x, y, z)`` tuples, the offsets to add to the Basis
+coordinates. ``name`` holds the shape key name -- but note that ``get_shape_key_as_dict()`` stores
+whatever it was handed there, so it is a ``bpy.types.ShapeKey`` rather than a ``str`` when the caller
+passed the shape key itself. That is why this is an alias and not a ``TypedDict``."""
+
+
+class TargetStackEntry(typing.TypedDict):
+    """One entry in a target stack: the name of a target and the weight to apply it at.
+
+    A ``TypedDict`` rather than a ``dict[str, Any]`` because both keys are read back into positions
+    that require the concrete type -- ``target`` into ``target_full_path()``, which takes a ``str``,
+    and ``value`` into ``ShapeKey.value``, which is a ``float`` -- so a ``dict[str, str | float]``
+    would have failed at both.
+    """
+
+    target: str
+    value: float
+
+
+_MIRROR_LEFT: list[list[int]] | None = None
+_MIRROR_RIGHT: list[list[int]] | None = None
+
+_MACRO_CONFIG: dict[str, Any] = dict()
 _TARGETS_DIR = LocationService.get_mpfb_data("targets")
 _MACRO_FILE = os.path.join(_TARGETS_DIR, "macrodetails", "macro.json")
 _MACRO_PATH_PATTERN = "/mpfb/data/targets/macrodetails/"
@@ -54,7 +100,7 @@ _LOADER = LogService.get_logger("target loader")
 
 # This is very annoying, but the maximum length of a shape key name is 61 characters
 # in blender. The combinations used in MH filenames tend to be longer than that.
-_SHAPEKEY_ENCODING = [
+_SHAPEKEY_ENCODING: list[list[str]] = [
     ["macrodetail", "$md"],
     ["female", "$fe"],
     ["male", "$ma"],
@@ -73,7 +119,7 @@ _SHAPEKEY_ENCODING = [
     ["child", "$ch"],
     ]
 
-_OPPOSITES = [
+_OPPOSITES: list[str] = [
     "decr-incr",
     "down-up",
     "in-out",
@@ -84,7 +130,7 @@ _OPPOSITES = [
     "pointed-triangle"
     ]
 
-_ODD_TARGET_NAMES = []
+_ODD_TARGET_NAMES: list[str] = []
 
 
 class TargetService:
@@ -101,11 +147,11 @@ class TargetService:
 
     Note that this class is designed to be used without instantiation. All methods are static methods that can be called directly."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         raise RuntimeError("You should not instance TargetService. Use its static methods instead.")
 
     @staticmethod
-    def shapekey_is_target(shapekey_name):
+    def shapekey_is_target(shapekey_name: str | None) -> bool:
         """Guess if shape key is a target based on its name. This will catch the vast majority of all cases, but
         there are also fringe names and custom target which will not be identified correctly.
         Unfortunately, custom properties cannot be assigned to shapekeys, so there is no practical way to
@@ -126,7 +172,7 @@ class TargetService:
         return shapekey_name in _ODD_TARGET_NAMES
 
     @staticmethod
-    def bake_targets(basemesh):
+    def bake_targets(basemesh: bpy.types.Object) -> None:
         """
         Apply all current shape keys to the mesh and then remove them, effectively "baking" the modifications into the mesh.
 
@@ -138,10 +184,12 @@ class TargetService:
         """
         key_name = "temporary_fitting_key." + str(random.randrange(1000, 9999))
         basemesh.shape_key_add(name=key_name, from_mix=True)
-        shape_key = basemesh.data.shape_keys.key_blocks[key_name]
+        # The reads have to follow the shape_key_add() that creates the key, and shape_key_remove()
+        # below mutates the same collection, so .data is re-read at each site rather than cached.
+        shape_key = typing.cast(bpy.types.Key, typing.cast(bpy.types.Mesh, basemesh.data).shape_keys).key_blocks[key_name]
 
-        keys = []
-        for key in basemesh.data.shape_keys.key_blocks:
+        keys: list[bpy.types.ShapeKey] = []
+        for key in typing.cast(bpy.types.Key, typing.cast(bpy.types.Mesh, basemesh.data).shape_keys).key_blocks:
             if key.name != key_name:
                 keys.append(key)
 
@@ -151,7 +199,7 @@ class TargetService:
         basemesh.shape_key_remove(shape_key)
 
     @staticmethod
-    def translate_mhm_target_line_to_target_fragment(mhm_line):
+    def translate_mhm_target_line_to_target_fragment(mhm_line: str) -> TargetStackEntry:
         """
         Translate a line from a MakeHuman Model (MHM) save file into a target fragment reference.
 
@@ -162,8 +210,8 @@ class TargetService:
             mhm_line (str): A line from a MakeHuman save file
 
         Returns:
-            dict: A dictionary containing the target name and its associated weight, in the format:
-                  { "target": <target_name>, "value": <weight> }
+            TargetStackEntry: A dictionary containing the target name and its associated weight, in
+                  the format { "target": <target_name>, "value": <weight> }
         """
         profiler = PrimitiveProfiler("TargetService")
         profiler.enter("translate_mhm_target_line_to_target_fragment")
@@ -191,7 +239,7 @@ class TargetService:
         return { "target": name, "value": weight }
 
     @staticmethod
-    def target_full_path(target_name):
+    def target_full_path(target_name: str) -> str | None:
         """
         Retrieve the full file path of a target by its name.
 
@@ -202,7 +250,7 @@ class TargetService:
             target_name (str): The name of the target to search for.
 
         Returns:
-            str: The full file path of the target if found, otherwise None.
+            str | None: The full file path of the target if found, otherwise None.
         """
         _LOG.enter()
 
@@ -212,8 +260,8 @@ class TargetService:
         # kept as a fallback for the historical callers that pass a partial name.
         lowered = str(target_name).lower()
 
-        def _match_in(paths):
-            prefix_match = None
+        def _match_in(paths: Iterable[Any]) -> str | None:
+            prefix_match: str | None = None
             for path in paths:
                 basename = str(os.path.basename(path)).lower()
                 stem = basename[:-len(".target.gz")] if basename.endswith(".target.gz") else basename[:-len(".target")]
@@ -254,7 +302,8 @@ class TargetService:
         return None
 
     @staticmethod
-    def create_shape_key(blender_object, shape_key_name, also_create_basis=True, create_from_mix=False):
+    def create_shape_key(blender_object: bpy.types.Object, shape_key_name: str, also_create_basis: bool = True,
+                         create_from_mix: bool = False) -> bpy.types.ShapeKey:
         """
         Create a new shape key for a given Blender object.
 
@@ -276,8 +325,11 @@ class TargetService:
 
         assert blender_object.mode == "OBJECT"
 
+        # Every read of .shape_keys here straddles a shape_key_add() that creates the very collection
+        # being tested, so none of them can be cached in a local.
         if also_create_basis:
-            if not blender_object.data.shape_keys or not "Basis" in blender_object.data.shape_keys.key_blocks:
+            object_keys = typing.cast(bpy.types.Mesh, blender_object.data).shape_keys
+            if not object_keys or not "Basis" in object_keys.key_blocks:
                 blender_object.shape_key_add(name="Basis", from_mix=False)
 
         shape_key = blender_object.shape_key_add(name=shape_key_name, from_mix=create_from_mix)
@@ -285,15 +337,16 @@ class TargetService:
 
         _LOG.debug("shape key", shape_key)
 
-        shape_key_idx = blender_object.data.shape_keys.key_blocks.find(shape_key.name)
+        shape_key_idx = typing.cast(bpy.types.Key, typing.cast(bpy.types.Mesh, blender_object.data).shape_keys).key_blocks.find(shape_key.name)
         blender_object.active_shape_key_index = shape_key_idx
         profiler.leave("create_shape_key")
 
         return shape_key
 
     @staticmethod
-    def get_shape_key_as_dict(blender_object, shape_key_name: str | bpy.types.ShapeKey, *,
-                              smaller_than_counts_as_unmodified=0.0001, only_modified_verts=True):
+    def get_shape_key_as_dict(blender_object: bpy.types.Object | None, shape_key_name: str | bpy.types.ShapeKey, *,
+                              smaller_than_counts_as_unmodified: float = 0.0001,
+                              only_modified_verts: bool = True) -> ShapeKeyInfo:
         """
         Convert a shape key of a Blender object into a dictionary representation.
 
@@ -301,13 +354,17 @@ class TargetService:
         It can optionally filter out vertices that have not been significantly modified.
 
         Args:
-            blender_object (bpy.types.Object): The Blender object containing the shape key.
-            shape_key_name (str or bpy.types.ShapeKey): The name of the shape key or the shape key object itself.
+            blender_object (bpy.types.Object | None): The Blender object containing the shape key. A None
+                object raises.
+            shape_key_name (str | bpy.types.ShapeKey): The name of the shape key or the shape key object itself.
             smaller_than_counts_as_unmodified (float, optional): Threshold below which vertex modifications are ignored. Defaults to 0.0001.
             only_modified_verts (bool, optional): Whether to include only modified vertices in the output. Defaults to True.
 
         Returns:
-            dict: A dictionary containing the shape key name and a list of modified vertices with their offsets.
+            ShapeKeyInfo: A dictionary containing the shape key name and a list of modified vertices
+                with their offsets. Note that the "name" entry holds whatever was passed as
+                shape_key_name, so it is a bpy.types.ShapeKey rather than a str when the shape key
+                itself was given.
         """
         _LOG.enter()
         _LOG.reset_timer()
@@ -315,17 +372,19 @@ class TargetService:
         profiler.enter("get_shape_key_as_dict")
         if blender_object is None:
             raise ValueError("A none object cannot have shape keys")
-        if not blender_object.data.shape_keys:
+        object_keys = typing.cast(bpy.types.Mesh, blender_object.data).shape_keys
+        if not object_keys:
             raise ValueError("Object does not have any shape keys")
 
         scale_factor = GeneralObjectProperties.get_value("scale_factor", entity_reference=blender_object)
         if not scale_factor or scale_factor < 0.0001:
             scale_factor = 1.0
 
+        target: bpy.types.ShapeKey
         if isinstance(shape_key_name, bpy.types.ShapeKey):
             target = shape_key_name
         else:
-            for shape_key in blender_object.data.shape_keys.key_blocks:
+            for shape_key in object_keys.key_blocks:
                 if str(shape_key.name).lower() == str(shape_key_name).lower():
                     target = shape_key
                     break
@@ -337,11 +396,16 @@ class TargetService:
         if not basis:
             raise ValueError("Object does not have a Basis shape key")
 
-        info = dict()
+        info: ShapeKeyInfo = dict()
         info["name"] = shape_key_name
         info["vertices"] = vertices = []
 
-        for i, basis_vert, target_vert in zip(count(0), basis.data, target.data):
+        # ShapeKey.data is declared bpy_prop_collection[UnknownType] in the stubs, so the points it
+        # yields have no .co as far as the checker is concerned.
+        basis_points = typing.cast("bpy.types.bpy_prop_collection[bpy.types.ShapeKeyPoint]", basis.data)
+        target_points = typing.cast("bpy.types.bpy_prop_collection[bpy.types.ShapeKeyPoint]", target.data)
+
+        for i, basis_vert, target_vert in zip(count(0), basis_points, target_points):
             offset = (target_vert.co - basis_vert.co) / scale_factor
             size = abs(offset[0]) + abs(offset[1]) + abs(offset[2])
 
@@ -355,7 +419,8 @@ class TargetService:
         return info
 
     @staticmethod
-    def _set_shape_key_coords_from_dict(blender_object, shape_key, info, *, scale_factor=None):
+    def _set_shape_key_coords_from_dict(blender_object: bpy.types.Object, shape_key: bpy.types.ShapeKey,
+                                        info: ShapeKeyInfo, *, scale_factor: float | None = None) -> None:
         if scale_factor is None:
             scale_factor = GeneralObjectProperties.get_value("scale_factor", entity_reference=blender_object)
             if not scale_factor or scale_factor < 0.0001:
@@ -366,7 +431,7 @@ class TargetService:
         if not basis:
             raise ValueError("Object does not have a Basis shape key")
 
-        sk_buffer = [0.0] * (len(shape_key.data) * 3)
+        sk_buffer: list[float] = [0.0] * (len(shape_key.data) * 3)
         basis.data.foreach_get('co', sk_buffer)
 
         _LOG.debug("Shape key, len(sk_buffer), len(shape_key.data), len(vertices)", (shape_key, len(sk_buffer), len(shape_key.data), len(info["vertices"])))
@@ -380,7 +445,7 @@ class TargetService:
         shape_key.data.foreach_set('co', sk_buffer)
 
     @staticmethod
-    def shape_key_info_as_target_string(shape_key_info, include_header=True):
+    def shape_key_info_as_target_string(shape_key_info: ShapeKeyInfo, include_header: bool = True) -> str:
         """
         Convert shape key information into a target string format.
 
@@ -388,7 +453,7 @@ class TargetService:
         suitable for saving or exporting. The string format includes vertex indices and their corresponding offsets.
 
         Args:
-            shape_key_info (dict): A dictionary containing the shape key name and a list of modified vertices with their offsets.
+            shape_key_info (ShapeKeyInfo): A dictionary containing the shape key name and a list of modified vertices with their offsets.
             include_header (bool, optional): Whether to include a header in the output string. Defaults to True.
 
         Returns:
@@ -398,7 +463,7 @@ class TargetService:
         if include_header:
             out = _HEADER
 
-        def fmt(value):
+        def fmt(value: float) -> str:
             s = ('%.3f' % abs(value)).strip('0')
             if s == '.':
                 return '0'
@@ -412,11 +477,11 @@ class TargetService:
         return out
 
     @staticmethod
-    def _target_string_to_shape_key_info(target_string, shape_key_name):
+    def _target_string_to_shape_key_info(target_string: str, shape_key_name: str) -> ShapeKeyInfo:
         profiler = PrimitiveProfiler("TargetService")
         profiler.enter("_target_string_to_shape_key_info")
 
-        info = dict()
+        info: ShapeKeyInfo = dict()
         info["name"] = shape_key_name
         info["vertices"] = vertices = []
 
@@ -442,7 +507,8 @@ class TargetService:
         return info
 
     @staticmethod
-    def target_string_to_shape_key(target_string, shape_key_name, blender_object, *, reuse_existing=False):
+    def target_string_to_shape_key(target_string: str, shape_key_name: str, blender_object: bpy.types.Object, *,
+                                   reuse_existing: bool = False) -> bpy.types.ShapeKey:
         """
         Convert a target string into a shape key and apply it to a Blender object.
 
@@ -463,8 +529,10 @@ class TargetService:
         profiler = PrimitiveProfiler("TargetService")
         profiler.enter("target_string_to_shape_key_info")
 
-        if reuse_existing and shape_key_name in blender_object.data.shape_keys.key_blocks:
-            shape_key = blender_object.data.shape_keys.key_blocks[shape_key_name]
+        object_keys = typing.cast(bpy.types.Key, typing.cast(bpy.types.Mesh, blender_object.data).shape_keys)
+
+        if reuse_existing and shape_key_name in object_keys.key_blocks:
+            shape_key = object_keys.key_blocks[shape_key_name]
         else:
             shape_key = TargetService.create_shape_key(blender_object, shape_key_name)
 
@@ -482,7 +550,7 @@ class TargetService:
         return shape_key
 
     @staticmethod
-    def _load_mirror_table():
+    def _load_mirror_table() -> None:
         global _MIRROR_LEFT
         global _MIRROR_RIGHT
 
@@ -513,7 +581,8 @@ class TargetService:
         profiler.leave("_load_mirror_table")
 
     @staticmethod
-    def symmetrize_shape_key(blender_object, shape_key_name, copy_left_to_right=True):
+    def symmetrize_shape_key(blender_object: bpy.types.Object, shape_key_name: str,
+                             copy_left_to_right: bool = True) -> None:
         """
         Symmetrize a shape key on a Blender object.
 
@@ -535,19 +604,24 @@ class TargetService:
         if object_type != "Basemesh":
             raise ValueError("Don't know how to symmetrize this kind of object")
         TargetService._load_mirror_table()
-        mirror = _MIRROR_RIGHT
+        # _load_mirror_table() populates both tables, but the guard it relies on sits inside the method
+        # rather than here, so the checker still sees the module level None.
+        mirror = typing.cast(list[list[int]], _MIRROR_RIGHT)
         if copy_left_to_right:
-            mirror = _MIRROR_LEFT
+            mirror = typing.cast(list[list[int]], _MIRROR_LEFT)
 
-        target = blender_object.data.shape_keys.key_blocks[shape_key_name]
+        object_keys = typing.cast(bpy.types.Key, typing.cast(bpy.types.Mesh, blender_object.data).shape_keys)
+        target = object_keys.key_blocks[shape_key_name]
+        target_points = typing.cast("bpy.types.bpy_prop_collection[bpy.types.ShapeKeyPoint]", target.data)
 
         for (from_idx, to_idx) in mirror:
-            target.data[to_idx].co[0] = -target.data[from_idx].co[0]
-            target.data[to_idx].co[1] = target.data[from_idx].co[1]
-            target.data[to_idx].co[2] = target.data[from_idx].co[2]
+            target_points[to_idx].co[0] = -target_points[from_idx].co[0]
+            target_points[to_idx].co[1] = target_points[from_idx].co[1]
+            target_points[to_idx].co[2] = target_points[from_idx].co[2]
 
     @staticmethod
-    def get_target_stack(blender_object, exclude_starts_with=None, exclude_ends_with=None):
+    def get_target_stack(blender_object: bpy.types.Object | None, exclude_starts_with: str | Iterable[str] | None = None,
+                         exclude_ends_with: str | Iterable[str] | None = None) -> list[TargetStackEntry]:
         """
         Retrieve a stack of targets from a Blender object.
 
@@ -556,14 +630,15 @@ class TargetService:
         of dictionaries, each containing the shape key name and its value.
 
         Args:
-            blender_object (bpy.types.Object): The Blender object from which to retrieve shape keys.
-            exclude_starts_with (str | iterable[str], optional): Exclude shape keys whose names start with this
+            blender_object (bpy.types.Object | None): The Blender object from which to retrieve shape
+                keys. A None object raises.
+            exclude_starts_with (str | Iterable[str] | None, optional): Exclude shape keys whose names start with this
                 string or any string in the given iterable. Defaults to None.
-            exclude_ends_with (str | iterable[str], optional): Exclude shape keys whose names end with this
+            exclude_ends_with (str | Iterable[str] | None, optional): Exclude shape keys whose names end with this
                 string or any string in the given iterable. Defaults to None.
 
         Returns:
-            list: A list of dictionaries, each containing a shape key name and its value.
+            list[TargetStackEntry]: A list of dictionaries, each containing a shape key name and its value.
 
         Raises:
             ValueError: If the provided object is not a valid mesh object or if it does not have any shape keys.
@@ -574,14 +649,17 @@ class TargetService:
         if blender_object is None or blender_object.type != 'MESH':
             raise ValueError('Must provide a valid mesh object')
 
-        keys = blender_object.data.shape_keys
+        keys = typing.cast(bpy.types.Mesh, blender_object.data).shape_keys
 
         if keys is None or keys.key_blocks is None or len(keys.key_blocks) < 1:
             _LOG.debug("Object does not have any shape keys, returning empty array")
             profiler.leave("get_target_stack")
             return []
 
-        stack = []
+        stack: list[TargetStackEntry] = []
+
+        starts_with_prefixes: tuple[str, ...]
+        ends_with_suffixes: tuple[str, ...]
 
         if exclude_starts_with is None:
             starts_with_prefixes = ()
@@ -614,26 +692,29 @@ class TargetService:
         return stack
 
     @staticmethod
-    def has_any_shapekey(blender_object):
+    def has_any_shapekey(blender_object: bpy.types.Object | None) -> bool:
         """
         Check if a Blender object has any shape keys.
 
         This method verifies whether the provided Blender object has any shape keys associated with it.
 
         Args:
-            blender_object (bpy.types.Object): The Blender object to check.
+            blender_object (bpy.types.Object | None): The Blender object to check. A None object
+                simply gives False.
 
         Returns:
             bool: True if the object has at least one shape key, False otherwise.
         """
         if not blender_object or blender_object.type != "MESH":
             return False
-        if not blender_object.data.shape_keys or not blender_object.data.shape_keys.key_blocks:
+        object_keys = typing.cast(bpy.types.Mesh, blender_object.data).shape_keys
+        if not object_keys or not object_keys.key_blocks:
             return False
-        return len(blender_object.data.shape_keys.key_blocks) > 0
+        return len(object_keys.key_blocks) > 0
 
     @staticmethod
-    def has_target(blender_object, target_name, also_check_for_encoded=True):
+    def has_target(blender_object: bpy.types.Object | None, target_name: str | None,
+                   also_check_for_encoded: bool = True) -> bool:
         """
         Check if a Blender object has a specific shape key (target).
 
@@ -641,8 +722,10 @@ class TargetService:
         It can also check for an encoded version of the shape key name.
 
         Args:
-            blender_object (bpy.types.Object): The Blender object to check.
-            target_name (str): The name of the shape key to look for.
+            blender_object (bpy.types.Object | None): The Blender object to check. A None object
+                simply gives False.
+            target_name (str | None): The name of the shape key to look for. A None or empty name
+                simply gives False.
             also_check_for_encoded (bool, optional): Whether to also check for an encoded version of the shape key name. Defaults to True.
 
         Returns:
@@ -661,7 +744,7 @@ class TargetService:
         return False
 
     @staticmethod
-    def get_target_value(blender_object, target_name):
+    def get_target_value(blender_object: bpy.types.Object | None, target_name: str | None) -> float:
         """
         Retrieve the value of a specific shape key (target) from a Blender object.
 
@@ -669,8 +752,10 @@ class TargetService:
         and returns its value.
 
         Args:
-            blender_object (bpy.types.Object): The Blender object to check.
-            target_name (str): The name of the shape key to retrieve the value for.
+            blender_object (bpy.types.Object | None): The Blender object to check. A None object
+                simply gives 0.0.
+            target_name (str | None): The name of the shape key to retrieve the value for. A None or
+                empty name simply gives 0.0.
 
         Returns:
             float: The value of the shape key if found, 0.0 otherwise.
@@ -686,7 +771,8 @@ class TargetService:
         return 0.0
 
     @staticmethod
-    def set_target_value(blender_object, target_name, value, delete_target_on_zero=False):
+    def set_target_value(blender_object: bpy.types.Object | None, target_name: str | None, value: float,
+                         delete_target_on_zero: bool = False) -> None:
         """
         Set the value of a specific shape key (target) on a Blender object.
 
@@ -694,8 +780,9 @@ class TargetService:
         Optionally, it can delete the shape key if the value is set to zero.
 
         Args:
-            blender_object (bpy.types.Object): The Blender object to modify.
-            target_name (str): The name of the shape key to set the value for.
+            blender_object (bpy.types.Object | None): The Blender object to modify. A None object raises.
+            target_name (str | None): The name of the shape key to set the value for. A None or empty
+                name raises.
             value (float): The value to set for the shape key.
             delete_target_on_zero (bool, optional): Whether to delete the shape key if the value is set to zero. Defaults to False.
 
@@ -706,7 +793,7 @@ class TargetService:
             _LOG.error("Empty object or target", (blender_object, target_name))
             raise ValueError('Empty object or target')
 
-        keys = blender_object.data.shape_keys
+        keys = typing.cast(bpy.types.Mesh, blender_object.data).shape_keys
 
         if keys is None or keys.key_blocks is None or len(keys.key_blocks) < 1:
             _LOG.error("Object does not have any shape keys")
@@ -719,7 +806,8 @@ class TargetService:
                     blender_object.shape_key_remove(shape_key)
 
     @staticmethod
-    def bulk_load_targets(blender_object, target_stack, encode_target_names=False):
+    def bulk_load_targets(blender_object: bpy.types.Object, target_stack: Iterable[TargetStackEntry],
+                          encode_target_names: bool = False) -> None:
         """
         Bulk load multiple shape keys (targets) onto a Blender object.
 
@@ -728,7 +816,7 @@ class TargetService:
 
         Args:
             blender_object (bpy.types.Object): The Blender object to which the shape keys will be added.
-            target_stack (list): A list of dictionaries, each containing 'target' (name) and 'value' (float) keys.
+            target_stack (Iterable[TargetStackEntry]): Dictionaries, each containing 'target' (name) and 'value' (float) keys.
             encode_target_names (bool, optional): Whether to encode the target names. Defaults to False.
 
         Raises:
@@ -739,7 +827,7 @@ class TargetService:
 
         _LOG.debug("Target stack", target_stack)
 
-        load_info = dict()
+        load_info: dict[str, list[dict[str, Any]]] = dict()
         load_info["parsed_target_stack"] = []
 
         profiler.enter(" -- bulk load -> load string data")
@@ -748,7 +836,7 @@ class TargetService:
             target_full_path = TargetService.target_full_path(target["target"])
             _LOG.debug("Full path", target_full_path)
             if target_full_path:
-                parsed_target = dict()
+                parsed_target: dict[str, Any] = dict()
                 parsed_target["full_path"] = target_full_path
                 parsed_target["name"] = target["target"]
                 parsed_target["value"] = target["value"]
@@ -775,7 +863,8 @@ class TargetService:
         profiler.leave("bulk_load_targets")
 
     @staticmethod
-    def load_target(blender_object, full_path, *, weight=0.0, name=None):
+    def load_target(blender_object: bpy.types.Object | None, full_path: str, *, weight: float = 0.0,
+                    name: str | None = None) -> bpy.types.ShapeKey:
         """
         Load a shape key (target) from a file and apply it to a Blender object.
 
@@ -783,10 +872,11 @@ class TargetService:
         Blender object. The shape key's value is set to the specified weight.
 
         Args:
-            blender_object (bpy.types.Object): The Blender object to which the shape key will be added.
+            blender_object (bpy.types.Object | None): The Blender object to which the shape key will
+                be added. A None object raises.
             full_path (str): The full file path to the target data.
             weight (float, optional): The value to set for the shape key. Defaults to 0.0.
-            name (str, optional): The name to assign to the shape key. If None, the name is derived from the file path.
+            name (str | None, optional): The name to assign to the shape key. If None, the name is derived from the file path.
 
         Returns:
             bpy.types.ShapeKey: The created shape key.
@@ -804,8 +894,8 @@ class TargetService:
             raise ValueError("Must specify a valid path - null or none was given")
         if not os.path.exists(full_path):
             raise IOError(full_path + " does not exist")
-        target_string = None
-        shape_key = None
+        target_string: str | None = None
+        shape_key: bpy.types.ShapeKey | None = None
 
         if name is None:
             name = TargetService.filename_to_shapekey_name(full_path)
@@ -830,13 +920,16 @@ class TargetService:
         _LOADER.time(str(full_path) + " " + str(weight))
         profiler.leave("load_target")
 
-        if not TargetService.shapekey_is_target(shape_key.name) and not shape_key.name in _ODD_TARGET_NAMES:
-            _ODD_TARGET_NAMES.append(shape_key.name)
+        # Both branches above assign target_string, so the shape key has always been created by now.
+        loaded_shape_key = typing.cast(bpy.types.ShapeKey, shape_key)
 
-        return shape_key
+        if not TargetService.shapekey_is_target(loaded_shape_key.name) and not loaded_shape_key.name in _ODD_TARGET_NAMES:
+            _ODD_TARGET_NAMES.append(loaded_shape_key.name)
+
+        return loaded_shape_key
 
     @staticmethod
-    def get_default_macro_info_dict():
+    def get_default_macro_info_dict() -> MacroInfo:
         """
         Get the default macro information dictionary.
 
@@ -844,7 +937,7 @@ class TargetService:
         such as gender, age, muscle, weight, proportions, height, cupsize, firmness, and race.
 
         Returns:
-            dict: A dictionary with default values for macro attributes.
+            MacroInfo: A dictionary with default values for macro attributes.
         """
         return {
             "gender": 0.5,
@@ -863,7 +956,7 @@ class TargetService:
             }
 
     @staticmethod
-    def get_macro_info_dict_from_basemesh(basemesh):
+    def get_macro_info_dict_from_basemesh(basemesh: bpy.types.Object) -> MacroInfo:
         """
         Get the macro information dictionary from a base mesh.
 
@@ -874,7 +967,7 @@ class TargetService:
             basemesh (bpy.types.Object): The base mesh object from which to retrieve macro attribute values.
 
         Returns:
-            dict: A dictionary with values for macro attributes retrieved from the base mesh.
+            MacroInfo: A dictionary with values for macro attributes retrieved from the base mesh.
         """
         return {
             "gender": HumanObjectProperties.get_value("gender", entity_reference=basemesh),
@@ -893,14 +986,14 @@ class TargetService:
             }
 
     @staticmethod
-    def _interpolate_macro_components(macro_name, value):
+    def _interpolate_macro_components(macro_name: str, value: float) -> list[MacroComponent]:
 
         profiler = PrimitiveProfiler("TargetService")
         profiler.enter("_interpolate_macro_components")
 
         _LOG.debug("Interpolating macro target", (macro_name, value))
         macrotarget = _MACRO_CONFIG["macrotargets"][macro_name]
-        components = []
+        components: list[MacroComponent] = []
         _LOG.debug("target", macrotarget)
         for parts in macrotarget["parts"]:
             _LOG.dump("Parts", (value, parts))
@@ -930,7 +1023,7 @@ class TargetService:
         return components
 
     @staticmethod
-    def calculate_target_stack_from_macro_info_dict(macro_info, cutoff=0.01):
+    def calculate_target_stack_from_macro_info_dict(macro_info: MacroInfo | None, cutoff: float = 0.01) -> list[MacroTarget]:
         """
         Calculate the target stack from a macro information dictionary.
 
@@ -939,11 +1032,11 @@ class TargetService:
         exclude components with weights below the specified threshold.
 
         Args:
-            macro_info (dict): A dictionary containing macro attribute values. If None, default values are used.
+            macro_info (MacroInfo | None): A dictionary containing macro attribute values. If None, default values are used.
             cutoff (float): The minimum weight threshold for including a target component in the result.
 
         Returns:
-            list: A list of target components, each represented as a list containing the target name and weight.
+            list[MacroTarget]: A list of target components, each represented as a list containing the target name and weight.
         """
         profiler = PrimitiveProfiler("TargetService")
         profiler.enter("calculate_target_stack_from_macro_info_dict")
@@ -951,7 +1044,7 @@ class TargetService:
         if macro_info is None:
             macro_info = TargetService.get_default_macro_info_dict()
 
-        components = dict()
+        components: dict[str, list[MacroComponent]] = dict()
         for macro_name in ["gender", "age", "muscle", "weight", "proportions", "height", "cupsize", "firmness"]:
             value = macro_info[macro_name]
             components[macro_name] = TargetService._interpolate_macro_components(macro_name, value)
@@ -959,7 +1052,7 @@ class TargetService:
         _LOG.dump("components", components)
         _MACLOG.dump("Current macrotarget components", components)
 
-        targets = []
+        targets: list[MacroTarget] = []
 
         # Targets for race-gender-age
         for race in macro_info["race"].keys():
@@ -1110,7 +1203,7 @@ class TargetService:
         return targets
 
     @staticmethod
-    def get_current_macro_targets(basemesh, decode_names=True):
+    def get_current_macro_targets(basemesh: bpy.types.Object | None, decode_names: bool = True) -> list[str]:
         """
         Get the current macro targets from the base mesh.
 
@@ -1118,15 +1211,17 @@ class TargetService:
         decodes the shape key names for better readability.
 
         Args:
-            basemesh (bpy.types.Object): The base mesh object from which to retrieve macro targets.
+            basemesh (bpy.types.Object | None): The base mesh object from which to retrieve macro
+                targets. A None object simply gives an empty list.
             decode_names (bool): Whether to decode the shape key names for readability. Defaults to True.
 
         Returns:
-            list: A list of current macro target names.
+            list[str]: A list of current macro target names.
         """
-        macro_targets = []
-        if basemesh and basemesh.data.shape_keys and basemesh.data.shape_keys.key_blocks:
-            for shape_key in basemesh.data.shape_keys.key_blocks:
+        macro_targets: list[str] = []
+        basemesh_keys = typing.cast(bpy.types.Mesh, basemesh.data).shape_keys if basemesh else None
+        if basemesh and basemesh_keys and basemesh_keys.key_blocks:
+            for shape_key in basemesh_keys.key_blocks:
                 name = shape_key.name
                 if decode_names:
                     name = TargetService.decode_shapekey_name(name)
@@ -1136,7 +1231,7 @@ class TargetService:
         return macro_targets
 
     @staticmethod
-    def reapply_all_details(basemesh, remove_zero_weight_targets=True):
+    def reapply_all_details(basemesh: bpy.types.Object, remove_zero_weight_targets: bool = True) -> None:
         """
         Reapply all details to the base mesh.
 
@@ -1155,7 +1250,7 @@ class TargetService:
         TargetService.bulk_load_targets(basemesh, target_stack, encode_target_names=False)
 
     @staticmethod
-    def reapply_macro_details(basemesh, remove_zero_weight_targets=True):
+    def reapply_macro_details(basemesh: bpy.types.Object, remove_zero_weight_targets: bool = True) -> None:
         """
         Reapply macro details to the base mesh.
 
@@ -1173,7 +1268,9 @@ class TargetService:
         macro_info = TargetService.get_macro_info_dict_from_basemesh(basemesh)
         for target in TargetService.get_current_macro_targets(basemesh, decode_names=False):
             _LOG.debug("Setting target to 0", target)
-            basemesh.data.shape_keys.key_blocks[target].value = 0.0
+            # get_current_macro_targets() returned a non-empty list, which it only does when the object
+            # has shape keys. load_target() below then adds to the same collection, so no local.
+            typing.cast(bpy.types.Key, typing.cast(bpy.types.Mesh, basemesh.data).shape_keys).key_blocks[target].value = 0.0
         current_macro_targets = TargetService.get_current_macro_targets(basemesh, decode_names=True)
         required_macro_targets = TargetService.calculate_target_stack_from_macro_info_dict(macro_info)
         _LOG.dump("current macro targets", current_macro_targets)
@@ -1191,12 +1288,14 @@ class TargetService:
             _LOG.debug("Will attempt to set target value for", (requested, target[1]))
             TargetService.set_target_value(basemesh, requested, target[1])
 
-        if not basemesh.data.shape_keys:
+        basemesh_keys = typing.cast(bpy.types.Mesh, basemesh.data).shape_keys
+
+        if not basemesh_keys:
             _LOG.warn("Basemesh has no shape keys at this point. This is somewhat surprising.")
 
-        if remove_zero_weight_targets and basemesh.data.shape_keys:
+        if remove_zero_weight_targets and basemesh_keys:
             _LOG.debug("Checking for targets to remove")
-            for shape_key in basemesh.data.shape_keys.key_blocks:
+            for shape_key in basemesh_keys.key_blocks:
                 _LOG.debug("Checking shape key", (shape_key.name, shape_key.value))
                 if str(shape_key.name).startswith("$md") and shape_key.value < 0.0001:
                     _LOG.debug("Will remove macrodetail target", TargetService.decode_shapekey_name(shape_key.name))
@@ -1205,7 +1304,7 @@ class TargetService:
         profiler.leave("reapply_macro_details")
 
     @staticmethod
-    def encode_shapekey_name(original_name):
+    def encode_shapekey_name(original_name: str) -> str:
         """
         Encode a shape key name.
 
@@ -1224,7 +1323,7 @@ class TargetService:
         return name
 
     @staticmethod
-    def decode_shapekey_name(encoded_name):
+    def decode_shapekey_name(encoded_name: str) -> str:
         """
         Decode a shape key name.
 
@@ -1243,7 +1342,7 @@ class TargetService:
         return name
 
     @staticmethod
-    def macrodetail_filename_to_shapekey_name(filename, encode_name: bool=False):
+    def macrodetail_filename_to_shapekey_name(filename: str, encode_name: bool=False) -> str:
         """
         Convert a macro detail filename to a shape key name.
 
@@ -1260,7 +1359,7 @@ class TargetService:
         return TargetService.filename_to_shapekey_name(filename, macrodetail=True, encode_name=encode_name)
 
     @staticmethod
-    def filename_to_shapekey_name(filename, *, macrodetail: bool | None=False, encode_name: bool | None=None):
+    def filename_to_shapekey_name(filename: str, *, macrodetail: bool | None=False, encode_name: bool | None=None) -> str:
         """
         Convert a filename to a shape key name.
 
@@ -1298,7 +1397,7 @@ class TargetService:
         return name
 
     @staticmethod
-    def expression_name_to_shapekey_name(face_unit_name):
+    def expression_name_to_shapekey_name(face_unit_name: str) -> str:
         """
         Translate a bare ARKit face unit name to its expression shape key name.
 
@@ -1316,12 +1415,12 @@ class TargetService:
         return "!ex-" + str(face_unit_name)
 
     @staticmethod
-    def shapekey_name_to_expression_name(shapekey_name):
+    def shapekey_name_to_expression_name(shapekey_name: str | None) -> str | None:
         """
         Translate an expression shape key name back to its bare ARKit face unit name.
 
         Args:
-            shapekey_name (str): A Blender shape key name.
+            shapekey_name (str | None): A Blender shape key name. A None or empty name gives None.
 
         Returns:
             str | None: The bare ARKit name if ``shapekey_name`` starts with ``!ex-``, otherwise None.
@@ -1331,7 +1430,7 @@ class TargetService:
         return str(shapekey_name)[len("!ex-"):]
 
     @staticmethod
-    def prune_shapekeys(blender_object, cutoff=0.0001):
+    def prune_shapekeys(blender_object: bpy.types.Object, cutoff: float = 0.0001) -> None:
         """
         Remove shape keys with a weight lower than the cutoff.
 
@@ -1342,7 +1441,7 @@ class TargetService:
             blender_object (bpy.types.Object): The Blender object from which to remove shape keys.
             cutoff (float): The weight threshold below which shape keys will be removed. Defaults to 0.0001.
         """
-        keys = blender_object.data.shape_keys
+        keys = typing.cast(bpy.types.Mesh, blender_object.data).shape_keys
 
         if keys is None or keys.key_blocks is None or len(keys.key_blocks) < 1:
             return

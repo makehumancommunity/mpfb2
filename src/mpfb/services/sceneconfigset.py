@@ -1,21 +1,23 @@
 """Extra functionality for storing configuration settings on blender scenes"""
 
+from typing import Any
 import bpy
 from .logservice import LogService
 _LOG = LogService.get_logger("configuration.sceneconfigset")
 
 from .blenderconfigset import BlenderConfigSet
+from ..types import PropertyDefinition
 
 
 class SceneConfigSet(BlenderConfigSet):
 
     """Specific management of configuration when the storage entity is the scene"""
 
-    def __init__(self, properties, prefix=""):
+    def __init__(self, properties: list[PropertyDefinition], prefix: str = "") -> None:
         _LOG.debug("Constructing new scene config set with prefix", prefix)
         BlenderConfigSet.__init__(self, properties, bpy.types.Scene, prefix)
 
-    def check_and_transform_entity_reference(self, entity_reference):
+    def check_and_transform_entity_reference(self, entity_reference: Any) -> Any:
         """
         Validates and transforms the entity reference to ensure it matches the expected Blender scene type.
 
@@ -30,7 +32,7 @@ class SceneConfigSet(BlenderConfigSet):
         return BlenderConfigSet.check_and_transform_entity_reference(self, entity_reference)
 
     @staticmethod
-    def from_definitions_in_json_directory(properties_dir, prefix=""):
+    def from_definitions_in_json_directory(properties_dir: str, prefix: str = "") -> "SceneConfigSet":
         """
         Creates a SceneConfigSet instance from property definitions in a specified directory.
 

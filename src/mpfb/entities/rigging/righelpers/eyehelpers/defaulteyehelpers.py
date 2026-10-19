@@ -1,8 +1,11 @@
 """This module contains the default rig's implementation of the eye helpers class"""
 
+import bpy
+
 from .....services import LogService
 _LOG = LogService.get_logger("eyehelpers.defaulteyehelpers")
 
+from .....types import RigHelperSettings
 from .eyehelpers import EyeHelpers
 
 _ROTATION_LIMITS = {
@@ -47,41 +50,41 @@ class DefaultEyeHelpers(EyeHelpers):
 
     """The rig specific implementation of eye helpers matching the Default and Default-no-toes rigs."""
 
-    def __init__(self, settings):
+    def __init__(self, settings: RigHelperSettings) -> None:
         """Get a new instance of the class. You should not call this directly. Instead, use the get_instance()
         method in the abstract base class."""
 
         _LOG.debug("Constructing DefaultEyeHelpers object")
         EyeHelpers.__init__(self, settings)
 
-    def get_head_name(self):
+    def get_head_name(self) -> str:
         return "head"
 
-    def get_root_name(self):
+    def get_root_name(self) -> str:
         return "root"
 
-    def get_eye_name(self, right_side=True):
+    def get_eye_name(self, right_side: bool=True) -> str:
         if right_side:
             return "eye.R"
         return "eye.L"
 
-    def get_eye_lower_lid_name(self, right_side=True):
+    def get_eye_lower_lid_name(self, right_side: bool=True) -> str:
         if right_side:
             return "orbicularis04.R"
         return "orbicularis04.L"
 
-    def get_eye_upper_lid_name(self, right_side=True):
+    def get_eye_upper_lid_name(self, right_side: bool=True) -> str:
         if right_side:
             return "orbicularis03.R"
         return "orbicularis03.L"
 
-    def add_eye_rotation_constraints(self, armature_object):
+    def add_eye_rotation_constraints(self, armature_object: bpy.types.Object) -> None:
         pass
 
-    def _sided_rotation_limit(self, unsided_name, armature_object):
+    def _sided_rotation_limit(self, unsided_name: str, armature_object: bpy.types.Object) -> None:
         # TODO: consider whether rotation limits are even relevant
         pass
 
-    def _sided_rotation_lock(self, unsided_name, armature_object):
+    def _sided_rotation_lock(self, unsided_name: str, armature_object: bpy.types.Object) -> None:
         # TODO: consider whether rotation locks are even relevant
         pass
