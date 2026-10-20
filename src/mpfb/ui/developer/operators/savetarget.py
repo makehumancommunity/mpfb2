@@ -31,10 +31,25 @@ class MPFB_OT_Save_Target_Operator(MpfbOperator, ExportHelper):
 
     @staticmethod
     def get_active_key(blender_object):
+        """Return the active shape key of the object, or None if there is no usable one.
+
+        This is called from poll(), which blender re-evaluates on every redraw, so it must stay
+        cheap and must never raise. A mesh without any shape keys has data.shape_keys set to None.
+        """
+        if blender_object is None:
+            return None
+
+        mesh = getattr(blender_object, "data", None)
+        shape_keys = getattr(mesh, "shape_keys", None)
+        if shape_keys is None:
+            return None
+
         index = blender_object.active_shape_key_index
-        key_blocks = blender_object.data.shape_keys.key_blocks
+        key_blocks = shape_keys.key_blocks
         if 0 < index < len(key_blocks):
             return key_blocks[index]
+
+        return None
 
     @classmethod
     def poll(cls, context):
@@ -48,6 +63,10 @@ class MPFB_OT_Save_Target_Operator(MpfbOperator, ExportHelper):
     def invoke(self, context, event):
         active_object = context.active_object
         shape_key = self.get_active_key(active_object)
+
+        if shape_key is None:
+            self.report({'ERROR'}, "There is no active shape key to save")
+            return {'CANCELLED'}
 
         name = TargetService.decode_shapekey_name(shape_key.name)
         name = re.sub(r'^macrodetail-', "", name)
@@ -85,6 +104,10 @@ class MPFB_OT_Save_Target_Operator(MpfbOperator, ExportHelper):
     def hardened_execute(self, context):
         blender_object = context.active_object
         shape_key = self.get_active_key(blender_object)
+
+        if shape_key is None:
+            self.report({'ERROR'}, "There is no active shape key to save")
+            return {'CANCELLED'}
 
         info = TargetService.get_shape_key_as_dict(blender_object, shape_key)
 
