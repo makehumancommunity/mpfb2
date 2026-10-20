@@ -1,137 +1,184 @@
 # ------------------------------------------------------------------------------
 # MPFB2 Extension by Klecer
 # Author:       Tomáš Klecer
-# Date:         13.5.2025
+# Date:         13.5.2025 - updated 6.10.2026
 # University:   Brno University of Technology
 # Supervisor:   Ing. Tomáš Chlubna, Ph.D.
 # Description:  operator for deleting hair asset and removing its properties
 # ------------------------------------------------------------------------------
 from ....services.logservice import LogService
-from ....services.locationservice import LocationService
+from ....services.objectservice import ObjectService
 from .... import ClassManager
-from ....services.haireditorservices import HairEditorService
-import bpy, os, json, shutil
+from ...mpfboperator import MpfbOperator
+from ...pollstrategy import pollstrategy, PollStrategy
+from ..hairproperties import HAIR_PROPERTIES, FUR_PROPERTIES, CARDS_MODIFIER_NAME, CARDS_OBJECT_SUFFIX, \
+    baked_image_names, forget_cards_settings, remove_asset_properties, resolve_body_surface, \
+    resolve_custom_surface, restore_custom_mesh_materials
+from ....services.hairoverlayservice import HairOverlayService
+from .toggle_section_operator import forget_asset as forget_section_folds
+
+import bpy
 
 _LOG = LogService.get_logger("haireditorpanel.delete_hair_operator")
 
-class MPFB_OT_DeleteHair_Operator(bpy.types.Operator):
+@pollstrategy(PollStrategy.BASEMESH_AMONGST_RELATIVES)
+class MPFB_OT_DeleteHair_Operator(MpfbOperator):
     """Deletes hair asset and removes all properties"""
     bl_idname = "mpfb.delete_hair_operator"
     bl_label = "Delete hair"
-    bl_options = {'REGISTER'}
+    bl_options = {'REGISTER', 'UNDO'}
 
     hair_asset: bpy.props.StringProperty()
+    is_fur: bpy.props.BoolProperty(default=False)
 
-    def execute(self, context):
-        scene = context.scene
+    def get_logger(self):
+        return _LOG
 
-        self.report({'INFO'}, ("Deleting hair asset..."))
+    def _remove_if_unused(self, collection, datablock):
+        """Remove a datablock, unless something else in the scene is still referring to it."""
+        if datablock is None:
+            return
+        if datablock.users > 0:
+            _LOG.debug("Keeping datablock which is still in use", datablock.name)
+            return
+        collection.remove(datablock)
 
-        # Get Human object
-        human_obj = context.object
-        if not human_obj or human_obj.name != 'Human':
-            self.report({'ERROR'}, "Object 'Human' must be active")
+    def _remove_object_data(self, datablock):
+        """Remove the geometry of a deleted object, blender leaves it behind as an orphan."""
+        if isinstance(datablock, bpy.types.Mesh):
+            self._remove_if_unused(bpy.data.meshes, datablock)
+        elif isinstance(datablock, bpy.types.Curves):
+            self._remove_if_unused(bpy.data.hair_curves, datablock)
+        elif isinstance(datablock, bpy.types.Curve):
+            self._remove_if_unused(bpy.data.curves, datablock)
+
+    def _collect_dependencies(self, node_tree, node_group_names, image_names):
+        """Note down every node group and image a node tree relies on, however deeply nested."""
+        if node_tree is None:
+            return
+        for node in node_tree.nodes:
+            image = getattr(node, "image", None)
+            if image is not None:
+                image_names.add(image.name)
+            group = getattr(node, "node_tree", None)
+            if group is not None and group.name not in node_group_names:
+                node_group_names.add(group.name)
+                self._collect_dependencies(group, node_group_names, image_names)
+
+    @staticmethod
+    def _node_group_in_use(node_group):
+        """Whether anything still uses the node group.
+
+        In blender 4.2 the hair shader group keeps a user count 1 after the material holding it was removed, although nothing refers to it.
+        """
+        if node_group.use_fake_user:
+            return True
+        if node_group.users == 0:
+            return False
+        return bool(bpy.data.user_map(subset=[node_group]).get(node_group))
+
+    def _purge_node_groups(self, node_group_names, image_names):
+        """Remove the listed node groups which nothing uses any longer, repeated since removal orphans nested groups."""
+        while True:
+            removed_something = False
+            for name in sorted(node_group_names):
+                node_group = bpy.data.node_groups.get(name)
+                if node_group is None or self._node_group_in_use(node_group):
+                    continue
+                self._collect_dependencies(node_group, node_group_names, image_names)
+                bpy.data.node_groups.remove(node_group)
+                removed_something = True
+            if not removed_something:
+                return
+
+    def hardened_execute(self, context):
+        _LOG.enter()
+
+        basemesh = ObjectService.find_object_of_type_amongst_nearest_relatives(context.object)
+        if basemesh is None:
+            self.report({'ERROR'}, "Could not find basemesh amongst relatives of selected object")
             return {'CANCELLED'}
 
-        # Get hair and eventual card assets
+        card_name = f"{self.hair_asset}{CARDS_OBJECT_SUFFIX}"
+        brace_name = f"{self.hair_asset}_brace"
+
         hair_obj = None
-        card_obj = None
-        for child in human_obj.children:
+        objects_to_delete = []
+        for child in ObjectService.get_list_of_children(basemesh):
             if child.name == self.hair_asset:
                 hair_obj = child
-            if child.name == f"{self.hair_asset}_cards":
-                card_obj = child
+            if child.name in [self.hair_asset, card_name, brace_name]:
+                objects_to_delete.append(child)
 
-        # Delete Geo Nodes modifier from card object
-        modifier_name = f"{self.hair_asset}_cards_HairCards"
-        if card_obj and modifier_name in card_obj.modifiers:
-            mod = card_obj.modifiers.get(modifier_name)
-            if mod and mod.type == 'NODES':
-                mod.node_group = None
-                card_obj.modifiers.remove(mod)
-            node_group = bpy.data.node_groups.get(modifier_name)
-            if node_group:
-                bpy.data.node_groups.remove(node_group, do_unlink=True)
-        for suffix in ["_cards_scale", "_cards_density", "_cards_placement"]:
-            prop_name = f"{self.hair_asset}{suffix}"
-            if hasattr(scene.__class__, prop_name):
-                delattr(scene.__class__, prop_name)
-            if prop_name in scene:
-                del scene[prop_name]
+        if hair_obj is None:
+            self.report({'WARNING'}, f"Hair object '{self.hair_asset}' not found, only cleaning up its properties")
 
-        # Delete hair and card objects
-        if hair_obj:
-            bpy.data.objects.remove(hair_obj, do_unlink=True)
-        else:
-            self.report({'WARNING'}, f"Hair object '{self.hair_asset}' not found")
-            return {'CANCELLED'}
-        if card_obj:
-            bpy.data.objects.remove(card_obj, do_unlink=True)
+        object_data = [obj.data for obj in objects_to_delete]
 
-        # Force _cards_generated and _cards_baked to be false
-        prop_name = f"{self.hair_asset}_cards_generated"
-        if hasattr(scene, prop_name):
-            setattr(scene, prop_name, False)
-        prop_name = f"{self.hair_asset}_cards_baked"
-        if hasattr(scene, prop_name):
-            setattr(scene, prop_name, False)
+        # Every asset has its own copies of the grooming node groups, tracked by name since the datablocks may be gone later
+        node_group_names = {f"{card_name}_{CARDS_MODIFIER_NAME}"}
+        # Includes the extra baked maps (normal, AO, ...)
+        image_names = set(baked_image_names(self.hair_asset))
+        materials = set()
+        for obj in objects_to_delete:
+            for modifier in obj.modifiers:
+                node_group = getattr(modifier, "node_group", None)
+                if node_group is not None:
+                    node_group_names.add(node_group.name)
+                    self._collect_dependencies(node_group, node_group_names, image_names)
+            # Materials are taken from the objects, not looked up by name, as blender may rename them to "<asset>.001"
+            for slot in obj.material_slots:
+                if slot.material is not None:
+                    materials.add(slot.material)
 
-        # Remove assetes properties
-        prop_prefix = f"{self.hair_asset}_"
-        for name in [
-            "length", "density", "thickness", "frizz", "roll", "roll_radius",
-            "roll_length", "clump", "clump_distance", "clump_shape", "clump_tip_spread",
-            "noise", "noise_distance", "noise_scale", "noise_shape",
-            "curl", "curl_guide_distance", "curl_radius", "curl_frequency",
-            "holes", "holes_scale",
-            "fur_asset_open", "hair_asset_open",
-            "_cards_scale", "_cards_density", "_cards_placement",
-            "_cards_resolution", "_cards_samples", "_cards_glossy", "_cards_generated", "_cards_texture_dst", "_cards_baked"
-        ]:
-            prop_id = f"{prop_prefix}{name}"
-            if hasattr(scene.__class__, prop_id):
-                delattr(scene.__class__, prop_id)
+        # The hair shader is a node group nested inside the asset material
+        for material in materials:
+            self._collect_dependencies(material.node_tree, node_group_names, image_names)
 
-        # Remove material properties
-        mat_name = f"{self.hair_asset}"
-        material_props = [
-            "color1", "color2", "coror_noise_scale", "darken_root", "root_color_length"
-        ]
-        for name in material_props:
-            prop_id = f"{mat_name}_{name}"
-            if hasattr(scene.__class__, prop_id):
-                delattr(scene.__class__, prop_id)
+        properties = FUR_PROPERTIES if self.is_fur else HAIR_PROPERTIES
+        kind = "fur" if self.is_fur else "hair"
 
-        # Delete material
-        material = bpy.data.materials.get(self.hair_asset)
-        if material:
-            for obj in bpy.data.objects:
-                for i, slot in enumerate(obj.material_slots):
-                    if slot.material == material:
-                        obj.material_slots[i].material = None
-            bpy.data.materials.remove(material)
-        else:
-            self.report({'INFO'}, f"No material named '{self.hair_asset}' found.")
-        material = bpy.data.materials.get(f"{self.hair_asset}_baked")
-        if material:
-            for obj in bpy.data.objects:
-                for i, slot in enumerate(obj.material_slots):
-                    if slot.material == material:
-                        obj.material_slots[i].material = None
-            bpy.data.materials.remove(material)
-        else:
-            self.report({'INFO'}, f"No material named '{self.hair_asset}_baked' found.")
+        # Baked hair textures are deleted together with hair objects
+        # This does not work for "Body texture" bake and "Custom mesh" so it must be cleaned here.
+        removed_overlays = HairOverlayService.remove_overlay(resolve_body_surface(basemesh), self.hair_asset)
+        _LOG.debug("Removed the body texture overlay from material slots", removed_overlays)
+        custom_surface = resolve_custom_surface(properties, basemesh, self.hair_asset)
+        if custom_surface is not None:
+            baked = [slot.material for slot in custom_surface.material_slots
+                     if slot.material is not None and slot.material.name.startswith(f"{self.hair_asset}_baked")]
+            if restore_custom_mesh_materials(custom_surface):
+                materials.update(baked)
 
-        # Reselect Human
-        human_obj = bpy.data.objects.get("Human")
-        if human_obj:
-            bpy.ops.object.select_all(action='DESELECT')
-            human_obj.select_set(True)
-            context.view_layer.objects.active = human_obj
-        else:
-            self.report({'WARNING'}, "Human object not found in bpy.data.objects")
+        for obj in objects_to_delete:
+            bpy.data.objects.remove(obj, do_unlink=True)
+        for datablock in object_data:
+            self._remove_object_data(datablock)
 
-        self.report({'INFO'}, "Hair asset deleted successfully.")
+        # Not by prefix alone
+        removed = remove_asset_properties(properties, basemesh, self.hair_asset, kind)
+        _LOG.debug("Removed properties", removed)
+
+        # Card settings are a plain custom property, so the sweep above does not remove them
+        forget_cards_settings(basemesh, self.hair_asset)
+        # Panel fold state is kept in a module dict, not on the character
+        forget_section_folds(self.hair_asset)
+
+        for material in materials:
+            self._remove_if_unused(bpy.data.materials, material)
+
+        self._purge_node_groups(node_group_names, image_names)
+
+        for name in image_names:
+            image = bpy.data.images.get(name)
+            if image is not None:
+                # Baked extra maps have a fake user, release it
+                image.use_fake_user = False
+            self._remove_if_unused(bpy.data.images, image)
+
+        ObjectService.deselect_and_deactivate_all()
+        ObjectService.activate_blender_object(basemesh)
+
+        self.report({'INFO'}, f"Deleted hair asset '{self.hair_asset}'")
         return {'FINISHED'}
 
 ClassManager.add_class(MPFB_OT_DeleteHair_Operator)

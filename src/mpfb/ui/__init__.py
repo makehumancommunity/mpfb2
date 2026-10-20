@@ -20,7 +20,6 @@ if SystemService.is_blender_version_at_least():
     # unsuitable to arrange in the same manner as the rest of the UI layer.
     from .model import *
     from .developer import *
-    from .haireditorpanel import *
 
     # Most of the UI layer follows a common pattern: A top level directory matching a main panel
     # in the ui, with subdirectories matching subpanels. Note that the order in which the sections
@@ -32,6 +31,7 @@ if SystemService.is_blender_version_at_least():
     from .rigging import *
     from .presets import *
     from .apply_assets import *
+    from .haireditorpanel import *
     from .operations import *
     from .system import *
 
