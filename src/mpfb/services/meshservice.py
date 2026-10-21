@@ -239,11 +239,17 @@ class MeshService:
             uv_map = None
 
         uv_map = mesh_data.uv_layers.new(name=uv_map_name, do_init=True)
+        loop_count = len(uv_map.data)
+        flat_uvs = numpy.empty(loop_count * 2, dtype=numpy.float32)
+        uv_map.data.foreach_get("uv", flat_uvs)
 
-        for face in mesh_data.polygons:
-            for loop_index in face.loop_indices:
-                uv = uv_map.data[loop_index].uv
-                uv_map.data[loop_index].uv = [ uv[0] * 0.01, uv[1] * 0.01 ]
+        # The multiply is done in float64 and rounded back down, which is bit for bit what reading a
+        # uv through RNA into python floats and assigning the product back used to produce. Scaling
+        # the float32 array in place instead would round twice and drift by an ulp.
+        flat_uvs = (flat_uvs * numpy.float64(0.01)).astype(numpy.float32)
+
+        # A reshape of a contiguous array is a view, so writes through uv_rows land in flat_uvs.
+        uv_rows = flat_uvs.reshape(loop_count, 2)
 
         for face_index, uv_info in uv_map_as_dict.items():
             for loop_index, uv_coords in uv_info.items():
@@ -252,7 +258,9 @@ class MeshService:
                     "loop_index": loop_index,
                     "uv_coords": uv_coords})
 
-                uv_map.data[int(loop_index)].uv = uv_coords
+                uv_rows[int(loop_index)] = uv_coords
+
+        uv_map.data.foreach_set("uv", flat_uvs)
 
     @staticmethod
     def create_vertex_group(mesh_object: bpy.types.Object, vertex_group_name: str,
