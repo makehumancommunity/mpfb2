@@ -12,21 +12,37 @@ from ... import dynamic_import
 set_raise_exceptions_in_mpfboperator = dynamic_import("mpfb.ui.mpfboperator", "set_raise_exceptions_in_mpfboperator")
 set_raise_exceptions_in_mpfboperator(True)
 
+# Objects plus the object data kinds the fixtures below create. Objects come first: an object keeps
+# its data in use, so the objects have to go before the data can be removed.
+_TRACKED_DATA = ("objects", "meshes", "armatures", "curves", "hair_curves", "cameras", "lights")
+
+
 class SceneSnapshot:
-    """Records object names before a test; deletes new objects on cleanup."""
+    """Records the datablocks present before a test; removes the ones it added on cleanup."""
 
     def __init__(self):
         self._before = None
 
     def take(self):
-        self._before = set(obj.name for obj in bpy.data.objects)
+        self._before = {kind: {block.as_pointer() for block in getattr(bpy.data, kind)} for kind in _TRACKED_DATA}
 
     def cleanup(self):
         if self._before is None:
             return
-        to_delete = [obj for obj in bpy.data.objects if obj.name not in self._before]
-        for obj in to_delete:
-            bpy.data.objects.remove(obj, do_unlink=True)
+        if bpy.context.object is not None and bpy.context.object.mode != 'OBJECT':
+            try:
+                bpy.ops.object.mode_set(mode='OBJECT')
+            except Exception as exception:   # a failing test may have left an unusable context
+                print(f"SceneSnapshot: could not return to object mode: {exception}")
+        for kind in _TRACKED_DATA:
+            collection = getattr(bpy.data, kind)
+            added = [block for block in collection if block.as_pointer() not in self._before[kind]]
+            for block in added:
+                try:
+                    block.use_fake_user = False
+                    collection.remove(block, do_unlink=True)
+                except Exception as exception:
+                    print(f"SceneSnapshot: could not remove {kind} {block!r}: {exception}")
 
 
 class HumanFixture:
