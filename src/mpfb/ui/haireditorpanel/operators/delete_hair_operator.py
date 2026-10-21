@@ -16,6 +16,7 @@ from ..hairproperties import HAIR_PROPERTIES, FUR_PROPERTIES, CARDS_MODIFIER_NAM
     resolve_custom_surface, restore_custom_mesh_materials
 from ....services.hairoverlayservice import HairOverlayService
 from .toggle_section_operator import forget_asset as forget_section_folds
+from .bake_result_operator import forget_asset as forget_bake_results
 
 import bpy
 
@@ -162,6 +163,7 @@ class MPFB_OT_DeleteHair_Operator(MpfbOperator):
         forget_cards_settings(basemesh, self.hair_asset)
         # Panel fold state is kept in a module dict, not on the character
         forget_section_folds(self.hair_asset)
+        forget_bake_results(self.hair_asset)
 
         for material in materials:
             self._remove_if_unused(bpy.data.materials, material)

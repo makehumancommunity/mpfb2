@@ -224,6 +224,10 @@ def register():
     _LOG.debug("About to request class registration")
     ClassManager.register_classes()
 
+    # Dynamic properties are rebuilt and their caches reset on file load and undo. Removed again in unregister()
+    from .services.dynamicconfigset import register_handlers
+    register_handlers()
+
     from .services import SystemService
 
     if SystemService.is_blender_version_at_least():
@@ -257,6 +261,14 @@ def unregister():
     """Deconstruct all loaded blenderish classes"""
 
     global _LOG  # pylint: disable=W0603,W0602
+
+    try:
+        from .services.dynamicconfigset import unregister_handlers
+        unregister_handlers()
+        from .ui.haireditorpanel.operators.bake_hair_operator import abandon_pending_bakes
+        abandon_pending_bakes()
+    except Exception as e:
+        _LOG.error("Could not remove the app handlers", e)
 
     _LOG.debug("About to unregister classes")
     global ClassManager  # pylint: disable=W0603,W0602

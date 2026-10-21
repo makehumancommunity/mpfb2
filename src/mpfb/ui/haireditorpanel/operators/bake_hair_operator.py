@@ -1,7 +1,7 @@
 # ------------------------------------------------------------------------------
 # MPFB2 Extension by Klecer
 # Author:       Tomáš Klecer
-# Date:         13.5.2025 - updated 06.10.2026
+# Date:         13.5.2025 - updated 21.10.2026
 # University:   Brno University of Technology
 # Supervisor:   Ing. Tomáš Chlubna, Ph.D.
 # Description:  operator for baking hair asset onto a card asset as a texture
@@ -24,7 +24,9 @@ from ..hairproperties import (HAIR_PROPERTIES, FUR_PROPERTIES, CARDS_OBJECT_SUFF
 from ....services import haircardservice as cg
 from ....services.haircardservice import HairCardService
 from ....services.hairoverlayservice import HairOverlayService
-from ....services.hairbakeservice import HairBakeService, _SHELL_CAPTURE_MARGIN, _EXTRA_MAP_BUILDERS
+from ....services.hairbakeservice import HairBakeService, SHELL_CAPTURE_MARGIN, EXTRA_MAP_BUILDERS
+from .bake_result_operator import (remember_bake_result, forget_bake_result, show_bake_result_popup,
+                                   BAKE_FAILED, BAKE_CANCELLED, BAKE_ABANDONED, BAKE_WARNINGS)
 
 import bpy
 from mathutils import Vector
@@ -49,10 +51,41 @@ _CYCLES_BAKE_SETTINGS = {
 # Saving scene.render.bake settings so they can be restored after bake.
 _BAKE_PASS_SETTINGS = ["use_pass_direct", "use_pass_indirect", "use_selected_to_active", "use_clear"]
 
+# Still waiting background bakes are cleaned up if MPFB2 is disabled mid-bake
+_PENDING_BAKES = {}
+
+
+def abandon_pending_bakes():
+    """Remove handlers and queued finish timers of still running bakes. Called from unregister()."""
+    for abandon in list(_PENDING_BAKES.values()):
+        try:
+            abandon()
+        except Exception as e:
+            _LOG.error("Could not abandon a pending bake", e)
+    _PENDING_BAKES.clear()
+
+
+def _message_level(level):
+    """report() takes a set like {'WARNING'}, the result keeps just the most severe one."""
+    if 'ERROR' in level:
+        return 'ERROR'
+    if 'WARNING' in level:
+        return 'WARNING'
+    return 'INFO'
+
+
+def _announce_background_result(basemesh_name, asset_name, status, messages):
+    """Tell the user how a background bake ended. A clean bake only clears an older result."""
+    if status is None:
+        forget_bake_result(basemesh_name, asset_name)
+        return
+    remember_bake_result(basemesh_name, asset_name, status, messages)
+    show_bake_result_popup(status, messages)
+
 
 def _finish(state, bake_succeeded):
     """Everything that happens once the main bake call has finished (or failed/was cancelled)."""
-    if not HairBakeService._state_is_alive(state):
+    if not HairBakeService.state_is_alive(state):
         state["report"]({'WARNING'},
                         "The scene changed while the cards were baking, so the result was discarded")
         return False
@@ -73,20 +106,20 @@ def _finish(state, bake_succeeded):
     try:
         if bake_succeeded:
             try:
-                HairBakeService._bake_coverage_into_alpha(state)
+                HairBakeService.bake_coverage_into_alpha(state)
             except Exception as e:
                 _LOG.error("Could not bake the hair coverage mask into the alpha channel", e)
                 report({'WARNING'}, f"The alpha channel could not be baked: {e}")
 
             if state.get("double_sided"):
                 try:
-                    HairBakeService._bake_other_side(state)
+                    HairBakeService.bake_other_side(state)
                 except Exception as e:
                     _LOG.error("Could not bake the far side of the cards; keeping the near one", e)
                     report({'WARNING'},
                            f"The second side failed, so only the near side was baked: {e}")
 
-            HairBakeService._dilate_image_colour(bake_image)
+            HairBakeService.dilate_image_colour(bake_image)
 
             bake_path = HairBakeService.resolve_bake_path(asset_name, state["destination"])
             bake_image.filepath_raw = bake_path
@@ -97,13 +130,13 @@ def _finish(state, bake_succeeded):
 
             # Failure in optional maps bake must not throw the successful main pass away.
             try:
-                extra_paths = HairBakeService._bake_extra_maps(state)
+                extra_paths = HairBakeService.bake_extra_maps(state)
             except Exception as e:
                 _LOG.error("Could not bake the extra maps; keeping the main texture", e)
                 report({'WARNING'}, f"The colour texture was baked, but the extra maps failed: {e}")
 
             if state["atlas_plan"] is not None:
-                HairBakeService._apply_card_atlas(bake_target, state["atlas_plan"])
+                HairBakeService.apply_card_atlas(bake_target, state["atlas_plan"])
 
             if not state["direct_to_body"]:
                 fade_attribute = None
@@ -125,10 +158,10 @@ def _finish(state, bake_succeeded):
     except Exception as e:
         _LOG.error("Failed while wrapping up the bake", e)
     finally:
-        HairBakeService._restore_environment(state, keep_card_material=not success)
+        HairBakeService.restore_environment(state, keep_card_material=not success)
 
     if not success:
-        HairBakeService._discard_bake_target(state)
+        HairBakeService.discard_bake_target(state)
         report({'ERROR'}, "Baking failed or was cancelled; nothing was replaced")
         return False
 
@@ -151,7 +184,7 @@ def _finish(state, bake_succeeded):
         remember_custom_mesh_materials(custom_surface)
         custom_surface.data.materials.clear()
         custom_surface.data.materials.append(baked_material)
-        HairBakeService._discard_bake_target(state)
+        HairBakeService.discard_bake_target(state)
     else:
         # Replace the live card object with the baked one.
         old_modifier_node_group = None
@@ -164,7 +197,7 @@ def _finish(state, bake_succeeded):
             bpy.data.node_groups.remove(old_modifier_node_group)
         # old_data is the live card object geometry, orphaned_data is what mesh conversion of working copy left behind.
         for datablock in [old_data] + state["orphaned_data"]:
-            HairBakeService._remove_orphan_geometry(datablock)
+            HairBakeService.remove_orphan_geometry(datablock)
 
         bake_target.name = f"{asset_name}{CARDS_OBJECT_SUFFIX}"
 
@@ -259,7 +292,7 @@ class MPFB_OT_BakeHair_Operator(MpfbOperator):
         # Measured only when something is actually shared
         exposure = None
         if hair_obj is not None and atlas_fraction < 0.999:
-            exposure = HairBakeService._card_vertex_sparsity(bake_target, hair_obj)
+            exposure = HairBakeService.card_vertex_sparsity(bake_target, hair_obj)
 
         generated_uvs = False
         island_count = 0
@@ -269,15 +302,15 @@ class MPFB_OT_BakeHair_Operator(MpfbOperator):
                 bm.from_mesh(bake_target.data)
                 bm.faces.ensure_lookup_table()
                 uv_layer = bm.loops.layers.uv[0] if bm.loops.layers.uv else None
-                islands = HairBakeService._find_uv_islands(bm)
+                islands = HairBakeService.find_uv_islands(bm)
                 island_count = len(islands)
-                generated_uvs = HairBakeService._has_generated_card_uvs(bm, islands, uv_layer)
+                generated_uvs = HairBakeService.has_generated_card_uvs(bm, islands, uv_layer)
             finally:
                 bm.free()
 
         if generated_uvs:
             _LOG.debug("Packing the generator's own UV layout into the atlas")
-            return HairBakeService._pack_card_uvs_into_grid(bake_target, atlas_fraction, resolution,
+            return HairBakeService.pack_card_uvs_into_grid(bake_target, atlas_fraction, resolution,
                                             exposure=exposure), orphaned
 
         _LOG.debug("Unwrapping without a generated UV layout",
@@ -288,10 +321,10 @@ class MPFB_OT_BakeHair_Operator(MpfbOperator):
                         "individual cards may come out rotated")
 
         if atlas_fraction >= 0.999:
-            HairBakeService._smart_project_selection(select_all=True)
+            HairBakeService.smart_project_selection(select_all=True)
             return None, orphaned
 
-        return HairBakeService._prepare_card_atlas(bake_target, atlas_fraction, exposure=exposure), orphaned
+        return HairBakeService.prepare_card_atlas(bake_target, atlas_fraction, exposure=exposure), orphaned
 
     def _hair_bounds(self, hair_obj):
         """Centre and radius of the hair bounding box, in world space."""
@@ -491,7 +524,7 @@ class MPFB_OT_BakeHair_Operator(MpfbOperator):
         light_strength = get_light_strength(properties, basemesh, asset_name)
         wanted_maps = {
             key: bool(properties.get_value(f"{asset_name}_{propname}", False, entity_reference=basemesh))
-            for key, (propname, _builder) in _EXTRA_MAP_BUILDERS.items()
+            for key, (propname, _builder) in EXTRA_MAP_BUILDERS.items()
             }
         # The end-on cutoff of the volume shell is built out of these two maps, so they are forced.
         # Not for a direct body bake.
@@ -522,12 +555,12 @@ class MPFB_OT_BakeHair_Operator(MpfbOperator):
                 body_surface, hair_obj, context.evaluated_depsgraph_get())
             above_shell = max(0.0, extent - shell_height)
             if above_shell > 0.0:
-                capture_depth += above_shell + _SHELL_CAPTURE_MARGIN
+                capture_depth += above_shell + SHELL_CAPTURE_MARGIN
                 _LOG.debug("Body shell capture lifted above the hair",
                            (extent, shell_height, capture_depth))
 
             # The forced range limit has to reach from the lifted start through the hair to the skin.
-            reach = capture_depth + shell_height + _SHELL_CAPTURE_MARGIN
+            reach = capture_depth + shell_height + SHELL_CAPTURE_MARGIN
             if ray_range < reach:
                 _LOG.debug("Raising the body shell ray range to cover the capture slab",
                            (ray_range, reach))
@@ -601,7 +634,7 @@ class MPFB_OT_BakeHair_Operator(MpfbOperator):
 
             if limit_rays:
                 state["original_hair_materials"] = [slot.material for slot in hair_obj.material_slots]
-                state["range_limited_materials"] = HairBakeService._range_limited_copies(hair_obj, ray_range)
+                state["range_limited_materials"] = HairBakeService.range_limited_copies(hair_obj, ray_range)
                 hair_obj.data.materials.clear()
                 for material in state["range_limited_materials"]:
                     hair_obj.data.materials.append(material)
@@ -647,7 +680,7 @@ class MPFB_OT_BakeHair_Operator(MpfbOperator):
                 self.report({'WARNING'}, "Baking with the current scene lighting, but no light in the scene"
                                          "is enabled for render. Only the world will light the hair")
 
-            state["card_material"] = HairBakeService._build_ray_portal_material(capture_depth, outward=direct_to_body)
+            state["card_material"] = HairBakeService.build_ray_portal_material(capture_depth, outward=direct_to_body)
             if direct_to_body:
                 # The target is the body itself, so its skin has to come back afterwards.
                 swap_materials(bake_target, state["card_material"])
@@ -656,7 +689,7 @@ class MPFB_OT_BakeHair_Operator(MpfbOperator):
                 bake_target.data.materials.clear()
                 bake_target.data.materials.append(state["card_material"])
 
-            state["bake_image"] = HairBakeService._bake_image(f"{asset_name}_cards_texture", resolution,
+            state["bake_image"] = HairBakeService.bake_image(f"{asset_name}_cards_texture", resolution,
                                               alpha=True, colorspace='sRGB')
             state["baked_images"]["color"] = state["bake_image"]
 
@@ -670,7 +703,7 @@ class MPFB_OT_BakeHair_Operator(MpfbOperator):
                 state["basemesh_material"] = None
             else:
                 # Every body mesh has to be held out, with a proxy there are two of them.
-                state["basemesh_material"] = HairBakeService._build_holdout_material()
+                state["basemesh_material"] = HairBakeService.build_holdout_material()
                 for surface in body_surfaces_to_hide_behind(basemesh):
                     swap_materials(surface, state["basemesh_material"])
 
@@ -688,8 +721,8 @@ class MPFB_OT_BakeHair_Operator(MpfbOperator):
             ObjectService.activate_blender_object(bake_target)
         except Exception as e:
             _LOG.error("Could not set the scene up for baking", e)
-            HairBakeService._restore_environment(state, keep_card_material=False)
-            HairBakeService._discard_bake_target(state)
+            HairBakeService.restore_environment(state, keep_card_material=False)
+            HairBakeService.discard_bake_target(state)
             self.report({'ERROR'}, f"Could not set the scene up for baking: {e}")
             return None
 
@@ -702,18 +735,19 @@ class MPFB_OT_BakeHair_Operator(MpfbOperator):
         state = self._prepare(context)
         if state is None:
             return {'CANCELLED'}
+        forget_bake_result(state["basemesh"].name, state["asset_name"])
 
         self.report({'INFO'}, "Baking cards... It might take a while")
         bake_succeeded = False
         try:
-            HairBakeService._run_bake_passes(state, 'GLOSSY' if state["glossy"] else 'DIFFUSE')
+            HairBakeService.run_bake_passes(state, 'GLOSSY' if state["glossy"] else 'DIFFUSE')
             bake_succeeded = True
         except Exception as e:
             _LOG.error("Bake call raised an exception", e)
 
         if not _finish(state, bake_succeeded):
             return {'CANCELLED'}
-        HairBakeService._push_bake_undo_step()
+        HairBakeService.push_bake_undo_step()
         return {'FINISHED'}
 
     def invoke(self, context, event):
@@ -731,8 +765,20 @@ class MPFB_OT_BakeHair_Operator(MpfbOperator):
         if state is None:
             return {'CANCELLED'}
 
+        basemesh_name = state["basemesh"].name
+        asset_name = state["asset_name"]
+        forget_bake_result(basemesh_name, asset_name)
+
         # The operator is freed after invoke returns, so nothing that runs later may use it.
-        state["report"] = lambda level, message: _LOG.info(f"{'/'.join(sorted(level))}: {message}")
+        # Messages are collected instead, and shown once the bake has ended.
+        state["messages"] = []
+
+        def _collect(level, message):
+            _LOG.info(f"{'/'.join(sorted(level))}: {message}")
+            if _message_level(level) != 'INFO':
+                state["messages"].append((_message_level(level), message))
+
+        state["report"] = _collect
 
         self.report({'INFO'}, "Baking cards in the background...")
 
@@ -745,11 +791,22 @@ class MPFB_OT_BakeHair_Operator(MpfbOperator):
             def _finish_later():
                 pending["finish"] = None
                 _unregister(scene_guards=True)
+                _PENDING_BAKES.pop(id(state), None)
+                finished = False
                 try:
-                    if _finish(state, succeeded):
-                        HairBakeService._push_bake_undo_step()
+                    finished = _finish(state, succeeded)
+                    if finished:
+                        HairBakeService.push_bake_undo_step()
                 except Exception as e:
                     _LOG.crash("Finishing the background bake failed", e)
+                    state["messages"].append(('ERROR', f"Finishing the bake failed: {e}"))
+                if not finished:
+                    status = BAKE_CANCELLED if state.get("cancelled") else BAKE_FAILED
+                elif state["messages"]:
+                    status = BAKE_WARNINGS
+                else:
+                    status = None
+                _announce_background_result(basemesh_name, asset_name, status, state["messages"])
                 return None  # one shot
 
             pending["finish"] = _finish_later
@@ -761,6 +818,7 @@ class MPFB_OT_BakeHair_Operator(MpfbOperator):
 
         def _on_cancel(*_args):
             _unregister(scene_guards=False)
+            state["cancelled"] = True
             _queue_finish(False)
 
         def _on_scene_replaced(*_args):
@@ -774,7 +832,20 @@ class MPFB_OT_BakeHair_Operator(MpfbOperator):
             if queued is not None and bpy.app.timers.is_registered(queued):
                 bpy.app.timers.unregister(queued)
             _unregister(scene_guards=True)
+            _PENDING_BAKES.pop(id(state), None)
             _LOG.warn("The scene was replaced while a bake was pending; abandoning the bake state")
+            _announce_background_result(basemesh_name, asset_name, BAKE_ABANDONED, [
+                ('ERROR', "Undo, redo or opening a file replaced the scene while the bake was running,"),
+                ('ERROR', "so its result was dropped. Bake again to get the textures.")])
+
+        def _abandon():
+            """MPFB2 is being disabled while the bake runs - only drop what would otherwise be left behind."""
+            queued = pending["finish"]
+            pending["finish"] = None
+            if queued is not None and bpy.app.timers.is_registered(queued):
+                bpy.app.timers.unregister(queued)
+            _unregister(scene_guards=True)
+            _LOG.warn("MPFB2 was disabled while a bake was pending; its handlers were removed")
 
         def _unregister(scene_guards):
             """Drop the bake handlers, and optionally the undo/redo/load guards as well.
@@ -796,6 +867,7 @@ class MPFB_OT_BakeHair_Operator(MpfbOperator):
         bpy.app.handlers.undo_post.append(_on_scene_replaced)
         bpy.app.handlers.redo_post.append(_on_scene_replaced)
         bpy.app.handlers.load_post.append(_on_scene_replaced)
+        _PENDING_BAKES[id(state)] = _abandon
 
         started = None
         try:
@@ -806,6 +878,7 @@ class MPFB_OT_BakeHair_Operator(MpfbOperator):
         # A refused INVOKE_DEFAULT can either raise or return CANCELLED, in which case no handler will fire.
         if started is None or 'RUNNING_MODAL' not in started:
             _unregister(scene_guards=True)
+            _PENDING_BAKES.pop(id(state), None)
             self.report({'WARNING'}, "Could not start a background bake; baking synchronously instead")
             state["report"] = self.report
             bake_succeeded = False
@@ -816,7 +889,7 @@ class MPFB_OT_BakeHair_Operator(MpfbOperator):
                 _LOG.error("Bake call raised an exception", e2)
             if not _finish(state, bake_succeeded):
                 return {'CANCELLED'}
-            HairBakeService._push_bake_undo_step()
+            HairBakeService.push_bake_undo_step()
 
         return {'FINISHED'}
 

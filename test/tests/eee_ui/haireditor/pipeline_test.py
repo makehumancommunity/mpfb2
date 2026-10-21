@@ -112,7 +112,7 @@ def _background(world_):
 def bake_spy(monkeypatch):
     """Records what the scene looked like at every bake pass, while the scene is set up for baking."""
     seen = []
-    original = HairBakeService._run_bake_passes
+    original = HairBakeService.run_bake_passes
 
     def spy(state, bake_type):
         scene = state["scene"]
@@ -130,7 +130,7 @@ def bake_spy(monkeypatch):
             })
         return original(state, bake_type)
 
-    monkeypatch.setattr(HairBakeService, "_run_bake_passes", staticmethod(spy))
+    monkeypatch.setattr(HairBakeService, "run_bake_passes", staticmethod(spy))
     return seen
 
 
@@ -609,7 +609,7 @@ def test_failed_bake_changes_nothing(hair_with_cards, tmp_path, monkeypatch, wor
     def broken(state, bake_type):
         raise RuntimeError("the render failed")
 
-    monkeypatch.setattr(HairBakeService, "_run_bake_passes", staticmethod(broken))
+    monkeypatch.setattr(HairBakeService, "run_bake_passes", staticmethod(broken))
     cards_before = hair_with_cards.card_obj
     materials = [slot.material for slot in hair_with_cards.hair_obj.material_slots]
     result, report = _bake(hair_with_cards, tmp_path)

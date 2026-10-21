@@ -375,3 +375,21 @@ def test_body_texture_needs_a_skin_material(hair_character):
     finally:
         for material in materials:
             hair_character.basemesh.data.materials.append(material)
+
+
+_results = mpfb_module("mpfb.ui.haireditorpanel.operators.bake_result_operator")
+
+
+def test_failed_background_bake_shows_under_the_button(bake_settings):
+    """The background bake ends after its operator is gone, so the panel is where the user finds out."""
+    basemesh, asset = bake_settings
+    assert "Hair bake failed" not in labels(_draw_bake_section(basemesh, asset))
+    _results.remember_bake_result(basemesh.name, asset, _results.BAKE_FAILED, [('ERROR', "Something broke")])
+    try:
+        log = _draw_bake_section(basemesh, asset)
+        assert "Hair bake failed" in labels(log)
+        assert "Something broke" in labels(log)
+        assert ("operator", "mpfb.dismiss_hair_bake_result") in log
+    finally:
+        _results.forget_asset(asset)
+    assert "Hair bake failed" not in labels(_draw_bake_section(basemesh, asset))
