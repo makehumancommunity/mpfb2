@@ -29,6 +29,7 @@ from .bake_result_operator import (remember_bake_result, forget_bake_result, sho
                                    BAKE_FAILED, BAKE_CANCELLED, BAKE_ABANDONED, BAKE_WARNINGS)
 
 import bpy
+from collections.abc import Callable
 from mathutils import Vector
 
 _LOG = LogService.get_logger("haireditorpanel.bake_hair_operator")
@@ -52,7 +53,7 @@ _CYCLES_BAKE_SETTINGS = {
 _BAKE_PASS_SETTINGS = ["use_pass_direct", "use_pass_indirect", "use_selected_to_active", "use_clear"]
 
 # Still waiting background bakes are cleaned up if MPFB2 is disabled mid-bake
-_PENDING_BAKES = {}
+_PENDING_BAKES: dict[int, Callable[[], None]] = {}
 
 
 def abandon_pending_bakes():
@@ -785,7 +786,7 @@ class MPFB_OT_BakeHair_Operator(MpfbOperator):
         # The post-bake pass edits images and materials, which is not safe inside an app handler
         # while the viewport may be syncing - it caused a crash in EEVEE.
         # So the handler only queues the work on a timer, which runs from the main loop.
-        pending = {"finish": None}
+        pending: dict[str, Callable[[], None] | None] = {"finish": None}
 
         def _queue_finish(succeeded):
             def _finish_later():
