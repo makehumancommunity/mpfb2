@@ -120,7 +120,8 @@ def test_get_placeholder_thumbnail():
     # Note that icon_id is 0 when running headless, as blender only allocates icon ids when there is a UI
     placeholder = AssetService.get_placeholder_thumbnail()
     assert placeholder is not None, "The bundled placeholder thumbnail should be loadable"
-    assert tuple(placeholder.image_size) == (128, 128), "The placeholder image should have been loaded"
+    # There are two alternative placeholder images around. Which one has is dependent on age of system asset pack
+    assert tuple(placeholder.image_size) == (128, 128) or tuple(placeholder.image_size) == (256, 256), "The placeholder image should have been loaded"
     assert AssetService.get_placeholder_thumbnail() is placeholder, "The placeholder should only be loaded once"
 
 
