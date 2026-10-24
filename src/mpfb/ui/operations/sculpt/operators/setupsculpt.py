@@ -36,6 +36,47 @@ class MPFB_OT_Setup_Sculpt_Operator(MpfbOperator):
 
         return True
 
+    @staticmethod
+    def _set_if_available(root, paths, value):
+        """Assign value to the first of the dotted attribute paths which actually exists on root.
+
+        Blender moves and renames bake properties between versions, so every setting is looked up
+        rather than assumed. A setting which cannot be found or assigned is logged and skipped, since
+        the multires setup, sculpt mode and the final report all happen after the settings are adjusted.
+        """
+        for path in paths:
+            *parents, name = path.split(".")
+            owner = root
+            for parent in parents:
+                owner = getattr(owner, parent, None)
+                if owner is None:
+                    break
+            if owner is None or not hasattr(owner, name):
+                continue
+            try:
+                setattr(owner, name, value)
+            except Exception as exception:  # pylint: disable=broad-except
+                _LOG.warn("Could not assign bake setting " + path, exception)
+                continue
+            _LOG.debug("Adjusted bake setting", (path, value))
+            return True
+
+        _LOG.warn("No bake setting available for any of these names, skipping it", paths)
+        return False
+
+    @classmethod
+    def _adjust_bake_settings(cls, scene):
+        """Set the scene up for baking a normal map from the sculpt copy onto the original mesh."""
+        cls._set_if_available(scene, ["cycles.samples"], 8)
+        cls._set_if_available(scene, ["cycles.adaptive_min_samples"], 1)
+        cls._set_if_available(scene, ["cycles.use_denoising"], False)
+        cls._set_if_available(scene, ["cycles.bake_type"], 'NORMAL')
+        # RenderSettings.use_bake_multires was moved to BakeSettings.use_multires in later blender versions
+        cls._set_if_available(scene, ["render.bake.use_multires", "render.use_bake_multires"], False)
+        cls._set_if_available(scene, ["render.bake.use_selected_to_active"], True)
+        cls._set_if_available(scene, ["render.bake.cage_extrusion"], 0.01)
+        cls._set_if_available(scene, ["render.bake.max_ray_distance"], 0.1)
+
     def _delete_vertex_group(self, context, blender_object, vgroup_name):
         bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
         bpy.ops.object.select_all(action='DESELECT')
@@ -284,15 +325,7 @@ class MPFB_OT_Setup_Sculpt_Operator(MpfbOperator):
                 obj.parent = None
 
         if ctx.sculpt_strategy != "ORIGIN" and ctx.adjust_settings:
-            scene = context.scene
-            scene.cycles.samples = 8
-            scene.cycles.adaptive_min_samples = 1
-            scene.cycles.use_denoising = False
-            scene.cycles.bake_type = 'NORMAL'
-            scene.render.use_bake_multires = False
-            scene.render.bake.use_selected_to_active = True
-            scene.render.bake.cage_extrusion = 0.01
-            scene.render.bake.max_ray_distance = 0.1
+            self._adjust_bake_settings(context.scene)
 
         if ctx.enter_sculpt:
             bpy.ops.object.mode_set(mode='SCULPT', toggle=False)
