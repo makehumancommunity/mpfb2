@@ -57,7 +57,7 @@ def test_uv_islands_are_the_connected_cards(scratch):
     obj = link(bpy.data.objects.new("bake_islands", mesh))
     bm = _bmesh_of(obj)
     try:
-        islands = HairBakeService._find_uv_islands(bm)
+        islands = HairBakeService.find_uv_islands(bm)
         assert sorted(sorted(face.index for face in island) for island in islands) == [[0, 1], [2], [3]]
     finally:
         bm.free()
@@ -110,7 +110,7 @@ def test_island_exposure_is_its_most_exposed_vertex(scratch):
     cards = make_separate_quads("bake_exposure", 3)
     bm = _bmesh_of(cards)
     try:
-        islands = HairBakeService._find_uv_islands(bm)
+        islands = HairBakeService.find_uv_islands(bm)
         sparsity = np.zeros(12)
         sparsity[2] = 0.4
         sparsity[9] = 1.0
@@ -129,7 +129,7 @@ def test_island_exposure_is_its_most_exposed_vertex(scratch):
 def _islands_and_uvs(obj):
     bm = _bmesh_of(obj)
     uv_layer = bm.loops.layers.uv[0] if bm.loops.layers.uv else None
-    return bm, HairBakeService._find_uv_islands(bm), uv_layer
+    return bm, HairBakeService.find_uv_islands(bm), uv_layer
 
 
 @pytest.mark.parametrize("per_card, expected", [(True, True), (False, False)])
@@ -138,7 +138,7 @@ def test_generated_card_uvs_are_recognised(scratch, per_card, expected):
     cards = make_separate_quads("bake_generated_uvs", 10, uv_per_card=per_card)
     bm, islands, uv_layer = _islands_and_uvs(cards)
     try:
-        assert HairBakeService._has_generated_card_uvs(bm, islands, uv_layer) == expected
+        assert HairBakeService.has_generated_card_uvs(bm, islands, uv_layer) == expected
     finally:
         bm.free()
 
@@ -149,9 +149,9 @@ def test_uvs_outside_the_unit_square_are_not_generated(scratch):
         item.uv = (item.uv[0] + 2.0, item.uv[1])
     bm, islands, uv_layer = _islands_and_uvs(cards)
     try:
-        assert not HairBakeService._has_generated_card_uvs(bm, islands, uv_layer)
-        assert not HairBakeService._has_generated_card_uvs(bm, islands, None)
-        assert not HairBakeService._has_generated_card_uvs(bm, [], uv_layer)
+        assert not HairBakeService.has_generated_card_uvs(bm, islands, uv_layer)
+        assert not HairBakeService.has_generated_card_uvs(bm, islands, None)
+        assert not HairBakeService.has_generated_card_uvs(bm, [], uv_layer)
     finally:
         bm.free()
 
@@ -160,7 +160,7 @@ def test_tall_cards_get_tall_cells(scratch):
     cards = make_separate_quads("bake_tall_cells", 8, width=0.02, height=0.08)
     bm = _bmesh_of(cards)
     try:
-        columns, rows, aspect = HairBakeService._card_uv_cell_grid(HairBakeService._find_uv_islands(bm), 8)
+        columns, rows, aspect = HairBakeService._card_uv_cell_grid(HairBakeService.find_uv_islands(bm), 8)
     finally:
         bm.free()
     assert aspect == pytest.approx(4.0, rel=0.01)
@@ -172,7 +172,7 @@ def test_square_cards_get_a_square_grid(scratch):
     cards = make_separate_quads("bake_square_cells", 9, width=0.05, height=0.05)
     bm = _bmesh_of(cards)
     try:
-        assert HairBakeService._card_uv_cell_grid(HairBakeService._find_uv_islands(bm), 9) == (3, 3, pytest.approx(1.0))
+        assert HairBakeService._card_uv_cell_grid(HairBakeService.find_uv_islands(bm), 9) == (3, 3, pytest.approx(1.0))
     finally:
         bm.free()
 
@@ -181,7 +181,7 @@ def test_aspect_of_very_thin_cards_is_capped(scratch):
     cards = make_separate_quads("bake_thin_cells", 4, width=0.001, height=0.5)
     bm = _bmesh_of(cards)
     try:
-        assert HairBakeService._card_uv_cell_grid(HairBakeService._find_uv_islands(bm), 4)[2] == 8.0
+        assert HairBakeService._card_uv_cell_grid(HairBakeService.find_uv_islands(bm), 4)[2] == 8.0
     finally:
         bm.free()
 
@@ -198,7 +198,7 @@ def _in_unit_square(uvs):
 
 def test_generated_uvs_are_packed_into_cells_and_shared(scratch):
     cards = make_separate_quads("bake_pack", 8)
-    plan = HairBakeService._pack_card_uvs_into_grid(cards, 0.5, resolution=256)
+    plan = HairBakeService.pack_card_uvs_into_grid(cards, 0.5, resolution=256)
 
     during = _face_uvs(cards)
     baked = [face for face, uvs in during.items() if _in_unit_square(uvs)]
@@ -212,7 +212,7 @@ def test_generated_uvs_are_packed_into_cells_and_shared(scratch):
                      or first[3] <= second[2] + 1e-6 or second[3] <= first[2] + 1e-6)
             assert apart, f"two baked cards share a cell: {boxes}"
 
-    HairBakeService._apply_card_atlas(cards, plan)
+    HairBakeService.apply_card_atlas(cards, plan)
     after = _face_uvs(cards)
     assert all(_in_unit_square(uvs) for uvs in after.values())
     baked_layouts = {tuple(during[face]) for face in baked}
@@ -232,7 +232,7 @@ def test_shared_cards_are_spread_over_the_variants(count, fraction):
 
 def test_cells_keep_a_margin_for_the_dilation(scratch):
     cards = make_separate_quads("bake_margin", 4)
-    HairBakeService._pack_card_uvs_into_grid(cards, 1.0, resolution=64)
+    HairBakeService.pack_card_uvs_into_grid(cards, 1.0, resolution=64)
     for uvs in _face_uvs(cards).values():
         assert min(u for u, _v in uvs) > 0.0 and max(v for _u, v in uvs) < 1.0
 
@@ -241,7 +241,7 @@ def test_atlas_with_a_changed_mesh_leaves_the_odd_card_alone(scratch):
     """If the plan does not match the mesh any more, the card is skipped instead of getting garbage UVs."""
     cards = make_separate_quads("bake_stale_plan", 2)
     before = _face_uvs(cards)
-    HairBakeService._apply_card_atlas(cards, {"final_uvs": {0: [(0.5, 0.5)] * 3}})
+    HairBakeService.apply_card_atlas(cards, {"final_uvs": {0: [(0.5, 0.5)] * 3}})
     assert _face_uvs(cards) == before
 
 
@@ -249,14 +249,14 @@ def test_unwrapped_atlas_bakes_only_the_variants(scratch):
     """Without a generated layout the variants are smart projected and the rest parked, then given the variant UVs."""
     cards = make_separate_quads("bake_unwrapped", 6, uv_per_card=False)
     select(cards)
-    plan = HairBakeService._prepare_card_atlas(cards, 0.5)
+    plan = HairBakeService.prepare_card_atlas(cards, 0.5)
     assert len(plan["variant_uvs"]) == 3
     assert len(plan["assignment"]) == 3
     during = _face_uvs(cards)
     assert sum(1 for uvs in during.values() if _in_unit_square(uvs)) == 3
     assert sum(1 for uvs in during.values() if min(u for u, _v in uvs) >= hairbakeservice._UV_PARKING_OFFSET - 1e-5) == 3
 
-    HairBakeService._apply_card_atlas(cards, plan)
+    HairBakeService.apply_card_atlas(cards, plan)
     assert all(_in_unit_square(uvs) for uvs in _face_uvs(cards).values())
     assert cards.mode == 'OBJECT'
 
@@ -289,7 +289,7 @@ def test_dilation_bleeds_colour_but_not_alpha(scratch):
     image, pixels = _rgba_image("bake_dilate")
     pixels[4, 4] = (1.0, 0.0, 0.0, 1.0)
     _write(image, pixels)
-    HairBakeService._dilate_image_colour(image, passes=2)
+    HairBakeService.dilate_image_colour(image, passes=2)
     result = _read(image)
     for row, column in ((4, 5), (4, 3), (3, 4), (5, 4), (4, 6), (2, 4)):
         assert tuple(result[row, column, :3]) == pytest.approx((1.0, 0.0, 0.0)), (row, column)
@@ -302,7 +302,7 @@ def test_dilation_averages_its_neighbours(scratch):
     pixels[4, 3] = (1.0, 0.0, 0.0, 1.0)
     pixels[4, 5] = (0.0, 0.0, 1.0, 1.0)
     _write(image, pixels)
-    HairBakeService._dilate_image_colour(image, passes=1)
+    HairBakeService.dilate_image_colour(image, passes=1)
     assert tuple(_read(image)[4, 4, :3]) == pytest.approx((0.5, 0.0, 0.5))
 
 
@@ -311,7 +311,7 @@ def test_dilation_leaves_empty_and_full_images_alone(scratch, alpha):
     image, pixels = _rgba_image(f"bake_dilate_{alpha}")
     pixels[:, :] = (0.2, 0.4, 0.6, alpha)
     _write(image, pixels)
-    HairBakeService._dilate_image_colour(image)
+    HairBakeService.dilate_image_colour(image)
     assert (_read(image) == pixels).all()
 
 
@@ -319,7 +319,7 @@ def test_dilation_does_not_wrap_around_the_texture(scratch):
     image, pixels = _rgba_image("bake_dilate_wrap")
     pixels[4, 0] = (1.0, 0.0, 0.0, 1.0)
     _write(image, pixels)
-    HairBakeService._dilate_image_colour(image, passes=1)
+    HairBakeService.dilate_image_colour(image, passes=1)
     assert tuple(_read(image)[4, 7, :3]) == pytest.approx((0.0, 0.0, 0.0))
 
 
@@ -348,11 +348,11 @@ def test_bake_path_falls_back_to_temp_when_it_cannot_be_made(tmp_path):
 
 
 def test_bake_image_is_created_and_reused(scratch):
-    image = HairBakeService._bake_image("bake_image_reuse", 64, alpha=True, colorspace='sRGB')
+    image = HairBakeService.bake_image("bake_image_reuse", 64, alpha=True, colorspace='sRGB')
     assert tuple(image.size) == (64, 64)
     assert image.colorspace_settings.name == 'sRGB'
 
-    again = HairBakeService._bake_image("bake_image_reuse", 128, alpha=False, colorspace='Non-Color')
+    again = HairBakeService.bake_image("bake_image_reuse", 128, alpha=False, colorspace='Non-Color')
     assert again == image, "a rebake reuses the datablock instead of piling up .001 copies"
     assert tuple(again.size) == (128, 128)
     assert again.colorspace_settings.name == 'Non-Color'
@@ -370,13 +370,13 @@ def _node(material, name):
 @pytest.mark.parametrize("outward, sign", [(False, -1.0), (True, 1.0)])
 def test_ray_portal_looks_into_the_hair(scratch, outward, sign):
     """Cards look down into the hair (against their normal), the body texture bake looks out of the skin."""
-    material = HairBakeService._build_ray_portal_material(0.0, outward=outward)
+    material = HairBakeService.build_ray_portal_material(0.0, outward=outward)
     assert surface_link_source(material).bl_idname == 'ShaderNodeBsdfRayPortal'
     assert tuple(_node(material, hairbakeservice._PORTAL_DIRECTION_NODE).inputs[1].default_value) == (sign, sign, sign)
 
 
 def test_ray_portal_can_be_flipped_and_lifted(scratch):
-    material = HairBakeService._build_ray_portal_material(0.02)
+    material = HairBakeService.build_ray_portal_material(0.02)
     assert HairBakeService._set_portal_lift(material, -0.01) == pytest.approx(0.02)
     assert _node(material, hairbakeservice._PORTAL_LIFT_NODE).inputs['Scale'].default_value == pytest.approx(-0.01)
     assert HairBakeService._flip_portal_direction(material)
@@ -390,13 +390,13 @@ def test_portal_helpers_on_a_foreign_material(scratch):
 
 
 def test_holdout_material(scratch):
-    assert surface_link_source(HairBakeService._build_holdout_material()).bl_idname == 'ShaderNodeHoldout'
+    assert surface_link_source(HairBakeService.build_holdout_material()).bl_idname == 'ShaderNodeHoldout'
 
 
-@pytest.mark.parametrize("key", list(hairbakeservice._EXTRA_MAP_BUILDERS.keys()) + ["coverage"])
+@pytest.mark.parametrize("key", list(hairbakeservice.EXTRA_MAP_BUILDERS.keys()) + ["coverage"])
 @pytest.mark.parametrize("ray_range", [None, 0.2])
 def test_extra_map_materials_emit_their_value(scratch, key, ray_range):
-    builder = HairBakeService._white_color if key == "coverage" else hairbakeservice._EXTRA_MAP_BUILDERS[key][1]
+    builder = HairBakeService._white_color if key == "coverage" else hairbakeservice.EXTRA_MAP_BUILDERS[key][1]
     material = HairBakeService._build_emit_material(f"bake_emit_{key}", builder, {"ray_range": ray_range, "depth_scale": 0.1})
     source = surface_link_source(material)
     if ray_range is None:
@@ -429,7 +429,7 @@ def test_range_limited_copies_leave_the_asset_alone(scratch):
         hair_obj.data.materials.append(material)
     materials_before = len(bpy.data.materials)
 
-    copies = HairBakeService._range_limited_copies(hair_obj, 0.3)
+    copies = HairBakeService.range_limited_copies(hair_obj, 0.3)
     assert copies[0] is not original and copies[0].name == "bake_range_original_range_limited"
     assert surface_link_source(copies[0]).bl_idname == 'ShaderNodeMixShader'
     assert surface_link_source(original).bl_idname == 'ShaderNodeBsdfPrincipled', "the asset material is untouched"
@@ -638,7 +638,7 @@ def test_cards_away_from_the_hair_are_the_most_exposed(scratch):
     strands = [bundle_of_strands((0.0, 0.0, 0.0), count=20, spread=0.005, length=0.1)[index] for index in range(20)]
     hair_obj = make_hair_curves("bake_sparsity_hair", strands)
     cards = make_separate_quads("bake_sparsity_cards", 3, gap=0.3)
-    sparsity = HairBakeService._card_vertex_sparsity(cards, hair_obj)
+    sparsity = HairBakeService.card_vertex_sparsity(cards, hair_obj)
     assert sparsity.shape == (12,)
     assert 0.0 <= sparsity.min() and sparsity.max() <= 1.0
     assert sparsity[:4].mean() < sparsity[8:].mean(), "the card in the middle of the hair is the least exposed"
@@ -647,9 +647,9 @@ def test_cards_away_from_the_hair_are_the_most_exposed(scratch):
 def test_sparsity_of_nothing(scratch):
     empty_cards = link(bpy.data.objects.new("bake_sparsity_empty", bpy.data.meshes.new("bake_sparsity_empty")))
     hair_obj = make_hair_curves("bake_sparsity_some_hair", bundle_of_strands((0.0, 0.0, 0.0)))
-    assert len(HairBakeService._card_vertex_sparsity(empty_cards, hair_obj)) == 0
+    assert len(HairBakeService.card_vertex_sparsity(empty_cards, hair_obj)) == 0
     cards = make_separate_quads("bake_sparsity_no_hair", 2)
-    assert HairBakeService._card_vertex_sparsity(cards, make_hair_curves("bake_sparsity_bald", [])).tolist() == [0.0] * 8
+    assert HairBakeService.card_vertex_sparsity(cards, make_hair_curves("bake_sparsity_bald", [])).tolist() == [0.0] * 8
 
 
 # ---------------------------------------------------------------------------
@@ -683,23 +683,23 @@ def test_restore_environment_undoes_the_preparation(world_with_background):
     basemesh.visible_shadow = False
     state["rest_posed_rig"] = (rig, 'POSE')
     rig.data.pose_position = 'REST'
-    holdout = HairBakeService._build_holdout_material()
+    holdout = HairBakeService.build_holdout_material()
     state["swapped_materials"].append((basemesh, [skin]))
     basemesh.data.materials.clear()
     basemesh.data.materials.append(holdout)
     state["basemesh_material"] = holdout
     state["original_hair_materials"] = [hair_material]
-    state["range_limited_materials"] = HairBakeService._range_limited_copies(hair_obj, 0.1)
+    state["range_limited_materials"] = HairBakeService.range_limited_copies(hair_obj, 0.1)
     hair_obj.data.materials.clear()
     for material in state["range_limited_materials"]:
         hair_obj.data.materials.append(material)
-    state["card_material"] = HairBakeService._build_ray_portal_material()
+    state["card_material"] = HairBakeService.build_ray_portal_material()
     state["lights"] = operator._add_bake_lights(scene, basemesh, hair_obj, cg.LIGHT_MODE_FIXED, 1.0)
     added_materials = [holdout, state["card_material"]] + state["range_limited_materials"]
     added_material_names = [material.name for material in added_materials]
     light_names = [light.name for light in state["lights"]]
 
-    HairBakeService._restore_environment(state, keep_card_material=False)
+    HairBakeService.restore_environment(state, keep_card_material=False)
 
     assert not bystander.hide_render and not bystander.hide_viewport
     assert target.visible_shadow
@@ -718,22 +718,22 @@ def test_restore_environment_undoes_the_preparation(world_with_background):
 def test_restore_environment_keeps_the_card_material_when_asked(scratch):
     """After a failed wrap up the card material is thrown away with the working copy, not by the restore."""
     basemesh = make_grid("bake_keep_body")
-    portal = HairBakeService._build_ray_portal_material()
+    portal = HairBakeService.build_ray_portal_material()
     state = {"scene": bpy.context.scene, "basemesh": basemesh, "card_material": portal}
-    HairBakeService._restore_environment(state, keep_card_material=True)
+    HairBakeService.restore_environment(state, keep_card_material=True)
     assert portal.name in bpy.data.materials
 
 
 def test_discarding_the_working_copy(scratch):
     target = make_grid("bake_discard_target")
     mesh_name = target.data.name
-    portal = HairBakeService._build_ray_portal_material()
+    portal = HairBakeService.build_ray_portal_material()
     portal_name = portal.name
     image = bpy.data.images.new("bake_discard_image", 8, 8)
     orphan = bpy.data.meshes.new("bake_discard_orphan")
     state = {"bake_target": target, "card_material": portal, "bake_image": image, "orphaned_data": [orphan]}
 
-    HairBakeService._discard_bake_target(state)
+    HairBakeService.discard_bake_target(state)
     assert "bake_discard_target" not in bpy.data.objects
     assert mesh_name not in bpy.data.meshes
     assert "bake_discard_orphan" not in bpy.data.meshes
@@ -745,7 +745,7 @@ def test_discarding_the_working_copy(scratch):
 def test_body_is_never_discarded(scratch):
     """Baking straight onto the body uses the body itself as the target, which must survive a failed bake."""
     body = make_grid("bake_discard_body")
-    HairBakeService._discard_bake_target({"bake_target": body, "direct_to_body": True})
+    HairBakeService.discard_bake_target({"bake_target": body, "direct_to_body": True})
     assert "bake_discard_body" in bpy.data.objects
 
 
@@ -757,7 +757,7 @@ def test_orphan_geometry_removal(scratch):
     used = make_grid("bake_used_mesh")
 
     for datablock in (orphan_mesh, orphan_curves, kept, used.data, None):
-        HairBakeService._remove_orphan_geometry(datablock)
+        HairBakeService.remove_orphan_geometry(datablock)
     assert "bake_orphan_mesh" not in bpy.data.meshes
     assert "bake_orphan_curves" not in bpy.data.hair_curves
     assert "bake_kept_mesh" in bpy.data.meshes
@@ -768,9 +768,9 @@ def test_state_with_deleted_data_is_dead(scratch):
     body = make_grid("bake_alive_body")
     hair_obj = make_grid("bake_alive_hair")
     state = {"basemesh": body, "hair_obj": hair_obj, "card_material": None}
-    assert HairBakeService._state_is_alive(state)
+    assert HairBakeService.state_is_alive(state)
     bpy.data.objects.remove(hair_obj)
-    assert not HairBakeService._state_is_alive(state)
+    assert not HairBakeService.state_is_alive(state)
 
 
 def test_finishing_a_dead_bake_only_warns(scratch):
@@ -785,4 +785,4 @@ def test_finishing_a_dead_bake_only_warns(scratch):
 
 
 def test_undo_step_is_harmless_in_background():
-    HairBakeService._push_bake_undo_step()
+    HairBakeService.push_bake_undo_step()

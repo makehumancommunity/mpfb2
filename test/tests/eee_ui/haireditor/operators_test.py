@@ -17,7 +17,7 @@ import pytest
 
 from ... import ObjectService
 from .haireditor_fixtures import (mpfb_module, hairproperties as hp, toggle_section_operator, HAIR_PROPERTIES,
-                                  FUR_PROPERTIES, scratch, character, select, make_grid, run_hardened)
+                                  FUR_PROPERTIES, scratch, character, select, make_grid, run_hardened, operator_mock)
 
 _operators = mpfb_module("mpfb.ui.haireditorpanel.operators")
 ApplyHair = _operators.MPFB_OT_ApplyHair_Operator
@@ -32,9 +32,14 @@ Regenerate = _operators.MPFB_OT_RegenerateHairCards_Operator
 ToggleBakeFlag = _operators.MPFB_OT_ToggleBakeFlag_Operator
 ToggleSection = _operators.MPFB_OT_ToggleHairSection_Operator
 Unbake = _operators.MPFB_OT_UnbakeHair_Operator
+DismissBakeResult = _operators.MPFB_OT_DismissHairBakeResult_Operator
+
+_bake = mpfb_module("mpfb.ui.haireditorpanel.operators.bake_hair_operator")
+_results = mpfb_module("mpfb.ui.haireditorpanel.operators.bake_result_operator")
+_dynamic = mpfb_module("mpfb.services.dynamicconfigset")
 
 _ALL = [ApplyHair, ApplyFur, ApplyMaterial, Bake, Delete, Flatten, Generate, Reapply, Regenerate, ToggleBakeFlag,
-        ToggleSection, Unbake]
+        ToggleSection, Unbake, DismissBakeResult]
 _WORKING_ON_A_CHARACTER = [ApplyHair, ApplyFur, ApplyMaterial, Bake, Delete, Flatten, Generate, Reapply,
                            Regenerate, Unbake]
 
@@ -54,7 +59,7 @@ def test_operator_is_registered(operator):
 
 def test_toggles_push_no_undo_step():
     """Folding a section or ticking a bake setting is not a scene change, an undo step for it is slow and confusing."""
-    for operator in (ToggleBakeFlag, ToggleSection):
+    for operator in (ToggleBakeFlag, ToggleSection, DismissBakeResult):
         assert 'UNDO' not in operator.bl_options
 
 
@@ -302,3 +307,103 @@ def test_delete_releases_baked_images(character, asset_name):
     run_hardened(Delete, character, hair_asset=asset_name, is_fur=False)
     for name in names:
         assert name not in bpy.data.images
+
+
+# ---------------------------------------------------------------------------
+# How a background bake ended. Its operator is gone by then, so it cannot report() the result itself
+# ---------------------------------------------------------------------------
+
+def test_failed_background_bake_is_kept_until_dismissed(asset_name):
+    _bake._announce_background_result("optest_body", asset_name, _results.BAKE_FAILED, [('ERROR', "It broke")])
+    try:
+        assert _results.last_bake_result("optest_body", asset_name) == {
+            "status": _results.BAKE_FAILED, "messages": [('ERROR', "It broke")]}
+        assert _results.last_bake_result("optest_other_body", asset_name) is None, "kept per character"
+        dismiss = operator_mock(DismissBakeResult, hair_asset=asset_name, basemesh_name="optest_body")
+        assert DismissBakeResult.hardened_execute(dismiss, bpy.context) == {'FINISHED'}
+        assert _results.last_bake_result("optest_body", asset_name) is None
+    finally:
+        _results.forget_asset(asset_name)
+
+
+def test_clean_background_bake_clears_an_older_result(asset_name):
+    _results.remember_bake_result("optest_body", asset_name, _results.BAKE_WARNINGS, [('WARNING', "Hm")])
+    _bake._announce_background_result("optest_body", asset_name, None, [])
+    assert _results.last_bake_result("optest_body", asset_name) is None
+
+
+def test_forgetting_an_asset_drops_its_results_on_every_character(asset_name):
+    for body in ("optest_body", "optest_other_body"):
+        _results.remember_bake_result(body, asset_name, _results.BAKE_CANCELLED, [])
+    _results.remember_bake_result("optest_body", f"{asset_name}_kept", _results.BAKE_CANCELLED, [])
+    try:
+        _results.forget_asset(asset_name)
+        assert _results.last_bake_result("optest_body", asset_name) is None
+        assert _results.last_bake_result("optest_other_body", asset_name) is None
+        assert _results.last_bake_result("optest_body", f"{asset_name}_kept") is not None
+    finally:
+        _results.forget_asset(f"{asset_name}_kept")
+
+
+def test_every_bake_ending_has_a_title():
+    titles = {_results.bake_result_title(status) for status in (_results.BAKE_FAILED, _results.BAKE_CANCELLED,
+                                                                  _results.BAKE_ABANDONED, _results.BAKE_WARNINGS)}
+    assert len(titles) == 4
+
+
+def test_no_popup_without_a_window():
+    assert bpy.app.background
+    assert not _results.show_bake_result_popup(_results.BAKE_FAILED, [('ERROR', "It broke")])
+
+
+@pytest.mark.parametrize("level, expected", [({'ERROR'}, 'ERROR'), ({'WARNING'}, 'WARNING'), ({'INFO'}, 'INFO'),
+                                             ({'INFO', 'ERROR'}, 'ERROR')])
+def test_report_levels_keep_the_most_severe(level, expected):
+    assert _bake._message_level(level) == expected
+
+
+# ---------------------------------------------------------------------------
+# Handlers which would otherwise outlive a disabled MPFB
+# ---------------------------------------------------------------------------
+
+def _ours(handlers):
+    names = {"_mpfb_clear_dynamic_key_caches", "_mpfb_rebuild_dynamic_properties"}
+    return [handler for handler in handlers if getattr(handler, "__name__", None) in names]
+
+
+def test_dynamic_property_handlers_are_there_once():
+    _dynamic.register_handlers()  # Again, the way enabling MPFB a second time would
+    assert len(_ours(bpy.app.handlers.load_post)) == 2, "the cache reset and the rebuild"
+    assert len(_ours(bpy.app.handlers.undo_post)) == 1
+    assert len(_ours(bpy.app.handlers.redo_post)) == 1
+
+
+def test_dynamic_property_handlers_go_away_with_mpfb():
+    def queued():
+        return None
+
+    try:
+        _dynamic._PENDING_TIMERS.add(queued)
+        bpy.app.timers.register(queued, first_interval=100.0)
+        _dynamic.unregister_handlers()
+        for handlers in (bpy.app.handlers.load_post, bpy.app.handlers.undo_post, bpy.app.handlers.redo_post):
+            assert not _ours(handlers)
+        assert not bpy.app.timers.is_registered(queued), "a queued property reconstruction is dropped too"
+        assert not _dynamic._PENDING_TIMERS
+    finally:
+        if bpy.app.timers.is_registered(queued):
+            bpy.app.timers.unregister(queued)
+        _dynamic.register_handlers()
+
+
+def test_pending_bakes_are_abandoned_with_mpfb():
+    abandoned = []
+
+    def broken():
+        raise RuntimeError("the scene is already gone")
+
+    _bake._PENDING_BAKES["optest_broken"] = broken
+    _bake._PENDING_BAKES["optest_pending"] = lambda: abandoned.append(True)
+    _bake.abandon_pending_bakes()
+    assert abandoned == [True], "one failing bake must not keep the others' handlers around"
+    assert not _bake._PENDING_BAKES

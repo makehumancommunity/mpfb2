@@ -22,6 +22,9 @@ _LOG = LogService.get_logger("configuration.dynamicconfigset")
 # Every live DynamicConfigSet, so the handlers below can reach all of their per-entity caches
 _CONFIG_SETS = []
 
+# Property reconstructions queued on a timer which have not run yet, so they can be dropped when MPFB is disabled
+_PENDING_TIMERS = set()
+
 
 @bpy.app.handlers.persistent
 def _mpfb_clear_dynamic_key_caches(*_args):
@@ -48,22 +51,31 @@ def _mpfb_rebuild_dynamic_properties(*_args):
                 config_set.rebuild_dynamic_properties(entity)
 
 
-def _register_cache_invalidation_handlers():
-    """Hook the cache reset up to file load and undo."""
+def _remove_handlers() -> None:
+    """Takes both handlers out of every list they can be in."""
+    names = (_mpfb_clear_dynamic_key_caches.__name__, _mpfb_rebuild_dynamic_properties.__name__)
     for handlers in (bpy.app.handlers.load_post, bpy.app.handlers.undo_post, bpy.app.handlers.redo_post):
         for existing in list(handlers):
-            if getattr(existing, "__name__", None) == _mpfb_clear_dynamic_key_caches.__name__:
+            if getattr(existing, "__name__", None) in names:
                 handlers.remove(existing)
-        handlers.append(_mpfb_clear_dynamic_key_caches)
 
+
+def register_handlers() -> None:
+    """Hook the cache reset and the rebuild of dynamic properties up to file load and undo. Called from MPFB register()."""
+    _remove_handlers()
+    for handlers in (bpy.app.handlers.load_post, bpy.app.handlers.undo_post, bpy.app.handlers.redo_post):
+        handlers.append(_mpfb_clear_dynamic_key_caches)
     # Must come after the cache reset, rebuilding fills the cache again
-    for existing in list(bpy.app.handlers.load_post):
-        if getattr(existing, "__name__", None) == _mpfb_rebuild_dynamic_properties.__name__:
-            bpy.app.handlers.load_post.remove(existing)
     bpy.app.handlers.load_post.append(_mpfb_rebuild_dynamic_properties)
 
 
-_register_cache_invalidation_handlers()
+def unregister_handlers() -> None:
+    """Undo register_handlers() and drop reconstructions still waiting on a timer. Called from MPFB unregister()."""
+    _remove_handlers()
+    for callback in list(_PENDING_TIMERS):
+        if bpy.app.timers.is_registered(callback):
+            bpy.app.timers.unregister(callback)
+    _PENDING_TIMERS.clear()
 
 
 class DynamicConfigSet(BlenderConfigSet):
@@ -211,6 +223,8 @@ class DynamicConfigSet(BlenderConfigSet):
                 _LOG.error("Error deserializing property", (prop, e))
             finally:
                 self._pending_deserialization.discard(prop)
+                _PENDING_TIMERS.discard(callback)
+        _PENDING_TIMERS.add(callback)
         bpy.app.timers.register(callback, first_interval=0.1)
 
     def _list_object_properties_matching_dynamic_prefix(self, entity_reference: bpy.types.Object | None) -> Collection[str]:

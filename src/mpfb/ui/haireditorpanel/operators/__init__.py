@@ -16,6 +16,7 @@ from .apply_hair_operator import MPFB_OT_ApplyHair_Operator
 from .toggle_section_operator import MPFB_OT_ToggleHairSection_Operator
 from .toggle_bake_flag_operator import MPFB_OT_ToggleBakeFlag_Operator
 from .bake_hair_operator import MPFB_OT_BakeHair_Operator
+from .bake_result_operator import MPFB_OT_DismissHairBakeResult_Operator
 from .generate_hair_cards_operator import MPFB_OT_GenerateHairCards_Operator
 from .regenerate_hair_cards_operator import MPFB_OT_RegenerateHairCards_Operator
 from .flatten_hair_alpha_operator import MPFB_OT_FlattenHairAlpha_Operator
@@ -39,5 +40,6 @@ __all__ = [
     "MPFB_OT_FlattenHairAlpha_Operator",
     "MPFB_OT_ReapplyFurOverlay_Operator",
     "MPFB_OT_ToggleHairSection_Operator",
-    "MPFB_OT_ToggleBakeFlag_Operator"
+    "MPFB_OT_ToggleBakeFlag_Operator",
+    "MPFB_OT_DismissHairBakeResult_Operator"
     ]
