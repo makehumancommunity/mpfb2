@@ -28,6 +28,7 @@ from ...services.haircardservice import HairCardService
 from ...services import hairoverlayservice as bodyoverlay
 from ...services.hairoverlayservice import HairOverlayService
 from .operators import toggle_section_operator
+from .operators.bake_result_operator import last_bake_result, bake_result_title
 
 import bpy
 
@@ -485,6 +486,21 @@ class MPFB_PT_Hair_Editor_Panel(Abstract_Panel):
         operator = box.operator("mpfb.bake_hair_operator", text=label)
         operator.hair_asset = asset_name
         operator.is_fur = (kind == "fur")
+        self._last_bake_result(basemesh, box, asset_name)
+
+    def _last_bake_result(self, basemesh, layout, asset_name):
+        """What went wrong in the last background bake."""
+        result = last_bake_result(basemesh.name, asset_name)
+        if result is None:
+            return
+        notice = layout.box()
+        header = notice.row()
+        header.label(text=bake_result_title(result["status"]), icon='ERROR')
+        dismiss = header.operator("mpfb.dismiss_hair_bake_result", text="", icon='X', emboss=False)
+        dismiss.hair_asset = asset_name
+        dismiss.basemesh_name = basemesh.name
+        for _level, text in result["messages"]:
+            notice.label(text=text)
 
     def _body_shell_rig_note(self, basemesh, layout, asset_name):
         """Note about how this shell relates to the character's rig.

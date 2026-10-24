@@ -27,7 +27,7 @@ _LOG = LogService.get_logger("services.hairbakeservice")
 
 # When baking on body shell ray start position and length are calculated based on hair geometry.
 # To avoid missing start/end of strand due to float precision on the boundary, there is this tolerance.
-_SHELL_CAPTURE_MARGIN = 0.002
+SHELL_CAPTURE_MARGIN = 0.002
 
 # With atlas baking enabled, only certain cards are baked.
 # UV space has coordinates 0..1, so cards with value like 10 will not interfere
@@ -53,7 +53,7 @@ class HairBakeService():
         return LocationService.get_user_home("baked_hair_cards")
 
     @staticmethod
-    def _build_ray_portal_material(capture_depth: float = 0.0, outward: bool = False) -> bpy.types.Material:
+    def build_ray_portal_material(capture_depth: float = 0.0, outward: bool = False) -> bpy.types.Material:
         """Material which makes the bake target invisible to the camera, so the hair is baked through it.
 
         ``capture_depth`` used by body shell only - user can set how far the body shell is from the skin.
@@ -129,7 +129,7 @@ class HairBakeService():
         return mix.outputs['Shader']
 
     @staticmethod
-    def _range_limited_copies(hair_obj: bpy.types.Object, ray_range: float) -> list[bpy.types.Material | None]:
+    def range_limited_copies(hair_obj: bpy.types.Object, ray_range: float) -> list[bpy.types.Material | None]:
         """Copies of the hair object materials which ignore hair further than ``ray_range``.
 
         Works on copies so that the asset's own material is not affected.
@@ -155,7 +155,7 @@ class HairBakeService():
         return copies
 
     @staticmethod
-    def _build_holdout_material() -> bpy.types.Material:
+    def build_holdout_material() -> bpy.types.Material:
         """Material which cuts away everything behind the character, so only hair ends up in the bake."""
         material = bpy.data.materials.new(name="HumanHoldout")
         material.use_nodes = True
@@ -288,7 +288,7 @@ class HairBakeService():
         return side_on.outputs['Value']
 
     @staticmethod
-    def _find_uv_islands(bm: "bmesh.types.BMesh") -> list[list["bmesh.types.BMFace"]]:
+    def find_uv_islands(bm: "bmesh.types.BMesh") -> list[list["bmesh.types.BMFace"]]:
         """Group a bmesh's faces into connected islands for atlas bake (faces sharing an edge belong together)."""
         islands = []
         visited = set()
@@ -337,7 +337,7 @@ class HairBakeService():
         return points @ matrix[:3, :3] + matrix[3, :3]
 
     @staticmethod
-    def _card_vertex_sparsity(card_obj: bpy.types.Object, hair_obj: bpy.types.Object, neighbours: int = 8) -> "np.ndarray":
+    def card_vertex_sparsity(card_obj: bpy.types.Object, hair_obj: bpy.types.Object, neighbours: int = 8) -> "np.ndarray":
         """How exposed each card vertex is, from 0 (deep in the hair mass) to 1 (most exposed).
 
         When using atlas fraction, we need to avoid choosing cards from the middle of the asset.
@@ -425,7 +425,7 @@ class HairBakeService():
         return sorted(variant_indices), assignment
 
     @staticmethod
-    def _smart_project_selection(select_all: bool = False) -> None:
+    def smart_project_selection(select_all: bool = False) -> None:
         """Run smart UV project over the active object."""
         select_mode = tuple(bpy.context.tool_settings.mesh_select_mode)
         bpy.context.tool_settings.mesh_select_mode = (False, False, True)
@@ -440,7 +440,7 @@ class HairBakeService():
                 bpy.ops.object.mode_set(mode='OBJECT')
 
     @staticmethod
-    def _prepare_card_atlas(card_obj: bpy.types.Object, fraction: float, exposure: "np.ndarray | None" = None) -> dict[str, Any]:
+    def prepare_card_atlas(card_obj: bpy.types.Object, fraction: float, exposure: "np.ndarray | None" = None) -> dict[str, Any]:
         """Unwrap a representative subset of the cards into an atlas.
 
         Smart-projecting every card from denser card asset into its own sliver of UV space causes low resolution per card.
@@ -455,7 +455,7 @@ class HairBakeService():
             if not bm.loops.layers.uv:
                 bm.loops.layers.uv.verify()
 
-            islands = HairBakeService._find_uv_islands(bm)
+            islands = HairBakeService.find_uv_islands(bm)
             variant_indices, assignment = HairBakeService._pick_atlas_variants(
                 islands, fraction, HairBakeService._island_exposure(islands, exposure) if exposure is not None else None)
             variants = set(variant_indices)
@@ -472,14 +472,14 @@ class HairBakeService():
             bm.free()
 
         # Smart project packs everything it is given into the whole 0..1 square, so unwrapping just the variants is the atlas.
-        HairBakeService._smart_project_selection()
+        HairBakeService.smart_project_selection()
 
         bm = bmesh.new()
         try:
             bm.from_mesh(card_obj.data)
             bm.faces.ensure_lookup_table()
             uv_layer = bm.loops.layers.uv[0]
-            islands = HairBakeService._find_uv_islands(bm)
+            islands = HairBakeService.find_uv_islands(bm)
 
             variant_uvs = {}
             for index in variant_indices:
@@ -501,7 +501,7 @@ class HairBakeService():
         return {"variant_uvs": variant_uvs, "assignment": assignment}
 
     @staticmethod
-    def _has_generated_card_uvs(bm: "bmesh.types.BMesh", islands: list[list["bmesh.types.BMFace"]], uv_layer: Any) -> bool:
+    def has_generated_card_uvs(bm: "bmesh.types.BMesh", islands: list[list["bmesh.types.BMFace"]], uv_layer: Any) -> bool:
         """Whether the cards already carry a per-card 0..1 UV layout from the generator.
 
         Tiles, ribbons and cluster cards have their own UVs, the shell modes have yet to be unwrapped.
@@ -546,10 +546,10 @@ class HairBakeService():
         return columns, rows, aspect
 
     @staticmethod
-    def _pack_card_uvs_into_grid(card_obj: bpy.types.Object, fraction: float, resolution: int = 1024, exposure: "np.ndarray | None" = None) -> dict[str, Any]:
+    def pack_card_uvs_into_grid(card_obj: bpy.types.Object, fraction: float, resolution: int = 1024, exposure: "np.ndarray | None" = None) -> dict[str, Any]:
         """Pack the generator's own per-card UVs into a grid of atlas cells.
 
-        Returns a plan for _apply_card_atlas(), keyed by face index so island ordering cannot throw it
+        Returns a plan for apply_card_atlas(), keyed by face index so island ordering cannot throw it
         off.
         """
         import bmesh
@@ -559,7 +559,7 @@ class HairBakeService():
             bm.from_mesh(card_obj.data)
             bm.faces.ensure_lookup_table()
             uv_layer = bm.loops.layers.uv[0]
-            islands = HairBakeService._find_uv_islands(bm)
+            islands = HairBakeService.find_uv_islands(bm)
             variant_indices, assignment = HairBakeService._pick_atlas_variants(
                 islands, fraction, HairBakeService._island_exposure(islands, exposure) if exposure is not None else None)
             cells = {index: slot for slot, index in enumerate(variant_indices)}
@@ -617,7 +617,7 @@ class HairBakeService():
         return out
 
     @staticmethod
-    def _dilate_image_colour(image: bpy.types.Image, passes: int = 4) -> None:
+    def dilate_image_colour(image: bpy.types.Image, passes: int = 4) -> None:
         """Bleed the baked colour a few pixels into the transparent area.
 
         Prevents mipmapping from mixing the hair against the black surrounding and dark borders around cards.
@@ -654,7 +654,7 @@ class HairBakeService():
         HairEditorService.write_image_pixels(image, pixels)
 
     @staticmethod
-    def _apply_card_atlas(card_obj: bpy.types.Object, plan: dict[str, Any]) -> None:
+    def apply_card_atlas(card_obj: bpy.types.Object, plan: dict[str, Any]) -> None:
         """Move the cards which were parked outside the atlas onto the variant they were assigned."""
         import bmesh
 
@@ -681,7 +681,7 @@ class HairBakeService():
                     _LOG.warn("Cards left without atlas UVs because the mesh changed", unmatched)
                 return
 
-            islands = HairBakeService._find_uv_islands(bm)
+            islands = HairBakeService.find_uv_islands(bm)
 
             for index, variant_index in plan["assignment"].items():
                 if index >= len(islands):
@@ -716,13 +716,13 @@ class HairBakeService():
         return os.path.join(destination, f"{asset_name}_texture{suffix}.png")
 
     @staticmethod
-    def _bake_extra_maps(state: dict[str, Any]) -> dict[str, str]:
+    def bake_extra_maps(state: dict[str, Any]) -> dict[str, str]:
         """Bake the optional extra maps by temporarily swapping the hair object material."""
         hair_obj = state["hair_obj"]
         original_hair_materials = [slot.material for slot in hair_obj.material_slots]
         saved_paths = {}
         try:
-            for key, (_propname, color_builder) in _EXTRA_MAP_BUILDERS.items():
+            for key, (_propname, color_builder) in EXTRA_MAP_BUILDERS.items():
                 if not state["wanted_maps"].get(key):
                     continue
                 temp_material = HairBakeService._build_emit_material(
@@ -730,12 +730,12 @@ class HairBakeService():
                 hair_obj.data.materials.clear()
                 hair_obj.data.materials.append(temp_material)
 
-                image = HairBakeService._bake_image(f"{state['asset_name']}_cards_{key}", state["resolution"],
+                image = HairBakeService.bake_image(f"{state['asset_name']}_cards_{key}", state["resolution"],
                                     alpha=False, colorspace=_DATA_MAP_COLORSPACE)
                 state["bake_texture_node"].image = image
                 state["card_material"].node_tree.nodes.active = state["bake_texture_node"]
 
-                HairBakeService._run_bake_passes(state, 'EMIT')
+                HairBakeService.run_bake_passes(state, 'EMIT')
 
                 path = HairBakeService.resolve_bake_path(state["asset_name"], state["destination"], suffix=f"_{key}")
                 image.filepath_raw = path
@@ -784,7 +784,7 @@ class HairBakeService():
         return previous
 
     @staticmethod
-    def _bake_other_side(state: dict[str, Any]) -> bool:
+    def bake_other_side(state: dict[str, Any]) -> bool:
         """Bake the hair on the far side of each card as well and blend it into the result.
 
         For double sided bake only.
@@ -805,8 +805,8 @@ class HairBakeService():
         previous_lift = None
         if state.get("target") == cg.BAKE_TARGET_BODY_SHELL:
             shell_height = float(state.get("shell_height") or 0.0)
-            inset = shell_height - _SHELL_CAPTURE_MARGIN
-            if inset < _SHELL_CAPTURE_MARGIN:
+            inset = shell_height - SHELL_CAPTURE_MARGIN
+            if inset < SHELL_CAPTURE_MARGIN:
                 inset = shell_height * 0.5
             previous_lift = HairBakeService._set_portal_lift(card_material, -inset)
 
@@ -816,23 +816,23 @@ class HairBakeService():
         coverage_material = None
         try:
             # The far side colour, with the own hair materials, same as the first pass was baked
-            colour_image = HairBakeService._bake_image(f"{state['asset_name']}_cards_far_colour", state["resolution"],
+            colour_image = HairBakeService.bake_image(f"{state['asset_name']}_cards_far_colour", state["resolution"],
                                        alpha=True, colorspace='sRGB')
             state["bake_texture_node"].image = colour_image
             card_material.node_tree.nodes.active = state["bake_texture_node"]
-            HairBakeService._run_bake_passes(state, 'GLOSSY' if state["glossy"] else 'DIFFUSE')
+            HairBakeService.run_bake_passes(state, 'GLOSSY' if state["glossy"] else 'DIFFUSE')
 
             # And its coverage, the same way the near side gets alpha
             coverage_material = HairBakeService._build_emit_material(
                 "HairBakeFarCoverage", HairBakeService._white_color, state["shader_options"])
             hair_obj.data.materials.clear()
             hair_obj.data.materials.append(coverage_material)
-            coverage_image = HairBakeService._bake_image(f"{state['asset_name']}_cards_far_coverage",
+            coverage_image = HairBakeService.bake_image(f"{state['asset_name']}_cards_far_coverage",
                                          state["resolution"], alpha=False,
                                          colorspace=_DATA_MAP_COLORSPACE)
             state["bake_texture_node"].image = coverage_image
             card_material.node_tree.nodes.active = state["bake_texture_node"]
-            HairBakeService._run_bake_passes(state, 'EMIT')
+            HairBakeService.run_bake_passes(state, 'EMIT')
 
             near = HairEditorService.read_image_pixels(bake_image).reshape(-1, 4)
             far = HairEditorService.read_image_pixels(colour_image).reshape(-1, 4)
@@ -870,7 +870,7 @@ class HairBakeService():
                     bpy.data.images.remove(image, do_unlink=True)
 
     @staticmethod
-    def _bake_coverage_into_alpha(state: dict[str, Any]) -> None:
+    def bake_coverage_into_alpha(state: dict[str, Any]) -> None:
         """Replace alpha of the colour texture with a mask of where the hair actually is."""
         import numpy as np
 
@@ -885,12 +885,12 @@ class HairBakeService():
             hair_obj.data.materials.clear()
             hair_obj.data.materials.append(coverage_material)
 
-            coverage_image = HairBakeService._bake_image(f"{state['asset_name']}_cards_coverage", state["resolution"],
+            coverage_image = HairBakeService.bake_image(f"{state['asset_name']}_cards_coverage", state["resolution"],
                                          alpha=False, colorspace=_DATA_MAP_COLORSPACE)
             state["bake_texture_node"].image = coverage_image
             state["card_material"].node_tree.nodes.active = state["bake_texture_node"]
 
-            HairBakeService._run_bake_passes(state, 'EMIT')
+            HairBakeService.run_bake_passes(state, 'EMIT')
 
             coverage = HairEditorService.read_image_pixels(coverage_image).reshape(-1, 4)
             pixels = HairEditorService.read_image_pixels(bake_image).reshape(-1, 4)
@@ -907,7 +907,7 @@ class HairBakeService():
                 bpy.data.materials.remove(coverage_material, do_unlink=True)
 
     @staticmethod
-    def _run_bake_passes(state: dict[str, Any], bake_type: str) -> None:
+    def run_bake_passes(state: dict[str, Any], bake_type: str) -> None:
         """Run the bake."""
         ObjectService.deselect_and_deactivate_all()
         ObjectService.activate_blender_object(state["bake_target"])
@@ -924,7 +924,7 @@ class HairBakeService():
         return decorate
 
     @staticmethod
-    def _restore_environment(state: dict[str, Any], keep_card_material: bool) -> None:
+    def restore_environment(state: dict[str, Any], keep_card_material: bool) -> None:
         """Undo everything _prepare() did to the scene."""
         for obj, visibility in state.get("hidden_objects", []):
             @HairBakeService._guarded("unhide an object")
@@ -1004,7 +1004,7 @@ class HairBakeService():
             ObjectService.activate_blender_object(state["basemesh"])
 
     @staticmethod
-    def _bake_image(name: str, resolution: int, alpha: bool, colorspace: str) -> bpy.types.Image:
+    def bake_image(name: str, resolution: int, alpha: bool, colorspace: str) -> bpy.types.Image:
         """An image to bake into. Reuses the datablock of that name if there already is one."""
         image = bpy.data.images.get(name)
         if image is None:
@@ -1020,7 +1020,7 @@ class HairBakeService():
         return image
 
     @staticmethod
-    def _push_bake_undo_step() -> None:
+    def push_bake_undo_step() -> None:
         """Make the finished bake a single undo step of its own.
 
         The operator cannot let blender do it: on the interactive path it returns as soon as
@@ -1035,7 +1035,7 @@ class HairBakeService():
             _LOG.debug("Could not push an undo step for the bake", e)
 
     @staticmethod
-    def _state_is_alive(state: dict[str, Any]) -> bool:
+    def state_is_alive(state: dict[str, Any]) -> bool:
         """Do the datablocks the bake was working on still exist?
 
         Before completion of bake, user could invoke undo, which could delete objects used by bake,
@@ -1054,7 +1054,7 @@ class HairBakeService():
         return True
 
     @staticmethod
-    def _remove_orphan_geometry(datablock: bpy.types.ID | None) -> None:
+    def remove_orphan_geometry(datablock: bpy.types.ID | None) -> None:
         """Drop a mesh/curves datablock which nothing refers to any more."""
         if datablock is None:
             return
@@ -1069,7 +1069,7 @@ class HairBakeService():
             bpy.data.hair_curves.remove(datablock)
 
     @staticmethod
-    def _discard_bake_target(state: dict[str, Any]) -> None:
+    def discard_bake_target(state: dict[str, Any]) -> None:
         """Throw away the working copy and everything that was created only for it."""
         bake_target = state.get("bake_target")
         if state.get("direct_to_body"):
@@ -1080,7 +1080,7 @@ class HairBakeService():
             leftovers = [bake_target.data] + state.get("orphaned_data", [])
             bpy.data.objects.remove(bake_target, do_unlink=True)
             for datablock in leftovers:
-                HairBakeService._remove_orphan_geometry(datablock)
+                HairBakeService.remove_orphan_geometry(datablock)
 
         # Ray portal material is the last thing holding on the bake image.
         card_material = state.get("card_material")
@@ -1107,7 +1107,7 @@ class HairBakeService():
             world.node_tree.nodes["Background"].inputs[0].default_value = settings["background"]
 
 
-_EXTRA_MAP_BUILDERS = collections.OrderedDict([
+EXTRA_MAP_BUILDERS = collections.OrderedDict([
     ("normal", ("cards_bake_normal", HairBakeService._normal_color)),
     ("ao", ("cards_bake_ao", HairBakeService._ao_color)),
     ("root_tip", ("cards_bake_root_tip", HairBakeService._root_tip_color)),
