@@ -29,3 +29,16 @@ Before running unit tests the first time, you must install pytest in blender. To
 so, open [this script](./run_to_install_pytest.py) in the script tab inside blender
 and run it. This will use pip to install the required dependencies. 
 
+## Cleaning up after a test
+
+`tests/conftest.py` holds an autouse fixture which removes every datablock a test added to the
+blend file once that test finishes. This is not only about tidiness: Blender's per-ID bookkeeping
+is linear in how many datablocks the file holds, so orphans left behind by one test slow down
+every test that runs after it. 
+
+This is not an argument for skipping cleaning up at the end of a test. It's just an extra
+safety net.
+
+The one thing to keep in mind: a test cannot rely on data created by an earlier test surviving into
+it. If a new test passes on its own but fails inside a full run, that is the first thing to check.
+
