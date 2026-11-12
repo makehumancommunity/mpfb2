@@ -401,3 +401,22 @@ def test_pose_roundtrip_on_generated_rigify_hand_ik():
         if basemesh_name in bpy.data.objects:
             bpy.data.objects.remove(bpy.data.objects[basemesh_name], do_unlink=True)
 
+
+
+def test_get_world_space_location_of_pose_bone_returns_head_and_tail():
+    """get_world_space_location_of_pose_bone returns the bone's head under "head" and its tail under "tail"."""
+    arm, pose_bone = _make_armature_with_pose_bone("world_loc_arm", "wbone", "XYZ")
+    try:
+        arm.location = (1.0, 2.0, 3.0)
+        arm.rotation_euler = (0.0, 0.0, 0.5)
+        pose_bone.rotation_euler = (0.7, 0.0, 0.0)
+        bpy.context.view_layer.update()
+
+        loc = RigService.get_world_space_location_of_pose_bone("wbone", arm)
+        expected_head = arm.matrix_world @ pose_bone.head
+        expected_tail = arm.matrix_world @ pose_bone.tail
+        assert (expected_head - expected_tail).length > 0.05, "Test bone should have a visible length"
+        assert (loc["head"] - expected_head).length == approx(0.0, abs=1e-6), f"head: {loc['head']} != {expected_head}"
+        assert (loc["tail"] - expected_tail).length == approx(0.0, abs=1e-6), f"tail: {loc['tail']} != {expected_tail}"
+    finally:
+        ObjectService.delete_object(arm)
