@@ -18,10 +18,9 @@ reported. The bone name is a precondition the caller is expected to satisfy; the
 about it, and there is nothing useful most of them could do with a bone that does not exist. The
 exceptions are noted per method.
 
-**Three areas do not work as documented below, and are marked where they appear.** Weight symmetrization
-is unimplemented and raises on any rig but the default; `get_world_space_location_of_pose_bone` returns
-its two entries under each other's key; and the subrig branch of `ensure_armature_modifier` calls an
-operator form blender removed. Each is described at the method it affects rather than only here.
+**Two areas do not work as documented below, and are marked where they appear.** Weight symmetrization
+is unimplemented and raises on any rig but the default; and the subrig branch of `ensure_armature_modifier`
+calls an operator form blender removed. Each is described at the method it affects rather than only here.
 
 ## Source
 
@@ -219,14 +218,9 @@ Get the head and tail positions of a pose bone in world space by transforming th
 | `bone_name` | `str` | — | The bone name |
 | `armature_object` | `bpy.types.Object` | — | The armature object |
 
-**Returns:** `dict[str, Vector]` — Two entries, `"head"` and `"tail"`, each a position in world space.
-
-> **The two entries are swapped.** `loc["head"]` holds the transformed *tail* and `loc["tail"]` the
-> transformed *head*. The transform itself is correct — `matrix_world @` the bone-local position, which
-> is more correct than the two sibling methods below — but the keys are the wrong way round, so a caller
-> reading the dict by name gets each bone end's position under the other end's key. The sole caller,
-> the OpenPose export operator, does read it by name, so every keypoint it defines as a bone head is
-> exported at that bone's tail and vice versa.
+**Returns:** `dict[str, Vector]` — Two entries, `"head"` and `"tail"`, each a position in world space:
+`matrix_world @ pose_bone.head` and `matrix_world @ pose_bone.tail`. Since it applies the full world matrix,
+it is correct for a rotated or scaled armature too, unlike the two sibling methods below.
 
 ---
 

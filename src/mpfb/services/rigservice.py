@@ -286,17 +286,13 @@ class RigService:
 
     @staticmethod
     def get_world_space_location_of_pose_bone(bone_name: str, armature_object: bpy.types.Object) -> dict[str, Vector]:
-        """Find the head and tail of a pose bone and return their locations in world space.
-
-        Note that the two entries are the wrong way round: ``loc["head"]`` carries the transformed
-        *tail* and ``loc["tail"]`` the transformed *head*. The sole caller reads them by name and so
-        gets each bone end's position under the other end's key."""
+        """Find the head and tail of a pose bone and return their locations in world space."""
         _LOG.enter()
         bone = typing.cast(bpy.types.PoseBone, RigService.find_pose_bone_by_name(bone_name, armature_object))
 
         loc: dict[str, Vector] = dict()
-        loc["head"] = armature_object.matrix_world @ bone.tail
-        loc["tail"] = armature_object.matrix_world @ bone.head
+        loc["head"] = armature_object.matrix_world @ bone.head
+        loc["tail"] = armature_object.matrix_world @ bone.tail
 
         return loc
 
