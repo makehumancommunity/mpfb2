@@ -8,7 +8,6 @@
 
 * Implement asset downloading
 * Ability to refresh library without restarting blender
-* Ability to filter by asset tag
 
 ## Materials
 
