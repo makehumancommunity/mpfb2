@@ -256,3 +256,26 @@ def test_extract_asset_tags_and_matching():
         assert not AssetService.asset_matches_tags(asset, tag_category="pants")
         assert not AssetService.asset_matches_tags(asset, tag_filter="shirt shoes")
 
+
+def test_user_tags_persistence_and_cache_update(monkeypatch):
+    """Test saving, loading, and clearing custom user tags for an asset."""
+    import tempfile
+    with tempfile.TemporaryDirectory() as tmp:
+        tags_file = os.path.join(tmp, "user_tags.json")
+        monkeypatch.setattr(AssetService, "_user_tags_path", staticmethod(lambda: tags_file))
+        assetservice_mod = dynamic_import("mpfb.services.assetservice")
+        monkeypatch.setattr(assetservice_mod, "_USER_TAGS", None)
+
+        saved = AssetService.set_user_tags_for_asset("clothes", "shoes01/shoes01.mhclo", "Favorite, Winter, favorite")
+        assert saved == ["favorite", "winter"], saved
+        assert os.path.isfile(tags_file)
+
+        # Force reload from disk
+        monkeypatch.setattr(assetservice_mod, "_USER_TAGS", None)
+        loaded = AssetService.get_user_tags_for_asset("clothes", "shoes01/shoes01.mhclo")
+        assert loaded == ["favorite", "winter"], loaded
+
+        cleared = AssetService.set_user_tags_for_asset("clothes", "shoes01/shoes01.mhclo", "")
+        assert cleared == []
+        assert AssetService.get_user_tags_for_asset("clothes", "shoes01/shoes01.mhclo") == []
+

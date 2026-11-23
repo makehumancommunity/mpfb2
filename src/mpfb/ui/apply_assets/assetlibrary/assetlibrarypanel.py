@@ -106,7 +106,12 @@ class _Abstract_Asset_Library_Panel(bpy.types.Panel):
 
             if not only_equipped or is_equipped or len(self.equipped) < 1:
                 box = grid.box()
-                box.label(text=name)
+                header = box.row(align=True)
+                header.label(text=name)
+                tag_op = header.operator("mpfb.edit_asset_tags", text="", icon="TAG", emboss=False)
+                tag_op.asset_subdir = self.asset_subdir
+                tag_op.asset_fragment = asset["fragment"]
+                tag_op.asset_label = name
                 if asset.get("tags"):
                     box.label(text="Tags: " + ", ".join(asset["tags"]))
                 if is_equipped:
