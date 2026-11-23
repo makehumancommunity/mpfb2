@@ -59,6 +59,8 @@ class _Abstract_Asset_Library_Panel(bpy.types.Panel):
         allnames.sort()
 
         filter_term = str(FILTER_PROPERTIES.get_value("filter", entity_reference=scene)).strip().lower()
+        tag_filter = str(FILTER_PROPERTIES.get_value("tag_filter", entity_reference=scene)).strip().lower()
+        tag_category = str(FILTER_PROPERTIES.get_value("tag_category", entity_reference=scene) or "__ALL__")
         pack_term = str(FILTER_PROPERTIES.get_value("packname", entity_reference=scene)).strip().lower()
         only_equipped = FILTER_PROPERTIES.get_value("only_equipped", entity_reference=scene)
 
@@ -74,6 +76,9 @@ class _Abstract_Asset_Library_Panel(bpy.types.Panel):
             if filter_term:
                 if not filter_term in str(name).lower() and not filter_term in original_name:
                     _LOG.trace(name + " not acceptable, does not match ", filter_term)
+                    acceptable = False
+            if acceptable and (tag_filter or (tag_category and tag_category != "__ALL__")):
+                if not AssetService.asset_matches_tags(items[name], tag_category=tag_category, tag_filter=tag_filter):
                     acceptable = False
             if pack_term:
                 if not original_name in pack_assets:
@@ -102,6 +107,8 @@ class _Abstract_Asset_Library_Panel(bpy.types.Panel):
             if not only_equipped or is_equipped or len(self.equipped) < 1:
                 box = grid.box()
                 box.label(text=name)
+                if asset.get("tags"):
+                    box.label(text="Tags: " + ", ".join(asset["tags"]))
                 if is_equipped:
                     box.alert = True
                 if "thumb" in asset and not asset["thumb"] is None:

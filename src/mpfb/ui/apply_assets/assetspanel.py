@@ -10,12 +10,32 @@ from ...services import SceneConfigSet
 
 _LOG = LogService.get_logger("ui.assetspanel")
 
+_TAG_ENUM_ITEMS_CACHE = [("__ALL__", "All tags", "Show assets with any tag")]
+
+
+def _get_tag_enum_items(_self, _context):
+    """Build dynamic EnumProperty items from cached asset library tags."""
+    global _TAG_ENUM_ITEMS_CACHE
+    items = [("__ALL__", "All tags", "Show assets with any tag")]
+    for tag in AssetService.get_all_asset_tags():
+        items.append((tag, tag.capitalize(), f"Filter assets tagged '{tag}'"))
+    _TAG_ENUM_ITEMS_CACHE = items
+    return _TAG_ENUM_ITEMS_CACHE
+
+
 FILTER_PROPERTIES = SceneConfigSet([
     {
     "type": "string",
     "name": "filter",
     "description": "Only list assets with this term in the title",
     "label": "Title must contain",
+    "default": ""
+    },
+    {
+    "type": "string",
+    "name": "tag_filter",
+    "description": "Only list assets whose tags match these terms (comma or space separated)",
+    "label": "Tags must contain",
     "default": ""
     },
     {
@@ -33,6 +53,14 @@ FILTER_PROPERTIES = SceneConfigSet([
     "default": False
     }
     ], 'APAS_')
+
+FILTER_PROPERTIES.add_property({
+    "type": "enum",
+    "name": "tag_category",
+    "description": "Filter assets by a specific tag",
+    "label": "Tag",
+    "default": 0
+    }, items_callback=_get_tag_enum_items)
 
 class MPFB_PT_Assets_Panel(Abstract_Panel):
     bl_label = "Apply assets"
@@ -58,6 +86,10 @@ class MPFB_PT_Assets_Panel(Abstract_Panel):
         box = layout.box()
         box.label(text="Filter")
         show_props = ["filter"]
+        if AssetService.get_all_asset_tags():
+            show_props.extend(["tag_category", "tag_filter"])
+        else:
+            show_props.append("tag_filter")
         if AssetService.get_pack_names():
             _LOG.debug("There is pack metadata")
             show_props.append("packname")

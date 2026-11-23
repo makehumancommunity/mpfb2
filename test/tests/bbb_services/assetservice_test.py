@@ -227,3 +227,32 @@ def test_fix_no_packs_fails():
         result = AssetService.fix_and_extract_asset_pack_zip(no_packs, tmp)
         assert result is not None, "fix_and_extract should fail for a zip with no packs dir"
 
+
+def test_extract_asset_tags_and_matching():
+    """Test AssetService tag extraction for mhclo, mhmat, and json assets and tag filtering."""
+    import tempfile
+    with tempfile.TemporaryDirectory() as tmp:
+        mhclo = os.path.join(tmp, "shirt.mhclo")
+        with open(mhclo, "w", encoding="utf-8") as f:
+            f.write("name TestShirt\ntag Casual\ntag Shirt\ntag ankle bracelet\nverts 0\ntag ignored_after_verts\n")
+        tags = AssetService._extract_asset_tags(mhclo, "mhclo")
+        assert tags == ["ankle bracelet", "casual", "shirt"], tags
+
+        mhmat = os.path.join(tmp, "skin.mhmat")
+        with open(mhmat, "w", encoding="utf-8") as f:
+            f.write("name TestSkin\ntag Female, Realistic\n")
+        mat_tags = AssetService._extract_asset_tags(mhmat, "mhmat")
+        assert mat_tags == ["female", "realistic"], mat_tags
+
+        ink = os.path.join(tmp, "tattoo.json")
+        with open(ink, "w", encoding="utf-8") as f:
+            f.write('{"tags": ["Tribal", "Arm"]}')
+        ink_tags = AssetService._extract_asset_tags(ink, "json")
+        assert ink_tags == ["arm", "tribal"], ink_tags
+
+        asset = {"tags": tags}
+        assert AssetService.asset_matches_tags(asset, tag_category="shirt")
+        assert AssetService.asset_matches_tags(asset, tag_filter="cas, ank")
+        assert not AssetService.asset_matches_tags(asset, tag_category="pants")
+        assert not AssetService.asset_matches_tags(asset, tag_filter="shirt shoes")
+
