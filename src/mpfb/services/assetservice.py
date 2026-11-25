@@ -543,6 +543,14 @@ class AssetService:
         _ALL_TAGS_CACHE = None
 
     @staticmethod
+    def _clear_asset_list_cache() -> None:
+        """Clear the cached asset list for all subdirectories."""
+        global _ASSETS
+        _ASSETS.clear()
+        global _ALL_TAGS_CACHE
+        _ALL_TAGS_CACHE = None
+
+    @staticmethod
     def _extract_asset_tags(asset_path: str, asset_type: str) -> list[str]:
         """Extract sorted unique lowercase tags from an asset file without full mesh/material parsing."""
         tags: set[str] = set()
