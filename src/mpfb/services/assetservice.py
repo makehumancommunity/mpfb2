@@ -529,7 +529,7 @@ class AssetService:
             else:
                 _LOG.debug("Missing thumb", thumb)
 
-            file_tags = AssetService._extract_asset_tags(str(asset), asset_type)
+            file_tags = AssetService.extract_asset_tags(str(asset), asset_type)
             user_tags = AssetService.get_user_tags_for_asset(asset_subdir, item["fragment"])
             item["file_tags"] = file_tags
             item["user_tags"] = user_tags
@@ -543,15 +543,15 @@ class AssetService:
         _ALL_TAGS_CACHE = None
 
     @staticmethod
-    def _clear_asset_list_cache() -> None:
+    def clear_asset_list_cache() -> None:
         """Clear the cached asset list for all subdirectories."""
-        global _ASSETS
-        _ASSETS.clear()
+        global _USER_TAGS
+        _USER_TAGS = None
         global _ALL_TAGS_CACHE
         _ALL_TAGS_CACHE = None
 
     @staticmethod
-    def _extract_asset_tags(asset_path: str, asset_type: str) -> list[str]:
+    def extract_asset_tags(asset_path: str, asset_type: str) -> list[str]:
         """Extract sorted unique lowercase tags from an asset file without full mesh/material parsing."""
         tags: set[str] = set()
         if asset_type in ("mhclo", "mhmat", "proxy"):
