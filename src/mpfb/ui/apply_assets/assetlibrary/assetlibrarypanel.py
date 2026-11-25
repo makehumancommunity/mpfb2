@@ -10,7 +10,7 @@ from ....services import TargetService
 from ....services import SystemService
 from ..assetlibrary.assetsettingspanel import ASSET_SETTINGS_PROPERTIES
 from ....services import UiService
-from ..assetspanel import FILTER_PROPERTIES
+from ..assetspanel import FILTER_PROPERTIES, get_selected_tags
 
 _LOG = LogService.get_logger("assetlibrary.assetlibrarypanel")
 
@@ -59,8 +59,7 @@ class _Abstract_Asset_Library_Panel(bpy.types.Panel):
         allnames.sort()
 
         filter_term = str(FILTER_PROPERTIES.get_value("filter", entity_reference=scene)).strip().lower()
-        tag_filter = str(FILTER_PROPERTIES.get_value("tag_filter", entity_reference=scene)).strip().lower()
-        tag_category = str(FILTER_PROPERTIES.get_value("tag_category", entity_reference=scene) or "__ALL__")
+        selected_tags = get_selected_tags(scene)
         pack_term = str(FILTER_PROPERTIES.get_value("packname", entity_reference=scene)).strip().lower()
         only_equipped = FILTER_PROPERTIES.get_value("only_equipped", entity_reference=scene)
 
@@ -77,8 +76,8 @@ class _Abstract_Asset_Library_Panel(bpy.types.Panel):
                 if not filter_term in str(name).lower() and not filter_term in original_name:
                     _LOG.trace(name + " not acceptable, does not match ", filter_term)
                     acceptable = False
-            if acceptable and (tag_filter or (tag_category and tag_category != "__ALL__")):
-                if not AssetService.asset_matches_tags(items[name], tag_category=tag_category, tag_filter=tag_filter):
+            if acceptable and selected_tags:
+                if not AssetService.asset_matches_tags(items[name], selected_tags):
                     acceptable = False
             if pack_term:
                 if not original_name in pack_assets:

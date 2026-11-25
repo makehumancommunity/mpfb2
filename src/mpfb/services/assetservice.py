@@ -615,18 +615,28 @@ class AssetService:
         return _ALL_TAGS_CACHE
 
     @staticmethod
-    def asset_matches_tags(asset: dict[str, Any], tag_category: str = "", tag_filter: str = "") -> bool:
-        """Check whether an asset item matches the selected tag category and/or tag filter text."""
-        asset_tags: list[str] = asset.get("tags", [])
-        if tag_category and tag_category != "__ALL__":
-            if tag_category.lower() not in asset_tags:
-                return False
-        if tag_filter:
-            terms = [t.strip().lower() for t in tag_filter.replace(",", " ").split() if t.strip()]
-            for term in terms:
-                if not any(term in tag for tag in asset_tags):
-                    return False
-        return True
+    def get_cooccurring_tags(selected_tags: list[str] | tuple[str, ...] | str = "") -> list[str]:
+        """Return sorted tags that co-occur on assets matching all of ``selected_tags`` (excluding already selected)."""
+        required = set(AssetService.normalize_tags(selected_tags))
+        if not required:
+            return AssetService.get_all_asset_tags()
+
+        cooccurring: set[str] = set()
+        for section in ASSET_LIBRARY_SECTIONS:
+            items = AssetService.get_asset_list(section["asset_subdir"], section["asset_type"])
+            for item in items.values():
+                item_tags = set(item.get("tags", ()))
+                if required.issubset(item_tags):
+                    cooccurring.update(item_tags)
+        return sorted(cooccurring - required)
+
+    @staticmethod
+    def asset_matches_tags(asset: dict[str, Any], selected_tags: list[str] | tuple[str, ...] | str = "") -> bool:
+        """Check whether an asset item contains ALL of the selected tags."""
+        required = set(AssetService.normalize_tags(selected_tags))
+        if not required:
+            return True
+        return required.issubset(asset.get("tags", ()))
 
     @staticmethod
     def normalize_tags(tags: list[str] | str) -> list[str]:

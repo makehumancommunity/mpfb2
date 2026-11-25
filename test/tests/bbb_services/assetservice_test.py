@@ -251,10 +251,10 @@ def test_extract_asset_tags_and_matching():
         assert ink_tags == ["arm", "tribal"], ink_tags
 
         asset = {"tags": tags}
-        assert AssetService.asset_matches_tags(asset, tag_category="shirt")
-        assert AssetService.asset_matches_tags(asset, tag_filter="cas, ank")
-        assert not AssetService.asset_matches_tags(asset, tag_category="pants")
-        assert not AssetService.asset_matches_tags(asset, tag_filter="shirt shoes")
+        assert AssetService.asset_matches_tags(asset, ["shirt"])
+        assert AssetService.asset_matches_tags(asset, ["casual", "ankle bracelet"])
+        assert not AssetService.asset_matches_tags(asset, ["pants"])
+        assert not AssetService.asset_matches_tags(asset, ["shirt", "shoes"])
 
 
 def test_user_tags_persistence_and_cache_update(monkeypatch):
