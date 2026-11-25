@@ -592,15 +592,6 @@ class AssetService:
         return sorted(tags)
 
     @staticmethod
-    def get_tags_for_section(asset_subdir: str = "clothes", asset_type: str = "mhclo") -> list[str]:
-        """Return sorted unique tags across all assets in the given library section."""
-        items = AssetService.get_asset_list(asset_subdir, asset_type)
-        tags: set[str] = set()
-        for item in items.values():
-            tags.update(item.get("tags", ()))
-        return sorted(tags)
-
-    @staticmethod
     def get_all_asset_tags() -> list[str]:
         """Return sorted unique tags across all asset library sections (cached)."""
         global _ALL_TAGS_CACHE
