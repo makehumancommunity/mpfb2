@@ -29,6 +29,12 @@ _PACKS: dict[str, dict[str, Any]] | None = None
 # The list built by get_custom_rigs(). None means "not yet scanned".
 _CUSTOM_RIGS_CACHE: list[dict[str, Any]] | None = None
 
+# Sorted unique tags across all scanned asset library sections. None means "not yet computed".
+_ALL_TAGS_CACHE: list[str] | None = None
+
+# Persistent user-defined tags keyed by "<asset_subdir>/<fragment>". None means "not yet loaded".
+_USER_TAGS: dict[str, list[str]] | None = None
+
 ASSET_LIBRARY_SECTIONS = [
         {
             "bl_label": "Topologies library",
@@ -523,10 +529,175 @@ class AssetService:
             else:
                 _LOG.debug("Missing thumb", thumb)
 
+            file_tags = AssetService.extract_asset_tags(str(asset), asset_type)
+            user_tags = AssetService.get_user_tags_for_asset(asset_subdir, item["fragment"])
+            item["file_tags"] = file_tags
+            item["user_tags"] = user_tags
+            item["tags"] = sorted(set(file_tags) | set(user_tags))
+
             _LOG.dump("Item", item)
             asset_list[label] = item
 
         _ASSETS[asset_subdir] = asset_list
+        global _ALL_TAGS_CACHE
+        _ALL_TAGS_CACHE = None
+
+    @staticmethod
+    def clear_asset_list_cache() -> None:
+        """Clear the cached asset list for all subdirectories."""
+        global _USER_TAGS
+        _USER_TAGS = None
+        global _ALL_TAGS_CACHE
+        _ALL_TAGS_CACHE = None
+
+    @staticmethod
+    def extract_asset_tags(asset_path: str, asset_type: str) -> list[str]:
+        """Extract sorted unique lowercase tags from an asset file without full mesh/material parsing."""
+        tags: set[str] = set()
+        if asset_type in ("mhclo", "mhmat", "proxy"):
+            try:
+                with open(asset_path, "r", encoding="utf-8", errors="ignore") as f:
+                    for raw_line in f:
+                        line = raw_line.strip()
+                        if not line or line.startswith("#"):
+                            continue
+                        lower = line.lower()
+                        if asset_type in ("mhclo", "proxy") and (lower == "verts 0" or lower.startswith("verts ")):
+                            break
+                        if lower.startswith("tag ") or lower.startswith("tag\t"):
+                            raw_val = lower[3:].strip()
+                            for part in raw_val.split(","):
+                                cleaned = part.strip()
+                                if cleaned:
+                                    tags.add(cleaned)
+            except OSError as exc:
+                _LOG.debug("Failed to read tags from asset", (asset_path, exc))
+        elif asset_type == "json":
+            try:
+                with open(asset_path, "r", encoding="utf-8") as f:
+                    data = json.load(f)
+                raw_tags = data.get("tags") if isinstance(data, dict) else None
+                if isinstance(raw_tags, list):
+                    for part in raw_tags:
+                        cleaned = str(part).strip().lower()
+                        if cleaned:
+                            tags.add(cleaned)
+                elif isinstance(raw_tags, str):
+                    for part in raw_tags.split(","):
+                        cleaned = part.strip().lower()
+                        if cleaned:
+                            tags.add(cleaned)
+            except (OSError, ValueError) as exc:
+                _LOG.debug("Failed to read JSON tags from asset", (asset_path, exc))
+        return sorted(tags)
+
+    @staticmethod
+    def get_all_asset_tags() -> list[str]:
+        """Return sorted unique tags across all asset library sections (cached)."""
+        global _ALL_TAGS_CACHE
+        if _ALL_TAGS_CACHE is not None:
+            return _ALL_TAGS_CACHE
+        tags: set[str] = set()
+        for section in ASSET_LIBRARY_SECTIONS:
+            items = AssetService.get_asset_list(section["asset_subdir"], section["asset_type"])
+            for item in items.values():
+                tags.update(item.get("tags", ()))
+        _ALL_TAGS_CACHE = sorted(tags)
+        return _ALL_TAGS_CACHE
+
+    @staticmethod
+    def get_cooccurring_tags(selected_tags: list[str] | tuple[str, ...] | str = "") -> list[str]:
+        """Return sorted tags that co-occur on assets matching all of ``selected_tags`` (excluding already selected)."""
+        required = set(AssetService.normalize_tags(selected_tags))
+        if not required:
+            return AssetService.get_all_asset_tags()
+
+        cooccurring: set[str] = set()
+        for section in ASSET_LIBRARY_SECTIONS:
+            items = AssetService.get_asset_list(section["asset_subdir"], section["asset_type"])
+            for item in items.values():
+                item_tags = set(item.get("tags", ()))
+                if required.issubset(item_tags):
+                    cooccurring.update(item_tags)
+        return sorted(cooccurring - required)
+
+    @staticmethod
+    def asset_matches_tags(asset: dict[str, Any], selected_tags: list[str] | tuple[str, ...] | str = "") -> bool:
+        """Check whether an asset item contains ALL of the selected tags."""
+        required = set(AssetService.normalize_tags(selected_tags))
+        if not required:
+            return True
+        return required.issubset(asset.get("tags", ()))
+
+    @staticmethod
+    def normalize_tags(tags: list[str] | str) -> list[str]:
+        """Normalize a comma-separated string or iterable of tags into a sorted unique lowercase list."""
+        raw_parts = tags.split(",") if isinstance(tags, str) else tags
+        cleaned = {str(part).strip().lower() for part in raw_parts if str(part).strip()}
+        return sorted(cleaned)
+
+    @staticmethod
+    def _user_tags_path() -> str:
+        return LocationService.get_user_config("user_tags.json")
+
+    @staticmethod
+    def _ensure_user_tags() -> dict[str, list[str]]:
+        global _USER_TAGS
+        if _USER_TAGS is not None:
+            return _USER_TAGS
+        path = AssetService._user_tags_path()
+        loaded: dict[str, list[str]] = {}
+        if os.path.isfile(path):
+            try:
+                with open(path, "r", encoding="utf-8") as f:
+                    data = json.load(f)
+                if isinstance(data, dict):
+                    for key, val in data.items():
+                        if isinstance(val, (list, str)):
+                            norm = AssetService.normalize_tags(val)
+                            if norm:
+                                loaded[str(key)] = norm
+            except (OSError, ValueError) as exc:
+                _LOG.warn("Failed to load user_tags.json", exc)
+        _USER_TAGS = loaded
+        return _USER_TAGS
+
+    @staticmethod
+    def _save_user_tags(user_tags: dict[str, list[str]]) -> None:
+        path = AssetService._user_tags_path()
+        os.makedirs(os.path.dirname(path), exist_ok=True)
+        with open(path, "w", encoding="utf-8") as f:
+            json.dump(user_tags, f, indent=2, sort_keys=True)
+
+    @staticmethod
+    def get_user_tags_for_asset(asset_subdir: str, fragment: str) -> list[str]:
+        """Return custom user tags stored for the given asset."""
+        user_tags = AssetService._ensure_user_tags()
+        return list(user_tags.get(f"{asset_subdir}/{fragment}", ()))
+
+    @staticmethod
+    def set_user_tags_for_asset(asset_subdir: str, fragment: str, tags: list[str] | str) -> list[str]:
+        """Set and persist custom user tags for an asset, updating the cached asset list immediately."""
+        global _ALL_TAGS_CACHE
+        user_tags = AssetService._ensure_user_tags()
+        key = f"{asset_subdir}/{fragment}"
+        normalized = AssetService.normalize_tags(tags)
+        if normalized:
+            user_tags[key] = normalized
+        else:
+            user_tags.pop(key, None)
+        AssetService._save_user_tags(user_tags)
+
+        if asset_subdir in _ASSETS:
+            for item in _ASSETS[asset_subdir].values():
+                if item.get("fragment") == fragment:
+                    file_tags = item.get("file_tags", [])
+                    item["user_tags"] = list(normalized)
+                    item["tags"] = sorted(set(file_tags) | set(normalized))
+                    break
+
+        _ALL_TAGS_CACHE = None
+        return normalized
 
     @staticmethod
     def invalidate_alternative_materials_cache() -> None:

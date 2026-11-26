@@ -13,6 +13,7 @@ from .loadlibrarymaterial import MPFB_OT_Load_Library_Material_Operator
 from .loadlibrarypose import MPFB_OT_Load_Library_Pose_Operator
 from .loadlibraryink import MPFB_OT_Load_Library_Ink_Operator
 from .loadpack import MPFB_OT_Load_Pack_Operator
+from .editassettags import MPFB_OT_Edit_Asset_Tags_Operator
 from ...assetlibrary.operators.installtarget import MPFB_OT_Install_Target_Operator
 
 __all__ = [
@@ -25,5 +26,6 @@ __all__ = [
     "MPFB_OT_Load_Library_Ink_Operator",
     "MPFB_OT_Load_Library_Material_Operator",
     "MPFB_OT_Load_Pack_Operator",
+    "MPFB_OT_Edit_Asset_Tags_Operator",
     "MPFB_OT_Install_Target_Operator"
     ]
